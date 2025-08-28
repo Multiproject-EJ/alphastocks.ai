@@ -2,40 +2,156 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Alphastocks.ai — Superinvestor Insights</title>
+  <title>Alphastocks.ai — What the superinvestors did this week</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Newsletter-first: weekly summary of what real-money superinvestors did, plus a growing A–Z directory and strategy portfolios." />
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/styles.css" />
 </head>
 <body>
-  <header>
-    <h1>Alphastocks.ai</h1>
-    <p>AI-powered insights into how superinvestors really act.</p>
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="./"><span class="logo-dot"></span> Alphastocks.ai</a>
+      <nav>
+        <a href="./weekly/">Weekly</a>
+        <a href="./monthly/">Monthly</a>
+        <a href="./superinvestors/">Directory</a>
+        <a href="#pricing">Pricing</a>
+        <a href="./about.html">About</a>
+      </nav>
+    </div>
   </header>
 
   <main>
-    <section id="latest">
-      <h2>Latest Weekly Insight</h2>
-      <div class="card">
-        <p><strong>Tweet-size summary:</strong> Placeholder text.</p>
-        <p><strong>Analysis:</strong> This is where your expanded 1–2 paragraph analysis goes each week.</p>
+    <!-- HERO -->
+    <section class="hero">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <h1>What the superinvestors did this week</h1>
+          <p class="sub">A clean weekly email that tracks real-money investors (Buffett / Druckenmiller–style operators), with a longer analysis for the “why”.</p>
+          <div class="cta-row">
+            <a class="btn" href="#signup">Get the free newsletter</a>
+            <a class="btn ghost" href="./weekly/">See latest insight</a>
+          </div>
+          <p class="small-dim">Educational only. Not investment advice.</p>
+        </div>
+        <div class="hero-card" id="signup">
+          <h3>Subscribe free</h3>
+          <!-- Replace with your Substack or ConvertKit embed -->
+          <div class="embed-placeholder">[Newsletter signup form]</div>
+          <ul class="mini-points">
+            <li>Short “tweet” + 1–2 paragraph analysis</li>
+            <li>Monthly roll-up</li>
+            <li>Occasional “Urgent” alerts if rules fire</li>
+          </ul>
+        </div>
       </div>
     </section>
 
-    <section id="newsletter">
-      <h2>Subscribe to the Newsletter</h2>
-      <!-- Replace with your Substack or ConvertKit embed -->
-      <p>[Newsletter signup form placeholder]</p>
+    <!-- THIS WEEK -->
+    <section class="section">
+      <div class="container">
+        <h2>This week’s highlights</h2>
+        <div class="cards three">
+          <article class="card">
+            <p class="eyebrow">Tweet-size</p>
+            <h3>[TICKER]: One-line takeaway</h3>
+            <p>Expanded 1–2 paragraph note. Why it matters, what changed, and how the superinvestor behaved (add/trim/new).</p>
+            <a class="more" href="./weekly/">Read in Weekly</a>
+          </article>
+          <article class="card">
+            <p class="eyebrow">Tweet-size</p>
+            <h3>[TICKER]: One-line takeaway</h3>
+            <p>Short context + any valuation/momentum angle that triggered your “Urgent” rules.</p>
+            <a class="more" href="./weekly/">Read in Weekly</a>
+          </article>
+          <article class="card">
+            <p class="eyebrow">Tweet-size</p>
+            <h3>[TICKER]: One-line takeaway</h3>
+            <p>Which strategy bucket it maps to (Quality, Deep Value, Specials, Macro/Momo).</p>
+            <a class="more" href="./weekly/">Read in Weekly</a>
+          </article>
+        </div>
+      </div>
     </section>
 
-    <section id="twitter">
-      <h2>Follow us on Twitter</h2>
-      <!-- Replace with your Twitter embed -->
-      <p>[Twitter feed embed placeholder]</p>
+    <!-- DIRECTORY PREVIEW -->
+    <section class="section alt">
+      <div class="container">
+        <h2>Superinvestor Directory (A–Z)</h2>
+        <p class="sub">Newsletter-first, growing into a clean database with links to 13F filings, letters, interviews, and feeds.</p>
+
+        <div class="dir-preview">
+          <input id="dir-search" type="search" placeholder="Search investors…" />
+          <div class="cards three" id="dir-cards">
+            <article class="card dir" data-name="Warren Buffett">
+              <h3>Warren Buffett</h3>
+              <p>Berkshire Hathaway</p>
+              <p><a class="more" href="https://www.sec.gov/edgar/browse/?CIK=0001067983" target="_blank">13F</a> · <a class="more" href="https://www.berkshirehathaway.com/letters/letters.html" target="_blank">Letters</a></p>
+            </article>
+            <article class="card dir" data-name="Stanley Druckenmiller">
+              <h3>Stanley Druckenmiller</h3>
+              <p>Duquesne</p>
+              <p><a class="more" href="https://www.sec.gov/edgar/search/#/q=Duquesne" target="_blank">13F</a></p>
+            </article>
+            <article class="card dir" data-name="Howard Marks">
+              <h3>Howard Marks</h3>
+              <p>Oaktree</p>
+              <p><a class="more" href="https://www.oaktreecapital.com/insights" target="_blank">Memos</a></p>
+            </article>
+          </div>
+          <div class="cta-row"><a class="btn" href="./superinvestors/">View full A–Z</a></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STRATEGY -->
+    <section id="strategy" class="section">
+      <div class="container">
+        <h2>Our Strategy — Signals → Alerts → Portfolios → Reports</h2>
+        <p class="sub">Ingest news & filings, unify to a simple dataset, trigger “Urgent” price rules, tag positions to strategy portfolios, and publish report cards.</p>
+        <div class="cards four">
+          <article class="card"><h3>Ingest</h3><p>News feed, A–Z sweep, scheduled rechecks.</p></article>
+          <article class="card"><h3>Unify & Score</h3><p>Ticker, investor, signal, thesis, price, confidence.</p></article>
+          <article class="card"><h3>Alerts</h3><p>Rules fire → “Urgent” weekly digest.</p></article>
+          <article class="card"><h3>Portfolios</h3><p>Quality • Deep Value • Specials • Macro/Momo + AI sizing.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <!-- PRICING -->
+    <section id="pricing" class="section alt">
+      <div class="container">
+        <h2>Pricing</h2>
+        <div class="price-grid">
+          <article class="price-card">
+            <h3>Free</h3><p class="price">$0</p>
+            <ul><li>Weekly recap (short)</li><li>Monthly roll-up</li></ul>
+            <a class="btn ghost" href="#signup">Join free</a>
+          </article>
+          <article class="price-card">
+            <h3>Plus</h3><p class="price">$15/mo <span class="muted">or $120/yr</span></p>
+            <ul><li>Full weekly + monthly</li><li>Alert summaries</li></ul>
+            <a class="btn" href="#">Upgrade</a>
+          </article>
+          <article class="price-card highlight">
+            <div class="ribbon">Pro</div>
+            <h3>Pro — Annual</h3><p class="price">$550/yr</p>
+            <ul><li>Model portfolios & AI sizing</li><li>Urgent weekly digest</li><li>Report Cards</li></ul>
+            <a class="btn" href="#">Go Pro</a>
+          </article>
+        </div>
+      </div>
     </section>
   </main>
 
-  <footer>
-    <p>© 2025 Alphastocks.ai — Educational use only. Not investment advice.</p>
+  <footer class="site-footer">
+    <div class="container">
+      <p>© 2025 Alphastocks.ai — Educational use only. Not investment advice.</p>
+    </div>
   </footer>
+
+  <script src="assets/main.js"></script>
 </body>
 </html>
