@@ -1,155 +1,175 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Alphastocks.ai — What the superinvestors did this week</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Newsletter-first: weekly summary of what real-money superinvestors did, plus a growing A–Z directory and strategy portfolios." />
-  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <title>StockAlpha — Journal your trades. Compound your edge.</title>
+  <meta name="description" content="A pro-grade investment journal in Google Sheets with app-like dialogs, analytics, and reviews. Own your data and build your edge." />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/styles.css" />
+  <link rel="icon" href="assets/favicon.png">
+  <!-- Optional: Plausible -->
+  <!-- <script defer data-domain="alphastocks.ai" src="https://plausible.io/js/script.js"></script> -->
 </head>
+
 <body>
-  <header class="site-header">
-    <div class="container nav">
-      <a class="brand" href="./"><span class="logo-dot"></span> Alphastocks.ai</a>
-      <nav>
-        <a href="./weekly/">Weekly</a>
-        <a href="./monthly/">Monthly</a>
-        <a href="./superinvestors/">Directory</a>
-        <a href="#pricing">Pricing</a>
-        <a href="./about.html">About</a>
-      </nav>
-    </div>
+  <!-- NAV -->
+  <header class="nav">
+    <a class="brand" href="#top">StockAlpha<span class="dot">.</span>ai</a>
+    <nav id="navLinks" class="links">
+      <a href="#features">Features</a>
+      <a href="#how">How it works</a>
+      <a href="#demo">Demo</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#faq">FAQ</a>
+      <a class="btn btn-buy" href="#pricing">Buy</a>
+    </nav>
+    <button class="hamburger" aria-label="Open menu" onclick="toggleMenu()">
+      <span></span><span></span><span></span>
+    </button>
   </header>
 
-  <main>
-    <!-- HERO -->
-    <section class="hero">
-      <div class="container hero-grid">
-        <div class="hero-copy">
-          <h1>What the superinvestors did this week</h1>
-          <p class="sub">A clean weekly email that tracks real-money investors (Buffett / Druckenmiller–style operators), with a longer analysis for the “why”.</p>
-          <div class="cta-row">
-            <a class="btn" href="#signup">Get the free newsletter</a>
-            <a class="btn ghost" href="./weekly/">See latest insight</a>
-          </div>
-          <p class="small-dim">Educational only. Not investment advice.</p>
-        </div>
-        <div class="hero-card" id="signup">
-          <h3>Subscribe free</h3>
-          <!-- Replace with your Substack or ConvertKit embed -->
-          <div class="embed-placeholder">[Newsletter signup form]</div>
-          <ul class="mini-points">
-            <li>Short “tweet” + 1–2 paragraph analysis</li>
-            <li>Monthly roll-up</li>
-            <li>Occasional “Urgent” alerts if rules fire</li>
-          </ul>
-        </div>
+  <!-- HERO -->
+  <main id="top" class="hero">
+    <div class="hero-text">
+      <h1>Journal every trade. <br class="hide-sm">Learn faster.</h1>
+      <p>A pro-grade investment journal in Google Sheets with app-like dialogs. 
+         Own your data, import broker CSVs, and get analytics that improve decisions.</p>
+      <div class="cta">
+        <a class="btn btn-primary" href="#pricing">Get the Spreadsheet</a>
+        <a class="btn btn-ghost" href="#demo">Watch 90-sec demo</a>
       </div>
-    </section>
-
-    <!-- THIS WEEK -->
-    <section class="section">
-      <div class="container">
-        <h2>This week’s highlights</h2>
-        <div class="cards three">
-          <article class="card">
-            <p class="eyebrow">Tweet-size</p>
-            <h3>[TICKER]: One-line takeaway</h3>
-            <p>Expanded 1–2 paragraph note. Why it matters, what changed, and how the superinvestor behaved (add/trim/new).</p>
-            <a class="more" href="./weekly/">Read in Weekly</a>
-          </article>
-          <article class="card">
-            <p class="eyebrow">Tweet-size</p>
-            <h3>[TICKER]: One-line takeaway</h3>
-            <p>Short context + any valuation/momentum angle that triggered your “Urgent” rules.</p>
-            <a class="more" href="./weekly/">Read in Weekly</a>
-          </article>
-          <article class="card">
-            <p class="eyebrow">Tweet-size</p>
-            <h3>[TICKER]: One-line takeaway</h3>
-            <p>Which strategy bucket it maps to (Quality, Deep Value, Specials, Macro/Momo).</p>
-            <a class="more" href="./weekly/">Read in Weekly</a>
-          </article>
-        </div>
+      <div class="trust">
+        <span>Privacy-first</span><span>One-time purchase</span><span>100% Google Sheets</span>
       </div>
-    </section>
-
-    <!-- DIRECTORY PREVIEW -->
-    <section class="section alt">
-      <div class="container">
-        <h2>Superinvestor Directory (A–Z)</h2>
-        <p class="sub">Newsletter-first, growing into a clean database with links to 13F filings, letters, interviews, and feeds.</p>
-
-        <div class="dir-preview">
-          <input id="dir-search" type="search" placeholder="Search investors…" />
-          <div class="cards three" id="dir-cards">
-            <article class="card dir" data-name="Warren Buffett">
-              <h3>Warren Buffett</h3>
-              <p>Berkshire Hathaway</p>
-              <p><a class="more" href="https://www.sec.gov/edgar/browse/?CIK=0001067983" target="_blank">13F</a> · <a class="more" href="https://www.berkshirehathaway.com/letters/letters.html" target="_blank">Letters</a></p>
-            </article>
-            <article class="card dir" data-name="Stanley Druckenmiller">
-              <h3>Stanley Druckenmiller</h3>
-              <p>Duquesne</p>
-              <p><a class="more" href="https://www.sec.gov/edgar/search/#/q=Duquesne" target="_blank">13F</a></p>
-            </article>
-            <article class="card dir" data-name="Howard Marks">
-              <h3>Howard Marks</h3>
-              <p>Oaktree</p>
-              <p><a class="more" href="https://www.oaktreecapital.com/insights" target="_blank">Memos</a></p>
-            </article>
-          </div>
-          <div class="cta-row"><a class="btn" href="./superinvestors/">View full A–Z</a></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- STRATEGY -->
-    <section id="strategy" class="section">
-      <div class="container">
-        <h2>Our Strategy — Signals → Alerts → Portfolios → Reports</h2>
-        <p class="sub">Ingest news & filings, unify to a simple dataset, trigger “Urgent” price rules, tag positions to strategy portfolios, and publish report cards.</p>
-        <div class="cards four">
-          <article class="card"><h3>Ingest</h3><p>News feed, A–Z sweep, scheduled rechecks.</p></article>
-          <article class="card"><h3>Unify & Score</h3><p>Ticker, investor, signal, thesis, price, confidence.</p></article>
-          <article class="card"><h3>Alerts</h3><p>Rules fire → “Urgent” weekly digest.</p></article>
-          <article class="card"><h3>Portfolios</h3><p>Quality • Deep Value • Specials • Macro/Momo + AI sizing.</p></article>
-        </div>
-      </div>
-    </section>
-
-    <!-- PRICING -->
-    <section id="pricing" class="section alt">
-      <div class="container">
-        <h2>Pricing</h2>
-        <div class="price-grid">
-          <article class="price-card">
-            <h3>Free</h3><p class="price">$0</p>
-            <ul><li>Weekly recap (short)</li><li>Monthly roll-up</li></ul>
-            <a class="btn ghost" href="#signup">Join free</a>
-          </article>
-          <article class="price-card">
-            <h3>Plus</h3><p class="price">$15/mo <span class="muted">or $120/yr</span></p>
-            <ul><li>Full weekly + monthly</li><li>Alert summaries</li></ul>
-            <a class="btn" href="#">Upgrade</a>
-          </article>
-          <article class="price-card highlight">
-            <div class="ribbon">Pro</div>
-            <h3>Pro — Annual</h3><p class="price">$550/yr</p>
-            <ul><li>Model portfolios & AI sizing</li><li>Urgent weekly digest</li><li>Report Cards</li></ul>
-            <a class="btn" href="#">Go Pro</a>
-          </article>
-        </div>
-      </div>
-    </section>
+    </div>
+    <div class="hero-media">
+      <!-- Replace with your screenshot/GIF -->
+      <img src="assets/hero-dashboard.png" alt="StockAlpha dashboard preview" />
+    </div>
   </main>
 
-  <footer class="site-footer">
-    <div class="container">
-      <p>© 2025 Alphastocks.ai — Educational use only. Not investment advice.</p>
+  <!-- OUTCOMES -->
+  <section class="outcomes">
+    <div class="card">
+      <h3>Better decisions</h3>
+      <p>Pre-trade checklists, clear thesis &amp; invalidate-if, and rules you’ll stick to.</p>
     </div>
+    <div class="card">
+      <h3>Fewer mistakes</h3>
+      <p>Post-mortems, reminders, and a bias coach that flags patterns early.</p>
+    </div>
+    <div class="card">
+      <h3>Measurable edge</h3>
+      <p>Expectancy, tag EV, timing vs 52-week range, calendar heatmap &amp; streaks.</p>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section id="features" class="feature-grid">
+    <article class="feature">
+      <div class="f-media"><img src="assets/feature-actions.png" alt="Actions menu" /></div>
+      <div class="f-copy">
+        <h2>Take action</h2>
+        <p>One-click actions add structure: record decisions, run checklists, create contracts, make predictions, capture feelings, and set reminders.</p>
+      </div>
+    </article>
+
+    <article class="feature reverse">
+      <div class="f-media"><img src="assets/feature-analytics.png" alt="Analytics preview" /></div>
+      <div class="f-copy">
+        <h2>Analytics</h2>
+        <p>Dashboard with heatmap, activity, top ideas, tag EV, and timing vs 52-week range. Export weekly/monthly reviews to PDF.</p>
+      </div>
+    </article>
+
+    <article class="feature">
+      <div class="f-media"><img src="assets/feature-decisions.png" alt="Decision screen" /></div>
+      <div class="f-copy">
+        <h2>Track decisions</h2>
+        <p>Buy, sell, pass, trim and add — with confidence, tags, and follow-ups. Mirror to a normalized log for clean analytics.</p>
+      </div>
+    </article>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section id="how" class="how">
+    <h2>How it works</h2>
+    <ol class="steps">
+      <li><span>1</span> Copy the Google Sheet (you own the file).</li>
+      <li><span>2</span> Run the Setup wizard to load tags, checklists, and demo data.</li>
+      <li><span>3</span> Use the big dialogs before/after trades and import broker CSVs.</li>
+    </ol>
+  </section>
+
+  <!-- DEMO -->
+  <section id="demo" class="demo">
+    <div class="demo-media">
+      <!-- Replace with your YouTube/Loom link -->
+      <iframe class="video" src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" title="StockAlpha demo" frameborder="0" allowfullscreen></iframe>
+    </div>
+    <ul class="demo-bullets">
+      <li>Quick-capture pre-trade dialog</li>
+      <li>CSV importer with 5-row preview & mapping</li>
+      <li>Dashboard with calendar heatmap & tag EV</li>
+    </ul>
+  </section>
+
+  <!-- PRICING -->
+  <section id="pricing" class="pricing">
+    <h2>Pricing</h2>
+    <div class="plans">
+      <div class="plan">
+        <h3>Pro</h3>
+        <p class="price">$59 <span>one-time</span></p>
+        <ul>
+          <li>Full spreadsheet + dialogs</li>
+          <li>CSV importer & dashboard</li>
+          <li>Weekly/Monthly reviews</li>
+        </ul>
+        <a class="btn btn-primary" href="https://buy.stripe.com/your_payment_link" target="_blank" rel="noopener">Buy Pro</a>
+      </div>
+      <div class="plan highlight">
+        <h3>Lifetime</h3>
+        <p class="price">$99 <span>all updates</span></p>
+        <ul>
+          <li>Everything in Pro</li>
+          <li>Future features & presets</li>
+          <li>Priority help</li>
+        </ul>
+        <a class="btn btn-primary" href="https://buy.stripe.com/your_payment_link_lifetime" target="_blank" rel="noopener">Buy Lifetime</a>
+      </div>
+    </div>
+    <p class="refund">14-day refund. One license per user. No subscription.</p>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq" class="faq">
+    <h2>FAQ</h2>
+    <details open>
+      <summary>Will it work with my broker CSV?</summary>
+      <p>Yes. Map columns once in the importer; we save your mapping for reuse.</p>
+    </details>
+    <details>
+      <summary>Do I need to code?</summary>
+      <p>No. It’s a Google Sheet with polished dialogs. You can customize later if you want.</p>
+    </details>
+    <details>
+      <summary>Where is my data stored?</summary>
+      <p>In your own Google Drive. You fully control access and backups.</p>
+    </details>
+    <details>
+      <summary>Windows/Mac?</summary>
+      <p>Any modern browser. It’s Google Sheets.</p>
+    </details>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <p>© <span id="y"></span> StockAlpha.ai — All rights reserved.</p>
+    <a href="about.html">About</a>
+    <a href="faq.html">More FAQs</a>
   </footer>
 
   <script src="assets/main.js"></script>
