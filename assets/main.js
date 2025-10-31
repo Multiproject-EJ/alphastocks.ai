@@ -5,8 +5,12 @@ const loginForm = document.getElementById('loginForm');
 const loginEmail = document.getElementById('loginEmail');
 const loginPassword = document.getElementById('loginPassword');
 const loginError = document.getElementById('loginError');
-const landingSection = document.getElementById('landing');
-const appSection = document.getElementById('app');
+const signupName = document.getElementById('signupName');
+const authOverlay = document.getElementById('authOverlay');
+const authHeading = document.getElementById('authHeading');
+const authSubtext = document.getElementById('authSubtext');
+const authSubmit = document.getElementById('authSubmit');
+const authModeButtons = document.querySelectorAll('[data-auth-mode]');
 const appUser = document.getElementById('appUser');
 const userGreeting = document.getElementById('userGreeting');
 const logoutButton = document.getElementById('logout');
@@ -99,27 +103,59 @@ const resetWorkspaceState = () => {
   });
 };
 
-const showApp = (email) => {
-  landingSection?.classList.add('hidden');
-  landingSection?.setAttribute('aria-hidden', 'true');
-  appSection?.classList.remove('hidden');
-  appSection?.setAttribute('aria-hidden', 'false');
+const setAuthMode = (mode) => {
+  if (!loginForm) return;
+  loginForm.setAttribute('data-mode', mode);
+  authModeButtons.forEach((button) => {
+    const isActive = (button.dataset.authMode || 'signin') === mode;
+    button.classList.toggle('active', isActive);
+    button.setAttribute('aria-selected', String(isActive));
+  });
+  if (authHeading) {
+    authHeading.textContent = mode === 'signup' ? 'Create your workspace access' : 'Welcome back';
+  }
+  if (authSubtext) {
+    authSubtext.textContent = mode === 'signup'
+      ? 'Sign up with an email to unlock the live workspace preview.'
+      : 'Use the demo credentials or your email to step inside the workspace.';
+  }
+  if (authSubmit) {
+    authSubmit.textContent = mode === 'signup' ? 'Create account' : 'Enter workspace';
+  }
+  if (loginError) {
+    loginError.textContent = '';
+  }
+};
+
+authModeButtons.forEach((button) => {
+  button.addEventListener('click', () => {
+    setAuthMode(button.dataset.authMode || 'signin');
+  });
+});
+
+const showApp = (email, name) => {
+  body.classList.remove('auth-required');
+  authOverlay?.setAttribute('aria-hidden', 'true');
   if (appUser) {
     appUser.textContent = email;
   }
   if (userGreeting) {
-    const name = email.split('@')[0] || 'trader';
-    userGreeting.textContent = `Welcome, ${name}.`;
+    const fallback = email.split('@')[0] || 'trader';
+    const displayName = name || fallback;
+    userGreeting.textContent = `Welcome, ${displayName}.`;
   }
   resetWorkspaceState();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
-const showLanding = () => {
-  landingSection?.classList.remove('hidden');
-  landingSection?.setAttribute('aria-hidden', 'false');
-  appSection?.classList.add('hidden');
-  appSection?.setAttribute('aria-hidden', 'true');
+const showOverlay = () => {
+  body.classList.add('auth-required');
+  authOverlay?.setAttribute('aria-hidden', 'false');
+  setAuthMode('signin');
+  loginForm?.reset();
+  window.setTimeout(() => {
+    loginEmail?.focus();
+  }, 0);
 };
 
 if (loginForm) {
@@ -127,6 +163,8 @@ if (loginForm) {
     event.preventDefault();
     const email = loginEmail?.value.trim();
     const password = loginPassword?.value.trim();
+    const mode = loginForm.getAttribute('data-mode') || 'signin';
+    const name = signupName?.value.trim();
 
     if (!email || !password) {
       if (loginError) {
@@ -139,17 +177,22 @@ if (loginForm) {
       loginError.textContent = '';
     }
 
-    showApp(email.toLowerCase());
+    showApp(email.toLowerCase(), mode === 'signup' ? name : undefined);
     loginForm.reset();
   });
 }
 
 if (logoutButton) {
   logoutButton.addEventListener('click', () => {
-    showLanding();
+    showOverlay();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 }
 
 resetWorkspaceState();
 activateSubsection('portfolio-results');
+if (body.classList.contains('auth-required')) {
+  showOverlay();
+} else {
+  setAuthMode(loginForm?.getAttribute('data-mode') || 'signin');
+}

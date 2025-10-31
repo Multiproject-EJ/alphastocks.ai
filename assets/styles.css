@@ -17,6 +17,10 @@ body {
   transition: background var(--transition-fast), color var(--transition-fast);
 }
 
+body.auth-required {
+  overflow: hidden;
+}
+
 body[data-theme="dark"] {
   --bg: #05070c;
   --surface: #0d111a;
@@ -71,97 +75,6 @@ a:hover {
 
 .hidden {
   display: none !important;
-}
-
-.landing-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1.2rem clamp(1.5rem, 3vw, 3rem);
-  position: sticky;
-  top: 0;
-  backdrop-filter: blur(18px);
-  background: rgba(5, 7, 12, 0.75);
-  border-bottom: 1px solid var(--border);
-  z-index: 10;
-}
-
-body[data-theme="light"] .landing-header {
-  background: rgba(245, 247, 251, 0.8);
-}
-
-.brand {
-  font-weight: 700;
-  font-size: 1.2rem;
-  letter-spacing: 0.4px;
-}
-
-.brand .accent {
-  color: var(--accent);
-}
-
-.header-links {
-  display: flex;
-  gap: 1.6rem;
-  font-size: 0.95rem;
-}
-
-main {
-  padding: clamp(2rem, 5vw, 4rem) clamp(1.5rem, 6vw, 5rem);
-}
-
-.landing {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: clamp(2rem, 4vw, 4rem);
-  align-items: start;
-  padding-bottom: clamp(3rem, 5vw, 5rem);
-}
-
-.landing-copy h1 {
-  font-size: clamp(2.3rem, 5vw, 3.4rem);
-  line-height: 1.12;
-}
-
-.landing-copy p {
-  margin-top: 1rem;
-  max-width: 38ch;
-}
-
-.landing-highlights {
-  margin: 2rem 0 0;
-  padding: 0;
-  list-style: none;
-  display: grid;
-  gap: 0.75rem;
-  color: var(--text-secondary);
-}
-
-.landing-highlights li::before {
-  content: '•';
-  color: var(--accent);
-  margin-right: 0.6rem;
-}
-
-.login-card {
-  background: var(--surface);
-  padding: 2rem;
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-soft);
-  border: 1px solid var(--border);
-  display: grid;
-  gap: 1.2rem;
-  align-self: stretch;
-  max-width: 420px;
-}
-
-.login-card h2 {
-  font-size: 1.4rem;
-}
-
-.login-subtext {
-  color: var(--text-muted);
-  font-size: 0.9rem;
 }
 
 .field {
@@ -250,10 +163,125 @@ input:focus, select:focus, textarea:focus {
   font-size: 0.85rem;
 }
 
-.app {
-  display: grid;
+.app-stage {
+  min-height: 100vh;
+  padding: clamp(1.8rem, 4vw, 3rem);
+  display: flex;
+  flex-direction: column;
   gap: 2rem;
 }
+
+.app {
+  position: relative;
+  display: grid;
+  gap: 2rem;
+  transition: filter var(--transition-fast), transform var(--transition-fast), opacity var(--transition-fast);
+}
+
+body.auth-required .app {
+  transform: scale(0.995);
+  opacity: 0.82;
+  pointer-events: none;
+}
+
+.glass-backdrop,
+.auth-overlay {
+  position: fixed;
+  inset: 0;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--transition-fast), visibility var(--transition-fast);
+}
+
+.glass-backdrop {
+  z-index: 20;
+  background: rgba(5, 7, 12, 0.55);
+  backdrop-filter: blur(16px);
+  pointer-events: none;
+}
+
+.auth-overlay {
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  padding: clamp(1.5rem, 5vw, 3rem);
+}
+
+body.auth-required .glass-backdrop,
+body.auth-required .auth-overlay {
+  opacity: 1;
+  visibility: visible;
+}
+
+.overlay-card {
+  width: min(420px, 100%);
+  display: grid;
+  gap: 1.6rem;
+  padding: clamp(2rem, 5vw, 2.8rem);
+  border-radius: var(--radius-lg);
+  background: rgba(13, 17, 26, 0.78);
+  border: 1px solid var(--border);
+  box-shadow: 0 28px 60px rgba(5, 7, 12, 0.45);
+  backdrop-filter: blur(26px);
+}
+
+body[data-theme="light"] .overlay-card {
+  background: rgba(245, 247, 251, 0.86);
+}
+
+.overlay-brand {
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  display: flex;
+  gap: 0.2rem;
+  align-items: center;
+}
+
+.overlay-copy h1 {
+  font-size: clamp(1.8rem, 4vw, 2.4rem);
+}
+
+.overlay-copy p {
+  margin-top: 0.6rem;
+}
+
+.auth-switch {
+  display: grid;
+  grid-auto-flow: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem;
+  border-radius: var(--radius-md);
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+}
+
+.auth-switch-btn {
+  background: transparent;
+  border: none;
+  padding: 0.55rem 0.95rem;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.auth-switch-btn.active {
+  background: var(--surface);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-subtle);
+}
+
+.auth-form {
+  display: grid;
+  gap: 1rem;
+}
+
+#loginForm[data-mode="signin"] [data-signup-field] {
+  display: none;
+}
+
 
 .app-topbar {
   background: var(--surface);
@@ -555,8 +583,8 @@ input:focus, select:focus, textarea:focus {
 }
 
 @media (max-width: 992px) {
-  main {
-    padding: clamp(1.5rem, 5vw, 3rem) clamp(1.1rem, 5vw, 2.5rem);
+  .app-stage {
+    padding: clamp(1.4rem, 5vw, 2.4rem);
   }
 
   .app-shell {
@@ -589,15 +617,14 @@ input:focus, select:focus, textarea:focus {
 }
 
 @media (max-width: 640px) {
-  .landing-header {
-    flex-direction: column;
-    gap: 0.75rem;
-    align-items: flex-start;
+  .overlay-card {
+    padding: 1.8rem;
+    gap: 1.2rem;
   }
 
-  .header-links {
-    gap: 1rem;
-    font-size: 0.9rem;
+  .auth-switch {
+    grid-auto-flow: row;
+    justify-items: stretch;
   }
 
   .app-topbar {
