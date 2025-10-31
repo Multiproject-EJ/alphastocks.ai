@@ -57,7 +57,8 @@ Legend: ☐ not started • 🕒 in progress • ☑ done
 
 ### Foundation & Tooling
 - ☑ Evaluate whether to stay on vanilla JS or migrate to a lightweight framework (e.g. Svelte, Preact). **Notes:** [ADR 0001](docs/adr/0001-framework-choice.md) recommends progressively migrating the workspace to a Vite-powered Preact app (Node 20+) while leaving marketing pages static; enables component reuse, PWA tooling, and incremental adoption.
-- ☐ Set up build tooling (Vite or similar) if framework adoption is chosen; otherwise, structure ES module bundles for maintainability.
+- ☑ Set up build tooling (Vite or similar) if framework adoption is chosen; otherwise, structure ES module bundles for maintainability.
+  - 2025-10-31: Added a Vite-powered Preact workspace scaffold under `workspace/` with shared styles imported from the legacy prototype. Run `npm install` (requires outbound registry access) followed by `npm run dev` or `npm run build`.
 - ☐ Implement PWA baseline: manifest, service worker (offline shell + caching strategy), install prompts.
 - ☐ Create environment configuration loader that reads Supabase keys from `.env` and falls back to demo data.
 
@@ -105,4 +106,10 @@ Legend: ☐ not started • 🕒 in progress • ☑ done
 - Maintain consistent design language with existing styles; document new utility classes or components in `assets/styles.css` comments.
 - When adding new files/directories, update this README and include path references in the relevant task notes.
 
-_Last updated: 2025-11-01T18:00Z_
+### Tooling Setup
+- Install Node.js 20+.
+- From the repo root, run `npm install` to pull Preact + Vite dependencies (generate `node_modules/` and `package-lock.json`). If installation fails in restricted environments, configure npm for an allowed registry and regenerate the lockfile before committing.
+- Development server: `npm run dev` (serves the new workspace app from `workspace/`).
+- Production build: `npm run build` outputs to `dist/`. Preview with `npm run preview`.
+
+_Last updated: 2025-10-31T19:27Z_
