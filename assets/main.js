@@ -18,6 +18,10 @@ const menuItems = document.querySelectorAll('.menu-item');
 const detailViews = document.querySelectorAll('.detail-view');
 const tabs = document.querySelectorAll('.tab');
 const submenuItems = document.querySelectorAll('.submenu-item');
+const constructionOverlay = document.getElementById('constructionOverlay');
+const constructionContinue = document.getElementById('constructionContinue');
+
+const CONSTRUCTION_STORAGE_KEY = 'alphaConstructionDismissed';
 
 if (yearEl) {
   yearEl.textContent = new Date().getFullYear();
@@ -127,6 +131,17 @@ const setAuthMode = (mode) => {
   }
 };
 
+const initializeAuthState = () => {
+  if (body.classList.contains('construction-gate')) {
+    return;
+  }
+  if (body.classList.contains('auth-required')) {
+    showOverlay();
+  } else {
+    setAuthMode(loginForm?.getAttribute('data-mode') || 'signin');
+  }
+};
+
 authModeButtons.forEach((button) => {
   button.addEventListener('click', () => {
     setAuthMode(button.dataset.authMode || 'signin');
@@ -156,6 +171,20 @@ const showOverlay = () => {
   window.setTimeout(() => {
     loginEmail?.focus();
   }, 0);
+};
+
+const showConstructionGate = () => {
+  body.classList.add('construction-gate');
+  constructionOverlay?.setAttribute('aria-hidden', 'false');
+  authOverlay?.setAttribute('aria-hidden', 'true');
+  window.setTimeout(() => {
+    constructionContinue?.focus();
+  }, 0);
+};
+
+const hideConstructionGate = () => {
+  body.classList.remove('construction-gate');
+  constructionOverlay?.setAttribute('aria-hidden', 'true');
 };
 
 if (loginForm) {
@@ -191,8 +220,19 @@ if (logoutButton) {
 
 resetWorkspaceState();
 activateSubsection('portfolio-results');
-if (body.classList.contains('auth-required')) {
-  showOverlay();
+
+const hasDismissedConstruction = sessionStorage.getItem(CONSTRUCTION_STORAGE_KEY) === 'true';
+
+if (!hasDismissedConstruction) {
+  showConstructionGate();
 } else {
-  setAuthMode(loginForm?.getAttribute('data-mode') || 'signin');
+  hideConstructionGate();
+  initializeAuthState();
 }
+
+constructionContinue?.addEventListener('click', (event) => {
+  event.preventDefault();
+  sessionStorage.setItem(CONSTRUCTION_STORAGE_KEY, 'true');
+  hideConstructionGate();
+  initializeAuthState();
+});

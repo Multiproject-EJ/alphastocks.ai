@@ -184,6 +184,8 @@ body.auth-required .app {
   pointer-events: none;
 }
 
+.construction-backdrop,
+.construction-overlay,
 .glass-backdrop,
 .auth-overlay {
   position: fixed;
@@ -191,6 +193,20 @@ body.auth-required .app {
   opacity: 0;
   visibility: hidden;
   transition: opacity var(--transition-fast), visibility var(--transition-fast);
+}
+
+.construction-backdrop {
+  z-index: 40;
+  background: rgba(5, 7, 12, 0.68);
+  backdrop-filter: blur(22px);
+  pointer-events: none;
+}
+
+.construction-overlay {
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: clamp(1.5rem, 6vw, 3.5rem);
 }
 
 .glass-backdrop {
@@ -209,6 +225,79 @@ body.auth-required .app {
 
 body.auth-required .glass-backdrop,
 body.auth-required .auth-overlay {
+  opacity: 1;
+  visibility: visible;
+}
+
+.construction-card {
+  width: min(440px, 100%);
+  display: grid;
+  gap: 1.4rem;
+  padding: clamp(2rem, 6vw, 3rem);
+  border-radius: var(--radius-lg);
+  background: rgba(13, 17, 26, 0.75);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  box-shadow: 0 32px 80px rgba(5, 7, 12, 0.55);
+  text-align: center;
+  backdrop-filter: blur(28px);
+}
+
+body[data-theme="light"] .construction-card {
+  background: rgba(245, 247, 251, 0.9);
+  border-color: rgba(15, 23, 42, 0.12);
+  box-shadow: 0 32px 80px rgba(15, 23, 42, 0.18);
+}
+
+.construction-icon {
+  width: 88px;
+  height: 88px;
+  justify-self: center;
+  fill: var(--accent);
+  filter: drop-shadow(0 18px 30px rgba(56, 189, 248, 0.28));
+}
+
+body[data-theme="light"] .construction-icon {
+  filter: drop-shadow(0 18px 30px rgba(37, 99, 235, 0.35));
+}
+
+.construction-copy h1 {
+  font-size: clamp(1.7rem, 4vw, 2.3rem);
+}
+
+.construction-copy p {
+  color: var(--text-secondary);
+}
+
+.construction-continue {
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  opacity: 0.32;
+  display: inline-block;
+  transition: opacity var(--transition-fast), color var(--transition-fast);
+}
+
+.construction-continue:hover,
+.construction-continue:focus-visible {
+  opacity: 0.68;
+  color: var(--accent);
+}
+
+body.construction-gate .app {
+  filter: blur(2px);
+  opacity: 0.75;
+  pointer-events: none;
+}
+
+body.construction-gate .glass-backdrop,
+body.construction-gate .auth-overlay {
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+body.construction-gate .construction-backdrop,
+body.construction-gate .construction-overlay {
   opacity: 1;
   visibility: visible;
 }
