@@ -49,11 +49,14 @@ AlphaStocks.ai currently ships as a static HTML/CSS/JS prototype that previews t
 
 > Use these shapes for both Supabase migrations and demo JSON payloads to minimise switching friction.
 
+## Decision Log
+- [ADR 0001: Frontend Framework & Tooling Direction](docs/adr/0001-framework-choice.md)
+
 ## Roadmap & Task Board
 Legend: ☐ not started • 🕒 in progress • ☑ done
 
 ### Foundation & Tooling
-- ☐ Evaluate whether to stay on vanilla JS or migrate to a lightweight framework (e.g. Svelte, Preact). **Notes:** Assess PWA requirements, component reuse, learning curve.
+- ☑ Evaluate whether to stay on vanilla JS or migrate to a lightweight framework (e.g. Svelte, Preact). **Notes:** [ADR 0001](docs/adr/0001-framework-choice.md) recommends progressively migrating the workspace to a Vite-powered Preact app (Node 20+) while leaving marketing pages static; enables component reuse, PWA tooling, and incremental adoption.
 - ☐ Set up build tooling (Vite or similar) if framework adoption is chosen; otherwise, structure ES module bundles for maintainability.
 - ☐ Implement PWA baseline: manifest, service worker (offline shell + caching strategy), install prompts.
 - ☐ Create environment configuration loader that reads Supabase keys from `.env` and falls back to demo data.
@@ -102,4 +105,4 @@ Legend: ☐ not started • 🕒 in progress • ☑ done
 - Maintain consistent design language with existing styles; document new utility classes or components in `assets/styles.css` comments.
 - When adding new files/directories, update this README and include path references in the relevant task notes.
 
-_Last updated: 2025-10-31T18:12Z_
+_Last updated: 2025-11-01T18:00Z_
