@@ -10,44 +10,9 @@
   <link rel="stylesheet" href="assets/styles.css" />
   <link rel="icon" href="assets/favicon.png">
 </head>
-<body data-theme="dark">
-  <header class="landing-header">
-    <div class="brand">AlphaStocks<span class="accent">.ai</span></div>
-    <nav class="header-links">
-      <a href="#landing">Overview</a>
-      <a href="#app">Workspace</a>
-      <a href="#contact">Contact</a>
-    </nav>
-  </header>
-
-  <main>
-    <section id="landing" class="landing">
-      <div class="landing-copy">
-        <h1>Build your market edge.</h1>
-        <p>AlphaStocks brings trading workflows, journaling, and performance insights into a single interface. Log in below to explore the in-progress workspace.</p>
-        <ul class="landing-highlights">
-          <li>Secure investor-grade workspace</li>
-          <li>Workflow-first design with check-ins and dashboards</li>
-          <li>Dark and light modes built for long sessions</li>
-        </ul>
-      </div>
-      <form id="loginForm" class="login-card">
-        <h2>Demo login</h2>
-        <p class="login-subtext">We prefilled a demo account, or use any email to preview the application layout.</p>
-        <label class="field">
-          <span>Email</span>
-          <input id="loginEmail" type="email" placeholder="you@example.com" value="demo@alphastocks.ai" required />
-        </label>
-        <label class="field">
-          <span>Password</span>
-          <input id="loginPassword" type="password" placeholder="Enter anything" value="demo123" required />
-        </label>
-        <button type="submit" class="btn-primary">Log in</button>
-        <p id="loginError" class="form-error" aria-live="polite"></p>
-      </form>
-    </section>
-
-    <section id="app" class="app hidden" aria-hidden="true">
+<body data-theme="dark" class="auth-required">
+  <main class="app-stage">
+    <section id="app" class="app">
       <header class="app-topbar">
         <div class="workspace-title">
           <h1>AlphaStocks Workspace</h1>
@@ -227,11 +192,48 @@
         </div>
       </div>
     </section>
+    <footer class="landing-footer" id="contact">
+      <p>&copy; <span id="year"></span> AlphaStocks.ai. All rights reserved.</p>
+    </footer>
   </main>
 
-  <footer class="landing-footer" id="contact">
-    <p>&copy; <span id="year"></span> AlphaStocks.ai. All rights reserved.</p>
-  </footer>
+  <div id="glassBackdrop" class="glass-backdrop" aria-hidden="true"></div>
+
+  <div
+    id="authOverlay"
+    class="auth-overlay"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="authHeading"
+  >
+    <div class="overlay-card">
+      <div class="overlay-brand">AlphaStocks<span class="accent">.ai</span></div>
+      <div class="overlay-copy">
+        <h1 id="authHeading">Welcome back</h1>
+        <p id="authSubtext">Use the demo credentials or your email to step inside the workspace.</p>
+      </div>
+      <div class="auth-switch" role="tablist" aria-label="Authentication mode">
+        <button type="button" class="auth-switch-btn active" data-auth-mode="signin" aria-selected="true">Sign in</button>
+        <button type="button" class="auth-switch-btn" data-auth-mode="signup" aria-selected="false">Create account</button>
+      </div>
+      <form id="loginForm" class="auth-form" data-mode="signin">
+        <label class="field">
+          <span>Email</span>
+          <input id="loginEmail" type="email" placeholder="you@example.com" value="demo@alphastocks.ai" required />
+        </label>
+        <label class="field" data-signup-field>
+          <span>Full name</span>
+          <input id="signupName" type="text" placeholder="Your name" />
+        </label>
+        <label class="field">
+          <span>Password</span>
+          <input id="loginPassword" type="password" placeholder="Enter anything" value="demo123" required />
+        </label>
+        <button id="authSubmit" type="submit" class="btn-primary">Enter workspace</button>
+        <p id="loginError" class="form-error" aria-live="polite"></p>
+      </form>
+    </div>
+  </div>
 
   <script src="assets/main.js"></script>
 </body>
