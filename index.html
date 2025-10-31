@@ -3,173 +3,234 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>StockAlpha — Journal your trades. Compound your edge.</title>
-  <meta name="description" content="A pro-grade investment journal in Google Sheets with app-like dialogs, analytics, and reviews. Own your data and build your edge." />
+  <title>AlphaStocks.ai — Build your edge</title>
+  <meta name="description" content="AlphaStocks.ai landing page and product workspace demo." />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/styles.css" />
   <link rel="icon" href="assets/favicon.png">
-  <!-- Optional: Plausible -->
-  <!-- <script defer data-domain="alphastocks.ai" src="https://plausible.io/js/script.js"></script> -->
 </head>
-
-<body>
-  <!-- NAV -->
-  <header class="nav">
-    <a class="brand" href="#top">StockAlpha<span class="dot">.</span>ai</a>
-    <nav id="navLinks" class="links">
-      <a href="#features">Features</a>
-      <a href="#how">How it works</a>
-      <a href="#demo">Demo</a>
-      <a href="#pricing">Pricing</a>
-      <a href="#faq">FAQ</a>
-      <a class="btn btn-buy" href="#pricing">Buy</a>
+<body data-theme="dark">
+  <header class="landing-header">
+    <div class="brand">AlphaStocks<span class="accent">.ai</span></div>
+    <nav class="header-links">
+      <a href="#landing">Overview</a>
+      <a href="#app">Workspace</a>
+      <a href="#contact">Contact</a>
     </nav>
-    <button class="hamburger" aria-label="Open menu" onclick="toggleMenu()">
-      <span></span><span></span><span></span>
-    </button>
   </header>
 
-  <!-- HERO -->
-  <main id="top" class="hero">
-    <div class="hero-text">
-      <h1>Journal every trade. <br class="hide-sm">Learn faster.</h1>
-      <p>A pro-grade investment journal in Google Sheets with app-like dialogs. 
-         Own your data, import broker CSVs, and get analytics that improve decisions.</p>
-      <div class="cta">
-        <a class="btn btn-primary" href="#pricing">Get the Spreadsheet</a>
-        <a class="btn btn-ghost" href="#demo">Watch 90-sec demo</a>
+  <main>
+    <section id="landing" class="landing">
+      <div class="landing-copy">
+        <h1>Build your market edge.</h1>
+        <p>AlphaStocks brings trading workflows, journaling, and performance insights into a single interface. Log in below to explore the in-progress workspace.</p>
+        <ul class="landing-highlights">
+          <li>Secure investor-grade workspace</li>
+          <li>Workflow-first design with check-ins and dashboards</li>
+          <li>Dark and light modes built for long sessions</li>
+        </ul>
       </div>
-      <div class="trust">
-        <span>Privacy-first</span><span>One-time purchase</span><span>100% Google Sheets</span>
+      <form id="loginForm" class="login-card">
+        <h2>Demo login</h2>
+        <p class="login-subtext">Use any email to preview the application layout.</p>
+        <label class="field">
+          <span>Email</span>
+          <input id="loginEmail" type="email" placeholder="you@example.com" required />
+        </label>
+        <label class="field">
+          <span>Password</span>
+          <input id="loginPassword" type="password" placeholder="Enter anything" required />
+        </label>
+        <button type="submit" class="btn-primary">Log in</button>
+        <p id="loginError" class="form-error" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <section id="app" class="app hidden" aria-hidden="true">
+      <header class="app-topbar">
+        <div class="workspace-title">
+          <h1>AlphaStocks Workspace</h1>
+          <p id="userGreeting">Welcome back.</p>
+        </div>
+        <div class="topbar-actions">
+          <button id="themeToggle" type="button" class="btn-secondary" aria-pressed="false">Switch to light</button>
+          <div class="app-user" id="appUser">demo@alphastocks.ai</div>
+          <button id="logout" type="button" class="btn-secondary">Log out</button>
+        </div>
+      </header>
+
+      <div class="app-shell">
+        <nav class="app-menu" aria-label="Primary">
+          <button class="menu-item active" data-section="dashboard">
+            <span class="item-title">Today / Dashboard</span>
+            <span class="item-caption">Morning overview</span>
+          </button>
+          <button class="menu-item" data-section="checkin">
+            <span class="item-title">Check-In</span>
+            <span class="item-caption">Daily reflections</span>
+          </button>
+          <button class="menu-item" data-section="alpha">
+            <span class="item-title">Stock Alpha</span>
+            <span class="item-caption">Idea tracker</span>
+          </button>
+          <button class="menu-item" data-section="portfolio">
+            <span class="item-title">Portfolio</span>
+            <span class="item-caption">Results &amp; ledger</span>
+          </button>
+          <div class="submenu" data-parent="portfolio">
+            <button class="submenu-item" data-sub="portfolio-results">Results</button>
+            <button class="submenu-item" data-sub="portfolio-ledger">Ledger / Records</button>
+          </div>
+          <button class="menu-item" data-section="settings">
+            <span class="item-title">Settings</span>
+            <span class="item-caption">Preferences</span>
+          </button>
+        </nav>
+
+        <div class="workspace" id="workspace">
+          <div class="app-tabs" role="tablist">
+            <button class="tab active" role="tab" aria-selected="true">Overview</button>
+            <button class="tab" role="tab" aria-selected="false">Notes</button>
+            <button class="tab" role="tab" aria-selected="false">Tasks</button>
+            <button class="tab" role="tab" aria-selected="false">Analytics</button>
+          </div>
+          <div class="app-panels">
+            <aside class="app-list" aria-label="Key items">
+              <header class="list-header">
+                <h2>Focus list</h2>
+                <button class="btn-tertiary">+ Add</button>
+              </header>
+              <ul class="list-items">
+                <li class="list-item active">
+                  <div>
+                    <strong>SPY breakout</strong>
+                    <span>Checklist ready • 09:30</span>
+                  </div>
+                  <span class="tag tag-green">Today</span>
+                </li>
+                <li class="list-item">
+                  <div>
+                    <strong>NVDA earnings</strong>
+                    <span>Review catalyst notes</span>
+                  </div>
+                  <span class="tag">Tomorrow</span>
+                </li>
+                <li class="list-item">
+                  <div>
+                    <strong>Macro digest</strong>
+                    <span>Upload CPI research PDF</span>
+                  </div>
+                  <span class="tag tag-blue">Pinned</span>
+                </li>
+                <li class="list-item">
+                  <div>
+                    <strong>Position audit</strong>
+                    <span>Rotate winners &amp; laggards</span>
+                  </div>
+                  <span class="tag">Next week</span>
+                </li>
+              </ul>
+            </aside>
+
+            <section class="app-detail" aria-label="Detail">
+              <article id="dashboard" class="detail-view visible">
+                <h2>Today / Dashboard</h2>
+                <p class="detail-meta">Pre-market status • Updated 15 minutes ago</p>
+                <div class="detail-grid">
+                  <div class="detail-card">
+                    <h3>Opening checklist</h3>
+                    <ul>
+                      <li>Review overnight news drivers</li>
+                      <li>Set risk ranges &amp; alerts</li>
+                      <li>Confirm liquidity plan</li>
+                    </ul>
+                  </div>
+                  <div class="detail-card">
+                    <h3>Market internals</h3>
+                    <p>Futures +0.8%, VIX cooling to 15.7, breadth 68% advancing.</p>
+                  </div>
+                  <div class="detail-card">
+                    <h3>Active strategies</h3>
+                    <p>Momentum breakout on large-cap tech, mean reversion in energy.</p>
+                  </div>
+                </div>
+              </article>
+
+              <article id="checkin" class="detail-view">
+                <h2>Check-In</h2>
+                <p class="detail-meta">Reflect and reset your positioning for the session.</p>
+                <div class="detail-card">
+                  <h3>Prompt</h3>
+                  <p>What bias showed up yesterday? How will you counter it today?</p>
+                  <textarea rows="4" placeholder="Capture your thoughts..."></textarea>
+                  <button class="btn-primary">Save reflection</button>
+                </div>
+              </article>
+
+              <article id="alpha" class="detail-view">
+                <h2>Stock Alpha</h2>
+                <p class="detail-meta">Track hypotheses, catalysts, and conviction levels.</p>
+                <div class="detail-grid">
+                  <div class="detail-card">
+                    <h3>Idea pipeline</h3>
+                    <ul class="pill-list">
+                      <li class="pill">Growth</li>
+                      <li class="pill">Event-driven</li>
+                      <li class="pill">Swing</li>
+                    </ul>
+                    <p>Add notes, attach files, and set review reminders.</p>
+                  </div>
+                  <div class="detail-card">
+                    <h3>Alpha research feed</h3>
+                    <p>Upload research snippets and tag by strategy to see aggregate performance.</p>
+                  </div>
+                </div>
+              </article>
+
+              <article id="portfolio" class="detail-view">
+                <h2>Portfolio</h2>
+                <p class="detail-meta">Monitor realized performance and ledger entries.</p>
+                <div class="detail-grid">
+                  <div class="detail-card" data-subtarget="portfolio-results">
+                    <h3>Results</h3>
+                    <p>Equity curve +12.4% YTD, win rate 56%, risk-adjusted return 1.6.</p>
+                  </div>
+                  <div class="detail-card" data-subtarget="portfolio-ledger">
+                    <h3>Ledger / Records</h3>
+                    <p>Every trade auto-logged with timestamps, cost basis, and review cadence.</p>
+                  </div>
+                </div>
+              </article>
+
+              <article id="settings" class="detail-view">
+                <h2>Settings</h2>
+                <p class="detail-meta">Adjust workspace preferences.</p>
+                <div class="detail-card">
+                  <label class="field inline">
+                    <span>Time zone</span>
+                    <select>
+                      <option>America/New_York</option>
+                      <option>America/Chicago</option>
+                      <option>Europe/London</option>
+                    </select>
+                  </label>
+                  <label class="field inline">
+                    <span>Session duration</span>
+                    <input type="number" min="15" value="45"> minutes
+                  </label>
+                  <button class="btn-primary">Save settings</button>
+                </div>
+              </article>
+            </section>
+          </div>
+        </div>
       </div>
-    </div>
-    <div class="hero-media">
-      <!-- Replace with your screenshot/GIF -->
-      <img src="assets/hero-dashboard.png" alt="StockAlpha dashboard preview" />
-    </div>
+    </section>
   </main>
 
-  <!-- OUTCOMES -->
-  <section class="outcomes">
-    <div class="card">
-      <h3>Better decisions</h3>
-      <p>Pre-trade checklists, clear thesis &amp; invalidate-if, and rules you’ll stick to.</p>
-    </div>
-    <div class="card">
-      <h3>Fewer mistakes</h3>
-      <p>Post-mortems, reminders, and a bias coach that flags patterns early.</p>
-    </div>
-    <div class="card">
-      <h3>Measurable edge</h3>
-      <p>Expectancy, tag EV, timing vs 52-week range, calendar heatmap &amp; streaks.</p>
-    </div>
-  </section>
-
-  <!-- FEATURES -->
-  <section id="features" class="feature-grid">
-    <article class="feature">
-      <div class="f-media"><img src="assets/feature-actions.png" alt="Actions menu" /></div>
-      <div class="f-copy">
-        <h2>Take action</h2>
-        <p>One-click actions add structure: record decisions, run checklists, create contracts, make predictions, capture feelings, and set reminders.</p>
-      </div>
-    </article>
-
-    <article class="feature reverse">
-      <div class="f-media"><img src="assets/feature-analytics.png" alt="Analytics preview" /></div>
-      <div class="f-copy">
-        <h2>Analytics</h2>
-        <p>Dashboard with heatmap, activity, top ideas, tag EV, and timing vs 52-week range. Export weekly/monthly reviews to PDF.</p>
-      </div>
-    </article>
-
-    <article class="feature">
-      <div class="f-media"><img src="assets/feature-decisions.png" alt="Decision screen" /></div>
-      <div class="f-copy">
-        <h2>Track decisions</h2>
-        <p>Buy, sell, pass, trim and add — with confidence, tags, and follow-ups. Mirror to a normalized log for clean analytics.</p>
-      </div>
-    </article>
-  </section>
-
-  <!-- HOW IT WORKS -->
-  <section id="how" class="how">
-    <h2>How it works</h2>
-    <ol class="steps">
-      <li><span>1</span> Copy the Google Sheet (you own the file).</li>
-      <li><span>2</span> Run the Setup wizard to load tags, checklists, and demo data.</li>
-      <li><span>3</span> Use the big dialogs before/after trades and import broker CSVs.</li>
-    </ol>
-  </section>
-
-  <!-- DEMO -->
-  <section id="demo" class="demo">
-    <div class="demo-media">
-      <!-- Replace with your YouTube/Loom link -->
-      <iframe class="video" src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" title="StockAlpha demo" frameborder="0" allowfullscreen></iframe>
-    </div>
-    <ul class="demo-bullets">
-      <li>Quick-capture pre-trade dialog</li>
-      <li>CSV importer with 5-row preview & mapping</li>
-      <li>Dashboard with calendar heatmap & tag EV</li>
-    </ul>
-  </section>
-
-  <!-- PRICING -->
-  <section id="pricing" class="pricing">
-    <h2>Pricing</h2>
-    <div class="plans">
-      <div class="plan">
-        <h3>Pro</h3>
-        <p class="price">$59 <span>one-time</span></p>
-        <ul>
-          <li>Full spreadsheet + dialogs</li>
-          <li>CSV importer & dashboard</li>
-          <li>Weekly/Monthly reviews</li>
-        </ul>
-        <a class="btn btn-primary" href="https://buy.stripe.com/your_payment_link" target="_blank" rel="noopener">Buy Pro</a>
-      </div>
-      <div class="plan highlight">
-        <h3>Lifetime</h3>
-        <p class="price">$99 <span>all updates</span></p>
-        <ul>
-          <li>Everything in Pro</li>
-          <li>Future features & presets</li>
-          <li>Priority help</li>
-        </ul>
-        <a class="btn btn-primary" href="https://buy.stripe.com/your_payment_link_lifetime" target="_blank" rel="noopener">Buy Lifetime</a>
-      </div>
-    </div>
-    <p class="refund">14-day refund. One license per user. No subscription.</p>
-  </section>
-
-  <!-- FAQ -->
-  <section id="faq" class="faq">
-    <h2>FAQ</h2>
-    <details open>
-      <summary>Will it work with my broker CSV?</summary>
-      <p>Yes. Map columns once in the importer; we save your mapping for reuse.</p>
-    </details>
-    <details>
-      <summary>Do I need to code?</summary>
-      <p>No. It’s a Google Sheet with polished dialogs. You can customize later if you want.</p>
-    </details>
-    <details>
-      <summary>Where is my data stored?</summary>
-      <p>In your own Google Drive. You fully control access and backups.</p>
-    </details>
-    <details>
-      <summary>Windows/Mac?</summary>
-      <p>Any modern browser. It’s Google Sheets.</p>
-    </details>
-  </section>
-
-  <!-- FOOTER -->
-  <footer class="footer">
-    <p>© <span id="y"></span> StockAlpha.ai — All rights reserved.</p>
-    <a href="about.html">About</a>
-    <a href="faq.html">More FAQs</a>
+  <footer class="landing-footer" id="contact">
+    <p>&copy; <span id="year"></span> AlphaStocks.ai. All rights reserved.</p>
   </footer>
 
   <script src="assets/main.js"></script>
