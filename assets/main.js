@@ -36,12 +36,12 @@ const setThemeToggleCopy = (theme) => {
 
 if (themeToggle) {
   themeToggle.addEventListener('click', () => {
-    const current = body.getAttribute('data-theme') || 'dark';
+    const current = body.getAttribute('data-theme') || 'light';
     const next = current === 'dark' ? 'light' : 'dark';
     body.setAttribute('data-theme', next);
     setThemeToggleCopy(next);
   });
-  setThemeToggleCopy(body.getAttribute('data-theme') || 'dark');
+  setThemeToggleCopy(body.getAttribute('data-theme') || 'light');
 }
 
 const showSection = (id) => {
