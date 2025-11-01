@@ -1,0 +1,125 @@
+{
+  "table": "stock_analyses",
+  "metadata": {
+    "description": "AI-assisted research summaries for priority symbols",
+    "count": 4
+  },
+  "rows": [
+    {
+      "id": "8c1bd0f1-0f64-4ad3-8e9b-8f5b52b91201",
+      "symbol": "NVDA",
+      "profile_id": "1f2a7f2e-0ad1-4a7d-8a19-3b22e35c88a5",
+      "valuation": {
+        "base": 980,
+        "bull": 1120,
+        "bear": 780
+      },
+      "porter_forces": {
+        "supplier_power": "Medium — key foundries concentrated but long-term agreements in place.",
+        "buyer_power": "Low — hyperscalers scrambling for GPU capacity.",
+        "competitive_rivalry": "Rising — AMD catching up but still lagging in software moat.",
+        "threat_new": "Low — capex intensity and ecosystem lock-in deter entrants.",
+        "threat_substitutes": "Medium — custom ASICs for specific workloads remain a watchpoint."
+      },
+      "stress_tests": [
+        {
+          "scenario": "Cloud capex pause",
+          "delta": -0.18
+        },
+        {
+          "scenario": "China export tightening",
+          "delta": -0.12
+        }
+      ],
+      "label": "Investable",
+      "summary": "Remain overweight as demand visibility stays strong; trim only if supply normalises faster than expected."
+    },
+    {
+      "id": "631070b9-a6fc-4ec1-9cc2-4b61f3635941",
+      "symbol": "TSLA",
+      "profile_id": "1f2a7f2e-0ad1-4a7d-8a19-3b22e35c88a5",
+      "valuation": {
+        "base": 255,
+        "bull": 320,
+        "bear": 170
+      },
+      "porter_forces": {
+        "supplier_power": "Medium — battery raw materials concentrated but easing.",
+        "buyer_power": "Medium — EV incentives fading, price sensitivity rising.",
+        "competitive_rivalry": "High — legacy OEMs rolling out EV lineups aggressively.",
+        "threat_new": "Medium — new entrants in China remain disruptive.",
+        "threat_substitutes": "Medium — ride sharing and public transit adoption in focus metros."
+      },
+      "stress_tests": [
+        {
+          "scenario": "EV tax credit sunset",
+          "delta": -0.2
+        },
+        {
+          "scenario": "FSD attach inflection",
+          "delta": 0.15
+        }
+      ],
+      "label": "Monitor",
+      "summary": "Maintain tactical position; wait for margin stability confirmation before adding."
+    },
+    {
+      "id": "7b7e86fd-44b7-4f70-b64b-df8b06c7d8de",
+      "symbol": "GLD",
+      "profile_id": "1f2a7f2e-0ad1-4a7d-8a19-3b22e35c88a5",
+      "valuation": {
+        "base": 198,
+        "bull": 210,
+        "bear": 170
+      },
+      "porter_forces": {
+        "supplier_power": "Low — diversified global miners.",
+        "buyer_power": "Low — ETF flows driven by macro conditions.",
+        "competitive_rivalry": "Low — limited alternatives for monetary hedge.",
+        "threat_new": "Low",
+        "threat_substitutes": "Medium — digital assets remain a hedge competitor."
+      },
+      "stress_tests": [
+        {
+          "scenario": "Real yields +50bps",
+          "delta": -0.08
+        },
+        {
+          "scenario": "DXY -5%",
+          "delta": 0.06
+        }
+      ],
+      "label": "Hedge",
+      "summary": "Retain as macro hedge while inflation expectations stay anchored below 3%."
+    },
+    {
+      "id": "b4e0ec8b-04d5-49df-9f0e-9972f6d0af52",
+      "symbol": "MSFT",
+      "profile_id": "1f2a7f2e-0ad1-4a7d-8a19-3b22e35c88a5",
+      "valuation": {
+        "base": 390,
+        "bull": 430,
+        "bear": 310
+      },
+      "porter_forces": {
+        "supplier_power": "Medium — chip supply steady but watch AI accelerators.",
+        "buyer_power": "Low — enterprise cloud demand sticky with high switching costs.",
+        "competitive_rivalry": "Medium — AWS and Google Cloud continue to invest heavily.",
+        "threat_new": "Low",
+        "threat_substitutes": "Medium — open-source AI stacks could erode Azure premium."
+      },
+      "stress_tests": [
+        {
+          "scenario": "Enterprise IT budget freeze",
+          "delta": -0.14
+        },
+        {
+          "scenario": "Copilot upsell success",
+          "delta": 0.1
+        }
+      ],
+      "label": "Investable",
+      "summary": "Remain core holding; upside tied to AI monetisation pace and licence retention."
+    }
+  ]
+}

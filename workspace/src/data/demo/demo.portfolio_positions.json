@@ -1,0 +1,189 @@
+{
+  "table": "portfolio_positions",
+  "metadata": {
+    "description": "Representative holdings for each demo portfolio",
+    "count": 20
+  },
+  "rows": [
+    {
+      "id": "0f9c8c25-1a27-4e5e-bdfd-73b2d36bb1c1",
+      "portfolio_id": "4f1dc1c6-8882-4f3e-877d-7e2de3afc9aa",
+      "symbol": "AAPL",
+      "qty": 1200,
+      "avg_price": 182.5,
+      "sector": "Technology",
+      "status": "active"
+    },
+    {
+      "id": "0caa58a5-45b7-4d05-856a-0f0d9db43d5a",
+      "portfolio_id": "4f1dc1c6-8882-4f3e-877d-7e2de3afc9aa",
+      "symbol": "MSFT",
+      "qty": 900,
+      "avg_price": 336.1,
+      "sector": "Technology",
+      "status": "active"
+    },
+    {
+      "id": "1dbf7191-7e51-4f49-9cb7-3f6d611b795d",
+      "portfolio_id": "9d8c7f66-23d4-4cb5-8abd-b3ca7dd567e0",
+      "symbol": "NVDA",
+      "qty": 650,
+      "avg_price": 1040.35,
+      "sector": "Technology",
+      "status": "active"
+    },
+    {
+      "id": "96d78448-24f3-4ef4-889f-27b30fce25f9",
+      "portfolio_id": "9d8c7f66-23d4-4cb5-8abd-b3ca7dd567e0",
+      "symbol": "ASML",
+      "qty": 300,
+      "avg_price": 710.2,
+      "sector": "Technology",
+      "status": "active"
+    },
+    {
+      "id": "30d38101-3f15-4ad4-9c0a-d7286213b563",
+      "portfolio_id": "541b9584-6188-420e-aa91-164d3c86a1eb",
+      "symbol": "ATVI",
+      "qty": 1000,
+      "avg_price": 92.15,
+      "sector": "Communication Services",
+      "status": "active"
+    },
+    {
+      "id": "4b6b0d9c-7b2e-4db3-92c1-505dfad0b8c6",
+      "portfolio_id": "541b9584-6188-420e-aa91-164d3c86a1eb",
+      "symbol": "ADBE",
+      "qty": 200,
+      "avg_price": 555.4,
+      "sector": "Technology",
+      "status": "active"
+    },
+    {
+      "id": "a5b9d52e-d155-4010-9e18-9056f8dcb541",
+      "portfolio_id": "1b8f7d64-10c4-4cc7-aa7f-6b2e4b5a5b14",
+      "symbol": "JNJ",
+      "qty": 500,
+      "avg_price": 162.25,
+      "sector": "Healthcare",
+      "status": "active"
+    },
+    {
+      "id": "2b7ff8b7-ef15-4f3b-bcfa-7f90b93a8d16",
+      "portfolio_id": "1b8f7d64-10c4-4cc7-aa7f-6b2e4b5a5b14",
+      "symbol": "PG",
+      "qty": 600,
+      "avg_price": 145.1,
+      "sector": "Consumer Staples",
+      "status": "active"
+    },
+    {
+      "id": "784c3d4e-fd1a-4cc7-ad77-64db98ed0d44",
+      "portfolio_id": "ac91b4cb-3e58-4a4f-8413-33ad0396b079",
+      "symbol": "GLD",
+      "qty": 800,
+      "avg_price": 184.2,
+      "sector": "Commodities",
+      "status": "active"
+    },
+    {
+      "id": "7891c4ef-0f43-489d-b88d-30ee93878941",
+      "portfolio_id": "ac91b4cb-3e58-4a4f-8413-33ad0396b079",
+      "symbol": "TLT",
+      "qty": 700,
+      "avg_price": 96.05,
+      "sector": "Fixed Income",
+      "status": "active"
+    },
+    {
+      "id": "fc6a5eb6-9fba-4518-bcfe-e7a0051d9ec6",
+      "portfolio_id": "d73b705e-6af4-4286-8cc4-26ab9dd98ec0",
+      "symbol": "SPXW",
+      "qty": 50,
+      "avg_price": 11.2,
+      "sector": "Derivatives",
+      "status": "rolling"
+    },
+    {
+      "id": "f8bda12c-2fb2-4c6e-b42b-f025037bb7d1",
+      "portfolio_id": "d73b705e-6af4-4286-8cc4-26ab9dd98ec0",
+      "symbol": "QYLD",
+      "qty": 1000,
+      "avg_price": 17.6,
+      "sector": "Exchange Traded Funds",
+      "status": "active"
+    },
+    {
+      "id": "8a8a65b1-470c-4f41-8d15-2d6cb86a2d71",
+      "portfolio_id": "c3b0d4e0-9d84-4bc1-bb7f-3ea364ab5399",
+      "symbol": "XLK",
+      "qty": 400,
+      "avg_price": 190.4,
+      "sector": "Technology",
+      "status": "active"
+    },
+    {
+      "id": "3a926b67-cbd7-4e7f-a85d-7a1a2e8d029d",
+      "portfolio_id": "c3b0d4e0-9d84-4bc1-bb7f-3ea364ab5399",
+      "symbol": "XLE",
+      "qty": 500,
+      "avg_price": 91.8,
+      "sector": "Energy",
+      "status": "active"
+    },
+    {
+      "id": "64fbd729-ef10-4c77-a460-5313c2d7a4f7",
+      "portfolio_id": "d7b82ad4-2e92-4708-83d3-b97c8fd83b52",
+      "symbol": "TSLA",
+      "qty": 300,
+      "avg_price": 248.5,
+      "sector": "Consumer Discretionary",
+      "status": "active"
+    },
+    {
+      "id": "fd12b1df-3814-48b9-b5f0-bd9eea4d6c99",
+      "portfolio_id": "d7b82ad4-2e92-4708-83d3-b97c8fd83b52",
+      "symbol": "PLTR",
+      "qty": 1200,
+      "avg_price": 22.4,
+      "sector": "Technology",
+      "status": "active"
+    },
+    {
+      "id": "9c9af5b4-e1b2-4d70-a227-5a859504a829",
+      "portfolio_id": "ef25d2e6-0e2c-43c3-9fb4-3f28ad1c75ad",
+      "symbol": "BIL",
+      "qty": 1500,
+      "avg_price": 91.2,
+      "sector": "Fixed Income",
+      "status": "active"
+    },
+    {
+      "id": "d9e9d6b5-c564-4691-9fa2-e0c693440032",
+      "portfolio_id": "ef25d2e6-0e2c-43c3-9fb4-3f28ad1c75ad",
+      "symbol": "SGOV",
+      "qty": 1200,
+      "avg_price": 100.4,
+      "sector": "Fixed Income",
+      "status": "active"
+    },
+    {
+      "id": "e3b9d8c3-76b9-4e0b-bd6d-3c0a6c5c6a3f",
+      "portfolio_id": "69f6b7a4-63bb-4b0d-9b7f-9d649f8d2b14",
+      "symbol": "SMH",
+      "qty": 350,
+      "avg_price": 162.3,
+      "sector": "Technology",
+      "status": "active"
+    },
+    {
+      "id": "cbb3a6b9-2a52-4da0-a4e2-9af49f2448f3",
+      "portfolio_id": "69f6b7a4-63bb-4b0d-9b7f-9d649f8d2b14",
+      "symbol": "IBB",
+      "qty": 400,
+      "avg_price": 130.6,
+      "sector": "Healthcare",
+      "status": "active"
+    }
+  ]
+}

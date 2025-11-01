@@ -1,0 +1,36 @@
+{
+  "table": "journal_entries",
+  "metadata": {
+    "description": "Recent daily check-in reflections",
+    "count": 3
+  },
+  "rows": [
+    {
+      "id": "5cb2691a-9bb1-49a6-9af0-9981721268c1",
+      "profile_id": "1f2a7f2e-0ad1-4a7d-8a19-3b22e35c88a5",
+      "mood": "Focused",
+      "confidence": 4,
+      "bias_notes": "Watched for FOMO chasing breakout gaps; stayed patient on entries.",
+      "plan": "Scale into semis only on pullbacks, keep macro overlay hedged.",
+      "created_at": "2025-10-31T11:45:00Z"
+    },
+    {
+      "id": "6af820a1-62bc-4f3f-bf5c-08aa55a644a8",
+      "profile_id": "1f2a7f2e-0ad1-4a7d-8a19-3b22e35c88a5",
+      "mood": "Balanced",
+      "confidence": 3,
+      "bias_notes": "Letting losses linger too long on consumer names; tighten review cadence.",
+      "plan": "Run post-close scrub on underperformers and cut if thesis unchanged.",
+      "created_at": "2025-10-30T11:35:00Z"
+    },
+    {
+      "id": "f428981e-b372-4940-88a9-1cd4fa8a945d",
+      "profile_id": "1f2a7f2e-0ad1-4a7d-8a19-3b22e35c88a5",
+      "mood": "Optimistic",
+      "confidence": 5,
+      "bias_notes": "Good discipline exiting laggards early; avoid overconfidence tomorrow.",
+      "plan": "Review AI holdings and confirm catalysts align with thesis.",
+      "created_at": "2025-10-29T11:20:00Z"
+    }
+  ]
+}

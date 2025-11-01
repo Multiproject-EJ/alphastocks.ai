@@ -1,0 +1,89 @@
+{
+  "table": "portfolios",
+  "metadata": {
+    "description": "Ten demo portfolios mirroring the Supabase schema",
+    "count": 10
+  },
+  "rows": [
+    {
+      "id": "4f1dc1c6-8882-4f3e-877d-7e2de3afc9aa",
+      "profile_id": "1f2a7f2e-0ad1-4a7d-8a19-3b22e35c88a5",
+      "name": "Core Momentum",
+      "strategy": "long/short momentum",
+      "benchmark": "SPY",
+      "visibility": "team"
+    },
+    {
+      "id": "9d8c7f66-23d4-4cb5-8abd-b3ca7dd567e0",
+      "profile_id": "1f2a7f2e-0ad1-4a7d-8a19-3b22e35c88a5",
+      "name": "Growth Compounders",
+      "strategy": "long-only growth",
+      "benchmark": "QQQ",
+      "visibility": "private"
+    },
+    {
+      "id": "541b9584-6188-420e-aa91-164d3c86a1eb",
+      "profile_id": "1f2a7f2e-0ad1-4a7d-8a19-3b22e35c88a5",
+      "name": "Event-Driven Plays",
+      "strategy": "catalyst-driven equities",
+      "benchmark": "RSP",
+      "visibility": "team"
+    },
+    {
+      "id": "1b8f7d64-10c4-4cc7-aa7f-6b2e4b5a5b14",
+      "profile_id": "1f2a7f2e-0ad1-4a7d-8a19-3b22e35c88a5",
+      "name": "Dividend Yielders",
+      "strategy": "quality income",
+      "benchmark": "DVY",
+      "visibility": "team"
+    },
+    {
+      "id": "ac91b4cb-3e58-4a4f-8413-33ad0396b079",
+      "profile_id": "1f2a7f2e-0ad1-4a7d-8a19-3b22e35c88a5",
+      "name": "Global Macro Overlay",
+      "strategy": "cross-asset relative value",
+      "benchmark": "VT",
+      "visibility": "team"
+    },
+    {
+      "id": "d73b705e-6af4-4286-8cc4-26ab9dd98ec0",
+      "profile_id": "1f2a7f2e-0ad1-4a7d-8a19-3b22e35c88a5",
+      "name": "Options Income",
+      "strategy": "systematic premium harvesting",
+      "benchmark": "HYG",
+      "visibility": "private"
+    },
+    {
+      "id": "c3b0d4e0-9d84-4bc1-bb7f-3ea364ab5399",
+      "profile_id": "1f2a7f2e-0ad1-4a7d-8a19-3b22e35c88a5",
+      "name": "Quant Trend",
+      "strategy": "multi-factor trend following",
+      "benchmark": "SPY",
+      "visibility": "team"
+    },
+    {
+      "id": "d7b82ad4-2e92-4708-83d3-b97c8fd83b52",
+      "profile_id": "1f2a7f2e-0ad1-4a7d-8a19-3b22e35c88a5",
+      "name": "Long/Short Innovation",
+      "strategy": "disruptive tech pairs",
+      "benchmark": "ARKK",
+      "visibility": "team"
+    },
+    {
+      "id": "ef25d2e6-0e2c-43c3-9fb4-3f28ad1c75ad",
+      "profile_id": "1f2a7f2e-0ad1-4a7d-8a19-3b22e35c88a5",
+      "name": "Capital Preservation",
+      "strategy": "treasury ladder",
+      "benchmark": "BIL",
+      "visibility": "private"
+    },
+    {
+      "id": "69f6b7a4-63bb-4b0d-9b7f-9d649f8d2b14",
+      "profile_id": "1f2a7f2e-0ad1-4a7d-8a19-3b22e35c88a5",
+      "name": "Thematic Rotation",
+      "strategy": "sector rotation",
+      "benchmark": "IYW",
+      "visibility": "team"
+    }
+  ]
+}
