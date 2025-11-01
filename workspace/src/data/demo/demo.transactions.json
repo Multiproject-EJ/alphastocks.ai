@@ -1,0 +1,119 @@
+{
+  "table": "transactions",
+  "metadata": {
+    "description": "Recent ledger activity for demo portfolios",
+    "count": 10
+  },
+  "rows": [
+    {
+      "id": "d0c0a6aa-2e1a-4f0a-8d63-e375f38b3a01",
+      "portfolio_id": "9d8c7f66-23d4-4cb5-8abd-b3ca7dd567e0",
+      "symbol": "NVDA",
+      "type": "BUY",
+      "qty": 150,
+      "price": 1025.4,
+      "fees": 9.75,
+      "notes": "Added ahead of earnings beat, risk managed with call spread hedge.",
+      "executed_at": "2025-10-31T14:05:00Z"
+    },
+    {
+      "id": "c7f53af5-083e-41ed-888a-1e2aaf497fd2",
+      "portfolio_id": "c3b0d4e0-9d84-4bc1-bb7f-3ea364ab5399",
+      "symbol": "XLE",
+      "type": "SELL",
+      "qty": 200,
+      "price": 93.4,
+      "fees": 6.1,
+      "notes": "Trimmed energy after relative strength fade versus momentum basket.",
+      "executed_at": "2025-10-31T13:45:00Z"
+    },
+    {
+      "id": "c46fdc9d-272d-4a6a-90e3-5eb95cc5020a",
+      "portfolio_id": "ac91b4cb-3e58-4a4f-8413-33ad0396b079",
+      "symbol": "GLD",
+      "type": "BUY",
+      "qty": 200,
+      "price": 183.2,
+      "fees": 4.8,
+      "notes": "Scaled into gold on real-yield compression signal.",
+      "executed_at": "2025-10-30T19:15:00Z"
+    },
+    {
+      "id": "1a62c5b6-7a9c-4ae8-a81c-73f01c5db9fd",
+      "portfolio_id": "d73b705e-6af4-4286-8cc4-26ab9dd98ec0",
+      "symbol": "QYLD",
+      "type": "DIV",
+      "qty": 1000,
+      "price": 0.21,
+      "fees": 0,
+      "notes": "Monthly distribution captured and reinvestment scheduled.",
+      "executed_at": "2025-10-30T14:10:00Z"
+    },
+    {
+      "id": "7fbb643d-2f2e-4d4b-9012-7781e9f0a5fa",
+      "portfolio_id": "d7b82ad4-2e92-4708-83d3-b97c8fd83b52",
+      "symbol": "TSLA",
+      "type": "BUY",
+      "qty": 50,
+      "price": 245.1,
+      "fees": 5.25,
+      "notes": "Rebuilt starter position after AI demand channel checks.",
+      "executed_at": "2025-10-30T13:50:00Z"
+    },
+    {
+      "id": "fd36f5c4-2fd4-4d8d-b963-0c5b55bc7eea",
+      "portfolio_id": "1b8f7d64-10c4-4cc7-aa7f-6b2e4b5a5b14",
+      "symbol": "JNJ",
+      "type": "SELL",
+      "qty": 100,
+      "price": 161.7,
+      "fees": 4.2,
+      "notes": "Rotating into higher dividend growth exposure.",
+      "executed_at": "2025-10-29T20:10:00Z"
+    },
+    {
+      "id": "7a1ef0f1-6de8-4c88-8a54-0fd3d01d6e5a",
+      "portfolio_id": "4f1dc1c6-8882-4f3e-877d-7e2de3afc9aa",
+      "symbol": "MSFT",
+      "type": "BUY",
+      "qty": 150,
+      "price": 333.9,
+      "fees": 7.1,
+      "notes": "Rebalanced into software momentum sleeve.",
+      "executed_at": "2025-10-29T14:35:00Z"
+    },
+    {
+      "id": "94788c65-15cf-4c48-9a14-d401d49b2d65",
+      "portfolio_id": "69f6b7a4-63bb-4b0d-9b7f-9d649f8d2b14",
+      "symbol": "SMH",
+      "type": "BUY",
+      "qty": 80,
+      "price": 159.5,
+      "fees": 3.9,
+      "notes": "Rotation into semis theme ahead of monthly rebalance.",
+      "executed_at": "2025-10-29T14:20:00Z"
+    },
+    {
+      "id": "5a621682-6b63-4e2d-8773-50c8ff7c2778",
+      "portfolio_id": "ef25d2e6-0e2c-43c3-9fb4-3f28ad1c75ad",
+      "symbol": "SGOV",
+      "type": "BUY",
+      "qty": 300,
+      "price": 100.3,
+      "fees": 0,
+      "notes": "Extended treasury ladder duration modestly.",
+      "executed_at": "2025-10-28T13:40:00Z"
+    },
+    {
+      "id": "bcad2e3f-d910-4d94-bc21-90f6215dfc99",
+      "portfolio_id": "541b9584-6188-420e-aa91-164d3c86a1eb",
+      "symbol": "ADBE",
+      "type": "BUY",
+      "qty": 50,
+      "price": 545.2,
+      "fees": 5.4,
+      "notes": "Built tranche to capture post-earnings gap fill.",
+      "executed_at": "2025-10-28T14:00:00Z"
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "table": "settings",
+  "metadata": {
+    "description": "Workspace-level settings for the demo profile",
+    "count": 1
+  },
+  "rows": [
+    {
+      "profile_id": "1f2a7f2e-0ad1-4a7d-8a19-3b22e35c88a5",
+      "currency": "USD",
+      "number_format": "en-US",
+      "alert_channels": {
+        "email": true,
+        "push": true,
+        "sms": false
+      },
+      "ai_api_key_placeholder": "sk-live-****"
+    }
+  ]
+}

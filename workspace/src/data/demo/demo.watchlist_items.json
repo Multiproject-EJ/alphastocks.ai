@@ -1,0 +1,78 @@
+{
+  "table": "watchlist_items",
+  "metadata": {
+    "description": "Conviction-ranked watchlist linked to dashboard focus list",
+    "count": 6
+  },
+  "rows": [
+    {
+      "id": "2f815a37-1f5a-4d57-9f4b-24134d5c4d50",
+      "profile_id": "1f2a7f2e-0ad1-4a7d-8a19-3b22e35c88a5",
+      "symbol": "NVDA",
+      "thesis": "Data center GPU demand accelerating into holiday cloud budgets.",
+      "conviction": 5,
+      "alerts": {
+        "urgency": "today",
+        "channel": "push",
+        "next_check": "2025-10-31T18:00:00Z"
+      }
+    },
+    {
+      "id": "b78f4c7d-565e-4f95-9d2c-92f8cf950a66",
+      "profile_id": "1f2a7f2e-0ad1-4a7d-8a19-3b22e35c88a5",
+      "symbol": "TSLA",
+      "thesis": "Monitoring margin impact from full self-driving subscription uptake.",
+      "conviction": 4,
+      "alerts": {
+        "urgency": "upcoming",
+        "channel": "email",
+        "next_check": "2025-11-01T15:30:00Z"
+      }
+    },
+    {
+      "id": "4a64a7f5-a94a-4d64-9fc1-07d922aa63c8",
+      "profile_id": "1f2a7f2e-0ad1-4a7d-8a19-3b22e35c88a5",
+      "symbol": "GLD",
+      "thesis": "Real yields breaking lower keeps upside skew intact.",
+      "conviction": 3,
+      "alerts": {
+        "urgency": "pinned",
+        "channel": "dashboard"
+      }
+    },
+    {
+      "id": "a01c5a2f-8241-4a0f-8aa8-f0c1f33a61f1",
+      "profile_id": "1f2a7f2e-0ad1-4a7d-8a19-3b22e35c88a5",
+      "symbol": "SHOP",
+      "thesis": "Evaluating cross-border GMV trends vs. consensus.",
+      "conviction": 3,
+      "alerts": {
+        "urgency": "upcoming",
+        "channel": "email",
+        "next_check": "2025-11-04T13:00:00Z"
+      }
+    },
+    {
+      "id": "f251e038-2c4f-4b8d-ae8d-1748033c2c27",
+      "profile_id": "1f2a7f2e-0ad1-4a7d-8a19-3b22e35c88a5",
+      "symbol": "MSFT",
+      "thesis": "Azure AI workloads comp growth sustaining double digits.",
+      "conviction": 4,
+      "alerts": {
+        "urgency": "pinned",
+        "channel": "dashboard"
+      }
+    },
+    {
+      "id": "681a3dd0-8729-4b7c-96a3-5e4641153530",
+      "profile_id": "1f2a7f2e-0ad1-4a7d-8a19-3b22e35c88a5",
+      "symbol": "ENPH",
+      "thesis": "Tracking inventory digestion across EU installers.",
+      "conviction": 2,
+      "alerts": {
+        "urgency": "monitor",
+        "channel": "email"
+      }
+    }
+  ]
+}

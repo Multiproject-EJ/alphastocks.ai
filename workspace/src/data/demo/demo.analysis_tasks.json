@@ -1,0 +1,57 @@
+{
+  "table": "analysis_tasks",
+  "metadata": {
+    "description": "Background AI tasks that power the research workflow",
+    "count": 4
+  },
+  "rows": [
+    {
+      "id": "12d8a1f6-2e5a-4a1f-8fc1-97b6ccfb2a10",
+      "stock_analysis_id": "8c1bd0f1-0f64-4ad3-8e9b-8f5b52b91201",
+      "task_type": "valuation_refresh",
+      "status": "completed",
+      "payload": {
+        "symbol": "NVDA",
+        "priority": "high",
+        "notes": "Updated discount rate to reflect latest treasury curve."
+      },
+      "completed_at": "2025-10-31T10:20:00Z"
+    },
+    {
+      "id": "b7a0b0c4-7df8-4d72-a545-e8bff9e139b2",
+      "stock_analysis_id": "631070b9-a6fc-4ec1-9cc2-4b61f3635941",
+      "task_type": "headline_digest",
+      "status": "running",
+      "payload": {
+        "symbol": "TSLA",
+        "priority": "medium",
+        "window_hours": 12
+      },
+      "completed_at": null
+    },
+    {
+      "id": "0bbfda93-18c9-45d1-96b3-fc5ecddf2272",
+      "stock_analysis_id": "7b7e86fd-44b7-4f70-b64b-df8b06c7d8de",
+      "task_type": "stress_test",
+      "status": "queued",
+      "payload": {
+        "symbol": "GLD",
+        "priority": "low",
+        "shock": "Real yields +75bps"
+      },
+      "completed_at": null
+    },
+    {
+      "id": "f1c65f45-6a0e-4e46-8d91-8a9655c71643",
+      "stock_analysis_id": "b4e0ec8b-04d5-49df-9f0e-9972f6d0af52",
+      "task_type": "notebook_export",
+      "status": "completed",
+      "payload": {
+        "symbol": "MSFT",
+        "priority": "medium",
+        "format": "pdf"
+      },
+      "completed_at": "2025-10-30T22:15:00Z"
+    }
+  ]
+}

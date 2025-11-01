@@ -1,0 +1,16 @@
+{
+  "table": "profiles",
+  "metadata": {
+    "description": "Primary workspace profile for demo mode",
+    "count": 1
+  },
+  "rows": [
+    {
+      "id": "1f2a7f2e-0ad1-4a7d-8a19-3b22e35c88a5",
+      "email": "avery@alphastocks.ai",
+      "display_name": "Avery Quant",
+      "timezone": "America/New_York",
+      "role": "portfolio_manager"
+    }
+  ]
+}

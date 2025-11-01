@@ -1,0 +1,90 @@
+{
+  "table": "events",
+  "metadata": {
+    "description": "Upcoming calendar and notable catalysts for the dashboard",
+    "count": 9
+  },
+  "rows": [
+    {
+      "id": "e31f6d01-f043-4597-bf86-6942520e5b01",
+      "profile_id": "1f2a7f2e-0ad1-4a7d-8a19-3b22e35c88a5",
+      "date": "2025-10-31T21:00:00Z",
+      "title": "NVDA earnings call",
+      "category": "Earnings",
+      "source": "Company",
+      "link": "https://investor.nvidia.com"
+    },
+    {
+      "id": "1a57d4f2-4b04-4d8a-8dc2-7d0b2a32f302",
+      "profile_id": "1f2a7f2e-0ad1-4a7d-8a19-3b22e35c88a5",
+      "date": "2025-11-01T14:00:00Z",
+      "title": "ISM manufacturing print",
+      "category": "Macro",
+      "source": "Economic Calendar",
+      "link": "https://www.ismworld.org"
+    },
+    {
+      "id": "f71a0d1c-5b8e-4ed6-9d1e-b2f2c5ec1b10",
+      "profile_id": null,
+      "date": "2025-11-01T18:00:00Z",
+      "title": "FOMC rate decision",
+      "category": "Macro",
+      "source": "Federal Reserve",
+      "link": "https://www.federalreserve.gov"
+    },
+    {
+      "id": "d0b7199c-76fc-4ad1-a5a5-29e624d961c8",
+      "profile_id": null,
+      "date": "2025-11-02T09:00:00Z",
+      "title": "OPEC+ supply briefing",
+      "category": "Commodities",
+      "source": "Energy Intelligence",
+      "link": "https://www.energyintel.com"
+    },
+    {
+      "id": "964d4a70-0da9-4f9b-a2f9-8c7d94ad413d",
+      "profile_id": "1f2a7f2e-0ad1-4a7d-8a19-3b22e35c88a5",
+      "date": "2025-11-02T17:30:00Z",
+      "title": "Fed chair remarks at policy forum",
+      "category": "Macro",
+      "source": "Federal Reserve",
+      "link": "https://www.federalreserve.gov"
+    },
+    {
+      "id": "b447d5cf-62c5-4b48-b498-c3f60379c833",
+      "profile_id": "1f2a7f2e-0ad1-4a7d-8a19-3b22e35c88a5",
+      "date": "2025-11-03T12:30:00Z",
+      "title": "Monthly portfolio attribution review",
+      "category": "Process",
+      "source": "AlphaStocks",
+      "link": "https://alphastocks.ai/workspace"
+    },
+    {
+      "id": "50e326f2-16ae-44d1-bd2d-105ca31a616c",
+      "profile_id": "1f2a7f2e-0ad1-4a7d-8a19-3b22e35c88a5",
+      "date": "2025-11-04T20:00:00Z",
+      "title": "SHOP GMV dashboard refresh",
+      "category": "Research",
+      "source": "Workspace Task",
+      "link": "https://alphastocks.ai/workspace/tasks"
+    },
+    {
+      "id": "c3f83bc4-67e6-4d62-9b61-388d3c3d8880",
+      "profile_id": null,
+      "date": "2025-11-05T13:30:00Z",
+      "title": "US CPI release",
+      "category": "Macro",
+      "source": "Bureau of Labor Statistics",
+      "link": "https://www.bls.gov/cpi/"
+    },
+    {
+      "id": "d3eb1a2f-9904-4cf1-9f5b-857c3e0b1f5d",
+      "profile_id": "1f2a7f2e-0ad1-4a7d-8a19-3b22e35c88a5",
+      "date": "2025-10-30T13:00:00Z",
+      "title": "Treasury refunding announcement",
+      "category": "Macro",
+      "source": "Treasury",
+      "link": "https://home.treasury.gov"
+    }
+  ]
+}

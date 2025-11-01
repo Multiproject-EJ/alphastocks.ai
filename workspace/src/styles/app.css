@@ -33,3 +33,8 @@ body[data-theme='dark'] {
   color: var(--text-primary, #fff);
   font-weight: 600;
 }
+
+.demo-banner.warning {
+  background: rgba(226, 149, 120, 0.2);
+  color: var(--warning-foreground, #f97316);
+}
