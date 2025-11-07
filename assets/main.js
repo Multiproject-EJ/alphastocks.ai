@@ -22,6 +22,8 @@ const constructionOverlay = document.getElementById('constructionOverlay');
 const constructionContinue = document.getElementById('constructionContinue');
 
 const CONSTRUCTION_STORAGE_KEY = 'alphaConstructionDismissed';
+const THEME_STORAGE_KEY = 'alphastocksTheme';
+const themeMeta = document.querySelector('meta[name="theme-color"]');
 
 if (yearEl) {
   yearEl.textContent = new Date().getFullYear();
@@ -34,15 +36,41 @@ const setThemeToggleCopy = (theme) => {
   themeToggle.setAttribute('aria-pressed', theme === 'light');
 };
 
+const setThemeMetaColor = (theme) => {
+  if (!themeMeta) return;
+  const color = theme === 'dark' ? '#0B1120' : '#f5f7fb';
+  themeMeta.setAttribute('content', color);
+};
+
+const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+const storedTheme = (() => {
+  try {
+    return localStorage.getItem(THEME_STORAGE_KEY);
+  } catch (error) {
+    return null;
+  }
+})();
+
+const initialTheme = storedTheme || body.getAttribute('data-theme') || (prefersDark ? 'dark' : 'light');
+body.setAttribute('data-theme', initialTheme);
+
 if (themeToggle) {
   themeToggle.addEventListener('click', () => {
     const current = body.getAttribute('data-theme') || 'light';
     const next = current === 'dark' ? 'light' : 'dark';
     body.setAttribute('data-theme', next);
     setThemeToggleCopy(next);
+    setThemeMetaColor(next);
+    try {
+      localStorage.setItem(THEME_STORAGE_KEY, next);
+    } catch (error) {
+      console.debug('Unable to persist theme preference', error);
+    }
   });
-  setThemeToggleCopy(body.getAttribute('data-theme') || 'light');
+  setThemeToggleCopy(initialTheme);
 }
+
+setThemeMetaColor(initialTheme);
 
 const showSection = (id) => {
   detailViews.forEach((view) => {
