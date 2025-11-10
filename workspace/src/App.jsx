@@ -23,7 +23,8 @@ const mainNavigation = [
   { id: 'checkin', title: 'Check-In', caption: 'Daily reflections' },
   { id: 'alpha', title: 'Stock Alpha', caption: 'Idea tracker' },
   { id: 'portfolio', title: 'Portfolio', caption: 'Results & ledger', hasSubmenu: true },
-  { id: 'settings', title: 'Settings', caption: 'Preferences' }
+  { id: 'settings', title: 'Settings', caption: 'Preferences' },
+  { id: 'knowledge', title: 'Knowledge (Transform)', caption: 'Systems upgrade' }
 ];
 
 const DemoBanner = () => (
@@ -86,6 +87,34 @@ const staticSections = {
               <li>AI integrations</li>
               <li>Localization</li>
             </ul>
+          </>
+        )
+      }
+    ]
+  },
+  knowledge: {
+    title: 'Knowledge (Transform)',
+    meta: 'Transform setbacks into playbooks that sharpen timing, sizing, and conviction.',
+    cards: [
+      {
+        title: 'Transformation to-dos',
+        body: (
+          <>
+            <p>Keep this checklist front-and-center as you level up decision systems:</p>
+            <ol>
+              <li>
+                Add all short seller reports, study them deeply, and incorporate the lessons into downside knowledge.
+              </li>
+              <li>
+                Use the robot for both timing <em>and</em> sizing decisions—run simulations to understand exposure and risk.
+              </li>
+              <li>Practice with the Monopoly punchcard fishing game to reinforce patience and selectivity.</li>
+              <li>
+                Update your profiles to top-tier standards. Review the Pandora sale and other exits: why did you sell, do you
+                regret it, and what should have been handled differently? Capture how each move felt, categorize the lessons,
+                and build guardrails so it doesn&rsquo;t happen again.
+              </li>
+            </ol>
           </>
         )
       }
