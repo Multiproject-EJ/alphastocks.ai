@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>PWA — Punchcard Board</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0c1320" />
+  <!-- iOS standalone -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Punchcard Board" />
+  <link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAYAAABS3GwHAAABkUlEQVR42u3TsQ0AIAgAQXoLevdzK3aFNTRecQt88rFyN/wqRMAAYAAwABgADAAGAAOAAcAAYAAwABgADAAGAAOAAcAAYAAwABgADAAGAAOAAcAAYAAwABgADAAGAAOAAcAAYAAwABgADAAGAAOAAcAAYAAwABgADAAGAAOAAcAAYAAwAAYQAQOAAcAAYAAwABgADAAGAAOAAcAAYAAwABgADAAGAAOAAcAAYAAwABgADAAGAAOAAcAAYAAwABgADAAGAAOAAcAAYAAwABgADAAGAAOAAcAAYAAwABgADAAGAAOAAcAAGAAMAAYAA4ABwABgADAAGAAMAAYAA4ABwABgADAAGAAMAAYAA4ABwABgALhogNMlBAYAA4ABwABgADAAGAAMAAYAA4ABwABgADAAGAAMAAYAA4ABwABgADAAGAAMAAYAA4ABwABgADAAGAAMAAYAA4ABwABgADAAGAAMAAYAA4ABwABgADAAGAAMAAYAA2AAA2AAITAAGAAMAAYAA4ABwABgADAAGAAMAK8biGotJDs5aAUAAAAASUVORK5CYII=" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAA+UlEQVR42u3SoREAIAwAsXpEPfuxVXdtBUMgiMgCfx8rd/OvEMEAQhgAA2AADIABMAAGwAAYAANgAAyAATAABsAAGAADYAAMgAEwAAbAABgAA2AADIABMAAGwAAYAANgAAyAATAABsAAGAADYAAMgAEwAAbAABgAA2AADIABMAAGwAAYAANgAAyAATAABsAAGAADYAAMgAEwAAbAABgAA2AADIABMAAGwAAYAANwBzhdQhhACANgAAyAATAABsAAGAADYAAMgAEwAAbAABgAA2AADIABMAAGwAAYAANgAAyAATAABsAAGAADYAAMgAEwAAbAABgAA/DUAHblEchKMoP6AAAAAElFTkSuQmCC" />
+  <link rel="stylesheet" href="styles.css" />
+
+  <script>
+    /* Toggle data source (no rebuild needed):
+       window.PUNCHCARD_CONFIG = { useSupabase: true, supabaseUrl: 'https://XXX.supabase.co', supabaseAnonKey: '...' }
+       Replace the placeholder values above with your actual project URL/key to activate Supabase mode.
+    */
+    window.PUNCHCARD_CONFIG = {
+      useSupabase: true,
+      supabaseUrl: 'https://YOUR-PROJECT.supabase.co',
+      supabaseAnonKey: 'YOUR-ANON-KEY'
+    };
+  </script>
+</head>
+<body>
+  <div id="app" class="app">
+    <header class="app-bar">
+      <div class="brand">
+        <span class="dot"></span>
+        <strong>Punchcard Board</strong>
+      </div>
+      <nav class="app-actions">
+        <span id="dataBadge" class="badge-src">Supabase</span>
+        <button id="btnInstall" class="btn ghost" aria-label="Install App" title="Install App">Install</button>
+        <a href="/" class="btn ghost" title="Back to AlphaStocks.ai">AlphaStocks.ai</a>
+      </nav>
+    </header>
+
+    <main class="board-wrap">
+      <section class="board" aria-label="Punchcard Board">
+        <!-- Four “streets” (like a Monopoly board) -->
+        <div class="street street-top" data-side="up" aria-label="Top Street"></div>
+        <div class="street street-right" data-side="right" aria-label="Right Street"></div>
+        <div class="street street-bottom" data-side="down" aria-label="Bottom Street"></div>
+        <div class="street street-left" data-side="left" aria-label="Left Street"></div>
+
+        <!-- Center content -->
+        <div class="center-zone">
+          <div class="quadrant-legend">
+            <div><span class="key quality"></span> Quality</div>
+            <div><span class="key value"></span> Value</div>
+            <div><span class="key momentum"></span> Momentum</div>
+            <div><span class="key avoid"></span> Avoid</div>
+          </div>
+
+          <!-- Universe map -->
+          <div class="universe-card">
+            <header>
+              <h2>Universe — Style Map</h2>
+              <div class="hint">Tap a dot to preview as a card</div>
+            </header>
+            <canvas id="universeCanvas" width="900" height="600" aria-label="Universe Scatter Plot"></canvas>
+            <div class="axes-label axes-x">Value ⟶ Momentum</div>
+            <div class="axes-label axes-y">Quality ↑</div>
+          </div>
+
+          <!-- Investment card + actions -->
+          <div class="invest-card">
+            <header>
+              <h2>Investment Card</h2>
+              <div class="stack-count"><span id="stackCount">0</span> in stack</div>
+            </header>
+
+            <div id="currentCard" class="flip-card" aria-live="polite">
+              <div class="flip-card-inner">
+                <div class="flip-card-front">
+                  <div class="card-title" id="cardTitle">No card selected</div>
+                  <div class="card-sub" id="cardTicker"></div>
+                  <ul class="card-kpis">
+                    <li><span>Quality</span><strong id="cardQuality">–</strong></li>
+                    <li><span>Value</span><strong id="cardValue">–</strong></li>
+                    <li><span>Momentum</span><strong id="cardMomentum">–</strong></li>
+                    <li><span>Risk</span><strong id="cardRisk">–</strong></li>
+                  </ul>
+                </div>
+                <div class="flip-card-back">
+                  <div class="card-title">Stats</div>
+                  <ul class="stats">
+                    <li>MCAP: <strong id="statMcap">–</strong></li>
+                    <li>Rev 3Y CAGR: <strong id="statCagr">–</strong></li>
+                    <li>Gross Margin: <strong id="statGM">–</strong></li>
+                    <li>Debt/EBITDA: <strong id="statDebt">–</strong></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="card-actions">
+              <button id="btnPick" class="btn primary">Pick New Card</button>
+              <button id="btnFlip" class="btn">Flip</button>
+            </div>
+
+            <div class="invest-actions">
+              <div class="group-label">Invest to side:</div>
+              <div class="side-grid">
+                <button class="btn side" data-target="up">Up</button>
+                <button class="btn side" data-target="right">Right</button>
+                <button class="btn side" data-target="down">Down</button>
+                <button class="btn side" data-target="left">Left</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Modal for placed-card details -->
+    <dialog id="cardModal" class="modal">
+      <article class="modal-body" role="document" aria-label="Card Details">
+        <header class="modal-header">
+          <h3 id="modalTitle">Card</h3>
+          <button id="modalClose" class="icon-btn" aria-label="Close">✕</button>
+        </header>
+        <div class="modal-content">
+          <div class="flip-card modal-flip">
+            <div class="flip-card-inner" id="modalFlipInner">
+              <div class="flip-card-front">
+                <div class="card-title" id="modalTicker">–</div>
+                <ul class="card-kpis">
+                  <li><span>Quality</span><strong id="mQuality">–</strong></li>
+                  <li><span>Value</span><strong id="mValue">–</strong></li>
+                  <li><span>Momentum</span><strong id="mMomentum">–</strong></li>
+                  <li><span>Risk</span><strong id="mRisk">–</strong></li>
+                </ul>
+              </div>
+              <div class="flip-card-back">
+                <div class="card-title">Stats</div>
+                <ul class="stats">
+                  <li>MCAP: <strong id="mMcap">–</strong></li>
+                  <li>Rev 3Y CAGR: <strong id="mCagr">–</strong></li>
+                  <li>Gross Margin: <strong id="mGM">–</strong></li>
+                  <li>Debt/EBITDA: <strong id="mDebt">–</strong></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        <footer class="modal-footer">
+          <button id="modalFlip" class="btn">Flip</button>
+          <button id="modalRemove" class="btn danger">Remove from board</button>
+          <button id="modalClose2" class="btn ghost">Close</button>
+        </footer>
+      </article>
+    </dialog>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
