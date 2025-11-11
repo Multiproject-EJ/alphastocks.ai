@@ -24,6 +24,8 @@ const mainNavigation = [
   { id: 'alpha', title: 'Stock Alpha', caption: 'Idea tracker' },
   { id: 'portfolio', title: 'Portfolio', caption: 'Results & ledger', hasSubmenu: true },
   { id: 'settings', title: 'Settings', caption: 'Preferences' },
+  { id: 'punchcard', title: 'PUNCHCard MONOPLOY - Fishing SWIPE', caption: 'Patience & selectivity drill' },
+  { id: 'quadrant', title: 'Universe Quadrant', caption: 'Macro positioning map' },
   { id: 'knowledge', title: 'Knowledge (Transform)', caption: 'Systems upgrade' }
 ];
 
@@ -87,6 +89,95 @@ const staticSections = {
               <li>AI integrations</li>
               <li>Localization</li>
             </ul>
+          </>
+        )
+      }
+    ]
+  },
+  punchcard: {
+    title: 'PUNCHCard MONOPLOY - Fishing SWIPE',
+    meta: 'Gamify patience: log the few swings you are willing to take and why they are worth the punch card.',
+    cards: [
+      {
+        title: 'Select the day’s one big cast',
+        body: (
+          <>
+            <p>
+              Document the single opportunity that deserves a punch. If it does not clear the conviction bar, let it pass and
+              record the lesson.
+            </p>
+            <ul className="pill-list">
+              <li className="pill">Set-up quality</li>
+              <li className="pill">Catalyst clarity</li>
+              <li className="pill">Sizing discipline</li>
+            </ul>
+          </>
+        )
+      },
+      {
+        title: 'Fishing swipe log',
+        body: (
+          <>
+            <p>Track which casts you actually took and whether they honored the punch card rules.</p>
+            <table className="table subtle">
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>Opportunity</th>
+                  <th>Reason</th>
+                  <th>Discipline score</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>09:45</td>
+                  <td>Breakout retry</td>
+                  <td>Rejected – patience preserved</td>
+                  <td>⭐️⭐️⭐️⭐️</td>
+                </tr>
+                <tr>
+                  <td>14:10</td>
+                  <td>Pullback entry</td>
+                  <td>Taken – plan followed</td>
+                  <td>⭐️⭐️⭐️</td>
+                </tr>
+              </tbody>
+            </table>
+          </>
+        )
+      }
+    ]
+  },
+  quadrant: {
+    title: 'Universe Quadrant',
+    meta: 'Map market regimes, capital at risk, and opportunity sets into one actionable quadrant.',
+    cards: [
+      {
+        title: 'Quadrant map',
+        body: (
+          <>
+            <p>
+              Plot where the market, your book, and your watchlist live today. Use it to decide whether to attack, defend, or
+              stand down.
+            </p>
+            <div className="quadrant-grid" role="presentation">
+              <div className="quadrant-cell">Offense • High clarity</div>
+              <div className="quadrant-cell">Defense • High volatility</div>
+              <div className="quadrant-cell">Scout • Emerging themes</div>
+              <div className="quadrant-cell">Hibernate • Low edge</div>
+            </div>
+          </>
+        )
+      },
+      {
+        title: 'Universe journal prompts',
+        body: (
+          <>
+            <ol>
+              <li>What regime are you trading right now? List the confirming data.</li>
+              <li>Which quadrant is your top idea in, and what would move it?</li>
+              <li>How aligned is your sizing with the current quadrant?</li>
+            </ol>
           </>
         )
       }
