@@ -21,7 +21,7 @@ const portfolioSubsections = [
 const mainNavigation = [
   { id: 'dashboard', title: 'Today / Dashboard', caption: 'Morning overview' },
   { id: 'checkin', title: 'Check-In', caption: 'Daily reflections' },
-  { id: 'alpha', title: 'Stock Alpha', caption: 'Idea tracker' },
+  { id: 'alpha', title: 'AI Oracle Chat', caption: 'Learning & pattern analysis' },
   { id: 'portfolio', title: 'Portfolio', caption: 'Results & ledger', hasSubmenu: true },
   { id: 'settings', title: 'Settings', caption: 'Preferences' },
   { id: 'punchcard', title: 'PUNCHCard MONOPLOY - Fishing SWIPE', caption: 'Patience & selectivity drill' },
@@ -53,25 +53,156 @@ const staticSections = {
     ]
   },
   alpha: {
-    title: 'Stock Alpha',
-    meta: 'Track hypotheses, catalysts, and conviction levels.',
+    title: 'AI Oracle Chat',
+    meta: 'AI-powered learning analysis that tracks patterns, scores mistakes, and monitors improvement over time.',
     cards: [
       {
-        title: 'Idea pipeline',
+        title: 'Prepared Chat Examples',
         body: (
           <>
-            <ul className="pill-list">
-              <li className="pill">Growth</li>
-              <li className="pill">Event-driven</li>
-              <li className="pill">Swing</li>
-            </ul>
-            <p>Add notes, attach files, and set review reminders.</p>
+            <p><strong>Example conversations based on your records:</strong></p>
+            <div className="chat-examples">
+              <div className="chat-example">
+                <strong>💬 "Am I repeating the same mistakes?"</strong>
+                <p className="detail-meta">
+                  Analysis: Reviewed 10 transactions and 3 journal entries. Found pattern: you tend to let losses linger 
+                  too long on consumer names (JNJ exit came late). Severity: Medium. Good news: you're showing improvement 
+                  with FOMO discipline on breakout gaps.
+                </p>
+              </div>
+              <div className="chat-example">
+                <strong>💬 "What are my biggest risk patterns?"</strong>
+                <p className="detail-meta">
+                  Analysis: Top issue - overconfidence after wins (see Oct 29 journal). This led to aggressive NVDA position 
+                  sizing on Oct 31. Severity: High. Recommendation: Implement mandatory cool-down period after profitable trades.
+                </p>
+              </div>
+              <div className="chat-example">
+                <strong>💬 "Show me where I'm improving"</strong>
+                <p className="detail-meta">
+                  Progress detected: Discipline score improving week-over-week. Oct 29: Good discipline exiting laggards early. 
+                  Oct 31: Patient on FOMO entries. Pattern: You're successfully applying lessons from previous sessions. Keep it up!
+                </p>
+              </div>
+              <div className="chat-example">
+                <strong>💬 "Analyze my recent energy trade"</strong>
+                <p className="detail-meta">
+                  XLE Sell (Oct 31): Trimmed after relative strength fade - this shows good macro overlay awareness. 
+                  Severity of error: Low (actually a smart defensive move). Learning indicator: You're applying 
+                  quadrant thinking in real-time. Score: ⭐️⭐️⭐️⭐️
+                </p>
+              </div>
+            </div>
           </>
         )
       },
       {
-        title: 'Alpha research feed',
-        body: <p>Upload research snippets and tag by strategy to see aggregate performance.</p>
+        title: 'Learning Analysis Dashboard',
+        body: (
+          <>
+            <p><strong>Pattern Recognition & Scoring System</strong></p>
+            <table className="table subtle">
+              <thead>
+                <tr>
+                  <th>Issue Type</th>
+                  <th>Occurrences</th>
+                  <th>Severity</th>
+                  <th>Trend</th>
+                  <th>Score</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>FOMO on breakouts</td>
+                  <td>2 instances</td>
+                  <td>🟡 Medium</td>
+                  <td>📈 Improving</td>
+                  <td>⭐️⭐️⭐️⭐️</td>
+                </tr>
+                <tr>
+                  <td>Holding losers too long</td>
+                  <td>1 instance</td>
+                  <td>🟡 Medium</td>
+                  <td>⚠️ Watch</td>
+                  <td>⭐️⭐️⭐️</td>
+                </tr>
+                <tr>
+                  <td>Post-win overconfidence</td>
+                  <td>1 instance</td>
+                  <td>🔴 High</td>
+                  <td>⚠️ New pattern</td>
+                  <td>⭐️⭐️</td>
+                </tr>
+                <tr>
+                  <td>Macro-aware exits</td>
+                  <td>3 instances</td>
+                  <td>🟢 Positive</td>
+                  <td>📈 Improving</td>
+                  <td>⭐️⭐️⭐️⭐️⭐️</td>
+                </tr>
+              </tbody>
+            </table>
+            <div className="learning-summary">
+              <p><strong>Overall Learning Indicator:</strong> 📊 Positive trajectory with areas to watch</p>
+              <p>
+                <strong>Key Insight:</strong> You're successfully implementing patience disciplines from the punchcard system. 
+                However, watch for overconfidence cycles after profitable periods.
+              </p>
+            </div>
+          </>
+        )
+      },
+      {
+        title: 'Developer Notes: AI Oracle Process',
+        body: (
+          <>
+            <div className="dev-notes">
+              <h4>🔧 Implementation Overview</h4>
+              <p><strong>Purpose:</strong> AI Oracle analyzes all user records (transactions, journal entries, portfolio moves) 
+              to identify behavioral patterns, score mistakes, track learning progress, and assess action severity.</p>
+              
+              <h4>📋 Analysis Process</h4>
+              <ol>
+                <li><strong>Data Ingestion:</strong> Continuously monitors journal_entries and transactions tables for new records</li>
+                <li><strong>Pattern Detection:</strong> Uses NLP to identify recurring themes in bias_notes and transaction notes</li>
+                <li><strong>Severity Scoring:</strong> Classifies issues as Low/Medium/High based on financial impact and frequency</li>
+                <li><strong>Learning Trajectory:</strong> Compares current patterns vs historical to determine improvement/regression</li>
+                <li><strong>Actionable Insights:</strong> Generates specific, personalized recommendations</li>
+              </ol>
+              
+              <h4>🎯 Scoring Methodology</h4>
+              <ul>
+                <li>⭐️ - Critical issue, immediate attention needed</li>
+                <li>⭐️⭐️ - Significant concern, high severity</li>
+                <li>⭐️⭐️⭐️ - Moderate issue, needs monitoring</li>
+                <li>⭐️⭐️⭐️⭐️ - Minor issue or improving pattern</li>
+                <li>⭐️⭐️⭐️⭐️⭐️ - Positive behavior, reinforcement recommended</li>
+              </ul>
+              
+              <h4>🔄 Data Flow</h4>
+              <pre className="code-block">
+{`User Action → Record Created → AI Analysis → Pattern Match
+→ Severity Check → Learning Comparison → Score Assignment
+→ Chat Response Generation → Insight Display`}
+              </pre>
+              
+              <h4>🚀 Future Enhancements</h4>
+              <ul>
+                <li>Real-time chat interface with GPT-4 integration</li>
+                <li>Automated alerts when negative patterns emerge</li>
+                <li>Comparison with peer anonymized data for benchmarking</li>
+                <li>ML-powered prediction of likely next mistakes</li>
+                <li>Integration with punchcard system for unified discipline tracking</li>
+              </ul>
+              
+              <h4>📊 Demo Data Source</h4>
+              <p>
+                Current examples use: <code>demo.journal_entries.json</code> (3 entries) and 
+                <code>demo.transactions.json</code> (10 trades). In production, connects to live Supabase tables.
+              </p>
+            </div>
+          </>
+        )
       }
     ]
   },
