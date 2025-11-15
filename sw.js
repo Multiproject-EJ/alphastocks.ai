@@ -1,4 +1,4 @@
-const CACHE_NAME = 'alphastocks-pwa-v4';
+const CACHE_NAME = 'alphastocks-pwa-v5';
 const ORIGIN = self.location.origin;
 
 const CORE_ASSETS = [
@@ -23,7 +23,12 @@ const ROUTES = [
   '/weekly/',
   '/weekly/index.html',
   '/superinvestor/',
-  '/superinvestor/index.html'
+  '/superinvestor/index.html',
+  '/pwa/punchcard/',
+  '/pwa/punchcard/index.html',
+  '/pwa/punchcard/styles.css',
+  '/pwa/punchcard/app.js',
+  '/pwa/punchcard/manifest.webmanifest'
 ];
 
 const PRECACHE_URLS = [...new Set([...CORE_ASSETS, ...ROUTES])];

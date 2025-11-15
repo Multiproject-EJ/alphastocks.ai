@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>FAQ — Alphastocks.ai</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FAQ — AlphaStocks.ai</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="application-name" content="AlphaStocks.ai" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="AlphaStocks.ai" />
@@ -13,21 +13,60 @@
   <meta name="color-scheme" content="dark light" />
   <meta name="theme-color" content="#0B1120" />
   <link rel="manifest" href="/manifest.webmanifest" />
-  <link rel="stylesheet" href="assets/styles.css" />
+  <link rel="stylesheet" href="/assets/styles.css" />
   <link rel="icon" href="/assets/favicon.png" />
   <link rel="apple-touch-icon" href="/icons/icon-maskable-512.svg" />
   <link rel="mask-icon" href="/icons/icon-maskable-512.svg" color="#0B1120" />
 </head>
-<body data-theme="light">
-  <header>
-    <h1>FAQ</h1>
-    <nav><a href="index.html">Home</a></nav>
-  </header>
+<body data-theme="light" class="page-simple">
+  <div class="simple-page-shell">
+    <header class="simple-page-header">
+      <div>
+        <p class="eyebrow">Need-to-knows</p>
+        <h1>AlphaStocks.ai FAQ</h1>
+        <p>Answers for traders, researchers, and product partners exploring the workspace.</p>
+      </div>
+      <div class="simple-page-actions">
+        <a class="btn-secondary" href="/">Back to workspace</a>
+        <button class="btn-primary" type="button" data-pwa-install hidden>Install app</button>
+      </div>
+    </header>
 
-  <main>
-    <h2>Disclaimer</h2>
-    <p>This site is for educational purposes only. It is not investment advice.</p>
-  </main>
+    <main class="simple-page-main">
+      <section class="simple-card faq-grid">
+        <article>
+          <h2>Is this investment advice?</h2>
+          <p>No. AlphaStocks.ai is a product demo and ritual companion. It helps you organize research and accountability loops, but it does not provide brokerage, execution, or personalized advice.</p>
+        </article>
+        <article>
+          <h2>Does it work offline?</h2>
+          <p>Yes. Install the Progressive Web App and the service worker will cache the workspace shell, recent notes, and ledger highlights so you can review them when traveling.</p>
+        </article>
+        <article>
+          <h2>Which devices are supported?</h2>
+          <p>Any modern Chromium, Safari, or Firefox browser on desktop, tablet, and mobile. Safe-area padding keeps things usable on devices with display cutouts.</p>
+        </article>
+        <article>
+          <h2>Can I invite a team?</h2>
+          <p>The public demo ships with a single-seat flow. Reach out if you&apos;d like to experiment with shared rituals, Supabase sync, or custom data feeds.</p>
+        </article>
+        <article>
+          <h2>How do updates ship?</h2>
+          <p>The service worker performs background refreshes. When new assets are available they&apos;re fetched silently and applied the next time you open the app.</p>
+        </article>
+        <article>
+          <h2>Where can I send feedback?</h2>
+          <p>Contact <a href="mailto:hello@alphastocks.ai">hello@alphastocks.ai</a> with bugs, feature ideas, or integration requests.</p>
+        </article>
+      </section>
+    </main>
+
+    <footer class="simple-page-footer">
+      <p>© <span id="year"></span> AlphaStocks.ai • <a href="/about.html">About</a> • <a href="/superinvestor/">Superinvestor directory</a></p>
+    </footer>
+  </div>
+
   <script src="/assets/pwa.js"></script>
+  <script src="/assets/main.js"></script>
 </body>
 </html>

@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Alphastocks.ai — Monthly Newsletters</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Monthly Letters — AlphaStocks.ai</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="application-name" content="AlphaStocks.ai" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="AlphaStocks.ai" />
@@ -13,21 +13,66 @@
   <meta name="color-scheme" content="dark light" />
   <meta name="theme-color" content="#0B1120" />
   <link rel="manifest" href="/manifest.webmanifest" />
-  <link rel="stylesheet" href="../assets/styles.css" />
+  <link rel="stylesheet" href="/assets/styles.css" />
   <link rel="icon" href="/assets/favicon.png" />
   <link rel="apple-touch-icon" href="/icons/icon-maskable-512.svg" />
   <link rel="mask-icon" href="/icons/icon-maskable-512.svg" color="#0B1120" />
 </head>
-<body data-theme="light">
-  <header>
-    <h1>Monthly Newsletters</h1>
-    <nav><a href="../index.html">Home</a></nav>
-  </header>
+<body data-theme="light" class="page-simple">
+  <div class="simple-page-shell">
+    <header class="simple-page-header">
+      <div>
+        <p class="eyebrow">Archive</p>
+        <h1>Monthly Alpha Letters</h1>
+        <p>Digest the high-conviction ideas, punchcard moves, and mental models we&apos;re experimenting with.</p>
+      </div>
+      <div class="simple-page-actions">
+        <a class="btn-secondary" href="/">Back to workspace</a>
+        <button class="btn-primary" type="button" data-pwa-install hidden>Install app</button>
+      </div>
+    </header>
 
-  <main>
-    <h2>Archive</h2>
-    <p>This is where your monthly newsletters will go.</p>
-  </main>
+    <main class="simple-page-main">
+      <section class="simple-card">
+        <h2>Recent issues</h2>
+        <div class="archive-list">
+          <article>
+            <p class="archive-label">March 2025</p>
+            <h3>Recession watchlist refresh</h3>
+            <p>Macro stress playbook, defensives to accumulate, and a mobile-first journaling routine.</p>
+          </article>
+          <article>
+            <p class="archive-label">February 2025</p>
+            <h3>When AI narratives collide with real earnings</h3>
+            <p>Checklists, valuation deltas, and alerts we&apos;re pinning for large language model infrastructure.</p>
+          </article>
+          <article>
+            <p class="archive-label">January 2025</p>
+            <h3>The punchcard reset</h3>
+            <p>How we prune the board, refresh the momentum rails, and keep the ritual lightweight.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="simple-card simple-card--accent">
+        <h2>Subscribe for updates</h2>
+        <p>Drop your email to get the PDF version and workspace template automatically.</p>
+        <form class="simple-form">
+          <label class="field">
+            <span>Email</span>
+            <input type="email" name="newsletter" placeholder="you@example.com" required />
+          </label>
+          <button class="btn-primary" type="submit">Join list</button>
+        </form>
+      </section>
+    </main>
+
+    <footer class="simple-page-footer">
+      <p>© <span id="year"></span> AlphaStocks.ai • <a href="/weekly/">Weekly digest</a> • <a href="/faq.html">FAQ</a></p>
+    </footer>
+  </div>
+
   <script src="/assets/pwa.js"></script>
+  <script src="/assets/main.js"></script>
 </body>
 </html>

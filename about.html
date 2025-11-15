@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>About — Alphastocks.ai</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>About — AlphaStocks.ai</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="application-name" content="AlphaStocks.ai" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="AlphaStocks.ai" />
@@ -12,22 +12,67 @@
   <meta name="format-detection" content="telephone=no" />
   <meta name="color-scheme" content="dark light" />
   <meta name="theme-color" content="#0B1120" />
+  <meta name="description" content="Learn how the AlphaStocks.ai workspace blends AI rituals, research artifacts, and offline-friendly workflows." />
   <link rel="manifest" href="/manifest.webmanifest" />
-  <link rel="stylesheet" href="assets/styles.css" />
+  <link rel="stylesheet" href="/assets/styles.css" />
   <link rel="icon" href="/assets/favicon.png" />
   <link rel="apple-touch-icon" href="/icons/icon-maskable-512.svg" />
   <link rel="mask-icon" href="/icons/icon-maskable-512.svg" color="#0B1120" />
 </head>
-<body data-theme="light">
-  <header>
-    <h1>About Alphastocks.ai</h1>
-    <nav><a href="index.html">Home</a></nav>
-  </header>
+<body data-theme="light" class="page-simple">
+  <div class="simple-page-shell">
+    <header class="simple-page-header">
+      <div>
+        <p class="eyebrow">AlphaStocks.ai</p>
+        <h1>About the workspace</h1>
+        <p>The mobile-native ritual board for investors who want a calmer, more intentional workflow.</p>
+      </div>
+      <div class="simple-page-actions">
+        <a class="btn-secondary" href="/">Back to workspace</a>
+        <button class="btn-primary" type="button" data-pwa-install hidden>Install app</button>
+      </div>
+    </header>
 
-  <main>
-    <p>Alphastocks.ai tracks superinvestor behavior and shares AI-powered insights.</p>
-    <p>Our goal: provide real investor-driven analysis, not just analyst opinions.</p>
-  </main>
+    <main class="simple-page-main">
+      <section class="simple-card">
+        <h2>Designed for real-life trading sessions</h2>
+        <ul class="simple-list">
+          <li><strong>Offline-first.</strong> Launch the PWA on your phone, hop on a flight, and keep reviewing ideas without connectivity.</li>
+          <li><strong>Fast context switching.</strong> The dashboard, alpha tracker, ledger, and daily check-ins live in one tap-friendly shell.</li>
+          <li><strong>Safe-area aware.</strong> iOS and Android status bars are handled automatically so nothing feels cramped.</li>
+        </ul>
+      </section>
+
+      <section class="simple-card simple-card--accent">
+        <h2>What&apos;s inside</h2>
+        <div class="simple-grid">
+          <article>
+            <h3>Morning dashboard</h3>
+            <p>Pre-market checklists, market internals, and timelines to keep you honest about the day&apos;s focus.</p>
+          </article>
+          <article>
+            <h3>Alpha notebook</h3>
+            <p>Capture hypotheses, catalysts, and conviction levels, then promote them into your punchcard stack.</p>
+          </article>
+          <article>
+            <h3>Portfolio ledger</h3>
+            <p>Ledger highlights and results tiles stay cached so you can reference them even when you&apos;re offline.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="simple-card">
+        <h2>Availability</h2>
+        <p>AlphaStocks.ai runs anywhere a modern browser is available. Install it as a Progressive Web App on mobile, tablet, or desktop to keep session state, local preferences, and cached data at your fingertips.</p>
+      </section>
+    </main>
+
+    <footer class="simple-page-footer">
+      <p>© <span id="year"></span> AlphaStocks.ai • <a href="/faq.html">FAQ</a> • <a href="/superinvestor/">Superinvestor directory</a></p>
+    </footer>
+  </div>
+
   <script src="/assets/pwa.js"></script>
+  <script src="/assets/main.js"></script>
 </body>
 </html>

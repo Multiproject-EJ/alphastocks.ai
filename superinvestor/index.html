@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Superinvestor Directory — Alphastocks.ai</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Superinvestor Directory — AlphaStocks.ai</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="application-name" content="AlphaStocks.ai" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="AlphaStocks.ai" />
@@ -13,46 +13,78 @@
   <meta name="color-scheme" content="dark light" />
   <meta name="theme-color" content="#0B1120" />
   <link rel="manifest" href="/manifest.webmanifest" />
-  <link rel="stylesheet" href="../assets/styles.css" />
+  <link rel="stylesheet" href="/assets/styles.css" />
   <link rel="icon" href="/assets/favicon.png" />
   <link rel="apple-touch-icon" href="/icons/icon-maskable-512.svg" />
   <link rel="mask-icon" href="/icons/icon-maskable-512.svg" color="#0B1120" />
 </head>
-<body data-theme="light">
-  <header class="site-header">
-    <div class="container nav">
-      <a class="brand" href="../"><span class="logo-dot"></span> Alphastocks.ai</a>
-      <nav><a href="../weekly/">Weekly</a><a href="../monthly/">Monthly</a><a href="../about.html">About</a></nav>
-    </div>
-  </header>
-
-  <main class="section">
-    <div class="container">
-      <h1>Superinvestor Directory (A–Z)</h1>
-      <p class="sub">Links to filings, letters, interviews, and feeds. Expanding over time.</p>
-      <input id="dir-search-page" type="search" placeholder="Search investors…" />
-      <div class="cards three" id="dir-cards-page">
-        <article class="card dir" data-name="Warren Buffett">
-          <h3>Warren Buffett</h3>
-          <p>Berkshire Hathaway</p>
-          <p><a class="more" href="https://www.sec.gov/edgar/browse/?CIK=0001067983" target="_blank">13F</a> · <a class="more" href="https://www.berkshirehathaway.com/letters/letters.html" target="_blank">Letters</a></p>
-        </article>
-        <article class="card dir" data-name="Seth Klarman">
-          <h3>Seth Klarman</h3>
-          <p>Baupost</p>
-          <p><a class="more" href="https://www.sec.gov/edgar/search/#/q=Baupost" target="_blank">13F</a></p>
-        </article>
-        <article class="card dir" data-name="Joel Greenblatt">
-          <h3>Joel Greenblatt</h3>
-          <p>Gotham</p>
-          <p><a class="more" href="https://www.sec.gov/edgar/search/#/q=Gotham%20Asset" target="_blank">13F</a></p>
-        </article>
+<body data-theme="light" class="page-simple page-directory">
+  <div class="simple-page-shell">
+    <header class="simple-page-header">
+      <div>
+        <p class="eyebrow">Reference kit</p>
+        <h1>Superinvestor directory</h1>
+        <p>Handy starting points when you want to see how veteran managers are positioning across the cycle.</p>
       </div>
-    </div>
-  </main>
+      <div class="simple-page-actions">
+        <a class="btn-secondary" href="/">Back to workspace</a>
+        <button class="btn-primary" type="button" data-pwa-install hidden>Install app</button>
+      </div>
+    </header>
 
-  <footer class="site-footer"><div class="container"><p>© 2025 Alphastocks.ai</p></div></footer>
+    <nav class="simple-pill-nav" aria-label="Site">
+      <a href="/weekly/">Weekly</a>
+      <a href="/monthly/">Monthly</a>
+      <a href="/about.html">About</a>
+      <a href="/faq.html">FAQ</a>
+    </nav>
+
+    <main class="simple-page-main">
+      <section class="simple-card directory-card">
+        <div class="directory-intro">
+          <h2>Directory (A–Z)</h2>
+          <p>We start with Berkshire legends and expand into event-driven, value, and crossover specialists. Save the PWA to your phone to keep the rolodex handy.</p>
+        </div>
+        <label class="field">
+          <span>Filter by name</span>
+          <input id="dir-search-page" type="search" placeholder="Search investors…" />
+        </label>
+        <div class="directory-grid" id="dir-cards-page">
+          <article class="directory-entry" data-name="Warren Buffett">
+            <h3>Warren Buffett</h3>
+            <p>Berkshire Hathaway</p>
+            <p><a class="more" href="https://www.sec.gov/edgar/browse/?CIK=0001067983" target="_blank" rel="noreferrer">13F filings</a> · <a class="more" href="https://www.berkshirehathaway.com/letters/letters.html" target="_blank" rel="noreferrer">Letters</a></p>
+          </article>
+          <article class="directory-entry" data-name="Seth Klarman">
+            <h3>Seth Klarman</h3>
+            <p>Baupost Group</p>
+            <p><a class="more" href="https://www.sec.gov/edgar/search/#/q=Baupost" target="_blank" rel="noreferrer">13F filings</a></p>
+          </article>
+          <article class="directory-entry" data-name="Joel Greenblatt">
+            <h3>Joel Greenblatt</h3>
+            <p>Gotham</p>
+            <p><a class="more" href="https://www.sec.gov/edgar/search/#/q=Gotham%20Asset" target="_blank" rel="noreferrer">13F filings</a></p>
+          </article>
+          <article class="directory-entry" data-name="Li Lu">
+            <h3>Li Lu</h3>
+            <p>Himalaya Capital</p>
+            <p><a class="more" href="https://www.sec.gov/edgar/search/#/q=Himalaya%20Capital" target="_blank" rel="noreferrer">13F filings</a></p>
+          </article>
+          <article class="directory-entry" data-name="Terry Smith">
+            <h3>Terry Smith</h3>
+            <p>Fundsmith</p>
+            <p><a class="more" href="https://www.fundsmith.co.uk/insights/investor-letters" target="_blank" rel="noreferrer">Investor letters</a></p>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="simple-page-footer">
+      <p>© <span id="year"></span> AlphaStocks.ai</p>
+    </footer>
+  </div>
+
   <script src="/assets/pwa.js"></script>
-  <script src="../assets/main.js"></script>
+  <script src="/assets/main.js"></script>
 </body>
 </html>
