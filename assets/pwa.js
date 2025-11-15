@@ -4,8 +4,27 @@
   }
 
   const INSTALL_STORAGE_KEY = 'alphastocksPwaInstalled';
-  const installButton = document.querySelector('[data-pwa-install]');
   let deferredPrompt = null;
+
+  const ensureInstallButtons = () => {
+    const buttons = Array.from(document.querySelectorAll('[data-pwa-install]'));
+    if (buttons.length || !document.body) {
+      return buttons;
+    }
+
+    const fab = document.createElement('button');
+    fab.type = 'button';
+    fab.dataset.pwaInstall = 'fab';
+    fab.className = 'btn-primary pwa-fab';
+    fab.setAttribute('aria-label', 'Install AlphaStocks workspace');
+    fab.textContent = 'Install app';
+    fab.setAttribute('hidden', '');
+    document.body.appendChild(fab);
+    return [fab];
+  };
+
+  const installButtons = ensureInstallButtons();
+  let installListenersBound = false;
 
   const setInstallFlag = (value) => {
     try {
@@ -27,17 +46,50 @@
     }
   };
 
-  const hideInstallButton = () => {
-    if (!installButton) return;
-    installButton.setAttribute('hidden', '');
-    installButton.classList.remove('is-visible');
+  const hideInstallButtons = () => {
+    installButtons.forEach((button) => {
+      button.setAttribute('hidden', '');
+      button.classList.remove('is-visible');
+      button.disabled = false;
+    });
   };
 
-  const showInstallButton = () => {
-    if (!installButton) return;
-    installButton.classList.add('is-visible');
-    installButton.removeAttribute('hidden');
-    installButton.disabled = false;
+  const showInstallButtons = () => {
+    installButtons.forEach((button) => {
+      button.classList.add('is-visible');
+      button.removeAttribute('hidden');
+      button.disabled = false;
+    });
+  };
+
+  const onInstallClick = async (event) => {
+    if (!deferredPrompt) {
+      return;
+    }
+    event.preventDefault();
+    const target = event.currentTarget;
+    if (target) {
+      target.disabled = true;
+    }
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      setInstallFlag('1');
+    }
+    deferredPrompt = null;
+    hideInstallButtons();
+    toggleInstallListeners(false);
+  };
+
+  const toggleInstallListeners = (enable) => {
+    if (!installButtons.length) {
+      return;
+    }
+    installButtons.forEach((button) => {
+      const method = enable ? 'addEventListener' : 'removeEventListener';
+      button[method]('click', onInstallClick);
+    });
+    installListenersBound = enable;
   };
 
   const registerServiceWorker = () => {
@@ -55,35 +107,27 @@
   window.addEventListener('beforeinstallprompt', (event) => {
     deferredPrompt = event;
     event.preventDefault();
-    if (!installButton) {
+    if (!installButtons.length) {
       return;
     }
-    showInstallButton();
-
-    const clickHandler = async () => {
-      installButton.disabled = true;
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      if (outcome === 'accepted') {
-        setInstallFlag('1');
-      }
-      deferredPrompt = null;
-      hideInstallButton();
-    };
-
-    installButton.addEventListener('click', clickHandler, { once: true });
+    showInstallButtons();
+    if (!installListenersBound) {
+      toggleInstallListeners(true);
+    }
   });
 
   window.addEventListener('appinstalled', () => {
     setInstallFlag('1');
     deferredPrompt = null;
-    hideInstallButton();
+    hideInstallButtons();
+    toggleInstallListeners(false);
   });
 
-  if (installButton) {
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+  if (installButtons.length) {
+    const isStandalone =
+      window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
     if (isStandalone || hasInstallFlag()) {
-      hideInstallButton();
+      hideInstallButtons();
     }
   }
 })();

@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Alphastocks.ai — Weekly Insights</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Weekly Insights — AlphaStocks.ai</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="application-name" content="AlphaStocks.ai" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="AlphaStocks.ai" />
@@ -13,21 +13,58 @@
   <meta name="color-scheme" content="dark light" />
   <meta name="theme-color" content="#0B1120" />
   <link rel="manifest" href="/manifest.webmanifest" />
-  <link rel="stylesheet" href="../assets/styles.css" />
+  <link rel="stylesheet" href="/assets/styles.css" />
   <link rel="icon" href="/assets/favicon.png" />
   <link rel="apple-touch-icon" href="/icons/icon-maskable-512.svg" />
   <link rel="mask-icon" href="/icons/icon-maskable-512.svg" color="#0B1120" />
 </head>
-<body data-theme="light">
-  <header>
-    <h1>Weekly Insights</h1>
-    <nav><a href="../index.html">Home</a></nav>
-  </header>
+<body data-theme="light" class="page-simple">
+  <div class="simple-page-shell">
+    <header class="simple-page-header">
+      <div>
+        <p class="eyebrow">Field notes</p>
+        <h1>Weekly Insights</h1>
+        <p>Micro updates, active watchlists, and community prompts delivered straight to your device.</p>
+      </div>
+      <div class="simple-page-actions">
+        <a class="btn-secondary" href="/">Back to workspace</a>
+        <button class="btn-primary" type="button" data-pwa-install hidden>Install app</button>
+      </div>
+    </header>
 
-  <main>
-    <h2>Archive</h2>
-    <p>This is where your weekly posts will go.</p>
-  </main>
+    <main class="simple-page-main">
+      <section class="simple-card">
+        <h2>What to expect</h2>
+        <ul class="simple-list">
+          <li><strong>Signals.</strong> A concise look at internals, regime markers, and catalysts we&apos;re tracking.</li>
+          <li><strong>Prompts.</strong> Suggested journal cues to keep your punchcard honest.</li>
+          <li><strong>Workspace drops.</strong> Templates and experiments you can duplicate into your own ritual.</li>
+        </ul>
+      </section>
+
+      <section class="simple-card simple-card--accent">
+        <h2>Weekly drop queue</h2>
+        <div class="archive-list">
+          <article>
+            <p class="archive-label">Week 14</p>
+            <h3>Fed minutes reality check</h3>
+            <p>Scenarios for a second inflation flare-up plus how we&apos;re hedging risk.</p>
+          </article>
+          <article>
+            <p class="archive-label">Week 13</p>
+            <h3>Momentum handoffs</h3>
+            <p>Tracking capital rotation from mega-cap tech into industrial software.</p>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="simple-page-footer">
+      <p>© <span id="year"></span> AlphaStocks.ai • <a href="/monthly/">Monthly letters</a> • <a href="/faq.html">FAQ</a></p>
+    </footer>
+  </div>
+
   <script src="/assets/pwa.js"></script>
+  <script src="/assets/main.js"></script>
 </body>
 </html>
