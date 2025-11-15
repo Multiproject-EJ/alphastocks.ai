@@ -11,7 +11,120 @@ const DEFAULT_FOCUS_LIST = [
   { id: 'focus-4', title: 'Position audit', caption: 'Rotate winners & laggards', tag: { label: 'Next week' } }
 ];
 
-const tabs = ['Overview', 'Notes', 'Tasks', 'Analytics'];
+const tabs = ['Overview', 'Notes', 'Tasks', 'Analytics', 'ValueBot'];
+
+const valueBotTabs = [
+  {
+    id: 'valuebot-1',
+    label: 'Tab 1',
+    title: 'Tab 1 — Opening snapshot',
+    description: 'ValueBot summarizes overnight news and highlights factors impacting cash flow stability.',
+    bullets: [
+      'Key macro datapoints shaping discount rates.',
+      'Sector heat map filtered by valuation spread.',
+      'Signals worth validating during the morning call.'
+    ]
+  },
+  {
+    id: 'valuebot-2',
+    label: 'Tab 2',
+    title: 'Tab 2 — Valuation screens',
+    description: 'Deploy curated screeners that weigh EV/EBITDA against free cash flow momentum.',
+    bullets: [
+      'Blend relative valuation with historical z-scores.',
+      'Surface upgrades or downgrades that shift multiples.',
+      'Rank opportunities by margin of safety.'
+    ]
+  },
+  {
+    id: 'valuebot-3',
+    label: 'Tab 3',
+    title: 'Tab 3 — Earnings quality',
+    description: 'Automated forensic accounting checks identify accrual spikes and working capital drifts.',
+    bullets: [
+      'Review Beneish-style risk scores.',
+      'Flag inconsistent revenue recognition narratives.',
+      'Track restatement probability.'
+    ]
+  },
+  {
+    id: 'valuebot-4',
+    label: 'Tab 4',
+    title: 'Tab 4 — Capital allocation',
+    description: 'Audit buyback cadence, dividend coverage, and reinvestment priorities.',
+    bullets: [
+      'Compare payout ratios versus peers.',
+      'Map reinvestment IRRs and hurdle rates.',
+      'Highlight dilution or leverage creep.'
+    ]
+  },
+  {
+    id: 'valuebot-5',
+    label: 'Tab 5',
+    title: 'Tab 5 — Risk guardrails',
+    description: 'Scenario grids stress-test valuation assumptions against macro and company shocks.',
+    bullets: [
+      'Customizable probability trees.',
+      'Downside capture estimates.',
+      'Suggested hedges per theme.'
+    ]
+  },
+  {
+    id: 'valuebot-6',
+    label: 'Tab 6',
+    title: 'Tab 6 — Catalyst radar',
+    description: 'Rolling roadmap of events, filings, and management appearances.',
+    bullets: [
+      'Track how catalysts shift conviction.',
+      'Assign prep tasks to teammates.',
+      'Auto-ingest transcripts for highlights.'
+    ]
+  },
+  {
+    id: 'valuebot-7',
+    label: 'Tab 7',
+    title: 'Tab 7 — Macro overlay',
+    description: 'Link portfolio names to regime models for growth, inflation, and liquidity.',
+    bullets: [
+      'Dynamic beta adjustments.',
+      'Factor exposures to monitor.',
+      'Playbooks per macro quadrant.'
+    ]
+  },
+  {
+    id: 'valuebot-8',
+    label: 'Tab 8',
+    title: 'Tab 8 — Signal log',
+    description: 'Chronicle prompts, answers, and follow-ups to maintain an audit trail.',
+    bullets: [
+      'Timestamped recommendations.',
+      'Confidence scoring with rationale.',
+      'Link back to shared research notes.'
+    ]
+  },
+  {
+    id: 'valuebot-9',
+    label: 'Tab 9',
+    title: 'Tab 9 — Compliance summary',
+    description: 'Real-time guardrails around restricted lists, disclosures, and approvals.',
+    bullets: [
+      'Instant alerts for sensitive tickers.',
+      'Track approvals tied to reports.',
+      'Shareable PDF snapshots.'
+    ]
+  },
+  {
+    id: 'valuebot-10',
+    label: 'Tab 10',
+    title: 'Tab 10 — Action board',
+    description: 'Roll up ValueBot recommendations into next actions aligned with execution windows.',
+    bullets: [
+      'Auto-prioritized todo list.',
+      'Hand-off checklist for operations.',
+      'Context-aware reminders.'
+    ]
+  }
+];
 
 const portfolioSubsections = [
   { id: 'portfolio-results', label: 'Results' },
@@ -349,6 +462,7 @@ const App = () => {
   const [theme, setTheme] = useState('dark');
   const [activeSection, setActiveSection] = useState('dashboard');
   const [activeTab, setActiveTab] = useState(tabs[0]);
+  const [activeValueBotTab, setActiveValueBotTab] = useState(valueBotTabs[0].id);
   const [portfolioSub, setPortfolioSub] = useState('portfolio-results');
   const [activeProfile, setActiveProfile] = useState(null);
   const [profileError, setProfileError] = useState(null);
@@ -790,6 +904,51 @@ const App = () => {
                 </article>
               </section>
             </div>
+            {activeTab === 'ValueBot' && (
+              <section className="valuebot-panel" aria-label="ValueBot workspace">
+                <header className="valuebot-header">
+                  <div>
+                    <h2>ValueBot research console</h2>
+                    <p>
+                      Explore AI-generated valuation prompts, conviction notes, and scenario planning tabs tailored for
+                      deep fundamental work.
+                    </p>
+                  </div>
+                  <span className="tag tag-blue">AI assistant</span>
+                </header>
+                <div className="valuebot-tabs" role="tablist" aria-label="ValueBot prompts">
+                  {valueBotTabs.map((tab) => (
+                    <button
+                      key={tab.id}
+                      className={`valuebot-tab${activeValueBotTab === tab.id ? ' active' : ''}`}
+                      type="button"
+                      role="tab"
+                      aria-selected={activeValueBotTab === tab.id}
+                      onClick={() => setActiveValueBotTab(tab.id)}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
+                <div className="valuebot-views">
+                  {valueBotTabs.map((tab) => (
+                    <article
+                      key={tab.id}
+                      className={`valuebot-view${activeValueBotTab === tab.id ? ' active' : ''}`}
+                      aria-hidden={activeValueBotTab !== tab.id}
+                    >
+                      <h3>{tab.title}</h3>
+                      <p>{tab.description}</p>
+                      <ul>
+                        {tab.bullets.map((bullet) => (
+                          <li key={bullet}>{bullet}</li>
+                        ))}
+                      </ul>
+                    </article>
+                  ))}
+                </div>
+              </section>
+            )}
           </div>
         </div>
       </section>
