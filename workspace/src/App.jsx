@@ -15,113 +15,113 @@ const tabs = ['Overview', 'Notes', 'Tasks', 'Analytics', 'ValueBot'];
 
 const valueBotTabs = [
   {
-    id: 'valuebot-1',
-    label: 'Tab 1',
-    title: 'Tab 1 — Opening snapshot',
-    description: 'ValueBot summarizes overnight news and highlights factors impacting cash flow stability.',
+    id: 'valuebot-management',
+    label: 'Management',
+    title: 'Management — Accountability pulse',
+    description: 'Snapshot the credibility of leadership, cadence of communication, and alignment with owners.',
     bullets: [
-      'Key macro datapoints shaping discount rates.',
-      'Sector heat map filtered by valuation spread.',
-      'Signals worth validating during the morning call.'
+      'Summaries of the most recent earnings call promises vs. delivery.',
+      'Succession, insider buying, and compensation flags to watch.',
+      'Follow-up prompts for the next conversation with the team.'
     ]
   },
   {
-    id: 'valuebot-2',
-    label: 'Tab 2',
-    title: 'Tab 2 — Valuation screens',
-    description: 'Deploy curated screeners that weigh EV/EBITDA against free cash flow momentum.',
+    id: 'valuebot-income',
+    label: 'Income & future sales',
+    title: 'Income & future sales — Demand glide path',
+    description: 'Model top-line durability with scenario bands for price, volume, and mix.',
     bullets: [
-      'Blend relative valuation with historical z-scores.',
-      'Surface upgrades or downgrades that shift multiples.',
-      'Rank opportunities by margin of safety.'
+      'Bridge trailing revenue to the forward twelve-month funnel.',
+      'Highlight contracts or cohorts that need renewal attention.',
+      'Stress units vs. pricing levers across bear/base/bull views.'
     ]
   },
   {
-    id: 'valuebot-3',
-    label: 'Tab 3',
-    title: 'Tab 3 — Earnings quality',
-    description: 'Automated forensic accounting checks identify accrual spikes and working capital drifts.',
+    id: 'valuebot-moat',
+    label: 'Moat',
+    title: 'Moat — Competitive advantage checklist',
+    description: 'Capture the structural protections that justify super-normal returns.',
     bullets: [
-      'Review Beneish-style risk scores.',
-      'Flag inconsistent revenue recognition narratives.',
-      'Track restatement probability.'
+      'Score switching costs, brand equity, regulation, and data flywheels.',
+      'Call out erosion signals, pricing pressure, or substitute threats.',
+      'Recommend diligence angles for on-the-ground channel checks.'
     ]
   },
   {
-    id: 'valuebot-4',
-    label: 'Tab 4',
-    title: 'Tab 4 — Capital allocation',
-    description: 'Audit buyback cadence, dividend coverage, and reinvestment priorities.',
+    id: 'valuebot-debt',
+    label: 'Debt & refinancing',
+    title: 'Debt & refinancing — Balance sheet guardrails',
+    description: 'Map maturity walls, covenant slack, and refinancing lanes.',
     bullets: [
-      'Compare payout ratios versus peers.',
-      'Map reinvestment IRRs and hurdle rates.',
-      'Highlight dilution or leverage creep.'
+      'Next 24 months of obligations vs. liquidity stack.',
+      'Interest coverage, hedging, and counterparty considerations.',
+      'What-if math for credit spread shock or rating drift.'
     ]
   },
   {
-    id: 'valuebot-5',
-    label: 'Tab 5',
-    title: 'Tab 5 — Risk guardrails',
-    description: 'Scenario grids stress-test valuation assumptions against macro and company shocks.',
+    id: 'valuebot-risks',
+    label: 'Risks',
+    title: 'Risks — Blind spot radar',
+    description: 'Auto-scan macro, company, and behavioral risks tied to the thesis.',
     bullets: [
-      'Customizable probability trees.',
-      'Downside capture estimates.',
-      'Suggested hedges per theme.'
+      'Heat map of probability vs. impact for major risk pillars.',
+      'Pre-written mitigation plans or hedges by scenario.',
+      'Regulatory or geopolitical triggers to monitor each week.'
     ]
   },
   {
-    id: 'valuebot-6',
-    label: 'Tab 6',
-    title: 'Tab 6 — Catalyst radar',
-    description: 'Rolling roadmap of events, filings, and management appearances.',
+    id: 'valuebot-profile',
+    label: 'Profile',
+    title: 'Profile — Snapshot briefing',
+    description: 'Keep the full company dossier handy for introductions and sharing.',
     bullets: [
-      'Track how catalysts shift conviction.',
-      'Assign prep tasks to teammates.',
-      'Auto-ingest transcripts for highlights.'
+      'Elevator pitch, coverage status, and conviction scale.',
+      'Recent catalysts, ownership notes, and strategic initiatives.',
+      'Quick links to files, transcripts, and diligence vaults.'
     ]
   },
   {
-    id: 'valuebot-7',
-    label: 'Tab 7',
-    title: 'Tab 7 — Macro overlay',
-    description: 'Link portfolio names to regime models for growth, inflation, and liquidity.',
+    id: 'valuebot-scenarios',
+    label: 'Scenarios',
+    title: 'Scenarios — Sensitivity sandbox',
+    description: 'Play with sliders that instantly refresh valuation deltas.',
     bullets: [
-      'Dynamic beta adjustments.',
-      'Factor exposures to monitor.',
-      'Playbooks per macro quadrant.'
+      'Toggle discount rates, tax rates, or capex intensity to see impact.',
+      'Overlay AI suggestions for upside/downside probability.',
+      'Export ready-to-present tornado and spider charts.'
     ]
   },
   {
-    id: 'valuebot-8',
-    label: 'Tab 8',
-    title: 'Tab 8 — Signal log',
-    description: 'Chronicle prompts, answers, and follow-ups to maintain an audit trail.',
+    id: 'valuebot-capital',
+    label: 'Capital allocation',
+    title: 'Capital allocation — Stewardship tracker',
+    description: 'Track how cash is deployed relative to stated priorities.',
     bullets: [
-      'Timestamped recommendations.',
-      'Confidence scoring with rationale.',
-      'Link back to shared research notes.'
+      'Buyback, dividend, and reinvestment scorecards.',
+      'Net new investments compared with hurdle rates.',
+      'Accountability notes from prior board commentary.'
     ]
   },
   {
-    id: 'valuebot-9',
-    label: 'Tab 9',
-    title: 'Tab 9 — Compliance summary',
-    description: 'Real-time guardrails around restricted lists, disclosures, and approvals.',
+    id: 'valuebot-valuation',
+    label: 'Valuation',
+    title: 'Valuation — Target stack',
+    description: 'Line up intrinsic value estimates by method with AI commentary.',
     bullets: [
-      'Instant alerts for sensitive tickers.',
-      'Track approvals tied to reports.',
-      'Shareable PDF snapshots.'
+      'DCF, comps, and precedent transactions summarized in one card.',
+      'Margin of safety and implied IRR per scenario.',
+      'Auto-generated talking points to defend the target range.'
     ]
   },
   {
-    id: 'valuebot-10',
-    label: 'Tab 10',
-    title: 'Tab 10 — Action board',
-    description: 'Roll up ValueBot recommendations into next actions aligned with execution windows.',
+    id: 'valuebot-notes',
+    label: 'Notes & hand-offs',
+    title: 'Notes & hand-offs — Action placeholders',
+    description: 'Reserve space for whatever bespoke checklist the team needs next.',
     bullets: [
-      'Auto-prioritized todo list.',
-      'Hand-off checklist for operations.',
-      'Context-aware reminders.'
+      'Drop reminders, diligence asks, or outreach assignments.',
+      'Flag dependencies for legal, ops, or data partners.',
+      'Use as a scratchpad until a more formal tab is designed.'
     ]
   }
 ];
@@ -132,14 +132,20 @@ const portfolioSubsections = [
 ];
 
 const mainNavigation = [
-  { id: 'dashboard', title: 'Today / Dashboard', caption: 'Morning overview' },
-  { id: 'checkin', title: 'Check-In', caption: 'Daily reflections' },
-  { id: 'alpha', title: 'AI Oracle Chat', caption: 'Learning & pattern analysis' },
-  { id: 'portfolio', title: 'Portfolio', caption: 'Results & ledger', hasSubmenu: true },
-  { id: 'settings', title: 'Settings', caption: 'Preferences' },
-  { id: 'punchcard', title: 'PUNCHCard MONOPLOY - Fishing SWIPE', caption: 'Patience & selectivity drill' },
-  { id: 'quadrant', title: 'Universe Quadrant', caption: 'Macro positioning map' },
-  { id: 'knowledge', title: 'Knowledge (Transform)', caption: 'Systems upgrade' }
+  { id: 'dashboard', icon: '🏠', title: 'Today / Dashboard', caption: 'Morning overview' },
+  { id: 'checkin', icon: '🧘', title: 'Check-In', caption: 'Daily reflections' },
+  { id: 'valuebot', icon: '🤖', title: 'ValueBot', caption: 'Valuation copilot' },
+  { id: 'alpha', icon: '🔮', title: 'AI Oracle Chat', caption: 'Learning & pattern analysis' },
+  { id: 'portfolio', icon: '💼', title: 'Portfolio', caption: 'Results & ledger', hasSubmenu: true },
+  { id: 'settings', icon: '⚙️', title: 'Settings', caption: 'Preferences' },
+  {
+    id: 'punchcard',
+    icon: '🎣',
+    title: 'PUNCHCard MONOPLOY - Fishing SWIPE',
+    caption: 'Patience & selectivity drill'
+  },
+  { id: 'quadrant', icon: '🧭', title: 'Universe Quadrant', caption: 'Macro positioning map' },
+  { id: 'knowledge', icon: '📚', title: 'Knowledge (Transform)', caption: 'Systems upgrade' }
 ];
 
 const DemoBanner = () => (
@@ -314,6 +320,39 @@ const staticSections = {
                 <code>demo.transactions.json</code> (10 trades). In production, connects to live Supabase tables.
               </p>
             </div>
+          </>
+        )
+      }
+    ]
+  },
+  valuebot: {
+    title: 'ValueBot command center',
+    meta: 'Give ValueBot a focused prompt, then drill into the dedicated tabs for management, moat, balance sheet, and more.',
+    cards: [
+      {
+        title: 'Quick setup',
+        body: (
+          <>
+            <p>Choose the topic that needs attention and ValueBot will prefill the right worksheet.</p>
+            <ul>
+              <li>Management accountability pulse</li>
+              <li>Income &amp; future sales glide path</li>
+              <li>Moat durability review</li>
+              <li>Debt &amp; refinancing guardrails</li>
+            </ul>
+          </>
+        )
+      },
+      {
+        title: 'Workflow tips',
+        body: (
+          <>
+            <p>Keep each tab alive with the freshest thinking:</p>
+            <ol>
+              <li>Drop transcript or model highlights into the relevant tab.</li>
+              <li>Pin any red flags inside the Risks tab for fast escalation.</li>
+              <li>Use Notes &amp; hand-offs as a placeholder until a bespoke module is built.</li>
+            </ol>
           </>
         )
       }
@@ -820,10 +859,20 @@ const App = () => {
                   if (item.id === 'portfolio') {
                     setPortfolioSub('portfolio-results');
                   }
+                  if (item.id === 'valuebot') {
+                    setActiveTab('ValueBot');
+                  }
                 }}
               >
-                <span className="item-title">{item.title}</span>
-                <span className="item-caption">{item.caption}</span>
+                {item.icon && (
+                  <span className="item-icon" aria-hidden="true">
+                    {item.icon}
+                  </span>
+                )}
+                <div className="item-copy">
+                  <span className="item-title">{item.title}</span>
+                  <span className="item-caption">{item.caption}</span>
+                </div>
               </button>
             ))}
             <div className="submenu" data-parent="portfolio" aria-hidden={activeSection !== 'portfolio'}>
