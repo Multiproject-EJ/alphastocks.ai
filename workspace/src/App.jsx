@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'preact/hooks';
+import { useCallback, useEffect, useMemo, useState } from 'preact/hooks';
 import { getRuntimeConfig } from './config/runtimeConfig.js';
 import { getDataService } from './data/dataService.js';
 import { formatDateLabel, formatPercent, formatUsd } from './features/dashboard/dashboardUtils.js';
@@ -12,6 +12,49 @@ const DEFAULT_FOCUS_LIST = [
 ];
 
 const tabs = ['Overview', 'Notes', 'Tasks', 'Analytics', 'ValueBot'];
+
+const MORNING_NEWS_ALERT_ID = 'morning-news';
+
+const ALERT_CONFIGS = [
+  {
+    id: MORNING_NEWS_ALERT_ID,
+    name: 'Morning news briefing',
+    schedule: 'Daily • 09:00',
+    description: 'Audio rundown of the macro tape and top catalysts for the session.',
+    target: 'dashboard'
+  },
+  {
+    id: 'quarterly-report',
+    name: 'Quarterly report digest',
+    schedule: 'Quarterly • Every 3 months',
+    description: 'Recap upcoming earnings releases and filings so the team can prep early.',
+    target: 'dashboard'
+  },
+  {
+    id: 'punchcard-catch',
+    name: 'Catch of the day (PUNCHCard MONOPLOY)',
+    schedule: 'Daily • Catch of the day spotlight',
+    description: 'Nudge to review the “PUNCHCard MONOPLOY - Fishing SWIPE” ideas list.',
+    target: 'punchcard'
+  }
+];
+
+const isMorningNewsWindow = () => {
+  const now = new Date();
+  return now.getHours() >= 9 && now.getHours() < 12;
+};
+
+const createInitialAlertState = () =>
+  ALERT_CONFIGS.reduce((acc, alert) => {
+    const isMorningAlert = alert.id === MORNING_NEWS_ALERT_ID && isMorningNewsWindow();
+    acc[alert.id] = {
+      enabled: true,
+      triggered: isMorningAlert,
+      unread: isMorningAlert,
+      lastTriggered: isMorningAlert ? new Date().toISOString() : null
+    };
+    return acc;
+  }, {});
 
 const valueBotTabs = [
   {
@@ -126,15 +169,10 @@ const valueBotTabs = [
   }
 ];
 
-const portfolioSubsections = [
-  { id: 'portfolio-results', label: 'Results' },
-  { id: 'portfolio-ledger', label: 'Ledger / Records' }
-];
-
 const settingsNavItem = { id: 'settings', icon: '⚙️', title: 'Settings', caption: 'Preferences' };
 
 const mainNavigation = [
-  { id: 'dashboard', icon: '🏠', title: 'Today / Dashboard', caption: 'Morning overview' },
+  { id: 'dashboard', icon: '🏠', title: 'Today / Dashboard', caption: 'Overview' },
   { id: 'checkin', icon: '🧘', title: 'Check-In', caption: 'Daily reflections' },
   { id: 'valuebot', icon: '🤖', title: 'ValueBot', caption: 'Valuation copilot' },
   { id: 'alpha', icon: '🔮', title: 'AI Oracle Chat', caption: 'Learning & pattern analysis' },
@@ -503,10 +541,10 @@ const App = () => {
   const [activeSection, setActiveSection] = useState('dashboard');
   const [activeTab, setActiveTab] = useState(tabs[0]);
   const [activeValueBotTab, setActiveValueBotTab] = useState(valueBotTabs[0].id);
-  const [portfolioSub, setPortfolioSub] = useState('portfolio-results');
   const [activeProfile, setActiveProfile] = useState(null);
   const [profileError, setProfileError] = useState(null);
-  const [isAccountPanelOpen, setIsAccountPanelOpen] = useState(true);
+  const [isAccountDialogOpen, setIsAccountDialogOpen] = useState(false);
+  const [alertSettings, setAlertSettings] = useState(() => createInitialAlertState());
   const runtimeConfig = useMemo(() => getRuntimeConfig(), []);
   const dataService = useMemo(() => getDataService(), [runtimeConfig.mode]);
   const themeCopy = theme === 'dark' ? 'Switch to light' : 'Switch to dark';
@@ -527,12 +565,54 @@ const App = () => {
     profileId: activeProfile?.id,
     defaultFocusList: DEFAULT_FOCUS_LIST
   });
+  const morningNewsAlert = alertSettings[MORNING_NEWS_ALERT_ID];
+  const hasMorningNewsPing = Boolean(
+    morningNewsAlert?.enabled && morningNewsAlert?.triggered && morningNewsAlert?.unread
+  );
+  const handleAlertToggle = useCallback((alertId) => {
+    setAlertSettings((prev) => {
+      const current = prev[alertId];
+      if (!current) {
+        return prev;
+      }
+
+      const nextEnabled = !current.enabled;
+      return {
+        ...prev,
+        [alertId]: {
+          ...current,
+          enabled: nextEnabled,
+          triggered: nextEnabled ? current.triggered : false,
+          unread: nextEnabled ? current.unread : false
+        }
+      };
+    });
+  }, []);
+  const handleMorningNewsAcknowledgement = useCallback(() => {
+    setAlertSettings((prev) => {
+      const current = prev[MORNING_NEWS_ALERT_ID];
+      if (!current) {
+        return prev;
+      }
+
+      if (!current.unread) {
+        return prev;
+      }
+
+      return {
+        ...prev,
+        [MORNING_NEWS_ALERT_ID]: {
+          ...current,
+          unread: false
+        }
+      };
+    });
+  }, []);
   const dataError = profileError ?? dashboardError;
+  const openAccountDialog = useCallback(() => setIsAccountDialogOpen(true), []);
+  const closeAccountDialog = useCallback(() => setIsAccountDialogOpen(false), []);
   const handleMenuSelection = (sectionId) => {
     setActiveSection(sectionId);
-    if (sectionId === 'portfolio') {
-      setPortfolioSub('portfolio-results');
-    }
     if (sectionId === 'valuebot') {
       setActiveTab('ValueBot');
     }
@@ -541,6 +621,69 @@ const App = () => {
   useEffect(() => {
     document.body.setAttribute('data-theme', theme);
   }, [theme]);
+
+  useEffect(() => {
+    if (isAccountDialogOpen) {
+      document.body.classList.add('dialog-open');
+    } else {
+      document.body.classList.remove('dialog-open');
+    }
+
+    return () => {
+      document.body.classList.remove('dialog-open');
+    };
+  }, [isAccountDialogOpen]);
+
+  useEffect(() => {
+    const syncMorningNewsWindow = () => {
+      setAlertSettings((prev) => {
+        const current = prev[MORNING_NEWS_ALERT_ID];
+        if (!current) {
+          return prev;
+        }
+
+        if (!current.enabled && (current.triggered || current.unread)) {
+          return {
+            ...prev,
+            [MORNING_NEWS_ALERT_ID]: {
+              ...current,
+              triggered: false,
+              unread: false
+            }
+          };
+        }
+
+        const shouldTrigger = current.enabled && isMorningNewsWindow();
+        if (shouldTrigger && !current.triggered) {
+          return {
+            ...prev,
+            [MORNING_NEWS_ALERT_ID]: {
+              ...current,
+              triggered: true,
+              unread: true,
+              lastTriggered: new Date().toISOString()
+            }
+          };
+        }
+
+        if (!shouldTrigger && current.triggered) {
+          return {
+            ...prev,
+            [MORNING_NEWS_ALERT_ID]: {
+              ...current,
+              triggered: false
+            }
+          };
+        }
+
+        return prev;
+      });
+    };
+
+    syncMorningNewsWindow();
+    const timer = window.setInterval(syncMorningNewsWindow, 60 * 1000);
+    return () => window.clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -574,198 +717,227 @@ const App = () => {
             : 'Global market feed unavailable — connect live data to populate.'
           : 'Pre-market status • Updated moments ago';
 
+      const cards = [
+        {
+          title: 'Market radar',
+          size: 'wide',
+          body: eventsDigest?.items?.length ? (
+            <>
+              <div className="dashboard-toolbar" role="group" aria-label="Market radar scope">
+                <div className="dashboard-toolbar-buttons">
+                  <button
+                    type="button"
+                    className="dashboard-toggle"
+                    onClick={() => setEventsScope('personal')}
+                    aria-pressed={eventsScope === 'personal'}
+                    disabled={!hasPersonalEvents}
+                  >
+                    My portfolios
+                  </button>
+                  <button
+                    type="button"
+                    className="dashboard-toggle"
+                    onClick={() => setEventsScope('global')}
+                    aria-pressed={eventsScope === 'global'}
+                    disabled={!hasGlobalEvents}
+                  >
+                    Global market
+                  </button>
+                </div>
+              </div>
+              <div className="dashboard-timeline">
+                {eventsDigest.items.map((item) => (
+                  <div key={item.id} className="dashboard-timeline-item">
+                    <div className="dashboard-timeline-date">{item.dateLabel}</div>
+                    <div className="dashboard-timeline-content">
+                      <strong>{item.title}</strong>
+                      <span>{item.caption}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="dashboard-toolbar" role="group" aria-label="Market radar scope">
+                <div className="dashboard-toolbar-buttons">
+                  <button
+                    type="button"
+                    className="dashboard-toggle"
+                    onClick={() => setEventsScope('personal')}
+                    aria-pressed={eventsScope === 'personal'}
+                    disabled={!hasPersonalEvents}
+                  >
+                    My portfolios
+                  </button>
+                  <button
+                    type="button"
+                    className="dashboard-toggle"
+                    onClick={() => setEventsScope('global')}
+                    aria-pressed={eventsScope === 'global'}
+                    disabled={!hasGlobalEvents}
+                  >
+                    Global market
+                  </button>
+                </div>
+              </div>
+              <p>
+                {eventsScope === 'global'
+                  ? 'No global market events captured. Connect Supabase to stream live catalysts.'
+                  : 'No upcoming events captured. Add catalysts to stay ready.'}
+              </p>
+            </>
+          )
+        },
+        {
+          title: 'Portfolio pulse',
+          size: 'spotlight',
+          body: portfolioSummary ? (
+            <>
+              <div className="dashboard-metric-grid">
+                <div className="dashboard-metric">
+                  <span className="dashboard-metric-label">Total NAV</span>
+                  <span className="dashboard-metric-value">{formatUsd(portfolioSummary.totals.nav)}</span>
+                </div>
+                <div className="dashboard-metric">
+                  <span className="dashboard-metric-label">Cash</span>
+                  <span className="dashboard-metric-value">{formatUsd(portfolioSummary.totals.cash)}</span>
+                  <span className="dashboard-metric-delta">{formatPercent(portfolioSummary.totals.cashRatio, 1)} cash</span>
+                </div>
+                <div className="dashboard-metric">
+                  <span className="dashboard-metric-label">Weighted alpha</span>
+                  <span className="dashboard-metric-value">{formatPercent(portfolioSummary.totals.weightedAlpha, 1)}</span>
+                </div>
+                <div className="dashboard-metric">
+                  <span className="dashboard-metric-label">Portfolios</span>
+                  <span className="dashboard-metric-value">{portfolioSummary.totals.portfolioCount}</span>
+                  {portfolioSummary.bestPortfolio && (
+                    <span className="dashboard-metric-delta">
+                      Top: {portfolioSummary.bestPortfolio.name} ({formatPercent(portfolioSummary.bestPortfolio.alpha, 1)})
+                    </span>
+                  )}
+                </div>
+              </div>
+              <ul className="dashboard-list subtle">
+                {portfolioSummary.bullets.map((bullet) => (
+                  <li key={bullet}>{bullet}</li>
+                ))}
+              </ul>
+            </>
+          ) : (
+            <p>Connect portfolio data to surface NAV, alpha, and cash allocation.</p>
+          )
+        },
+        {
+          title: 'Latest reflection',
+          size: 'third',
+          body: latestJournal ? (
+            <div className="dashboard-note">
+              <p className="detail-meta">
+                {formatDateLabel(latestJournal.created_at)} • Mood {latestJournal.mood} • Confidence {latestJournal.confidence}/5
+              </p>
+              <p className="dashboard-note-body">{latestJournal.bias_notes}</p>
+              <p className="dashboard-note-plan">Plan: {latestJournal.plan}</p>
+            </div>
+          ) : (
+            <p>Capture your reflection to surface it here for the morning brief.</p>
+          )
+        },
+        {
+          title: 'Analysis queue',
+          size: 'third',
+          body: analysisSummary ? (
+            <div className="dashboard-queue">
+              <div className="dashboard-metric-grid compact">
+                <div className="dashboard-metric">
+                  <span className="dashboard-metric-label">Active</span>
+                  <span className="dashboard-metric-value">{analysisSummary.total}</span>
+                </div>
+                <div className="dashboard-metric">
+                  <span className="dashboard-metric-label">Running</span>
+                  <span className="dashboard-metric-value">{analysisSummary.counts.running ?? 0}</span>
+                </div>
+                <div className="dashboard-metric">
+                  <span className="dashboard-metric-label">Queued</span>
+                  <span className="dashboard-metric-value">{analysisSummary.counts.queued ?? 0}</span>
+                </div>
+                <div className="dashboard-metric">
+                  <span className="dashboard-metric-label">Completed</span>
+                  <span className="dashboard-metric-value">{analysisSummary.counts.completed ?? 0}</span>
+                </div>
+              </div>
+              {(analysisSummary.runningSymbols.length > 0 || analysisSummary.queuedSymbols.length > 0) && (
+                <ul className="dashboard-list">
+                  {analysisSummary.runningSymbols.length > 0 && (
+                    <li>Running: {analysisSummary.runningSymbols.join(', ')}</li>
+                  )}
+                  {analysisSummary.queuedSymbols.length > 0 && (
+                    <li>Queued: {analysisSummary.queuedSymbols.join(', ')}</li>
+                  )}
+                </ul>
+              )}
+              {analysisSummary.lastCompleted && (
+                <p className="detail-meta">
+                  Last completed {(analysisSummary.lastCompleted.taskType || 'task').replace(/_/g, ' ')} on{' '}
+                  {formatDateLabel(analysisSummary.lastCompleted.completedAt)}
+                </p>
+              )}
+            </div>
+          ) : (
+            <p>No AI analysis tasks in the queue. Kick off research to populate this feed.</p>
+          )
+        },
+        {
+          title: 'Recent moves',
+          size: 'third',
+          body: ledgerHighlights?.length ? (
+            <ul className="dashboard-list">
+              {ledgerHighlights.map((item) => (
+                <li key={item.id}>
+                  <strong>{item.title}</strong>
+                  <span className="detail-meta">{item.caption}</span>
+                  {item.note && <p>{item.note}</p>}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>Record trades to populate the morning ledger summary.</p>
+          )
+        }
+      ];
+
+      if (morningNewsAlert?.enabled) {
+        cards.unshift({
+          title: 'Morning news briefing',
+          size: 'third',
+          body: (
+            <>
+              <p>
+                Kick off the day with the curated 09:00 alert. When the light is red, fresh news is waiting for you.
+              </p>
+              <button
+                type="button"
+                className={`btn-primary morning-news-button${hasMorningNewsPing ? ' alert' : ''}`}
+                onClick={handleMorningNewsAcknowledgement}
+              >
+                Morning News
+                {hasMorningNewsPing && <span className="morning-news-button__ping" aria-hidden="true" />}
+              </button>
+              <p className="detail-meta">
+                {hasMorningNewsPing
+                  ? 'New audio briefing ready — tap to acknowledge.'
+                  : 'Briefing cleared for today. Reopen anytime.'}
+              </p>
+            </>
+          )
+        });
+      }
+
       return {
         title: 'Today / Dashboard',
         meta: eventsDigest?.meta ?? metaFallback,
         layout: 'dashboard',
-        cards: [
-          {
-            title: 'Market radar',
-            size: 'wide',
-            body: eventsDigest?.items?.length ? (
-              <>
-                <div className="dashboard-toolbar" role="group" aria-label="Market radar scope">
-                  <div className="dashboard-toolbar-buttons">
-                    <button
-                      type="button"
-                      className="dashboard-toggle"
-                      onClick={() => setEventsScope('personal')}
-                      aria-pressed={eventsScope === 'personal'}
-                      disabled={!hasPersonalEvents}
-                    >
-                      My portfolios
-                    </button>
-                    <button
-                      type="button"
-                      className="dashboard-toggle"
-                      onClick={() => setEventsScope('global')}
-                      aria-pressed={eventsScope === 'global'}
-                      disabled={!hasGlobalEvents}
-                    >
-                      Global market
-                    </button>
-                  </div>
-                </div>
-                <div className="dashboard-timeline">
-                  {eventsDigest.items.map((item) => (
-                    <div key={item.id} className="dashboard-timeline-item">
-                      <div className="dashboard-timeline-date">{item.dateLabel}</div>
-                      <div className="dashboard-timeline-content">
-                        <strong>{item.title}</strong>
-                        <span>{item.caption}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="dashboard-toolbar" role="group" aria-label="Market radar scope">
-                  <div className="dashboard-toolbar-buttons">
-                    <button
-                      type="button"
-                      className="dashboard-toggle"
-                      onClick={() => setEventsScope('personal')}
-                      aria-pressed={eventsScope === 'personal'}
-                      disabled={!hasPersonalEvents}
-                    >
-                      My portfolios
-                    </button>
-                    <button
-                      type="button"
-                      className="dashboard-toggle"
-                      onClick={() => setEventsScope('global')}
-                      aria-pressed={eventsScope === 'global'}
-                      disabled={!hasGlobalEvents}
-                    >
-                      Global market
-                    </button>
-                  </div>
-                </div>
-                <p>
-                  {eventsScope === 'global'
-                    ? 'No global market events captured. Connect Supabase to stream live catalysts.'
-                    : 'No upcoming events captured. Add catalysts to stay ready.'}
-                </p>
-              </>
-            )
-          },
-          {
-            title: 'Portfolio pulse',
-            size: 'spotlight',
-            body: portfolioSummary ? (
-              <>
-                <div className="dashboard-metric-grid">
-                  <div className="dashboard-metric">
-                    <span className="dashboard-metric-label">Total NAV</span>
-                    <span className="dashboard-metric-value">{formatUsd(portfolioSummary.totals.nav)}</span>
-                  </div>
-                  <div className="dashboard-metric">
-                    <span className="dashboard-metric-label">Cash</span>
-                    <span className="dashboard-metric-value">{formatUsd(portfolioSummary.totals.cash)}</span>
-                    <span className="dashboard-metric-delta">{formatPercent(portfolioSummary.totals.cashRatio, 1)} cash</span>
-                  </div>
-                  <div className="dashboard-metric">
-                    <span className="dashboard-metric-label">Weighted alpha</span>
-                    <span className="dashboard-metric-value">{formatPercent(portfolioSummary.totals.weightedAlpha, 1)}</span>
-                  </div>
-                  <div className="dashboard-metric">
-                    <span className="dashboard-metric-label">Portfolios</span>
-                    <span className="dashboard-metric-value">{portfolioSummary.totals.portfolioCount}</span>
-                    {portfolioSummary.bestPortfolio && (
-                      <span className="dashboard-metric-delta">
-                        Top: {portfolioSummary.bestPortfolio.name} ({formatPercent(portfolioSummary.bestPortfolio.alpha, 1)})
-                      </span>
-                    )}
-                  </div>
-                </div>
-                <ul className="dashboard-list subtle">
-                  {portfolioSummary.bullets.map((bullet) => (
-                    <li key={bullet}>{bullet}</li>
-                  ))}
-                </ul>
-              </>
-            ) : (
-              <p>Connect portfolio data to surface NAV, alpha, and cash allocation.</p>
-            )
-          },
-          {
-            title: 'Latest reflection',
-            size: 'third',
-            body: latestJournal ? (
-              <div className="dashboard-note">
-                <p className="detail-meta">
-                  {formatDateLabel(latestJournal.created_at)} • Mood {latestJournal.mood} • Confidence {latestJournal.confidence}/5
-                </p>
-                <p className="dashboard-note-body">{latestJournal.bias_notes}</p>
-                <p className="dashboard-note-plan">Plan: {latestJournal.plan}</p>
-              </div>
-            ) : (
-              <p>Capture your reflection to surface it here for the morning brief.</p>
-            )
-          },
-          {
-            title: 'Analysis queue',
-            size: 'third',
-            body: analysisSummary ? (
-              <div className="dashboard-queue">
-                <div className="dashboard-metric-grid compact">
-                  <div className="dashboard-metric">
-                    <span className="dashboard-metric-label">Active</span>
-                    <span className="dashboard-metric-value">{analysisSummary.total}</span>
-                  </div>
-                  <div className="dashboard-metric">
-                    <span className="dashboard-metric-label">Running</span>
-                    <span className="dashboard-metric-value">{analysisSummary.counts.running ?? 0}</span>
-                  </div>
-                  <div className="dashboard-metric">
-                    <span className="dashboard-metric-label">Queued</span>
-                    <span className="dashboard-metric-value">{analysisSummary.counts.queued ?? 0}</span>
-                  </div>
-                  <div className="dashboard-metric">
-                    <span className="dashboard-metric-label">Completed</span>
-                    <span className="dashboard-metric-value">{analysisSummary.counts.completed ?? 0}</span>
-                  </div>
-                </div>
-                {(analysisSummary.runningSymbols.length > 0 || analysisSummary.queuedSymbols.length > 0) && (
-                  <ul className="dashboard-list">
-                    {analysisSummary.runningSymbols.length > 0 && (
-                      <li>Running: {analysisSummary.runningSymbols.join(', ')}</li>
-                    )}
-                    {analysisSummary.queuedSymbols.length > 0 && (
-                      <li>Queued: {analysisSummary.queuedSymbols.join(', ')}</li>
-                    )}
-                  </ul>
-                )}
-                {analysisSummary.lastCompleted && (
-                  <p className="detail-meta">
-                    Last completed {(analysisSummary.lastCompleted.taskType || 'task').replace(/_/g, ' ')} on{' '}
-                    {formatDateLabel(analysisSummary.lastCompleted.completedAt)}
-                  </p>
-                )}
-              </div>
-            ) : (
-              <p>No AI analysis tasks in the queue. Kick off research to populate this feed.</p>
-            )
-          },
-          {
-            title: 'Recent moves',
-            size: 'third',
-            body: ledgerHighlights?.length ? (
-              <ul className="dashboard-list">
-                {ledgerHighlights.map((item) => (
-                  <li key={item.id}>
-                    <strong>{item.title}</strong>
-                    <span className="detail-meta">{item.caption}</span>
-                    {item.note && <p>{item.note}</p>}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p>Record trades to populate the morning ledger summary.</p>
-            )
-          }
-        ]
+        cards
       };
     }
 
@@ -787,8 +959,7 @@ const App = () => {
               </>
             ) : (
               <p>Performance data will appear once portfolio snapshots load.</p>
-            ),
-            subtarget: 'portfolio-results'
+            )
           },
           {
             title: 'Ledger highlights',
@@ -804,8 +975,91 @@ const App = () => {
               </ul>
             ) : (
               <p>No recent transactions recorded in demo data.</p>
-            ),
-            subtarget: 'portfolio-ledger'
+            )
+          }
+        ]
+      };
+    }
+
+    if (activeSection === 'settings') {
+      return {
+        title: 'Settings',
+        meta: 'Preferences for alerts, integrations, and localization.',
+        cards: [
+          {
+            title: 'Quick preferences',
+            body: (
+              <>
+                <p>Select an area to configure:</p>
+                <ul>
+                  <li>Alerts &amp; notifications</li>
+                  <li>AI integrations</li>
+                  <li>Localization</li>
+                </ul>
+              </>
+            )
+          },
+          {
+            title: 'In-app alert settings',
+            body: (
+              <>
+                <p>Control which nudges surface inside the workspace navigation.</p>
+                <table className="table subtle alerts-table">
+                  <thead>
+                    <tr>
+                      <th scope="col">Alert</th>
+                      <th scope="col">Schedule</th>
+                      <th scope="col">Status</th>
+                      <th scope="col">Enabled</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {ALERT_CONFIGS.map((alert) => {
+                      const state = alertSettings[alert.id];
+                      const isMorningAlert = alert.id === MORNING_NEWS_ALERT_ID;
+                      const waiting = Boolean(state?.enabled && state?.triggered && state?.unread);
+                      return (
+                        <tr key={alert.id}>
+                          <td>
+                            <div className="alert-name">
+                              <strong>{alert.name}</strong>
+                              <span>{alert.description}</span>
+                            </div>
+                          </td>
+                          <td>
+                            <span className="detail-meta">{alert.schedule}</span>
+                          </td>
+                          <td>
+                            {waiting ? (
+                              <span className="tag tag-red">Waiting</span>
+                            ) : state?.triggered ? (
+                              <span className="tag tag-green">Acknowledged</span>
+                            ) : (
+                              <span className="detail-meta">Idle</span>
+                            )}
+                            {isMorningAlert && state?.lastTriggered && !waiting && (
+                              <p className="detail-meta" aria-live="polite">
+                                Last ping {formatDateLabel(state.lastTriggered)}
+                              </p>
+                            )}
+                          </td>
+                          <td>
+                            <label className="alert-toggle">
+                              <input
+                                type="checkbox"
+                                checked={Boolean(state?.enabled)}
+                                onChange={() => handleAlertToggle(alert.id)}
+                              />
+                              <span className="alert-toggle-slider" aria-hidden="true" />
+                            </label>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </>
+            )
           }
         ]
       };
@@ -815,48 +1069,23 @@ const App = () => {
   }, [
     activeSection,
     analysisSummary,
+    alertSettings,
     eventsDigest,
     eventsScope,
     hasGlobalEvents,
+    hasPersonalEvents,
+    handleAlertToggle,
+    handleMorningNewsAcknowledgement,
     latestJournal,
     ledgerHighlights,
-    portfolioSummary
+    morningNewsAlert,
+    portfolioSummary,
+    hasMorningNewsPing
   ]);
 
   return (
     <main className="app-stage">
       <section className="app" aria-live="polite">
-        <div
-          className={`app-topbar-wrapper${isAccountPanelOpen ? '' : ' collapsed'}`}
-          id="workspace-account-panel"
-          aria-hidden={!isAccountPanelOpen}
-        >
-          <header className="app-topbar">
-            <div className="workspace-title">
-              <h1>AlphaStocks Workspace</h1>
-              <p>
-                Welcome,
-                {' '}
-                {activeProfile?.display_name ?? 'Demo Trader'}.
-              </p>
-            </div>
-            <div className="topbar-actions">
-              <button
-                type="button"
-                className="btn-secondary"
-                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                aria-pressed={theme === 'light'}
-              >
-                {themeCopy}
-              </button>
-              <div className="app-user">{activeProfile?.email ?? 'demo@alphastocks.ai'}</div>
-              <button type="button" className="btn-secondary" disabled>
-                Log out
-              </button>
-            </div>
-          </header>
-        </div>
-
         {runtimeConfig.isDemoMode && <DemoBanner />}
         {dataError && (
           <div className="demo-banner warning" role="alert">
@@ -869,10 +1098,11 @@ const App = () => {
             <div className="menu-item-split" aria-label="Account controls">
               <button
                 type="button"
-                className={`menu-item split-button account${isAccountPanelOpen ? ' active' : ''}`}
-                onClick={() => setIsAccountPanelOpen((open) => !open)}
-                aria-pressed={isAccountPanelOpen}
-                aria-controls="workspace-account-panel"
+                className={`menu-item split-button account${isAccountDialogOpen ? ' active' : ''}`}
+                onClick={openAccountDialog}
+                aria-expanded={isAccountDialogOpen}
+                aria-haspopup="dialog"
+                aria-controls="accountDialog"
               >
                 <span className="item-icon" aria-hidden="true">
                   👤
@@ -900,6 +1130,8 @@ const App = () => {
               </button>
             </div>
             {mainNavigation.map((item) => {
+              const isDashboardItem = item.id === 'dashboard';
+              const caption = isDashboardItem && hasMorningNewsPing ? 'Morning News' : item.caption;
               return (
                 <button
                   key={item.id}
@@ -914,26 +1146,16 @@ const App = () => {
                   )}
                   <div className="item-copy">
                     <span className="item-title">{item.title}</span>
-                    <span className="item-caption">{item.caption}</span>
+                    <span className="item-caption">
+                      {caption}
+                      {isDashboardItem && hasMorningNewsPing && (
+                        <span className="menu-alert-indicator" aria-hidden="true" />
+                      )}
+                    </span>
                   </div>
                 </button>
               );
             })}
-            <div className="submenu" data-parent="portfolio" aria-hidden={activeSection !== 'portfolio'}>
-              {portfolioSubsections.map((item) => (
-                <button
-                  key={item.id}
-                  className={`submenu-item${portfolioSub === item.id ? ' active' : ''}`}
-                  data-sub={item.id}
-                  onClick={() => {
-                    setActiveSection('portfolio');
-                    setPortfolioSub(item.id);
-                  }}
-                >
-                  {item.label}
-                </button>
-              ))}
-            </div>
           </nav>
 
           <div className="workspace" id="workspace">
@@ -981,14 +1203,7 @@ const App = () => {
                     className={`detail-grid${section.layout ? ` detail-grid--${section.layout}` : ''}`}
                   >
                     {section.cards.map((card) => (
-                      <div
-                        key={card.title}
-                        className={`detail-card${
-                          card.subtarget && portfolioSub === card.subtarget ? ' highlight' : ''
-                        }`}
-                        data-subtarget={card.subtarget}
-                        data-size={card.size}
-                      >
+                      <div key={card.title} className="detail-card" data-size={card.size}>
                         <h3>{card.title}</h3>
                         {card.body}
                       </div>
@@ -1045,6 +1260,55 @@ const App = () => {
           </div>
         </div>
       </section>
+
+      <div
+        id="accountDialog"
+        className={`app-dialog${isAccountDialogOpen ? ' visible' : ''}`}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="accountDialogTitle"
+        aria-hidden={!isAccountDialogOpen}
+        hidden={!isAccountDialogOpen}
+      >
+        <div className="dialog-backdrop" onClick={closeAccountDialog} aria-hidden="true" />
+        <div className="dialog-panel" role="document">
+          <div className="dialog-header">
+            <h2 id="accountDialogTitle">Workspace account</h2>
+            <button
+              type="button"
+              className="dialog-close"
+              aria-label="Close account dialog"
+              onClick={closeAccountDialog}
+            >
+              ✕
+            </button>
+          </div>
+          <div className="dialog-body account-dialog">
+            <div className="workspace-title">
+              <h1>AlphaStocks Workspace</h1>
+              <p>
+                Welcome,
+                {' '}
+                {activeProfile?.display_name ?? 'Demo Trader'}.
+              </p>
+            </div>
+            <div className="account-actions">
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                aria-pressed={theme === 'light'}
+              >
+                {themeCopy}
+              </button>
+              <div className="app-user">{activeProfile?.email ?? 'demo@alphastocks.ai'}</div>
+              <button type="button" className="btn-secondary" disabled>
+                Log out
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </main>
   );
 };

@@ -62,6 +62,112 @@ body[data-theme='dark'] {
   background: rgba(87, 102, 138, 0.08);
 }
 
+.alerts-table .alert-name {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.alerts-table .alert-name span {
+  color: var(--text-secondary, #b4c1d8);
+}
+
+.alerts-table td:last-child {
+  width: 120px;
+  text-align: center;
+}
+
+.alert-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  isolation: isolate;
+}
+
+.alert-toggle input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.alert-toggle-slider {
+  width: 2.5rem;
+  height: 1.25rem;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.3);
+  position: relative;
+  transition: background 0.2s ease;
+  display: inline-flex;
+}
+
+.alert-toggle-slider::after {
+  content: '';
+  width: 1rem;
+  height: 1rem;
+  background: #fff;
+  border-radius: 999px;
+  position: absolute;
+  top: 50%;
+  left: 0.125rem;
+  transform: translate(0, -50%);
+  transition: transform 0.2s ease;
+  box-shadow: 0 5px 15px rgba(15, 23, 42, 0.4);
+}
+
+.alert-toggle input:checked + .alert-toggle-slider {
+  background: rgba(248, 113, 113, 0.5);
+}
+
+.alert-toggle input:checked + .alert-toggle-slider::after {
+  transform: translate(1.125rem, -50%);
+}
+
+.menu-alert-indicator {
+  display: inline-flex;
+  width: 0.5rem;
+  height: 0.5rem;
+  margin-left: 0.35rem;
+  border-radius: 50%;
+  background: #f87171;
+  box-shadow: 0 0 0 0 rgba(248, 113, 113, 0.5);
+  animation: pulse-alert 1.6s infinite;
+}
+
+@keyframes pulse-alert {
+  0% {
+    box-shadow: 0 0 0 0 rgba(248, 113, 113, 0.8);
+  }
+  70% {
+    box-shadow: 0 0 0 0.45rem rgba(248, 113, 113, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(248, 113, 113, 0);
+  }
+}
+
+.morning-news-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+  padding-inline: 1.2rem;
+}
+
+.morning-news-button.alert {
+  background: linear-gradient(120deg, rgba(248, 113, 113, 0.9), rgba(239, 68, 68, 0.9));
+  box-shadow: 0 15px 35px rgba(239, 68, 68, 0.35);
+}
+
+.morning-news-button__ping {
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: 50%;
+  background: #fee2e2;
+  box-shadow: 0 0 0 0 rgba(248, 113, 113, 0.8);
+  animation: pulse-alert 1.6s infinite;
+}
+
 .quadrant-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
