@@ -85,6 +85,27 @@
               <span class="item-caption">Preferences</span>
             </div>
           </button>
+          <button class="menu-item" data-section="punchcard">
+            <span class="item-icon" aria-hidden="true">🎣</span>
+            <div class="item-copy">
+              <span class="item-title">PUNCHCard MONOPLOY - Fishing SWIPE</span>
+              <span class="item-caption">Patience &amp; selectivity drill</span>
+            </div>
+          </button>
+          <button class="menu-item" data-section="quadrant">
+            <span class="item-icon" aria-hidden="true">🧭</span>
+            <div class="item-copy">
+              <span class="item-title">Universe Quadrant</span>
+              <span class="item-caption">Macro positioning map</span>
+            </div>
+          </button>
+          <button class="menu-item" data-section="knowledge">
+            <span class="item-icon" aria-hidden="true">📚</span>
+            <div class="item-copy">
+              <span class="item-title">Knowledge (Transform)</span>
+              <span class="item-caption">Systems upgrade</span>
+            </div>
+          </button>
         </nav>
 
         <div class="workspace" id="workspace">
@@ -438,21 +459,99 @@
 
               <article id="settings" class="detail-view">
                 <h2>Settings</h2>
-                <p class="detail-meta">Adjust workspace preferences.</p>
+                <p class="detail-meta">Preferences for alerts, integrations, and localization.</p>
                 <div class="detail-card">
-                  <label class="field inline">
-                    <span>Time zone</span>
-                    <select>
-                      <option>America/New_York</option>
-                      <option>America/Chicago</option>
-                      <option>Europe/London</option>
-                    </select>
-                  </label>
-                  <label class="field inline">
-                    <span>Session duration</span>
-                    <input type="number" min="15" value="45"> minutes
-                  </label>
-                  <button class="btn-primary">Save settings</button>
+                  <h3>Quick preferences</h3>
+                  <p>Select an area to configure:</p>
+                  <ul>
+                    <li>Alerts &amp; notifications</li>
+                    <li>AI integrations</li>
+                    <li>Localization</li>
+                  </ul>
+                </div>
+              </article>
+
+              <article id="punchcard" class="detail-view">
+                <h2>PUNCHCard MONOPLOY - Fishing SWIPE</h2>
+                <p class="detail-meta">Gamify patience: log the few swings you are willing to take and why they are worth the punch card.</p>
+                <div class="detail-grid">
+                  <div class="detail-card">
+                    <h3>Select the day&rsquo;s one big cast</h3>
+                    <p>Document the single opportunity that deserves a punch. If it does not clear the conviction bar, let it pass and record the lesson.</p>
+                    <ul class="pill-list">
+                      <li class="pill">Set-up quality</li>
+                      <li class="pill">Catalyst clarity</li>
+                      <li class="pill">Sizing discipline</li>
+                    </ul>
+                  </div>
+                  <div class="detail-card">
+                    <h3>Fishing swipe log</h3>
+                    <p>Track which casts you actually took and whether they honored the punch card rules.</p>
+                    <table class="table subtle">
+                      <thead>
+                        <tr>
+                          <th>Timestamp</th>
+                          <th>Opportunity</th>
+                          <th>Reason</th>
+                          <th>Discipline score</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>09:45</td>
+                          <td>Breakout retry</td>
+                          <td>Rejected &ndash; patience preserved</td>
+                          <td>⭐️⭐️⭐️⭐️</td>
+                        </tr>
+                        <tr>
+                          <td>14:10</td>
+                          <td>Pullback entry</td>
+                          <td>Taken &ndash; plan followed</td>
+                          <td>⭐️⭐️⭐️</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </article>
+
+              <article id="quadrant" class="detail-view">
+                <h2>Universe Quadrant</h2>
+                <p class="detail-meta">Map market regimes, capital at risk, and opportunity sets into one actionable quadrant.</p>
+                <div class="detail-grid">
+                  <div class="detail-card">
+                    <h3>Quadrant map</h3>
+                    <p>Plot where the market, your book, and your watchlist live today. Use it to decide whether to attack, defend, or stand down.</p>
+                    <div class="quadrant-grid" role="presentation">
+                      <div class="quadrant-cell">Offense • High clarity</div>
+                      <div class="quadrant-cell">Defense • High volatility</div>
+                      <div class="quadrant-cell">Scout • Emerging themes</div>
+                      <div class="quadrant-cell">Hibernate • Low edge</div>
+                    </div>
+                  </div>
+                  <div class="detail-card">
+                    <h3>Universe journal prompts</h3>
+                    <ol>
+                      <li>What regime are you trading right now? List the confirming data.</li>
+                      <li>Which quadrant is your top idea in, and what would move it?</li>
+                      <li>How aligned is your sizing with the current quadrant?</li>
+                    </ol>
+                  </div>
+                </div>
+              </article>
+
+              <article id="knowledge" class="detail-view">
+                <h2>Knowledge (Transform)</h2>
+                <p class="detail-meta">Transform setbacks into playbooks that sharpen timing, sizing, and conviction.</p>
+                <div class="detail-card">
+                  <h3>Transformation to-dos</h3>
+                  <p>Keep this checklist front-and-center as you level up decision systems:</p>
+                  <ol>
+                    <li>Add all short seller reports, study them deeply, and incorporate the lessons into downside knowledge.</li>
+                    <li>Use the robot for both timing <em>and</em> sizing decisions&mdash;run simulations to understand exposure and risk.</li>
+                    <li>Practice with the Monopoly punchcard fishing game to reinforce patience and selectivity.</li>
+                    <li>Update your profiles to top-tier standards. Review the Pandora sale and other exits: why did you sell, do you regret it, and what should have been handled differently? Capture how each move felt, categorize the lessons, and build guardrails so it doesn&rsquo;t happen again.</li>
+                  </ol>
                 </div>
               </article>
             </section>

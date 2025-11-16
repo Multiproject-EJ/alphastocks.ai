@@ -1331,6 +1331,24 @@ body[data-theme="light"] .overlay-card {
   font-weight: 500;
 }
 
+.quadrant-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.quadrant-cell {
+  padding: 0.85rem;
+  border-radius: var(--radius-md);
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  text-align: center;
+  color: var(--text-primary);
+  font-weight: 600;
+  line-height: 1.4;
+}
+
 .landing-footer {
   padding: 3rem 1.5rem;
   text-align: center;
