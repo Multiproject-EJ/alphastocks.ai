@@ -11,7 +11,120 @@ const DEFAULT_FOCUS_LIST = [
   { id: 'focus-4', title: 'Position audit', caption: 'Rotate winners & laggards', tag: { label: 'Next week' } }
 ];
 
-const tabs = ['Overview', 'Notes', 'Tasks', 'Analytics'];
+const tabs = ['Overview', 'Notes', 'Tasks', 'Analytics', 'ValueBot'];
+
+const valueBotTabs = [
+  {
+    id: 'valuebot-management',
+    label: 'Management',
+    title: 'Management — Accountability pulse',
+    description: 'Snapshot the credibility of leadership, cadence of communication, and alignment with owners.',
+    bullets: [
+      'Summaries of the most recent earnings call promises vs. delivery.',
+      'Succession, insider buying, and compensation flags to watch.',
+      'Follow-up prompts for the next conversation with the team.'
+    ]
+  },
+  {
+    id: 'valuebot-income',
+    label: 'Income & future sales',
+    title: 'Income & future sales — Demand glide path',
+    description: 'Model top-line durability with scenario bands for price, volume, and mix.',
+    bullets: [
+      'Bridge trailing revenue to the forward twelve-month funnel.',
+      'Highlight contracts or cohorts that need renewal attention.',
+      'Stress units vs. pricing levers across bear/base/bull views.'
+    ]
+  },
+  {
+    id: 'valuebot-moat',
+    label: 'Moat',
+    title: 'Moat — Competitive advantage checklist',
+    description: 'Capture the structural protections that justify super-normal returns.',
+    bullets: [
+      'Score switching costs, brand equity, regulation, and data flywheels.',
+      'Call out erosion signals, pricing pressure, or substitute threats.',
+      'Recommend diligence angles for on-the-ground channel checks.'
+    ]
+  },
+  {
+    id: 'valuebot-debt',
+    label: 'Debt & refinancing',
+    title: 'Debt & refinancing — Balance sheet guardrails',
+    description: 'Map maturity walls, covenant slack, and refinancing lanes.',
+    bullets: [
+      'Next 24 months of obligations vs. liquidity stack.',
+      'Interest coverage, hedging, and counterparty considerations.',
+      'What-if math for credit spread shock or rating drift.'
+    ]
+  },
+  {
+    id: 'valuebot-risks',
+    label: 'Risks',
+    title: 'Risks — Blind spot radar',
+    description: 'Auto-scan macro, company, and behavioral risks tied to the thesis.',
+    bullets: [
+      'Heat map of probability vs. impact for major risk pillars.',
+      'Pre-written mitigation plans or hedges by scenario.',
+      'Regulatory or geopolitical triggers to monitor each week.'
+    ]
+  },
+  {
+    id: 'valuebot-profile',
+    label: 'Profile',
+    title: 'Profile — Snapshot briefing',
+    description: 'Keep the full company dossier handy for introductions and sharing.',
+    bullets: [
+      'Elevator pitch, coverage status, and conviction scale.',
+      'Recent catalysts, ownership notes, and strategic initiatives.',
+      'Quick links to files, transcripts, and diligence vaults.'
+    ]
+  },
+  {
+    id: 'valuebot-scenarios',
+    label: 'Scenarios',
+    title: 'Scenarios — Sensitivity sandbox',
+    description: 'Play with sliders that instantly refresh valuation deltas.',
+    bullets: [
+      'Toggle discount rates, tax rates, or capex intensity to see impact.',
+      'Overlay AI suggestions for upside/downside probability.',
+      'Export ready-to-present tornado and spider charts.'
+    ]
+  },
+  {
+    id: 'valuebot-capital',
+    label: 'Capital allocation',
+    title: 'Capital allocation — Stewardship tracker',
+    description: 'Track how cash is deployed relative to stated priorities.',
+    bullets: [
+      'Buyback, dividend, and reinvestment scorecards.',
+      'Net new investments compared with hurdle rates.',
+      'Accountability notes from prior board commentary.'
+    ]
+  },
+  {
+    id: 'valuebot-valuation',
+    label: 'Valuation',
+    title: 'Valuation — Target stack',
+    description: 'Line up intrinsic value estimates by method with AI commentary.',
+    bullets: [
+      'DCF, comps, and precedent transactions summarized in one card.',
+      'Margin of safety and implied IRR per scenario.',
+      'Auto-generated talking points to defend the target range.'
+    ]
+  },
+  {
+    id: 'valuebot-notes',
+    label: 'Notes & hand-offs',
+    title: 'Notes & hand-offs — Action placeholders',
+    description: 'Reserve space for whatever bespoke checklist the team needs next.',
+    bullets: [
+      'Drop reminders, diligence asks, or outreach assignments.',
+      'Flag dependencies for legal, ops, or data partners.',
+      'Use as a scratchpad until a more formal tab is designed.'
+    ]
+  }
+];
 
 const portfolioSubsections = [
   { id: 'portfolio-results', label: 'Results' },
@@ -19,14 +132,20 @@ const portfolioSubsections = [
 ];
 
 const mainNavigation = [
-  { id: 'dashboard', title: 'Today / Dashboard', caption: 'Morning overview' },
-  { id: 'checkin', title: 'Check-In', caption: 'Daily reflections' },
-  { id: 'alpha', title: 'AI Oracle Chat', caption: 'Learning & pattern analysis' },
-  { id: 'portfolio', title: 'Portfolio', caption: 'Results & ledger', hasSubmenu: true },
-  { id: 'settings', title: 'Settings', caption: 'Preferences' },
-  { id: 'punchcard', title: 'PUNCHCard MONOPLOY - Fishing SWIPE', caption: 'Patience & selectivity drill' },
-  { id: 'quadrant', title: 'Universe Quadrant', caption: 'Macro positioning map' },
-  { id: 'knowledge', title: 'Knowledge (Transform)', caption: 'Systems upgrade' }
+  { id: 'dashboard', icon: '🏠', title: 'Today / Dashboard', caption: 'Morning overview' },
+  { id: 'checkin', icon: '🧘', title: 'Check-In', caption: 'Daily reflections' },
+  { id: 'valuebot', icon: '🤖', title: 'ValueBot', caption: 'Valuation copilot' },
+  { id: 'alpha', icon: '🔮', title: 'AI Oracle Chat', caption: 'Learning & pattern analysis' },
+  { id: 'portfolio', icon: '💼', title: 'Portfolio', caption: 'Results & ledger', hasSubmenu: true },
+  { id: 'settings', icon: '⚙️', title: 'Settings', caption: 'Preferences' },
+  {
+    id: 'punchcard',
+    icon: '🎣',
+    title: 'PUNCHCard MONOPLOY - Fishing SWIPE',
+    caption: 'Patience & selectivity drill'
+  },
+  { id: 'quadrant', icon: '🧭', title: 'Universe Quadrant', caption: 'Macro positioning map' },
+  { id: 'knowledge', icon: '📚', title: 'Knowledge (Transform)', caption: 'Systems upgrade' }
 ];
 
 const DemoBanner = () => (
@@ -206,6 +325,39 @@ const staticSections = {
       }
     ]
   },
+  valuebot: {
+    title: 'ValueBot command center',
+    meta: 'Give ValueBot a focused prompt, then drill into the dedicated tabs for management, moat, balance sheet, and more.',
+    cards: [
+      {
+        title: 'Quick setup',
+        body: (
+          <>
+            <p>Choose the topic that needs attention and ValueBot will prefill the right worksheet.</p>
+            <ul>
+              <li>Management accountability pulse</li>
+              <li>Income &amp; future sales glide path</li>
+              <li>Moat durability review</li>
+              <li>Debt &amp; refinancing guardrails</li>
+            </ul>
+          </>
+        )
+      },
+      {
+        title: 'Workflow tips',
+        body: (
+          <>
+            <p>Keep each tab alive with the freshest thinking:</p>
+            <ol>
+              <li>Drop transcript or model highlights into the relevant tab.</li>
+              <li>Pin any red flags inside the Risks tab for fast escalation.</li>
+              <li>Use Notes &amp; hand-offs as a placeholder until a bespoke module is built.</li>
+            </ol>
+          </>
+        )
+      }
+    ]
+  },
   settings: {
     title: 'Settings',
     meta: 'Preferences for alerts, integrations, and localization.',
@@ -349,6 +501,7 @@ const App = () => {
   const [theme, setTheme] = useState('dark');
   const [activeSection, setActiveSection] = useState('dashboard');
   const [activeTab, setActiveTab] = useState(tabs[0]);
+  const [activeValueBotTab, setActiveValueBotTab] = useState(valueBotTabs[0].id);
   const [portfolioSub, setPortfolioSub] = useState('portfolio-results');
   const [activeProfile, setActiveProfile] = useState(null);
   const [profileError, setProfileError] = useState(null);
@@ -706,10 +859,20 @@ const App = () => {
                   if (item.id === 'portfolio') {
                     setPortfolioSub('portfolio-results');
                   }
+                  if (item.id === 'valuebot') {
+                    setActiveTab('ValueBot');
+                  }
                 }}
               >
-                <span className="item-title">{item.title}</span>
-                <span className="item-caption">{item.caption}</span>
+                {item.icon && (
+                  <span className="item-icon" aria-hidden="true">
+                    {item.icon}
+                  </span>
+                )}
+                <div className="item-copy">
+                  <span className="item-title">{item.title}</span>
+                  <span className="item-caption">{item.caption}</span>
+                </div>
               </button>
             ))}
             <div className="submenu" data-parent="portfolio" aria-hidden={activeSection !== 'portfolio'}>
@@ -790,6 +953,51 @@ const App = () => {
                 </article>
               </section>
             </div>
+            {activeTab === 'ValueBot' && (
+              <section className="valuebot-panel" aria-label="ValueBot workspace">
+                <header className="valuebot-header">
+                  <div>
+                    <h2>ValueBot research console</h2>
+                    <p>
+                      Explore AI-generated valuation prompts, conviction notes, and scenario planning tabs tailored for
+                      deep fundamental work.
+                    </p>
+                  </div>
+                  <span className="tag tag-blue">AI assistant</span>
+                </header>
+                <div className="valuebot-tabs" role="tablist" aria-label="ValueBot prompts">
+                  {valueBotTabs.map((tab) => (
+                    <button
+                      key={tab.id}
+                      className={`valuebot-tab${activeValueBotTab === tab.id ? ' active' : ''}`}
+                      type="button"
+                      role="tab"
+                      aria-selected={activeValueBotTab === tab.id}
+                      onClick={() => setActiveValueBotTab(tab.id)}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
+                <div className="valuebot-views">
+                  {valueBotTabs.map((tab) => (
+                    <article
+                      key={tab.id}
+                      className={`valuebot-view${activeValueBotTab === tab.id ? ' active' : ''}`}
+                      aria-hidden={activeValueBotTab !== tab.id}
+                    >
+                      <h3>{tab.title}</h3>
+                      <p>{tab.description}</p>
+                      <ul>
+                        {tab.bullets.map((bullet) => (
+                          <li key={bullet}>{bullet}</li>
+                        ))}
+                      </ul>
+                    </article>
+                  ))}
+                </div>
+              </section>
+            )}
           </div>
         </div>
       </section>

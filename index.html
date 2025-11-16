@@ -40,28 +40,50 @@
       <div class="app-shell">
         <nav class="app-menu" aria-label="Primary">
           <button class="menu-item active" data-section="dashboard">
-            <span class="item-title">Today / Dashboard</span>
-            <span class="item-caption">Morning overview</span>
+            <span class="item-icon" aria-hidden="true">🏠</span>
+            <div class="item-copy">
+              <span class="item-title">Today / Dashboard</span>
+              <span class="item-caption">Morning overview</span>
+            </div>
           </button>
           <button class="menu-item" data-section="checkin">
-            <span class="item-title">Check-In</span>
-            <span class="item-caption">Daily reflections</span>
+            <span class="item-icon" aria-hidden="true">🧘</span>
+            <div class="item-copy">
+              <span class="item-title">Check-In</span>
+              <span class="item-caption">Daily reflections</span>
+            </div>
+          </button>
+          <button class="menu-item" data-section="valuebot">
+            <span class="item-icon" aria-hidden="true">🤖</span>
+            <div class="item-copy">
+              <span class="item-title">ValueBot</span>
+              <span class="item-caption">Valuation copilot</span>
+            </div>
           </button>
           <button class="menu-item" data-section="alpha">
-            <span class="item-title">Stock Alpha</span>
-            <span class="item-caption">Idea tracker</span>
+            <span class="item-icon" aria-hidden="true">🔮</span>
+            <div class="item-copy">
+              <span class="item-title">AI Oracle Chat</span>
+              <span class="item-caption">Learning &amp; pattern analysis</span>
+            </div>
           </button>
           <button class="menu-item" data-section="portfolio">
-            <span class="item-title">Portfolio</span>
-            <span class="item-caption">Results &amp; ledger</span>
+            <span class="item-icon" aria-hidden="true">💼</span>
+            <div class="item-copy">
+              <span class="item-title">Portfolio</span>
+              <span class="item-caption">Results &amp; ledger</span>
+            </div>
           </button>
           <div class="submenu" data-parent="portfolio">
             <button class="submenu-item" data-sub="portfolio-results">Results</button>
             <button class="submenu-item" data-sub="portfolio-ledger">Ledger / Records</button>
           </div>
           <button class="menu-item" data-section="settings">
-            <span class="item-title">Settings</span>
-            <span class="item-caption">Preferences</span>
+            <span class="item-icon" aria-hidden="true">⚙️</span>
+            <div class="item-copy">
+              <span class="item-title">Settings</span>
+              <span class="item-caption">Preferences</span>
+            </div>
           </button>
         </nav>
 
@@ -71,6 +93,7 @@
             <button class="tab" role="tab" aria-selected="false">Notes</button>
             <button class="tab" role="tab" aria-selected="false">Tasks</button>
             <button class="tab" role="tab" aria-selected="false">Analytics</button>
+            <button class="tab" role="tab" aria-selected="false">ValueBot</button>
           </div>
           <div class="app-panels">
             <aside class="app-list" aria-label="Key items">
@@ -145,22 +168,255 @@
                 </div>
               </article>
 
-              <article id="alpha" class="detail-view">
-                <h2>Stock Alpha</h2>
-                <p class="detail-meta">Track hypotheses, catalysts, and conviction levels.</p>
+              <article id="valuebot" class="detail-view visible">
+                <h2>ValueBot command center</h2>
+                <p class="detail-meta">Give ValueBot a focused prompt, then drill into the dedicated tabs for management, moat, balance sheet, and more.</p>
                 <div class="detail-grid">
                   <div class="detail-card">
-                    <h3>Idea pipeline</h3>
-                    <ul class="pill-list">
-                      <li class="pill">Growth</li>
-                      <li class="pill">Event-driven</li>
-                      <li class="pill">Swing</li>
+                    <h3>Quick setup</h3>
+                    <p>Choose the topic that needs attention and ValueBot will prefill the right worksheet.</p>
+                    <ul>
+                      <li>Management accountability pulse</li>
+                      <li>Income &amp; future sales glide path</li>
+                      <li>Moat durability review</li>
+                      <li>Debt &amp; refinancing guardrails</li>
                     </ul>
-                    <p>Add notes, attach files, and set review reminders.</p>
                   </div>
                   <div class="detail-card">
-                    <h3>Alpha research feed</h3>
-                    <p>Upload research snippets and tag by strategy to see aggregate performance.</p>
+                    <h3>Workflow tips</h3>
+                    <p>Keep each tab alive with the freshest thinking:</p>
+                    <ol>
+                      <li>Drop transcript or model highlights into the relevant tab.</li>
+                      <li>Pin any red flags inside the Risks tab for fast escalation.</li>
+                      <li>Use Notes &amp; hand-offs as a placeholder until a bespoke module is built.</li>
+                    </ol>
+                  </div>
+                </div>
+                <section class="valuebot-panel" aria-label="ValueBot workspace">
+                  <header class="valuebot-header">
+                    <div>
+                      <p class="detail-meta">AI research console</p>
+                      <h2>Pick a tab to focus your diligence</h2>
+                      <p>ValueBot prefills prompts and worksheets so every diligence sprint stays organized.</p>
+                    </div>
+                    <button class="btn-primary" type="button">Launch ValueBot</button>
+                  </header>
+                  <div class="valuebot-tabs" role="tablist" aria-label="ValueBot prompts">
+                    <button class="valuebot-tab active" data-target="valuebot-management" type="button">Management</button>
+                    <button class="valuebot-tab" data-target="valuebot-income" type="button">Income &amp; future sales</button>
+                    <button class="valuebot-tab" data-target="valuebot-moat" type="button">Moat</button>
+                    <button class="valuebot-tab" data-target="valuebot-debt" type="button">Debt &amp; refinancing</button>
+                    <button class="valuebot-tab" data-target="valuebot-risks" type="button">Risks</button>
+                    <button class="valuebot-tab" data-target="valuebot-profile" type="button">Profile</button>
+                    <button class="valuebot-tab" data-target="valuebot-scenarios" type="button">Scenarios</button>
+                    <button class="valuebot-tab" data-target="valuebot-capital" type="button">Capital allocation</button>
+                    <button class="valuebot-tab" data-target="valuebot-valuation" type="button">Valuation</button>
+                    <button class="valuebot-tab" data-target="valuebot-notes" type="button">Notes &amp; hand-offs</button>
+                  </div>
+                  <div class="valuebot-views">
+                    <div class="valuebot-view active" id="valuebot-management">
+                      <h3>Management — Accountability pulse</h3>
+                      <p>Snapshot the credibility of leadership, cadence of communication, and alignment with owners.</p>
+                      <ul>
+                        <li>Summaries of the most recent earnings call promises vs. delivery.</li>
+                        <li>Succession, insider buying, and compensation flags to watch.</li>
+                        <li>Follow-up prompts for the next conversation with the team.</li>
+                      </ul>
+                    </div>
+                    <div class="valuebot-view" id="valuebot-income">
+                      <h3>Income &amp; future sales — Demand glide path</h3>
+                      <p>Model top-line durability with scenario bands for price, volume, and mix.</p>
+                      <ul>
+                        <li>Bridge trailing revenue to the forward twelve-month funnel.</li>
+                        <li>Highlight contracts or cohorts that need renewal attention.</li>
+                        <li>Stress units vs. pricing levers across bear/base/bull views.</li>
+                      </ul>
+                    </div>
+                    <div class="valuebot-view" id="valuebot-moat">
+                      <h3>Moat — Competitive advantage checklist</h3>
+                      <p>Capture the structural protections that justify super-normal returns.</p>
+                      <ul>
+                        <li>Score switching costs, brand equity, regulation, and data flywheels.</li>
+                        <li>Call out erosion signals, pricing pressure, or substitute threats.</li>
+                        <li>Recommend diligence angles for on-the-ground channel checks.</li>
+                      </ul>
+                    </div>
+                    <div class="valuebot-view" id="valuebot-debt">
+                      <h3>Debt &amp; refinancing — Balance sheet guardrails</h3>
+                      <p>Map maturity walls, covenant slack, and refinancing lanes.</p>
+                      <ul>
+                        <li>Next 24 months of obligations vs. liquidity stack.</li>
+                        <li>Interest coverage, hedging, and counterparty considerations.</li>
+                        <li>What-if math for credit spread shock or rating drift.</li>
+                      </ul>
+                    </div>
+                    <div class="valuebot-view" id="valuebot-risks">
+                      <h3>Risks — Blind spot radar</h3>
+                      <p>Auto-scan macro, company, and behavioral risks tied to the thesis.</p>
+                      <ul>
+                        <li>Heat map of probability vs. impact for major risk pillars.</li>
+                        <li>Pre-written mitigation plans or hedges by scenario.</li>
+                        <li>Regulatory or geopolitical triggers to monitor each week.</li>
+                      </ul>
+                    </div>
+                    <div class="valuebot-view" id="valuebot-profile">
+                      <h3>Profile — Snapshot briefing</h3>
+                      <p>Keep the full company dossier handy for introductions and sharing.</p>
+                      <ul>
+                        <li>Elevator pitch, coverage status, and conviction scale.</li>
+                        <li>Recent catalysts, ownership notes, and strategic initiatives.</li>
+                        <li>Quick links to files, transcripts, and diligence vaults.</li>
+                      </ul>
+                    </div>
+                    <div class="valuebot-view" id="valuebot-scenarios">
+                      <h3>Scenarios — Sensitivity sandbox</h3>
+                      <p>Play with sliders that instantly refresh valuation deltas.</p>
+                      <ul>
+                        <li>Toggle discount rates, tax rates, or capex intensity to see impact.</li>
+                        <li>Overlay AI suggestions for upside/downside probability.</li>
+                        <li>Export ready-to-present tornado and spider charts.</li>
+                      </ul>
+                    </div>
+                    <div class="valuebot-view" id="valuebot-capital">
+                      <h3>Capital allocation — Stewardship tracker</h3>
+                      <p>Track how cash is deployed relative to stated priorities.</p>
+                      <ul>
+                        <li>Buyback, dividend, and reinvestment scorecards.</li>
+                        <li>Net new investments compared with hurdle rates.</li>
+                        <li>Accountability notes from prior board commentary.</li>
+                      </ul>
+                    </div>
+                    <div class="valuebot-view" id="valuebot-valuation">
+                      <h3>Valuation — Target stack</h3>
+                      <p>Line up intrinsic value estimates by method with AI commentary.</p>
+                      <ul>
+                        <li>DCF, comps, and precedent transactions summarized in one card.</li>
+                        <li>Margin of safety and implied IRR per scenario.</li>
+                        <li>Auto-generated talking points to defend the target range.</li>
+                      </ul>
+                    </div>
+                    <div class="valuebot-view" id="valuebot-notes">
+                      <h3>Notes &amp; hand-offs — Action placeholders</h3>
+                      <p>Reserve space for whatever bespoke checklist the team needs next.</p>
+                      <ul>
+                        <li>Drop reminders, diligence asks, or outreach assignments.</li>
+                        <li>Flag dependencies for legal, ops, or data partners.</li>
+                        <li>Use as a scratchpad until a more formal tab is designed.</li>
+                      </ul>
+                    </div>
+                  </div>
+                </section>
+              </article>
+
+              <article id="alpha" class="detail-view">
+                <h2>AI Oracle Chat</h2>
+                <p class="detail-meta">AI-powered learning analysis that tracks patterns, scores mistakes, and monitors improvement over time.</p>
+                <div class="detail-card">
+                  <h3>Prepared Chat Examples</h3>
+                  <p><strong>Example conversations based on your records:</strong></p>
+                  <div class="chat-examples">
+                    <div class="chat-example">
+                      <strong>💬 "Am I repeating the same mistakes?"</strong>
+                      <p class="detail-meta">Analysis: Reviewed 10 transactions and 3 journal entries. Found pattern: you tend to let losses linger too long on consumer names (JNJ exit came late). Severity: Medium. Good news: you're showing improvement with FOMO discipline on breakout gaps.</p>
+                    </div>
+                    <div class="chat-example">
+                      <strong>💬 "What are my biggest risk patterns?"</strong>
+                      <p class="detail-meta">Analysis: Top issue - overconfidence after wins (see Oct 29 journal). This led to aggressive NVDA position sizing on Oct 31. Severity: High. Recommendation: Implement mandatory cool-down period after profitable trades.</p>
+                    </div>
+                    <div class="chat-example">
+                      <strong>💬 "Show me where I'm improving"</strong>
+                      <p class="detail-meta">Progress detected: Discipline score improving week-over-week. Oct 29: Good discipline exiting laggards early. Oct 31: Patient on FOMO entries. Pattern: You're successfully applying lessons from previous sessions. Keep it up!</p>
+                    </div>
+                    <div class="chat-example">
+                      <strong>💬 "Analyze my recent energy trade"</strong>
+                      <p class="detail-meta">XLE Sell (Oct 31): Trimmed after relative strength fade - this shows good macro overlay awareness. Severity of error: Low (actually a smart defensive move). Learning indicator: You're applying quadrant thinking in real-time. Score: ⭐️⭐️⭐️⭐️</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="detail-card">
+                  <h3>Learning Analysis Dashboard</h3>
+                  <p><strong>Pattern Recognition &amp; Scoring System</strong></p>
+                  <table class="table subtle">
+                    <thead>
+                      <tr>
+                        <th>Issue Type</th>
+                        <th>Occurrences</th>
+                        <th>Severity</th>
+                        <th>Trend</th>
+                        <th>Score</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>FOMO on breakouts</td>
+                        <td>2 instances</td>
+                        <td>🟡 Medium</td>
+                        <td>📈 Improving</td>
+                        <td>⭐️⭐️⭐️⭐️</td>
+                      </tr>
+                      <tr>
+                        <td>Holding losers too long</td>
+                        <td>1 instance</td>
+                        <td>🟡 Medium</td>
+                        <td>⚠️ Watch</td>
+                        <td>⭐️⭐️⭐️</td>
+                      </tr>
+                      <tr>
+                        <td>Post-win overconfidence</td>
+                        <td>1 instance</td>
+                        <td>🔴 High</td>
+                        <td>⚠️ New pattern</td>
+                        <td>⭐️⭐️</td>
+                      </tr>
+                      <tr>
+                        <td>Macro-aware exits</td>
+                        <td>3 instances</td>
+                        <td>🟢 Positive</td>
+                        <td>📈 Improving</td>
+                        <td>⭐️⭐️⭐️⭐️⭐️</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <div class="learning-summary">
+                    <p><strong>Overall Learning Indicator:</strong> 📊 Positive trajectory with areas to watch</p>
+                    <p><strong>Key Insight:</strong> You're successfully implementing patience disciplines from the punchcard system. However, watch for overconfidence cycles after profitable periods.</p>
+                  </div>
+                </div>
+                <div class="detail-card">
+                  <h3>Developer Notes: AI Oracle Process</h3>
+                  <div class="dev-notes">
+                    <h4>🔧 Implementation Overview</h4>
+                    <p><strong>Purpose:</strong> AI Oracle analyzes all user records (transactions, journal entries, portfolio moves) to identify behavioral patterns, score mistakes, track learning progress, and assess action severity.</p>
+                    <h4>📋 Analysis Process</h4>
+                    <ol>
+                      <li><strong>Data Ingestion:</strong> Continuously monitors journal_entries and transactions tables for new records</li>
+                      <li><strong>Pattern Detection:</strong> Uses NLP to identify recurring themes in bias_notes and transaction notes</li>
+                      <li><strong>Severity Scoring:</strong> Classifies issues as Low/Medium/High based on financial impact and frequency</li>
+                      <li><strong>Learning Trajectory:</strong> Compares current patterns vs historical to determine improvement/regression</li>
+                      <li><strong>Actionable Insights:</strong> Generates specific, personalized recommendations</li>
+                    </ol>
+                    <h4>🎯 Scoring Methodology</h4>
+                    <ul>
+                      <li>⭐️ - Critical issue, immediate attention needed</li>
+                      <li>⭐️⭐️ - Significant concern, high severity</li>
+                      <li>⭐️⭐️⭐️ - Moderate issue, needs monitoring</li>
+                      <li>⭐️⭐️⭐️⭐️ - Minor issue or improving pattern</li>
+                      <li>⭐️⭐️⭐️⭐️⭐️ - Positive behavior, reinforcement recommended</li>
+                    </ul>
+                    <h4>🔄 Data Flow</h4>
+                    <pre class="code-block">User Action → Record Created → AI Analysis → Pattern Match
+→ Severity Check → Learning Comparison → Score Assignment
+→ Chat Response Generation → Insight Display</pre>
+                    <h4>🚀 Future Enhancements</h4>
+                    <ul>
+                      <li>Real-time chat interface with GPT-4 integration</li>
+                      <li>Automated alerts when negative patterns emerge</li>
+                      <li>Comparison with peer anonymized data for benchmarking</li>
+                      <li>ML-powered prediction of likely next mistakes</li>
+                      <li>Integration with punchcard system for unified discipline tracking</li>
+                    </ul>
+                    <h4>📊 Demo Data Source</h4>
+                    <p>Current examples use: <code>demo.journal_entries.json</code> (3 entries) and <code>demo.transactions.json</code> (10 trades). In production, connects to live Supabase tables.</p>
                   </div>
                 </div>
               </article>

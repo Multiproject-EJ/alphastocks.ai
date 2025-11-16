@@ -18,6 +18,8 @@ const menuItems = document.querySelectorAll('.menu-item');
 const detailViews = document.querySelectorAll('.detail-view');
 const tabs = document.querySelectorAll('.tab');
 const submenuItems = document.querySelectorAll('.submenu-item');
+const valuebotTabs = document.querySelectorAll('.valuebot-tab');
+const valuebotViews = document.querySelectorAll('.valuebot-view');
 const constructionOverlay = document.getElementById('constructionOverlay');
 const constructionContinue = document.getElementById('constructionContinue');
 
@@ -122,6 +124,30 @@ if (tabs.length) {
       tab.classList.add('active');
     });
   });
+}
+
+const setValuebotView = (targetId) => {
+  if (!valuebotViews.length) return;
+  valuebotViews.forEach((view) => {
+    view.classList.toggle('active', view.id === targetId);
+  });
+};
+
+if (valuebotTabs.length) {
+  valuebotTabs.forEach((tab, index) => {
+    tab.addEventListener('click', () => {
+      valuebotTabs.forEach((btn) => btn.classList.remove('active'));
+      tab.classList.add('active');
+      const target = tab.dataset.target || valuebotViews[index]?.id;
+      if (target) {
+        setValuebotView(target);
+      }
+    });
+  });
+  const defaultTarget = valuebotTabs[0]?.dataset.target || valuebotViews[0]?.id;
+  if (defaultTarget) {
+    setValuebotView(defaultTarget);
+  }
 }
 
 const resetWorkspaceState = () => {
