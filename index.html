@@ -24,21 +24,45 @@
 <body data-theme="light" class="auth-required">
   <main class="app-stage">
     <section id="app" class="app">
-      <header class="app-topbar">
-        <div class="workspace-title">
-          <h1>AlphaStocks Workspace</h1>
-          <p id="userGreeting">Welcome back.</p>
-        </div>
-        <div class="topbar-actions">
-          <button id="themeToggle" type="button" class="btn-secondary" aria-pressed="false">Switch to light</button>
-          <div class="app-user" id="appUser">demo@alphastocks.ai</div>
-          <button type="button" class="btn-primary" data-pwa-install hidden>Install app</button>
-          <button id="logout" type="button" class="btn-secondary">Log out</button>
-        </div>
-      </header>
+      <div class="app-topbar-wrapper" id="workspaceAccountPanel">
+        <header class="app-topbar">
+          <div class="workspace-title">
+            <h1>AlphaStocks Workspace</h1>
+            <p id="userGreeting">Welcome back.</p>
+          </div>
+          <div class="topbar-actions">
+            <button id="themeToggle" type="button" class="btn-secondary" aria-pressed="false">Switch to light</button>
+            <div class="app-user" id="appUser">demo@alphastocks.ai</div>
+            <button type="button" class="btn-primary" data-pwa-install hidden>Install app</button>
+            <button id="logout" type="button" class="btn-secondary">Log out</button>
+          </div>
+        </header>
+      </div>
 
       <div class="app-shell">
         <nav class="app-menu" aria-label="Primary">
+          <div class="menu-item-split" aria-label="Account controls">
+            <button
+              type="button"
+              class="menu-item split-button account active"
+              data-account-toggle
+              aria-pressed="true"
+              aria-controls="workspaceAccountPanel"
+            >
+              <span class="item-icon" aria-hidden="true">👤</span>
+              <div class="item-copy">
+                <span class="item-title">Account</span>
+                <span class="item-caption">Workspace profile</span>
+              </div>
+            </button>
+            <button class="menu-item split-button" data-section="settings">
+              <span class="item-icon" aria-hidden="true">⚙️</span>
+              <div class="item-copy">
+                <span class="item-title">Settings</span>
+                <span class="item-caption">Preferences</span>
+              </div>
+            </button>
+          </div>
           <button class="menu-item active" data-section="dashboard">
             <span class="item-icon" aria-hidden="true">🏠</span>
             <div class="item-copy">
@@ -78,13 +102,6 @@
             <button class="submenu-item" data-sub="portfolio-results">Results</button>
             <button class="submenu-item" data-sub="portfolio-ledger">Ledger / Records</button>
           </div>
-          <button class="menu-item" data-section="settings">
-            <span class="item-icon" aria-hidden="true">⚙️</span>
-            <div class="item-copy">
-              <span class="item-title">Settings</span>
-              <span class="item-caption">Preferences</span>
-            </div>
-          </button>
           <button class="menu-item" data-section="punchcard">
             <span class="item-icon" aria-hidden="true">🎣</span>
             <div class="item-copy">

@@ -14,7 +14,7 @@ const authModeButtons = document.querySelectorAll('[data-auth-mode]');
 const appUser = document.getElementById('appUser');
 const userGreeting = document.getElementById('userGreeting');
 const logoutButton = document.getElementById('logout');
-const menuItems = document.querySelectorAll('.menu-item');
+const menuItems = document.querySelectorAll('.menu-item[data-section]');
 const detailViews = document.querySelectorAll('.detail-view');
 const tabs = document.querySelectorAll('.tab');
 const submenuItems = document.querySelectorAll('.submenu-item');
@@ -22,6 +22,8 @@ const valuebotTabs = document.querySelectorAll('.valuebot-tab');
 const valuebotViews = document.querySelectorAll('.valuebot-view');
 const constructionOverlay = document.getElementById('constructionOverlay');
 const constructionContinue = document.getElementById('constructionContinue');
+const accountPanel = document.getElementById('workspaceAccountPanel');
+const accountToggle = document.querySelector('[data-account-toggle]');
 
 const CONSTRUCTION_STORAGE_KEY = 'alphaConstructionDismissed';
 const THEME_STORAGE_KEY = 'alphastocksTheme';
@@ -73,6 +75,21 @@ if (themeToggle) {
 }
 
 setThemeMetaColor(initialTheme);
+
+if (accountPanel && accountToggle) {
+  const syncAccountToggle = () => {
+    const isOpen = !accountPanel.classList.contains('collapsed');
+    accountToggle.classList.toggle('active', isOpen);
+    accountToggle.setAttribute('aria-pressed', String(isOpen));
+  };
+
+  accountToggle.addEventListener('click', () => {
+    accountPanel.classList.toggle('collapsed');
+    syncAccountToggle();
+  });
+
+  syncAccountToggle();
+}
 
 const showSection = (id) => {
   detailViews.forEach((view) => {

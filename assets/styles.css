@@ -4,6 +4,7 @@
   --radius-md: 12px;
   --radius-sm: 8px;
   --transition-fast: 160ms ease;
+  --transition-medium: 320ms ease;
   --shadow-soft: 0 18px 45px rgba(15, 23, 42, 0.25);
   --shadow-subtle: 0 1px 0 rgba(15, 23, 42, 0.12);
   color-scheme: light dark;
@@ -617,6 +618,30 @@ body[data-theme="light"] .overlay-card {
 }
 
 
+.app-topbar-wrapper {
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+  transition: max-height var(--transition-medium), opacity var(--transition-fast),
+    margin-bottom var(--transition-medium);
+  max-height: 520px;
+  opacity: 1;
+}
+
+.app-topbar-wrapper.collapsed {
+  max-height: 0;
+  opacity: 0;
+  margin-bottom: 0;
+  pointer-events: none;
+}
+
+.app-topbar-wrapper .app-topbar {
+  transition: transform var(--transition-medium);
+}
+
+.app-topbar-wrapper.collapsed .app-topbar {
+  transform: translateY(-0.75rem);
+}
+
 .app-topbar {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -669,6 +694,40 @@ body[data-theme="light"] .overlay-card {
   gap: 0.6rem;
   box-shadow: var(--shadow-soft);
   align-content: start;
+}
+
+.menu-item-split {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.4rem;
+  align-items: stretch;
+}
+
+.menu-item-split .menu-item {
+  width: 100%;
+}
+
+.menu-item.split-button {
+  justify-content: flex-start;
+  padding: 0.35rem 0.6rem;
+}
+
+.menu-item.split-button .item-icon {
+  width: 1.35rem;
+  height: 1.35rem;
+  font-size: 0.85rem;
+}
+
+.menu-item.split-button .item-copy {
+  gap: 0.1rem;
+}
+
+.menu-item.split-button .item-title {
+  font-size: 0.8rem;
+}
+
+.menu-item.split-button .item-caption {
+  display: none;
 }
 
 .menu-item {
@@ -1394,6 +1453,10 @@ body[data-theme="light"] .overlay-card {
   .menu-item,
   .submenu-item {
     flex: 1 1 220px;
+  }
+
+  .menu-item-split {
+    flex: 1 1 100%;
   }
 
   .submenu {
