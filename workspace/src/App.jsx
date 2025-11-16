@@ -131,13 +131,14 @@ const portfolioSubsections = [
   { id: 'portfolio-ledger', label: 'Ledger / Records' }
 ];
 
+const settingsNavItem = { id: 'settings', icon: '⚙️', title: 'Settings', caption: 'Preferences' };
+
 const mainNavigation = [
   { id: 'dashboard', icon: '🏠', title: 'Today / Dashboard', caption: 'Morning overview' },
   { id: 'checkin', icon: '🧘', title: 'Check-In', caption: 'Daily reflections' },
   { id: 'valuebot', icon: '🤖', title: 'ValueBot', caption: 'Valuation copilot' },
   { id: 'alpha', icon: '🔮', title: 'AI Oracle Chat', caption: 'Learning & pattern analysis' },
   { id: 'portfolio', icon: '💼', title: 'Portfolio', caption: 'Results & ledger', hasSubmenu: true },
-  { id: 'settings', icon: '⚙️', title: 'Settings', caption: 'Preferences' },
   {
     id: 'punchcard',
     icon: '🎣',
@@ -505,6 +506,7 @@ const App = () => {
   const [portfolioSub, setPortfolioSub] = useState('portfolio-results');
   const [activeProfile, setActiveProfile] = useState(null);
   const [profileError, setProfileError] = useState(null);
+  const [isAccountPanelOpen, setIsAccountPanelOpen] = useState(true);
   const runtimeConfig = useMemo(() => getRuntimeConfig(), []);
   const dataService = useMemo(() => getDataService(), [runtimeConfig.mode]);
   const themeCopy = theme === 'dark' ? 'Switch to light' : 'Switch to dark';
@@ -526,6 +528,15 @@ const App = () => {
     defaultFocusList: DEFAULT_FOCUS_LIST
   });
   const dataError = profileError ?? dashboardError;
+  const handleMenuSelection = (sectionId) => {
+    setActiveSection(sectionId);
+    if (sectionId === 'portfolio') {
+      setPortfolioSub('portfolio-results');
+    }
+    if (sectionId === 'valuebot') {
+      setActiveTab('ValueBot');
+    }
+  };
 
   useEffect(() => {
     document.body.setAttribute('data-theme', theme);
@@ -815,30 +826,36 @@ const App = () => {
   return (
     <main className="app-stage">
       <section className="app" aria-live="polite">
-        <header className="app-topbar">
-          <div className="workspace-title">
-            <h1>AlphaStocks Workspace</h1>
-            <p>
-              Welcome,
-              {' '}
-              {activeProfile?.display_name ?? 'Demo Trader'}.
-            </p>
-          </div>
-          <div className="topbar-actions">
-            <button
-              type="button"
-              className="btn-secondary"
-              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              aria-pressed={theme === 'light'}
-            >
-              {themeCopy}
-            </button>
-            <div className="app-user">{activeProfile?.email ?? 'demo@alphastocks.ai'}</div>
-            <button type="button" className="btn-secondary" disabled>
-              Log out
-            </button>
-          </div>
-        </header>
+        <div
+          className={`app-topbar-wrapper${isAccountPanelOpen ? '' : ' collapsed'}`}
+          id="workspace-account-panel"
+          aria-hidden={!isAccountPanelOpen}
+        >
+          <header className="app-topbar">
+            <div className="workspace-title">
+              <h1>AlphaStocks Workspace</h1>
+              <p>
+                Welcome,
+                {' '}
+                {activeProfile?.display_name ?? 'Demo Trader'}.
+              </p>
+            </div>
+            <div className="topbar-actions">
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                aria-pressed={theme === 'light'}
+              >
+                {themeCopy}
+              </button>
+              <div className="app-user">{activeProfile?.email ?? 'demo@alphastocks.ai'}</div>
+              <button type="button" className="btn-secondary" disabled>
+                Log out
+              </button>
+            </div>
+          </header>
+        </div>
 
         {runtimeConfig.isDemoMode && <DemoBanner />}
         {dataError && (
@@ -849,32 +866,59 @@ const App = () => {
 
         <div className="app-shell">
           <nav className="app-menu" aria-label="Primary">
-            {mainNavigation.map((item) => (
+            <div className="menu-item-split" aria-label="Account controls">
               <button
-                key={item.id}
-                className={`menu-item${activeSection === item.id ? ' active' : ''}`}
-                data-section={item.id}
-                onClick={() => {
-                  setActiveSection(item.id);
-                  if (item.id === 'portfolio') {
-                    setPortfolioSub('portfolio-results');
-                  }
-                  if (item.id === 'valuebot') {
-                    setActiveTab('ValueBot');
-                  }
-                }}
+                type="button"
+                className={`menu-item split-button account${isAccountPanelOpen ? ' active' : ''}`}
+                onClick={() => setIsAccountPanelOpen((open) => !open)}
+                aria-pressed={isAccountPanelOpen}
+                aria-controls="workspace-account-panel"
               >
-                {item.icon && (
+                <span className="item-icon" aria-hidden="true">
+                  👤
+                </span>
+                <div className="item-copy">
+                  <span className="item-title">Account</span>
+                  <span className="item-caption">Workspace profile</span>
+                </div>
+              </button>
+              <button
+                type="button"
+                className={`menu-item split-button${activeSection === settingsNavItem.id ? ' active' : ''}`}
+                data-section={settingsNavItem.id}
+                onClick={() => handleMenuSelection(settingsNavItem.id)}
+              >
+                {settingsNavItem.icon && (
                   <span className="item-icon" aria-hidden="true">
-                    {item.icon}
+                    {settingsNavItem.icon}
                   </span>
                 )}
                 <div className="item-copy">
-                  <span className="item-title">{item.title}</span>
-                  <span className="item-caption">{item.caption}</span>
+                  <span className="item-title">{settingsNavItem.title}</span>
+                  <span className="item-caption">{settingsNavItem.caption}</span>
                 </div>
               </button>
-            ))}
+            </div>
+            {mainNavigation.map((item) => {
+              return (
+                <button
+                  key={item.id}
+                  className={`menu-item${activeSection === item.id ? ' active' : ''}`}
+                  data-section={item.id}
+                  onClick={() => handleMenuSelection(item.id)}
+                >
+                  {item.icon && (
+                    <span className="item-icon" aria-hidden="true">
+                      {item.icon}
+                    </span>
+                  )}
+                  <div className="item-copy">
+                    <span className="item-title">{item.title}</span>
+                    <span className="item-caption">{item.caption}</span>
+                  </div>
+                </button>
+              );
+            })}
             <div className="submenu" data-parent="portfolio" aria-hidden={activeSection !== 'portfolio'}>
               {portfolioSubsections.map((item) => (
                 <button
