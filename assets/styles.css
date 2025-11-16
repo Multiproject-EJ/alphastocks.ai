@@ -881,6 +881,40 @@ body[data-theme="light"] .overlay-card {
   display: none;
 }
 
+.menu-item-split {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.4rem;
+  align-items: stretch;
+}
+
+.menu-item-split .menu-item {
+  width: 100%;
+}
+
+.menu-item.split-button {
+  justify-content: flex-start;
+  padding: 0.35rem 0.6rem;
+}
+
+.menu-item.split-button .item-icon {
+  width: 1.35rem;
+  height: 1.35rem;
+  font-size: 0.85rem;
+}
+
+.menu-item.split-button .item-copy {
+  gap: 0.1rem;
+}
+
+.menu-item.split-button .item-title {
+  font-size: 0.8rem;
+}
+
+.menu-item.split-button .item-caption {
+  display: none;
+}
+
 .menu-item {
   display: flex;
   align-items: center;
