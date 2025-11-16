@@ -24,88 +24,95 @@
 <body data-theme="light" class="auth-required">
   <main class="app-stage">
     <section id="app" class="app">
-      <header class="app-topbar">
-        <div class="workspace-title">
-          <h1>AlphaStocks Workspace</h1>
-          <p id="userGreeting">Welcome back.</p>
-        </div>
-        <div class="topbar-actions">
-          <button id="themeToggle" type="button" class="btn-secondary" aria-pressed="false">Switch to light</button>
-          <div class="app-user" id="appUser">demo@alphastocks.ai</div>
-          <button type="button" class="btn-primary" data-pwa-install hidden>Install app</button>
-          <button id="logout" type="button" class="btn-secondary">Log out</button>
-        </div>
-      </header>
-
       <div class="app-shell">
         <nav class="app-menu" aria-label="Primary">
-          <button class="menu-item active" data-section="dashboard">
-            <span class="item-icon" aria-hidden="true">🏠</span>
-            <div class="item-copy">
-              <span class="item-title">Today / Dashboard</span>
-              <span class="item-caption">Morning overview</span>
+          <div class="menu-stack">
+            <div class="menu-item-split" aria-label="Account controls">
+              <button
+                type="button"
+                class="menu-item split-button account"
+                data-dialog-target="accountDialog"
+              >
+                <span class="item-icon" aria-hidden="true">👤</span>
+                <div class="item-copy">
+                  <span class="item-title">Account</span>
+                  <span class="item-caption">Workspace profile</span>
+                </div>
+              </button>
+              <button
+                type="button"
+                class="menu-item split-button"
+                data-dialog-target="settingsDialog"
+              >
+                <span class="item-icon" aria-hidden="true">⚙️</span>
+                <div class="item-copy">
+                  <span class="item-title">Settings</span>
+                  <span class="item-caption">Preferences</span>
+                </div>
+              </button>
             </div>
-          </button>
-          <button class="menu-item" data-section="checkin">
-            <span class="item-icon" aria-hidden="true">🧘</span>
-            <div class="item-copy">
-              <span class="item-title">Check-In</span>
-              <span class="item-caption">Daily reflections</span>
+            <button class="menu-item active" data-section="dashboard">
+              <span class="item-icon" aria-hidden="true">🏠</span>
+              <div class="item-copy">
+                <span class="item-title">Today / Dashboard</span>
+                <span class="item-caption">Morning overview</span>
+              </div>
+            </button>
+            <button class="menu-item" data-section="checkin">
+              <span class="item-icon" aria-hidden="true">🧘</span>
+              <div class="item-copy">
+                <span class="item-title">Check-In</span>
+                <span class="item-caption">Daily reflections</span>
+              </div>
+            </button>
+            <button class="menu-item" data-section="valuebot">
+              <span class="item-icon" aria-hidden="true">🤖</span>
+              <div class="item-copy">
+                <span class="item-title">ValueBot</span>
+                <span class="item-caption">Valuation copilot</span>
+              </div>
+            </button>
+            <button class="menu-item" data-section="alpha">
+              <span class="item-icon" aria-hidden="true">🔮</span>
+              <div class="item-copy">
+                <span class="item-title">AI Oracle Chat</span>
+                <span class="item-caption">Learning &amp; pattern analysis</span>
+              </div>
+            </button>
+            <button class="menu-item" data-section="portfolio">
+              <span class="item-icon" aria-hidden="true">💼</span>
+              <div class="item-copy">
+                <span class="item-title">Portfolio</span>
+                <span class="item-caption">Results &amp; ledger</span>
+              </div>
+            </button>
+            <div class="submenu" data-parent="portfolio">
+              <button class="submenu-item" data-sub="portfolio-results">Results</button>
+              <button class="submenu-item" data-sub="portfolio-ledger">Ledger / Records</button>
             </div>
-          </button>
-          <button class="menu-item" data-section="valuebot">
-            <span class="item-icon" aria-hidden="true">🤖</span>
-            <div class="item-copy">
-              <span class="item-title">ValueBot</span>
-              <span class="item-caption">Valuation copilot</span>
-            </div>
-          </button>
-          <button class="menu-item" data-section="alpha">
-            <span class="item-icon" aria-hidden="true">🔮</span>
-            <div class="item-copy">
-              <span class="item-title">AI Oracle Chat</span>
-              <span class="item-caption">Learning &amp; pattern analysis</span>
-            </div>
-          </button>
-          <button class="menu-item" data-section="portfolio">
-            <span class="item-icon" aria-hidden="true">💼</span>
-            <div class="item-copy">
-              <span class="item-title">Portfolio</span>
-              <span class="item-caption">Results &amp; ledger</span>
-            </div>
-          </button>
-          <div class="submenu" data-parent="portfolio">
-            <button class="submenu-item" data-sub="portfolio-results">Results</button>
-            <button class="submenu-item" data-sub="portfolio-ledger">Ledger / Records</button>
+            <button class="menu-item" data-section="punchcard">
+              <span class="item-icon" aria-hidden="true">🎣</span>
+              <div class="item-copy">
+                <span class="item-title">PUNCHCard MONOPLOY - Fishing SWIPE</span>
+                <span class="item-caption">Patience &amp; selectivity drill</span>
+              </div>
+            </button>
+            <button class="menu-item" data-section="quadrant">
+              <span class="item-icon" aria-hidden="true">🧭</span>
+              <div class="item-copy">
+                <span class="item-title">Universe Quadrant</span>
+                <span class="item-caption">Macro positioning map</span>
+              </div>
+            </button>
+            <button class="menu-item" data-section="knowledge">
+              <span class="item-icon" aria-hidden="true">📚</span>
+              <div class="item-copy">
+                <span class="item-title">Knowledge (Transform)</span>
+                <span class="item-caption">Systems upgrade</span>
+              </div>
+            </button>
           </div>
-          <button class="menu-item" data-section="settings">
-            <span class="item-icon" aria-hidden="true">⚙️</span>
-            <div class="item-copy">
-              <span class="item-title">Settings</span>
-              <span class="item-caption">Preferences</span>
-            </div>
-          </button>
-          <button class="menu-item" data-section="punchcard">
-            <span class="item-icon" aria-hidden="true">🎣</span>
-            <div class="item-copy">
-              <span class="item-title">PUNCHCard MONOPLOY - Fishing SWIPE</span>
-              <span class="item-caption">Patience &amp; selectivity drill</span>
-            </div>
-          </button>
-          <button class="menu-item" data-section="quadrant">
-            <span class="item-icon" aria-hidden="true">🧭</span>
-            <div class="item-copy">
-              <span class="item-title">Universe Quadrant</span>
-              <span class="item-caption">Macro positioning map</span>
-            </div>
-          </button>
-          <button class="menu-item" data-section="knowledge">
-            <span class="item-icon" aria-hidden="true">📚</span>
-            <div class="item-copy">
-              <span class="item-title">Knowledge (Transform)</span>
-              <span class="item-caption">Systems upgrade</span>
-            </div>
-          </button>
+          <p class="menu-footer">&copy; <span id="year"></span> AlphaStocks.ai. All rights reserved.</p>
         </nav>
 
         <div class="workspace" id="workspace">
@@ -559,10 +566,86 @@
         </div>
       </div>
     </section>
-    <footer class="landing-footer" id="contact">
-      <p>&copy; <span id="year"></span> AlphaStocks.ai. All rights reserved.</p>
-    </footer>
   </main>
+
+  <div
+    id="accountDialog"
+    class="app-dialog"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="accountDialogTitle"
+    aria-hidden="true"
+    hidden
+  >
+    <div class="dialog-backdrop" data-dialog-close></div>
+    <div class="dialog-panel">
+      <div class="dialog-header">
+        <h2 id="accountDialogTitle">Workspace account</h2>
+        <button
+          type="button"
+          class="dialog-close"
+          aria-label="Close account dialog"
+          data-dialog-close
+          data-dialog-initial-focus
+        >
+          ✕
+        </button>
+      </div>
+      <div class="dialog-body account-dialog">
+        <div class="workspace-title">
+          <h1>AlphaStocks Workspace</h1>
+          <p id="userGreeting">Welcome back.</p>
+        </div>
+        <div class="account-actions">
+          <button id="themeToggle" type="button" class="btn-secondary" aria-pressed="false">Switch to light</button>
+          <div class="app-user" id="appUser">demo@alphastocks.ai</div>
+          <button type="button" class="btn-primary" data-pwa-install hidden>Install app</button>
+          <button id="logout" type="button" class="btn-secondary">Log out</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div
+    id="settingsDialog"
+    class="app-dialog"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="settingsDialogTitle"
+    aria-hidden="true"
+    hidden
+  >
+    <div class="dialog-backdrop" data-dialog-close></div>
+    <div class="dialog-panel">
+      <div class="dialog-header">
+        <h2 id="settingsDialogTitle">Workspace settings</h2>
+        <button type="button" class="dialog-close" aria-label="Close settings dialog" data-dialog-close>✕</button>
+      </div>
+      <div class="dialog-body settings-dialog">
+        <div class="settings-item">
+          <div>
+            <p class="settings-label">Layout density</p>
+            <p class="settings-hint">Choose compact, cozy, or spacious modes.</p>
+          </div>
+          <button type="button" class="btn-tertiary">Adjust</button>
+        </div>
+        <div class="settings-item">
+          <div>
+            <p class="settings-label">Focus timer</p>
+            <p class="settings-hint">Sync breaks with workspace rhythm.</p>
+          </div>
+          <button type="button" class="btn-tertiary">Configure</button>
+        </div>
+        <div class="settings-item">
+          <div>
+            <p class="settings-label">Notification presets</p>
+            <p class="settings-hint">Email, push, and SMS nudges.</p>
+          </div>
+          <button type="button" class="btn-tertiary">Edit</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <div id="constructionBackdrop" class="construction-backdrop" aria-hidden="true"></div>
   <div

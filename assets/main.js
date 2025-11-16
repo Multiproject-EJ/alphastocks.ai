@@ -14,7 +14,7 @@ const authModeButtons = document.querySelectorAll('[data-auth-mode]');
 const appUser = document.getElementById('appUser');
 const userGreeting = document.getElementById('userGreeting');
 const logoutButton = document.getElementById('logout');
-const menuItems = document.querySelectorAll('.menu-item');
+const menuItems = document.querySelectorAll('.menu-item[data-section]');
 const detailViews = document.querySelectorAll('.detail-view');
 const tabs = document.querySelectorAll('.tab');
 const submenuItems = document.querySelectorAll('.submenu-item');
@@ -22,10 +22,16 @@ const valuebotTabs = document.querySelectorAll('.valuebot-tab');
 const valuebotViews = document.querySelectorAll('.valuebot-view');
 const constructionOverlay = document.getElementById('constructionOverlay');
 const constructionContinue = document.getElementById('constructionContinue');
+const dialogTriggers = document.querySelectorAll('[data-dialog-target]');
+const dialogCloseButtons = document.querySelectorAll('[data-dialog-close]');
 
 const CONSTRUCTION_STORAGE_KEY = 'alphaConstructionDismissed';
 const THEME_STORAGE_KEY = 'alphastocksTheme';
 const themeMeta = document.querySelector('meta[name="theme-color"]');
+const DIALOG_TRANSITION_MS = 320;
+let activeDialog = null;
+let lastDialogTrigger = null;
+const dialogHideTimers = new Map();
 
 if (yearEl) {
   yearEl.textContent = new Date().getFullYear();
@@ -73,6 +79,82 @@ if (themeToggle) {
 }
 
 setThemeMetaColor(initialTheme);
+
+const openDialog = (dialog) => {
+  if (!dialog) return;
+  if (activeDialog === dialog) {
+    return;
+  }
+  const pendingTimer = dialogHideTimers.get(dialog);
+  if (pendingTimer) {
+    clearTimeout(pendingTimer);
+    dialogHideTimers.delete(dialog);
+  }
+  dialog.removeAttribute('hidden');
+  dialog.setAttribute('aria-hidden', 'false');
+  window.requestAnimationFrame(() => {
+    dialog.classList.add('visible');
+  });
+  const focusTarget =
+    dialog.querySelector('[data-dialog-initial-focus]') ||
+    dialog.querySelector('button, [href], input, select, textarea');
+  if (focusTarget) {
+    window.setTimeout(() => {
+      focusTarget.focus({ preventScroll: true });
+    }, 0);
+  }
+  activeDialog = dialog;
+  body.classList.add('dialog-open');
+};
+
+const closeDialog = (dialog, { restoreFocus = true } = {}) => {
+  if (!dialog) return;
+  dialog.classList.remove('visible');
+  dialog.setAttribute('aria-hidden', 'true');
+  const hideTimer = window.setTimeout(() => {
+    dialog.setAttribute('hidden', 'true');
+    dialogHideTimers.delete(dialog);
+  }, DIALOG_TRANSITION_MS);
+  dialogHideTimers.set(dialog, hideTimer);
+  if (activeDialog === dialog) {
+    activeDialog = null;
+  }
+  const hasOtherVisibleDialog = document.querySelector('.app-dialog.visible');
+  if (!hasOtherVisibleDialog) {
+    body.classList.remove('dialog-open');
+  }
+  if (restoreFocus && lastDialogTrigger) {
+    lastDialogTrigger.focus({ preventScroll: true });
+    lastDialogTrigger = null;
+  }
+};
+
+dialogTriggers.forEach((trigger) => {
+  trigger.addEventListener('click', () => {
+    const targetId = trigger.getAttribute('data-dialog-target');
+    if (!targetId) return;
+    const dialog = document.getElementById(targetId);
+    if (!dialog) return;
+    if (activeDialog && activeDialog !== dialog) {
+      closeDialog(activeDialog, { restoreFocus: false });
+    }
+    lastDialogTrigger = trigger;
+    openDialog(dialog);
+  });
+});
+
+dialogCloseButtons.forEach((button) => {
+  button.addEventListener('click', () => {
+    const dialog = button.closest('.app-dialog');
+    closeDialog(dialog);
+  });
+});
+
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && activeDialog) {
+    closeDialog(activeDialog);
+  }
+});
 
 const showSection = (id) => {
   detailViews.forEach((view) => {
