@@ -709,13 +709,25 @@ body[data-theme="light"] .overlay-card {
 
 .menu-item.split-button {
   justify-content: flex-start;
-  padding: 0.45rem 0.65rem;
+  padding: 0.35rem 0.6rem;
 }
 
 .menu-item.split-button .item-icon {
-  width: 1.75rem;
-  height: 1.75rem;
-  font-size: 1rem;
+  width: 1.35rem;
+  height: 1.35rem;
+  font-size: 0.85rem;
+}
+
+.menu-item.split-button .item-copy {
+  gap: 0.1rem;
+}
+
+.menu-item.split-button .item-title {
+  font-size: 0.8rem;
+}
+
+.menu-item.split-button .item-caption {
+  display: none;
 }
 
 .menu-item {
