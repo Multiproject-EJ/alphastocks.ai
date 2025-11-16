@@ -27,6 +27,10 @@ body.auth-required {
   overflow: hidden;
 }
 
+body.dialog-open {
+  overflow: hidden;
+}
+
 body[data-theme="dark"] {
   --bg: #05070c;
   --surface: #0d111a;
@@ -663,10 +667,21 @@ body[data-theme="light"] .overlay-card {
   margin-top: 0.35rem;
 }
 
+.account-dialog .workspace-title h1 {
+  font-size: 1.35rem;
+}
+
 .topbar-actions {
   display: flex;
   gap: 0.8rem;
   align-items: center;
+}
+
+.account-actions {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  margin-top: 1.4rem;
 }
 
 .app-user {
@@ -683,17 +698,187 @@ body[data-theme="light"] .overlay-card {
   grid-template-columns: 220px 1fr;
   gap: 1.5rem;
   min-height: 600px;
+  align-items: flex-start;
 }
 
 .app-menu {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: 1.3rem 1rem;
+  padding: 1.3rem 1.1rem 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  box-shadow: var(--shadow-soft);
+  position: sticky;
+  top: 1.5rem;
+  max-height: calc(100vh - 3rem);
+  height: calc(100vh - 3rem);
+  align-self: flex-start;
+}
+
+.menu-stack {
   display: grid;
   gap: 0.6rem;
-  box-shadow: var(--shadow-soft);
-  align-content: start;
+  overflow-y: auto;
+  padding-right: 0.25rem;
+  flex: 1;
+}
+
+.menu-footer {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-align: center;
+  margin-top: auto;
+}
+
+.app-dialog {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 90;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition-medium);
+}
+
+.app-dialog[hidden] {
+  display: none;
+}
+
+.app-dialog.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.dialog-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(5, 8, 20, 0.65);
+  backdrop-filter: blur(5px);
+  cursor: pointer;
+}
+
+.dialog-panel {
+  position: relative;
+  z-index: 1;
+  background: var(--surface);
+  border-radius: calc(var(--radius-lg) + 4px);
+  border: 1px solid var(--border);
+  box-shadow: 0 30px 65px rgba(15, 23, 42, 0.55);
+  width: min(520px, calc(100vw - 2.5rem));
+  max-height: min(640px, calc(100vh - 2.5rem));
+  overflow: auto;
+  padding: 1.9rem;
+  transform: translateY(12px);
+  transition: transform var(--transition-medium);
+}
+
+.app-dialog.visible .dialog-panel {
+  transform: translateY(0);
+}
+
+.dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.2rem;
+}
+
+.dialog-header h2 {
+  font-size: 1.25rem;
+}
+
+.dialog-close {
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.dialog-close:hover {
+  color: var(--text-primary);
+  border-color: var(--text-muted);
+}
+
+.dialog-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.account-dialog {
+  gap: 1.25rem;
+}
+
+.settings-dialog {
+  gap: 0.8rem;
+}
+
+.settings-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.95rem 1.1rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--surface-alt);
+}
+
+.settings-label {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.settings-hint {
+  margin-top: 0.25rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.menu-item-split {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.4rem;
+  align-items: stretch;
+}
+
+.menu-item-split .menu-item {
+  width: 100%;
+}
+
+.menu-item.split-button {
+  justify-content: flex-start;
+  padding: 0.35rem 0.6rem;
+}
+
+.menu-item.split-button .item-icon {
+  width: 1.35rem;
+  height: 1.35rem;
+  font-size: 0.85rem;
+}
+
+.menu-item.split-button .item-copy {
+  gap: 0.1rem;
+}
+
+.menu-item.split-button .item-title {
+  font-size: 0.8rem;
+}
+
+.menu-item.split-button .item-caption {
+  display: none;
 }
 
 .menu-item-split {
@@ -1448,6 +1633,19 @@ body[data-theme="light"] .overlay-card {
     display: flex;
     flex-wrap: wrap;
     gap: 0.75rem;
+    position: static;
+    height: auto;
+    max-height: none;
+  }
+
+  .menu-stack {
+    display: contents;
+    overflow: visible;
+    padding-right: 0;
+  }
+
+  .menu-footer {
+    display: none;
   }
 
   .menu-item,
