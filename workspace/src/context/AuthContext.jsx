@@ -5,6 +5,22 @@ import { isDemoMode } from '../config/runtimeConfig.js';
 
 const AuthContext = createContext({});
 
+// Demo user configuration for development mode
+const createDemoUser = () => ({
+  id: 'demo-user-id',
+  email: 'demo@alphastocks.ai',
+  app_metadata: {},
+  user_metadata: { display_name: 'Demo Trader' },
+  aud: 'authenticated',
+  created_at: new Date().toISOString()
+});
+
+const createDemoSession = (user) => ({
+  user,
+  access_token: 'demo-token',
+  refresh_token: 'demo-refresh'
+});
+
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
@@ -22,19 +38,8 @@ export const AuthProvider = ({ children }) => {
     // Check if we're in demo mode
     if (isDemoMode()) {
       // Use demo mode - auto-login with demo user
-      const demoUser = {
-        id: 'demo-user-id',
-        email: 'demo@alphastocks.ai',
-        app_metadata: {},
-        user_metadata: { display_name: 'Demo Trader' },
-        aud: 'authenticated',
-        created_at: new Date().toISOString()
-      };
-      const demoSession = {
-        user: demoUser,
-        access_token: 'demo-token',
-        refresh_token: 'demo-refresh'
-      };
+      const demoUser = createDemoUser();
+      const demoSession = createDemoSession(demoUser);
       setSession(demoSession);
       setUser(demoUser);
       setLoading(false);
