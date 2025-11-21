@@ -357,6 +357,184 @@ if (logoutButton) {
 resetWorkspaceState();
 activateSubsection('portfolio-results');
 
+const aiAnalysisForm = document.getElementById('aiAnalysisForm');
+const aiProviderSelect = document.getElementById('aiProvider');
+const aiTickerInput = document.getElementById('aiTicker');
+const aiTimeframeInput = document.getElementById('aiTimeframe');
+const aiQuestionInput = document.getElementById('aiQuestion');
+const aiAnalyzeBtn = document.getElementById('aiAnalyzeBtn');
+const aiStatus = document.getElementById('aiStatus');
+const aiError = document.getElementById('aiError');
+const aiResults = document.getElementById('aiResults');
+
+if (aiAnalysisForm) {
+  aiAnalysisForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    const ticker = aiTickerInput?.value.trim().toUpperCase();
+    const provider = aiProviderSelect?.value || 'openai';
+    const timeframe = aiTimeframeInput?.value.trim();
+    const question = aiQuestionInput?.value.trim();
+
+    if (!ticker) {
+      if (aiError) {
+        aiError.textContent = 'Please enter a stock ticker.';
+      }
+      return;
+    }
+
+    if (aiError) {
+      aiError.textContent = '';
+    }
+
+    if (aiStatus) {
+      aiStatus.textContent = 'Analyzing...';
+    }
+
+    if (aiAnalyzeBtn) {
+      aiAnalyzeBtn.disabled = true;
+      aiAnalyzeBtn.textContent = 'Analyzing...';
+    }
+
+    if (aiResults) {
+      aiResults.style.display = 'none';
+    }
+
+    try {
+      const requestBody = {
+        provider,
+        ticker
+      };
+
+      if (timeframe) {
+        requestBody.timeframe = timeframe;
+      }
+
+      if (question) {
+        requestBody.question = question;
+      }
+
+      const response = await fetch('/api/stock-analysis', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestBody)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `Request failed with status ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (aiStatus) {
+        aiStatus.textContent = 'Analysis complete!';
+      }
+
+      displayResults(data);
+
+    } catch (error) {
+      console.error('AI Analysis error:', error);
+      if (aiError) {
+        aiError.textContent = error.message || 'An error occurred while analyzing the stock. Please try again.';
+      }
+      if (aiStatus) {
+        aiStatus.textContent = '';
+      }
+    } finally {
+      if (aiAnalyzeBtn) {
+        aiAnalyzeBtn.disabled = false;
+        aiAnalyzeBtn.textContent = 'Analyze';
+      }
+    }
+  });
+}
+
+function displayResults(data) {
+  if (!aiResults) return;
+
+  const resultTicker = document.getElementById('resultTicker');
+  const resultProvider = document.getElementById('resultProvider');
+  const resultSentiment = document.getElementById('resultSentiment');
+  const resultSummary = document.getElementById('resultSummary');
+  const resultOpportunities = document.getElementById('resultOpportunities');
+  const resultRisks = document.getElementById('resultRisks');
+  const resultRawResponse = document.getElementById('resultRawResponse');
+  const opportunitiesCard = document.getElementById('opportunitiesCard');
+  const risksCard = document.getElementById('risksCard');
+  const rawResponseCard = document.getElementById('rawResponseCard');
+
+  if (resultTicker) {
+    resultTicker.textContent = data.ticker || 'N/A';
+  }
+
+  if (resultProvider) {
+    resultProvider.textContent = data.provider || data.modelUsed || 'N/A';
+  }
+
+  if (resultSentiment) {
+    const sentiment = (data.sentiment || 'neutral').toLowerCase();
+    resultSentiment.textContent = sentiment.charAt(0).toUpperCase() + sentiment.slice(1);
+    resultSentiment.className = 'ai-sentiment';
+    if (sentiment.includes('positive') || sentiment.includes('bullish')) {
+      resultSentiment.classList.add('positive');
+    } else if (sentiment.includes('negative') || sentiment.includes('bearish')) {
+      resultSentiment.classList.add('negative');
+    } else {
+      resultSentiment.classList.add('neutral');
+    }
+  }
+
+  if (resultSummary) {
+    resultSummary.textContent = data.summary || 'No summary available.';
+  }
+
+  if (resultOpportunities && opportunitiesCard) {
+    if (data.opportunities && Array.isArray(data.opportunities) && data.opportunities.length > 0) {
+      resultOpportunities.innerHTML = '';
+      data.opportunities.forEach(opp => {
+        const li = document.createElement('li');
+        li.textContent = opp;
+        resultOpportunities.appendChild(li);
+      });
+      opportunitiesCard.style.display = 'block';
+    } else {
+      opportunitiesCard.style.display = 'none';
+    }
+  }
+
+  if (resultRisks && risksCard) {
+    if (data.risks && Array.isArray(data.risks) && data.risks.length > 0) {
+      resultRisks.innerHTML = '';
+      data.risks.forEach(risk => {
+        const li = document.createElement('li');
+        li.textContent = risk;
+        resultRisks.appendChild(li);
+      });
+      risksCard.style.display = 'block';
+    } else {
+      risksCard.style.display = 'none';
+    }
+  }
+
+  if (resultRawResponse && rawResponseCard) {
+    if (data.rawResponse && data.rawResponse.trim().length > 0) {
+      resultRawResponse.textContent = data.rawResponse;
+      rawResponseCard.style.display = 'block';
+    } else {
+      rawResponseCard.style.display = 'none';
+    }
+  }
+
+  aiResults.style.display = 'block';
+
+  setTimeout(() => {
+    aiResults.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, 100);
+}
+
 const hasDismissedConstruction = sessionStorage.getItem(CONSTRUCTION_STORAGE_KEY) === 'true';
 
 if (!hasDismissedConstruction) {

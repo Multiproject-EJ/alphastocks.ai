@@ -110,6 +110,13 @@
                 <span class="item-caption">Systems upgrade</span>
               </div>
             </button>
+            <button class="menu-item" data-section="ai-analysis">
+              <span class="item-icon" aria-hidden="true">🔬</span>
+              <div class="item-copy">
+                <span class="item-title">AI Analysis</span>
+                <span class="item-caption">Stock research</span>
+              </div>
+            </button>
           </div>
           <p class="menu-footer">&copy; <span id="year"></span> AlphaStocks.ai. All rights reserved.</p>
         </nav>
@@ -558,6 +565,83 @@
                     <li>Practice with the Monopoly punchcard fishing game to reinforce patience and selectivity.</li>
                     <li>Update your profiles to top-tier standards. Review the Pandora sale and other exits: why did you sell, do you regret it, and what should have been handled differently? Capture how each move felt, categorize the lessons, and build guardrails so it doesn&rsquo;t happen again.</li>
                   </ol>
+                </div>
+              </article>
+
+              <article id="ai-analysis" class="detail-view">
+                <h2>AI Analysis</h2>
+                <p class="detail-meta">Get AI-powered stock analysis using OpenAI, Gemini, or OpenRouter.</p>
+                
+                <div class="detail-card">
+                  <h3>Configure Analysis</h3>
+                  <form id="aiAnalysisForm">
+                    <div class="field">
+                      <span>AI Provider</span>
+                      <select id="aiProvider">
+                        <option value="openai">OpenAI</option>
+                        <option value="gemini">Google Gemini</option>
+                        <option value="openrouter">OpenRouter</option>
+                      </select>
+                    </div>
+                    
+                    <div class="field">
+                      <span>Stock Ticker *</span>
+                      <input type="text" id="aiTicker" placeholder="e.g., AAPL" required />
+                    </div>
+                    
+                    <div class="field">
+                      <span>Timeframe (optional)</span>
+                      <input type="text" id="aiTimeframe" placeholder="e.g., 1y, 5y, ytd" />
+                    </div>
+                    
+                    <div class="field">
+                      <span>Custom Question (optional)</span>
+                      <textarea id="aiQuestion" rows="3" placeholder="Ask a specific question about the stock..."></textarea>
+                    </div>
+                    
+                    <button type="submit" id="aiAnalyzeBtn" class="btn-primary">Analyze</button>
+                  </form>
+                  
+                  <div id="aiStatus" class="ai-status"></div>
+                  <div id="aiError" class="ai-error"></div>
+                </div>
+
+                <div id="aiResults" class="ai-results" style="display: none;">
+                  <div class="detail-card">
+                    <h3>Analysis Summary</h3>
+                    <div class="ai-result-header">
+                      <div class="field inline">
+                        <span>Ticker:</span>
+                        <strong id="resultTicker"></strong>
+                      </div>
+                      <div class="field inline">
+                        <span>Provider:</span>
+                        <span id="resultProvider"></span>
+                      </div>
+                      <div class="field inline">
+                        <span>Sentiment:</span>
+                        <span id="resultSentiment" class="ai-sentiment"></span>
+                      </div>
+                    </div>
+                    <div id="resultSummary" class="ai-summary"></div>
+                  </div>
+
+                  <div class="detail-grid">
+                    <div class="detail-card" id="opportunitiesCard" style="display: none;">
+                      <h3>Opportunities</h3>
+                      <ul id="resultOpportunities" class="ai-list"></ul>
+                    </div>
+
+                    <div class="detail-card" id="risksCard" style="display: none;">
+                      <h3>Risks</h3>
+                      <ul id="resultRisks" class="ai-list"></ul>
+                    </div>
+                  </div>
+
+                  <div class="detail-card" id="rawResponseCard" style="display: none;">
+                    <h3>Additional Commentary</h3>
+                    <div id="resultRawResponse" class="ai-raw-response"></div>
+                  </div>
                 </div>
               </article>
             </section>
