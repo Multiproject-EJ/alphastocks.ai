@@ -130,3 +130,4 @@ const Signup = ({ onToggleMode }) => {
 };
 
 export default Signup;
+
