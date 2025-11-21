@@ -493,7 +493,12 @@ function displayResults(data) {
 
   if (resultOpportunities && opportunitiesCard) {
     if (data.opportunities && Array.isArray(data.opportunities) && data.opportunities.length > 0) {
-      resultOpportunities.innerHTML = data.opportunities.map(opp => `<li>${opp}</li>`).join('');
+      resultOpportunities.innerHTML = '';
+      data.opportunities.forEach(opp => {
+        const li = document.createElement('li');
+        li.textContent = opp;
+        resultOpportunities.appendChild(li);
+      });
       opportunitiesCard.style.display = 'block';
     } else {
       opportunitiesCard.style.display = 'none';
@@ -502,7 +507,12 @@ function displayResults(data) {
 
   if (resultRisks && risksCard) {
     if (data.risks && Array.isArray(data.risks) && data.risks.length > 0) {
-      resultRisks.innerHTML = data.risks.map(risk => `<li>${risk}</li>`).join('');
+      resultRisks.innerHTML = '';
+      data.risks.forEach(risk => {
+        const li = document.createElement('li');
+        li.textContent = risk;
+        resultRisks.appendChild(li);
+      });
       risksCard.style.display = 'block';
     } else {
       risksCard.style.display = 'none';
