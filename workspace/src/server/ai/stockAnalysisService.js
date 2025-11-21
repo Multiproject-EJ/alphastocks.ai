@@ -35,6 +35,19 @@ function validateTicker(ticker) {
 }
 
 /**
+ * Safely parses JSON error response from API
+ * @param {Response} response - Fetch response object
+ * @returns {Promise<object>} - Parsed error data or empty object
+ */
+async function parseErrorResponse(response) {
+  try {
+    return await response.json();
+  } catch {
+    return {};
+  }
+}
+
+/**
  * Builds the analysis prompt for the AI model
  * @param {string} ticker - Stock ticker symbol
  * @param {string} timeframe - Optional timeframe (e.g., '1y', '5y')
@@ -132,7 +145,7 @@ async function callOpenAI(apiKey, model, prompt) {
   });
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
+    const errorData = await parseErrorResponse(response);
     throw new Error(`OpenAI API error (${response.status}): ${errorData.error?.message || response.statusText}`);
   }
 
@@ -153,10 +166,11 @@ async function callOpenAI(apiKey, model, prompt) {
 async function callGemini(apiKey, model, prompt) {
   const defaultModel = model || 'gemini-1.5-flash';
   
-  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${defaultModel}:generateContent?key=${apiKey}`, {
+  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${defaultModel}:generateContent`, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'X-Goog-Api-Key': apiKey
     },
     body: JSON.stringify({
       contents: [
@@ -176,7 +190,7 @@ async function callGemini(apiKey, model, prompt) {
   });
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
+    const errorData = await parseErrorResponse(response);
     throw new Error(`Gemini API error (${response.status}): ${errorData.error?.message || response.statusText}`);
   }
 
@@ -225,7 +239,7 @@ async function callOpenRouter(apiKey, model, prompt) {
   });
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
+    const errorData = await parseErrorResponse(response);
     throw new Error(`OpenRouter API error (${response.status}): ${errorData.error?.message || response.statusText}`);
   }
 
@@ -292,6 +306,12 @@ export async function analyzeStock({ provider, model, ticker, question, timefram
     // Parse the response
     const parsed = parseResponse(response.content);
 
+    // Limit raw response size to prevent exposing too much data
+    const maxRawResponseLength = 2000;
+    const rawResponse = response.content.length > maxRawResponseLength
+      ? response.content.substring(0, maxRawResponseLength) + '... (truncated)'
+      : response.content;
+
     // Return structured result
     return {
       ticker: ticker.toUpperCase(),
@@ -302,7 +322,7 @@ export async function analyzeStock({ provider, model, ticker, question, timefram
       opportunities: parsed.opportunities,
       risks: parsed.risks,
       sentiment: parsed.sentiment,
-      rawResponse: response.content
+      rawResponse
     };
 
   } catch (error) {
