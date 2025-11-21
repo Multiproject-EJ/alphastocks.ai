@@ -1599,12 +1599,6 @@ body[data-theme="light"] .overlay-card {
   color: var(--text-muted);
 }
 
-.landing-footer {
-  padding: 3rem 1.5rem;
-  text-align: center;
-  color: var(--text-muted);
-}
-
 .ai-status {
   min-height: 1.2rem;
   color: var(--accent);
