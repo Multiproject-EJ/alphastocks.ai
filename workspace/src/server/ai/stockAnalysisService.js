@@ -10,6 +10,7 @@
 const MAX_TOKENS = 1000; // Maximum tokens for AI responses
 const MAX_RAW_RESPONSE_LENGTH = 2000; // Maximum length of raw response to return
 const PLAIN_TEXT_SUMMARY_LENGTH = 500; // Length of summary when JSON parsing fails
+const API_TIMEOUT_MS = 30000; // API request timeout in milliseconds (30 seconds)
 
 /**
  * Validates the provider parameter
@@ -49,6 +50,33 @@ async function parseErrorResponse(response) {
     return await response.json();
   } catch {
     return {};
+  }
+}
+
+/**
+ * Creates a fetch request with timeout
+ * @param {string} url - The URL to fetch
+ * @param {object} options - Fetch options
+ * @param {number} timeout - Timeout in milliseconds
+ * @returns {Promise<Response>} - Fetch response
+ */
+async function fetchWithTimeout(url, options, timeout = API_TIMEOUT_MS) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+  try {
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+    return response;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    if (error.name === 'AbortError') {
+      throw new Error(`Request timeout after ${timeout}ms`);
+    }
+    throw error;
   }
 }
 
@@ -126,7 +154,7 @@ function parseResponse(rawResponse) {
 async function callOpenAI(apiKey, model, prompt) {
   const defaultModel = model || 'gpt-4o-mini';
   
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+  const response = await fetchWithTimeout('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -171,7 +199,7 @@ async function callOpenAI(apiKey, model, prompt) {
 async function callGemini(apiKey, model, prompt) {
   const defaultModel = model || 'gemini-1.5-flash';
   
-  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${defaultModel}:generateContent`, {
+  const response = await fetchWithTimeout(`https://generativelanguage.googleapis.com/v1beta/models/${defaultModel}:generateContent`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -218,7 +246,7 @@ async function callGemini(apiKey, model, prompt) {
 async function callOpenRouter(apiKey, model, prompt) {
   const defaultModel = model || 'openai/gpt-3.5-turbo';
   
-  const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+  const response = await fetchWithTimeout('https://openrouter.ai/api/v1/chat/completions', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
