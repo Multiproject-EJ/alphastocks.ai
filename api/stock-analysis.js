@@ -51,6 +51,26 @@ function validateRequest(body) {
 }
 
 /**
+ * Enriches error response with provider, ticker, and debug information
+ * @param {object} errorResponse - Base error response object
+ * @param {object} requestBody - Request body to extract provider and ticker from
+ * @param {string} debugMessage - Debug message to include in non-production
+ * @returns {object} - Enriched error response
+ */
+function enrichErrorResponse(errorResponse, requestBody, debugMessage) {
+  if (requestBody?.provider) {
+    errorResponse.provider = requestBody.provider;
+  }
+  if (requestBody?.ticker) {
+    errorResponse.ticker = requestBody.ticker;
+  }
+  if (debugMessage && process.env.NODE_ENV !== 'production') {
+    errorResponse.debug = debugMessage;
+  }
+  return errorResponse;
+}
+
+/**
  * Main handler for the stock analysis API endpoint
  * @param {object} req - Vercel request object
  * @param {object} res - Vercel response object
@@ -72,6 +92,7 @@ export default async function handler(req, res) {
   // Only accept POST requests
   if (req.method !== 'POST') {
     return res.status(405).json({
+      code: 'METHOD_NOT_ALLOWED',
       error: 'Method not allowed',
       message: 'This endpoint only accepts POST requests'
     });
@@ -83,11 +104,17 @@ export default async function handler(req, res) {
     const validation = validateRequest(body);
 
     if (!validation.valid) {
-      return res.status(400).json({
-        error: 'Invalid request',
-        message: 'Request validation failed',
-        details: validation.errors
-      });
+      const errorResponse = enrichErrorResponse(
+        {
+          code: 'VALIDATION_ERROR',
+          error: 'Invalid request',
+          message: validation.errors[0] || 'Request validation failed'
+        },
+        body,
+        validation.errors.join(', ')
+      );
+      
+      return res.status(400).json(errorResponse);
     }
 
     // Extract parameters from the request
@@ -116,34 +143,60 @@ export default async function handler(req, res) {
 
     // Handle missing API key errors
     if (error.message.includes('Missing') && error.message.includes('API_KEY')) {
-      return res.status(500).json({
-        error: 'Configuration error',
-        message: 'The requested AI provider is not configured on the server',
-        provider: req.body?.provider || 'unknown'
-      });
+      const errorResponse = enrichErrorResponse(
+        {
+          code: 'CONFIG_MISSING_API_KEY',
+          error: 'Configuration error',
+          message: 'The requested AI provider is not configured on the server'
+        },
+        req.body,
+        error.message
+      );
+      
+      return res.status(500).json(errorResponse);
     }
 
     // Handle provider-specific API errors
     if (error.message.includes('API error')) {
-      return res.status(502).json({
-        error: 'Provider error',
-        message: 'The AI provider returned an error',
-        details: error.message
-      });
+      const errorResponse = enrichErrorResponse(
+        {
+          code: 'PROVIDER_ERROR',
+          error: 'Provider error',
+          message: 'The AI provider returned an error'
+        },
+        req.body,
+        error.message
+      );
+      
+      return res.status(502).json(errorResponse);
     }
 
     // Handle validation errors
     if (error.message.includes('Invalid provider') || error.message.includes('Ticker is required')) {
-      return res.status(400).json({
-        error: 'Validation error',
-        message: error.message
-      });
+      const errorResponse = enrichErrorResponse(
+        {
+          code: 'VALIDATION_ERROR',
+          error: 'Validation error',
+          message: error.message
+        },
+        req.body,
+        error.message
+      );
+      
+      return res.status(400).json(errorResponse);
     }
 
     // Generic error handler
-    return res.status(500).json({
-      error: 'Internal server error',
-      message: 'An unexpected error occurred while processing your request'
-    });
+    const errorResponse = enrichErrorResponse(
+      {
+        code: 'INTERNAL_ERROR',
+        error: 'Internal server error',
+        message: 'An unexpected error occurred while processing your request'
+      },
+      req.body,
+      error.message
+    );
+    
+    return res.status(500).json(errorResponse);
   }
 }

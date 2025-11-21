@@ -424,7 +424,21 @@ if (aiAnalysisForm) {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || `Request failed with status ${response.status}`);
+        
+        // Build rich error message
+        let errorMessage = errorData.message || `Request failed with status ${response.status}`;
+        
+        // Add error code in parentheses if available
+        if (errorData.code) {
+          errorMessage += ` (${errorData.code})`;
+        }
+        
+        // Append debug information if available
+        if (errorData.debug) {
+          errorMessage += `\n\nDetails: ${errorData.debug}`;
+        }
+        
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
