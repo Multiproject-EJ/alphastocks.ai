@@ -1,8 +1,25 @@
 import { createContext } from 'preact';
 import { useState, useEffect, useContext } from 'preact/hooks';
 import { supabase } from '../lib/supabaseClient.js';
+import { isDemoMode } from '../config/runtimeConfig.js';
 
 const AuthContext = createContext({});
+
+// Demo user configuration for development mode
+const createDemoUser = () => ({
+  id: 'demo-user-id',
+  email: 'demo@alphastocks.ai',
+  app_metadata: {},
+  user_metadata: { display_name: 'Demo Trader' },
+  aud: 'authenticated',
+  created_at: new Date().toISOString()
+});
+
+const createDemoSession = (user) => ({
+  user,
+  access_token: 'demo-token',
+  refresh_token: 'demo-refresh'
+});
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
@@ -18,6 +35,17 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Check if we're in demo mode
+    if (isDemoMode()) {
+      // Use demo mode - auto-login with demo user
+      const demoUser = createDemoUser();
+      const demoSession = createDemoSession(demoUser);
+      setSession(demoSession);
+      setUser(demoUser);
+      setLoading(false);
+      return;
+    }
+
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
