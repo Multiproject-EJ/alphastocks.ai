@@ -1,10 +1,16 @@
 import { render } from 'preact';
-import App from './App.jsx';
+import { AuthProvider } from './context/AuthContext.jsx';
+import Router from './components/Router.jsx';
 import './styles/app.css';
 
 const root = document.getElementById('root');
 
-render(<App />, root);
+render(
+  <AuthProvider>
+    <Router />
+  </AuthProvider>,
+  root
+);
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
