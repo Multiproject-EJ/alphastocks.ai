@@ -1127,7 +1127,7 @@ const App = () => {
                 className="menu-item split-button"
                 onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
                 aria-label={themeCopy}
-                aria-pressed={theme === 'light'}
+                aria-pressed={theme === 'dark'}
               >
                 <span className="item-icon" aria-hidden="true">
                   {theme === 'dark' ? '☀️' : '🌙'}

@@ -19,9 +19,14 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     // Check if Supabase is configured
-    const isSupabaseConfigured = import.meta.env.VITE_SUPABASE_URL && 
-                                  import.meta.env.VITE_SUPABASE_ANON_KEY &&
-                                  !import.meta.env.VITE_SUPABASE_URL.includes('demo');
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+    const isSupabaseConfigured = 
+      supabaseUrl && 
+      supabaseKey &&
+      supabaseUrl.startsWith('https://') && 
+      !supabaseUrl.includes('demo') &&
+      supabaseKey !== 'demo-key';
 
     if (!isSupabaseConfigured) {
       // Use demo mode - auto-login with demo user
