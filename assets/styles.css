@@ -1599,6 +1599,108 @@ body[data-theme="light"] .overlay-card {
   color: var(--text-muted);
 }
 
+.landing-footer {
+  padding: 3rem 1.5rem;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.ai-status {
+  min-height: 1.2rem;
+  color: var(--accent);
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-top: 0.75rem;
+}
+
+.ai-error {
+  min-height: 1.2rem;
+  color: #f87171;
+  font-size: 0.9rem;
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  border-radius: var(--radius-sm);
+  background: rgba(248, 113, 113, 0.1);
+  border: 1px solid rgba(248, 113, 113, 0.2);
+  display: none;
+}
+
+.ai-error:not(:empty) {
+  display: block;
+}
+
+.ai-results {
+  margin-top: 1.5rem;
+}
+
+.ai-result-header {
+  display: grid;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border-radius: var(--radius-sm);
+  background: rgba(148, 163, 184, 0.08);
+}
+
+.ai-result-header .field {
+  margin: 0;
+}
+
+.ai-sentiment {
+  font-weight: 600;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.ai-sentiment.positive {
+  background: var(--positive-soft);
+  color: var(--positive);
+}
+
+.ai-sentiment.negative {
+  background: rgba(248, 113, 113, 0.16);
+  color: #f87171;
+}
+
+.ai-sentiment.neutral {
+  background: var(--pill-bg);
+  color: var(--text-secondary);
+}
+
+.ai-summary {
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  line-height: 1.6;
+  color: var(--text-primary);
+}
+
+.ai-list {
+  padding-left: 1.2rem;
+  margin: 0;
+  color: var(--text-secondary);
+  display: grid;
+  gap: 0.5rem;
+}
+
+.ai-raw-response {
+  padding: 1rem;
+  border-radius: var(--radius-sm);
+  background: rgba(15, 23, 42, 0.3);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  max-height: 400px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
 @media (max-width: 1200px) {
   .app-shell {
     grid-template-columns: 190px 1fr;
