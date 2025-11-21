@@ -6,6 +6,11 @@
  * to keep API keys secure and never expose them to the browser.
  */
 
+// Configuration constants
+const MAX_TOKENS = 1000; // Maximum tokens for AI responses
+const MAX_RAW_RESPONSE_LENGTH = 2000; // Maximum length of raw response to return
+const PLAIN_TEXT_SUMMARY_LENGTH = 500; // Length of summary when JSON parsing fails
+
 /**
  * Validates the provider parameter
  * @param {string} provider - The AI provider to use
@@ -103,7 +108,7 @@ function parseResponse(rawResponse) {
   } catch (error) {
     // If JSON parsing fails, try to extract information from plain text
     return {
-      summary: rawResponse.substring(0, 500) + (rawResponse.length > 500 ? '...' : ''),
+      summary: rawResponse.substring(0, PLAIN_TEXT_SUMMARY_LENGTH) + (rawResponse.length > PLAIN_TEXT_SUMMARY_LENGTH ? '...' : ''),
       opportunities: ['Analysis provided in raw response'],
       risks: ['See raw response for details'],
       sentiment: 'neutral'
@@ -140,7 +145,7 @@ async function callOpenAI(apiKey, model, prompt) {
         }
       ],
       temperature: 0.7,
-      max_tokens: 1000
+      max_tokens: MAX_TOKENS
     })
   });
 
@@ -184,7 +189,7 @@ async function callGemini(apiKey, model, prompt) {
       ],
       generationConfig: {
         temperature: 0.7,
-        maxOutputTokens: 1000
+        maxOutputTokens: MAX_TOKENS
       }
     })
   });
@@ -234,7 +239,7 @@ async function callOpenRouter(apiKey, model, prompt) {
         }
       ],
       temperature: 0.7,
-      max_tokens: 1000
+      max_tokens: MAX_TOKENS
     })
   });
 
@@ -307,9 +312,8 @@ export async function analyzeStock({ provider, model, ticker, question, timefram
     const parsed = parseResponse(response.content);
 
     // Limit raw response size to prevent exposing too much data
-    const maxRawResponseLength = 2000;
-    const rawResponse = response.content.length > maxRawResponseLength
-      ? response.content.substring(0, maxRawResponseLength) + '... (truncated)'
+    const rawResponse = response.content.length > MAX_RAW_RESPONSE_LENGTH
+      ? response.content.substring(0, MAX_RAW_RESPONSE_LENGTH) + '... (truncated)'
       : response.content;
 
     // Return structured result
