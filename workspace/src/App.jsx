@@ -1302,7 +1302,7 @@ const App = () => {
                 type="button"
                 className="btn-secondary"
                 onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                aria-pressed={theme === 'light'}
+                aria-pressed={theme === 'dark'}
               >
                 {themeCopy}
               </button>

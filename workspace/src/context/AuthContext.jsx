@@ -1,6 +1,7 @@
 import { createContext } from 'preact';
 import { useState, useEffect, useContext } from 'preact/hooks';
 import { supabase } from '../lib/supabaseClient.js';
+import { isDemoMode } from '../config/runtimeConfig.js';
 
 const AuthContext = createContext({});
 
@@ -18,17 +19,8 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check if Supabase is configured
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-    const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-    const isSupabaseConfigured = 
-      supabaseUrl && 
-      supabaseKey &&
-      supabaseUrl.startsWith('https://') && 
-      !supabaseUrl.includes('demo') &&
-      supabaseKey !== 'demo-key';
-
-    if (!isSupabaseConfigured) {
+    // Check if we're in demo mode
+    if (isDemoMode()) {
       // Use demo mode - auto-login with demo user
       const demoUser = {
         id: 'demo-user-id',
