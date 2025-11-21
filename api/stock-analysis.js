@@ -72,6 +72,7 @@ export default async function handler(req, res) {
   // Only accept POST requests
   if (req.method !== 'POST') {
     return res.status(405).json({
+      code: 'METHOD_NOT_ALLOWED',
       error: 'Method not allowed',
       message: 'This endpoint only accepts POST requests'
     });
@@ -83,11 +84,24 @@ export default async function handler(req, res) {
     const validation = validateRequest(body);
 
     if (!validation.valid) {
-      return res.status(400).json({
+      const errorResponse = {
+        code: 'VALIDATION_ERROR',
         error: 'Invalid request',
-        message: 'Request validation failed',
-        details: validation.errors
-      });
+        message: validation.errors[0] || 'Request validation failed'
+      };
+      
+      if (body?.provider) {
+        errorResponse.provider = body.provider;
+      }
+      if (body?.ticker) {
+        errorResponse.ticker = body.ticker;
+      }
+      
+      if (process.env.NODE_ENV !== 'production') {
+        errorResponse.debug = validation.errors.join(', ');
+      }
+      
+      return res.status(400).json(errorResponse);
     }
 
     // Extract parameters from the request
@@ -116,34 +130,88 @@ export default async function handler(req, res) {
 
     // Handle missing API key errors
     if (error.message.includes('Missing') && error.message.includes('API_KEY')) {
-      return res.status(500).json({
+      const errorResponse = {
+        code: 'CONFIG_MISSING_API_KEY',
         error: 'Configuration error',
-        message: 'The requested AI provider is not configured on the server',
-        provider: req.body?.provider || 'unknown'
-      });
+        message: 'The requested AI provider is not configured on the server'
+      };
+      
+      if (req.body?.provider) {
+        errorResponse.provider = req.body.provider;
+      }
+      if (req.body?.ticker) {
+        errorResponse.ticker = req.body.ticker;
+      }
+      
+      if (process.env.NODE_ENV !== 'production') {
+        errorResponse.debug = error.message;
+      }
+      
+      return res.status(500).json(errorResponse);
     }
 
     // Handle provider-specific API errors
     if (error.message.includes('API error')) {
-      return res.status(502).json({
+      const errorResponse = {
+        code: 'PROVIDER_ERROR',
         error: 'Provider error',
-        message: 'The AI provider returned an error',
-        details: error.message
-      });
+        message: 'The AI provider returned an error'
+      };
+      
+      if (req.body?.provider) {
+        errorResponse.provider = req.body.provider;
+      }
+      if (req.body?.ticker) {
+        errorResponse.ticker = req.body.ticker;
+      }
+      
+      if (process.env.NODE_ENV !== 'production') {
+        errorResponse.debug = error.message;
+      }
+      
+      return res.status(502).json(errorResponse);
     }
 
     // Handle validation errors
     if (error.message.includes('Invalid provider') || error.message.includes('Ticker is required')) {
-      return res.status(400).json({
+      const errorResponse = {
+        code: 'VALIDATION_ERROR',
         error: 'Validation error',
         message: error.message
-      });
+      };
+      
+      if (req.body?.provider) {
+        errorResponse.provider = req.body.provider;
+      }
+      if (req.body?.ticker) {
+        errorResponse.ticker = req.body.ticker;
+      }
+      
+      if (process.env.NODE_ENV !== 'production') {
+        errorResponse.debug = error.message;
+      }
+      
+      return res.status(400).json(errorResponse);
     }
 
     // Generic error handler
-    return res.status(500).json({
+    const errorResponse = {
+      code: 'INTERNAL_ERROR',
       error: 'Internal server error',
       message: 'An unexpected error occurred while processing your request'
-    });
+    };
+    
+    if (req.body?.provider) {
+      errorResponse.provider = req.body.provider;
+    }
+    if (req.body?.ticker) {
+      errorResponse.ticker = req.body.ticker;
+    }
+    
+    if (process.env.NODE_ENV !== 'production') {
+      errorResponse.debug = error.message;
+    }
+    
+    return res.status(500).json(errorResponse);
   }
 }
