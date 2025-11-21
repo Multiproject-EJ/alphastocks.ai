@@ -169,7 +169,7 @@ const valueBotTabs = [
   }
 ];
 
-const settingsNavItem = { id: 'settings', icon: '⚙️', title: 'Settings', caption: 'Preferences' };
+const settingsNavItem = { id: 'settings', icon: '⚙️' };
 
 const mainNavigation = [
   { id: 'dashboard', icon: '🏠', title: 'Today / Dashboard', caption: 'Overview' },
@@ -1103,30 +1103,35 @@ const App = () => {
                 aria-expanded={isAccountDialogOpen}
                 aria-haspopup="dialog"
                 aria-controls="accountDialog"
+                aria-label="Account"
               >
                 <span className="item-icon" aria-hidden="true">
                   👤
                 </span>
-                <div className="item-copy">
-                  <span className="item-title">Account</span>
-                  <span className="item-caption">Workspace profile</span>
-                </div>
               </button>
               <button
                 type="button"
                 className={`menu-item split-button${activeSection === settingsNavItem.id ? ' active' : ''}`}
                 data-section={settingsNavItem.id}
                 onClick={() => handleMenuSelection(settingsNavItem.id)}
+                aria-label="Settings"
               >
                 {settingsNavItem.icon && (
                   <span className="item-icon" aria-hidden="true">
                     {settingsNavItem.icon}
                   </span>
                 )}
-                <div className="item-copy">
-                  <span className="item-title">{settingsNavItem.title}</span>
-                  <span className="item-caption">{settingsNavItem.caption}</span>
-                </div>
+              </button>
+              <button
+                type="button"
+                className="menu-item split-button"
+                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                aria-label={themeCopy}
+                aria-pressed={theme === 'light'}
+              >
+                <span className="item-icon" aria-hidden="true">
+                  {theme === 'dark' ? '☀️' : '🌙'}
+                </span>
               </button>
             </div>
             {mainNavigation.map((item) => {

@@ -18,6 +18,32 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Check if Supabase is configured
+    const isSupabaseConfigured = import.meta.env.VITE_SUPABASE_URL && 
+                                  import.meta.env.VITE_SUPABASE_ANON_KEY &&
+                                  !import.meta.env.VITE_SUPABASE_URL.includes('demo');
+
+    if (!isSupabaseConfigured) {
+      // Use demo mode - auto-login with demo user
+      const demoUser = {
+        id: 'demo-user-id',
+        email: 'demo@alphastocks.ai',
+        app_metadata: {},
+        user_metadata: { display_name: 'Demo Trader' },
+        aud: 'authenticated',
+        created_at: new Date().toISOString()
+      };
+      const demoSession = {
+        user: demoUser,
+        access_token: 'demo-token',
+        refresh_token: 'demo-refresh'
+      };
+      setSession(demoSession);
+      setUser(demoUser);
+      setLoading(false);
+      return;
+    }
+
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
