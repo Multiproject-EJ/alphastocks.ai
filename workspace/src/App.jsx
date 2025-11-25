@@ -1213,18 +1213,18 @@ const App = () => {
                   {section.meta && <p className="detail-meta">{section.meta}</p>}
                   {section.isComponent && activeSection === 'ai-analysis' ? (
                     <AIAnalysis />
-                  ) : (
+                  ) : section.cards && section.cards.length > 0 ? (
                     <div
                       className={`detail-grid${section.layout ? ` detail-grid--${section.layout}` : ''}`}
                     >
-                      {section.cards?.map((card) => (
+                      {section.cards.map((card) => (
                         <div key={card.title} className="detail-card" data-size={card.size}>
                           <h3>{card.title}</h3>
                           {card.body}
                         </div>
                       ))}
                     </div>
-                  )}
+                  ) : null}
                 </article>
               </section>
             </div>

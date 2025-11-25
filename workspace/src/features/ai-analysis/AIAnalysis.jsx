@@ -267,7 +267,7 @@ export function AIAnalysis() {
                 <h3>Opportunities</h3>
                 <ul className="ai-list">
                   {data.opportunities.map((opp, i) => (
-                    <li key={i}>{opp}</li>
+                    <li key={`opp-${i}-${opp.slice(0, 20)}`}>{opp}</li>
                   ))}
                 </ul>
               </div>
@@ -278,7 +278,7 @@ export function AIAnalysis() {
                 <h3>Risks</h3>
                 <ul className="ai-list">
                   {data.risks.map((risk, i) => (
-                    <li key={i}>{risk}</li>
+                    <li key={`risk-${i}-${risk.slice(0, 20)}`}>{risk}</li>
                   ))}
                 </ul>
               </div>
