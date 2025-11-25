@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="manifest" href="/manifest.webmanifest" />
-  <link rel="stylesheet" href="assets/styles.css" />
+  <link rel="stylesheet" href="assets/styles.css?v=20251125" />
   <link rel="icon" href="assets/favicon.png">
   <link rel="apple-touch-icon" href="/icons/icon-maskable-512.svg" />
   <link rel="mask-icon" href="/icons/icon-maskable-512.svg" color="#0B1120" />
@@ -116,7 +116,7 @@
                 <span class="item-caption">Systems upgrade</span>
               </div>
             </button>
-            <button class="menu-item" data-section="ai-analysis">
+            <button class="menu-item" data-section="ai-analysis" data-feature-ai-analysis="true">
               <span class="item-icon" aria-hidden="true">🔬</span>
               <div class="item-copy">
                 <span class="item-title">AI Analysis</span>
@@ -844,11 +844,16 @@
     </div>
   </div>
 
-  <script src="assets/pwa.js"></script>
-  <script src="assets/main.js"></script>
+  <script src="assets/pwa.js?v=20251125"></script>
+  <script src="assets/main.js?v=20251125"></script>
   <script type="module">
-    import { initAIAnalysis } from './assets/ai-analysis.js';
+    import { initAIAnalysis } from './assets/ai-analysis.js?v=20251125';
     document.addEventListener('DOMContentLoaded', initAIAnalysis);
+  </script>
+  <script>
+    // Build stamp for cache verification.
+    // __BUILD_SHA__ is a placeholder that can be replaced at CI build time.
+    console.log('[AlphaStocks] Build: __BUILD_SHA__ | ENV:', window.__ENV__?.NODE_ENV || 'unknown');
   </script>
 </body>
 </html>

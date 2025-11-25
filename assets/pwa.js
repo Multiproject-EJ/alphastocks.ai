@@ -3,6 +3,9 @@
     return;
   }
 
+  // Guard service worker registration behind ENABLE_SW flag to prevent stale cache issues
+  const ENABLE_SW = window.__ENV__?.ENABLE_SW === true;
+
   const INSTALL_STORAGE_KEY = 'alphastocksPwaInstalled';
   let deferredPrompt = null;
 
@@ -93,6 +96,10 @@
   };
 
   const registerServiceWorker = () => {
+    if (!ENABLE_SW) {
+      console.debug('[PWA] Service worker registration disabled (ENABLE_SW is false)');
+      return;
+    }
     navigator.serviceWorker
       .register('/sw.js', { scope: '/' })
       .catch((error) => console.error('Service worker registration failed', error));

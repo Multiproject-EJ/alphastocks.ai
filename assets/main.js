@@ -359,6 +359,25 @@ activateSubsection('portfolio-results');
 
 // AI Analysis logic has been moved to assets/ai-analysis.js module
 
+// Defensive check: Ensure AI Analysis feature menu item is not hidden by default.
+// This only removes explicit inline styles or hidden attributes that may have been set;
+// it does not interfere with the .visible class toggle system used by showSection().
+const ensureAIAnalysisVisible = () => {
+  const aiAnalysisMenuItem = document.querySelector('[data-feature-ai-analysis="true"]');
+  if (aiAnalysisMenuItem) {
+    // Remove any inline display override and hidden attribute
+    aiAnalysisMenuItem.style.display = '';
+    aiAnalysisMenuItem.removeAttribute('hidden');
+  }
+  const aiAnalysisSection = document.getElementById('ai-analysis');
+  if (aiAnalysisSection) {
+    // Remove any inline display override and hidden attribute
+    aiAnalysisSection.style.display = '';
+    aiAnalysisSection.removeAttribute('hidden');
+  }
+};
+ensureAIAnalysisVisible();
+
 // Construction gate - check environment variable for gate display
 const showConstructionGateFlag = (() => {
   // Check for SHOW_CONSTRUCTION_GATE environment flag via window.__ENV__
