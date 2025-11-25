@@ -359,6 +359,23 @@ activateSubsection('portfolio-results');
 
 // AI Analysis logic has been moved to assets/ai-analysis.js module
 
+// Defensive check: Ensure AI Analysis feature menu item is visible and accessible
+const ensureAIAnalysisVisible = () => {
+  const aiAnalysisMenuItem = document.querySelector('[data-feature-ai-analysis="true"]');
+  if (aiAnalysisMenuItem) {
+    // Ensure the menu item is not hidden by default CSS
+    aiAnalysisMenuItem.style.display = '';
+    aiAnalysisMenuItem.removeAttribute('hidden');
+  }
+  const aiAnalysisSection = document.getElementById('ai-analysis');
+  if (aiAnalysisSection) {
+    // Ensure the section can be displayed when selected
+    aiAnalysisSection.style.display = '';
+    aiAnalysisSection.removeAttribute('hidden');
+  }
+};
+ensureAIAnalysisVisible();
+
 // Construction gate - check environment variable for gate display
 const showConstructionGateFlag = (() => {
   // Check for SHOW_CONSTRUCTION_GATE environment flag via window.__ENV__
