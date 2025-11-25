@@ -9,6 +9,11 @@
  * - Accessibility enhancements
  */
 
+/**
+ * Ticker validation regex - only accepts 1-8 uppercase letters.
+ * The validateTicker() function handles normalization to uppercase,
+ * so user input is automatically converted before validation.
+ */
 const TICKER_REGEX = /^[A-Z]{1,8}$/;
 const STORAGE_KEY = 'AI_ANALYSIS_LAST_RESULT';
 
@@ -411,6 +416,8 @@ export async function initAIAnalysis() {
           }
           
           // Append debug information only in non-production
+          // Note: errorMessage is assigned to textContent (not innerHTML),
+          // so there is no XSS risk from debug content
           if (errorData.debug && shouldShowDebug()) {
             errorMessage += `\n\nDetails: ${errorData.debug}`;
           }

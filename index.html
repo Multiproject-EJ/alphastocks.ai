@@ -21,7 +21,9 @@
   <link rel="apple-touch-icon" href="/icons/icon-maskable-512.svg" />
   <link rel="mask-icon" href="/icons/icon-maskable-512.svg" color="#0B1120" />
   <script>
-    // Environment configuration for client-side detection
+    // Environment configuration for client-side detection.
+    // Defaults to 'production' for security; override in development builds.
+    // This can be dynamically injected by build tools or server-side templating.
     window.__ENV__ = { NODE_ENV: 'production' };
   </script>
 </head>
