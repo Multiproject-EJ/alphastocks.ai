@@ -1922,3 +1922,167 @@ body[data-theme="light"] .overlay-card {
     overflow-x: auto;
   }
 }
+
+/* =================================================================
+   Field Helper Styles
+   ================================================================= */
+
+.field-hint {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}
+
+.field-error {
+  font-size: 0.85rem;
+  color: #f87171;
+  margin-top: 0.25rem;
+  min-height: 1.2rem;
+}
+
+.field-error:not(:empty) {
+  display: block;
+}
+
+/* =================================================================
+   Loading Skeleton Styles
+   ================================================================= */
+
+.ai-loading-skeleton {
+  display: grid;
+  gap: 1.1rem;
+}
+
+.skeleton-card {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1.1rem 1.3rem;
+}
+
+.skeleton {
+  background: var(--surface-alt);
+  border-radius: var(--radius-sm);
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton-title {
+  height: 1.2rem;
+  width: 40%;
+}
+
+.skeleton-header {
+  height: 3rem;
+  width: 100%;
+}
+
+.skeleton-text {
+  height: 1rem;
+  width: 100%;
+}
+
+.skeleton-text-short {
+  height: 1rem;
+  width: 60%;
+}
+
+/* Shimmer animation */
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--surface-alt) 0%,
+    var(--surface) 50%,
+    var(--surface-alt) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Dark theme shimmer adjustment */
+body[data-theme="dark"] .shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--surface-alt) 0%,
+    rgba(148, 163, 184, 0.1) 50%,
+    var(--surface-alt) 100%
+  );
+  background-size: 200% 100%;
+}
+
+/* =================================================================
+   AI Sentiment Badge Contrast Improvements
+   ================================================================= */
+
+.ai-sentiment.positive {
+  background: var(--positive-soft);
+  color: var(--positive);
+  font-weight: 600;
+}
+
+.ai-sentiment.negative {
+  background: rgba(248, 113, 113, 0.16);
+  color: #ef4444;
+  font-weight: 600;
+}
+
+body[data-theme="light"] .ai-sentiment.negative {
+  color: #dc2626;
+}
+
+.ai-sentiment.neutral {
+  background: var(--pill-bg);
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* =================================================================
+   Disabled & Button State Styles
+   ================================================================= */
+
+.btn-primary:disabled,
+.btn-secondary:disabled,
+.btn-tertiary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-primary[aria-busy="true"] {
+  position: relative;
+  color: transparent;
+}
+
+.btn-primary[aria-busy="true"]::after {
+  content: 'Analyzing...';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  color: #ffffff;
+}
+
+/* =================================================================
+   Form Input Validation States
+   ================================================================= */
+
+input[aria-invalid="true"],
+select[aria-invalid="true"],
+textarea[aria-invalid="true"] {
+  border-color: #f87171;
+}
+
+input[aria-invalid="true"]:focus,
+select[aria-invalid="true"]:focus,
+textarea[aria-invalid="true"]:focus {
+  border-color: #f87171;
+  box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.2);
+}

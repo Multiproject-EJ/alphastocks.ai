@@ -20,6 +20,10 @@
   <link rel="icon" href="assets/favicon.png">
   <link rel="apple-touch-icon" href="/icons/icon-maskable-512.svg" />
   <link rel="mask-icon" href="/icons/icon-maskable-512.svg" color="#0B1120" />
+  <script>
+    // Environment configuration for client-side detection
+    window.__ENV__ = { NODE_ENV: 'production' };
+  </script>
 </head>
 <body data-theme="light" class="auth-required">
   <main class="app-stage">
@@ -576,71 +580,110 @@
                   <h3>Configure Analysis</h3>
                   <form id="aiAnalysisForm">
                     <div class="field">
-                      <span>AI Provider</span>
-                      <select id="aiProvider">
+                      <label for="aiProvider">AI Provider</label>
+                      <select id="aiProvider" aria-describedby="providerHint">
                         <option value="openai">OpenAI</option>
                         <option value="gemini">Google Gemini</option>
                         <option value="openrouter">OpenRouter</option>
                       </select>
+                      <span id="providerHint" class="field-hint">Available providers are shown based on server configuration.</span>
                     </div>
                     
                     <div class="field">
-                      <span>Stock Ticker *</span>
-                      <input type="text" id="aiTicker" placeholder="e.g., AAPL" required />
+                      <label for="aiTicker">Stock Ticker <span aria-hidden="true">*</span></label>
+                      <input 
+                        type="text" 
+                        id="aiTicker" 
+                        placeholder="e.g., AAPL" 
+                        required 
+                        aria-required="true"
+                        aria-describedby="tickerHint tickerError"
+                        aria-invalid="false"
+                        autocomplete="off"
+                        pattern="[A-Za-z]{1,8}"
+                      />
+                      <span id="tickerHint" class="field-hint">Enter 1-8 letters (e.g., AAPL, MSFT, GOOGL).</span>
+                      <span id="tickerError" class="field-error" role="alert" aria-live="polite"></span>
                     </div>
                     
                     <div class="field">
-                      <span>Timeframe (optional)</span>
+                      <label for="aiTimeframe">Timeframe (optional)</label>
                       <input type="text" id="aiTimeframe" placeholder="e.g., 1y, 5y, ytd" />
                     </div>
                     
                     <div class="field">
-                      <span>Custom Question (optional)</span>
+                      <label for="aiQuestion">Custom Question (optional)</label>
                       <textarea id="aiQuestion" rows="3" placeholder="Ask a specific question about the stock..."></textarea>
                     </div>
                     
-                    <button type="submit" id="aiAnalyzeBtn" class="btn-primary">Analyze</button>
+                    <button type="submit" id="aiAnalyzeBtn" class="btn-primary" aria-busy="false">Analyze</button>
                   </form>
                   
-                  <div id="aiStatus" class="ai-status"></div>
-                  <div id="aiError" class="ai-error"></div>
+                  <div id="aiStatus" class="ai-status" aria-live="polite" role="status"></div>
+                  <div id="aiError" class="ai-error" aria-live="assertive" role="alert"></div>
                 </div>
 
                 <div id="aiResults" class="ai-results" style="display: none;">
-                  <div class="detail-card">
-                    <h3>Analysis Summary</h3>
-                    <div class="ai-result-header">
-                      <div class="field inline">
-                        <span>Ticker:</span>
-                        <strong id="resultTicker"></strong>
-                      </div>
-                      <div class="field inline">
-                        <span>Provider:</span>
-                        <span id="resultProvider"></span>
-                      </div>
-                      <div class="field inline">
-                        <span>Sentiment:</span>
-                        <span id="resultSentiment" class="ai-sentiment"></span>
-                      </div>
+                  <!-- Loading Skeleton -->
+                  <div id="aiLoadingSkeleton" class="ai-loading-skeleton" style="display: none;" aria-hidden="true" role="presentation">
+                    <div class="detail-card skeleton-card">
+                      <div class="skeleton skeleton-title shimmer"></div>
+                      <div class="skeleton skeleton-header shimmer"></div>
+                      <div class="skeleton skeleton-text shimmer"></div>
+                      <div class="skeleton skeleton-text shimmer"></div>
+                      <div class="skeleton skeleton-text-short shimmer"></div>
                     </div>
-                    <div id="resultSummary" class="ai-summary"></div>
-                  </div>
-
-                  <div class="detail-grid">
-                    <div class="detail-card" id="opportunitiesCard" style="display: none;">
-                      <h3>Opportunities</h3>
-                      <ul id="resultOpportunities" class="ai-list"></ul>
-                    </div>
-
-                    <div class="detail-card" id="risksCard" style="display: none;">
-                      <h3>Risks</h3>
-                      <ul id="resultRisks" class="ai-list"></ul>
+                    <div class="detail-grid">
+                      <div class="detail-card skeleton-card">
+                        <div class="skeleton skeleton-title shimmer"></div>
+                        <div class="skeleton skeleton-text shimmer"></div>
+                        <div class="skeleton skeleton-text shimmer"></div>
+                      </div>
+                      <div class="detail-card skeleton-card">
+                        <div class="skeleton skeleton-title shimmer"></div>
+                        <div class="skeleton skeleton-text shimmer"></div>
+                        <div class="skeleton skeleton-text shimmer"></div>
+                      </div>
                     </div>
                   </div>
 
-                  <div class="detail-card" id="rawResponseCard" style="display: none;">
-                    <h3>Additional Commentary</h3>
-                    <div id="resultRawResponse" class="ai-raw-response"></div>
+                  <!-- Results Content -->
+                  <div id="aiResultsContent" style="display: none;">
+                    <div class="detail-card">
+                      <h3>Analysis Summary</h3>
+                      <div class="ai-result-header">
+                        <div class="field inline">
+                          <span>Ticker:</span>
+                          <strong id="resultTicker"></strong>
+                        </div>
+                        <div class="field inline">
+                          <span>Provider:</span>
+                          <span id="resultProvider"></span>
+                        </div>
+                        <div class="field inline">
+                          <span>Sentiment:</span>
+                          <span id="resultSentiment" class="ai-sentiment" role="status"></span>
+                        </div>
+                      </div>
+                      <div id="resultSummary" class="ai-summary"></div>
+                    </div>
+
+                    <div class="detail-grid">
+                      <div class="detail-card" id="opportunitiesCard" style="display: none;">
+                        <h3>Opportunities</h3>
+                        <ul id="resultOpportunities" class="ai-list"></ul>
+                      </div>
+
+                      <div class="detail-card" id="risksCard" style="display: none;">
+                        <h3>Risks</h3>
+                        <ul id="resultRisks" class="ai-list"></ul>
+                      </div>
+                    </div>
+
+                    <div class="detail-card" id="rawResponseCard" style="display: none;">
+                      <h3>Additional Commentary</h3>
+                      <div id="resultRawResponse" class="ai-raw-response"></div>
+                    </div>
                   </div>
                 </div>
               </article>
@@ -800,5 +843,9 @@
 
   <script src="assets/pwa.js"></script>
   <script src="assets/main.js"></script>
+  <script type="module">
+    import { initAIAnalysis } from './assets/ai-analysis.js';
+    document.addEventListener('DOMContentLoaded', initAIAnalysis);
+  </script>
 </body>
 </html>
