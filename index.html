@@ -851,7 +851,8 @@
     document.addEventListener('DOMContentLoaded', initAIAnalysis);
   </script>
   <script>
-    // Build stamp for cache verification
+    // Build stamp for cache verification.
+    // __BUILD_SHA__ is a placeholder that can be replaced at CI build time.
     console.log('[AlphaStocks] Build: __BUILD_SHA__ | ENV:', window.__ENV__?.NODE_ENV || 'unknown');
   </script>
 </body>
