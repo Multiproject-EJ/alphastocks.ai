@@ -3,6 +3,7 @@ import { getRuntimeConfig } from './config/runtimeConfig.js';
 import { getDataService } from './data/dataService.js';
 import { formatDateLabel, formatPercent, formatUsd } from './features/dashboard/dashboardUtils.js';
 import { useDashboardData } from './features/dashboard/useDashboardData.js';
+import { AIAnalysis } from './features/ai-analysis/AIAnalysis.jsx';
 
 const DEFAULT_FOCUS_LIST = [
   { id: 'focus-1', title: 'SPY breakout', caption: 'Checklist ready • 09:30', tag: { tone: 'tag-green', label: 'Today' } },
@@ -184,7 +185,8 @@ const mainNavigation = [
     caption: 'Patience & selectivity drill'
   },
   { id: 'quadrant', icon: '🧭', title: 'Universe Quadrant', caption: 'Macro positioning map' },
-  { id: 'knowledge', icon: '📚', title: 'Knowledge (Transform)', caption: 'Systems upgrade' }
+  { id: 'knowledge', icon: '📚', title: 'Knowledge (Transform)', caption: 'Systems upgrade' },
+  { id: 'ai-analysis', icon: '🔬', title: 'AI Analysis', caption: 'Stock research' }
 ];
 
 const DemoBanner = () => (
@@ -532,6 +534,11 @@ const staticSections = {
         )
       }
     ]
+  },
+  'ai-analysis': {
+    title: 'AI Analysis',
+    meta: 'Get AI-powered stock analysis using OpenAI, Gemini, or OpenRouter.',
+    isComponent: true
   }
 };
 
@@ -1204,16 +1211,20 @@ const App = () => {
                 <article className="detail-view visible">
                   <h2>{section.title}</h2>
                   {section.meta && <p className="detail-meta">{section.meta}</p>}
-                  <div
-                    className={`detail-grid${section.layout ? ` detail-grid--${section.layout}` : ''}`}
-                  >
-                    {section.cards.map((card) => (
-                      <div key={card.title} className="detail-card" data-size={card.size}>
-                        <h3>{card.title}</h3>
-                        {card.body}
-                      </div>
-                    ))}
-                  </div>
+                  {section.isComponent && activeSection === 'ai-analysis' ? (
+                    <AIAnalysis />
+                  ) : (
+                    <div
+                      className={`detail-grid${section.layout ? ` detail-grid--${section.layout}` : ''}`}
+                    >
+                      {section.cards?.map((card) => (
+                        <div key={card.title} className="detail-card" data-size={card.size}>
+                          <h3>{card.title}</h3>
+                          {card.body}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </article>
               </section>
             </div>
