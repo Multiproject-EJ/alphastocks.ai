@@ -1190,13 +1190,11 @@ const App = () => {
                       className={`menu-item${activeSection === item.id ? ' active' : ''}`}
                       data-section={item.id}
                       onClick={() => handleMenuSelection(item.id)}
+                      aria-label={item.label}
                     >
                       <span className="item-icon" aria-hidden="true">
                         {item.icon}
                       </span>
-                      <div className="item-copy">
-                        <span className="item-title">{item.label}</span>
-                      </div>
                     </button>
                   ))}
 
@@ -1211,9 +1209,6 @@ const App = () => {
                     <span className="item-icon" aria-hidden="true">
                       ⋯
                     </span>
-                    <div className="item-copy">
-                      <span className="item-title">More</span>
-                    </div>
                   </button>
                 </div>
 

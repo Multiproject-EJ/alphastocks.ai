@@ -163,10 +163,6 @@ body[data-theme='dark'] {
   justify-content: center;
 }
 
-.mobile-nav-row .item-copy {
-  margin-top: 0.15rem;
-}
-
 .mobile-nav-popover {
   position: absolute;
   inset: auto 0 calc(100% + 0.65rem) 0;
