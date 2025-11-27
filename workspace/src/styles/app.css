@@ -140,6 +140,7 @@ body[data-theme='dark'] {
   gap: 0.65rem;
   position: relative;
   width: 100%;
+  align-items: center;
 }
 
 .mobile-nav-row {
@@ -147,6 +148,7 @@ body[data-theme='dark'] {
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 0.35rem;
   width: 100%;
+  overflow-x: auto;
 }
 
 .mobile-nav-row .menu-item {
@@ -156,7 +158,10 @@ body[data-theme='dark'] {
 
 .mobile-nav-popover {
   position: absolute;
-  inset: auto 0 calc(100% + 0.65rem) 0;
+  inset: auto auto calc(100% + 0.65rem) auto;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(96vw, 640px);
   padding: 0.75rem;
   border-radius: calc(var(--radius-lg) + 2px);
   border: 1px solid var(--border, rgba(255, 255, 255, 0.14));

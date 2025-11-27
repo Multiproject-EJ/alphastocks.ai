@@ -1841,7 +1841,10 @@ body[data-theme="light"] .overlay-card {
     display: grid;
     grid-auto-flow: column;
     grid-auto-columns: minmax(110px, 1fr);
-    overflow-x: auto;
+    width: 100%;
+    max-width: none;
+    align-self: stretch;
+    overflow: visible;
     padding: 0.65rem;
     border-radius: calc(var(--radius-lg) + 6px);
     box-shadow: 0 22px 45px rgba(15, 23, 42, 0.32);
