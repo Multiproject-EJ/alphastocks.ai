@@ -1155,33 +1155,6 @@ const App = () => {
           <nav className="app-menu" aria-label="Primary">
             {isMobileView ? (
               <div className="mobile-nav-shell">
-                <div className="mobile-nav-utilities" aria-label="Quick controls">
-                  <button
-                    type="button"
-                    className={`menu-item split-button account${isAccountDialogOpen ? ' active' : ''}`}
-                    onClick={openAccountDialog}
-                    aria-expanded={isAccountDialogOpen}
-                    aria-haspopup="dialog"
-                    aria-controls="accountDialog"
-                    aria-label="Account"
-                  >
-                    <span className="item-icon" aria-hidden="true">
-                      👤
-                    </span>
-                  </button>
-                  <button
-                    type="button"
-                    className="menu-item split-button"
-                    onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                    aria-label={themeCopy}
-                    aria-pressed={theme === 'dark'}
-                  >
-                    <span className="item-icon" aria-hidden="true">
-                      {theme === 'dark' ? '☀️' : '🌙'}
-                    </span>
-                  </button>
-                </div>
-
                 <div className="mobile-nav-row" role="tablist">
                   {mobilePrimaryNav.map((item) => (
                     <button
@@ -1214,36 +1187,60 @@ const App = () => {
 
                 {isMobileNavOpen && (
                   <div className="mobile-nav-popover" role="menu" aria-label="More navigation">
-                    {[...mobileOverflowNav, { ...settingsNavItem, title: 'Settings', caption: 'Preferences' }].map(
-                      (item) => {
-                        const isDashboardItem = item.id === 'dashboard';
-                        const caption = isDashboardItem && hasMorningNewsPing ? 'Morning News' : item.caption;
-                        return (
-                          <button
-                            key={item.id}
-                            className={`menu-item${activeSection === item.id ? ' active' : ''}`}
-                            data-section={item.id}
-                            onClick={() => handleMenuSelection(item.id)}
-                            role="menuitem"
-                          >
-                            {item.icon && (
-                              <span className="item-icon" aria-hidden="true">
-                                {item.icon}
-                              </span>
-                            )}
-                            <div className="item-copy">
-                              <span className="item-title">{item.title}</span>
-                              <span className="item-caption">
-                                {caption}
-                                {isDashboardItem && hasMorningNewsPing && (
-                                  <span className="menu-alert-indicator" aria-hidden="true" />
-                                )}
-                              </span>
-                            </div>
-                          </button>
-                        );
+                    {[
+                      ...mobileOverflowNav,
+                      { ...settingsNavItem, title: 'Settings', caption: 'Preferences' },
+                      {
+                        id: 'account',
+                        icon: '👤',
+                        title: 'Account',
+                        caption: 'Profile & workspace',
+                        action: openAccountDialog
+                      },
+                      {
+                        id: 'theme',
+                        icon: theme === 'dark' ? '☀️' : '🌙',
+                        title: theme === 'dark' ? 'Light mode' : 'Dark mode',
+                        caption: themeCopy,
+                        action: () => setTheme(theme === 'dark' ? 'light' : 'dark')
                       }
-                    )}
+                    ].map((item) => {
+                      const isDashboardItem = item.id === 'dashboard';
+                      const caption = isDashboardItem && hasMorningNewsPing ? 'Morning News' : item.caption;
+                      const handleClick = () => {
+                        if (item.action) {
+                          item.action();
+                          setIsMobileNavOpen(false);
+                          return;
+                        }
+                        handleMenuSelection(item.id);
+                      };
+                      return (
+                        <button
+                          key={item.id}
+                          className={`menu-item${activeSection === item.id ? ' active' : ''}`}
+                          data-section={item.id}
+                          onClick={handleClick}
+                          role="menuitem"
+                          aria-label={item.label ?? item.title}
+                        >
+                          {item.icon && (
+                            <span className="item-icon" aria-hidden="true">
+                              {item.icon}
+                            </span>
+                          )}
+                          <div className="item-copy">
+                            <span className="item-title">{item.title}</span>
+                            <span className="item-caption">
+                              {caption}
+                              {isDashboardItem && hasMorningNewsPing && (
+                                <span className="menu-alert-indicator" aria-hidden="true" />
+                              )}
+                            </span>
+                          </div>
+                        </button>
+                      );
+                    })}
                   </div>
                 )}
               </div>

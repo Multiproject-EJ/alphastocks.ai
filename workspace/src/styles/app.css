@@ -139,23 +139,14 @@ body[data-theme='dark'] {
   flex-direction: column;
   gap: 0.65rem;
   position: relative;
-}
-
-.mobile-nav-utilities {
-  display: flex;
-  gap: 0.4rem;
-  justify-content: flex-end;
-}
-
-.mobile-nav-utilities .menu-item {
-  flex: 1 1 0;
-  min-width: 0;
+  width: 100%;
 }
 
 .mobile-nav-row {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 0.35rem;
+  width: 100%;
 }
 
 .mobile-nav-row .menu-item {
