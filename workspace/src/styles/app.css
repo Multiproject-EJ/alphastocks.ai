@@ -134,6 +134,59 @@ body[data-theme='dark'] {
   animation: pulse-alert 1.6s infinite;
 }
 
+.mobile-nav-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  position: relative;
+}
+
+.mobile-nav-utilities {
+  display: flex;
+  gap: 0.4rem;
+  justify-content: flex-end;
+}
+
+.mobile-nav-utilities .menu-item {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.mobile-nav-row {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.35rem;
+}
+
+.mobile-nav-row .menu-item {
+  padding: 0.55rem 0.35rem;
+  justify-content: center;
+}
+
+.mobile-nav-row .item-copy {
+  margin-top: 0.15rem;
+}
+
+.mobile-nav-popover {
+  position: absolute;
+  inset: auto 0 calc(100% + 0.65rem) 0;
+  padding: 0.75rem;
+  border-radius: calc(var(--radius-lg) + 2px);
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.14));
+  background: var(--surface-alt, rgba(15, 23, 42, 0.92));
+  box-shadow: 0 26px 60px rgba(12, 18, 33, 0.6);
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  z-index: 35;
+}
+
+.mobile-nav-popover .menu-item {
+  width: 100%;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.02);
+}
+
 @keyframes pulse-alert {
   0% {
     box-shadow: 0 0 0 0 rgba(248, 113, 113, 0.8);
