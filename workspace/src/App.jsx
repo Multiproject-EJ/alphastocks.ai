@@ -551,10 +551,21 @@ const App = () => {
   const [activeProfile, setActiveProfile] = useState(null);
   const [profileError, setProfileError] = useState(null);
   const [isAccountDialogOpen, setIsAccountDialogOpen] = useState(false);
+  const [isMobileView, setIsMobileView] = useState(false);
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [alertSettings, setAlertSettings] = useState(() => createInitialAlertState());
   const runtimeConfig = useMemo(() => getRuntimeConfig(), []);
   const dataService = useMemo(() => getDataService(), [runtimeConfig.mode]);
   const themeCopy = theme === 'dark' ? 'Switch to light' : 'Switch to dark';
+  const mobilePrimaryNav = [
+    { id: 'dashboard', icon: '🏠', label: 'Today' },
+    { id: 'valuebot', icon: '🤖', label: 'ValueBot' },
+    { id: 'portfolio', icon: '💼', label: 'Portfolio' },
+    { id: 'checkin', icon: '🧘', label: 'Check-In' }
+  ];
+  const mobileOverflowNav = mainNavigation.filter(
+    (item) => !mobilePrimaryNav.some((primary) => primary.id === item.id)
+  );
   const {
     focusList,
     portfolioSummary,
@@ -623,11 +634,51 @@ const App = () => {
     if (sectionId === 'valuebot') {
       setActiveTab('ValueBot');
     }
+    setIsMobileNavOpen(false);
   };
 
   useEffect(() => {
     document.body.setAttribute('data-theme', theme);
   }, [theme]);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(max-width: 768px)');
+    const updateViewport = () => setIsMobileView(mediaQuery.matches);
+    updateViewport();
+    mediaQuery.addEventListener('change', updateViewport);
+
+    return () => {
+      mediaQuery.removeEventListener('change', updateViewport);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isMobileView) {
+      setIsMobileNavOpen(false);
+    }
+  }, [isMobileView]);
+
+  useEffect(() => {
+    if (!isMobileNavOpen) {
+      return undefined;
+    }
+
+    const handleDismiss = (event) => {
+      const target = event.target;
+      if (!(target instanceof Element)) {
+        return;
+      }
+      if (!target.closest('.mobile-nav-popover') && !target.closest('.mobile-nav-more')) {
+        setIsMobileNavOpen(false);
+      }
+    };
+
+    document.addEventListener('click', handleDismiss);
+
+    return () => {
+      document.removeEventListener('click', handleDismiss);
+    };
+  }, [isMobileNavOpen]);
 
   useEffect(() => {
     if (isAccountDialogOpen) {
@@ -1102,72 +1153,170 @@ const App = () => {
 
         <div className="app-shell">
           <nav className="app-menu" aria-label="Primary">
-            <div className="menu-item-split" aria-label="Account controls">
-              <button
-                type="button"
-                className={`menu-item split-button account${isAccountDialogOpen ? ' active' : ''}`}
-                onClick={openAccountDialog}
-                aria-expanded={isAccountDialogOpen}
-                aria-haspopup="dialog"
-                aria-controls="accountDialog"
-                aria-label="Account"
-              >
-                <span className="item-icon" aria-hidden="true">
-                  👤
-                </span>
-              </button>
-              <button
-                type="button"
-                className={`menu-item split-button${activeSection === settingsNavItem.id ? ' active' : ''}`}
-                data-section={settingsNavItem.id}
-                onClick={() => handleMenuSelection(settingsNavItem.id)}
-                aria-label="Settings"
-              >
-                {settingsNavItem.icon && (
-                  <span className="item-icon" aria-hidden="true">
-                    {settingsNavItem.icon}
-                  </span>
-                )}
-              </button>
-              <button
-                type="button"
-                className="menu-item split-button"
-                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                aria-label={themeCopy}
-                aria-pressed={theme === 'dark'}
-              >
-                <span className="item-icon" aria-hidden="true">
-                  {theme === 'dark' ? '☀️' : '🌙'}
-                </span>
-              </button>
-            </div>
-            {mainNavigation.map((item) => {
-              const isDashboardItem = item.id === 'dashboard';
-              const caption = isDashboardItem && hasMorningNewsPing ? 'Morning News' : item.caption;
-              return (
-                <button
-                  key={item.id}
-                  className={`menu-item${activeSection === item.id ? ' active' : ''}`}
-                  data-section={item.id}
-                  onClick={() => handleMenuSelection(item.id)}
-                >
-                  {item.icon && (
+            {isMobileView ? (
+              <div className="mobile-nav-shell">
+                <div className="mobile-nav-utilities" aria-label="Quick controls">
+                  <button
+                    type="button"
+                    className={`menu-item split-button account${isAccountDialogOpen ? ' active' : ''}`}
+                    onClick={openAccountDialog}
+                    aria-expanded={isAccountDialogOpen}
+                    aria-haspopup="dialog"
+                    aria-controls="accountDialog"
+                    aria-label="Account"
+                  >
                     <span className="item-icon" aria-hidden="true">
-                      {item.icon}
+                      👤
                     </span>
-                  )}
-                  <div className="item-copy">
-                    <span className="item-title">{item.title}</span>
-                    <span className="item-caption">
-                      {caption}
-                      {isDashboardItem && hasMorningNewsPing && (
-                        <span className="menu-alert-indicator" aria-hidden="true" />
-                      )}
+                  </button>
+                  <button
+                    type="button"
+                    className="menu-item split-button"
+                    onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                    aria-label={themeCopy}
+                    aria-pressed={theme === 'dark'}
+                  >
+                    <span className="item-icon" aria-hidden="true">
+                      {theme === 'dark' ? '☀️' : '🌙'}
                     </span>
+                  </button>
+                </div>
+
+                <div className="mobile-nav-row" role="tablist">
+                  {mobilePrimaryNav.map((item) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      className={`menu-item${activeSection === item.id ? ' active' : ''}`}
+                      data-section={item.id}
+                      onClick={() => handleMenuSelection(item.id)}
+                      aria-label={item.label}
+                    >
+                      <span className="item-icon" aria-hidden="true">
+                        {item.icon}
+                      </span>
+                    </button>
+                  ))}
+
+                  <button
+                    type="button"
+                    className={`menu-item mobile-nav-more${isMobileNavOpen ? ' active' : ''}`}
+                    onClick={() => setIsMobileNavOpen((prev) => !prev)}
+                    aria-expanded={isMobileNavOpen}
+                    aria-haspopup="menu"
+                    aria-label="More navigation"
+                  >
+                    <span className="item-icon" aria-hidden="true">
+                      ⋯
+                    </span>
+                  </button>
+                </div>
+
+                {isMobileNavOpen && (
+                  <div className="mobile-nav-popover" role="menu" aria-label="More navigation">
+                    {[...mobileOverflowNav, { ...settingsNavItem, title: 'Settings', caption: 'Preferences' }].map(
+                      (item) => {
+                        const isDashboardItem = item.id === 'dashboard';
+                        const caption = isDashboardItem && hasMorningNewsPing ? 'Morning News' : item.caption;
+                        return (
+                          <button
+                            key={item.id}
+                            className={`menu-item${activeSection === item.id ? ' active' : ''}`}
+                            data-section={item.id}
+                            onClick={() => handleMenuSelection(item.id)}
+                            role="menuitem"
+                          >
+                            {item.icon && (
+                              <span className="item-icon" aria-hidden="true">
+                                {item.icon}
+                              </span>
+                            )}
+                            <div className="item-copy">
+                              <span className="item-title">{item.title}</span>
+                              <span className="item-caption">
+                                {caption}
+                                {isDashboardItem && hasMorningNewsPing && (
+                                  <span className="menu-alert-indicator" aria-hidden="true" />
+                                )}
+                              </span>
+                            </div>
+                          </button>
+                        );
+                      }
+                    )}
                   </div>
-                </button>
-              );
-            })}
+                )}
+              </div>
+            ) : (
+              <>
+                <div className="menu-item-split" aria-label="Account controls">
+                  <button
+                    type="button"
+                    className={`menu-item split-button account${isAccountDialogOpen ? ' active' : ''}`}
+                    onClick={openAccountDialog}
+                    aria-expanded={isAccountDialogOpen}
+                    aria-haspopup="dialog"
+                    aria-controls="accountDialog"
+                    aria-label="Account"
+                  >
+                    <span className="item-icon" aria-hidden="true">
+                      👤
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    className={`menu-item split-button${activeSection === settingsNavItem.id ? ' active' : ''}`}
+                    data-section={settingsNavItem.id}
+                    onClick={() => handleMenuSelection(settingsNavItem.id)}
+                    aria-label="Settings"
+                  >
+                    {settingsNavItem.icon && (
+                      <span className="item-icon" aria-hidden="true">
+                        {settingsNavItem.icon}
+                      </span>
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    className="menu-item split-button"
+                    onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                    aria-label={themeCopy}
+                    aria-pressed={theme === 'dark'}
+                  >
+                    <span className="item-icon" aria-hidden="true">
+                      {theme === 'dark' ? '☀️' : '🌙'}
+                    </span>
+                  </button>
+                </div>
+                {mainNavigation.map((item) => {
+                  const isDashboardItem = item.id === 'dashboard';
+                  const caption = isDashboardItem && hasMorningNewsPing ? 'Morning News' : item.caption;
+                  return (
+                    <button
+                      key={item.id}
+                      className={`menu-item${activeSection === item.id ? ' active' : ''}`}
+                      data-section={item.id}
+                      onClick={() => handleMenuSelection(item.id)}
+                    >
+                      {item.icon && (
+                        <span className="item-icon" aria-hidden="true">
+                          {item.icon}
+                        </span>
+                      )}
+                      <div className="item-copy">
+                        <span className="item-title">{item.title}</span>
+                        <span className="item-caption">
+                          {caption}
+                          {isDashboardItem && hasMorningNewsPing && (
+                            <span className="menu-alert-indicator" aria-hidden="true" />
+                          )}
+                        </span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </>
+            )}
           </nav>
 
           <div className="workspace" id="workspace">
