@@ -184,7 +184,6 @@ const mainNavigation = [
     caption: 'Patience & selectivity drill'
   },
   { id: 'quadrant', icon: '🧭', title: 'Universe Quadrant', caption: 'Macro positioning map' },
-  { id: 'ai-analysis', icon: '🔬', title: 'AI Analysis', caption: 'Stock research' }
 ];
 
 const DemoBanner = () => (
@@ -412,7 +411,8 @@ const staticSections = {
           </>
         )
       }
-    ]
+    ],
+    component: <AIAnalysis />
   },
   settings: {
     title: 'Settings',
@@ -522,11 +522,6 @@ const staticSections = {
       }
     ]
   },
-  'ai-analysis': {
-    title: 'AI Analysis',
-    meta: 'Get AI-powered stock analysis using OpenAI, Gemini, or OpenRouter.',
-    isComponent: true
-  }
 };
 
 
@@ -1356,9 +1351,7 @@ const App = () => {
                 <article className="detail-view visible">
                   <h2>{section.title}</h2>
                   {section.meta && <p className="detail-meta">{section.meta}</p>}
-                  {section.isComponent && activeSection === 'ai-analysis' ? (
-                    <AIAnalysis />
-                  ) : section.cards && section.cards.length > 0 ? (
+                  {section.cards && section.cards.length > 0 && (
                     <div
                       className={`detail-grid${section.layout ? ` detail-grid--${section.layout}` : ''}`}
                     >
@@ -1369,7 +1362,8 @@ const App = () => {
                         </div>
                       ))}
                     </div>
-                  ) : null}
+                  )}
+                  {section.component && <div className="detail-component">{section.component}</div>}
                 </article>
               </section>
             </div>
