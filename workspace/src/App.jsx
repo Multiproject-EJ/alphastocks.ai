@@ -12,7 +12,8 @@ const DEFAULT_FOCUS_LIST = [
   { id: 'focus-4', title: 'Position audit', caption: 'Rotate winners & laggards', tag: { label: 'Next week' } }
 ];
 
-const tabs = ['Overview', 'Notes', 'Tasks', 'Analytics', 'ValueBot'];
+const dashboardTabs = ['Overview', 'Notes', 'Tasks', 'Analytics', 'ValueBot'];
+const defaultSectionTabs = ['Tab 1', 'Tab 2', 'Tab 3', 'Tab 4', 'Tab 5'];
 
 const MORNING_NEWS_ALERT_ID = 'morning-news';
 
@@ -171,6 +172,8 @@ const valueBotTabs = [
 ];
 
 const settingsNavItem = { id: 'settings', icon: '⚙️' };
+
+const getSectionTabs = (sectionId) => (sectionId === 'dashboard' ? dashboardTabs : defaultSectionTabs);
 
 const mainNavigation = [
   { id: 'dashboard', icon: '🏠', title: 'Today / Dashboard', caption: 'Overview' },
@@ -528,7 +531,13 @@ const staticSections = {
 const App = () => {
   const [theme, setTheme] = useState('dark');
   const [activeSection, setActiveSection] = useState('dashboard');
-  const [activeTab, setActiveTab] = useState(tabs[0]);
+  const [activeTabsBySection, setActiveTabsBySection] = useState(() => {
+    const initialMap = {};
+    [...mainNavigation.map((item) => item.id), settingsNavItem.id].forEach((sectionId) => {
+      initialMap[sectionId] = getSectionTabs(sectionId)[0];
+    });
+    return initialMap;
+  });
   const [activeValueBotTab, setActiveValueBotTab] = useState(valueBotTabs[0].id);
   const [activeProfile, setActiveProfile] = useState(null);
   const [profileError, setProfileError] = useState(null);
@@ -614,10 +623,17 @@ const App = () => {
   const closeAccountDialog = useCallback(() => setIsAccountDialogOpen(false), []);
   const handleMenuSelection = (sectionId) => {
     setActiveSection(sectionId);
-    if (sectionId === 'valuebot') {
-      setActiveTab('ValueBot');
-    }
     setIsMobileNavOpen(false);
+  };
+
+  const tabsForSection = getSectionTabs(activeSection);
+  const activeTab = activeTabsBySection[activeSection] ?? tabsForSection[0];
+
+  const handleTabSelection = (tab) => {
+    setActiveTabsBySection((prev) => ({
+      ...prev,
+      [activeSection]: tab
+    }));
   };
 
   useEffect(() => {
@@ -1332,13 +1348,13 @@ const App = () => {
 
           <div className="workspace" id="workspace">
             <div className="app-tabs" role="tablist">
-              {tabs.map((tab) => (
+              {tabsForSection.map((tab) => (
                 <button
                   key={tab}
                   className={`tab${activeTab === tab ? ' active' : ''}`}
                   role="tab"
                   aria-selected={activeTab === tab}
-                  onClick={() => setActiveTab(tab)}
+                  onClick={() => handleTabSelection(tab)}
                   type="button"
                 >
                   {tab}
@@ -1349,25 +1365,37 @@ const App = () => {
             <div className="app-panels">
               <section className="app-detail" aria-label="Detail">
                 <article className="detail-view visible">
-                  <h2>{section.title}</h2>
-                  {section.meta && <p className="detail-meta">{section.meta}</p>}
-                  {section.cards && section.cards.length > 0 && (
-                    <div
-                      className={`detail-grid${section.layout ? ` detail-grid--${section.layout}` : ''}`}
-                    >
-                      {section.cards.map((card) => (
-                        <div key={card.title} className="detail-card" data-size={card.size}>
-                          <h3>{card.title}</h3>
-                          {card.body}
+                  {activeTab === tabsForSection[0] ? (
+                    <>
+                      <h2>{section.title}</h2>
+                      {section.meta && <p className="detail-meta">{section.meta}</p>}
+                      {section.cards && section.cards.length > 0 && (
+                        <div
+                          className={`detail-grid${section.layout ? ` detail-grid--${section.layout}` : ''}`}
+                        >
+                          {section.cards.map((card) => (
+                            <div key={card.title} className="detail-card" data-size={card.size}>
+                              <h3>{card.title}</h3>
+                              {card.body}
+                            </div>
+                          ))}
                         </div>
-                      ))}
-                    </div>
+                      )}
+                      {section.component && <div className="detail-component">{section.component}</div>}
+                    </>
+                  ) : (
+                    <>
+                      <h2>{activeTab}</h2>
+                      <p className="detail-meta">Custom tab for {section.title}</p>
+                      <div className="detail-card">
+                        <p>This tab is reserved for future {section.title} content.</p>
+                      </div>
+                    </>
                   )}
-                  {section.component && <div className="detail-component">{section.component}</div>}
                 </article>
               </section>
             </div>
-            {activeTab === 'ValueBot' && (
+            {activeSection === 'dashboard' && activeTab === 'ValueBot' && (
               <section className="valuebot-panel" aria-label="ValueBot workspace">
                 <header className="valuebot-header">
                   <div>
