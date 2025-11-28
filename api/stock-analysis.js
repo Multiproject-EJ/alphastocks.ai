@@ -24,8 +24,12 @@ function validateRequest(body) {
     return { valid: false, errors };
   }
 
-  if (!body.ticker || typeof body.ticker !== 'string' || body.ticker.trim().length === 0) {
-    errors.push('ticker is required and must be a non-empty string');
+  // Either ticker or query must be provided
+  const hasTicker = body.ticker && typeof body.ticker === 'string' && body.ticker.trim().length > 0;
+  const hasQuery = body.query && typeof body.query === 'string' && body.query.trim().length > 0;
+  
+  if (!hasTicker && !hasQuery) {
+    errors.push('Either ticker or query is required');
   }
 
   if (body.provider && !['openai', 'gemini', 'openrouter'].includes(body.provider.toLowerCase())) {
@@ -51,9 +55,9 @@ function validateRequest(body) {
 }
 
 /**
- * Enriches error response with provider, ticker, and debug information
+ * Enriches error response with provider, ticker/query, and debug information
  * @param {object} errorResponse - Base error response object
- * @param {object} requestBody - Request body to extract provider and ticker from
+ * @param {object} requestBody - Request body to extract provider and ticker/query from
  * @param {string} debugMessage - Debug message to include in non-production
  * @returns {object} - Enriched error response
  */
@@ -63,6 +67,9 @@ function enrichErrorResponse(errorResponse, requestBody, debugMessage) {
   }
   if (requestBody?.ticker) {
     errorResponse.ticker = requestBody.ticker;
+  }
+  if (requestBody?.query) {
+    errorResponse.query = requestBody.query;
   }
   if (debugMessage && process.env.NODE_ENV !== 'production') {
     errorResponse.debug = debugMessage;
@@ -122,6 +129,7 @@ export default async function handler(req, res) {
       provider,
       model,
       ticker,
+      query,
       question,
       timeframe
     } = body;
@@ -131,6 +139,7 @@ export default async function handler(req, res) {
       provider,
       model,
       ticker,
+      query,
       question,
       timeframe
     });

@@ -30,13 +30,17 @@ function validateProvider(provider) {
 }
 
 /**
- * Validates the ticker parameter
+ * Validates that either ticker or query is provided
  * @param {string} ticker - Stock ticker symbol
- * @throws {Error} - If ticker is invalid
+ * @param {string} query - Company name / free-text query
+ * @throws {Error} - If neither ticker nor query is provided
  */
-function validateTicker(ticker) {
-  if (!ticker || typeof ticker !== 'string' || ticker.trim().length === 0) {
-    throw new Error('Ticker is required and must be a non-empty string');
+function validateTickerOrQuery(ticker, query) {
+  const hasTicker = ticker && typeof ticker === 'string' && ticker.trim().length > 0;
+  const hasQuery = query && typeof query === 'string' && query.trim().length > 0;
+  
+  if (!hasTicker && !hasQuery) {
+    throw new Error('Either ticker or query is required');
   }
 }
 
@@ -82,15 +86,27 @@ async function fetchWithTimeout(url, options, timeout = API_TIMEOUT_MS) {
 
 /**
  * Builds the analysis prompt for the AI model
- * @param {string} ticker - Stock ticker symbol
+ * @param {string} ticker - Stock ticker symbol (optional if query is provided)
+ * @param {string} query - Company name or free-text query (optional if ticker is provided)
  * @param {string} timeframe - Optional timeframe (e.g., '1y', '5y')
  * @param {string} question - Optional additional question
  * @returns {string} - The formatted prompt
  */
-function buildPrompt(ticker, timeframe, question) {
-  const base = `You are an AI analyst for Alphastocks.ai – AI-powered superinvestor insights & weekly newsletter.
+function buildPrompt(ticker, query, timeframe, question) {
+  let base;
+  
+  if (ticker) {
+    base = `You are an AI analyst for Alphastocks.ai – AI-powered superinvestor insights & weekly newsletter.
 
 Please provide a comprehensive stock analysis for ${ticker.toUpperCase()}.`;
+  } else {
+    // query is provided - treat as company name
+    base = `You are an AI analyst for Alphastocks.ai – AI-powered superinvestor insights & weekly newsletter.
+
+Resolve or treat as company name: ${query}
+
+Please provide a comprehensive stock analysis for the company mentioned above. If you can identify the stock ticker, include it in your analysis.`;
+  }
 
   const timeframePart = timeframe ? `\nTimeframe: ${timeframe}` : '';
   const questionPart = question ? `\n\nAdditional context/question: ${question}` : '';
@@ -98,6 +114,7 @@ Please provide a comprehensive stock analysis for ${ticker.toUpperCase()}.`;
   const instructions = `
 
 Please structure your response as a JSON object with the following fields:
+- ticker: The stock ticker symbol (if known)
 - summary: A brief 2-3 sentence overview of the stock
 - opportunities: An array of 2-4 key opportunities or bullish factors
 - risks: An array of 2-4 key risks or bearish factors
@@ -128,6 +145,7 @@ function parseResponse(rawResponse) {
     const parsed = JSON.parse(jsonText);
     
     return {
+      ticker: parsed.ticker || null,
       summary: parsed.summary || 'No summary available',
       opportunities: Array.isArray(parsed.opportunities) ? parsed.opportunities : [],
       risks: Array.isArray(parsed.risks) ? parsed.risks : [],
@@ -136,6 +154,7 @@ function parseResponse(rawResponse) {
   } catch (error) {
     // If JSON parsing fails, try to extract information from plain text
     return {
+      ticker: null,
       summary: rawResponse.substring(0, PLAIN_TEXT_SUMMARY_LENGTH) + (rawResponse.length > PLAIN_TEXT_SUMMARY_LENGTH ? '...' : ''),
       opportunities: ['Analysis provided in raw response'],
       risks: ['See raw response for details'],
@@ -289,18 +308,19 @@ async function callOpenRouter(apiKey, model, prompt) {
  * @param {object} params - Analysis parameters
  * @param {string} params.provider - AI provider: 'openai' | 'gemini' | 'openrouter'
  * @param {string} params.model - Optional model override
- * @param {string} params.ticker - Stock ticker symbol (required)
+ * @param {string} params.ticker - Stock ticker symbol (optional if query is provided)
+ * @param {string} params.query - Company name or free-text query (optional if ticker is provided)
  * @param {string} params.question - Optional additional question
  * @param {string} params.timeframe - Optional timeframe (e.g., '1y', '5y')
  * @returns {Promise<object>} - Structured analysis result
  */
-export async function analyzeStock({ provider, model, ticker, question, timeframe }) {
+export async function analyzeStock({ provider, model, ticker, query, question, timeframe }) {
   // Validate inputs
   const normalizedProvider = validateProvider(provider);
-  validateTicker(ticker);
+  validateTickerOrQuery(ticker, query);
 
   // Build the prompt
-  const prompt = buildPrompt(ticker, timeframe, question);
+  const prompt = buildPrompt(ticker, query, timeframe, question);
 
   let apiKey;
   let response;
@@ -344,9 +364,15 @@ export async function analyzeStock({ provider, model, ticker, question, timefram
       ? response.content.substring(0, MAX_RAW_RESPONSE_LENGTH) + '... (truncated)'
       : response.content;
 
+    // Determine the ticker to return: use provided ticker, or AI-resolved ticker, or query as fallback
+    const resolvedTicker = ticker 
+      ? ticker.toUpperCase() 
+      : (parsed.ticker || query);
+
     // Return structured result
     return {
-      ticker: ticker.toUpperCase(),
+      ticker: resolvedTicker,
+      query: query || null,
       timeframe: timeframe || null,
       provider: normalizedProvider,
       modelUsed: response.modelUsed,
@@ -362,6 +388,7 @@ export async function analyzeStock({ provider, model, ticker, question, timefram
     console.error('Stock analysis error:', error);
     
     // Re-throw with context
-    throw new Error(`Failed to analyze ${ticker} with ${normalizedProvider}: ${error.message}`);
+    const subject = ticker || query;
+    throw new Error(`Failed to analyze ${subject} with ${normalizedProvider}: ${error.message}`);
   }
 }

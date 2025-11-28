@@ -10,11 +10,10 @@
  */
 
 /**
- * Ticker validation regex - only accepts 1-8 uppercase letters.
- * The validateTicker() function handles normalization to uppercase,
- * so user input is automatically converted before validation.
+ * Ticker detection regex - checks if input looks like a ticker (1-8 letters only).
+ * Used to decide whether to send as ticker or query (company name).
  */
-const TICKER_REGEX = /^[A-Z]{1,8}$/;
+const TICKER_REGEX = /^[A-Za-z]{1,8}$/;
 const STORAGE_KEY = 'AI_ANALYSIS_LAST_RESULT';
 
 /**
@@ -27,22 +26,25 @@ let providerConfig = {
 };
 
 /**
- * Validates a stock ticker symbol
- * @param {string} ticker - The ticker to validate
+ * Validates user input (ticker or company name)
+ * @param {string} input - The input to validate
  * @returns {{ valid: boolean, message: string }}
  */
-function validateTicker(ticker) {
-  if (!ticker || ticker.trim().length === 0) {
-    return { valid: false, message: 'Please enter a stock ticker.' };
-  }
-  
-  const normalizedTicker = ticker.trim().toUpperCase();
-  
-  if (!TICKER_REGEX.test(normalizedTicker)) {
-    return { valid: false, message: 'Ticker must be 1-8 letters only (e.g., AAPL, MSFT).' };
+function validateInput(input) {
+  if (!input || input.trim().length === 0) {
+    return { valid: false, message: 'Please enter a ticker or company name.' };
   }
   
   return { valid: true, message: '' };
+}
+
+/**
+ * Checks if input looks like a stock ticker (1-8 letters only)
+ * @param {string} input - The input to check
+ * @returns {boolean}
+ */
+function isTicker(input) {
+  return TICKER_REGEX.test(input);
 }
 
 /**
@@ -314,10 +316,10 @@ export async function initAIAnalysis() {
     }
   }
 
-  // Ticker input validation on blur
+  // Input validation on blur
   if (aiTickerInput && tickerError) {
     aiTickerInput.addEventListener('blur', () => {
-      const validation = validateTicker(aiTickerInput.value);
+      const validation = validateInput(aiTickerInput.value);
       if (!validation.valid && aiTickerInput.value.trim().length > 0) {
         tickerError.textContent = validation.message;
         aiTickerInput.setAttribute('aria-invalid', 'true');
@@ -341,16 +343,14 @@ export async function initAIAnalysis() {
     aiAnalysisForm.addEventListener('submit', async (event) => {
       event.preventDefault();
 
-      const ticker = aiTickerInput?.value.trim().toUpperCase();
+      const rawInput = aiTickerInput?.value.trim();
       const provider = aiProviderSelect?.value || 'openai';
       const timeframe = aiTimeframeInput?.value.trim();
       const question = aiQuestionInput?.value.trim();
 
-      // Client-side validation
-      const validation = validateTicker(ticker);
-      if (!validation.valid) {
+      if (!rawInput) {
         if (tickerError) {
-          tickerError.textContent = validation.message;
+          tickerError.textContent = 'Please enter a ticker or company name.';
         }
         if (aiTickerInput) {
           aiTickerInput.setAttribute('aria-invalid', 'true');
@@ -358,6 +358,11 @@ export async function initAIAnalysis() {
         }
         return;
       }
+
+      // Detect a ticker-like input (1-8 letters)
+      const maybeTicker = isTicker(rawInput);
+      const ticker = maybeTicker ? rawInput.toUpperCase() : null;
+      const query = maybeTicker ? null : rawInput;
 
       // Clear previous errors
       if (aiError) {
@@ -386,15 +391,11 @@ export async function initAIAnalysis() {
       showLoadingSkeleton(aiResults, aiLoadingSkeleton);
 
       try {
-        const requestBody = { provider, ticker };
-
-        if (timeframe) {
-          requestBody.timeframe = timeframe;
-        }
-
-        if (question) {
-          requestBody.question = question;
-        }
+        const requestBody = { provider };
+        if (ticker) requestBody.ticker = ticker;
+        if (query) requestBody.query = query;
+        if (timeframe) requestBody.timeframe = timeframe;
+        if (question) requestBody.question = question;
 
         const response = await fetch('/api/stock-analysis', {
           method: 'POST',
@@ -470,4 +471,4 @@ export async function initAIAnalysis() {
 }
 
 // Export for external use
-export { validateTicker, fetchProviderConfig, loadPersistedResult };
+export { validateInput, isTicker, fetchProviderConfig, loadPersistedResult };

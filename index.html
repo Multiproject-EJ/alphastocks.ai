@@ -580,20 +580,18 @@
                     </div>
                     
                     <div class="field">
-                      <label for="aiTicker">Stock Ticker <span aria-hidden="true">*</span></label>
+                      <label for="aiTicker">Stock (ticker or company name) <span aria-hidden="true">*</span></label>
                       <input 
                         type="text" 
                         id="aiTicker" 
-                        placeholder="e.g., AAPL" 
+                        placeholder="e.g., AAPL or Apple Inc." 
                         required 
                         aria-required="true"
                         aria-describedby="tickerHint tickerError"
                         aria-invalid="false"
                         autocomplete="off"
-                        pattern="[A-Za-z]{1,8}"
-                        style="text-transform: uppercase"
                       />
-                      <span id="tickerHint" class="field-hint">Enter 1-8 letters (e.g., AAPL, MSFT, GOOGL).</span>
+                      <span id="tickerHint" class="field-hint">Enter a ticker (1-8 letters) or company name.</span>
                       <span id="tickerError" class="field-error" role="alert" aria-live="polite"></span>
                     </div>
                     
