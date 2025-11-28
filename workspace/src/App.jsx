@@ -184,7 +184,6 @@ const mainNavigation = [
     caption: 'Patience & selectivity drill'
   },
   { id: 'quadrant', icon: '🧭', title: 'Universe Quadrant', caption: 'Macro positioning map' },
-  { id: 'knowledge', icon: '📚', title: 'Knowledge (Transform)', caption: 'Systems upgrade' },
   { id: 'ai-analysis', icon: '🔬', title: 'AI Analysis', caption: 'Stock research' }
 ];
 
@@ -198,7 +197,7 @@ const staticSections = {
   checkin: {
     title: 'Check-In',
     meta:
-      'Reflect and reset your positioning for the session. AI-powered learning analysis tracks patterns, scores mistakes, and monitors improvement over time.',
+      'Reflect and reset your positioning for the session. Transform setbacks into playbooks that sharpen timing, sizing, and conviction. AI-powered learning analysis tracks patterns, scores mistakes, and monitors improvement over time.',
     cards: [
       {
         title: 'Prompt',
@@ -207,6 +206,28 @@ const staticSections = {
             <p>What bias showed up yesterday? How will you counter it today?</p>
             <textarea rows={4} placeholder="Capture your thoughts..."></textarea>
             <button className="btn-primary" type="button">Save reflection</button>
+          </>
+        )
+      },
+      {
+        title: 'Transformation to-dos',
+        body: (
+          <>
+            <p>Keep this checklist front-and-center as you level up decision systems:</p>
+            <ol>
+              <li>
+                Add all short seller reports, study them deeply, and incorporate the lessons into downside knowledge.
+              </li>
+              <li>
+                Use the robot for both timing <em>and</em> sizing decisions—run simulations to understand exposure and risk.
+              </li>
+              <li>Practice with the Monopoly punchcard fishing game to reinforce patience and selectivity.</li>
+              <li>
+                Update your profiles to top-tier standards. Review the Pandora sale and other exits: why did you sell, do you
+                regret it, and what should have been handled differently? Capture how each move felt, categorize the lessons,
+                and build guardrails so it doesn&rsquo;t happen again.
+              </li>
+            </ol>
           </>
         )
       },
@@ -495,34 +516,6 @@ const staticSections = {
               <li>What regime are you trading right now? List the confirming data.</li>
               <li>Which quadrant is your top idea in, and what would move it?</li>
               <li>How aligned is your sizing with the current quadrant?</li>
-            </ol>
-          </>
-        )
-      }
-    ]
-  },
-  knowledge: {
-    title: 'Knowledge (Transform)',
-    meta: 'Transform setbacks into playbooks that sharpen timing, sizing, and conviction.',
-    cards: [
-      {
-        title: 'Transformation to-dos',
-        body: (
-          <>
-            <p>Keep this checklist front-and-center as you level up decision systems:</p>
-            <ol>
-              <li>
-                Add all short seller reports, study them deeply, and incorporate the lessons into downside knowledge.
-              </li>
-              <li>
-                Use the robot for both timing <em>and</em> sizing decisions—run simulations to understand exposure and risk.
-              </li>
-              <li>Practice with the Monopoly punchcard fishing game to reinforce patience and selectivity.</li>
-              <li>
-                Update your profiles to top-tier standards. Review the Pandora sale and other exits: why did you sell, do you
-                regret it, and what should have been handled differently? Capture how each move felt, categorize the lessons,
-                and build guardrails so it doesn&rsquo;t happen again.
-              </li>
             </ol>
           </>
         )
