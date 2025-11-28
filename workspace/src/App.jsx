@@ -176,7 +176,6 @@ const mainNavigation = [
   { id: 'dashboard', icon: '🏠', title: 'Today / Dashboard', caption: 'Overview' },
   { id: 'checkin', icon: '🧘', title: 'Check-In', caption: 'Daily reflections' },
   { id: 'valuebot', icon: '🤖', title: 'ValueBot', caption: 'Valuation copilot' },
-  { id: 'alpha', icon: '🔮', title: 'AI Oracle Chat', caption: 'Learning & pattern analysis' },
   { id: 'portfolio', icon: '💼', title: 'Portfolio', caption: 'Results & ledger', hasSubmenu: true },
   {
     id: 'punchcard',
@@ -198,7 +197,8 @@ const DemoBanner = () => (
 const staticSections = {
   checkin: {
     title: 'Check-In',
-    meta: 'Reflect and reset your positioning for the session.',
+    meta:
+      'Reflect and reset your positioning for the session. AI-powered learning analysis tracks patterns, scores mistakes, and monitors improvement over time.',
     cards: [
       {
         title: 'Prompt',
@@ -209,13 +209,7 @@ const staticSections = {
             <button className="btn-primary" type="button">Save reflection</button>
           </>
         )
-      }
-    ]
-  },
-  alpha: {
-    title: 'AI Oracle Chat',
-    meta: 'AI-powered learning analysis that tracks patterns, scores mistakes, and monitors improvement over time.',
-    cards: [
+      },
       {
         title: 'Prepared Chat Examples',
         body: (
