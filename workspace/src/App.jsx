@@ -553,6 +553,7 @@ const App = () => {
   const [isAccountDialogOpen, setIsAccountDialogOpen] = useState(false);
   const [isMobileView, setIsMobileView] = useState(false);
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+  const [showFocusList, setShowFocusList] = useState(false);
   const [alertSettings, setAlertSettings] = useState(() => createInitialAlertState());
   const runtimeConfig = useMemo(() => getRuntimeConfig(), []);
   const dataService = useMemo(() => getDataService(), [runtimeConfig.mode]);
@@ -1284,34 +1285,65 @@ const App = () => {
                       {theme === 'dark' ? '☀️' : '🌙'}
                     </span>
                   </button>
+                  <button
+                    type="button"
+                    className={`menu-item split-button${showFocusList ? ' active' : ''}`}
+                    onClick={() => setShowFocusList((prev) => !prev)}
+                    aria-pressed={showFocusList}
+                    aria-label="Focus list"
+                  >
+                    <span className="item-icon" aria-hidden="true">🎯</span>
+                  </button>
                 </div>
-                {mainNavigation.map((item) => {
-                  const isDashboardItem = item.id === 'dashboard';
-                  const caption = isDashboardItem && hasMorningNewsPing ? 'Morning News' : item.caption;
-                  return (
-                    <button
-                      key={item.id}
-                      className={`menu-item${activeSection === item.id ? ' active' : ''}`}
-                      data-section={item.id}
-                      onClick={() => handleMenuSelection(item.id)}
-                    >
-                      {item.icon && (
-                        <span className="item-icon" aria-hidden="true">
-                          {item.icon}
-                        </span>
-                      )}
-                      <div className="item-copy">
-                        <span className="item-title">{item.title}</span>
-                        <span className="item-caption">
-                          {caption}
-                          {isDashboardItem && hasMorningNewsPing && (
-                            <span className="menu-alert-indicator" aria-hidden="true" />
-                          )}
-                        </span>
-                      </div>
-                    </button>
-                  );
-                })}
+                {showFocusList ? (
+                  <div className="menu-focus" aria-label="Focus list">
+                    <header className="list-header">
+                      <h2>Focus list</h2>
+                      <button className="btn-tertiary" type="button" disabled>
+                        + Add
+                      </button>
+                    </header>
+                    <ul className="list-items">
+                      {focusList.map((item, index) => (
+                        <li key={item.id} className={`list-item${index === 0 ? ' active' : ''}`}>
+                          <div>
+                            <strong>{item.title}</strong>
+                            <span>{item.caption}</span>
+                          </div>
+                          <span className={`tag ${item.tag?.tone || ''}`.trim()}>{item.tag?.label ?? 'Watch'}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : (
+                  mainNavigation.map((item) => {
+                    const isDashboardItem = item.id === 'dashboard';
+                    const caption = isDashboardItem && hasMorningNewsPing ? 'Morning News' : item.caption;
+                    return (
+                      <button
+                        key={item.id}
+                        className={`menu-item${activeSection === item.id ? ' active' : ''}`}
+                        data-section={item.id}
+                        onClick={() => handleMenuSelection(item.id)}
+                      >
+                        {item.icon && (
+                          <span className="item-icon" aria-hidden="true">
+                            {item.icon}
+                          </span>
+                        )}
+                        <div className="item-copy">
+                          <span className="item-title">{item.title}</span>
+                          <span className="item-caption">
+                            {caption}
+                            {isDashboardItem && hasMorningNewsPing && (
+                              <span className="menu-alert-indicator" aria-hidden="true" />
+                            )}
+                          </span>
+                        </div>
+                      </button>
+                    );
+                  })
+                )}
               </>
             )}
           </nav>
@@ -1333,26 +1365,6 @@ const App = () => {
             </div>
 
             <div className="app-panels">
-              <aside className="app-list" aria-label="Key items">
-                <header className="list-header">
-                  <h2>Focus list</h2>
-                  <button className="btn-tertiary" type="button" disabled>
-                    + Add
-                  </button>
-                </header>
-                <ul className="list-items">
-                  {focusList.map((item, index) => (
-                    <li key={item.id} className={`list-item${index === 0 ? ' active' : ''}`}>
-                      <div>
-                        <strong>{item.title}</strong>
-                        <span>{item.caption}</span>
-                      </div>
-                      <span className={`tag ${item.tag?.tone || ''}`.trim()}>{item.tag?.label ?? 'Watch'}</span>
-                    </li>
-                  ))}
-                </ul>
-              </aside>
-
               <section className="app-detail" aria-label="Detail">
                 <article className="detail-view visible">
                   <h2>{section.title}</h2>

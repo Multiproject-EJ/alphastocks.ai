@@ -849,41 +849,7 @@ body[data-theme="light"] .overlay-card {
 
 .menu-item-split {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.4rem;
-  align-items: stretch;
-}
-
-.menu-item-split .menu-item {
-  width: 100%;
-}
-
-.menu-item.split-button {
-  justify-content: flex-start;
-  padding: 0.35rem 0.6rem;
-}
-
-.menu-item.split-button .item-icon {
-  width: 1.35rem;
-  height: 1.35rem;
-  font-size: 0.85rem;
-}
-
-.menu-item.split-button .item-copy {
-  gap: 0.1rem;
-}
-
-.menu-item.split-button .item-title {
-  font-size: 0.8rem;
-}
-
-.menu-item.split-button .item-caption {
-  display: none;
-}
-
-.menu-item-split {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 0.4rem;
   align-items: stretch;
 }
@@ -1027,7 +993,7 @@ body[data-theme="light"] .overlay-card {
 
 .app-panels {
   display: grid;
-  grid-template-columns: minmax(220px, 0.8fr) minmax(420px, 3.2fr);
+  grid-template-columns: 1fr;
   gap: 1.5rem;
 }
 
@@ -1069,6 +1035,19 @@ body[data-theme="light"] .overlay-card {
   gap: 0.7rem;
   align-items: flex-start;
   transition: border var(--transition-fast), transform var(--transition-fast);
+}
+
+.menu-focus {
+  display: grid;
+  gap: 1rem;
+}
+
+.menu-focus .list-items {
+  gap: 0.75rem;
+}
+
+.menu-focus .list-item {
+  background: var(--surface-alt);
 }
 
 .list-item span {
