@@ -188,7 +188,8 @@ function displayResults(data, elements) {
   } = elements;
 
   if (resultTicker) {
-    resultTicker.textContent = data.ticker || 'N/A';
+    // Display ticker if available, otherwise show query, or 'N/A'
+    resultTicker.textContent = data.ticker || data.query || 'N/A';
   }
 
   if (resultProvider) {

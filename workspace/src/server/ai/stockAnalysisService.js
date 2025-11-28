@@ -103,9 +103,9 @@ Please provide a comprehensive stock analysis for ${ticker.toUpperCase()}.`;
     // query is provided - treat as company name
     base = `You are an AI analyst for Alphastocks.ai – AI-powered superinvestor insights & weekly newsletter.
 
-Resolve or treat as company name: ${query}
+Analyze the following company (please identify the stock ticker if possible): ${query}
 
-Please provide a comprehensive stock analysis for the company mentioned above. If you can identify the stock ticker, include it in your analysis.`;
+Please provide a comprehensive stock analysis for the company mentioned above.`;
   }
 
   const timeframePart = timeframe ? `\nTimeframe: ${timeframe}` : '';
@@ -364,10 +364,10 @@ export async function analyzeStock({ provider, model, ticker, query, question, t
       ? response.content.substring(0, MAX_RAW_RESPONSE_LENGTH) + '... (truncated)'
       : response.content;
 
-    // Determine the ticker to return: use provided ticker, or AI-resolved ticker, or query as fallback
+    // Determine the ticker to return: use provided ticker, or AI-resolved ticker, or null if unresolved
     const resolvedTicker = ticker 
       ? ticker.toUpperCase() 
-      : (parsed.ticker || query);
+      : (parsed.ticker || null);
 
     // Return structured result
     return {
