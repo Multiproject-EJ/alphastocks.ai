@@ -119,18 +119,34 @@ CREATE TABLE IF NOT EXISTS "watchlist_items" (
   "created_at" timestamptz NOT NULL DEFAULT now()
 );
 
--- 2) Optional cleanup: clear tables before inserting fresh data
-TRUNCATE TABLE "analysis_tasks" RESTART IDENTITY CASCADE;
-TRUNCATE TABLE "events" RESTART IDENTITY CASCADE;
-TRUNCATE TABLE "journal_entries" RESTART IDENTITY CASCADE;
-TRUNCATE TABLE "portfolio_positions" RESTART IDENTITY CASCADE;
-TRUNCATE TABLE "portfolio_snapshots" RESTART IDENTITY CASCADE;
-TRUNCATE TABLE "portfolios" RESTART IDENTITY CASCADE;
-TRUNCATE TABLE "profiles" RESTART IDENTITY CASCADE;
-TRUNCATE TABLE "settings" RESTART IDENTITY CASCADE;
-TRUNCATE TABLE "stock_analyses" RESTART IDENTITY CASCADE;
-TRUNCATE TABLE "transactions" RESTART IDENTITY CASCADE;
-TRUNCATE TABLE "watchlist_items" RESTART IDENTITY CASCADE;
+DO $$
+DECLARE
+  tbl_name text;
+  table_list text[] := ARRAY[
+    'analysis_tasks',
+    'events',
+    'journal_entries',
+    'portfolio_positions',
+    'portfolio_snapshots',
+    'portfolios',
+    'profiles',
+    'settings',
+    'stock_analyses',
+    'transactions',
+    'watchlist_items'
+  ];
+BEGIN
+  FOREACH tbl_name IN ARRAY table_list LOOP
+    IF EXISTS (
+      SELECT 1
+      FROM information_schema.tables
+      WHERE table_schema = 'public'
+        AND table_name = tbl_name
+    ) THEN
+      EXECUTE format('TRUNCATE TABLE %I RESTART IDENTITY CASCADE;', tbl_name);
+    END IF;
+  END LOOP;
+END $$;
 
 -- Dataset analysis_tasks (4 rows) source: workspace/src/data/demo/demo.analysis_tasks.json
 -- Background AI tasks that power the research workflow
