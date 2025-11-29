@@ -21,6 +21,13 @@ import { useState } from 'preact/hooks';
  *     question: 'What are the growth prospects?',
  *     timeframe: '5y'
  *   });
+ *   // Or use a company name:
+ *   await analyzeStock({
+ *     provider: 'openai',
+ *     query: 'Apple Inc',
+ *     question: 'What are the growth prospects?',
+ *     timeframe: '5y'
+ *   });
  * };
  * ```
  * 
@@ -36,12 +43,13 @@ export function useStockAnalysis() {
    * @param {object} params - Analysis parameters
    * @param {string} params.provider - AI provider: 'openai' | 'gemini' | 'openrouter'
    * @param {string} params.model - Optional model override
-   * @param {string} params.ticker - Stock ticker symbol (required)
+   * @param {string} params.ticker - Stock ticker symbol (optional if query is provided)
+   * @param {string} params.query - Company name or free-text query (optional if ticker is provided)
    * @param {string} params.question - Optional additional question
    * @param {string} params.timeframe - Optional timeframe (e.g., '1y', '5y')
    * @returns {Promise<object>} - Analysis result
    */
-  const analyzeStock = async ({ provider, model, ticker, question, timeframe }) => {
+  const analyzeStock = async ({ provider, model, ticker, query, question, timeframe }) => {
     setLoading(true);
     setError(null);
     setData(null);
@@ -56,6 +64,7 @@ export function useStockAnalysis() {
           provider: provider || 'openai',
           model,
           ticker,
+          query,
           question,
           timeframe
         })
@@ -94,12 +103,13 @@ export function useStockAnalysis() {
  * @param {object} params - Analysis parameters
  * @param {string} params.provider - AI provider: 'openai' | 'gemini' | 'openrouter'
  * @param {string} params.model - Optional model override
- * @param {string} params.ticker - Stock ticker symbol (required)
+ * @param {string} params.ticker - Stock ticker symbol (optional if query is provided)
+ * @param {string} params.query - Company name or free-text query (optional if ticker is provided)
  * @param {string} params.question - Optional additional question
  * @param {string} params.timeframe - Optional timeframe (e.g., '1y', '5y')
  * @returns {Promise<object>} - Analysis result with { data, error }
  */
-export async function analyzeStockAPI({ provider, model, ticker, question, timeframe }) {
+export async function analyzeStockAPI({ provider, model, ticker, query, question, timeframe }) {
   try {
     const response = await fetch('/api/stock-analysis', {
       method: 'POST',
@@ -110,6 +120,7 @@ export async function analyzeStockAPI({ provider, model, ticker, question, timef
         provider: provider || 'openai',
         model,
         ticker,
+        query,
         question,
         timeframe
       })

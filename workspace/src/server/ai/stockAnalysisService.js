@@ -30,13 +30,17 @@ function validateProvider(provider) {
 }
 
 /**
- * Validates the ticker parameter
+ * Validates the stock identifier (ticker or company name)
  * @param {string} ticker - Stock ticker symbol
- * @throws {Error} - If ticker is invalid
+ * @param {string} query - Company name or free-text query
+ * @throws {Error} - If neither ticker nor query is valid
  */
-function validateTicker(ticker) {
-  if (!ticker || typeof ticker !== 'string' || ticker.trim().length === 0) {
-    throw new Error('Ticker is required and must be a non-empty string');
+function validateStockIdentifier(ticker, query) {
+  const hasTicker = ticker && typeof ticker === 'string' && ticker.trim().length > 0;
+  const hasQuery = query && typeof query === 'string' && query.trim().length > 0;
+  
+  if (!hasTicker && !hasQuery) {
+    throw new Error('Either ticker or company name is required');
   }
 }
 
@@ -82,15 +86,20 @@ async function fetchWithTimeout(url, options, timeout = API_TIMEOUT_MS) {
 
 /**
  * Builds the analysis prompt for the AI model
- * @param {string} ticker - Stock ticker symbol
+ * @param {string} ticker - Stock ticker symbol (optional)
+ * @param {string} query - Company name or free-text query (optional)
  * @param {string} timeframe - Optional timeframe (e.g., '1y', '5y')
  * @param {string} question - Optional additional question
  * @returns {string} - The formatted prompt
  */
-function buildPrompt(ticker, timeframe, question) {
+function buildPrompt(ticker, query, timeframe, question) {
+  // Determine the stock identifier to use in the prompt
+  const stockIdentifier = ticker ? ticker.toUpperCase() : query;
+  const identifierType = ticker ? 'ticker symbol' : 'company';
+  
   const base = `You are an AI analyst for Alphastocks.ai – AI-powered superinvestor insights & weekly newsletter.
 
-Please provide a comprehensive stock analysis for ${ticker.toUpperCase()}.`;
+Please provide a comprehensive stock analysis for ${stockIdentifier} (${identifierType}).`;
 
   const timeframePart = timeframe ? `\nTimeframe: ${timeframe}` : '';
   const questionPart = question ? `\n\nAdditional context/question: ${question}` : '';
@@ -289,18 +298,19 @@ async function callOpenRouter(apiKey, model, prompt) {
  * @param {object} params - Analysis parameters
  * @param {string} params.provider - AI provider: 'openai' | 'gemini' | 'openrouter'
  * @param {string} params.model - Optional model override
- * @param {string} params.ticker - Stock ticker symbol (required)
+ * @param {string} params.ticker - Stock ticker symbol (optional if query is provided)
+ * @param {string} params.query - Company name or free-text query (optional if ticker is provided)
  * @param {string} params.question - Optional additional question
  * @param {string} params.timeframe - Optional timeframe (e.g., '1y', '5y')
  * @returns {Promise<object>} - Structured analysis result
  */
-export async function analyzeStock({ provider, model, ticker, question, timeframe }) {
+export async function analyzeStock({ provider, model, ticker, query, question, timeframe }) {
   // Validate inputs
   const normalizedProvider = validateProvider(provider);
-  validateTicker(ticker);
+  validateStockIdentifier(ticker, query);
 
   // Build the prompt
-  const prompt = buildPrompt(ticker, timeframe, question);
+  const prompt = buildPrompt(ticker, query, timeframe, question);
 
   let apiKey;
   let response;
@@ -344,9 +354,12 @@ export async function analyzeStock({ provider, model, ticker, question, timefram
       ? response.content.substring(0, MAX_RAW_RESPONSE_LENGTH) + '... (truncated)'
       : response.content;
 
+    // Determine the identifier to return (ticker takes precedence)
+    const stockIdentifier = ticker ? ticker.toUpperCase() : query;
+
     // Return structured result
     return {
-      ticker: ticker.toUpperCase(),
+      ticker: stockIdentifier,
       timeframe: timeframe || null,
       provider: normalizedProvider,
       modelUsed: response.modelUsed,
@@ -361,7 +374,10 @@ export async function analyzeStock({ provider, model, ticker, question, timefram
     // Log error for debugging (in production, use proper logging)
     console.error('Stock analysis error:', error);
     
+    // Determine the identifier for the error message
+    const stockIdentifier = ticker || query;
+    
     // Re-throw with context
-    throw new Error(`Failed to analyze ${ticker} with ${normalizedProvider}: ${error.message}`);
+    throw new Error(`Failed to analyze ${stockIdentifier} with ${normalizedProvider}: ${error.message}`);
   }
 }

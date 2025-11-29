@@ -9,12 +9,6 @@
  * - Accessibility enhancements
  */
 
-/**
- * Ticker detection regex - accepts 1-8 letters (case-insensitive).
- * The validateTicker() function handles normalization and query fallback
- * so user input can be either a ticker or free-text company name.
- */
-const TICKER_REGEX = /^[A-Za-z]{1,8}$/;
 const STORAGE_KEY = 'AI_ANALYSIS_LAST_RESULT';
 
 /**
@@ -28,6 +22,8 @@ let providerConfig = {
 
 /**
  * Validates and classifies user input as ticker or query
+ * A ticker is a short alphanumeric string (1-8 characters, letters only).
+ * Anything else is treated as a company name/query.
  * @param {string} input - Raw user input
  * @returns {{ valid: boolean, message: string, type?: 'ticker' | 'query', value?: string }}
  */
@@ -38,10 +34,14 @@ function validateTicker(input) {
 
   const normalizedInput = input.trim();
 
-  if (TICKER_REGEX.test(normalizedInput)) {
+  // Simple heuristic: if it looks like a ticker (1-8 letters), treat it as a ticker
+  // Otherwise, treat it as a company name/query
+  const tickerPattern = /^[A-Za-z]{1,8}$/;
+  if (tickerPattern.test(normalizedInput)) {
     return { valid: true, message: '', type: 'ticker', value: normalizedInput.toUpperCase() };
   }
 
+  // For any other input (company names, longer text, etc.), treat as a query
   return { valid: true, message: '', type: 'query', value: normalizedInput };
 }
 
