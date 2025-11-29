@@ -104,6 +104,27 @@ const valueBotTabs = [
       'Upload financials, KPIs, and alternative data into one staging view.',
       'Validate currency, time periods, and unit consistency automatically.',
       'Surface missing fields and offer quick-fill prompts to complete the pack.'
+    ],
+    infoSections: [
+      {
+        title: 'System fetches',
+        items: [
+          'Historical financials',
+          'Price history',
+          'Market cap',
+          'Segments',
+          'Competitors',
+          'Macro references',
+          'Recent filings (optional later)'
+        ]
+      },
+      {
+        title: 'Notes',
+        items: [
+          'This is not AI—it is a database query stage.',
+          'Data from this loader flows into all subsequent modules.'
+        ]
+      }
     ]
   },
   {
@@ -115,6 +136,30 @@ const valueBotTabs = [
       'Score balance sheet safety, disclosure quality, and operational resilience.',
       'Flag governance gaps, key-person exposure, and concentration risks.',
       'Generate follow-up questions for management or channel checks.'
+    ],
+    infoSections: [
+      { title: 'Purpose', items: ['Create the foundation numbers used in later narrative.'] },
+      { title: 'Input', items: ['Ticker + financials'] },
+      {
+        title: 'Output',
+        items: [
+          'Debt & balance sheet risk score',
+          'Cash flow strength score',
+          'Margin strength score',
+          'Competition & moat grade',
+          'Explanation paragraphs for each',
+          'Composite quality score'
+        ]
+      },
+      { title: 'Used later by', items: ['Module 3 (Scenario Analysis)', 'Module 4 (Valuation)', 'Module 5 (Final Verdicts)'] },
+      {
+        title: 'Prompt',
+        items: [
+          'Analyze the company using only provided data.',
+          'Return JSON with risk_summary, individual scores (value, label, reason), and composite_quality.',
+          'Score on a 1–10 scale (world class → horrific) with concise, structured explanations.'
+        ]
+      }
     ]
   },
   {
@@ -126,6 +171,31 @@ const valueBotTabs = [
       'Break down monetization layers, cohorts, and pricing power signals.',
       'Highlight margin drivers, efficiency curves, and reinvestment flywheels.',
       'Stress-test competitive moat durability alongside growth assumptions.'
+    ],
+    infoSections: [
+      { title: 'Purpose', items: ['Develop the strategic view.'] },
+      {
+        title: 'Input',
+        items: ['Ticker', 'Data', 'Output from Module 1']
+      },
+      {
+        title: 'Output',
+        items: [
+          'Key revenue drivers',
+          'Moat expansion or decay outlook',
+          'Strategic tailwinds/headwinds',
+          'Capital allocation quality',
+          '5–15 year logical “story spine”'
+        ]
+      },
+      { title: 'Used by', items: ['Module 3 (Scenario analysis)', 'Module 4 (Valuation)'] },
+      {
+        title: 'Prompt',
+        items: [
+          'Use financial data and Module 1 output to analyze growth drivers, moat dynamics, secular trends, capital allocation efficiency, and FCF durability.',
+          'Return JSON: growth_drivers, moat_outlook, secular_trends, capital_allocation, long_term_durability.'
+        ]
+      }
     ]
   },
   {
@@ -137,6 +207,28 @@ const valueBotTabs = [
       'Preset bear, base, and bull templates with editable revenue and margin drivers.',
       'Overlay macro sensitivities, execution risks, and cost of capital changes.',
       'Export tornado charts and tables for investment committee memos.'
+    ],
+    infoSections: [
+      { title: 'Purpose', items: ['Quantify futures.'] },
+      { title: 'Input', items: ['Data', 'Output from Modules 1 & 2'] },
+      {
+        title: 'Output',
+        items: [
+          'Revenue CAGR estimates',
+          'Margin trajectory',
+          'FCF trajectory',
+          '5- and 15-year valuation ranges',
+          'Key risks per scenario'
+        ]
+      },
+      { title: 'Used by', items: ['Module 4 (Valuation)', 'Module 5 (Final verdicts)', 'Frontend visuals'] },
+      {
+        title: 'Prompt',
+        items: [
+          'Use financial data plus outputs from Modules 1 and 2 to create Bear, Base, and Bull scenarios.',
+          'Return JSON with revenue_cagr, margin_outlook, fcf_outlook, key_risks, valuation_5y, and valuation_15y for each scenario.'
+        ]
+      }
     ]
   },
   {
@@ -148,6 +240,26 @@ const valueBotTabs = [
       'Run discounted cash flow outputs alongside trading and transaction comps.',
       'Reverse-engineer implied growth, margins, and discount rates from the current price.',
       'Summarize valuation bridges with margin of safety and IRR callouts.'
+    ],
+    infoSections: [
+      { title: 'Purpose', items: ['Turn scenarios into valuation ranges and implied expectations.'] },
+      { title: 'Input', items: ['Data', 'Module 1 scores', 'Module 3 valuation ranges'] },
+      {
+        title: 'Output',
+        items: [
+          'Probability-weighted valuation',
+          'Reverse-engineered assumptions baked into current price',
+          'Upside/downside %',
+          'Entry zone boundaries (Accumulate / Buy / Strong Buy) per ValueBot rules'
+        ]
+      },
+      {
+        title: 'Prompt',
+        items: [
+          'Use financial data, Module 1 scores, and all Module 3 scenarios to produce fair value ranges and entry zones.',
+          'Return JSON with fair_value_probability_weighted, reverse_engineered_growth, upside_percent, downside_percent, and entry_zones thresholds.'
+        ]
+      }
     ]
   },
   {
@@ -159,6 +271,26 @@ const valueBotTabs = [
       'Monitor catalyst calendar, liquidity, and sentiment inflections.',
       'Track momentum signals, regime filters, and risk/reward skew.',
       'Propose staged entries, stop-loss guidelines, and alert thresholds.'
+    ],
+    infoSections: [
+      { title: 'Purpose', items: ['Evaluate when to buy.'] },
+      { title: 'Input', items: ['Price history', 'Technicals', 'All scenario outputs', 'Valuation ranges'] },
+      {
+        title: 'Output',
+        items: [
+          'Timing verdict (Buy / Hold / Wait / Avoid)',
+          'Momentum signals',
+          'Sentiment catalysts',
+          'Flags for whether the company sits in Accumulate / Buy / Strong-Buy zones today'
+        ]
+      },
+      {
+        title: 'Prompt',
+        items: [
+          'Use price history, valuation ranges, and scenario outputs to generate timing verdicts and catalysts.',
+          'Return JSON with timing, momentum_score, catalysts, and booleans for accumulate, buy, and strong buy.'
+        ]
+      }
     ]
   },
   {
@@ -170,6 +302,24 @@ const valueBotTabs = [
       'Summarize thesis, risks, valuation range, and timing in one page.',
       'Generate buy/hold/pass options with confidence scores and next steps.',
       'Produce shareable outputs for IC decks, memos, or stakeholder updates.'
+    ],
+    infoSections: [
+      { title: 'Purpose', items: ['Build the same tables your Master Prompt produces.'] },
+      { title: 'Input', items: ['All earlier module outputs'] },
+      {
+        title: 'Output',
+        items: [
+          'Top tables: One-Liner Summary, Final Verdicts, Scorecard, Valuation Ranges',
+          'Short narrative summary'
+        ]
+      },
+      {
+        title: 'Prompt',
+        items: [
+          'Combine all module outputs into tables and a ~10 sentence narrative.',
+          'Return JSON containing tables (one_liner, etc.) and a narrative block.'
+        ]
+      }
     ]
   }
 ];
@@ -1894,23 +2044,36 @@ const App = () => {
                 </div>
                 <div className="valuebot-views">
                   {valueBotTabs.map((tab) => (
-                    <article
-                      key={tab.id}
-                      className={`valuebot-view${activeValueBotTab === tab.id ? ' active' : ''}`}
-                      aria-hidden={activeValueBotTab !== tab.id}
-                    >
-                      <h3>{tab.title}</h3>
-                      <p>{tab.description}</p>
-                      <ul>
-                        {tab.bullets.map((bullet) => (
-                          <li key={bullet}>{bullet}</li>
-                        ))}
-                      </ul>
-                    </article>
-                  ))}
-                </div>
-              </section>
-            )}
+                  <article
+                    key={tab.id}
+                    className={`valuebot-view${activeValueBotTab === tab.id ? ' active' : ''}`}
+                    aria-hidden={activeValueBotTab !== tab.id}
+                  >
+                    <h3>{tab.title}</h3>
+                    <p>{tab.description}</p>
+                    <ul>
+                      {tab.bullets.map((bullet) => (
+                        <li key={bullet}>{bullet}</li>
+                      ))}
+                    </ul>
+                    {tab.infoSections?.map((section) => (
+                      <div className="valuebot-info" key={`${tab.id}-${section.title}`}>
+                        <h4>{section.title}</h4>
+                        {section.items ? (
+                          <ul>
+                            {section.items.map((item) => (
+                              <li key={item}>{item}</li>
+                            ))}
+                          </ul>
+                        ) : null}
+                        {section.text ? <p>{section.text}</p> : null}
+                      </div>
+                    ))}
+                  </article>
+                ))}
+              </div>
+            </section>
+          )}
           </div>
         </div>
       </section>
