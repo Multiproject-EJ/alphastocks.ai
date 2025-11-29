@@ -547,9 +547,10 @@ const App = () => {
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [showFocusList, setShowFocusList] = useState(false);
   const [alertSettings, setAlertSettings] = useState(() => createInitialAlertState());
+  const [isSigningOut, setIsSigningOut] = useState(false);
   const runtimeConfig = useMemo(() => getRuntimeConfig(), []);
   const dataService = useMemo(() => getDataService(), [runtimeConfig.mode]);
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const themeCopy = theme === 'dark' ? 'Switch to light' : 'Switch to dark';
   const mobilePrimaryNav = [
     { id: 'dashboard', icon: '🏠', label: 'Today' },
@@ -648,6 +649,21 @@ const App = () => {
   );
   const openAccountDialog = useCallback(() => setIsAccountDialogOpen(true), []);
   const closeAccountDialog = useCallback(() => setIsAccountDialogOpen(false), []);
+  const handleSignOut = useCallback(async () => {
+    if (runtimeConfig.mode === 'demo' || isSigningOut) {
+      return;
+    }
+
+    setIsSigningOut(true);
+    try {
+      await signOut();
+      closeAccountDialog();
+    } catch (error) {
+      console.error('Sign out failed', error);
+    } finally {
+      setIsSigningOut(false);
+    }
+  }, [closeAccountDialog, isSigningOut, runtimeConfig.mode, signOut]);
   const handleMenuSelection = (sectionId) => {
     setActiveSection(sectionId);
     setIsMobileNavOpen(false);
@@ -1512,8 +1528,13 @@ const App = () => {
                 {themeCopy}
               </button>
               <div className="app-user">{profileEmail}</div>
-              <button type="button" className="btn-secondary" disabled>
-                Log out
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={handleSignOut}
+                disabled={runtimeConfig.mode === 'demo' || isSigningOut}
+              >
+                {isSigningOut ? 'Signing out…' : 'Log out'}
               </button>
             </div>
             <div className="account-debug" role="status" aria-live="polite">
