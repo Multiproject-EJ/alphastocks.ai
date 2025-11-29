@@ -109,6 +109,14 @@ CREATE TABLE IF NOT EXISTS "analysis_tasks" (
   "created_at" timestamptz NOT NULL DEFAULT now()
 );
 
+CREATE TABLE IF NOT EXISTS "investment_universe" (
+  "id" uuid PRIMARY KEY,
+  "profile_id" uuid REFERENCES "profiles"("id") ON DELETE CASCADE,
+  "symbol" text,
+  "name" text,
+  "created_at" timestamptz NOT NULL DEFAULT now()
+);
+
 CREATE TABLE IF NOT EXISTS "watchlist_items" (
   "id" uuid PRIMARY KEY,
   "profile_id" uuid REFERENCES "profiles"("id") ON DELETE CASCADE,
@@ -126,6 +134,7 @@ DECLARE
     'analysis_tasks',
     'events',
     'journal_entries',
+    'investment_universe',
     'portfolio_positions',
     'portfolio_snapshots',
     'portfolios',
@@ -147,6 +156,12 @@ BEGIN
     END IF;
   END LOOP;
 END $$;
+
+-- Dataset investment_universe (3 rows) source: workspace/src/data/demo/demo.investment_universe.json
+-- Stocks being tracked inside the Investing Universe section
+INSERT INTO "investment_universe" ("created_at", "id", "name", "profile_id", "symbol") VALUES ('2025-10-31T12:00:00Z', 'e2c9f12b-0c1c-4b2d-ae8e-143e2bb6a414', 'NVIDIA Corporation', '1f2a7f2e-0ad1-4a7d-8a19-3b22e35c88a5', 'NVDA');
+INSERT INTO "investment_universe" ("created_at", "id", "name", "profile_id", "symbol") VALUES ('2025-10-30T17:15:00Z', '5a2a9b9d-8762-4b22-8b33-0ad8e1a1e7a5', 'Taiwan Semiconductor Manufacturing', '1f2a7f2e-0ad1-4a7d-8a19-3b22e35c88a5', 'TSM');
+INSERT INTO "investment_universe" ("created_at", "id", "name", "profile_id", "symbol") VALUES ('2025-10-29T15:45:00Z', '4e3545d2-55a7-4a8f-b01a-8cd59c528c6a', 'Microsoft', '1f2a7f2e-0ad1-4a7d-8a19-3b22e35c88a5', 'MSFT');
 
 
 -- Dataset events (9 rows) source: workspace/src/data/demo/demo.events.json

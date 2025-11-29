@@ -13,8 +13,36 @@ const DEFAULT_FOCUS_LIST = [
   { id: 'focus-4', title: 'Position audit', caption: 'Rotate winners & laggards', tag: { label: 'Next week' } }
 ];
 
+const DEFAULT_UNIVERSE_ROWS = [
+  {
+    id: 'e2c9f12b-0c1c-4b2d-ae8e-143e2bb6a414',
+    name: 'NVIDIA Corporation',
+    symbol: 'NVDA',
+    profile_id: '1f2a7f2e-0ad1-4a7d-8a19-3b22e35c88a5',
+    created_at: '2025-10-31T12:00:00Z'
+  },
+  {
+    id: '5a2a9b9d-8762-4b22-8b33-0ad8e1a1e7a5',
+    name: 'Taiwan Semiconductor Manufacturing',
+    symbol: 'TSM',
+    profile_id: '1f2a7f2e-0ad1-4a7d-8a19-3b22e35c88a5',
+    created_at: '2025-10-30T17:15:00Z'
+  },
+  {
+    id: '4e3545d2-55a7-4a8f-b01a-8cd59c528c6a',
+    name: 'Microsoft',
+    symbol: 'MSFT',
+    profile_id: '1f2a7f2e-0ad1-4a7d-8a19-3b22e35c88a5',
+    created_at: '2025-10-29T15:45:00Z'
+  }
+];
+
 const dashboardTabs = ['Overview', 'Notes', 'Tasks', 'Analytics', 'ValueBot'];
 const defaultSectionTabs = ['Tab 1', 'Tab 2', 'Tab 3', 'Tab 4', 'Tab 5'];
+const sectionTabsById = {
+  dashboard: dashboardTabs,
+  quadrant: ['Universe', 'Universe Quadrant', 'Add Stocks']
+};
 
 const MORNING_NEWS_ALERT_ID = 'morning-news';
 
@@ -174,7 +202,7 @@ const valueBotTabs = [
 
 const settingsNavItem = { id: 'settings', icon: '⚙️' };
 
-const getSectionTabs = (sectionId) => (sectionId === 'dashboard' ? dashboardTabs : defaultSectionTabs);
+const getSectionTabs = (sectionId) => sectionTabsById[sectionId] ?? defaultSectionTabs;
 
 const mainNavigation = [
   { id: 'dashboard', icon: '🏠', title: 'Today / Dashboard', caption: 'Overview' },
@@ -187,7 +215,7 @@ const mainNavigation = [
     title: 'PUNCHCard MONOPLOY - Fishing SWIPE',
     caption: 'Patience & selectivity drill'
   },
-  { id: 'quadrant', icon: '🧭', title: 'Universe Quadrant', caption: 'Macro positioning map' },
+  { id: 'quadrant', icon: '🧭', title: 'Investing Universe', caption: '' },
 ];
 
 const DemoBanner = () => (
@@ -492,7 +520,7 @@ const staticSections = {
     ]
   },
   quadrant: {
-    title: 'Universe Quadrant',
+    title: 'Investing Universe',
     meta: 'Map market regimes, capital at risk, and opportunity sets into one actionable quadrant.',
     cards: [
       {
@@ -548,6 +576,11 @@ const App = () => {
   const [showFocusList, setShowFocusList] = useState(false);
   const [alertSettings, setAlertSettings] = useState(() => createInitialAlertState());
   const [isSigningOut, setIsSigningOut] = useState(false);
+  const [universeRows, setUniverseRows] = useState(DEFAULT_UNIVERSE_ROWS);
+  const [universeLoadError, setUniverseLoadError] = useState(null);
+  const [universeIsLoading, setUniverseIsLoading] = useState(false);
+  const [newStockName, setNewStockName] = useState('');
+  const [newStockSymbol, setNewStockSymbol] = useState('');
   const runtimeConfig = useMemo(() => getRuntimeConfig(), []);
   const dataService = useMemo(() => getDataService(), [runtimeConfig.mode]);
   const { user, signOut } = useAuth();
@@ -679,6 +712,51 @@ const App = () => {
     }));
   };
 
+  const sortedUniverseRows = useMemo(
+    () =>
+      [...(universeRows ?? [])].sort((a, b) => {
+        const aDate = a?.created_at ? new Date(a.created_at).getTime() : 0;
+        const bDate = b?.created_at ? new Date(b.created_at).getTime() : 0;
+        return bDate - aDate;
+      }),
+    [universeRows]
+  );
+
+  const handleUniverseStockAdd = useCallback(
+    (event) => {
+      event.preventDefault();
+
+      const symbol = newStockSymbol.trim().toUpperCase();
+      const name = newStockName.trim();
+
+      if (!symbol && !name) {
+        return;
+      }
+
+      const id = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}`;
+      const created_at = new Date().toISOString();
+
+      setUniverseRows((prev) => [
+        {
+          id,
+          symbol: symbol || name,
+          name: name || symbol,
+          profile_id: user?.id ?? 'demo-profile',
+          created_at
+        },
+        ...(prev ?? [])
+      ]);
+
+      setNewStockName('');
+      setNewStockSymbol('');
+      setActiveTabsBySection((prev) => ({
+        ...prev,
+        quadrant: 'Universe'
+      }));
+    },
+    [newStockName, newStockSymbol, user?.id]
+  );
+
   useEffect(() => {
     document.body.setAttribute('data-theme', theme);
   }, [theme]);
@@ -800,6 +878,39 @@ const App = () => {
         if (!cancelled) {
           console.error('Failed to load profiles from data service', error);
           setProfileError(error);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [dataService, user?.id]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    setUniverseIsLoading(true);
+    dataService
+      .getTable(
+        'investment_universe',
+        user?.id
+          ? { match: { profile_id: user.id }, order: { column: 'created_at', ascending: false } }
+          : { order: { column: 'created_at', ascending: false } }
+      )
+      .then(({ rows }) => {
+        if (cancelled) return;
+        setUniverseRows(rows?.length ? rows : DEFAULT_UNIVERSE_ROWS);
+        setUniverseLoadError(null);
+      })
+      .catch((error) => {
+        if (cancelled) return;
+        console.error('Failed to load investing universe', error);
+        setUniverseRows(DEFAULT_UNIVERSE_ROWS);
+        setUniverseLoadError(error);
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setUniverseIsLoading(false);
         }
       });
 
@@ -1183,6 +1294,135 @@ const App = () => {
     hasMorningNewsPing
   ]);
 
+  const renderDefaultSection = () => (
+    <>
+      <h2>{section.title}</h2>
+      {section.meta && <p className="detail-meta">{section.meta}</p>}
+      {section.cards && section.cards.length > 0 && (
+        <div className={`detail-grid${section.layout ? ` detail-grid--${section.layout}` : ''}`}>
+          {section.cards.map((card) => (
+            <div key={card.title} className="detail-card" data-size={card.size}>
+              <h3>{card.title}</h3>
+              {card.body}
+            </div>
+          ))}
+        </div>
+      )}
+      {section.component && <div className="detail-component">{section.component}</div>}
+    </>
+  );
+
+  const renderUniverseTable = () => {
+    if (universeIsLoading) {
+      return <p>Loading your universe…</p>;
+    }
+
+    if (!sortedUniverseRows.length) {
+      return <p>No stocks added yet. Use the Add Stocks tab to seed your universe.</p>;
+    }
+
+    return (
+      <table className="table subtle">
+        <thead>
+          <tr>
+            <th>Company</th>
+            <th>Ticker</th>
+            <th>Added</th>
+          </tr>
+        </thead>
+        <tbody>
+          {sortedUniverseRows.map((row) => (
+            <tr key={row.id}>
+              <td>{row.name || row.symbol || '—'}</td>
+              <td>
+                <code>{row.symbol || '—'}</code>
+              </td>
+              <td>{formatDateLabel(row.created_at || new Date().toISOString())}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    );
+  };
+
+  const renderQuadrantPanel = () => {
+    if (activeTab === 'Add Stocks') {
+      return (
+        <>
+          <h2>Add stocks to your universe</h2>
+          <p className="detail-meta">Capture a company name and/or ticker to track it in your Investing Universe.</p>
+          <div className="detail-card">
+            <form className="form-grid" onSubmit={handleUniverseStockAdd}>
+              <label className="form-field">
+                <span>Company name</span>
+                <input
+                  type="text"
+                  value={newStockName}
+                  onInput={(event) => setNewStockName(event.target.value)}
+                  placeholder="NVIDIA Corporation"
+                  aria-label="Company name"
+                />
+              </label>
+              <label className="form-field">
+                <span>Ticker</span>
+                <input
+                  type="text"
+                  value={newStockSymbol}
+                  onInput={(event) => setNewStockSymbol(event.target.value)}
+                  placeholder="NVDA"
+                  aria-label="Ticker symbol"
+                />
+              </label>
+              <div className="form-actions">
+                <button
+                  className="btn-primary"
+                  type="submit"
+                  disabled={!newStockName.trim() && !newStockSymbol.trim()}
+                >
+                  Add to universe
+                </button>
+                <p className="detail-meta">
+                  Entries are kept locally in demo mode. When Supabase is configured, the table is hydrated from your
+                  workspace.
+                </p>
+              </div>
+            </form>
+          </div>
+        </>
+      );
+    }
+
+    if (activeTab === 'Universe Quadrant') {
+      return renderDefaultSection();
+    }
+
+    return (
+      <>
+        <h2>{section.title}</h2>
+        <p className="detail-meta">{section.meta}</p>
+        <div className="detail-grid detail-grid--balanced">
+          <div className="detail-card">
+            <h3>Universe tracker</h3>
+            {renderUniverseTable()}
+            {universeLoadError && (
+              <p className="detail-meta" role="status">
+                Supabase fetch failed; showing local defaults instead.
+              </p>
+            )}
+          </div>
+          <div className="detail-card">
+            <h3>Journal prompts</h3>
+            <ol>
+              <li>What regime are you trading right now? List the confirming data.</li>
+              <li>Which quadrant is your top idea in, and what would move it?</li>
+              <li>How aligned is your sizing with the current quadrant?</li>
+            </ol>
+          </div>
+        </div>
+      </>
+    );
+  };
+
   return (
     <main className="app-stage">
       <section className="app" aria-live="polite">
@@ -1408,24 +1648,10 @@ const App = () => {
             <div className="app-panels">
               <section className="app-detail" aria-label="Detail">
                 <article className="detail-view visible">
-                  {activeTab === tabsForSection[0] ? (
-                    <>
-                      <h2>{section.title}</h2>
-                      {section.meta && <p className="detail-meta">{section.meta}</p>}
-                      {section.cards && section.cards.length > 0 && (
-                        <div
-                          className={`detail-grid${section.layout ? ` detail-grid--${section.layout}` : ''}`}
-                        >
-                          {section.cards.map((card) => (
-                            <div key={card.title} className="detail-card" data-size={card.size}>
-                              <h3>{card.title}</h3>
-                              {card.body}
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                      {section.component && <div className="detail-component">{section.component}</div>}
-                    </>
+                  {activeSection === 'quadrant' ? (
+                    renderQuadrantPanel()
+                  ) : activeTab === tabsForSection[0] ? (
+                    renderDefaultSection()
                   ) : (
                     <>
                       <h2>{activeTab}</h2>
