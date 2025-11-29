@@ -10,11 +10,11 @@
  */
 
 /**
- * Ticker detection regex - accepts 1-8 letters (case-insensitive).
- * The validateTicker() function handles normalization and query fallback
- * so user input can be either a ticker or free-text company name.
+ * Lenient ticker detection regex - accepts common ticker formats including
+ * letters, numbers, dots, and hyphens up to 12 characters. Inputs that do
+ * not match are treated as free-text queries without rejection.
  */
-const TICKER_REGEX = /^[A-Za-z]{1,8}$/;
+const TICKER_REGEX = /^[A-Za-z0-9.\-]{1,12}$/;
 const STORAGE_KEY = 'AI_ANALYSIS_LAST_RESULT';
 
 /**
