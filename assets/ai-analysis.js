@@ -10,11 +10,11 @@
  */
 
 /**
- * Ticker validation regex - only accepts 1-8 uppercase letters.
- * The validateTicker() function handles normalization to uppercase,
- * so user input is automatically converted before validation.
+ * Lenient ticker detection regex - accepts common ticker formats including
+ * letters, numbers, dots, and hyphens up to 12 characters. Inputs that do
+ * not match are treated as free-text queries without rejection.
  */
-const TICKER_REGEX = /^[A-Z]{1,8}$/;
+const TICKER_REGEX = /^[A-Za-z0-9.\-]{1,12}$/;
 const STORAGE_KEY = 'AI_ANALYSIS_LAST_RESULT';
 
 /**
@@ -27,22 +27,22 @@ let providerConfig = {
 };
 
 /**
- * Validates a stock ticker symbol
- * @param {string} ticker - The ticker to validate
- * @returns {{ valid: boolean, message: string }}
+ * Validates and classifies user input as ticker or query
+ * @param {string} input - Raw user input
+ * @returns {{ valid: boolean, message: string, type?: 'ticker' | 'query', value?: string }}
  */
-function validateTicker(ticker) {
-  if (!ticker || ticker.trim().length === 0) {
-    return { valid: false, message: 'Please enter a stock ticker.' };
+function validateTicker(input) {
+  if (!input || input.trim().length === 0) {
+    return { valid: false, message: 'Please enter a ticker symbol or company name.' };
   }
-  
-  const normalizedTicker = ticker.trim().toUpperCase();
-  
-  if (!TICKER_REGEX.test(normalizedTicker)) {
-    return { valid: false, message: 'Ticker must be 1-8 letters only (e.g., AAPL, MSFT).' };
+
+  const normalizedInput = input.trim();
+
+  if (TICKER_REGEX.test(normalizedInput)) {
+    return { valid: true, message: '', type: 'ticker', value: normalizedInput.toUpperCase() };
   }
-  
-  return { valid: true, message: '' };
+
+  return { valid: true, message: '', type: 'query', value: normalizedInput };
 }
 
 /**
@@ -318,7 +318,7 @@ export async function initAIAnalysis() {
   if (aiTickerInput && tickerError) {
     aiTickerInput.addEventListener('blur', () => {
       const validation = validateTicker(aiTickerInput.value);
-      if (!validation.valid && aiTickerInput.value.trim().length > 0) {
+      if (!validation.valid) {
         tickerError.textContent = validation.message;
         aiTickerInput.setAttribute('aria-invalid', 'true');
       } else {
@@ -341,14 +341,14 @@ export async function initAIAnalysis() {
     aiAnalysisForm.addEventListener('submit', async (event) => {
       event.preventDefault();
 
-      const ticker = aiTickerInput?.value.trim().toUpperCase();
+      const rawInput = aiTickerInput?.value || '';
       const provider = aiProviderSelect?.value || 'openai';
       const timeframe = aiTimeframeInput?.value.trim();
       const question = aiQuestionInput?.value.trim();
 
-      // Client-side validation
-      const validation = validateTicker(ticker);
-      if (!validation.valid) {
+      // Client-side validation and classification (ticker vs query)
+      const validation = validateTicker(rawInput);
+      if (!validation.valid || !validation.value) {
         if (tickerError) {
           tickerError.textContent = validation.message;
         }
@@ -386,7 +386,13 @@ export async function initAIAnalysis() {
       showLoadingSkeleton(aiResults, aiLoadingSkeleton);
 
       try {
-        const requestBody = { provider, ticker };
+        const requestBody = { provider };
+
+        if (validation.type === 'ticker') {
+          requestBody.ticker = validation.value;
+        } else {
+          requestBody.query = validation.value;
+        }
 
         if (timeframe) {
           requestBody.timeframe = timeframe;

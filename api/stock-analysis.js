@@ -1,15 +1,17 @@
 /**
- * Vercel Serverless Function: Stock Analysis API
- * 
+ * Vercel Serverless Function: Stock Analysis API (accepts ticker OR query)
+ *
  * Endpoint: POST /api/stock-analysis
- * 
- * This endpoint provides a unified interface to analyze stocks using
- * OpenAI, Google Gemini, or OpenRouter AI providers.
- * 
- * All API keys are kept server-side and never exposed to the client.
+ *
+ * Provides a unified interface to analyze stocks using OpenAI, Google Gemini,
+ * or OpenRouter AI providers. Accepts either a ticker symbol or a free-text
+ * company query and will attempt to resolve analysis accordingly.
  */
 
 import { analyzeStock } from '../workspace/src/server/ai/stockAnalysisService.js';
+
+const FALLBACK_MAX_RAW_RESPONSE_LENGTH = 2000;
+const FALLBACK_SUMMARY_LENGTH = 500;
 
 /**
  * Validates the request body
@@ -24,8 +26,19 @@ function validateRequest(body) {
     return { valid: false, errors };
   }
 
-  if (!body.ticker || typeof body.ticker !== 'string' || body.ticker.trim().length === 0) {
-    errors.push('ticker is required and must be a non-empty string');
+  const hasTicker = typeof body.ticker === 'string' && body.ticker.trim().length > 0;
+  const hasQuery = typeof body.query === 'string' && body.query.trim().length > 0;
+
+  if (!hasTicker && !hasQuery) {
+    errors.push('ticker or query is required and must be a non-empty string');
+  }
+
+  if (body.ticker && (typeof body.ticker !== 'string' || body.ticker.trim().length === 0)) {
+    errors.push('ticker must be a non-empty string when provided');
+  }
+
+  if (body.query && (typeof body.query !== 'string' || body.query.trim().length === 0)) {
+    errors.push('query must be a non-empty string when provided');
   }
 
   if (body.provider && !['openai', 'gemini', 'openrouter'].includes(body.provider.toLowerCase())) {
@@ -50,8 +63,96 @@ function validateRequest(body) {
   };
 }
 
+function parseFallbackResponse(rawResponse) {
+  try {
+    let jsonText = (rawResponse || '').trim();
+    const codeBlockMatch = jsonText.match(/```(?:json)?\s*\n?([\s\S]*?)\n?```/);
+
+    if (codeBlockMatch) {
+      jsonText = codeBlockMatch[1].trim();
+    }
+
+    const parsed = JSON.parse(jsonText);
+
+    return {
+      summary: parsed.summary || 'No summary available',
+      opportunities: Array.isArray(parsed.opportunities) ? parsed.opportunities : [],
+      risks: Array.isArray(parsed.risks) ? parsed.risks : [],
+      sentiment: parsed.sentiment || 'neutral'
+    };
+  } catch (error) {
+    return {
+      summary: rawResponse
+        ? rawResponse.substring(0, FALLBACK_SUMMARY_LENGTH) + (rawResponse.length > FALLBACK_SUMMARY_LENGTH ? '...' : '')
+        : 'No summary available',
+      opportunities: ['Analysis provided in raw response'],
+      risks: ['See raw response for details'],
+      sentiment: 'neutral'
+    };
+  }
+}
+
+async function runOpenAIFallback(query, { model, question, timeframe }) {
+  const apiKey = process.env.OPENAI_API_KEY;
+
+  if (!apiKey) {
+    const error = new Error('NO_PROVIDER_OR_RESOLUTION');
+    error.code = 'NO_PROVIDER_OR_RESOLUTION';
+    throw error;
+  }
+
+  const defaultModel = model || 'gpt-4o-mini';
+  const prompt = `You are an AI analyst for Alphastocks.ai. Provide a comprehensive stock or company analysis for "${query}".
+
+Timeframe: ${timeframe || 'not specified'}
+Additional context/question: ${question || 'None provided'}
+
+Structure the response as a JSON object with fields: summary (2-3 sentences), opportunities (array of 2-4 items), risks (array of 2-4 items), sentiment (bullish | neutral | bearish).`;
+
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${apiKey}`
+    },
+    body: JSON.stringify({
+      model: defaultModel,
+      messages: [
+        { role: 'system', content: 'You are a professional stock market analyst. Provide analysis in JSON format.' },
+        { role: 'user', content: prompt }
+      ],
+      temperature: 0.7,
+      max_tokens: 1000
+    })
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(`OpenAI API error (${response.status}): ${errorData.error?.message || response.statusText}`);
+  }
+
+  const data = await response.json();
+  const content = data.choices?.[0]?.message?.content?.trim() || '';
+  const parsed = parseFallbackResponse(content);
+  const rawResponse = content.length > FALLBACK_MAX_RAW_RESPONSE_LENGTH
+    ? content.substring(0, FALLBACK_MAX_RAW_RESPONSE_LENGTH) + '... (truncated)'
+    : content;
+
+  return {
+    ticker: query,
+    timeframe: timeframe || null,
+    provider: 'openai',
+    modelUsed: data.model || defaultModel,
+    summary: parsed.summary,
+    opportunities: parsed.opportunities,
+    risks: parsed.risks,
+    sentiment: parsed.sentiment,
+    rawResponse
+  };
+}
+
 /**
- * Enriches error response with provider, ticker, and debug information
+ * Enriches error response with provider, ticker, query, and debug information
  * @param {object} errorResponse - Base error response object
  * @param {object} requestBody - Request body to extract provider and ticker from
  * @param {string} debugMessage - Debug message to include in non-production
@@ -63,6 +164,9 @@ function enrichErrorResponse(errorResponse, requestBody, debugMessage) {
   }
   if (requestBody?.ticker) {
     errorResponse.ticker = requestBody.ticker;
+  }
+  if (requestBody?.query) {
+    errorResponse.query = requestBody.query;
   }
   if (debugMessage && process.env.NODE_ENV !== 'production') {
     errorResponse.debug = debugMessage;
@@ -113,7 +217,7 @@ export default async function handler(req, res) {
         body,
         validation.errors.join(', ')
       );
-      
+
       return res.status(400).json(errorResponse);
     }
 
@@ -122,24 +226,55 @@ export default async function handler(req, res) {
       provider,
       model,
       ticker,
+      query,
       question,
       timeframe
     } = body;
 
-    // Call the stock analysis service
-    const result = await analyzeStock({
-      provider,
-      model,
-      ticker,
-      question,
-      timeframe
-    });
+    let result;
+
+    if (ticker) {
+      result = await analyzeStock({
+        provider,
+        model,
+        ticker,
+        question,
+        timeframe
+      });
+    } else {
+      try {
+        // Attempt to call analyzeStock in case it supports query directly
+        result = await analyzeStock({
+          provider,
+          model,
+          query,
+          question,
+          timeframe
+        });
+      } catch (analysisError) {
+        // Fallback to OpenAI if analyzeStock rejects queries
+        result = await runOpenAIFallback(query, { model, question, timeframe });
+      }
+    }
 
     // Return the successful result
     return res.status(200).json(result);
-
   } catch (error) {
     console.error('Stock analysis API error:', error);
+
+    if (error.code === 'NO_PROVIDER_OR_RESOLUTION' || error.message === 'NO_PROVIDER_OR_RESOLUTION') {
+      const errorResponse = enrichErrorResponse(
+        {
+          code: 'NO_PROVIDER_OR_RESOLUTION',
+          error: 'No provider available',
+          message: 'Unable to analyze query because no AI provider is configured to handle free-text queries.'
+        },
+        req.body,
+        error.message
+      );
+
+      return res.status(501).json(errorResponse);
+    }
 
     // Handle missing API key errors
     if (error.message.includes('Missing') && error.message.includes('API_KEY')) {
@@ -152,7 +287,7 @@ export default async function handler(req, res) {
         req.body,
         error.message
       );
-      
+
       return res.status(500).json(errorResponse);
     }
 
@@ -167,7 +302,7 @@ export default async function handler(req, res) {
         req.body,
         error.message
       );
-      
+
       return res.status(502).json(errorResponse);
     }
 
@@ -182,7 +317,7 @@ export default async function handler(req, res) {
         req.body,
         error.message
       );
-      
+
       return res.status(400).json(errorResponse);
     }
 
@@ -196,7 +331,7 @@ export default async function handler(req, res) {
       req.body,
       error.message
     );
-    
+
     return res.status(500).json(errorResponse);
   }
 }
