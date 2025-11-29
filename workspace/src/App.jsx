@@ -39,11 +39,6 @@ const DEFAULT_UNIVERSE_ROWS = [
 
 const dashboardTabs = ['Overview', 'Notes', 'Tasks', 'Analytics', 'ValueBot'];
 const defaultSectionTabs = ['Tab 1', 'Tab 2', 'Tab 3', 'Tab 4', 'Tab 5'];
-const sectionTabsById = {
-  dashboard: dashboardTabs,
-  quadrant: ['Universe', 'Universe Quadrant', 'Add Stocks'],
-  checkin: ['Tab 1', 'Trading Journal', 'Tab 3', 'Tab 4', 'Tab 5']
-};
 
 const MORNING_NEWS_ALERT_ID = 'morning-news';
 
@@ -89,6 +84,17 @@ const createInitialAlertState = () =>
   }, {});
 
 const valueBotTabs = [
+  {
+    id: 'valuebot-quicktake',
+    label: 'QuickTake',
+    title: 'QuickTake',
+    description: 'One-glance summary of the company’s setup, latest signals, and what to tackle next.',
+    bullets: [
+      'Show a concise snapshot of thesis, risks, valuation range, and timing signals.',
+      'Highlight urgent follow-ups, open questions, and recent AI findings.',
+      'Offer a launchpad into the deeper ValueBot modules when you need more detail.'
+    ]
+  },
   {
     id: 'valuebot-data-loader',
     label: 'MODULE 0 — Data Loader (Pre-Step)',
@@ -167,6 +173,13 @@ const valueBotTabs = [
     ]
   }
 ];
+
+const sectionTabsById = {
+  dashboard: dashboardTabs,
+  valuebot: valueBotTabs.map((tab) => tab.label),
+  quadrant: ['Universe', 'Universe Quadrant', 'Add Stocks'],
+  checkin: ['Tab 1', 'Trading Journal', 'Tab 3', 'Tab 4', 'Tab 5']
+};
 
 const settingsNavItem = { id: 'settings', icon: '⚙️' };
 
