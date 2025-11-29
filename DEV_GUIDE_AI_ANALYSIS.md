@@ -74,11 +74,14 @@ Performs AI-powered stock analysis.
 ```json
 {
   "provider": "openai",      // Required: "openai" | "gemini" | "openrouter"
-  "ticker": "AAPL",          // Required: 1-8 letter stock ticker
+  "ticker": "AAPL",          // Required (or query): 1-8 letter stock ticker
+  "query": "Apple Inc.",     // Required (or ticker): Free-text company name
   "timeframe": "1y",         // Optional: e.g., "1y", "5y", "ytd"
   "question": "What about..." // Optional: Custom question
 }
 ```
+
+**Note:** Either `ticker` or `query` must be provided. If `ticker` is provided (1-8 letters), it will be used directly. Otherwise, `query` can be a company name or any free-text search that the AI will analyze.
 
 **Success Response (200):**
 ```json
@@ -106,7 +109,7 @@ Performs AI-powered stock analysis.
 {
   "code": "VALIDATION_ERROR",
   "error": "Invalid request",
-  "message": "ticker is required and must be a non-empty string",
+  "message": "ticker or query is required and must be a non-empty string",
   "provider": "openai",
   "ticker": "",
   "debug": "..." // Only in non-production environments
@@ -149,29 +152,31 @@ sessionStorage.setItem('AI_ANALYSIS_LAST_RESULT', JSON.stringify({
 
 ## Client-Side Validation
 
-### Ticker Validation
+### Input Validation (Ticker or Company Name)
 
-Tickers are validated on the client side before submission:
+User input is validated and classified on the client side before submission:
 
-- **Pattern:** `^[A-Z]{1,8}$`
-- **Requirements:** 1-8 uppercase letters only
-- **Normalization:** Input is automatically uppercased
+- **Ticker Pattern:** `^[A-Za-z]{1,8}$`
+- **Ticker Requirements:** 1-8 letters only (case-insensitive), automatically uppercased
+- **Query Fallback:** Any other non-empty input is treated as a free-text company name query
 
 ```javascript
-const TICKER_REGEX = /^[A-Z]{1,8}$/;
+const TICKER_REGEX = /^[A-Za-z]{1,8}$/;
 
-function validateTicker(ticker) {
-  if (!ticker || ticker.trim().length === 0) {
-    return { valid: false, message: 'Please enter a stock ticker.' };
+function validateTicker(input) {
+  if (!input || input.trim().length === 0) {
+    return { valid: false, message: 'Please enter a ticker symbol or company name.' };
   }
   
-  const normalizedTicker = ticker.trim().toUpperCase();
+  const normalizedInput = input.trim();
   
-  if (!TICKER_REGEX.test(normalizedTicker)) {
-    return { valid: false, message: 'Ticker must be 1-8 letters only (e.g., AAPL, MSFT).' };
+  // If it matches ticker pattern, treat as ticker
+  if (TICKER_REGEX.test(normalizedInput)) {
+    return { valid: true, message: '', type: 'ticker', value: normalizedInput.toUpperCase() };
   }
   
-  return { valid: true, message: '' };
+  // Otherwise, treat as free-text query (company name)
+  return { valid: true, message: '', type: 'query', value: normalizedInput };
 }
 ```
 

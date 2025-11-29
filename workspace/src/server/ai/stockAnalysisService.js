@@ -30,13 +30,17 @@ function validateProvider(provider) {
 }
 
 /**
- * Validates the ticker parameter
- * @param {string} ticker - Stock ticker symbol
- * @throws {Error} - If ticker is invalid
+ * Validates that at least one of ticker or query is provided
+ * @param {string} ticker - Stock ticker symbol (optional)
+ * @param {string} query - Free-text company name or search query (optional)
+ * @throws {Error} - If neither ticker nor query is provided
  */
-function validateTicker(ticker) {
-  if (!ticker || typeof ticker !== 'string' || ticker.trim().length === 0) {
-    throw new Error('Ticker is required and must be a non-empty string');
+function validateInput(ticker, query) {
+  const hasTicker = ticker && typeof ticker === 'string' && ticker.trim().length > 0;
+  const hasQuery = query && typeof query === 'string' && query.trim().length > 0;
+
+  if (!hasTicker && !hasQuery) {
+    throw new Error('Either ticker or query is required and must be a non-empty string');
   }
 }
 
@@ -82,15 +86,20 @@ async function fetchWithTimeout(url, options, timeout = API_TIMEOUT_MS) {
 
 /**
  * Builds the analysis prompt for the AI model
- * @param {string} ticker - Stock ticker symbol
+ * @param {string} ticker - Stock ticker symbol (optional)
+ * @param {string} query - Free-text company name or search query (optional)
  * @param {string} timeframe - Optional timeframe (e.g., '1y', '5y')
  * @param {string} question - Optional additional question
  * @returns {string} - The formatted prompt
  */
-function buildPrompt(ticker, timeframe, question) {
+function buildPrompt(ticker, query, timeframe, question) {
+  // Use ticker if provided, otherwise use query
+  const subject = ticker ? ticker.toUpperCase() : query;
+  const subjectType = ticker ? 'stock' : 'company or stock';
+
   const base = `You are an AI analyst for Alphastocks.ai – AI-powered superinvestor insights & weekly newsletter.
 
-Please provide a comprehensive stock analysis for ${ticker.toUpperCase()}.`;
+Please provide a comprehensive ${subjectType} analysis for ${subject}.`;
 
   const timeframePart = timeframe ? `\nTimeframe: ${timeframe}` : '';
   const questionPart = question ? `\n\nAdditional context/question: ${question}` : '';
@@ -289,18 +298,22 @@ async function callOpenRouter(apiKey, model, prompt) {
  * @param {object} params - Analysis parameters
  * @param {string} params.provider - AI provider: 'openai' | 'gemini' | 'openrouter'
  * @param {string} params.model - Optional model override
- * @param {string} params.ticker - Stock ticker symbol (required)
+ * @param {string} params.ticker - Stock ticker symbol (optional if query provided)
+ * @param {string} params.query - Free-text company name or search query (optional if ticker provided)
  * @param {string} params.question - Optional additional question
  * @param {string} params.timeframe - Optional timeframe (e.g., '1y', '5y')
  * @returns {Promise<object>} - Structured analysis result
  */
-export async function analyzeStock({ provider, model, ticker, question, timeframe }) {
+export async function analyzeStock({ provider, model, ticker, query, question, timeframe }) {
   // Validate inputs
   const normalizedProvider = validateProvider(provider);
-  validateTicker(ticker);
+  validateInput(ticker, query);
+
+  // Determine the subject for display purposes
+  const displaySubject = ticker ? ticker.toUpperCase() : query;
 
   // Build the prompt
-  const prompt = buildPrompt(ticker, timeframe, question);
+  const prompt = buildPrompt(ticker, query, timeframe, question);
 
   let apiKey;
   let response;
@@ -346,7 +359,7 @@ export async function analyzeStock({ provider, model, ticker, question, timefram
 
     // Return structured result
     return {
-      ticker: ticker.toUpperCase(),
+      ticker: displaySubject,
       timeframe: timeframe || null,
       provider: normalizedProvider,
       modelUsed: response.modelUsed,
@@ -362,6 +375,6 @@ export async function analyzeStock({ provider, model, ticker, question, timefram
     console.error('Stock analysis error:', error);
     
     // Re-throw with context
-    throw new Error(`Failed to analyze ${ticker} with ${normalizedProvider}: ${error.message}`);
+    throw new Error(`Failed to analyze ${displaySubject} with ${normalizedProvider}: ${error.message}`);
   }
 }

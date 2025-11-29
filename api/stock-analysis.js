@@ -307,7 +307,7 @@ export default async function handler(req, res) {
     }
 
     // Handle validation errors
-    if (error.message.includes('Invalid provider') || error.message.includes('Ticker is required')) {
+    if (error.message.includes('Invalid provider') || error.message.includes('ticker or query is required')) {
       const errorResponse = enrichErrorResponse(
         {
           code: 'VALIDATION_ERROR',

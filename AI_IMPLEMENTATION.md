@@ -78,8 +78,8 @@ alphastocks.ai/
 **Key Functions:**
 - `analyzeStock(params)` - Main entry point for stock analysis
 - `validateProvider(provider)` - Validates and normalizes provider selection
-- `validateTicker(ticker)` - Validates ticker input
-- `buildPrompt(ticker, timeframe, question)` - Constructs AI prompts
+- `validateInput(ticker, query)` - Validates that either ticker or query is provided
+- `buildPrompt(ticker, query, timeframe, question)` - Constructs AI prompts
 - `parseResponse(rawResponse)` - Parses AI responses into structured format
 - `callOpenAI(apiKey, model, prompt)` - OpenAI integration
 - `callGemini(apiKey, model, prompt)` - Google Gemini integration
@@ -106,11 +106,14 @@ alphastocks.ai/
 {
   "provider": "openai" | "gemini" | "openrouter",  // Optional, defaults to "openai"
   "model": "string",           // Optional, provider-specific model name
-  "ticker": "AAPL",            // Required
+  "ticker": "AAPL",            // Required (or query): Stock ticker symbol
+  "query": "Apple Inc.",       // Required (or ticker): Free-text company name
   "question": "string",        // Optional
   "timeframe": "1y"            // Optional
 }
 ```
+
+**Note:** Either `ticker` or `query` must be provided. Use `ticker` for stock symbols (1-8 letters) or `query` for company names and free-text searches.
 
 **Response (Success - 200):**
 ```json
@@ -131,7 +134,7 @@ alphastocks.ai/
 
 | Status | Error Type | Description |
 |--------|------------|-------------|
-| 400 | Validation error | Missing/invalid ticker or provider |
+| 400 | Validation error | Missing/invalid input or provider |
 | 405 | Method not allowed | Non-POST request |
 | 500 | Configuration error | Missing API key for selected provider |
 | 502 | Provider error | AI provider API returned an error |
