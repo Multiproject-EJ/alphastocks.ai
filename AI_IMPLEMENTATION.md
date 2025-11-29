@@ -106,14 +106,14 @@ alphastocks.ai/
 {
   "provider": "openai" | "gemini" | "openrouter",  // Optional, defaults to "openai"
   "model": "string",           // Optional, provider-specific model name
-  "ticker": "AAPL",            // Required (or query): Stock ticker symbol
-  "query": "Apple Inc.",       // Required (or ticker): Free-text company name
+  "ticker": "AAPL",            // Stock ticker symbol (use this OR query, not both)
+  "query": "Apple Inc.",       // Free-text company name (use this OR ticker, not both)
   "question": "string",        // Optional
   "timeframe": "1y"            // Optional
 }
 ```
 
-**Note:** Either `ticker` or `query` must be provided. Use `ticker` for stock symbols (1-8 letters) or `query` for company names and free-text searches.
+**Note:** Either `ticker` or `query` must be provided (not both). Use `ticker` for stock symbols (1-8 letters) or `query` for company names and free-text searches.
 
 **Response (Success - 200):**
 ```json

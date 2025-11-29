@@ -94,6 +94,7 @@ async function fetchWithTimeout(url, options, timeout = API_TIMEOUT_MS) {
  */
 function buildPrompt(ticker, query, timeframe, question) {
   // Use ticker if provided, otherwise use query
+  // When both are provided, ticker takes precedence as it's more specific
   const subject = ticker ? ticker.toUpperCase() : query;
   const subjectType = ticker ? 'stock' : 'company or stock';
 

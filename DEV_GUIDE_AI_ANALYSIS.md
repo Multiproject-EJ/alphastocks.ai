@@ -70,18 +70,27 @@ Returns the availability of AI providers based on configured environment variabl
 
 Performs AI-powered stock analysis.
 
-**Request Body:**
+**Request Body (using ticker):**
 ```json
 {
   "provider": "openai",      // Required: "openai" | "gemini" | "openrouter"
-  "ticker": "AAPL",          // Required (or query): 1-8 letter stock ticker
-  "query": "Apple Inc.",     // Required (or ticker): Free-text company name
+  "ticker": "AAPL",          // Stock ticker symbol (1-8 letters)
   "timeframe": "1y",         // Optional: e.g., "1y", "5y", "ytd"
   "question": "What about..." // Optional: Custom question
 }
 ```
 
-**Note:** Either `ticker` or `query` must be provided. If `ticker` is provided (1-8 letters), it will be used directly. Otherwise, `query` can be a company name or any free-text search that the AI will analyze.
+**Request Body (using query):**
+```json
+{
+  "provider": "openai",      // Required: "openai" | "gemini" | "openrouter"
+  "query": "Apple Inc.",     // Free-text company name or search
+  "timeframe": "1y",         // Optional: e.g., "1y", "5y", "ytd"
+  "question": "What about..." // Optional: Custom question
+}
+```
+
+**Note:** Either `ticker` or `query` must be provided (not both). If `ticker` is provided, it will be used directly. If `query` is provided, it can be a company name or any free-text search that the AI will analyze.
 
 **Success Response (200):**
 ```json
