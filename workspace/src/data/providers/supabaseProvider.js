@@ -1,19 +1,27 @@
 import { createClient } from '@supabase/supabase-js';
 import { requireSupabaseConfig } from '../../config/runtimeConfig.js';
 
-const buildQuery = (client, table, options = {}) => {
-  const { select = '*', match, order, limit, range } = options;
-  let query = client.from(table).select(select);
+const applyMatch = (query, match) => {
+  let nextQuery = query;
 
   if (match && typeof match === 'object' && match !== null) {
     Object.entries(match).forEach(([key, value]) => {
       if (Array.isArray(value)) {
-        query = query.in(key, value);
+        nextQuery = nextQuery.in(key, value);
       } else if (value !== undefined && value !== null) {
-        query = query.eq(key, value);
+        nextQuery = nextQuery.eq(key, value);
       }
     });
   }
+
+  return nextQuery;
+};
+
+const buildQuery = (client, table, options = {}) => {
+  const { select = '*', match, order, limit, range } = options;
+  let query = client.from(table).select(select);
+
+  query = applyMatch(query, match);
 
   if (order && typeof order.column === 'string') {
     query = query.order(order.column, {
@@ -70,6 +78,37 @@ export const createSupabaseProvider = () => {
           count: typeof count === 'number' ? count : data?.length ?? 0
         }
       };
+    },
+    async createRow(name, payload) {
+      const { data, error } = await client.from(name).insert(payload).select().single();
+
+      if (error) {
+        throw new Error(`Supabase insert into "${name}" failed: ${error.message}`);
+      }
+
+      return data ?? null;
+    },
+    async updateRows(name, match, updates) {
+      let query = client.from(name).update(updates);
+      query = applyMatch(query, match);
+      const { data, error } = await query.select();
+
+      if (error) {
+        throw new Error(`Supabase update for "${name}" failed: ${error.message}`);
+      }
+
+      return data ?? [];
+    },
+    async deleteRows(name, match) {
+      let query = client.from(name).delete();
+      query = applyMatch(query, match);
+      const { data, error } = await query.select();
+
+      if (error) {
+        throw new Error(`Supabase delete for "${name}" failed: ${error.message}`);
+      }
+
+      return data ?? [];
     }
   };
 };
