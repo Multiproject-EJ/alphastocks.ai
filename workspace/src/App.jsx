@@ -581,9 +581,15 @@ const App = () => {
   const [universeIsLoading, setUniverseIsLoading] = useState(false);
   const [newStockName, setNewStockName] = useState('');
   const [newStockSymbol, setNewStockSymbol] = useState('');
+  const [editingUniverseId, setEditingUniverseId] = useState(null);
+  const [editStockName, setEditStockName] = useState('');
+  const [editStockSymbol, setEditStockSymbol] = useState('');
+  const [universeMutationError, setUniverseMutationError] = useState(null);
+  const [isUniverseMutating, setIsUniverseMutating] = useState(false);
   const runtimeConfig = useMemo(() => getRuntimeConfig(), []);
   const dataService = useMemo(() => getDataService(), [runtimeConfig.mode]);
   const { user, signOut } = useAuth();
+  const isSupabaseMode = dataService?.mode === 'supabase';
   const themeCopy = theme === 'dark' ? 'Switch to light' : 'Switch to dark';
   const mobilePrimaryNav = [
     { id: 'dashboard', icon: '🏠', label: 'Today' },
@@ -723,38 +729,163 @@ const App = () => {
   );
 
   const handleUniverseStockAdd = useCallback(
-    (event) => {
+    async (event) => {
       event.preventDefault();
 
       const symbol = newStockSymbol.trim().toUpperCase();
       const name = newStockName.trim();
 
-      if (!symbol && !name) {
+      if ((!symbol && !name) || isUniverseMutating) {
         return;
       }
 
-      const id = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}`;
-      const created_at = new Date().toISOString();
+      const payload = {
+        symbol: symbol || name,
+        name: name || symbol,
+        profile_id: user?.id ?? null
+      };
 
-      setUniverseRows((prev) => [
-        {
-          id,
-          symbol: symbol || name,
-          name: name || symbol,
-          profile_id: user?.id ?? 'demo-profile',
-          created_at
-        },
-        ...(prev ?? [])
-      ]);
+      setIsUniverseMutating(true);
+      setUniverseMutationError(null);
 
-      setNewStockName('');
-      setNewStockSymbol('');
-      setActiveTabsBySection((prev) => ({
-        ...prev,
-        quadrant: 'Universe'
-      }));
+      try {
+        const createdAt = new Date().toISOString();
+        const inserted =
+          typeof dataService?.createRow === 'function'
+            ? await dataService.createRow('investment_universe', {
+                ...payload,
+                created_at: createdAt
+              })
+            : null;
+
+        setUniverseRows((prev) => [
+          inserted ?? {
+            id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}`,
+            created_at: createdAt,
+            ...payload
+          },
+          ...(prev ?? [])
+        ]);
+
+        setNewStockName('');
+        setNewStockSymbol('');
+        setActiveTabsBySection((prev) => ({
+          ...prev,
+          quadrant: 'Universe'
+        }));
+      } catch (error) {
+        console.error('Failed to add investment universe row', error);
+        setUniverseMutationError(error);
+      } finally {
+        setIsUniverseMutating(false);
+      }
     },
-    [newStockName, newStockSymbol, user?.id]
+    [dataService, isUniverseMutating, newStockName, newStockSymbol, user?.id]
+  );
+
+  const beginUniverseEdit = useCallback((row) => {
+    setEditingUniverseId(row?.id ?? null);
+    setEditStockName(row?.name ?? '');
+    setEditStockSymbol(row?.symbol ?? '');
+    setUniverseMutationError(null);
+  }, []);
+
+  const cancelUniverseEdit = useCallback(() => {
+    setEditingUniverseId(null);
+    setEditStockName('');
+    setEditStockSymbol('');
+  }, []);
+
+  const handleUniverseUpdate = useCallback(async () => {
+    if (!editingUniverseId || isUniverseMutating) {
+      return;
+    }
+
+    const symbol = editStockSymbol.trim().toUpperCase();
+    const name = editStockName.trim();
+
+    if (!symbol && !name) {
+      return;
+    }
+
+    const updates = {
+      symbol: symbol || name,
+      name: name || symbol
+    };
+
+    const existingRow = (universeRows ?? []).find((row) => row.id === editingUniverseId);
+    const match = existingRow?.profile_id
+      ? { id: editingUniverseId, profile_id: existingRow.profile_id }
+      : { id: editingUniverseId };
+
+    setIsUniverseMutating(true);
+    setUniverseMutationError(null);
+
+    try {
+      const updatedRows =
+        typeof dataService?.updateRows === 'function'
+          ? await dataService.updateRows('investment_universe', match, updates)
+          : [];
+
+      setUniverseRows((prev) =>
+        (prev ?? []).map((row) =>
+          row.id === editingUniverseId
+            ? {
+                ...row,
+                ...updates,
+                ...(updatedRows?.find((updated) => updated.id === editingUniverseId) ?? {})
+              }
+            : row
+        )
+      );
+
+      cancelUniverseEdit();
+    } catch (error) {
+      console.error('Failed to update investment universe row', error);
+      setUniverseMutationError(error);
+    } finally {
+      setIsUniverseMutating(false);
+    }
+  }, [
+    cancelUniverseEdit,
+    dataService,
+    editStockName,
+    editStockSymbol,
+    editingUniverseId,
+    isUniverseMutating,
+    universeRows
+  ]);
+
+  const handleUniverseDelete = useCallback(
+    async (rowId) => {
+      if (!rowId || isUniverseMutating) {
+        return;
+      }
+
+      const existingRow = (universeRows ?? []).find((row) => row.id === rowId);
+      const match = existingRow?.profile_id ? { id: rowId, profile_id: existingRow.profile_id } : { id: rowId };
+
+      setIsUniverseMutating(true);
+      setUniverseMutationError(null);
+
+      try {
+        if (typeof dataService?.deleteRows === 'function') {
+          await dataService.deleteRows('investment_universe', match);
+        }
+
+        setUniverseRows((prev) => (prev ?? []).filter((row) => row.id !== rowId));
+
+        if (editingUniverseId === rowId) {
+          cancelUniverseEdit();
+        }
+      } catch (error) {
+        console.error('Failed to delete investment universe row', error);
+        setUniverseMutationError(error);
+      } finally {
+        setIsUniverseMutating(false);
+      }
+    },
+    [cancelUniverseEdit, dataService, editingUniverseId, isUniverseMutating, universeRows]
   );
 
   useEffect(() => {
@@ -1328,16 +1459,78 @@ const App = () => {
             <th>Company</th>
             <th>Ticker</th>
             <th>Added</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           {sortedUniverseRows.map((row) => (
             <tr key={row.id}>
-              <td>{row.name || row.symbol || '—'}</td>
               <td>
-                <code>{row.symbol || '—'}</code>
+                {editingUniverseId === row.id ? (
+                  <input
+                    type="text"
+                    value={editStockName}
+                    onInput={(event) => setEditStockName(event.target.value)}
+                    aria-label="Edit company name"
+                  />
+                ) : (
+                  row.name || row.symbol || '—'
+                )}
+              </td>
+              <td>
+                {editingUniverseId === row.id ? (
+                  <input
+                    type="text"
+                    value={editStockSymbol}
+                    onInput={(event) => setEditStockSymbol(event.target.value)}
+                    aria-label="Edit ticker symbol"
+                  />
+                ) : (
+                  <code>{row.symbol || '—'}</code>
+                )}
               </td>
               <td>{formatDateLabel(row.created_at || new Date().toISOString())}</td>
+              <td>
+                {editingUniverseId === row.id ? (
+                  <div className="table-actions">
+                    <button
+                      type="button"
+                      className="btn-primary"
+                      onClick={handleUniverseUpdate}
+                      disabled={isUniverseMutating}
+                    >
+                      Save
+                    </button>
+                    <button
+                      type="button"
+                      className="btn-secondary"
+                      onClick={cancelUniverseEdit}
+                      disabled={isUniverseMutating}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                ) : (
+                  <div className="table-actions">
+                    <button
+                      type="button"
+                      className="btn-secondary"
+                      onClick={() => beginUniverseEdit(row)}
+                      disabled={isUniverseMutating}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      type="button"
+                      className="btn-secondary"
+                      onClick={() => handleUniverseDelete(row.id)}
+                      disabled={isUniverseMutating}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                )}
+              </td>
             </tr>
           ))}
         </tbody>
@@ -1377,13 +1570,14 @@ const App = () => {
                 <button
                   className="btn-primary"
                   type="submit"
-                  disabled={!newStockName.trim() && !newStockSymbol.trim()}
+                  disabled={(!newStockName.trim() && !newStockSymbol.trim()) || isUniverseMutating}
                 >
-                  Add to universe
+                  {isUniverseMutating ? 'Saving…' : 'Add to universe'}
                 </button>
                 <p className="detail-meta">
-                  Entries are kept locally in demo mode. When Supabase is configured, the table is hydrated from your
-                  workspace.
+                  {isSupabaseMode
+                    ? 'Saved directly to Supabase. You can edit or delete rows in the Universe tab.'
+                    : 'Entries are saved locally for this demo session. Configure Supabase to sync your universe to the cloud.'}
                 </p>
               </div>
             </form>
@@ -1407,6 +1601,12 @@ const App = () => {
             {universeLoadError && (
               <p className="detail-meta" role="status">
                 Supabase fetch failed; showing local defaults instead.
+              </p>
+            )}
+            {universeMutationError && (
+              <p className="detail-meta" role="status">
+                {isSupabaseMode ? 'Supabase sync failed: ' : 'Update failed: '}
+                {universeMutationError.message || 'Please try again.'}
               </p>
             )}
           </div>
