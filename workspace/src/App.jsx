@@ -4,6 +4,7 @@ import { getDataService } from './data/dataService.js';
 import { formatDateLabel, formatPercent, formatUsd } from './features/dashboard/dashboardUtils.js';
 import { useDashboardData } from './features/dashboard/useDashboardData.js';
 import { AIAnalysis } from './features/ai-analysis/AIAnalysis.jsx';
+import { useAuth } from './context/AuthContext.jsx';
 
 const DEFAULT_FOCUS_LIST = [
   { id: 'focus-1', title: 'SPY breakout', caption: 'Checklist ready • 09:30', tag: { tone: 'tag-green', label: 'Today' } },
@@ -548,6 +549,7 @@ const App = () => {
   const [alertSettings, setAlertSettings] = useState(() => createInitialAlertState());
   const runtimeConfig = useMemo(() => getRuntimeConfig(), []);
   const dataService = useMemo(() => getDataService(), [runtimeConfig.mode]);
+  const { user } = useAuth();
   const themeCopy = theme === 'dark' ? 'Switch to light' : 'Switch to dark';
   const mobilePrimaryNav = [
     { id: 'dashboard', icon: '🏠', label: 'Today' },
@@ -572,7 +574,7 @@ const App = () => {
     loadError: dashboardError
   } = useDashboardData({
     dataService,
-    profileId: activeProfile?.id,
+    profileId: activeProfile?.id ?? user?.id,
     defaultFocusList: DEFAULT_FOCUS_LIST
   });
   const morningNewsAlert = alertSettings[MORNING_NEWS_ALERT_ID];
@@ -618,6 +620,21 @@ const App = () => {
       };
     });
   }, []);
+
+  const profileDisplayName = useMemo(
+    () =>
+      activeProfile?.display_name ||
+      user?.user_metadata?.display_name ||
+      user?.user_metadata?.full_name ||
+      user?.email?.split('@')[0] ||
+      'Demo Trader',
+    [activeProfile?.display_name, user?.email, user?.user_metadata?.display_name, user?.user_metadata?.full_name]
+  );
+
+  const profileEmail = useMemo(
+    () => activeProfile?.email || user?.email || 'demo@alphastocks.ai',
+    [activeProfile?.email, user?.email]
+  );
   const dataError = profileError ?? dashboardError;
   const dataDiagnostics = useMemo(
     () => ({
@@ -756,7 +773,7 @@ const App = () => {
     let cancelled = false;
 
     dataService
-      .getTable('profiles', { limit: 1 })
+      .getTable('profiles', user?.id ? { limit: 1, match: { id: user.id } } : { limit: 1 })
       .then(({ rows }) => {
         if (!cancelled) {
           setActiveProfile(rows?.[0] ?? null);
@@ -773,7 +790,7 @@ const App = () => {
     return () => {
       cancelled = true;
     };
-  }, [dataService]);
+  }, [dataService, user?.id]);
 
   const section = useMemo(() => {
     if (activeSection === 'dashboard') {
@@ -1482,7 +1499,7 @@ const App = () => {
               <p>
                 Welcome,
                 {' '}
-                {activeProfile?.display_name ?? 'Demo Trader'}.
+                {profileDisplayName}.
               </p>
             </div>
             <div className="account-actions">
@@ -1494,7 +1511,7 @@ const App = () => {
               >
                 {themeCopy}
               </button>
-              <div className="app-user">{activeProfile?.email ?? 'demo@alphastocks.ai'}</div>
+              <div className="app-user">{profileEmail}</div>
               <button type="button" className="btn-secondary" disabled>
                 Log out
               </button>

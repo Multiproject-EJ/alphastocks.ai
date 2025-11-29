@@ -51,6 +51,15 @@ export const createSupabaseProvider = () => {
       const { data, error, count } = await query;
 
       if (error) {
+        if (error.code === '42P01') {
+          console.warn(`Supabase table "${name}" is missing. Returning empty dataset.`);
+          return {
+            table: name,
+            rows: [],
+            metadata: { count: 0, missingTable: true }
+          };
+        }
+
         throw new Error(`Supabase query for "${name}" failed: ${error.message}`);
       }
 
