@@ -40,6 +40,7 @@ export function AIAnalysis() {
   const { analyzeStock, loading, error, data } = useStockAnalysis();
 
   const [provider, setProvider] = useState('openai');
+  const [model, setModel] = useState('');
   const [ticker, setTicker] = useState('');
   const [timeframe, setTimeframe] = useState('');
   const [question, setQuestion] = useState('');
@@ -66,6 +67,37 @@ export function AIAnalysis() {
             ? 'Google Gemini'
             : 'OpenRouter'
     }));
+
+  const modelOptions = {
+    openai: [
+      { value: '', label: 'Use default (gpt-4o-mini)' },
+      { value: 'gpt-4o', label: 'gpt-4o (quality)' },
+      { value: 'gpt-4o-mini', label: 'gpt-4o-mini (fast & cost effective)' },
+      { value: 'gpt-4.1', label: 'gpt-4.1 (premium)' }
+    ],
+    gemini: [
+      { value: '', label: 'Use default (gemini-1.5-flash)' },
+      { value: 'gemini-1.5-pro', label: 'gemini-1.5-pro (quality)' },
+      { value: 'gemini-1.5-flash', label: 'gemini-1.5-flash (fast)' }
+    ],
+    openrouter: [
+      { value: '', label: 'Use default (openai/gpt-3.5-turbo)' },
+      { value: 'openai/gpt-4o', label: 'openai/gpt-4o (quality)' },
+      { value: 'openai/gpt-3.5-turbo', label: 'openai/gpt-3.5-turbo (fast & low cost)' },
+      { value: 'mistralai/mistral-large', label: 'mistralai/mistral-large (balanced)' }
+    ]
+  };
+
+  useEffect(() => {
+    const availableValues = availableProviders.map((p) => p.value);
+    if (availableValues.length > 0 && !availableValues.includes(provider)) {
+      setProvider(availableValues[0]);
+    }
+  }, [availableProviders, provider]);
+
+  useEffect(() => {
+    setModel('');
+  }, [provider]);
 
   const handleTickerBlur = useCallback(() => {
     if (ticker.trim()) {
@@ -101,6 +133,7 @@ export function AIAnalysis() {
     try {
       await analyzeStock({
         provider,
+        model: model || undefined,
         ticker: normalizedTicker,
         timeframe: timeframe.trim() || undefined,
         question: question.trim() || undefined
@@ -146,6 +179,25 @@ export function AIAnalysis() {
             </select>
             <span className="field-hint">
               Available providers are shown based on server configuration.
+            </span>
+          </div>
+
+          <div className="field">
+            <label htmlFor="aiModel">Model (optional)</label>
+            <select
+              id="aiModel"
+              value={model}
+              onChange={(e) => setModel(e.target.value)}
+              disabled={!modelOptions[provider] || modelOptions[provider].length === 0}
+            >
+              {(modelOptions[provider] || []).map((option) => (
+                <option key={`${provider}-${option.value || 'default'}`} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            <span className="field-hint">
+              Keep the default for the recommended model, or choose a premium or lower-cost option.
             </span>
           </div>
 
