@@ -24,8 +24,11 @@ function validateRequest(body) {
     return { valid: false, errors };
   }
 
-  if (!body.ticker || typeof body.ticker !== 'string' || body.ticker.trim().length === 0) {
-    errors.push('ticker is required and must be a non-empty string');
+  const hasTicker = body.ticker && typeof body.ticker === 'string' && body.ticker.trim().length > 0;
+  const hasQuery = body.query && typeof body.query === 'string' && body.query.trim().length > 0;
+
+  if (!hasTicker && !hasQuery) {
+    errors.push('Either ticker or query is required and must be a non-empty string');
   }
 
   if (body.provider && !['openai', 'gemini', 'openrouter'].includes(body.provider.toLowerCase())) {
@@ -51,9 +54,9 @@ function validateRequest(body) {
 }
 
 /**
- * Enriches error response with provider, ticker, and debug information
+ * Enriches error response with provider, ticker, query, and debug information
  * @param {object} errorResponse - Base error response object
- * @param {object} requestBody - Request body to extract provider and ticker from
+ * @param {object} requestBody - Request body to extract provider, ticker and query from
  * @param {string} debugMessage - Debug message to include in non-production
  * @returns {object} - Enriched error response
  */
@@ -64,10 +67,92 @@ function enrichErrorResponse(errorResponse, requestBody, debugMessage) {
   if (requestBody?.ticker) {
     errorResponse.ticker = requestBody.ticker;
   }
+  if (requestBody?.query) {
+    errorResponse.query = requestBody.query;
+  }
   if (debugMessage && process.env.NODE_ENV !== 'production') {
     errorResponse.debug = debugMessage;
   }
   return errorResponse;
+}
+
+/**
+ * Calls OpenAI Chat Completions API as a fallback for free-text queries
+ * @param {string} query - The company/query string
+ * @param {string} question - Optional additional question
+ * @param {string} timeframe - Optional timeframe
+ * @returns {Promise<object>} - Normalized analysis result
+ */
+async function callOpenAIFallback(query, question, timeframe) {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    throw new Error('OPENAI_API_KEY is not configured');
+  }
+  
+  const systemPrompt = 'You are a professional stock market analyst. Analyze the given company and provide insights in JSON format with fields: summary (string), sentiment (bullish/neutral/bearish), opportunities (array of strings), risks (array of strings).';
+  
+  let userPrompt = `Analyze the company: ${query}`;
+  if (timeframe) {
+    userPrompt += `\nTimeframe: ${timeframe}`;
+  }
+  if (question) {
+    userPrompt += `\nAdditional question: ${question}`;
+  }
+  userPrompt += '\n\nProvide a short summary, sentiment assessment, key opportunities, and risks.';
+
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`
+    },
+    body: JSON.stringify({
+      model: 'gpt-3.5-turbo',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt }
+      ],
+      temperature: 0.7,
+      max_tokens: 1000
+    })
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(`OpenAI API error (${response.status}): ${errorData.error?.message || response.statusText}`);
+  }
+
+  const data = await response.json();
+  const rawText = data.choices?.[0]?.message?.content || '';
+
+  // Try to parse JSON from the response
+  let parsed = { summary: '', sentiment: 'neutral', opportunities: [], risks: [] };
+  try {
+    let jsonText = rawText.trim();
+    const codeBlockMatch = jsonText.match(/```(?:json)?\s*\n?([\s\S]*?)\n?```/);
+    if (codeBlockMatch) {
+      jsonText = codeBlockMatch[1].trim();
+    }
+    const jsonParsed = JSON.parse(jsonText);
+    parsed.summary = jsonParsed.summary || rawText.substring(0, 500);
+    parsed.sentiment = jsonParsed.sentiment || 'neutral';
+    parsed.opportunities = Array.isArray(jsonParsed.opportunities) ? jsonParsed.opportunities : [];
+    parsed.risks = Array.isArray(jsonParsed.risks) ? jsonParsed.risks : [];
+  } catch {
+    // If JSON parsing fails, use the raw text as summary
+    parsed.summary = rawText.substring(0, 500);
+  }
+
+  return {
+    ticker: null,
+    provider: 'openai',
+    modelUsed: 'gpt-3.5-turbo',
+    sentiment: parsed.sentiment,
+    summary: parsed.summary,
+    opportunities: parsed.opportunities,
+    risks: parsed.risks,
+    rawResponse: rawText.length > 2000 ? rawText.substring(0, 2000) + '... (truncated)' : rawText
+  };
 }
 
 /**
@@ -122,18 +207,56 @@ export default async function handler(req, res) {
       provider,
       model,
       ticker,
+      query,
       question,
       timeframe
     } = body;
 
-    // Call the stock analysis service
-    const result = await analyzeStock({
-      provider,
-      model,
-      ticker,
-      question,
-      timeframe
-    });
+    let result;
+
+    if (ticker) {
+      // Ticker mode: call analyzeStock as before
+      result = await analyzeStock({
+        provider,
+        model,
+        ticker,
+        question,
+        timeframe
+      });
+    } else if (query) {
+      // Query mode: try analyzeStock with query, fall back to OpenAI if needed
+      try {
+        result = await analyzeStock({
+          provider,
+          model,
+          query,
+          question,
+          timeframe
+        });
+      } catch (queryError) {
+        // Check if the error indicates a ticker was expected
+        if (queryError.message && (queryError.message.includes('Ticker') || queryError.message.includes('ticker'))) {
+          // Attempt OpenAI fallback
+          if (process.env.OPENAI_API_KEY) {
+            result = await callOpenAIFallback(query, question, timeframe);
+          } else {
+            const errorResponse = enrichErrorResponse(
+              {
+                code: 'NO_PROVIDER_OR_RESOLUTION',
+                error: 'No provider available',
+                message: 'No provider could analyze a free-text company query and no OpenAI fallback is configured'
+              },
+              body,
+              queryError.message
+            );
+            return res.status(501).json(errorResponse);
+          }
+        } else {
+          // Re-throw non-ticker-related errors
+          throw queryError;
+        }
+      }
+    }
 
     // Return the successful result
     return res.status(200).json(result);
