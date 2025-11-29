@@ -2,6 +2,7 @@ import { createContext } from 'preact';
 import { useState, useEffect, useContext } from 'preact/hooks';
 import { supabase } from '../lib/supabaseClient.js';
 import { isDemoMode } from '../config/runtimeConfig.js';
+import { bootstrapUserWorkspace } from '../lib/ensureUserProfile.js';
 
 const AuthContext = createContext({});
 
@@ -64,6 +65,14 @@ export const AuthProvider = ({ children }) => {
 
     return () => subscription.unsubscribe();
   }, []);
+
+  useEffect(() => {
+    if (isDemoMode() || !user) {
+      return;
+    }
+
+    bootstrapUserWorkspace(user);
+  }, [user]);
 
   const signUp = async (email, password) => {
     const { data, error } = await supabase.auth.signUp({
