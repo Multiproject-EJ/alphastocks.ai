@@ -8,25 +8,27 @@
 import { useState, useEffect, useCallback } from 'preact/hooks';
 import { useStockAnalysis } from '../../lib/useStockAnalysis.js';
 
-const TICKER_REGEX = /^[A-Z]{1,8}$/;
+const TICKER_REGEX = /^[A-Za-z]{1,8}$/;
 
 /**
- * Validates a stock ticker symbol
- * @param {string} ticker - The ticker to validate
+ * Validates input: must be non-empty
+ * @param {string} input - The input to validate
  * @returns {{ valid: boolean, message: string }}
  */
-function validateTicker(ticker) {
-  if (!ticker || ticker.trim().length === 0) {
-    return { valid: false, message: 'Please enter a stock ticker.' };
+function validateInput(input) {
+  if (!input || input.trim().length === 0) {
+    return { valid: false, message: 'Please enter a stock ticker or company name.' };
   }
-
-  const normalizedTicker = ticker.trim().toUpperCase();
-
-  if (!TICKER_REGEX.test(normalizedTicker)) {
-    return { valid: false, message: 'Ticker must be 1-8 letters only (e.g., AAPL, MSFT).' };
-  }
-
   return { valid: true, message: '' };
+}
+
+/**
+ * Checks if input is a valid ticker symbol (1-8 letters)
+ * @param {string} input - The input to check
+ * @returns {boolean}
+ */
+function isTicker(input) {
+  return TICKER_REGEX.test(input.trim());
 }
 
 /**
@@ -77,7 +79,7 @@ export function AIAnalysis() {
 
   const handleTickerBlur = useCallback(() => {
     if (ticker.trim()) {
-      const validation = validateTicker(ticker);
+      const validation = validateInput(ticker);
       if (!validation.valid) {
         setTickerError(validation.message);
       }
@@ -85,7 +87,7 @@ export function AIAnalysis() {
   }, [ticker]);
 
   const handleTickerChange = useCallback((e) => {
-    const value = e.target.value.toUpperCase();
+    const value = e.target.value;
     setTicker(value);
     if (tickerError) {
       setTickerError('');
@@ -95,8 +97,8 @@ export function AIAnalysis() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const normalizedTicker = ticker.trim().toUpperCase();
-    const validation = validateTicker(normalizedTicker);
+    const trimmedInput = ticker.trim();
+    const validation = validateInput(trimmedInput);
 
     if (!validation.valid) {
       setTickerError(validation.message);
@@ -107,12 +109,29 @@ export function AIAnalysis() {
     setShowResults(true);
 
     try {
-      await analyzeStock({
-        provider,
-        ticker: normalizedTicker,
-        timeframe: timeframe.trim() || undefined,
-        question: question.trim() || undefined
-      });
+      let result;
+      if (isTicker(trimmedInput)) {
+        // Input is a valid ticker (1-8 letters)
+        result = await analyzeStock({
+          provider,
+          ticker: trimmedInput.toUpperCase(),
+          timeframe: timeframe.trim() || undefined,
+          question: question.trim() || undefined
+        });
+      } else {
+        // Input is a free-text query (company name, etc.)
+        result = await analyzeStock({
+          provider,
+          query: trimmedInput,
+          timeframe: timeframe.trim() || undefined,
+          question: question.trim() || undefined
+        });
+      }
+      
+      // Call window.displayResults if available
+      if (typeof window.displayResults === 'function') {
+        window.displayResults(result);
+      }
     } catch (err) {
       // Error is already handled by the hook
       console.error('Analysis failed:', err);
@@ -159,12 +178,12 @@ export function AIAnalysis() {
 
           <div className="field">
             <label htmlFor="aiTicker">
-              Stock Ticker <span aria-hidden="true">*</span>
+              Stock Ticker or Company Name <span aria-hidden="true">*</span>
             </label>
             <input
               type="text"
               id="aiTicker"
-              placeholder="e.g., AAPL"
+              placeholder="e.g., AAPL or Apple Inc"
               required
               aria-required="true"
               aria-invalid={!!tickerError}
@@ -172,11 +191,9 @@ export function AIAnalysis() {
               onInput={handleTickerChange}
               onBlur={handleTickerBlur}
               autoComplete="off"
-              pattern="[A-Za-z]{1,8}"
-              style={{ textTransform: 'uppercase' }}
             />
             <span className="field-hint">
-              Enter 1-8 letters (e.g., AAPL, MSFT, GOOGL).
+              Enter a ticker (1-8 letters) or company name.
             </span>
             {tickerError && (
               <span className="field-error" role="alert">
