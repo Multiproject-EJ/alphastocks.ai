@@ -546,35 +546,7 @@ const staticSections = {
   valuebot: {
     title: 'ValueBot command center',
     meta: 'Give ValueBot a focused prompt, then drill into the dedicated tabs for management, moat, balance sheet, and more.',
-    cards: [
-      {
-        title: 'Quick setup',
-        body: (
-          <>
-            <p>Choose the topic that needs attention and ValueBot will prefill the right worksheet.</p>
-            <ul>
-              <li>Management accountability pulse</li>
-              <li>Income &amp; future sales glide path</li>
-              <li>Moat durability review</li>
-              <li>Debt &amp; refinancing guardrails</li>
-            </ul>
-          </>
-        )
-      },
-      {
-        title: 'Workflow tips',
-        body: (
-          <>
-            <p>Keep each tab alive with the freshest thinking:</p>
-            <ol>
-              <li>Drop transcript or model highlights into the relevant tab.</li>
-              <li>Pin any red flags inside the Risks tab for fast escalation.</li>
-              <li>Use Notes &amp; hand-offs as a placeholder until a bespoke module is built.</li>
-            </ol>
-          </>
-        )
-      }
-    ],
+    cards: [],
     component: <AIAnalysis />
   },
   settings: {
