@@ -8,22 +8,14 @@
 import { useState, useEffect, useCallback } from 'preact/hooks';
 import { useStockAnalysis } from '../../lib/useStockAnalysis.js';
 
-const TICKER_REGEX = /^[A-Z]{1,8}$/;
-
 /**
- * Validates a stock ticker symbol
- * @param {string} ticker - The ticker to validate
+ * Validates the stock/company identifier input
+ * @param {string} ticker - The ticker or company name to validate
  * @returns {{ valid: boolean, message: string }}
  */
 function validateTicker(ticker) {
   if (!ticker || ticker.trim().length === 0) {
-    return { valid: false, message: 'Please enter a stock ticker.' };
-  }
-
-  const normalizedTicker = ticker.trim().toUpperCase();
-
-  if (!TICKER_REGEX.test(normalizedTicker)) {
-    return { valid: false, message: 'Ticker must be 1-8 letters only (e.g., AAPL, MSFT).' };
+    return { valid: false, message: 'Please enter a company name or ticker.' };
   }
 
   return { valid: true, message: '' };
@@ -85,7 +77,7 @@ export function AIAnalysis() {
   }, [ticker]);
 
   const handleTickerChange = useCallback((e) => {
-    const value = e.target.value.toUpperCase();
+    const value = e.target.value;
     setTicker(value);
     if (tickerError) {
       setTickerError('');
@@ -95,7 +87,7 @@ export function AIAnalysis() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const normalizedTicker = ticker.trim().toUpperCase();
+    const normalizedTicker = ticker.trim();
     const validation = validateTicker(normalizedTicker);
 
     if (!validation.valid) {
@@ -159,12 +151,12 @@ export function AIAnalysis() {
 
           <div className="field">
             <label htmlFor="aiTicker">
-              Stock Ticker <span aria-hidden="true">*</span>
+              Company or Ticker <span aria-hidden="true">*</span>
             </label>
             <input
               type="text"
               id="aiTicker"
-              placeholder="e.g., AAPL"
+              placeholder="e.g., Apple, AAPL, GOOGL"
               required
               aria-required="true"
               aria-invalid={!!tickerError}
@@ -172,11 +164,9 @@ export function AIAnalysis() {
               onInput={handleTickerChange}
               onBlur={handleTickerBlur}
               autoComplete="off"
-              pattern="[A-Za-z]{1,8}"
-              style={{ textTransform: 'uppercase' }}
             />
             <span className="field-hint">
-              Enter 1-8 letters (e.g., AAPL, MSFT, GOOGL).
+              Enter a company name or ticker in any format.
             </span>
             {tickerError && (
               <span className="field-error" role="alert">
