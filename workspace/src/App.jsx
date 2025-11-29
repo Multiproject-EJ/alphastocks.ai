@@ -1735,65 +1735,6 @@ const App = () => {
     </>
   );
 
-  const renderValueBotPanel = () => (
-    <section className="valuebot-panel" aria-label="ValueBot workspace">
-      <header className="valuebot-header">
-        <div>
-          <h2>ValueBot research console</h2>
-          <p>
-            Explore AI-generated valuation prompts, conviction notes, and scenario planning tabs tailored for deep
-            fundamental work.
-          </p>
-        </div>
-        <span className="tag tag-blue">AI assistant</span>
-      </header>
-      <div className="valuebot-tabs" role="tablist" aria-label="ValueBot prompts">
-        {valueBotTabs.map((tab) => (
-          <button
-            key={tab.id}
-            className={`valuebot-tab${activeValueBotTab === tab.id ? ' active' : ''}`}
-            type="button"
-            role="tab"
-            aria-selected={activeValueBotTab === tab.id}
-            onClick={() => setActiveValueBotTab(tab.id)}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-      <div className="valuebot-views">
-        {valueBotTabs.map((tab) => (
-          <article
-            key={tab.id}
-            className={`valuebot-view${activeValueBotTab === tab.id ? ' active' : ''}`}
-            aria-hidden={activeValueBotTab !== tab.id}
-          >
-            <h3>{tab.title}</h3>
-            <p>{tab.description}</p>
-            <ul>
-              {tab.bullets.map((bullet) => (
-                <li key={bullet}>{bullet}</li>
-              ))}
-            </ul>
-            {tab.infoSections?.map((section) => (
-              <div className="valuebot-info" key={`${tab.id}-${section.title}`}>
-                <h4>{section.title}</h4>
-                {section.items ? (
-                  <ul>
-                    {section.items.map((item) => (
-                      <li key={item}>{item}</li>
-                    ))}
-                  </ul>
-                ) : null}
-                {section.text ? <p>{section.text}</p> : null}
-              </div>
-            ))}
-          </article>
-        ))}
-      </div>
-    </section>
-  );
-
   const renderActivePanel = () => {
     if (activeSection === 'quadrant') {
       return renderQuadrantPanel();
@@ -1801,10 +1742,6 @@ const App = () => {
 
     if (activeSection === 'checkin' && activeTab === 'Trading Journal') {
       return renderCheckInJournalPanel();
-    }
-
-    if (activeSection === 'valuebot' || (activeSection === 'dashboard' && activeTab === 'ValueBot')) {
-      return renderValueBotPanel();
     }
 
     if (activeTab === tabsForSection[0]) {
@@ -2051,6 +1988,64 @@ const App = () => {
                 </article>
               </section>
             </div>
+            {activeSection === 'dashboard' && activeTab === 'ValueBot' && (
+              <section className="valuebot-panel" aria-label="ValueBot workspace">
+                <header className="valuebot-header">
+                  <div>
+                    <h2>ValueBot research console</h2>
+                    <p>
+                      Explore AI-generated valuation prompts, conviction notes, and scenario planning tabs tailored for
+                      deep fundamental work.
+                    </p>
+                  </div>
+                  <span className="tag tag-blue">AI assistant</span>
+                </header>
+                <div className="valuebot-tabs" role="tablist" aria-label="ValueBot prompts">
+                  {valueBotTabs.map((tab) => (
+                    <button
+                      key={tab.id}
+                      className={`valuebot-tab${activeValueBotTab === tab.id ? ' active' : ''}`}
+                      type="button"
+                      role="tab"
+                      aria-selected={activeValueBotTab === tab.id}
+                      onClick={() => setActiveValueBotTab(tab.id)}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
+                <div className="valuebot-views">
+                  {valueBotTabs.map((tab) => (
+                  <article
+                    key={tab.id}
+                    className={`valuebot-view${activeValueBotTab === tab.id ? ' active' : ''}`}
+                    aria-hidden={activeValueBotTab !== tab.id}
+                  >
+                    <h3>{tab.title}</h3>
+                    <p>{tab.description}</p>
+                    <ul>
+                      {tab.bullets.map((bullet) => (
+                        <li key={bullet}>{bullet}</li>
+                      ))}
+                    </ul>
+                    {tab.infoSections?.map((section) => (
+                      <div className="valuebot-info" key={`${tab.id}-${section.title}`}>
+                        <h4>{section.title}</h4>
+                        {section.items ? (
+                          <ul>
+                            {section.items.map((item) => (
+                              <li key={item}>{item}</li>
+                            ))}
+                          </ul>
+                        ) : null}
+                        {section.text ? <p>{section.text}</p> : null}
+                      </div>
+                    ))}
+                  </article>
+                ))}
+              </div>
+            </section>
+          )}
           </div>
         </div>
       </section>
