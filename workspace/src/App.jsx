@@ -107,23 +107,21 @@ const valueBotTabs = [
     ],
     infoSections: [
       {
-        title: 'System fetches',
-        items: [
-          'Historical financials',
-          'Price history',
-          'Market cap',
-          'Segments',
-          'Competitors',
-          'Macro references',
-          'Recent filings (optional later)'
-        ]
-      },
-      {
-        title: 'Notes',
-        items: [
-          'This is not AI—it is a database query stage.',
-          'Data from this loader flows into all subsequent modules.'
-        ]
+        title: 'Module brief',
+        text: `MODULE 0 — Data Loader (Pre-Step)
+
+Your system fetches:
+  • Historical financials
+  • Price history
+  • Market cap
+  • Segments
+  • Competitors
+  • Macro references
+  • Recent filings (optional later)
+
+This is not AI — it’s your database query.
+
+This data is then passed to all modules.`
       }
     ]
   },
@@ -147,18 +145,28 @@ const valueBotTabs = [
           'Cash flow strength score',
           'Margin strength score',
           'Competition & moat grade',
-          'Explanation paragraphs for each',
-          'Composite quality score'
+          'Explanation paragraphs for each'
         ]
       },
       { title: 'Used later by', items: ['Module 3 (Scenario Analysis)', 'Module 4 (Valuation)', 'Module 5 (Final Verdicts)'] },
       {
         title: 'Prompt',
-        items: [
-          'Analyze the company using only provided data.',
-          'Return JSON with risk_summary, individual scores (value, label, reason), and composite_quality.',
-          'Score on a 1–10 scale (world class → horrific) with concise, structured explanations.'
-        ]
+        text: `You are ValueBot.ai — Module 1: Core Risk & Quality Diagnostics.
+Analyze the company using ONLY the provided data.
+
+Return exactly this JSON:
+{
+  "risk_summary": "...",
+  "debt_score": {"value": X, "label": "...", "reason": "..."},
+  "cashflow_score": {"value": X, "label": "...", "reason": "..."},
+  "margin_score": {"value": X, "label": "...", "reason": "..."},
+  "moat_score": {"value": X, "label": "...", "reason": "..."},
+  "composite_quality": X.X
+}
+
+Rules:
+- Score on the 1–10 scale (world class → horrific).
+- Explanations MUST be concise and structured.`
       }
     ]
   },
@@ -182,7 +190,7 @@ const valueBotTabs = [
         title: 'Output',
         items: [
           'Key revenue drivers',
-          'Moat expansion or decay outlook',
+          'Moat expansion or decay',
           'Strategic tailwinds/headwinds',
           'Capital allocation quality',
           '5–15 year logical “story spine”'
@@ -191,10 +199,23 @@ const valueBotTabs = [
       { title: 'Used by', items: ['Module 3 (Scenario analysis)', 'Module 4 (Valuation)'] },
       {
         title: 'Prompt',
-        items: [
-          'Use financial data and Module 1 output to analyze growth drivers, moat dynamics, secular trends, capital allocation efficiency, and FCF durability.',
-          'Return JSON: growth_drivers, moat_outlook, secular_trends, capital_allocation, long_term_durability.'
-        ]
+        text: `You are ValueBot.ai — Module 2: Business Model & Growth Engine.
+Using the data AND the Module 1 output, analyze:
+
+- Key revenue drivers (short + long term)
+- Moat dynamics
+- Secular trends
+- Capital allocation efficiency
+- FCF durability implications
+
+Return JSON:
+{
+  "growth_drivers": [...],
+  "moat_outlook": "...",
+  "secular_trends": [...],
+  "capital_allocation": "...",
+  "long_term_durability": "..."
+}`
       }
     ]
   },
@@ -224,10 +245,26 @@ const valueBotTabs = [
       { title: 'Used by', items: ['Module 4 (Valuation)', 'Module 5 (Final verdicts)', 'Frontend visuals'] },
       {
         title: 'Prompt',
-        items: [
-          'Use financial data plus outputs from Modules 1 and 2 to create Bear, Base, and Bull scenarios.',
-          'Return JSON with revenue_cagr, margin_outlook, fcf_outlook, key_risks, valuation_5y, and valuation_15y for each scenario.'
-        ]
+        text: `You are ValueBot.ai — Module 3: Scenario Engine.
+Using financial data AND outputs from Module 1 + 2:
+
+Create Bear, Base, and Bull scenarios with this JSON:
+
+{
+  "scenarios": [
+    {
+      "name": "Bear",
+      "revenue_cagr": X,
+      "margin_outlook": "...",
+      "fcf_outlook": "...",
+      "key_risks": "...",
+      "valuation_5y": "XX–YY",
+      "valuation_15y": "XX–YY"
+    },
+    { Base scenario ... },
+    { Bull scenario ... }
+  ]
+}`
       }
     ]
   },
@@ -255,10 +292,22 @@ const valueBotTabs = [
       },
       {
         title: 'Prompt',
-        items: [
-          'Use financial data, Module 1 scores, and all Module 3 scenarios to produce fair value ranges and entry zones.',
-          'Return JSON with fair_value_probability_weighted, reverse_engineered_growth, upside_percent, downside_percent, and entry_zones thresholds.'
-        ]
+        text: `You are ValueBot.ai — Module 4: Valuation Engine.
+
+Using the financial data, Module 1 scores, and all Module 3 scenarios:
+
+Return JSON:
+{
+  "fair_value_probability_weighted": "XX–YY",
+  "reverse_engineered_growth": "...",
+  "upside_percent": X,
+  "downside_percent": X,
+  "entry_zones": {
+     "accumulate_below": X,
+     "buy_below": X,
+     "strong_buy_below": X
+  }
+}`
       }
     ]
   },
@@ -286,10 +335,19 @@ const valueBotTabs = [
       },
       {
         title: 'Prompt',
-        items: [
-          'Use price history, valuation ranges, and scenario outputs to generate timing verdicts and catalysts.',
-          'Return JSON with timing, momentum_score, catalysts, and booleans for accumulate, buy, and strong buy.'
-        ]
+        text: `You are ValueBot.ai — Module 5: Timing & Momentum.
+
+Using price history, valuation ranges, and scenario outputs:
+
+Return JSON:
+{
+  "timing": "Buy | Hold | Wait | Avoid",
+  "momentum_score": X,
+  "catalysts": [...],
+  "is_accumulate": true/false,
+  "is_buy": true/false,
+  "is_strong_buy": true/false
+}`
       }
     ]
   },
@@ -309,16 +367,23 @@ const valueBotTabs = [
       {
         title: 'Output',
         items: [
-          'Top tables: One-Liner Summary, Final Verdicts, Scorecard, Valuation Ranges',
+          'All 4 tables: One-Liner Summary, Final Verdicts, Scorecard, Valuation Ranges',
           'Short narrative summary'
         ]
       },
       {
         title: 'Prompt',
-        items: [
-          'Combine all module outputs into tables and a ~10 sentence narrative.',
-          'Return JSON containing tables (one_liner, etc.) and a narrative block.'
-        ]
+        text: `You are ValueBot.ai — Module 6: Final Verdict Synthesizer.
+
+Combine all module outputs into:
+- Top tables (One-Liner, Final Verdicts, Scorecard, Valuation Ranges)
+- A short narrative summary (~10 sentences)
+
+Return JSON containing:
+{
+   "tables": { one_liner: "...", ... },
+   "narrative": "..."
+}`
       }
     ]
   }
