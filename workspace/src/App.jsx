@@ -41,7 +41,8 @@ const dashboardTabs = ['Overview', 'Notes', 'Tasks', 'Analytics', 'ValueBot'];
 const defaultSectionTabs = ['Tab 1', 'Tab 2', 'Tab 3', 'Tab 4', 'Tab 5'];
 const sectionTabsById = {
   dashboard: dashboardTabs,
-  quadrant: ['Universe', 'Universe Quadrant', 'Add Stocks']
+  quadrant: ['Universe', 'Universe Quadrant', 'Add Stocks'],
+  checkin: ['Tab 1', 'Trading Journal', 'Tab 3', 'Tab 4', 'Tab 5']
 };
 
 const MORNING_NEWS_ALERT_ID = 'morning-news';
@@ -1610,14 +1611,47 @@ const App = () => {
               </p>
             )}
           </div>
-          <div className="detail-card">
-            <h3>Journal prompts</h3>
-            <ol>
-              <li>What regime are you trading right now? List the confirming data.</li>
-              <li>Which quadrant is your top idea in, and what would move it?</li>
-              <li>How aligned is your sizing with the current quadrant?</li>
-            </ol>
-          </div>
+        </div>
+      </>
+    );
+  };
+
+  const renderCheckInJournalPanel = () => (
+    <>
+      <h2>Trading Journal</h2>
+      <p className="detail-meta">Daily reflections to anchor your session.</p>
+      <div className="detail-grid detail-grid--balanced">
+        <div className="detail-card">
+          <h3>Journal prompts</h3>
+          <ol>
+            <li>What regime are you trading right now? List the confirming data.</li>
+            <li>Which quadrant is your top idea in, and what would move it?</li>
+            <li>How aligned is your sizing with the current quadrant?</li>
+          </ol>
+        </div>
+      </div>
+    </>
+  );
+
+  const renderActivePanel = () => {
+    if (activeSection === 'quadrant') {
+      return renderQuadrantPanel();
+    }
+
+    if (activeSection === 'checkin' && activeTab === 'Trading Journal') {
+      return renderCheckInJournalPanel();
+    }
+
+    if (activeTab === tabsForSection[0]) {
+      return renderDefaultSection();
+    }
+
+    return (
+      <>
+        <h2>{activeTab}</h2>
+        <p className="detail-meta">Custom tab for {section.title}</p>
+        <div className="detail-card">
+          <p>This tab is reserved for future {section.title} content.</p>
         </div>
       </>
     );
@@ -1848,19 +1882,7 @@ const App = () => {
             <div className="app-panels">
               <section className="app-detail" aria-label="Detail">
                 <article className="detail-view visible">
-                  {activeSection === 'quadrant' ? (
-                    renderQuadrantPanel()
-                  ) : activeTab === tabsForSection[0] ? (
-                    renderDefaultSection()
-                  ) : (
-                    <>
-                      <h2>{activeTab}</h2>
-                      <p className="detail-meta">Custom tab for {section.title}</p>
-                      <div className="detail-card">
-                        <p>This tab is reserved for future {section.title} content.</p>
-                      </div>
-                    </>
-                  )}
+                  {renderActivePanel()}
                 </article>
               </section>
             </div>
