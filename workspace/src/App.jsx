@@ -209,7 +209,6 @@ const mainNavigation = [
   { id: 'dashboard', icon: '🏠', title: 'Today / Dashboard', caption: 'Overview' },
   { id: 'checkin', icon: '🧘', title: 'Check-In', caption: 'Daily reflections' },
   { id: 'valuebot', icon: '🤖', title: 'ValueBot', caption: 'Valuation copilot' },
-  { id: 'portfolio', icon: '💼', title: 'Portfolio', caption: 'Results & ledger', hasSubmenu: true },
   {
     id: 'punchcard',
     icon: '🎣',
@@ -217,6 +216,7 @@ const mainNavigation = [
     caption: 'Patience & selectivity drill'
   },
   { id: 'quadrant', icon: '🧭', title: 'Investing Universe', caption: '' },
+  { id: 'portfolio', icon: '💼', title: 'Portfolio', caption: 'Results & ledger', hasSubmenu: true },
 ];
 
 const DemoBanner = () => (
