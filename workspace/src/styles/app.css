@@ -597,3 +597,29 @@ body[data-theme='dark'] {
   margin-top: 1rem;
   color: rgba(255, 255, 255, 0.7);
 }
+
+.account-debug {
+  margin-top: 1.5rem;
+  padding: 1rem 1.25rem;
+  border-radius: 0.75rem;
+  background: rgba(87, 102, 138, 0.14);
+  border: 1px solid rgba(87, 102, 138, 0.25);
+  color: var(--text-secondary, #b4c1d8);
+}
+
+.account-debug h3 {
+  margin: 0 0 0.35rem;
+  font-size: 1rem;
+  color: var(--text-primary, #fff);
+}
+
+.account-debug ul {
+  margin: 0;
+  padding-left: 1rem;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.account-debug li {
+  line-height: 1.4;
+}

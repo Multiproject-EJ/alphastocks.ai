@@ -619,6 +619,16 @@ const App = () => {
     });
   }, []);
   const dataError = profileError ?? dashboardError;
+  const dataDiagnostics = useMemo(
+    () => ({
+      mode: runtimeConfig.mode,
+      supabaseUrlConfigured: Boolean(runtimeConfig?.env?.supabaseUrl),
+      supabaseAnonKeyConfigured: Boolean(runtimeConfig?.env?.supabaseAnonKey),
+      profileError: profileError ? profileError.message ?? String(profileError) : null,
+      dashboardError: dashboardError ? dashboardError.message ?? String(dashboardError) : null
+    }),
+    [dashboardError, profileError, runtimeConfig]
+  );
   const openAccountDialog = useCallback(() => setIsAccountDialogOpen(true), []);
   const closeAccountDialog = useCallback(() => setIsAccountDialogOpen(false), []);
   const handleMenuSelection = (sectionId) => {
@@ -1488,6 +1498,49 @@ const App = () => {
               <button type="button" className="btn-secondary" disabled>
                 Log out
               </button>
+            </div>
+            <div className="account-debug" role="status" aria-live="polite">
+              <h3>Data service diagnostics</h3>
+              <ul>
+                <li>
+                  <strong>Mode:</strong>
+                  {' '}
+                  {dataDiagnostics.mode === 'supabase' ? 'Supabase' : 'Demo (live data disabled)'}
+                </li>
+                <li>
+                  <strong>Supabase URL configured:</strong>
+                  {' '}
+                  {dataDiagnostics.supabaseUrlConfigured ? 'Yes' : 'No'}
+                </li>
+                <li>
+                  <strong>Supabase anon key configured:</strong>
+                  {' '}
+                  {dataDiagnostics.supabaseAnonKeyConfigured ? 'Yes' : 'No'}
+                </li>
+                {dataDiagnostics.profileError && (
+                  <li>
+                    <strong>Profile load error:</strong>
+                    {' '}
+                    {dataDiagnostics.profileError}
+                  </li>
+                )}
+                {dataDiagnostics.dashboardError && (
+                  <li>
+                    <strong>Dashboard data error:</strong>
+                    {' '}
+                    {dataDiagnostics.dashboardError}
+                  </li>
+                )}
+                {!dataDiagnostics.profileError &&
+                  !dataDiagnostics.dashboardError &&
+                  dataDiagnostics.mode === 'supabase' &&
+                  dataDiagnostics.supabaseUrlConfigured &&
+                  dataDiagnostics.supabaseAnonKeyConfigured && (
+                    <li>
+                      Live Supabase configuration detected. Check browser devtools network panel for request responses.
+                    </li>
+                  )}
+              </ul>
             </div>
           </div>
         </div>
