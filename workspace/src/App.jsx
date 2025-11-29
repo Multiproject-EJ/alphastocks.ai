@@ -15,6 +15,10 @@ const DEFAULT_FOCUS_LIST = [
 
 const dashboardTabs = ['Overview', 'Notes', 'Tasks', 'Analytics', 'ValueBot'];
 const defaultSectionTabs = ['Tab 1', 'Tab 2', 'Tab 3', 'Tab 4', 'Tab 5'];
+const sectionTabsById = {
+  dashboard: dashboardTabs,
+  quadrant: ['Universe', 'Universe Quadrant', 'Add Stocks']
+};
 
 const MORNING_NEWS_ALERT_ID = 'morning-news';
 
@@ -174,7 +178,7 @@ const valueBotTabs = [
 
 const settingsNavItem = { id: 'settings', icon: '⚙️' };
 
-const getSectionTabs = (sectionId) => (sectionId === 'dashboard' ? dashboardTabs : defaultSectionTabs);
+const getSectionTabs = (sectionId) => sectionTabsById[sectionId] ?? defaultSectionTabs;
 
 const mainNavigation = [
   { id: 'dashboard', icon: '🏠', title: 'Today / Dashboard', caption: 'Overview' },
@@ -187,7 +191,7 @@ const mainNavigation = [
     title: 'PUNCHCard MONOPLOY - Fishing SWIPE',
     caption: 'Patience & selectivity drill'
   },
-  { id: 'quadrant', icon: '🧭', title: 'Universe Quadrant', caption: 'Macro positioning map' },
+  { id: 'quadrant', icon: '🧭', title: 'Investing Universe', caption: '' },
 ];
 
 const DemoBanner = () => (
@@ -492,7 +496,7 @@ const staticSections = {
     ]
   },
   quadrant: {
-    title: 'Universe Quadrant',
+    title: 'Investing Universe',
     meta: 'Map market regimes, capital at risk, and opportunity sets into one actionable quadrant.',
     cards: [
       {
