@@ -90,113 +90,80 @@ const createInitialAlertState = () =>
 
 const valueBotTabs = [
   {
-    id: 'valuebot-management',
-    label: 'Management',
-    title: 'Management — Accountability pulse',
-    description: 'Snapshot the credibility of leadership, cadence of communication, and alignment with owners.',
+    id: 'valuebot-data-loader',
+    label: 'MODULE 0 — Data Loader (Pre-Step)',
+    title: 'MODULE 0 — Data Loader (Pre-Step)',
+    description: 'Aggregate raw inputs before any analysis starts so the copilot has a clean foundation.',
     bullets: [
-      'Summaries of the most recent earnings call promises vs. delivery.',
-      'Succession, insider buying, and compensation flags to watch.',
-      'Follow-up prompts for the next conversation with the team.'
+      'Upload financials, KPIs, and alternative data into one staging view.',
+      'Validate currency, time periods, and unit consistency automatically.',
+      'Surface missing fields and offer quick-fill prompts to complete the pack.'
     ]
   },
   {
-    id: 'valuebot-income',
-    label: 'Income & future sales',
-    title: 'Income & future sales — Demand glide path',
-    description: 'Model top-line durability with scenario bands for price, volume, and mix.',
+    id: 'valuebot-core-diagnostics',
+    label: 'MODULE 1 — Core Risk & Quality Diagnostics',
+    title: 'MODULE 1 — Core Risk & Quality Diagnostics',
+    description: 'Assess durability, governance, and downside guardrails before sizing conviction.',
     bullets: [
-      'Bridge trailing revenue to the forward twelve-month funnel.',
-      'Highlight contracts or cohorts that need renewal attention.',
-      'Stress units vs. pricing levers across bear/base/bull views.'
+      'Score balance sheet safety, disclosure quality, and operational resilience.',
+      'Flag governance gaps, key-person exposure, and concentration risks.',
+      'Generate follow-up questions for management or channel checks.'
     ]
   },
   {
-    id: 'valuebot-moat',
-    label: 'Moat',
-    title: 'Moat — Competitive advantage checklist',
-    description: 'Capture the structural protections that justify super-normal returns.',
+    id: 'valuebot-growth-engine',
+    label: 'MODULE 2 — Business Model & Growth Engine',
+    title: 'MODULE 2 — Business Model & Growth Engine',
+    description: 'Map how revenue, unit economics, and reinvestment create or erode advantage.',
     bullets: [
-      'Score switching costs, brand equity, regulation, and data flywheels.',
-      'Call out erosion signals, pricing pressure, or substitute threats.',
-      'Recommend diligence angles for on-the-ground channel checks.'
+      'Break down monetization layers, cohorts, and pricing power signals.',
+      'Highlight margin drivers, efficiency curves, and reinvestment flywheels.',
+      'Stress-test competitive moat durability alongside growth assumptions.'
     ]
   },
   {
-    id: 'valuebot-debt',
-    label: 'Debt & refinancing',
-    title: 'Debt & refinancing — Balance sheet guardrails',
-    description: 'Map maturity walls, covenant slack, and refinancing lanes.',
+    id: 'valuebot-scenario-engine',
+    label: 'MODULE 3 — Scenario Engine (Bear / Base / Bull)',
+    title: 'MODULE 3 — Scenario Engine (Bear / Base / Bull)',
+    description: 'Spin parallel futures with transparent assumptions for quick “what if” pivots.',
     bullets: [
-      'Next 24 months of obligations vs. liquidity stack.',
-      'Interest coverage, hedging, and counterparty considerations.',
-      'What-if math for credit spread shock or rating drift.'
+      'Preset bear, base, and bull templates with editable revenue and margin drivers.',
+      'Overlay macro sensitivities, execution risks, and cost of capital changes.',
+      'Export tornado charts and tables for investment committee memos.'
     ]
   },
   {
-    id: 'valuebot-risks',
-    label: 'Risks',
-    title: 'Risks — Blind spot radar',
-    description: 'Auto-scan macro, company, and behavioral risks tied to the thesis.',
+    id: 'valuebot-valuation-engine',
+    label: 'MODULE 4 — Valuation Engine (DCF + Reverse Engineering)',
+    title: 'MODULE 4 — Valuation Engine (DCF + Reverse Engineering)',
+    description: 'Translate scenarios into intrinsic value ranges with forward and reverse math.',
     bullets: [
-      'Heat map of probability vs. impact for major risk pillars.',
-      'Pre-written mitigation plans or hedges by scenario.',
-      'Regulatory or geopolitical triggers to monitor each week.'
+      'Run discounted cash flow outputs alongside trading and transaction comps.',
+      'Reverse-engineer implied growth, margins, and discount rates from the current price.',
+      'Summarize valuation bridges with margin of safety and IRR callouts.'
     ]
   },
   {
-    id: 'valuebot-profile',
-    label: 'Profile',
-    title: 'Profile — Snapshot briefing',
-    description: 'Keep the full company dossier handy for introductions and sharing.',
+    id: 'valuebot-timing',
+    label: 'MODULE 5 — Timing & Momentum',
+    title: 'MODULE 5 — Timing & Momentum',
+    description: 'Blend technicals, catalysts, and positioning data to calibrate entry points.',
     bullets: [
-      'Elevator pitch, coverage status, and conviction scale.',
-      'Recent catalysts, ownership notes, and strategic initiatives.',
-      'Quick links to files, transcripts, and diligence vaults.'
+      'Monitor catalyst calendar, liquidity, and sentiment inflections.',
+      'Track momentum signals, regime filters, and risk/reward skew.',
+      'Propose staged entries, stop-loss guidelines, and alert thresholds.'
     ]
   },
   {
-    id: 'valuebot-scenarios',
-    label: 'Scenarios',
-    title: 'Scenarios — Sensitivity sandbox',
-    description: 'Play with sliders that instantly refresh valuation deltas.',
+    id: 'valuebot-final-verdict',
+    label: 'MODULE 6 — Final Verdict Synthesizer',
+    title: 'MODULE 6 — Final Verdict Synthesizer',
+    description: 'Roll up the entire workbook into a crisp decision-ready brief.',
     bullets: [
-      'Toggle discount rates, tax rates, or capex intensity to see impact.',
-      'Overlay AI suggestions for upside/downside probability.',
-      'Export ready-to-present tornado and spider charts.'
-    ]
-  },
-  {
-    id: 'valuebot-capital',
-    label: 'Capital allocation',
-    title: 'Capital allocation — Stewardship tracker',
-    description: 'Track how cash is deployed relative to stated priorities.',
-    bullets: [
-      'Buyback, dividend, and reinvestment scorecards.',
-      'Net new investments compared with hurdle rates.',
-      'Accountability notes from prior board commentary.'
-    ]
-  },
-  {
-    id: 'valuebot-valuation',
-    label: 'Valuation',
-    title: 'Valuation — Target stack',
-    description: 'Line up intrinsic value estimates by method with AI commentary.',
-    bullets: [
-      'DCF, comps, and precedent transactions summarized in one card.',
-      'Margin of safety and implied IRR per scenario.',
-      'Auto-generated talking points to defend the target range.'
-    ]
-  },
-  {
-    id: 'valuebot-notes',
-    label: 'Notes & hand-offs',
-    title: 'Notes & hand-offs — Action placeholders',
-    description: 'Reserve space for whatever bespoke checklist the team needs next.',
-    bullets: [
-      'Drop reminders, diligence asks, or outreach assignments.',
-      'Flag dependencies for legal, ops, or data partners.',
-      'Use as a scratchpad until a more formal tab is designed.'
+      'Summarize thesis, risks, valuation range, and timing in one page.',
+      'Generate buy/hold/pass options with confidence scores and next steps.',
+      'Produce shareable outputs for IC decks, memos, or stakeholder updates.'
     ]
   }
 ];
