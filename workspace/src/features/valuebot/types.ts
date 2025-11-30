@@ -1,11 +1,20 @@
-export interface ValueBotAnalysisContext {
-  provider?: string | null;
+export interface ValueBotDeepDiveConfig {
+  provider: string;
   model?: string | null;
-  ticker?: string | null;
+  ticker: string;
   timeframe?: string | null;
   customQuestion?: string | null;
-  module0Data?: string | null;
-  module1Markdown?: string | null;
+}
+
+export interface ValueBotAnalysisContext {
+  deepDiveConfig: ValueBotDeepDiveConfig;
+  module0Output?: string | null;
+  module1Output?: string | null;
+  module2Output?: string | null;
+  module3Output?: string | null;
+  module4Output?: string | null;
+  module5Output?: string | null;
+  module6Output?: string | null;
   companyName?: string;
   market?: string;
   currentPrice?: number;

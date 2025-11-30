@@ -36,14 +36,14 @@ async function fetchProviderConfig() {
   return { openai: true, gemini: true, openrouter: true };
 }
 
-export function AIAnalysis({ context, onUpdateContext }) {
+export function AIAnalysis() {
   const { runAnalysis, loading, error, data } = useRunStockAnalysis();
 
-  const [provider, setProvider] = useState(context?.provider || 'openai');
-  const [model, setModel] = useState(context?.model || '');
-  const [ticker, setTicker] = useState(context?.ticker || '');
-  const [timeframe, setTimeframe] = useState(context?.timeframe || '');
-  const [question, setQuestion] = useState(context?.customQuestion || '');
+  const [provider, setProvider] = useState('openai');
+  const [model, setModel] = useState('');
+  const [ticker, setTicker] = useState('');
+  const [timeframe, setTimeframe] = useState('');
+  const [question, setQuestion] = useState('');
   const [tickerError, setTickerError] = useState('');
   const [providerConfig, setProviderConfig] = useState({
     openai: true,
@@ -52,38 +52,9 @@ export function AIAnalysis({ context, onUpdateContext }) {
   });
   const [showResults, setShowResults] = useState(false);
 
-  const syncContext = useCallback(
-    (updates) => {
-      if (onUpdateContext) {
-        onUpdateContext(updates);
-      }
-    },
-    [onUpdateContext]
-  );
-
   useEffect(() => {
     fetchProviderConfig().then(setProviderConfig);
   }, []);
-
-  useEffect(() => {
-    if (!context) return;
-
-    if (context.provider !== undefined && context.provider !== provider) {
-      setProvider(context.provider || 'openai');
-    }
-    if (context.model !== undefined && context.model !== model) {
-      setModel(context.model || '');
-    }
-    if (context.ticker !== undefined && context.ticker !== ticker) {
-      setTicker(context.ticker || '');
-    }
-    if (context.timeframe !== undefined && context.timeframe !== timeframe) {
-      setTimeframe(context.timeframe || '');
-    }
-    if (context.customQuestion !== undefined && context.customQuestion !== question) {
-      setQuestion(context.customQuestion || '');
-    }
-  }, [context, model, provider, question, ticker, timeframe]);
 
   const availableProviders = Object.entries(providerConfig)
     .filter(([, available]) => available)
@@ -122,14 +93,12 @@ export function AIAnalysis({ context, onUpdateContext }) {
     if (availableValues.length > 0 && !availableValues.includes(provider)) {
       const nextProvider = availableValues[0];
       setProvider(nextProvider);
-      syncContext({ provider: nextProvider });
     }
-  }, [availableProviders, provider, syncContext]);
+  }, [availableProviders, provider]);
 
   useEffect(() => {
     setModel('');
-    syncContext({ model: '', provider });
-  }, [provider, syncContext]);
+  }, [provider]);
 
   const handleTickerBlur = useCallback(() => {
     if (ticker.trim()) {
@@ -143,11 +112,10 @@ export function AIAnalysis({ context, onUpdateContext }) {
   const handleTickerChange = useCallback((e) => {
     const value = e.target.value;
     setTicker(value);
-    syncContext({ ticker: value });
     if (tickerError) {
       setTickerError('');
     }
-  }, [syncContext, tickerError]);
+  }, [tickerError]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -197,7 +165,6 @@ export function AIAnalysis({ context, onUpdateContext }) {
               value={provider}
               onChange={(e) => {
                 setProvider(e.target.value);
-                syncContext({ provider: e.target.value });
               }}
               disabled={availableProviders.length === 0}
             >
@@ -225,7 +192,6 @@ export function AIAnalysis({ context, onUpdateContext }) {
               value={model}
               onChange={(e) => {
                 setModel(e.target.value);
-                syncContext({ model: e.target.value });
               }}
               disabled={!modelOptions[provider] || modelOptions[provider].length === 0}
             >
@@ -275,7 +241,6 @@ export function AIAnalysis({ context, onUpdateContext }) {
               value={timeframe}
               onInput={(e) => {
                 setTimeframe(e.target.value);
-                syncContext({ timeframe: e.target.value });
               }}
             />
           </div>
@@ -289,7 +254,6 @@ export function AIAnalysis({ context, onUpdateContext }) {
               value={question}
               onInput={(e) => {
                 setQuestion(e.target.value);
-                syncContext({ customQuestion: e.target.value });
               }}
             />
           </div>
