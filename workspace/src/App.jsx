@@ -11,7 +11,11 @@ import Module3ScenarioEngine from './features/valuebot/modules/Module3ScenarioEn
 import Module4ValuationEngine from './features/valuebot/modules/Module4ValuationEngine.tsx';
 import Module5TimingMomentum from './features/valuebot/modules/Module5TimingMomentum.tsx';
 import Module6FinalVerdict from './features/valuebot/modules/Module6FinalVerdict.tsx';
-import { ValueBotContext, defaultValueBotAnalysisContext } from './features/valuebot/types.ts';
+import {
+  ValueBotContext,
+  defaultPipelineProgress,
+  defaultValueBotAnalysisContext
+} from './features/valuebot/types.ts';
 import { useAuth } from './context/AuthContext.jsx';
 
 const DEFAULT_FOCUS_LIST = [
@@ -907,9 +911,27 @@ const App = () => {
     }));
   }, []);
 
+  const handleSetPipelineProgress = useCallback((progress) => {
+    setValueBotContext((prev) => {
+      const nextProgress =
+        typeof progress === 'function'
+          ? progress(prev?.pipelineProgress ?? defaultPipelineProgress)
+          : progress;
+
+      return {
+        ...prev,
+        pipelineProgress: nextProgress
+      };
+    });
+  }, []);
+
   const valueBotProviderValue = useMemo(
-    () => ({ context: valueBotContext, updateContext: handleValueBotContextUpdate }),
-    [handleValueBotContextUpdate, valueBotContext]
+    () => ({
+      context: valueBotContext,
+      updateContext: handleValueBotContextUpdate,
+      setPipelineProgress: handleSetPipelineProgress
+    }),
+    [handleSetPipelineProgress, handleValueBotContextUpdate, valueBotContext]
   );
 
   const activeValueBotConfig = useMemo(
