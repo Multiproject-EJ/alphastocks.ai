@@ -5,7 +5,6 @@ import {
   ValueBotModuleProps,
   ValueBotDeepDiveConfig,
   ValueBotContext,
-  createDefaultDeepDiveState,
   defaultDeepDiveConfig
 } from '../types.ts';
 import { useRunDeepDivePipeline } from '../useRunDeepDivePipeline.ts';
@@ -47,40 +46,6 @@ const Module0DataLoader: FunctionalComponent<ValueBotModuleProps> = ({ context, 
     resolvedContext?.deepDiveConfig || defaultDeepDiveConfig
   );
   const [moduleOutput, setModuleOutput] = useState<string>(resolvedContext?.module0OutputMarkdown || '');
-  const isDeepDivePristine = useMemo(() => {
-    if (!resolvedContext) return true;
-
-    const { deepDiveConfig: ctxConfig, pipelineProgress: progress } = resolvedContext;
-    const hasConfig = Boolean(
-      ctxConfig?.ticker?.trim() ||
-        ctxConfig?.model?.trim() ||
-        ctxConfig?.timeframe?.trim() ||
-        ctxConfig?.customQuestion?.trim()
-    );
-    const hasOutputs = Boolean(
-      resolvedContext.module0OutputMarkdown ||
-        resolvedContext.module1OutputMarkdown ||
-        resolvedContext.module2Markdown ||
-        resolvedContext.module3Markdown ||
-        resolvedContext.module4Markdown ||
-        resolvedContext.module5Markdown ||
-        resolvedContext.module6Markdown
-    );
-    const hasMetadata = Boolean(
-      resolvedContext.companyName ||
-        resolvedContext.market ||
-        resolvedContext.currentPrice ||
-        resolvedContext.finalVerdict
-    );
-
-    const progressTouched = Boolean(
-      progress &&
-        (progress.status !== 'idle' ||
-          Object.values(progress.steps || {}).some((step) => step !== 'pending'))
-    );
-
-    return !(hasConfig || hasOutputs || hasMetadata || progressTouched);
-  }, [resolvedContext]);
 
   useEffect(() => {
     if (resolvedContext?.module0OutputMarkdown && resolvedContext.module0OutputMarkdown !== moduleOutput) {
@@ -191,13 +156,6 @@ IMPORTANT
 
   const providerModelOptions = modelOptions[config.provider as keyof typeof modelOptions] ?? modelOptions.openai;
 
-  const handleClearDeepDive = useCallback(() => {
-    const initialState = createDefaultDeepDiveState();
-    setConfig(initialState.deepDiveConfig);
-    setModuleOutput('');
-    updateContext?.(initialState);
-  }, [updateContext]);
-
   const pipelineSteps = [
     { key: 'module0', label: 'Module 0 — Data Loader' },
     { key: 'module1', label: 'Module 1 — Core Diagnostics' },
@@ -271,29 +229,15 @@ IMPORTANT
             />
           </label>
         </div>
-        <div className="detail-actions" style={{ gap: '0.5rem' }}>
-          <button
-            type="button"
-            className="btn-primary"
-            onClick={handleRun}
-            disabled={loading}
-            aria-busy={loading}
-          >
-            {loading ? 'Running...' : 'Run Module 0 — Data Loader'}
-          </button>
-          <button
-            type="button"
-            className="btn-secondary"
-            onClick={handleClearDeepDive}
-            disabled={isDeepDivePristine}
-            title="Clear deep dive state to start fresh with another ticker."
-          >
-            Clear deep dive
-          </button>
-        </div>
-        <p className="detail-meta" style={{ marginTop: '0.35rem' }}>
-          Clear deep dive state to start fresh with another ticker.
-        </p>
+        <button
+          type="button"
+          className="btn-primary"
+          onClick={handleRun}
+          disabled={loading}
+          aria-busy={loading}
+        >
+          {loading ? 'Running...' : 'Run Module 0 — Data Loader'}
+        </button>
         {(localError || error) && (
           <div className="ai-error" role="alert">
             {localError || error}
