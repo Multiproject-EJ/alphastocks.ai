@@ -8,6 +8,25 @@ export interface ValueBotDeepDiveConfig {
   customQuestion?: string | null;
 }
 
+export type DeepDivePipelineStatus = 'idle' | 'running' | 'success' | 'error';
+
+export type DeepDiveStepStatus = 'pending' | 'running' | 'done' | 'error';
+
+export interface DeepDivePipelineProgress {
+  status: DeepDivePipelineStatus;
+  currentStep: 0 | 1 | 2 | 3 | 4 | 5 | 6 | null;
+  steps: {
+    module0: DeepDiveStepStatus;
+    module1: DeepDiveStepStatus;
+    module2: DeepDiveStepStatus;
+    module3: DeepDiveStepStatus;
+    module4: DeepDiveStepStatus;
+    module5: DeepDiveStepStatus;
+    module6: DeepDiveStepStatus;
+  };
+  errorMessage?: string | null;
+}
+
 export interface ValueBotAnalysisContext {
   deepDiveConfig: ValueBotDeepDiveConfig;
   module0OutputMarkdown?: string | null;
@@ -31,6 +50,7 @@ export interface ValueBotAnalysisContext {
   valuationNotes?: string;
   timingNotes?: string;
   finalVerdict?: string;
+  pipelineProgress?: DeepDivePipelineProgress;
 }
 
 export interface ValueBotModuleProps {
@@ -45,6 +65,21 @@ export const defaultDeepDiveConfig: ValueBotDeepDiveConfig = {
   ticker: '',
   timeframe: '',
   customQuestion: ''
+};
+
+export const defaultPipelineProgress: DeepDivePipelineProgress = {
+  status: 'idle',
+  currentStep: null,
+  steps: {
+    module0: 'pending',
+    module1: 'pending',
+    module2: 'pending',
+    module3: 'pending',
+    module4: 'pending',
+    module5: 'pending',
+    module6: 'pending'
+  },
+  errorMessage: null
 };
 
 export const defaultValueBotAnalysisContext: ValueBotAnalysisContext = {
@@ -69,12 +104,18 @@ export const defaultValueBotAnalysisContext: ValueBotAnalysisContext = {
   scenarioNotes: '',
   valuationNotes: '',
   timingNotes: '',
-  finalVerdict: ''
+  finalVerdict: '',
+  pipelineProgress: { ...defaultPipelineProgress }
 };
 
 export interface ValueBotContextValue {
   context: ValueBotAnalysisContext;
   updateContext: (updates: Partial<ValueBotAnalysisContext>) => void;
+  setPipelineProgress: (
+    progress:
+      | DeepDivePipelineProgress
+      | ((prev: DeepDivePipelineProgress) => DeepDivePipelineProgress)
+  ) => void;
 }
 
 export const ValueBotContext = createContext<ValueBotContextValue | null>(null);

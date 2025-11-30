@@ -7,6 +7,7 @@ import {
   ValueBotContext,
   defaultDeepDiveConfig
 } from '../types.ts';
+import { useRunDeepDivePipeline } from '../useRunDeepDivePipeline.ts';
 
 const providerOptions = [
   { value: 'openai', label: 'OpenAI' },
@@ -39,6 +40,7 @@ const Module0DataLoader: FunctionalComponent<ValueBotModuleProps> = ({ context, 
   const resolvedContext = valueBot?.context ?? context;
   const updateContext = valueBot?.updateContext ?? onUpdateContext;
   const { runAnalysis, loading, error, data } = useRunStockAnalysis();
+  const { runPipeline, pipelineProgress } = useRunDeepDivePipeline();
   const [localError, setLocalError] = useState<string | null>(null);
   const [config, setConfig] = useState<ValueBotDeepDiveConfig>(
     resolvedContext?.deepDiveConfig || defaultDeepDiveConfig
@@ -154,6 +156,18 @@ IMPORTANT
 
   const providerModelOptions = modelOptions[config.provider as keyof typeof modelOptions] ?? modelOptions.openai;
 
+  const pipelineSteps = [
+    { key: 'module0', label: 'Module 0 — Data Loader' },
+    { key: 'module1', label: 'Module 1 — Core Diagnostics' },
+    { key: 'module2', label: 'Module 2 — Growth Engine' },
+    { key: 'module3', label: 'Module 3 — Scenario Engine' },
+    { key: 'module4', label: 'Module 4 — Valuation Engine' },
+    { key: 'module5', label: 'Module 5 — Timing & Momentum' },
+    { key: 'module6', label: 'Module 6 — Final Verdict' }
+  ];
+
+  const isPipelineRunning = pipelineProgress?.status === 'running';
+
   return (
     <div className="detail-grid detail-grid--balanced">
       <div className="detail-card">
@@ -229,6 +243,42 @@ IMPORTANT
             {localError || error}
           </div>
         )}
+
+        <div className="detail-divider" aria-hidden="true" />
+        <h4>Run Full Deep Dive</h4>
+        <p className="detail-meta">
+          Runs Modules 0–6 in sequence using separate AI calls for each step. You can still run any module individually at any
+          time.
+        </p>
+        <button
+          type="button"
+          className="btn-primary"
+          onClick={runPipeline}
+          disabled={isPipelineRunning}
+          aria-busy={isPipelineRunning}
+        >
+          {isPipelineRunning ? 'Running full deep dive…' : 'Run Full Deep Dive (0–6)'}
+        </button>
+        {pipelineProgress?.status === 'error' && pipelineProgress?.errorMessage && (
+          <div className="ai-error" role="alert">
+            {pipelineProgress.errorMessage}
+          </div>
+        )}
+        {pipelineProgress?.status === 'success' && (
+          <div className="detail-meta" role="status">
+            Deep dive complete. Review the modules 0–6 results or re-run individual steps if needed.
+          </div>
+        )}
+        <div className="detail-meta" style={{ marginTop: '0.75rem' }}>
+          <strong>Pipeline Progress</strong>
+          <ul className="detail-meta">
+            {pipelineSteps.map((step) => (
+              <li key={step.key}>
+                {step.label}: {pipelineProgress?.steps?.[step.key as keyof typeof pipelineProgress.steps] || 'pending'}
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
 
       <div className="detail-card">
