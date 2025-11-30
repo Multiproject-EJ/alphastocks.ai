@@ -326,7 +326,7 @@ Return JSON:
     ]
   },
   {
-    id: 'valuebot-timing',
+    id: 'valuebot-timing-momentum',
     label: 'MODULE 5 — Timing & Momentum',
     title: 'MODULE 5 — Timing & Momentum',
     description: 'Blend technicals, catalysts, and positioning data to calibrate entry points.',

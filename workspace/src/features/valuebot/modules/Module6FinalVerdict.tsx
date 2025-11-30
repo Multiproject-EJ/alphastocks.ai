@@ -35,8 +35,7 @@ const Module6FinalVerdict: FunctionalComponent<ValueBotModuleProps> = ({ context
   const hasModule4Output = Boolean(module4Markdown);
   const hasModule5Output = Boolean(module5Markdown);
 
-  const canRunModule =
-    hasTicker && hasModule1Output && hasModule2Output && hasModule3Output && hasModule4Output && hasModule5Output;
+  const canRunModule = hasTicker && hasModule1Output && hasModule2Output && hasModule3Output && hasModule4Output;
 
   useEffect(() => {
     if (resolvedContext?.module6Markdown && resolvedContext.module6Markdown !== moduleOutput) {
@@ -56,6 +55,9 @@ const Module6FinalVerdict: FunctionalComponent<ValueBotModuleProps> = ({ context
     const module3Context = module3Markdown || '[Module 3 — Scenario Engine output missing]';
     const module4Context = module4Markdown || '[Module 4 — Valuation Engine output missing]';
     const module5Context = module5Markdown || '[Module 5 — Timing & Momentum output missing]';
+    const timingNote = hasModule5Output
+      ? 'Timing signals from Module 5 are included below.'
+      : 'Module 5 — Timing & Momentum has not been run. Proceed with the final verdict, but note that timing signals are missing.';
 
     return `You are ValueBot.ai — Module 6: Final Verdict Synthesizer for ${tickerValue} (${companyLabel}).
 
@@ -104,7 +106,9 @@ ${module3Context}
 ${module4Context}
 
 [MODULE 5 — TIMING & MOMENTUM]
-${module5Context}`;
+${module5Context}
+
+${timingNote}`;
   }, [
     companyName,
     currentPrice,
@@ -114,6 +118,7 @@ ${module5Context}`;
     module3Markdown,
     module4Markdown,
     module5Markdown,
+    hasModule5Output,
     ticker,
     timeframe
   ]);
@@ -126,8 +131,8 @@ ${module5Context}`;
       return;
     }
 
-    if (!hasModule1Output || !hasModule2Output || !hasModule3Output || !hasModule4Output || !hasModule5Output) {
-      setLocalError('Module 6 requires completed outputs from Modules 1–5. Please run any missing modules first.');
+    if (!hasModule1Output || !hasModule2Output || !hasModule3Output || !hasModule4Output) {
+      setLocalError('Module 6 requires completed outputs from Modules 1–4. Please run any missing modules first.');
       return;
     }
 
@@ -154,7 +159,7 @@ ${module5Context}`;
     { label: 'Module 2 — Business Model & Growth Engine', complete: hasModule2Output },
     { label: 'Module 3 — Scenario Engine', complete: hasModule3Output },
     { label: 'Module 4 — Valuation Engine', complete: hasModule4Output },
-    { label: 'Module 5 — Timing & Momentum', complete: hasModule5Output }
+    { label: 'Module 5 — Timing & Momentum (optional for timing signals)', complete: hasModule5Output }
   ];
 
   return (
@@ -170,7 +175,7 @@ ${module5Context}`;
         )}
         {!canRunModule && hasTicker && (
           <div className="demo-banner warning" role="status">
-            Module 6 requires completed outputs from Modules 1–5. Please run any missing modules first.
+            Module 6 requires completed outputs from Modules 1–4. Please run any missing modules first.
           </div>
         )}
         <div className="detail-meta" aria-live="polite">
@@ -187,6 +192,11 @@ ${module5Context}`;
               Module 0 output is not present. While not required, ensure the data loader has been run for best results.
             </p>
           )}
+          {!hasModule5Output && (
+            <p className="detail-meta" role="status">
+              Module 5 — Timing & Momentum has not been run yet. You can still run the Final Verdict, but it will omit Module 5 timing signals.
+            </p>
+          )}
         </div>
         <button
           type="button"
@@ -194,7 +204,7 @@ ${module5Context}`;
           onClick={handleRun}
           disabled={loading || !canRunModule}
           aria-busy={loading}
-          title={!canRunModule ? 'Complete Modules 1–5 and set a ticker before running the Final Verdict Synthesizer.' : undefined}
+          title={!canRunModule ? 'Complete Modules 1–4 and set a ticker before running the Final Verdict Synthesizer.' : undefined}
         >
           {loading ? 'Running Module 6…' : 'Run Module 6 — Final Verdict Synthesizer'}
         </button>
