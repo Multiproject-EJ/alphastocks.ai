@@ -1,15 +1,12 @@
 import { FunctionalComponent } from 'preact';
-import { useMemo, useState, useEffect, useCallback } from 'preact/hooks';
+import { useMemo, useState, useEffect, useCallback, useContext } from 'preact/hooks';
 import { useRunStockAnalysis } from '../../ai-analysis/useRunStockAnalysis.ts';
-import { ValueBotModuleProps, ValueBotDeepDiveConfig } from '../types.ts';
-
-const defaultConfig: ValueBotDeepDiveConfig = {
-  provider: 'openai',
-  model: '',
-  ticker: '',
-  timeframe: '',
-  customQuestion: ''
-};
+import {
+  ValueBotModuleProps,
+  ValueBotDeepDiveConfig,
+  ValueBotContext,
+  defaultDeepDiveConfig
+} from '../types.ts';
 
 const providerOptions = [
   { value: 'openai', label: 'OpenAI' },
@@ -38,24 +35,29 @@ const modelOptions = {
 };
 
 const Module0DataLoader: FunctionalComponent<ValueBotModuleProps> = ({ context, onUpdateContext }) => {
+  const valueBot = useContext(ValueBotContext);
+  const resolvedContext = valueBot?.context ?? context;
+  const updateContext = valueBot?.updateContext ?? onUpdateContext;
   const { runAnalysis, loading, error, data } = useRunStockAnalysis();
   const [localError, setLocalError] = useState<string | null>(null);
-  const [config, setConfig] = useState<ValueBotDeepDiveConfig>(context?.deepDiveConfig || defaultConfig);
-  const [moduleOutput, setModuleOutput] = useState<string>(context?.module0Output || '');
+  const [config, setConfig] = useState<ValueBotDeepDiveConfig>(
+    resolvedContext?.deepDiveConfig || defaultDeepDiveConfig
+  );
+  const [moduleOutput, setModuleOutput] = useState<string>(resolvedContext?.module0OutputMarkdown || '');
 
   useEffect(() => {
-    if (context?.module0Output && context.module0Output !== moduleOutput) {
-      setModuleOutput(context.module0Output);
+    if (resolvedContext?.module0OutputMarkdown && resolvedContext.module0OutputMarkdown !== moduleOutput) {
+      setModuleOutput(resolvedContext.module0OutputMarkdown);
     }
-  }, [context?.module0Output, moduleOutput]);
+  }, [moduleOutput, resolvedContext?.module0OutputMarkdown]);
 
   useEffect(() => {
-    if (!context?.deepDiveConfig) return;
+    if (!resolvedContext?.deepDiveConfig) return;
     setConfig((prev) => ({
       ...prev,
-      ...context.deepDiveConfig
+      ...resolvedContext.deepDiveConfig
     }));
-  }, [context?.deepDiveConfig]);
+  }, [resolvedContext?.deepDiveConfig]);
 
   const prompt = useMemo(() => {
     const ticker = config?.ticker?.trim() || '[Not provided]';
@@ -111,12 +113,12 @@ IMPORTANT
     (updates: Partial<ValueBotDeepDiveConfig>) => {
       setConfig((prev) => {
         const nextConfig = { ...prev, ...updates };
-        onUpdateContext?.({ deepDiveConfig: nextConfig });
+        updateContext?.({ deepDiveConfig: nextConfig });
         return nextConfig;
       });
       setLocalError(null);
     },
-    [onUpdateContext]
+    [updateContext]
   );
 
   const handleRun = async () => {
@@ -139,7 +141,12 @@ IMPORTANT
 
       const output = response?.rawResponse || response?.summary || 'No response received from the AI provider.';
       setModuleOutput(output);
-      onUpdateContext?.({ module0Output: output });
+      updateContext?.({
+        module0OutputMarkdown: output,
+        deepDiveConfig: {
+          ...config
+        }
+      });
     } catch (err) {
       setLocalError(err?.message || 'Unable to run Module 0 right now.');
     }
@@ -233,6 +240,11 @@ IMPORTANT
         ) : (
           <p className="detail-meta">
             Run the Data Loader to fetch a structured snapshot of this company before you dive into the later modules.
+          </p>
+        )}
+        {loading && (
+          <p className="detail-meta" role="status">
+            Fetching module output…
           </p>
         )}
         {data?.provider && (
