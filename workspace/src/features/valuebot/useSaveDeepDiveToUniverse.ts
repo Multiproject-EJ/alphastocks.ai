@@ -3,7 +3,13 @@ import { supabase } from '../../lib/supabaseClient.js';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { ValueBotContext, ValueBotAnalysisContext } from './types.ts';
 
-type SaveResult = { error?: string };
+type SaveResult = { error?: string; universeWarning?: string };
+
+type InvestmentUniverseInsert = {
+  symbol: string;
+  name: string | null;
+  profile_id: string;
+};
 
 // Persists the full deep-dive (modules 0–6) to Supabase so the Investing Universe can read it later.
 // Expected table: valuebot_deep_dives
@@ -20,6 +26,7 @@ export const useSaveDeepDiveToUniverse = () => {
 
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [saveWarning, setSaveWarning] = useState<string | null>(null);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
   const validateAndBuildPayload = useCallback(
@@ -68,6 +75,7 @@ export const useSaveDeepDiveToUniverse = () => {
   const saveDeepDive = useCallback(async (): Promise<SaveResult> => {
     setIsSaving(true);
     setSaveError(null);
+    setSaveWarning(null);
     setSaveSuccess(false);
 
     const validation = validateAndBuildPayload();
@@ -96,8 +104,42 @@ export const useSaveDeepDiveToUniverse = () => {
         return { error: message };
       }
 
+      let universeWarning: string | null = null;
+
+      if (user?.id) {
+        const investmentUniversePayload: InvestmentUniverseInsert = {
+          symbol: (payload?.ticker as string) || '',
+          name: (payload?.company_name as string | null) || (payload?.ticker as string) || null,
+          profile_id: user.id
+        };
+
+        try {
+          const { error: universeError } = await supabase
+            .from('investment_universe')
+            .upsert(investmentUniversePayload, { onConflict: 'profile_id,symbol' });
+
+          if (universeError) {
+            const warningMessage =
+              'Deep dive saved, but adding to Investing Universe failed. You can still add this ticker manually.';
+            setSaveWarning(warningMessage);
+            console.error('[ValueBot] Failed to link deep dive to investment_universe', universeError);
+            universeWarning = warningMessage;
+          } else {
+            console.info(
+              `[ValueBot] Linked deep dive ticker ${investmentUniversePayload.symbol} to investment_universe for user ${user.id}`
+            );
+          }
+        } catch (universeError) {
+          const warningMessage =
+            'Deep dive saved, but adding to Investing Universe failed. You can still add this ticker manually.';
+          setSaveWarning(warningMessage);
+          console.error('[ValueBot] Exception while linking deep dive to investment_universe', universeError);
+          universeWarning = warningMessage;
+        }
+      }
+
       setSaveSuccess(true);
-      return {};
+      return universeWarning ? { universeWarning } : {};
     } catch (err) {
       const message = err?.message || 'Unexpected error while saving deep dive.';
       setSaveError(message);
@@ -107,7 +149,7 @@ export const useSaveDeepDiveToUniverse = () => {
     }
   }, [validateAndBuildPayload]);
 
-  return { saveDeepDive, isSaving, saveError, saveSuccess };
+  return { saveDeepDive, isSaving, saveError, saveWarning, saveSuccess };
 };
 
 export default useSaveDeepDiveToUniverse;
