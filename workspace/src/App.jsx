@@ -4,6 +4,13 @@ import { getDataService } from './data/dataService.js';
 import { formatDateLabel, formatPercent, formatUsd } from './features/dashboard/dashboardUtils.js';
 import { useDashboardData } from './features/dashboard/useDashboardData.js';
 import { AIAnalysis } from './features/ai-analysis/AIAnalysis.jsx';
+import Module0DataLoader from './features/valuebot/modules/Module0DataLoader.tsx';
+import Module1CoreDiagnostics from './features/valuebot/modules/Module1CoreDiagnostics.tsx';
+import Module2GrowthEngine from './features/valuebot/modules/Module2GrowthEngine.tsx';
+import Module3ScenarioEngine from './features/valuebot/modules/Module3ScenarioEngine.tsx';
+import Module4ValuationEngine from './features/valuebot/modules/Module4ValuationEngine.tsx';
+import Module5TimingMomentum from './features/valuebot/modules/Module5TimingMomentum.tsx';
+import Module6FinalVerdict from './features/valuebot/modules/Module6FinalVerdict.tsx';
 import { useAuth } from './context/AuthContext.jsx';
 
 const DEFAULT_FOCUS_LIST = [
@@ -89,6 +96,7 @@ const valueBotTabs = [
     label: 'QuickTake',
     title: 'QuickTake',
     description: 'One-glance summary of the company’s setup, latest signals, and what to tackle next.',
+    component: AIAnalysis,
     bullets: [
       'Show a concise snapshot of thesis, risks, valuation range, and timing signals.',
       'Highlight urgent follow-ups, open questions, and recent AI findings.',
@@ -100,6 +108,7 @@ const valueBotTabs = [
     label: 'MODULE 0 — Data Loader (Pre-Step)',
     title: 'MODULE 0 — Data Loader (Pre-Step)',
     description: 'Aggregate raw inputs before any analysis starts so the copilot has a clean foundation.',
+    component: Module0DataLoader,
     bullets: [
       'Upload financials, KPIs, and alternative data into one staging view.',
       'Validate currency, time periods, and unit consistency automatically.',
@@ -130,6 +139,7 @@ This data is then passed to all modules.`
     label: 'MODULE 1 — Core Risk & Quality Diagnostics',
     title: 'MODULE 1 — Core Risk & Quality Diagnostics',
     description: 'Assess durability, governance, and downside guardrails before sizing conviction.',
+    component: Module1CoreDiagnostics,
     bullets: [
       'Score balance sheet safety, disclosure quality, and operational resilience.',
       'Flag governance gaps, key-person exposure, and concentration risks.',
@@ -175,6 +185,7 @@ Rules:
     label: 'MODULE 2 — Business Model & Growth Engine',
     title: 'MODULE 2 — Business Model & Growth Engine',
     description: 'Map how revenue, unit economics, and reinvestment create or erode advantage.',
+    component: Module2GrowthEngine,
     bullets: [
       'Break down monetization layers, cohorts, and pricing power signals.',
       'Highlight margin drivers, efficiency curves, and reinvestment flywheels.',
@@ -224,6 +235,7 @@ Return JSON:
     label: 'MODULE 3 — Scenario Engine (Bear / Base / Bull)',
     title: 'MODULE 3 — Scenario Engine (Bear / Base / Bull)',
     description: 'Spin parallel futures with transparent assumptions for quick “what if” pivots.',
+    component: Module3ScenarioEngine,
     bullets: [
       'Preset bear, base, and bull templates with editable revenue and margin drivers.',
       'Overlay macro sensitivities, execution risks, and cost of capital changes.',
@@ -273,6 +285,7 @@ Create Bear, Base, and Bull scenarios with this JSON:
     label: 'MODULE 4 — Valuation Engine (DCF + Reverse Engineering)',
     title: 'MODULE 4 — Valuation Engine (DCF + Reverse Engineering)',
     description: 'Translate scenarios into intrinsic value ranges with forward and reverse math.',
+    component: Module4ValuationEngine,
     bullets: [
       'Run discounted cash flow outputs alongside trading and transaction comps.',
       'Reverse-engineer implied growth, margins, and discount rates from the current price.',
@@ -316,6 +329,7 @@ Return JSON:
     label: 'MODULE 5 — Timing & Momentum',
     title: 'MODULE 5 — Timing & Momentum',
     description: 'Blend technicals, catalysts, and positioning data to calibrate entry points.',
+    component: Module5TimingMomentum,
     bullets: [
       'Monitor catalyst calendar, liquidity, and sentiment inflections.',
       'Track momentum signals, regime filters, and risk/reward skew.',
@@ -356,6 +370,7 @@ Return JSON:
     label: 'MODULE 6 — Final Verdict Synthesizer',
     title: 'MODULE 6 — Final Verdict Synthesizer',
     description: 'Roll up the entire workbook into a crisp decision-ready brief.',
+    component: Module6FinalVerdict,
     bullets: [
       'Summarize thesis, risks, valuation range, and timing in one page.',
       'Generate buy/hold/pass options with confidence scores and next steps.',
@@ -736,6 +751,7 @@ const App = () => {
     return initialMap;
   });
   const [activeValueBotTab, setActiveValueBotTab] = useState(valueBotTabs[0].id);
+  const [valueBotContext, setValueBotContext] = useState({});
   const [activeProfile, setActiveProfile] = useState(null);
   const [profileError, setProfileError] = useState(null);
   const [isAccountDialogOpen, setIsAccountDialogOpen] = useState(false);
@@ -875,6 +891,13 @@ const App = () => {
     setActiveSection(sectionId);
     setIsMobileNavOpen(false);
   };
+
+  const handleValueBotContextUpdate = useCallback((updates) => {
+    setValueBotContext((prev) => ({
+      ...prev,
+      ...updates
+    }));
+  }, []);
 
   const tabsForSection = getSectionTabs(activeSection);
   const activeTab = activeTabsBySection[activeSection] ?? tabsForSection[0];
@@ -2080,35 +2103,46 @@ const App = () => {
                   ))}
                 </div>
                 <div className="valuebot-views">
-                  {valueBotTabs.map((tab) => (
-                  <article
-                    key={tab.id}
-                    className={`valuebot-view${activeValueBotTab === tab.id ? ' active' : ''}`}
-                    aria-hidden={activeValueBotTab !== tab.id}
-                  >
-                    <h3>{tab.title}</h3>
-                    <p>{tab.description}</p>
-                    <ul>
-                      {tab.bullets.map((bullet) => (
-                        <li key={bullet}>{bullet}</li>
-                      ))}
-                    </ul>
-                    {tab.infoSections?.map((section) => (
-                      <div className="valuebot-info" key={`${tab.id}-${section.title}`}>
-                        <h4>{section.title}</h4>
-                        {section.items ? (
-                          <ul>
-                            {section.items.map((item) => (
-                              <li key={item}>{item}</li>
-                            ))}
-                          </ul>
+                  {valueBotTabs.map((tab) => {
+                    const ModuleComponent = tab.component;
+                    return (
+                      <article
+                        key={tab.id}
+                        className={`valuebot-view${activeValueBotTab === tab.id ? ' active' : ''}`}
+                        aria-hidden={activeValueBotTab !== tab.id}
+                      >
+                        <h3>{tab.title}</h3>
+                        <p>{tab.description}</p>
+                        <ul>
+                          {tab.bullets.map((bullet) => (
+                            <li key={bullet}>{bullet}</li>
+                          ))}
+                        </ul>
+                        {ModuleComponent ? (
+                          <div className="detail-component">
+                            <ModuleComponent
+                              context={valueBotContext}
+                              onUpdateContext={handleValueBotContextUpdate}
+                            />
+                          </div>
                         ) : null}
-                        {section.text ? <p>{section.text}</p> : null}
-                      </div>
-                    ))}
-                  </article>
-                ))}
-              </div>
+                        {tab.infoSections?.map((section) => (
+                          <div className="valuebot-info" key={`${tab.id}-${section.title}`}>
+                            <h4>{section.title}</h4>
+                            {section.items ? (
+                              <ul>
+                                {section.items.map((item) => (
+                                  <li key={item}>{item}</li>
+                                ))}
+                              </ul>
+                            ) : null}
+                            {section.text ? <p>{section.text}</p> : null}
+                          </div>
+                        ))}
+                      </article>
+                    );
+                  })}
+                </div>
             </section>
           )}
           </div>
