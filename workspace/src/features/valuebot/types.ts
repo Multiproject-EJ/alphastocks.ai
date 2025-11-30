@@ -5,6 +5,7 @@ export interface ValueBotAnalysisContext {
   timeframe?: string | null;
   customQuestion?: string | null;
   module0Data?: string | null;
+  module1Markdown?: string | null;
   companyName?: string;
   market?: string;
   currentPrice?: number;

@@ -758,6 +758,7 @@ const App = () => {
     timeframe: '',
     customQuestion: '',
     module0Data: null,
+    module1Markdown: null,
     companyName: '',
     market: '',
     currentPrice: null,
