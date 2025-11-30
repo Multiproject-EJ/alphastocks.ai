@@ -925,7 +925,29 @@ const App = () => {
       ...prev,
       [activeSection]: tab
     }));
+
+    if (activeSection === 'valuebot') {
+      const matchingTab = valueBotTabs.find((item) => item.label === tab || item.id === tab);
+      if (matchingTab) {
+        setActiveValueBotTab(matchingTab.id);
+      }
+    }
   };
+
+  useEffect(() => {
+    if (activeSection !== 'valuebot') return;
+
+    const activeLabel = valueBotTabs.find((tab) => tab.id === activeValueBotTab)?.label;
+    if (!activeLabel) return;
+
+    setActiveTabsBySection((prev) => {
+      if (prev.valuebot === activeLabel) return prev;
+      return {
+        ...prev,
+        valuebot: activeLabel
+      };
+    });
+  }, [activeSection, activeValueBotTab]);
 
   const sortedUniverseRows = useMemo(
     () =>
@@ -1853,20 +1875,7 @@ const App = () => {
         </div>
         <span className="tag tag-blue">AI assistant</span>
       </header>
-      <div className="valuebot-tabs" role="tablist" aria-label="ValueBot prompts">
-        {valueBotTabs.map((tab) => (
-          <button
-            key={tab.id}
-            className={`valuebot-tab${activeValueBotTab === tab.id ? ' active' : ''}`}
-            type="button"
-            role="tab"
-            aria-selected={activeValueBotTab === tab.id}
-            onClick={() => setActiveValueBotTab(tab.id)}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
+
       <div className="valuebot-views">
         <article className="valuebot-view active" aria-hidden={false}>
           <h3>{activeValueBotConfig?.title}</h3>
