@@ -82,12 +82,7 @@ export const defaultPipelineProgress: DeepDivePipelineProgress = {
   errorMessage: null
 };
 
-export const createDefaultPipelineProgress = (): DeepDivePipelineProgress => ({
-  ...defaultPipelineProgress,
-  steps: { ...defaultPipelineProgress.steps }
-});
-
-export const createDefaultDeepDiveState = (): ValueBotAnalysisContext => ({
+export const defaultValueBotAnalysisContext: ValueBotAnalysisContext = {
   deepDiveConfig: { ...defaultDeepDiveConfig },
   module0OutputMarkdown: null,
   module1OutputMarkdown: null,
@@ -110,11 +105,7 @@ export const createDefaultDeepDiveState = (): ValueBotAnalysisContext => ({
   valuationNotes: '',
   timingNotes: '',
   finalVerdict: '',
-  pipelineProgress: createDefaultPipelineProgress()
-});
-
-export const defaultValueBotAnalysisContext: ValueBotAnalysisContext = {
-  ...createDefaultDeepDiveState()
+  pipelineProgress: { ...defaultPipelineProgress }
 };
 
 export interface ValueBotContextValue {
