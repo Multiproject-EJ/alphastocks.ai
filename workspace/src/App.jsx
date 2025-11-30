@@ -912,6 +912,11 @@ const App = () => {
     [handleValueBotContextUpdate, valueBotContext]
   );
 
+  const activeValueBotConfig = useMemo(
+    () => valueBotTabs.find((tab) => tab.id === activeValueBotTab) ?? valueBotTabs[0],
+    [activeValueBotTab]
+  );
+
   const tabsForSection = getSectionTabs(activeSection);
   const activeTab = activeTabsBySection[activeSection] ?? tabsForSection[0];
 
@@ -1863,48 +1868,45 @@ const App = () => {
         ))}
       </div>
       <div className="valuebot-views">
-        {valueBotTabs.map((tab) => {
-          const ModuleComponent = tab.component;
-          return (
-            <article
-              key={tab.id}
-              className={`valuebot-view${activeValueBotTab === tab.id ? ' active' : ''}`}
-              aria-hidden={activeValueBotTab !== tab.id}
-            >
-              <h3>{tab.title}</h3>
-              <p>{tab.description}</p>
-              <ul>
-                {tab.bullets.map((bullet) => (
-                  <li key={bullet}>{bullet}</li>
-                ))}
-              </ul>
-              {ModuleComponent ? (
-                <div className="detail-component">
-                  {tab.id === 'valuebot-quicktake' ? (
-                    <ModuleComponent />
-                  ) : (
-                    <ValueBotContext.Provider value={valueBotProviderValue}>
-                      <ModuleComponent />
-                    </ValueBotContext.Provider>
-                  )}
-                </div>
+        <article className="valuebot-view active" aria-hidden={false}>
+          <h3>{activeValueBotConfig?.title}</h3>
+          <p>{activeValueBotConfig?.description}</p>
+          <ul>
+            {activeValueBotConfig?.bullets?.map((bullet) => (
+              <li key={bullet}>{bullet}</li>
+            ))}
+          </ul>
+
+          <div className="detail-component valuebot-content-panel">
+            {activeValueBotConfig?.id === 'valuebot-quicktake' ? (
+              <AIAnalysis />
+            ) : (
+              <ValueBotContext.Provider value={valueBotProviderValue}>
+                {activeValueBotConfig?.id === 'valuebot-data-loader' && <Module0DataLoader />}
+                {activeValueBotConfig?.id === 'valuebot-core-diagnostics' && <Module1CoreDiagnostics />}
+                {activeValueBotConfig?.id === 'valuebot-growth-engine' && <Module2GrowthEngine />}
+                {activeValueBotConfig?.id === 'valuebot-scenario-engine' && <Module3ScenarioEngine />}
+                {activeValueBotConfig?.id === 'valuebot-valuation-engine' && <Module4ValuationEngine />}
+                {activeValueBotConfig?.id === 'valuebot-timing-momentum' && <Module5TimingMomentum />}
+                {activeValueBotConfig?.id === 'valuebot-final-verdict' && <Module6FinalVerdict />}
+              </ValueBotContext.Provider>
+            )}
+          </div>
+
+          {activeValueBotConfig?.infoSections?.map((section) => (
+            <div className="valuebot-info" key={`${activeValueBotConfig.id}-${section.title}`}>
+              <h4>{section.title}</h4>
+              {section.items ? (
+                <ul>
+                  {section.items.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
               ) : null}
-              {tab.infoSections?.map((section) => (
-                <div className="valuebot-info" key={`${tab.id}-${section.title}`}>
-                  <h4>{section.title}</h4>
-                  {section.items ? (
-                    <ul>
-                      {section.items.map((item) => (
-                        <li key={item}>{item}</li>
-                      ))}
-                    </ul>
-                  ) : null}
-                  {section.text ? <p>{section.text}</p> : null}
-                </div>
-              ))}
-            </article>
-          );
-        })}
+              {section.text ? <p>{section.text}</p> : null}
+            </div>
+          ))}
+        </article>
       </div>
     </section>
   );
