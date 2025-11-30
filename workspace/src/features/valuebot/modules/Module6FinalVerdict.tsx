@@ -280,7 +280,8 @@ ${MASTER_STOCK_ANALYSIS_INSTRUCTIONS}`;
           tracker.
         </p>
         <p className="detail-meta">
-          This also adds (or updates) the stock in your Investing Universe so you can track it alongside other positions.
+          This also adds (or updates) the stock in your Investing Universe so you can track it alongside other positions,
+          including Risk / Quality / Timing / Score columns and the last deep-dive timestamp.
         </p>
         <button
           type="button"

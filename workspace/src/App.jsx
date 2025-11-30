@@ -16,7 +16,8 @@ import {
   defaultPipelineProgress,
   defaultValueBotAnalysisContext
 } from './features/valuebot/types.ts';
-import useFetchDeepDives from './features/valuebot/useFetchDeepDives.ts';
+import UniverseDeepDiveModal from './features/valuebot/UniverseDeepDiveModal.tsx';
+import useFetchDeepDivesFromUniverse from './features/valuebot/useFetchDeepDivesFromUniverse.ts';
 import { useAuth } from './context/AuthContext.jsx';
 
 const DEFAULT_FOCUS_LIST = [
@@ -780,6 +781,8 @@ const App = () => {
   const [universeMutationError, setUniverseMutationError] = useState(null);
   const [isUniverseMutating, setIsUniverseMutating] = useState(false);
   const [selectedUniverseRowId, setSelectedUniverseRowId] = useState(null);
+  const [deepDiveModalTicker, setDeepDiveModalTicker] = useState(null);
+  const [deepDiveModalCompany, setDeepDiveModalCompany] = useState(null);
   const runtimeConfig = useMemo(() => getRuntimeConfig(), []);
   const dataService = useMemo(() => getDataService(), [runtimeConfig.mode]);
   const { user, signOut } = useAuth();
@@ -814,6 +817,16 @@ const App = () => {
   const morningNewsAlert = alertSettings[MORNING_NEWS_ALERT_ID];
   const hasMorningNewsPing = Boolean(
     morningNewsAlert?.enabled && morningNewsAlert?.triggered && morningNewsAlert?.unread
+  );
+  const {
+    deepDives: userDeepDives,
+    loading: deepDiveIndexLoading,
+    error: deepDiveIndexError,
+    refresh: refreshDeepDiveIndex
+  } = useFetchDeepDivesFromUniverse();
+  const deepDiveTickers = useMemo(
+    () => new Set((userDeepDives ?? []).map((item) => item.ticker)),
+    [userDeepDives]
   );
   const handleAlertToggle = useCallback((alertId) => {
     setAlertSettings((prev) => {
@@ -994,6 +1007,18 @@ const App = () => {
     [finalVerdictTab, handleValueBotContextUpdate, valueBotContext?.deepDiveConfig]
   );
 
+  const openDeepDiveModal = useCallback((row) => {
+    if (!row) return;
+
+    setDeepDiveModalTicker(row.symbol || row.ticker || null);
+    setDeepDiveModalCompany(row.name || row.company_name || row.symbol || row.ticker || null);
+  }, []);
+
+  const closeDeepDiveModal = useCallback(() => {
+    setDeepDiveModalTicker(null);
+    setDeepDiveModalCompany(null);
+  }, []);
+
   const activeValueBotConfig = useMemo(
     () => valueBotTabs.find((tab) => tab.id === activeValueBotTab) ?? valueBotTabs[0],
     [activeValueBotTab]
@@ -1058,13 +1083,6 @@ const App = () => {
     () => sortedUniverseRows.find((row) => row.id === selectedUniverseRowId) ?? sortedUniverseRows[0] ?? null,
     [selectedUniverseRowId, sortedUniverseRows]
   );
-
-  const {
-    deepDives: tickerDeepDives,
-    loading: tickerDeepDiveLoading,
-    error: tickerDeepDiveError,
-    refresh: refreshTickerDeepDives
-  } = useFetchDeepDives(selectedUniverseRow?.symbol || selectedUniverseRow?.ticker || null, user?.id);
 
   const handleUniverseStockAdd = useCallback(
     async (event) => {
@@ -1355,38 +1373,35 @@ const App = () => {
     };
   }, [dataService, user?.id]);
 
-  useEffect(() => {
-    let cancelled = false;
-
+  const fetchUniverseRows = useCallback(async () => {
     setUniverseIsLoading(true);
-    dataService
-      .getTable(
+    setUniverseLoadError(null);
+
+    try {
+      const { rows } = await dataService.getTable(
         'investment_universe',
         user?.id
           ? { match: { profile_id: user.id }, order: { column: 'created_at', ascending: false } }
           : { order: { column: 'created_at', ascending: false } }
-      )
-      .then(({ rows }) => {
-        if (cancelled) return;
-        setUniverseRows(rows?.length ? rows : DEFAULT_UNIVERSE_ROWS);
-        setUniverseLoadError(null);
-      })
-      .catch((error) => {
-        if (cancelled) return;
-        console.error('Failed to load investing universe', error);
-        setUniverseRows(DEFAULT_UNIVERSE_ROWS);
-        setUniverseLoadError(error);
-      })
-      .finally(() => {
-        if (!cancelled) {
-          setUniverseIsLoading(false);
-        }
-      });
+      );
 
-    return () => {
-      cancelled = true;
-    };
+      setUniverseRows(rows?.length ? rows : DEFAULT_UNIVERSE_ROWS);
+    } catch (error) {
+      console.error('Failed to load investing universe', error);
+      setUniverseRows(DEFAULT_UNIVERSE_ROWS);
+      setUniverseLoadError(error);
+    } finally {
+      setUniverseIsLoading(false);
+    }
   }, [dataService, user?.id]);
+
+  useEffect(() => {
+    fetchUniverseRows();
+  }, [fetchUniverseRows]);
+
+  const handleUniverseRefresh = useCallback(async () => {
+    await Promise.allSettled([fetchUniverseRows(), refreshDeepDiveIndex()]);
+  }, [fetchUniverseRows, refreshDeepDiveIndex]);
 
   const section = useMemo(() => {
     if (activeSection === 'dashboard') {
@@ -1781,108 +1796,6 @@ const App = () => {
     </>
   );
 
-  const renderDeepDiveReopenPanel = () => {
-    if (!selectedUniverseRow) {
-      return (
-        <div className="detail-card" data-size="wide">
-          <h3>ValueBot Deep Dives</h3>
-          <p className="detail-meta">Select a ticker from your universe to view saved deep dives.</p>
-        </div>
-      );
-    }
-
-    const companyLabel = selectedUniverseRow?.name || selectedUniverseRow?.symbol || 'this ticker';
-
-    const snippetFor = (value) => {
-      const trimmed = value?.trim();
-      if (!trimmed) return '';
-      return trimmed.length > 200 ? `${trimmed.slice(0, 200)}…` : trimmed;
-    };
-
-    return (
-      <div className="detail-card" data-size="wide">
-        <div className="detail-card__header">
-          <div>
-            <h3>ValueBot Deep Dives</h3>
-            <p className="detail-meta">
-              Saved MASTER analyses for {companyLabel}. Load one to continue the research inside ValueBot.
-            </p>
-          </div>
-          <div className="pill-list">
-            <button
-              className="btn-secondary"
-              type="button"
-              onClick={refreshTickerDeepDives}
-              disabled={tickerDeepDiveLoading}
-            >
-              {tickerDeepDiveLoading ? 'Refreshing…' : 'Refresh'}
-            </button>
-          </div>
-        </div>
-
-        {tickerDeepDiveLoading && <p className="detail-meta">Loading deep dives…</p>}
-        {tickerDeepDiveError && <div className="ai-error">{tickerDeepDiveError}</div>}
-
-        {!tickerDeepDiveLoading && !tickerDeepDiveError && (
-          <>
-            {!tickerDeepDives?.length ? (
-              <p className="detail-meta">
-                No deep dives saved for {selectedUniverseRow?.symbol || 'this ticker'} yet. Run Module 6 in ValueBot and click
-                “Save to Universe” to archive the MASTER report here.
-              </p>
-            ) : (
-              <div className="stack" style={{ display: 'grid', gap: '0.75rem' }}>
-                {tickerDeepDives.map((dive) => {
-                  const hasFinalReport = Boolean(dive?.module6_markdown?.trim());
-                  return (
-                    <div
-                      key={dive.id}
-                      style={{
-                        border: '1px solid rgba(255,255,255,0.08)',
-                        borderRadius: '12px',
-                        padding: '0.75rem'
-                      }}
-                    >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <div>
-                          <p className="detail-meta" style={{ marginBottom: '0.25rem' }}>
-                            {formatDateLabel(dive.created_at)} • {dive.provider || '—'}
-                            {dive.model ? ` • ${dive.model}` : ''}
-                            {dive.timeframe ? ` • ${dive.timeframe}` : ''}
-                          </p>
-                          <p className="detail-meta" style={{ marginBottom: '0.5rem' }}>
-                            {dive.currency ? `${dive.currency} • ` : ''}Ticker {dive.ticker}
-                          </p>
-                        </div>
-                        <button
-                          className={hasFinalReport ? 'btn-primary' : 'btn-secondary'}
-                          type="button"
-                          onClick={() => handleReopenDeepDive(dive)}
-                          disabled={!hasFinalReport}
-                        >
-                          Re-open in ValueBot
-                        </button>
-                      </div>
-                      <div className="ai-raw-response" style={{ whiteSpace: 'pre-wrap' }}>
-                        {hasFinalReport
-                          ? snippetFor(dive.module6_markdown) || 'MASTER report available.'
-                          : 'This deep dive is missing a final report. Re-run Module 6 in ValueBot to regenerate it.'}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-
-            <p className="detail-meta" style={{ marginTop: '0.75rem' }}>
-              Loads this saved deep dive into ValueBot so you can review or extend the MASTER analysis.
-            </p>
-          </>
-        )}
-      </div>
-    );
-  };
-
   const renderUniverseTable = () => {
     if (universeIsLoading) {
       return <p>Loading your universe…</p>;
@@ -1892,103 +1805,157 @@ const App = () => {
       return <p>No stocks added yet. Use the Add Stocks tab to seed your universe.</p>;
     }
 
+    const formatScore = (value) => {
+      if (typeof value === 'number' && !Number.isNaN(value)) return value.toFixed(1);
+      if (typeof value === 'string') {
+        const parsed = Number.parseFloat(value);
+        if (!Number.isNaN(parsed)) return parsed.toFixed(1);
+      }
+      return '—';
+    };
+
     return (
       <table className="table subtle">
         <thead>
           <tr>
             <th>Company</th>
             <th>Ticker</th>
+            <th title="From the most recent MASTER deep dive">Risk</th>
+            <th title="From the most recent MASTER deep dive">Quality</th>
+            <th title="From the most recent MASTER deep dive">Timing</th>
+            <th title="From the most recent MASTER deep dive">Score</th>
             <th>Added</th>
+            <th>Deep Dive</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
-          {sortedUniverseRows.map((row) => (
-            <tr
-              key={row.id}
-              onClick={() => setSelectedUniverseRowId(row.id)}
-              aria-selected={row.id === selectedUniverseRowId}
-              style={{
-                background: row.id === selectedUniverseRowId ? 'rgba(79, 70, 229, 0.08)' : undefined,
-                cursor: 'pointer'
-              }}
-            >
-              <td>
-                {editingUniverseId === row.id ? (
-                  <input
-                    type="text"
-                    value={editStockName}
-                    onInput={(event) => setEditStockName(event.target.value)}
-                    aria-label="Edit company name"
-                  />
-                ) : (
-                  row.name || row.symbol || '—'
-                )}
-              </td>
-              <td>
-                {editingUniverseId === row.id ? (
-                  <input
-                    type="text"
-                    value={editStockSymbol}
-                    onInput={(event) => setEditStockSymbol(event.target.value)}
-                    aria-label="Edit ticker symbol"
-                  />
-                ) : (
-                  <code>{row.symbol || '—'}</code>
-                )}
-              </td>
-              <td>{formatDateLabel(row.created_at || new Date().toISOString())}</td>
-              <td>
-                {editingUniverseId === row.id ? (
-                  <div className="table-actions">
-                    <button
-                      type="button"
-                      className="btn-primary"
-                      onClick={handleUniverseUpdate}
-                      disabled={isUniverseMutating}
-                    >
-                      Save
-                    </button>
-                    <button
-                      type="button"
-                      className="btn-secondary"
-                      onClick={cancelUniverseEdit}
-                      disabled={isUniverseMutating}
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                ) : (
-                  <div className="table-actions">
-                    <button
-                      type="button"
-                      className="btn-secondary"
-                      onClick={() => setSelectedUniverseRowId(row.id)}
-                      disabled={isUniverseMutating}
-                    >
-                      View
-                    </button>
-                    <button
-                      type="button"
-                      className="btn-secondary"
-                      onClick={() => beginUniverseEdit(row)}
-                      disabled={isUniverseMutating}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      type="button"
-                      className="btn-secondary"
-                      onClick={() => handleUniverseDelete(row.id)}
-                      disabled={isUniverseMutating}
-                    >
-                      Delete
-                    </button>
-                  </div>
-                )}
-              </td>
-            </tr>
-          ))}
+          {sortedUniverseRows.map((row) => {
+            const hasDeepDive = deepDiveTickers.has(row.symbol || row.ticker);
+            return (
+              <tr
+                key={row.id}
+                onClick={() => setSelectedUniverseRowId(row.id)}
+                aria-selected={row.id === selectedUniverseRowId}
+                style={{
+                  background: row.id === selectedUniverseRowId ? 'rgba(79, 70, 229, 0.08)' : undefined,
+                  cursor: 'pointer'
+                }}
+              >
+                <td>
+                  {editingUniverseId === row.id ? (
+                    <input
+                      type="text"
+                      value={editStockName}
+                      onInput={(event) => setEditStockName(event.target.value)}
+                      aria-label="Edit company name"
+                    />
+                  ) : (
+                    row.name || row.symbol || '—'
+                  )}
+                </td>
+                <td>
+                  {editingUniverseId === row.id ? (
+                    <input
+                      type="text"
+                      value={editStockSymbol}
+                      onInput={(event) => setEditStockSymbol(event.target.value)}
+                      aria-label="Edit ticker symbol"
+                    />
+                  ) : (
+                    <code>{row.symbol || '—'}</code>
+                  )}
+                </td>
+                <td>{row.last_risk_label || '—'}</td>
+                <td>{row.last_quality_label || '—'}</td>
+                <td>{row.last_timing_label || '—'}</td>
+                <td>{formatScore(row.last_composite_score)}</td>
+                <td title={row.last_deep_dive_at ? `Last deep dive ${formatDateLabel(row.last_deep_dive_at)}` : undefined}>
+                  {formatDateLabel(row.created_at || new Date().toISOString())}
+                </td>
+                <td>
+                  <button
+                    type="button"
+                    className="btn-secondary"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      if (hasDeepDive) {
+                        openDeepDiveModal(row);
+                      }
+                    }}
+                    disabled={!hasDeepDive}
+                    title={hasDeepDive ? 'Open saved deep dives' : 'No deep dive saved yet.'}
+                  >
+                    {hasDeepDive ? 'Deep Dive' : 'No Deep Dive'}
+                  </button>
+                </td>
+                <td>
+                  {editingUniverseId === row.id ? (
+                    <div className="table-actions">
+                      <button
+                        type="button"
+                        className="btn-primary"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          handleUniverseUpdate();
+                        }}
+                        disabled={isUniverseMutating}
+                      >
+                        Save
+                      </button>
+                      <button
+                        type="button"
+                        className="btn-secondary"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          cancelUniverseEdit();
+                        }}
+                        disabled={isUniverseMutating}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="table-actions">
+                      <button
+                        type="button"
+                        className="btn-secondary"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          setSelectedUniverseRowId(row.id);
+                        }}
+                        disabled={isUniverseMutating}
+                      >
+                        View
+                      </button>
+                      <button
+                        type="button"
+                        className="btn-secondary"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          beginUniverseEdit(row);
+                        }}
+                        disabled={isUniverseMutating}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        type="button"
+                        className="btn-secondary"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          handleUniverseDelete(row.id);
+                        }}
+                        disabled={isUniverseMutating}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  )}
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     );
@@ -2050,23 +2017,44 @@ const App = () => {
       <>
         <h2>{section.title}</h2>
         <p className="detail-meta">{section.meta}</p>
-        <div className="detail-grid detail-grid--balanced">
-          <div className="detail-card">
-            <h3>Universe tracker</h3>
-            {renderUniverseTable()}
-            {universeLoadError && (
-              <p className="detail-meta" role="status">
-                Supabase fetch failed; showing local defaults instead.
+        <div className="detail-card" data-size="wide">
+          <div className="detail-card__header">
+            <div>
+              <h3>Universe tracker</h3>
+              <p className="detail-meta">
+                Risk / Quality / Timing / Score refresh automatically from your latest ValueBot Module 6 MASTER deep dive.
               </p>
-            )}
-            {universeMutationError && (
-              <p className="detail-meta" role="status">
-                {isSupabaseMode ? 'Supabase sync failed: ' : 'Update failed: '}
-                {universeMutationError.message || 'Please try again.'}
-              </p>
-            )}
+            </div>
+            <div className="pill-list">
+              <button
+                className="btn-secondary"
+                type="button"
+                onClick={handleUniverseRefresh}
+                disabled={universeIsLoading}
+              >
+                {universeIsLoading ? 'Refreshing…' : 'Refresh'}
+              </button>
+            </div>
           </div>
-          {renderDeepDiveReopenPanel()}
+
+          {renderUniverseTable()}
+          {universeLoadError && (
+            <p className="detail-meta" role="status">
+              Supabase fetch failed; showing local defaults instead.
+            </p>
+          )}
+          {universeMutationError && (
+            <p className="detail-meta" role="status">
+              {isSupabaseMode ? 'Supabase sync failed: ' : 'Update failed: '}
+              {universeMutationError.message || 'Please try again.'}
+            </p>
+          )}
+          {deepDiveIndexError && (
+            <p className="detail-meta" role="status">
+              Unable to check saved deep dives right now: {deepDiveIndexError}
+            </p>
+          )}
+          {deepDiveIndexLoading && <p className="detail-meta">Checking for saved deep dives…</p>}
         </div>
       </>
     );
@@ -2407,6 +2395,19 @@ const App = () => {
           </div>
         </div>
       </section>
+
+      {deepDiveModalTicker && (
+        <UniverseDeepDiveModal
+          ticker={deepDiveModalTicker}
+          companyName={deepDiveModalCompany}
+          onClose={closeDeepDiveModal}
+          onReopenDeepDive={(dive) => {
+            handleReopenDeepDive(dive);
+            closeDeepDiveModal();
+          }}
+          userId={user?.id || null}
+        />
+      )}
 
       <div
         id="accountDialog"
