@@ -16,6 +16,7 @@ export interface ValueBotAnalysisContext {
   module3Markdown?: string | null;
   module4Markdown?: string;
   module5Markdown?: string;
+  module6Markdown?: string;
   module3Output?: string | null;
   module4Output?: string | null;
   module5Output?: string | null;
@@ -54,6 +55,7 @@ export const defaultValueBotAnalysisContext: ValueBotAnalysisContext = {
   module3Markdown: '',
   module4Markdown: '',
   module5Markdown: '',
+  module6Markdown: '',
   module3Output: null,
   module4Output: null,
   module5Output: null,
