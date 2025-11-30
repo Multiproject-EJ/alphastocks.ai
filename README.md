@@ -76,6 +76,7 @@ Legend: ☐ not started • 🕒 in progress • ☑ done
   - 2025-10-31: Added cross-linked fixtures under `workspace/src/data/demo/` covering profiles, 10 portfolios, holdings, transactions, events, journals, AI analyses, and settings. Dashboard widgets now hydrate from the demo data service to mirror Supabase queries.
 - ☑ Provide fixtures/utilities to seed Supabase from demo JSON (for quick migration once backend is ready).
   - 2025-11-01: Added `workspace/scripts/generateSupabaseSeed.js` to convert demo fixtures into SQL with optional CLI flags for alternate destinations or stdout. Mirrors Supabase's [seeding guide](https://supabase.com/docs/guides/database/seeding) and aligns with the CLI's [`supabase db seed`](https://supabase.com/docs/reference/cli/supabase-db-seed) workflow. Current live patch: `supabase/patches/001_create_investment_universe.sql` creates the lightweight `investment_universe` table without bulk demo rows.
+  - 2025-11-05: Added `supabase/patches/002_valuebot_deep_dives.sql` documenting the `valuebot_deep_dives` table that stores full ValueBot deep-dive outputs (Modules 0–6) for each ticker.
 
 ### Feature: Today Dashboard
 - ☑ Design layout for dashboard cards (notable events, financial calendar, watchlist movers, headlines, market stats) using current UI patterns.
