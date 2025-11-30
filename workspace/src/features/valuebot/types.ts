@@ -1,5 +1,10 @@
 export interface ValueBotAnalysisContext {
-  ticker?: string;
+  provider?: string | null;
+  model?: string | null;
+  ticker?: string | null;
+  timeframe?: string | null;
+  customQuestion?: string | null;
+  module0Data?: string | null;
   companyName?: string;
   market?: string;
   currentPrice?: number;
@@ -15,4 +20,5 @@ export interface ValueBotAnalysisContext {
 export interface ValueBotModuleProps {
   context: ValueBotAnalysisContext;
   onUpdateContext?: (updates: Partial<ValueBotAnalysisContext>) => void;
+  setContext?: (context: ValueBotAnalysisContext) => void;
 }

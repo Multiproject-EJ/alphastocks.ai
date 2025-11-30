@@ -751,7 +751,24 @@ const App = () => {
     return initialMap;
   });
   const [activeValueBotTab, setActiveValueBotTab] = useState(valueBotTabs[0].id);
-  const [valueBotContext, setValueBotContext] = useState({});
+  const [valueBotContext, setValueBotContext] = useState({
+    provider: 'openai',
+    model: '',
+    ticker: '',
+    timeframe: '',
+    customQuestion: '',
+    module0Data: null,
+    companyName: '',
+    market: '',
+    currentPrice: null,
+    rawDataLoaded: false,
+    riskQualitySummary: '',
+    growthNarrative: '',
+    scenarioNotes: '',
+    valuationNotes: '',
+    timingNotes: '',
+    finalVerdict: ''
+  });
   const [activeProfile, setActiveProfile] = useState(null);
   const [profileError, setProfileError] = useState(null);
   const [isAccountDialogOpen, setIsAccountDialogOpen] = useState(false);

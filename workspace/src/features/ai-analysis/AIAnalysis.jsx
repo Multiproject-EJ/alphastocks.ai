@@ -6,7 +6,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'preact/hooks';
-import { useStockAnalysis } from '../../lib/useStockAnalysis.js';
+import { useRunStockAnalysis } from './useRunStockAnalysis.ts';
 
 /**
  * Validates the stock/company identifier input
@@ -36,14 +36,14 @@ async function fetchProviderConfig() {
   return { openai: true, gemini: true, openrouter: true };
 }
 
-export function AIAnalysis() {
-  const { analyzeStock, loading, error, data } = useStockAnalysis();
+export function AIAnalysis({ context, onUpdateContext }) {
+  const { runAnalysis, loading, error, data } = useRunStockAnalysis();
 
-  const [provider, setProvider] = useState('openai');
-  const [model, setModel] = useState('');
-  const [ticker, setTicker] = useState('');
-  const [timeframe, setTimeframe] = useState('');
-  const [question, setQuestion] = useState('');
+  const [provider, setProvider] = useState(context?.provider || 'openai');
+  const [model, setModel] = useState(context?.model || '');
+  const [ticker, setTicker] = useState(context?.ticker || '');
+  const [timeframe, setTimeframe] = useState(context?.timeframe || '');
+  const [question, setQuestion] = useState(context?.customQuestion || '');
   const [tickerError, setTickerError] = useState('');
   const [providerConfig, setProviderConfig] = useState({
     openai: true,
@@ -52,9 +52,38 @@ export function AIAnalysis() {
   });
   const [showResults, setShowResults] = useState(false);
 
+  const syncContext = useCallback(
+    (updates) => {
+      if (onUpdateContext) {
+        onUpdateContext(updates);
+      }
+    },
+    [onUpdateContext]
+  );
+
   useEffect(() => {
     fetchProviderConfig().then(setProviderConfig);
   }, []);
+
+  useEffect(() => {
+    if (!context) return;
+
+    if (context.provider !== undefined && context.provider !== provider) {
+      setProvider(context.provider || 'openai');
+    }
+    if (context.model !== undefined && context.model !== model) {
+      setModel(context.model || '');
+    }
+    if (context.ticker !== undefined && context.ticker !== ticker) {
+      setTicker(context.ticker || '');
+    }
+    if (context.timeframe !== undefined && context.timeframe !== timeframe) {
+      setTimeframe(context.timeframe || '');
+    }
+    if (context.customQuestion !== undefined && context.customQuestion !== question) {
+      setQuestion(context.customQuestion || '');
+    }
+  }, [context, model, provider, question, ticker, timeframe]);
 
   const availableProviders = Object.entries(providerConfig)
     .filter(([, available]) => available)
@@ -91,13 +120,16 @@ export function AIAnalysis() {
   useEffect(() => {
     const availableValues = availableProviders.map((p) => p.value);
     if (availableValues.length > 0 && !availableValues.includes(provider)) {
-      setProvider(availableValues[0]);
+      const nextProvider = availableValues[0];
+      setProvider(nextProvider);
+      syncContext({ provider: nextProvider });
     }
-  }, [availableProviders, provider]);
+  }, [availableProviders, provider, syncContext]);
 
   useEffect(() => {
     setModel('');
-  }, [provider]);
+    syncContext({ model: '', provider });
+  }, [provider, syncContext]);
 
   const handleTickerBlur = useCallback(() => {
     if (ticker.trim()) {
@@ -111,10 +143,11 @@ export function AIAnalysis() {
   const handleTickerChange = useCallback((e) => {
     const value = e.target.value;
     setTicker(value);
+    syncContext({ ticker: value });
     if (tickerError) {
       setTickerError('');
     }
-  }, [tickerError]);
+  }, [syncContext, tickerError]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -131,12 +164,12 @@ export function AIAnalysis() {
     setShowResults(true);
 
     try {
-      await analyzeStock({
+      await runAnalysis({
         provider,
         model: model || undefined,
         ticker: normalizedTicker,
         timeframe: timeframe.trim() || undefined,
-        question: question.trim() || undefined
+        customQuestion: question.trim() || undefined
       });
     } catch (err) {
       // Error is already handled by the hook
@@ -162,7 +195,10 @@ export function AIAnalysis() {
             <select
               id="aiProvider"
               value={provider}
-              onChange={(e) => setProvider(e.target.value)}
+              onChange={(e) => {
+                setProvider(e.target.value);
+                syncContext({ provider: e.target.value });
+              }}
               disabled={availableProviders.length === 0}
             >
               {availableProviders.length === 0 ? (
@@ -187,7 +223,10 @@ export function AIAnalysis() {
             <select
               id="aiModel"
               value={model}
-              onChange={(e) => setModel(e.target.value)}
+              onChange={(e) => {
+                setModel(e.target.value);
+                syncContext({ model: e.target.value });
+              }}
               disabled={!modelOptions[provider] || modelOptions[provider].length === 0}
             >
               {(modelOptions[provider] || []).map((option) => (
@@ -234,7 +273,10 @@ export function AIAnalysis() {
               id="aiTimeframe"
               placeholder="e.g., 1y, 5y, ytd"
               value={timeframe}
-              onInput={(e) => setTimeframe(e.target.value)}
+              onInput={(e) => {
+                setTimeframe(e.target.value);
+                syncContext({ timeframe: e.target.value });
+              }}
             />
           </div>
 
@@ -245,7 +287,10 @@ export function AIAnalysis() {
               rows={3}
               placeholder="Ask a specific question about the stock..."
               value={question}
-              onInput={(e) => setQuestion(e.target.value)}
+              onInput={(e) => {
+                setQuestion(e.target.value);
+                syncContext({ customQuestion: e.target.value });
+              }}
             />
           </div>
 
