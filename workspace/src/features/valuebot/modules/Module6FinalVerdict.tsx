@@ -3,6 +3,7 @@ import { useContext, useEffect, useMemo, useState } from 'preact/hooks';
 import { useRunStockAnalysis } from '../../ai-analysis/useRunStockAnalysis.ts';
 import { MASTER_STOCK_ANALYSIS_INSTRUCTIONS } from '../prompts/masterStockAnalysisPrompt.ts';
 import { ValueBotContext, ValueBotModuleProps } from '../types.ts';
+import { useSaveDeepDiveToUniverse } from '../useSaveDeepDiveToUniverse.ts';
 
 const Module6FinalVerdict: FunctionalComponent<ValueBotModuleProps> = ({ context, onUpdateContext }) => {
   const valueBot = useContext(ValueBotContext);
@@ -28,6 +29,7 @@ const Module6FinalVerdict: FunctionalComponent<ValueBotModuleProps> = ({ context
   const module3Markdown = resolvedContext?.module3Markdown?.trim();
   const module4Markdown = resolvedContext?.module4Markdown?.trim();
   const module5Markdown = resolvedContext?.module5Markdown?.trim();
+  const module6Markdown = resolvedContext?.module6Markdown?.trim();
 
   const hasTicker = Boolean(ticker);
   const hasModule1Output = Boolean(module1Markdown);
@@ -35,8 +37,12 @@ const Module6FinalVerdict: FunctionalComponent<ValueBotModuleProps> = ({ context
   const hasModule3Output = Boolean(module3Markdown);
   const hasModule4Output = Boolean(module4Markdown);
   const hasModule5Output = Boolean(module5Markdown);
+  const hasModule6Output = Boolean(module6Markdown);
 
   const canRunModule = hasTicker && hasModule1Output && hasModule2Output && hasModule3Output && hasModule4Output;
+
+  const { saveDeepDive, isSaving: isSavingDeepDive, saveError, saveSuccess } = useSaveDeepDiveToUniverse();
+  const canSaveDeepDive = hasTicker && hasModule6Output;
 
   useEffect(() => {
     if (resolvedContext?.module6Markdown && resolvedContext.module6Markdown !== moduleOutput) {
@@ -264,6 +270,49 @@ ${MASTER_STOCK_ANALYSIS_INSTRUCTIONS}`;
           <p className="detail-meta" aria-live="polite">
             Provider: {data.provider} {data.modelUsed ? `• Model: ${data.modelUsed}` : ''}
           </p>
+        )}
+      </div>
+
+      <div className="detail-card">
+        <h4>Save deep-dive to Investing Universe</h4>
+        <p className="detail-meta">
+          Store this full ValueBot deep dive (Modules 0–6) in your Investing Universe so you can revisit, compare,
+          and track updates later.
+        </p>
+        <button
+          type="button"
+          className="btn-primary"
+          onClick={() => saveDeepDive()}
+          disabled={!canSaveDeepDive || isSavingDeepDive}
+          aria-busy={isSavingDeepDive}
+          title={!canSaveDeepDive ? 'Complete the deep-dive configuration and run Module 6 before saving.' : undefined}
+        >
+          {isSavingDeepDive ? 'Saving…' : 'Save to Universe'}
+        </button>
+        {!hasTicker && (
+          <p className="detail-meta" role="status">
+            Run Module 0 to configure the deep dive first.
+          </p>
+        )}
+        {hasTicker && !hasModule6Output && (
+          <p className="detail-meta" role="status">
+            Run Module 6 to generate the final report first.
+          </p>
+        )}
+        {isSavingDeepDive && (
+          <p className="detail-meta" role="status">
+            Saving deep dive…
+          </p>
+        )}
+        {saveSuccess && (
+          <p className="detail-meta" role="status">
+            Saved to Universe ✔
+          </p>
+        )}
+        {saveError && (
+          <div className="ai-error" role="status">
+            {saveError}
+          </div>
         )}
       </div>
     </div>
