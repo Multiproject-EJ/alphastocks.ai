@@ -13,8 +13,9 @@ import Module5TimingMomentum from './features/valuebot/modules/Module5TimingMome
 import Module6FinalVerdict from './features/valuebot/modules/Module6FinalVerdict.tsx';
 import {
   ValueBotContext,
-  defaultPipelineProgress,
-  defaultValueBotAnalysisContext
+  createDefaultDeepDiveState,
+  createDefaultPipelineProgress,
+  defaultPipelineProgress
 } from './features/valuebot/types.ts';
 import UniverseDeepDiveModal from './features/valuebot/UniverseDeepDiveModal.tsx';
 import useFetchDeepDivesFromUniverse from './features/valuebot/useFetchDeepDivesFromUniverse.ts';
@@ -758,10 +759,7 @@ const App = () => {
     return initialMap;
   });
   const [activeValueBotTab, setActiveValueBotTab] = useState(valueBotTabs[0].id);
-  const [valueBotContext, setValueBotContext] = useState(() => ({
-    ...defaultValueBotAnalysisContext,
-    deepDiveConfig: { ...defaultValueBotAnalysisContext.deepDiveConfig }
-  }));
+  const [valueBotContext, setValueBotContext] = useState(() => createDefaultDeepDiveState());
   const [activeProfile, setActiveProfile] = useState(null);
   const [profileError, setProfileError] = useState(null);
   const [isAccountDialogOpen, setIsAccountDialogOpen] = useState(false);
@@ -1378,11 +1376,33 @@ const App = () => {
     setUniverseLoadError(null);
 
     try {
+      const baseUniverseOptions = {
+        select: [
+          'id',
+          'name',
+          'company_name',
+          'symbol',
+          'ticker',
+          'profile_id',
+          'created_at',
+          'provider',
+          'model',
+          'timeframe',
+          'custom_question',
+          'last_deep_dive_at',
+          'last_risk_label',
+          'last_quality_label',
+          'last_timing_label',
+          'last_composite_score'
+        ].join(', '),
+        order: { column: 'created_at', ascending: false }
+      };
+
       const { rows } = await dataService.getTable(
         'investment_universe',
         user?.id
-          ? { match: { profile_id: user.id }, order: { column: 'created_at', ascending: false } }
-          : { order: { column: 'created_at', ascending: false } }
+          ? { ...baseUniverseOptions, match: { profile_id: user.id } }
+          : baseUniverseOptions
       );
 
       setUniverseRows(rows?.length ? rows : DEFAULT_UNIVERSE_ROWS);
@@ -1876,7 +1896,7 @@ const App = () => {
                 <td>
                   <button
                     type="button"
-                    className="btn-secondary"
+                    className={hasDeepDive ? 'btn-primary btn-deep-dive' : 'btn-secondary'}
                     onClick={(event) => {
                       event.stopPropagation();
                       if (hasDeepDive) {
