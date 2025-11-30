@@ -1,6 +1,7 @@
 import { FunctionalComponent } from 'preact';
 import { useContext, useEffect, useMemo, useState } from 'preact/hooks';
 import { useRunStockAnalysis } from '../../ai-analysis/useRunStockAnalysis.ts';
+import { MASTER_STOCK_ANALYSIS_INSTRUCTIONS } from '../prompts/masterStockAnalysisPrompt.ts';
 import { ValueBotContext, ValueBotModuleProps } from '../types.ts';
 
 const Module6FinalVerdict: FunctionalComponent<ValueBotModuleProps> = ({ context, onUpdateContext }) => {
@@ -48,77 +49,78 @@ const Module6FinalVerdict: FunctionalComponent<ValueBotModuleProps> = ({ context
     const timeframeValue = timeframe || '5–15 year horizon';
     const companyLabel = companyName || 'the company';
     const priceLabel = typeof currentPrice === 'number' ? `$${currentPrice}` : 'Price not provided';
+    const modelLabel = model || 'Default model for provider';
 
-    const module0Context = module0Markdown || '[Module 0 — Data Loader output missing]';
-    const module1Context = module1Markdown || '[Module 1 — Core Diagnostics output missing]';
-    const module2Context = module2Markdown || '[Module 2 — Growth Engine output missing]';
-    const module3Context = module3Markdown || '[Module 3 — Scenario Engine output missing]';
-    const module4Context = module4Markdown || '[Module 4 — Valuation Engine output missing]';
-    const module5Context = module5Markdown || '[Module 5 — Timing & Momentum output missing]';
-    const timingNote = hasModule5Output
-      ? 'Timing signals from Module 5 are included below.'
-      : 'Module 5 — Timing & Momentum has not been run. Proceed with the final verdict, but note that timing signals are missing.';
+    const module0Context = module0Markdown || '[Module 0 — Data Loader output missing. Proceed and highlight uncertainty.]';
+    const module1Context = module1Markdown || '[Module 1 — Core Diagnostics output missing. Proceed and highlight uncertainty.]';
+    const module2Context = module2Markdown || '[Module 2 — Growth Engine output missing. Proceed and highlight uncertainty.]';
+    const module3Context = module3Markdown || '[Module 3 — Scenario Engine output missing. Proceed and highlight uncertainty.]';
+    const module4Context = module4Markdown || '[Module 4 — Valuation Engine output missing. Proceed and highlight uncertainty.]';
+    const module5Context = module5Markdown || '[Module 5 — Timing & Momentum output missing. Proceed and highlight uncertainty.]';
 
+    const missingSignals = [
+      !module0Markdown && 'Module 0 data loader',
+      !module1Markdown && 'Module 1 risk diagnostics',
+      !module2Markdown && 'Module 2 business model',
+      !module3Markdown && 'Module 3 scenario engine',
+      !module4Markdown && 'Module 4 valuation engine',
+      !module5Markdown && 'Module 5 timing & momentum'
+    ].filter(Boolean);
+
+    const missingNotice = missingSignals.length
+      ? `Some modules were missing (${missingSignals.join(', ')}). Do your best, but clearly indicate uncertainty where inputs are sparse.`
+      : 'All prior modules are present. Synthesize confidently while staying concise.';
+
+    // Assemble a single prompt that carries the deep-dive config snapshot, source materials from modules 0–5,
+    // and the MASTER instructions that define the required tables and narrative sections. The AI should not
+    // repeat the prior modules verbatim; it should synthesize them into the standardized MASTER output.
     return `You are ValueBot.ai — Module 6: Final Verdict Synthesizer for ${tickerValue} (${companyLabel}).
 
-Role: equity valuation assistant. Synthesize a final verdict from the prior module analyses without repeating long sections verbatim.
+Role: equity valuation copilot. Produce the MASTER STOCK ANALYSIS as standardized markdown tables plus concise narrative sections.
 
-Timeframe lens: ${timeframeValue}.
-Current price (if known): ${priceLabel}.
+Deep-dive configuration snapshot:
+- Provider: ${provider}
+- Model: ${modelLabel}
+- Ticker: ${tickerValue}
+- Timeframe: ${timeframeValue}
+- Custom question: ${customQuestion || 'None provided'}
+- Current price: ${priceLabel}
 
-Output requirements — always start with the tables, then concise narratives:
-1) One-liner summary table (single row):
-   - Columns: Ticker | Risk | Quality | Timing | Composite Score (/10)
-2) Final verdicts one-line table:
-   - Columns: Risk | Quality | Timing
-3) Standardized scorecard one-line table:
-   - Columns: Debt & Balance Sheet Risk | Cash Flow Strength | Margins & Profitability | Competition & Moat | Timing & Momentum | Composite
-4) Valuation ranges one-line table:
-   - Columns: Bear | Base | Bull (fair value ranges)
-
-Narrative sections (succinct, avoid walls of text):
-- Restate current price context & long-term (5–15 years) perspective.
-- Compressed downside & risk view.
-- Compressed business model & growth durability view.
-- Summarize scenario analysis & valuation with probabilities.
-- Clear timing / entry-zone verdict: Buy / Hold / Wait / Avoid, with 3–5 short bullets.
-
-Important instructions:
-- Do NOT repeat large chunks of prior modules. Synthesize and compress.
-- Always output tables first, followed by short narrative sections.
-- Keep wording crisp and investment-oriented.
-
-=== PRIOR MODULE CONTEXT (DO NOT REPEAT VERBATIM, JUST SYNTHESIZE) ===
-
-[MODULE 0 — DATA LOADER]
+Source materials to synthesize (do NOT paste verbatim):
+=== MODULE 0 – Data Loader Snapshot ===
 ${module0Context}
 
-[MODULE 1 — CORE RISK & QUALITY DIAGNOSTICS]
+=== MODULE 1 – Core Risk & Quality Diagnostics ===
 ${module1Context}
 
-[MODULE 2 — BUSINESS MODEL & GROWTH ENGINE]
+=== MODULE 2 – Business Model & Growth Engine ===
 ${module2Context}
 
-[MODULE 3 — SCENARIO ENGINE]
+=== MODULE 3 – Scenario Engine (Bear/Base/Bull) ===
 ${module3Context}
 
-[MODULE 4 — VALUATION ENGINE]
+=== MODULE 4 – Valuation Engine ===
 ${module4Context}
 
-[MODULE 5 — TIMING & MOMENTUM]
+=== MODULE 5 – Timing & Momentum ===
 ${module5Context}
 
-${timingNote}`;
+${missingNotice}
+
+Follow the MASTER STOCK ANALYSIS instructions exactly below. Output must be valid GitHub-flavored markdown, with the four tables first, then headings 0–6 with clear paragraphs.
+${MASTER_STOCK_ANALYSIS_INSTRUCTIONS}`;
   }, [
     companyName,
     currentPrice,
+    customQuestion,
+    model,
     module0Markdown,
     module1Markdown,
     module2Markdown,
     module3Markdown,
     module4Markdown,
     module5Markdown,
-    hasModule5Output,
+    provider,
     ticker,
     timeframe
   ]);
@@ -166,8 +168,8 @@ ${timingNote}`;
     <div className="detail-grid detail-grid--balanced">
       <div className="detail-card">
         <h3>MODULE 6 — Final Verdict Synthesizer</h3>
-        <p className="detail-meta">Combines prior module outputs into a single, investable verdict and standardized summary tables.</p>
-        <p className="detail-meta">Uses deep-dive configuration plus completed Modules 1–5 to generate a concise final view.</p>
+        <p className="detail-meta">Synthesizes Modules 0–5 into a MASTER Stock Analysis with standardized tables and narrative sections.</p>
+        <p className="detail-meta">Uses the deep-dive configuration and prior module markdown to generate the final verdict in one pass.</p>
         {!hasTicker && (
           <div className="demo-banner warning" role="status">
             Module 6 depends on the deep-dive configuration from Module 0.
