@@ -1,23 +1,66 @@
 import { FunctionalComponent } from 'preact';
-import { useMemo, useState, useEffect } from 'preact/hooks';
+import { useMemo, useState, useEffect, useCallback } from 'preact/hooks';
 import { useRunStockAnalysis } from '../../ai-analysis/useRunStockAnalysis.ts';
-import { ValueBotModuleProps } from '../types.ts';
+import { ValueBotModuleProps, ValueBotDeepDiveConfig } from '../types.ts';
+
+const defaultConfig: ValueBotDeepDiveConfig = {
+  provider: 'openai',
+  model: '',
+  ticker: '',
+  timeframe: '',
+  customQuestion: ''
+};
+
+const providerOptions = [
+  { value: 'openai', label: 'OpenAI' },
+  { value: 'gemini', label: 'Google Gemini' },
+  { value: 'openrouter', label: 'OpenRouter' }
+];
+
+const modelOptions = {
+  openai: [
+    { value: '', label: 'Use default (gpt-4o-mini)' },
+    { value: 'gpt-4o', label: 'gpt-4o (quality)' },
+    { value: 'gpt-4o-mini', label: 'gpt-4o-mini (fast & cost effective)' },
+    { value: 'gpt-4.1', label: 'gpt-4.1 (premium)' }
+  ],
+  gemini: [
+    { value: '', label: 'Use default (gemini-1.5-flash)' },
+    { value: 'gemini-1.5-pro', label: 'gemini-1.5-pro (quality)' },
+    { value: 'gemini-1.5-flash', label: 'gemini-1.5-flash (fast)' }
+  ],
+  openrouter: [
+    { value: '', label: 'Use default (openai/gpt-3.5-turbo)' },
+    { value: 'openai/gpt-4o', label: 'openai/gpt-4o (quality)' },
+    { value: 'openai/gpt-3.5-turbo', label: 'openai/gpt-3.5-turbo (fast & low cost)' },
+    { value: 'mistralai/mistral-large', label: 'mistralai/mistral-large (balanced)' }
+  ]
+};
 
 const Module0DataLoader: FunctionalComponent<ValueBotModuleProps> = ({ context, onUpdateContext }) => {
   const { runAnalysis, loading, error, data } = useRunStockAnalysis();
   const [localError, setLocalError] = useState<string | null>(null);
-  const [moduleOutput, setModuleOutput] = useState<string>(context?.module0Data || '');
+  const [config, setConfig] = useState<ValueBotDeepDiveConfig>(context?.deepDiveConfig || defaultConfig);
+  const [moduleOutput, setModuleOutput] = useState<string>(context?.module0Output || '');
 
   useEffect(() => {
-    if (context?.module0Data && context.module0Data !== moduleOutput) {
-      setModuleOutput(context.module0Data);
+    if (context?.module0Output && context.module0Output !== moduleOutput) {
+      setModuleOutput(context.module0Output);
     }
-  }, [context?.module0Data, moduleOutput]);
+  }, [context?.module0Output, moduleOutput]);
+
+  useEffect(() => {
+    if (!context?.deepDiveConfig) return;
+    setConfig((prev) => ({
+      ...prev,
+      ...context.deepDiveConfig
+    }));
+  }, [context?.deepDiveConfig]);
 
   const prompt = useMemo(() => {
-    const ticker = context?.ticker?.trim() || '[Not provided]';
-    const timeframe = context?.timeframe?.trim() || 'General / not specified';
-    const customQuestion = context?.customQuestion?.trim() || 'None provided';
+    const ticker = config?.ticker?.trim() || '[Not provided]';
+    const timeframe = config?.timeframe?.trim() || 'General / not specified';
+    const customQuestion = config?.customQuestion?.trim() || 'None provided';
 
     return `You are ValueBot.ai, a fundamental stock analyst preparing raw input data for a deeper multi-step valuation.
 
@@ -62,44 +105,109 @@ IMPORTANT
 - Do NOT provide a Buy/Hold/Sell verdict in this module.
 - Do NOT compute detailed valuation or scenarios here.
 - Keep everything concise but clear, ready to be reused in later modules.`;
-  }, [context?.customQuestion, context?.ticker, context?.timeframe]);
+  }, [config?.customQuestion, config?.ticker, config?.timeframe]);
+
+  const handleConfigChange = useCallback(
+    (updates: Partial<ValueBotDeepDiveConfig>) => {
+      setConfig((prev) => {
+        const nextConfig = { ...prev, ...updates };
+        onUpdateContext?.({ deepDiveConfig: nextConfig });
+        return nextConfig;
+      });
+      setLocalError(null);
+    },
+    [onUpdateContext]
+  );
 
   const handleRun = async () => {
     setLocalError(null);
 
-    if (!context?.ticker?.trim()) {
-      setLocalError('Please enter a company or ticker in the main ValueBot configuration first.');
+    if (!config?.ticker?.trim()) {
+      setLocalError('Please enter a company or ticker to run Module 0.');
       return;
     }
 
     try {
       const response = await runAnalysis({
-        provider: context?.provider || 'openai',
-        model: context?.model || undefined,
-        ticker: context.ticker,
-        timeframe: context?.timeframe,
-        customQuestion: context?.customQuestion,
+        provider: config.provider || 'openai',
+        model: config.model || undefined,
+        ticker: config.ticker,
+        timeframe: config.timeframe || undefined,
+        customQuestion: config.customQuestion || undefined,
         prompt
       });
 
       const output = response?.rawResponse || response?.summary || 'No response received from the AI provider.';
       setModuleOutput(output);
-      onUpdateContext?.({ module0Data: output });
+      onUpdateContext?.({ module0Output: output });
     } catch (err) {
       setLocalError(err?.message || 'Unable to run Module 0 right now.');
     }
   };
 
+  const providerModelOptions = modelOptions[config.provider as keyof typeof modelOptions] ?? modelOptions.openai;
+
   return (
     <div className="detail-grid detail-grid--balanced">
       <div className="detail-card">
-        <h3>MODULE 0 — Data Loader (Pre-Step)</h3>
-        <p className="detail-meta">
-          Aggregate raw inputs before any analysis starts so the copilot has a clean foundation.
-        </p>
-        <p className="detail-meta">
-          {context?.ticker ? `Preparing data for ${context.ticker}` : 'Ticker and company context will populate here.'}
-        </p>
+        <h3>Configure Deep Dive</h3>
+        <p className="detail-meta">Provider, model, and ticker are stored for the deep-dive modules.</p>
+        <div className="form-grid">
+          <label className="form-field">
+            <span>Provider</span>
+            <select
+              value={config.provider}
+              onChange={(e) => handleConfigChange({ provider: e.currentTarget.value })}
+            >
+              {providerOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="form-field">
+            <span>Model (optional)</span>
+            <select
+              value={config.model ?? ''}
+              onChange={(e) => handleConfigChange({ model: e.currentTarget.value })}
+            >
+              {providerModelOptions.map((option) => (
+                <option key={`${config.provider}-${option.value}`} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="form-field">
+            <span>Company or Ticker *</span>
+            <input
+              type="text"
+              value={config.ticker}
+              onInput={(e) => handleConfigChange({ ticker: e.currentTarget.value })}
+              placeholder="e.g., AAPL or Apple"
+              required
+            />
+          </label>
+          <label className="form-field">
+            <span>Timeframe (optional)</span>
+            <input
+              type="text"
+              value={config.timeframe ?? ''}
+              onInput={(e) => handleConfigChange({ timeframe: e.currentTarget.value })}
+              placeholder="e.g., Last 5 years"
+            />
+          </label>
+          <label className="form-field">
+            <span>Custom Question (optional)</span>
+            <textarea
+              value={config.customQuestion ?? ''}
+              onInput={(e) => handleConfigChange({ customQuestion: e.currentTarget.value })}
+              rows={3}
+              placeholder="Any special angle or note for the analysis"
+            />
+          </label>
+        </div>
         <button
           type="button"
           className="btn-primary"
@@ -107,7 +215,7 @@ IMPORTANT
           disabled={loading}
           aria-busy={loading}
         >
-          {loading ? 'Running...' : 'Run Module'}
+          {loading ? 'Running...' : 'Run Module 0 — Data Loader'}
         </button>
         {(localError || error) && (
           <div className="ai-error" role="alert">

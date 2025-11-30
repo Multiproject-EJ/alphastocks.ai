@@ -751,14 +751,25 @@ const App = () => {
     return initialMap;
   });
   const [activeValueBotTab, setActiveValueBotTab] = useState(valueBotTabs[0].id);
+  const initialDeepDiveConfig = useMemo(
+    () => ({
+      provider: 'openai',
+      model: '',
+      ticker: '',
+      timeframe: '',
+      customQuestion: ''
+    }),
+    []
+  );
   const [valueBotContext, setValueBotContext] = useState({
-    provider: 'openai',
-    model: '',
-    ticker: '',
-    timeframe: '',
-    customQuestion: '',
-    module0Data: null,
-    module1Markdown: null,
+    deepDiveConfig: initialDeepDiveConfig,
+    module0Output: null,
+    module1Output: null,
+    module2Output: null,
+    module3Output: null,
+    module4Output: null,
+    module5Output: null,
+    module6Output: null,
     companyName: '',
     market: '',
     currentPrice: null,
@@ -913,7 +924,11 @@ const App = () => {
   const handleValueBotContextUpdate = useCallback((updates) => {
     setValueBotContext((prev) => ({
       ...prev,
-      ...updates
+      ...updates,
+      deepDiveConfig: {
+        ...prev.deepDiveConfig,
+        ...(updates?.deepDiveConfig ?? {})
+      }
     }));
   }, []);
 
@@ -2138,10 +2153,14 @@ const App = () => {
                         </ul>
                         {ModuleComponent ? (
                           <div className="detail-component">
-                            <ModuleComponent
-                              context={valueBotContext}
-                              onUpdateContext={handleValueBotContextUpdate}
-                            />
+                            {tab.id === 'valuebot-quicktake' ? (
+                              <ModuleComponent />
+                            ) : (
+                              <ModuleComponent
+                                context={valueBotContext}
+                                onUpdateContext={handleValueBotContextUpdate}
+                              />
+                            )}
                           </div>
                         ) : null}
                         {tab.infoSections?.map((section) => (

@@ -6,28 +6,29 @@ import { ValueBotModuleProps } from '../types.ts';
 const Module1CoreDiagnostics: FunctionalComponent<ValueBotModuleProps> = ({ context, onUpdateContext }) => {
   const { runAnalysis, loading, error, data } = useRunStockAnalysis();
   const [localError, setLocalError] = useState<string | null>(null);
-  const [moduleOutput, setModuleOutput] = useState<string>(context?.module1Markdown || '');
+  const [moduleOutput, setModuleOutput] = useState<string>(context?.module1Output || '');
 
-  const hasTicker = !!context?.ticker?.trim();
+  const ticker = context?.deepDiveConfig?.ticker?.trim();
+  const hasTicker = !!ticker;
 
   useEffect(() => {
-    if (context?.module1Markdown && context.module1Markdown !== moduleOutput) {
-      setModuleOutput(context.module1Markdown);
+    if (context?.module1Output && context.module1Output !== moduleOutput) {
+      setModuleOutput(context.module1Output);
     }
-  }, [context?.module1Markdown, moduleOutput]);
+  }, [context?.module1Output, moduleOutput]);
 
   const prompt = useMemo(() => {
-    const ticker = context?.ticker?.trim() || '[Not provided]';
-    const timeframe = context?.timeframe?.trim() || 'General';
-    const customQuestion = context?.customQuestion?.trim() || 'None';
-    const module0Markdown = context?.module0Data?.trim() || 'No prior Module 0 context available.';
+    const tickerValue = ticker || '[Not provided]';
+    const timeframe = context?.deepDiveConfig?.timeframe?.trim() || 'General';
+    const customQuestion = context?.deepDiveConfig?.customQuestion?.trim() || 'None';
+    const module0Markdown = context?.module0Output?.trim() || 'No prior Module 0 context available.';
 
     return `You are ValueBot.ai — MODULE 1: Core Risk & Quality Diagnostics.
 
 This is the second step after MODULE 0 (Data Loader).
 You will analyze the downside risks, balance sheet, cash flow strength, margins, profitability, and competitive moat.
 
-Company/ticker: ${ticker}
+Company/ticker: ${tickerValue}
 Optional timeframe: ${timeframe}
 Additional investor note: ${customQuestion}
 
@@ -65,29 +66,29 @@ Produce a markdown analysis covering:
 - Keep everything factual, structured, and reusable by Module 2.
 
 Return only markdown.`;
-  }, [context?.customQuestion, context?.module0Data, context?.ticker, context?.timeframe]);
+  }, [context?.deepDiveConfig?.customQuestion, context?.deepDiveConfig?.timeframe, context?.module0Output, ticker]);
 
   const handleRun = async () => {
     setLocalError(null);
 
     if (!hasTicker) {
-      setLocalError('Please enter a company or ticker in the main ValueBot configuration first.');
+      setLocalError('Please configure and run Module 0 — Data Loader first.');
       return;
     }
 
     try {
       const response = await runAnalysis({
-        provider: context?.provider || 'openai',
-        model: context?.model || undefined,
-        ticker: context.ticker!,
-        timeframe: context?.timeframe,
-        customQuestion: context?.customQuestion,
+        provider: context?.deepDiveConfig?.provider || 'openai',
+        model: context?.deepDiveConfig?.model || undefined,
+        ticker: ticker!,
+        timeframe: context?.deepDiveConfig?.timeframe,
+        customQuestion: context?.deepDiveConfig?.customQuestion,
         prompt
       });
 
       const output = response?.rawResponse || response?.summary || 'No response received from the AI provider.';
       setModuleOutput(output);
-      onUpdateContext?.({ module1Markdown: output });
+      onUpdateContext?.({ module1Output: output });
     } catch (err) {
       setLocalError(err?.message || 'Unable to run Module 1 right now.');
     }
@@ -98,7 +99,11 @@ Return only markdown.`;
       <div className="detail-card">
         <h3>MODULE 1 — Core Risk &amp; Quality Diagnostics</h3>
         <p className="detail-meta">Assess durability, governance, and downside guardrails before sizing conviction.</p>
-        <p className="detail-meta">{context?.ticker ? `Scoring risk profile for ${context.ticker}` : 'Add a ticker to enable this module.'}</p>
+        <p className="detail-meta">
+          {hasTicker
+            ? `Scoring risk profile for ${context?.deepDiveConfig?.ticker}`
+            : 'Please configure and run Module 0 — Data Loader first.'}
+        </p>
         <button
           type="button"
           className="btn-primary"
@@ -109,7 +114,7 @@ Return only markdown.`;
           {loading ? 'Running...' : 'Run Module'}
         </button>
         {!hasTicker && (
-          <p className="detail-meta" role="status">Enter a ticker to run Core Risk &amp; Quality Diagnostics.</p>
+          <p className="detail-meta" role="status">Please configure and run Module 0 — Data Loader first.</p>
         )}
         {(localError || error) && (
           <div className="ai-error" role="alert">
