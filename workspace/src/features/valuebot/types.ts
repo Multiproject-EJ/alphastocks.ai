@@ -12,7 +12,7 @@ export interface ValueBotAnalysisContext {
   deepDiveConfig: ValueBotDeepDiveConfig;
   module0OutputMarkdown?: string | null;
   module1OutputMarkdown?: string | null;
-  module2Output?: string | null;
+  module2Markdown?: string | null;
   module3Output?: string | null;
   module4Output?: string | null;
   module5Output?: string | null;
@@ -47,7 +47,7 @@ export const defaultValueBotAnalysisContext: ValueBotAnalysisContext = {
   deepDiveConfig: { ...defaultDeepDiveConfig },
   module0OutputMarkdown: null,
   module1OutputMarkdown: null,
-  module2Output: null,
+  module2Markdown: null,
   module3Output: null,
   module4Output: null,
   module5Output: null,
