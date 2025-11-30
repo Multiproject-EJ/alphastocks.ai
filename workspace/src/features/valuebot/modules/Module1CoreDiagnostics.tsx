@@ -1,27 +1,33 @@
 import { FunctionalComponent } from 'preact';
-import { useEffect, useMemo, useState } from 'preact/hooks';
+import { useEffect, useMemo, useState, useContext } from 'preact/hooks';
 import { useRunStockAnalysis } from '../../ai-analysis/useRunStockAnalysis.ts';
-import { ValueBotModuleProps } from '../types.ts';
+import { ValueBotContext, ValueBotModuleProps } from '../types.ts';
 
 const Module1CoreDiagnostics: FunctionalComponent<ValueBotModuleProps> = ({ context, onUpdateContext }) => {
+  const valueBot = useContext(ValueBotContext);
+  const resolvedContext = valueBot?.context ?? context;
+  const updateContext = valueBot?.updateContext ?? onUpdateContext;
   const { runAnalysis, loading, error, data } = useRunStockAnalysis();
   const [localError, setLocalError] = useState<string | null>(null);
-  const [moduleOutput, setModuleOutput] = useState<string>(context?.module1Output || '');
+  const [moduleOutput, setModuleOutput] = useState<string>(resolvedContext?.module1OutputMarkdown || '');
 
-  const ticker = context?.deepDiveConfig?.ticker?.trim();
+  const ticker = resolvedContext?.deepDiveConfig?.ticker?.trim();
   const hasTicker = !!ticker;
+  const hasModule0Output = Boolean(resolvedContext?.module0OutputMarkdown?.trim());
+  const canRunModule = hasTicker && hasModule0Output;
 
   useEffect(() => {
-    if (context?.module1Output && context.module1Output !== moduleOutput) {
-      setModuleOutput(context.module1Output);
+    if (resolvedContext?.module1OutputMarkdown && resolvedContext.module1OutputMarkdown !== moduleOutput) {
+      setModuleOutput(resolvedContext.module1OutputMarkdown);
     }
-  }, [context?.module1Output, moduleOutput]);
+  }, [moduleOutput, resolvedContext?.module1OutputMarkdown]);
 
   const prompt = useMemo(() => {
     const tickerValue = ticker || '[Not provided]';
-    const timeframe = context?.deepDiveConfig?.timeframe?.trim() || 'General';
-    const customQuestion = context?.deepDiveConfig?.customQuestion?.trim() || 'None';
-    const module0Markdown = context?.module0Output?.trim() || 'No prior Module 0 context available.';
+    const timeframe = resolvedContext?.deepDiveConfig?.timeframe?.trim() || 'General';
+    const customQuestion = resolvedContext?.deepDiveConfig?.customQuestion?.trim() || 'None';
+    const module0Markdown =
+      resolvedContext?.module0OutputMarkdown?.trim() || 'No prior Module 0 context available.';
 
     return `You are ValueBot.ai — MODULE 1: Core Risk & Quality Diagnostics.
 
@@ -66,7 +72,7 @@ Produce a markdown analysis covering:
 - Keep everything factual, structured, and reusable by Module 2.
 
 Return only markdown.`;
-  }, [context?.deepDiveConfig?.customQuestion, context?.deepDiveConfig?.timeframe, context?.module0Output, ticker]);
+  }, [resolvedContext?.deepDiveConfig?.customQuestion, resolvedContext?.deepDiveConfig?.timeframe, resolvedContext?.module0OutputMarkdown, ticker]);
 
   const handleRun = async () => {
     setLocalError(null);
@@ -76,19 +82,24 @@ Return only markdown.`;
       return;
     }
 
+    if (!hasModule0Output) {
+      setLocalError('Please run Module 0 — Data Loader to generate context before Module 1.');
+      return;
+    }
+
     try {
       const response = await runAnalysis({
-        provider: context?.deepDiveConfig?.provider || 'openai',
-        model: context?.deepDiveConfig?.model || undefined,
+        provider: resolvedContext?.deepDiveConfig?.provider || 'openai',
+        model: resolvedContext?.deepDiveConfig?.model || undefined,
         ticker: ticker!,
-        timeframe: context?.deepDiveConfig?.timeframe,
-        customQuestion: context?.deepDiveConfig?.customQuestion,
+        timeframe: resolvedContext?.deepDiveConfig?.timeframe,
+        customQuestion: resolvedContext?.deepDiveConfig?.customQuestion,
         prompt
       });
 
       const output = response?.rawResponse || response?.summary || 'No response received from the AI provider.';
       setModuleOutput(output);
-      onUpdateContext?.({ module1Output: output });
+      updateContext?.({ module1OutputMarkdown: output });
     } catch (err) {
       setLocalError(err?.message || 'Unable to run Module 1 right now.');
     }
@@ -101,17 +112,22 @@ Return only markdown.`;
         <p className="detail-meta">Assess durability, governance, and downside guardrails before sizing conviction.</p>
         <p className="detail-meta">
           {hasTicker
-            ? `Scoring risk profile for ${context?.deepDiveConfig?.ticker}`
+            ? `Scoring risk profile for ${resolvedContext?.deepDiveConfig?.ticker}`
             : 'Please configure and run Module 0 — Data Loader first.'}
         </p>
+        {!hasModule0Output && (
+          <p className="ai-error" role="status">
+            Module 1 depends on the Deep-Dive configuration and a completed Module 0 output.
+          </p>
+        )}
         <button
           type="button"
           className="btn-primary"
           onClick={handleRun}
-          disabled={loading || !hasTicker}
+          disabled={loading || !canRunModule}
           aria-busy={loading}
         >
-          {loading ? 'Running...' : 'Run Module'}
+          {loading ? 'Running...' : 'Run Module 1 — Core Diagnostics'}
         </button>
         {!hasTicker && (
           <p className="detail-meta" role="status">Please configure and run Module 0 — Data Loader first.</p>
@@ -132,6 +148,11 @@ Return only markdown.`;
         ) : (
           <p className="detail-meta">
             Run Module 1 to generate markdown scoring of debt risk, cash flows, profitability, and moat.
+          </p>
+        )}
+        {loading && (
+          <p className="detail-meta" role="status">
+            Running diagnostics…
           </p>
         )}
         {data?.provider && (

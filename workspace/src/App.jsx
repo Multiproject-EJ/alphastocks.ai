@@ -11,6 +11,7 @@ import Module3ScenarioEngine from './features/valuebot/modules/Module3ScenarioEn
 import Module4ValuationEngine from './features/valuebot/modules/Module4ValuationEngine.tsx';
 import Module5TimingMomentum from './features/valuebot/modules/Module5TimingMomentum.tsx';
 import Module6FinalVerdict from './features/valuebot/modules/Module6FinalVerdict.tsx';
+import { ValueBotContext, defaultValueBotAnalysisContext } from './features/valuebot/types.ts';
 import { useAuth } from './context/AuthContext.jsx';
 
 const DEFAULT_FOCUS_LIST = [
@@ -751,36 +752,10 @@ const App = () => {
     return initialMap;
   });
   const [activeValueBotTab, setActiveValueBotTab] = useState(valueBotTabs[0].id);
-  const initialDeepDiveConfig = useMemo(
-    () => ({
-      provider: 'openai',
-      model: '',
-      ticker: '',
-      timeframe: '',
-      customQuestion: ''
-    }),
-    []
-  );
-  const [valueBotContext, setValueBotContext] = useState({
-    deepDiveConfig: initialDeepDiveConfig,
-    module0Output: null,
-    module1Output: null,
-    module2Output: null,
-    module3Output: null,
-    module4Output: null,
-    module5Output: null,
-    module6Output: null,
-    companyName: '',
-    market: '',
-    currentPrice: null,
-    rawDataLoaded: false,
-    riskQualitySummary: '',
-    growthNarrative: '',
-    scenarioNotes: '',
-    valuationNotes: '',
-    timingNotes: '',
-    finalVerdict: ''
-  });
+  const [valueBotContext, setValueBotContext] = useState(() => ({
+    ...defaultValueBotAnalysisContext,
+    deepDiveConfig: { ...defaultValueBotAnalysisContext.deepDiveConfig }
+  }));
   const [activeProfile, setActiveProfile] = useState(null);
   const [profileError, setProfileError] = useState(null);
   const [isAccountDialogOpen, setIsAccountDialogOpen] = useState(false);
@@ -931,6 +906,11 @@ const App = () => {
       }
     }));
   }, []);
+
+  const valueBotProviderValue = useMemo(
+    () => ({ context: valueBotContext, updateContext: handleValueBotContextUpdate }),
+    [handleValueBotContextUpdate, valueBotContext]
+  );
 
   const tabsForSection = getSectionTabs(activeSection);
   const activeTab = activeTabsBySection[activeSection] ?? tabsForSection[0];
@@ -1856,7 +1836,84 @@ const App = () => {
     </>
   );
 
+  const renderValueBotWorkspace = () => (
+    <section className="valuebot-panel" aria-label="ValueBot workspace">
+      <header className="valuebot-header">
+        <div>
+          <h2>ValueBot research console</h2>
+          <p>
+            Explore AI-generated valuation prompts, conviction notes, and scenario planning tabs tailored for deep fundamental
+            work.
+          </p>
+        </div>
+        <span className="tag tag-blue">AI assistant</span>
+      </header>
+      <div className="valuebot-tabs" role="tablist" aria-label="ValueBot prompts">
+        {valueBotTabs.map((tab) => (
+          <button
+            key={tab.id}
+            className={`valuebot-tab${activeValueBotTab === tab.id ? ' active' : ''}`}
+            type="button"
+            role="tab"
+            aria-selected={activeValueBotTab === tab.id}
+            onClick={() => setActiveValueBotTab(tab.id)}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+      <div className="valuebot-views">
+        {valueBotTabs.map((tab) => {
+          const ModuleComponent = tab.component;
+          return (
+            <article
+              key={tab.id}
+              className={`valuebot-view${activeValueBotTab === tab.id ? ' active' : ''}`}
+              aria-hidden={activeValueBotTab !== tab.id}
+            >
+              <h3>{tab.title}</h3>
+              <p>{tab.description}</p>
+              <ul>
+                {tab.bullets.map((bullet) => (
+                  <li key={bullet}>{bullet}</li>
+                ))}
+              </ul>
+              {ModuleComponent ? (
+                <div className="detail-component">
+                  {tab.id === 'valuebot-quicktake' ? (
+                    <ModuleComponent />
+                  ) : (
+                    <ValueBotContext.Provider value={valueBotProviderValue}>
+                      <ModuleComponent />
+                    </ValueBotContext.Provider>
+                  )}
+                </div>
+              ) : null}
+              {tab.infoSections?.map((section) => (
+                <div className="valuebot-info" key={`${tab.id}-${section.title}`}>
+                  <h4>{section.title}</h4>
+                  {section.items ? (
+                    <ul>
+                      {section.items.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
+                    </ul>
+                  ) : null}
+                  {section.text ? <p>{section.text}</p> : null}
+                </div>
+              ))}
+            </article>
+          );
+        })}
+      </div>
+    </section>
+  );
+
   const renderActivePanel = () => {
+    if (activeSection === 'valuebot' || (activeSection === 'dashboard' && activeTab === 'ValueBot')) {
+      return renderValueBotWorkspace();
+    }
+
     if (activeSection === 'quadrant') {
       return renderQuadrantPanel();
     }
@@ -2109,79 +2166,6 @@ const App = () => {
                 </article>
               </section>
             </div>
-            {activeSection === 'dashboard' && activeTab === 'ValueBot' && (
-              <section className="valuebot-panel" aria-label="ValueBot workspace">
-                <header className="valuebot-header">
-                  <div>
-                    <h2>ValueBot research console</h2>
-                    <p>
-                      Explore AI-generated valuation prompts, conviction notes, and scenario planning tabs tailored for
-                      deep fundamental work.
-                    </p>
-                  </div>
-                  <span className="tag tag-blue">AI assistant</span>
-                </header>
-                <div className="valuebot-tabs" role="tablist" aria-label="ValueBot prompts">
-                  {valueBotTabs.map((tab) => (
-                    <button
-                      key={tab.id}
-                      className={`valuebot-tab${activeValueBotTab === tab.id ? ' active' : ''}`}
-                      type="button"
-                      role="tab"
-                      aria-selected={activeValueBotTab === tab.id}
-                      onClick={() => setActiveValueBotTab(tab.id)}
-                    >
-                      {tab.label}
-                    </button>
-                  ))}
-                </div>
-                <div className="valuebot-views">
-                  {valueBotTabs.map((tab) => {
-                    const ModuleComponent = tab.component;
-                    return (
-                      <article
-                        key={tab.id}
-                        className={`valuebot-view${activeValueBotTab === tab.id ? ' active' : ''}`}
-                        aria-hidden={activeValueBotTab !== tab.id}
-                      >
-                        <h3>{tab.title}</h3>
-                        <p>{tab.description}</p>
-                        <ul>
-                          {tab.bullets.map((bullet) => (
-                            <li key={bullet}>{bullet}</li>
-                          ))}
-                        </ul>
-                        {ModuleComponent ? (
-                          <div className="detail-component">
-                            {tab.id === 'valuebot-quicktake' ? (
-                              <ModuleComponent />
-                            ) : (
-                              <ModuleComponent
-                                context={valueBotContext}
-                                onUpdateContext={handleValueBotContextUpdate}
-                              />
-                            )}
-                          </div>
-                        ) : null}
-                        {tab.infoSections?.map((section) => (
-                          <div className="valuebot-info" key={`${tab.id}-${section.title}`}>
-                            <h4>{section.title}</h4>
-                            {section.items ? (
-                              <ul>
-                                {section.items.map((item) => (
-                                  <li key={item}>{item}</li>
-                                ))}
-                              </ul>
-                            ) : null}
-                            {section.text ? <p>{section.text}</p> : null}
-                          </div>
-                        ))}
-                      </article>
-                    );
-                  })}
-                </div>
-            </section>
-          )}
           </div>
         </div>
       </section>
