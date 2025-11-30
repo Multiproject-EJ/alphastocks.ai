@@ -11,12 +11,12 @@ import Module3ScenarioEngine from './features/valuebot/modules/Module3ScenarioEn
 import Module4ValuationEngine from './features/valuebot/modules/Module4ValuationEngine.tsx';
 import Module5TimingMomentum from './features/valuebot/modules/Module5TimingMomentum.tsx';
 import Module6FinalVerdict from './features/valuebot/modules/Module6FinalVerdict.tsx';
-import ValueBotDeepDivesPanel from './features/valuebot/ValueBotDeepDivesPanel.tsx';
 import {
   ValueBotContext,
   defaultPipelineProgress,
   defaultValueBotAnalysisContext
 } from './features/valuebot/types.ts';
+import useFetchDeepDives from './features/valuebot/useFetchDeepDives.ts';
 import { useAuth } from './context/AuthContext.jsx';
 
 const DEFAULT_FOCUS_LIST = [
@@ -779,6 +779,7 @@ const App = () => {
   const [editStockSymbol, setEditStockSymbol] = useState('');
   const [universeMutationError, setUniverseMutationError] = useState(null);
   const [isUniverseMutating, setIsUniverseMutating] = useState(false);
+  const [selectedUniverseRowId, setSelectedUniverseRowId] = useState(null);
   const runtimeConfig = useMemo(() => getRuntimeConfig(), []);
   const dataService = useMemo(() => getDataService(), [runtimeConfig.mode]);
   const { user, signOut } = useAuth();
@@ -935,6 +936,64 @@ const App = () => {
     [handleSetPipelineProgress, handleValueBotContextUpdate, valueBotContext]
   );
 
+  const finalVerdictTab = useMemo(
+    () => valueBotTabs.find((tab) => tab.id === 'valuebot-final-verdict'),
+    []
+  );
+
+  const handleReopenDeepDive = useCallback(
+    (row) => {
+      if (!row) return;
+
+      const restoredContext = {
+        deepDiveConfig: {
+          ...valueBotContext?.deepDiveConfig,
+          ticker: row.ticker,
+          provider: row.provider || 'openai',
+          model: row.model || '',
+          timeframe: row.timeframe || '',
+          customQuestion: row.custom_question || ''
+        },
+        companyName: row.company_name || '',
+        market: row.currency || '',
+        module0OutputMarkdown: row.module0_markdown || '',
+        module1OutputMarkdown: row.module1_markdown || '',
+        module2Markdown: row.module2_markdown || '',
+        module3Markdown: row.module3_markdown || '',
+        module4Markdown: row.module4_markdown || '',
+        module5Markdown: row.module5_markdown || '',
+        module6Markdown: row.module6_markdown || '',
+        pipelineProgress: {
+          ...defaultPipelineProgress,
+          status: 'success',
+          currentStep: 6,
+          steps: {
+            module0: 'done',
+            module1: 'done',
+            module2: 'done',
+            module3: 'done',
+            module4: 'done',
+            module5: 'done',
+            module6: 'done'
+          },
+          errorMessage: null
+        }
+      };
+
+      handleValueBotContextUpdate(restoredContext);
+      setActiveSection('valuebot');
+
+      if (finalVerdictTab) {
+        setActiveValueBotTab(finalVerdictTab.id);
+        setActiveTabsBySection((prev) => ({
+          ...prev,
+          valuebot: finalVerdictTab.label
+        }));
+      }
+    },
+    [finalVerdictTab, handleValueBotContextUpdate, valueBotContext?.deepDiveConfig]
+  );
+
   const activeValueBotConfig = useMemo(
     () => valueBotTabs.find((tab) => tab.id === activeValueBotTab) ?? valueBotTabs[0],
     [activeValueBotTab]
@@ -981,6 +1040,31 @@ const App = () => {
       }),
     [universeRows]
   );
+
+  useEffect(() => {
+    if (!sortedUniverseRows.length) {
+      setSelectedUniverseRowId(null);
+      return;
+    }
+
+    if (selectedUniverseRowId && sortedUniverseRows.some((row) => row.id === selectedUniverseRowId)) {
+      return;
+    }
+
+    setSelectedUniverseRowId(sortedUniverseRows[0].id);
+  }, [selectedUniverseRowId, sortedUniverseRows]);
+
+  const selectedUniverseRow = useMemo(
+    () => sortedUniverseRows.find((row) => row.id === selectedUniverseRowId) ?? sortedUniverseRows[0] ?? null,
+    [selectedUniverseRowId, sortedUniverseRows]
+  );
+
+  const {
+    deepDives: tickerDeepDives,
+    loading: tickerDeepDiveLoading,
+    error: tickerDeepDiveError,
+    refresh: refreshTickerDeepDives
+  } = useFetchDeepDives(selectedUniverseRow?.symbol || selectedUniverseRow?.ticker || null, user?.id);
 
   const handleUniverseStockAdd = useCallback(
     async (event) => {
@@ -1697,6 +1781,108 @@ const App = () => {
     </>
   );
 
+  const renderDeepDiveReopenPanel = () => {
+    if (!selectedUniverseRow) {
+      return (
+        <div className="detail-card" data-size="wide">
+          <h3>ValueBot Deep Dives</h3>
+          <p className="detail-meta">Select a ticker from your universe to view saved deep dives.</p>
+        </div>
+      );
+    }
+
+    const companyLabel = selectedUniverseRow?.name || selectedUniverseRow?.symbol || 'this ticker';
+
+    const snippetFor = (value) => {
+      const trimmed = value?.trim();
+      if (!trimmed) return '';
+      return trimmed.length > 200 ? `${trimmed.slice(0, 200)}…` : trimmed;
+    };
+
+    return (
+      <div className="detail-card" data-size="wide">
+        <div className="detail-card__header">
+          <div>
+            <h3>ValueBot Deep Dives</h3>
+            <p className="detail-meta">
+              Saved MASTER analyses for {companyLabel}. Load one to continue the research inside ValueBot.
+            </p>
+          </div>
+          <div className="pill-list">
+            <button
+              className="btn-secondary"
+              type="button"
+              onClick={refreshTickerDeepDives}
+              disabled={tickerDeepDiveLoading}
+            >
+              {tickerDeepDiveLoading ? 'Refreshing…' : 'Refresh'}
+            </button>
+          </div>
+        </div>
+
+        {tickerDeepDiveLoading && <p className="detail-meta">Loading deep dives…</p>}
+        {tickerDeepDiveError && <div className="ai-error">{tickerDeepDiveError}</div>}
+
+        {!tickerDeepDiveLoading && !tickerDeepDiveError && (
+          <>
+            {!tickerDeepDives?.length ? (
+              <p className="detail-meta">
+                No deep dives saved for {selectedUniverseRow?.symbol || 'this ticker'} yet. Run Module 6 in ValueBot and click
+                “Save to Universe” to archive the MASTER report here.
+              </p>
+            ) : (
+              <div className="stack" style={{ display: 'grid', gap: '0.75rem' }}>
+                {tickerDeepDives.map((dive) => {
+                  const hasFinalReport = Boolean(dive?.module6_markdown?.trim());
+                  return (
+                    <div
+                      key={dive.id}
+                      style={{
+                        border: '1px solid rgba(255,255,255,0.08)',
+                        borderRadius: '12px',
+                        padding: '0.75rem'
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div>
+                          <p className="detail-meta" style={{ marginBottom: '0.25rem' }}>
+                            {formatDateLabel(dive.created_at)} • {dive.provider || '—'}
+                            {dive.model ? ` • ${dive.model}` : ''}
+                            {dive.timeframe ? ` • ${dive.timeframe}` : ''}
+                          </p>
+                          <p className="detail-meta" style={{ marginBottom: '0.5rem' }}>
+                            {dive.currency ? `${dive.currency} • ` : ''}Ticker {dive.ticker}
+                          </p>
+                        </div>
+                        <button
+                          className={hasFinalReport ? 'btn-primary' : 'btn-secondary'}
+                          type="button"
+                          onClick={() => handleReopenDeepDive(dive)}
+                          disabled={!hasFinalReport}
+                        >
+                          Re-open in ValueBot
+                        </button>
+                      </div>
+                      <div className="ai-raw-response" style={{ whiteSpace: 'pre-wrap' }}>
+                        {hasFinalReport
+                          ? snippetFor(dive.module6_markdown) || 'MASTER report available.'
+                          : 'This deep dive is missing a final report. Re-run Module 6 in ValueBot to regenerate it.'}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            <p className="detail-meta" style={{ marginTop: '0.75rem' }}>
+              Loads this saved deep dive into ValueBot so you can review or extend the MASTER analysis.
+            </p>
+          </>
+        )}
+      </div>
+    );
+  };
+
   const renderUniverseTable = () => {
     if (universeIsLoading) {
       return <p>Loading your universe…</p>;
@@ -1718,7 +1904,15 @@ const App = () => {
         </thead>
         <tbody>
           {sortedUniverseRows.map((row) => (
-            <tr key={row.id}>
+            <tr
+              key={row.id}
+              onClick={() => setSelectedUniverseRowId(row.id)}
+              aria-selected={row.id === selectedUniverseRowId}
+              style={{
+                background: row.id === selectedUniverseRowId ? 'rgba(79, 70, 229, 0.08)' : undefined,
+                cursor: 'pointer'
+              }}
+            >
               <td>
                 {editingUniverseId === row.id ? (
                   <input
@@ -1766,6 +1960,14 @@ const App = () => {
                   </div>
                 ) : (
                   <div className="table-actions">
+                    <button
+                      type="button"
+                      className="btn-secondary"
+                      onClick={() => setSelectedUniverseRowId(row.id)}
+                      disabled={isUniverseMutating}
+                    >
+                      View
+                    </button>
                     <button
                       type="button"
                       className="btn-secondary"
@@ -1864,7 +2066,7 @@ const App = () => {
               </p>
             )}
           </div>
-          <ValueBotDeepDivesPanel />
+          {renderDeepDiveReopenPanel()}
         </div>
       </>
     );
@@ -1914,7 +2116,7 @@ const App = () => {
             {activeValueBotConfig?.id === 'valuebot-quicktake' ? (
               <AIAnalysis />
             ) : (
-              <ValueBotContext.Provider value={valueBotProviderValue}>
+              <>
                 {activeValueBotConfig?.id === 'valuebot-data-loader' && <Module0DataLoader />}
                 {activeValueBotConfig?.id === 'valuebot-core-diagnostics' && <Module1CoreDiagnostics />}
                 {activeValueBotConfig?.id === 'valuebot-growth-engine' && <Module2GrowthEngine />}
@@ -1922,7 +2124,7 @@ const App = () => {
                 {activeValueBotConfig?.id === 'valuebot-valuation-engine' && <Module4ValuationEngine />}
                 {activeValueBotConfig?.id === 'valuebot-timing-momentum' && <Module5TimingMomentum />}
                 {activeValueBotConfig?.id === 'valuebot-final-verdict' && <Module6FinalVerdict />}
-              </ValueBotContext.Provider>
+              </>
             )}
           </div>
 
@@ -1973,18 +2175,19 @@ const App = () => {
   };
 
   return (
-    <main className="app-stage">
-      <section className="app" aria-live="polite">
-        {runtimeConfig.isDemoMode && <DemoBanner />}
-        {dataError && (
-          <div className="demo-banner warning" role="alert">
-            Unable to load workspace profile. Check data service configuration.
-          </div>
-        )}
+    <ValueBotContext.Provider value={valueBotProviderValue}>
+      <main className="app-stage">
+        <section className="app" aria-live="polite">
+          {runtimeConfig.isDemoMode && <DemoBanner />}
+          {dataError && (
+            <div className="demo-banner warning" role="alert">
+              Unable to load workspace profile. Check data service configuration.
+            </div>
+          )}
 
-        <div className="app-shell">
-          <nav className="app-menu" aria-label="Primary">
-            {isMobileView ? (
+          <div className="app-shell">
+            <nav className="app-menu" aria-label="Primary">
+              {isMobileView ? (
               <div className="mobile-nav-shell">
                 <div className="mobile-nav-row" role="tablist">
                   {mobilePrimaryNav.map((item) => (
@@ -2302,6 +2505,7 @@ const App = () => {
         </div>
       </div>
     </main>
+  </ValueBotContext.Provider>
   );
 };
 
