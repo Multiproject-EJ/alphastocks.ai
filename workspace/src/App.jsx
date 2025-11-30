@@ -11,6 +11,7 @@ import Module3ScenarioEngine from './features/valuebot/modules/Module3ScenarioEn
 import Module4ValuationEngine from './features/valuebot/modules/Module4ValuationEngine.tsx';
 import Module5TimingMomentum from './features/valuebot/modules/Module5TimingMomentum.tsx';
 import Module6FinalVerdict from './features/valuebot/modules/Module6FinalVerdict.tsx';
+import ValueBotDeepDivesPanel from './features/valuebot/ValueBotDeepDivesPanel.tsx';
 import {
   ValueBotContext,
   defaultPipelineProgress,
@@ -1863,6 +1864,7 @@ const App = () => {
               </p>
             )}
           </div>
+          <ValueBotDeepDivesPanel />
         </div>
       </>
     );
