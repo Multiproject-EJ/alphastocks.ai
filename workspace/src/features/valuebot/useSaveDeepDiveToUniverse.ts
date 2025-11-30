@@ -22,50 +22,81 @@ type DeepDiveSummary = {
   timing?: string;
   composite_score?: number;
 };
+type DeepDiveSummaryParse = { summary: DeepDiveSummary; snippet?: string };
 
-const extractSummaryFromModule6 = (markdown: string): DeepDiveSummary => {
-  if (!markdown?.includes('```')) {
-    return {};
-  }
+const SUMMARY_LOG_LIMIT = 800;
 
-  const match = markdown.match(/```json\s*([\s\S]*?)```/i);
-  if (!match?.[1]) {
-    return {};
-  }
+const mapParsedSummary = (parsed: Record<string, unknown>): DeepDiveSummary => {
+  const pickString = (keys: string[]) => {
+    for (const key of keys) {
+      const value = parsed?.[key];
+      if (typeof value === 'string' && value.trim()) return value.trim();
+    }
+    return undefined;
+  };
 
-  try {
-    const parsed = JSON.parse(match[1]);
-
-    const pickString = (keys: string[]) => {
-      for (const key of keys) {
-        const value = parsed?.[key];
-        if (typeof value === 'string') return value;
+  const pickNumber = (keys: string[]) => {
+    for (const key of keys) {
+      const value = parsed?.[key];
+      if (typeof value === 'number' && !Number.isNaN(value)) return value;
+      if (typeof value === 'string') {
+        const parsedNumber = Number.parseFloat(value);
+        if (!Number.isNaN(parsedNumber)) return parsedNumber;
       }
-      return undefined;
-    };
+    }
+    return undefined;
+  };
 
-    const pickNumber = (keys: string[]) => {
-      for (const key of keys) {
-        const value = parsed?.[key];
-        if (typeof value === 'number') return value;
-        if (typeof value === 'string') {
-          const parsedNumber = Number.parseFloat(value);
-          if (!Number.isNaN(parsedNumber)) return parsedNumber;
-        }
-      }
-      return undefined;
-    };
+  return {
+    risk: pickString(['risk', 'risk_label', 'riskLabel']),
+    quality: pickString(['quality', 'quality_label', 'qualityLabel']),
+    timing: pickString(['timing', 'timing_label', 'timingLabel']),
+    composite_score: pickNumber(['composite_score', 'score', 'overall_score', 'compositeScore'])
+  };
+};
 
-    return {
-      risk: pickString(['risk', 'risk_label', 'riskLabel']),
-      quality: pickString(['quality', 'quality_label', 'qualityLabel']),
-      timing: pickString(['timing', 'timing_label', 'timingLabel']),
-      composite_score: pickNumber(['composite_score', 'score', 'overall_score', 'compositeScore'])
-    };
-  } catch (error) {
-    console.warn('[ValueBot] Unable to parse Module 6 MASTER summary JSON.', error);
-    return {};
+const extractSummaryFromModule6 = (markdown: string): DeepDiveSummaryParse => {
+  if (!markdown) {
+    return { summary: {} };
   }
+
+  const normalizeSnippet = (raw?: string | null) => {
+    if (!raw) return undefined;
+    const trimmed = raw.trim();
+    if (!trimmed) return undefined;
+    return trimmed.length > SUMMARY_LOG_LIMIT ? `${trimmed.slice(0, SUMMARY_LOG_LIMIT)}…` : trimmed;
+  };
+
+  const tryParseCandidate = (candidate: string) => {
+    const start = candidate.indexOf('{');
+    const end = candidate.lastIndexOf('}');
+    if (start === -1 || end === -1 || end <= start) return null;
+
+    const jsonText = candidate.slice(start, end + 1);
+    try {
+      const parsed = JSON.parse(jsonText);
+      return { parsed, snippet: normalizeSnippet(jsonText) };
+    } catch (error) {
+      console.warn('[ValueBot] Unable to parse Module 6 MASTER summary JSON block.', error);
+      return null;
+    }
+  };
+
+  const codeBlocks = Array.from(markdown.matchAll(/```(?:json)?\s*([\s\S]*?)```/gi));
+  for (const block of codeBlocks) {
+    const parsed = tryParseCandidate(block[1]);
+    if (parsed) {
+      return { summary: mapParsedSummary(parsed.parsed), snippet: parsed.snippet };
+    }
+  }
+
+  const fallback = tryParseCandidate(markdown);
+  if (fallback) {
+    return { summary: mapParsedSummary(fallback.parsed), snippet: fallback.snippet };
+  }
+
+  console.warn('[ValueBot] Unable to locate a parsable MASTER JSON summary in Module 6 markdown.');
+  return { summary: {} };
 };
 
 // Persists the full deep-dive (modules 0–6) to Supabase so the Investing Universe can read it later.
@@ -152,7 +183,22 @@ export const useSaveDeepDiveToUniverse = () => {
 
     const { payload } = validation;
     const module6Markdown = (payload?.module6_markdown as string) || '';
-    const summary = extractSummaryFromModule6(module6Markdown);
+    const { summary, snippet } = extractSummaryFromModule6(module6Markdown);
+    const hasParsedMetadata = Boolean(
+      summary.risk || summary.quality || summary.timing || typeof summary.composite_score === 'number'
+    );
+
+    if (snippet) {
+      console.info('[ValueBot] Parsing Module 6 MASTER JSON snippet:', snippet);
+    }
+
+    console.info('[ValueBot] Parsed MASTER deep-dive metadata:', summary);
+
+    if (!hasParsedMetadata) {
+      console.warn(
+        '[ValueBot] MASTER JSON summary missing risk/quality/timing/score fields. Saving without metadata updates.'
+      );
+    }
 
     try {
       const { error } = await supabase.from('valuebot_deep_dives').insert(payload);
@@ -170,12 +216,20 @@ export const useSaveDeepDiveToUniverse = () => {
           symbol: (payload?.ticker as string) || '',
           name: (payload?.company_name as string | null) || (payload?.ticker as string) || null,
           profile_id: user.id,
-          last_deep_dive_at: new Date().toISOString(),
-          last_risk_label: summary.risk || null,
-          last_quality_label: summary.quality || null,
-          last_timing_label: summary.timing || null,
-          last_composite_score: typeof summary.composite_score === 'number' ? summary.composite_score : null
+          last_deep_dive_at: new Date().toISOString()
         };
+
+        const normalizedRisk = summary.risk?.trim();
+        const normalizedQuality = summary.quality?.trim();
+        const normalizedTiming = summary.timing?.trim();
+        const normalizedScore = summary.composite_score;
+
+        if (normalizedRisk) investmentUniversePayload.last_risk_label = normalizedRisk;
+        if (normalizedQuality) investmentUniversePayload.last_quality_label = normalizedQuality;
+        if (normalizedTiming) investmentUniversePayload.last_timing_label = normalizedTiming;
+        if (typeof normalizedScore === 'number' && !Number.isNaN(normalizedScore)) {
+          investmentUniversePayload.last_composite_score = normalizedScore;
+        }
 
         try {
           const { error: universeError } = await supabase
