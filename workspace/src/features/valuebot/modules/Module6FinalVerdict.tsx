@@ -41,7 +41,7 @@ const Module6FinalVerdict: FunctionalComponent<ValueBotModuleProps> = ({ context
 
   const canRunModule = hasTicker && hasModule1Output && hasModule2Output && hasModule3Output && hasModule4Output;
 
-  const { saveDeepDive, isSaving: isSavingDeepDive, saveError, saveSuccess } = useSaveDeepDiveToUniverse();
+  const { saveDeepDive, isSaving: isSavingDeepDive, saveError, saveWarning, saveSuccess } = useSaveDeepDiveToUniverse();
   const canSaveDeepDive = hasTicker && hasModule6Output;
 
   useEffect(() => {
@@ -276,8 +276,11 @@ ${MASTER_STOCK_ANALYSIS_INSTRUCTIONS}`;
       <div className="detail-card">
         <h4>Save deep-dive to Investing Universe</h4>
         <p className="detail-meta">
-          Store this full ValueBot deep dive (Modules 0–6) in your Investing Universe so you can revisit, compare,
-          and track updates later.
+          Save the complete ValueBot deep dive (Modules 0–6) and ensure this ticker is added to your Investing Universe
+          tracker.
+        </p>
+        <p className="detail-meta">
+          This also adds (or updates) the stock in your Investing Universe so you can track it alongside other positions.
         </p>
         <button
           type="button"
@@ -313,6 +316,11 @@ ${MASTER_STOCK_ANALYSIS_INSTRUCTIONS}`;
           <div className="ai-error" role="status">
             {saveError}
           </div>
+        )}
+        {saveWarning && (
+          <p className="detail-meta" role="status">
+            {saveWarning}
+          </p>
         )}
       </div>
     </div>
