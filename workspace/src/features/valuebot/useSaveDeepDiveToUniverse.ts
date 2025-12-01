@@ -15,7 +15,6 @@ type SaveResult = { error?: string; metadataWarning?: string };
 // User ID is pulled from AuthContext when available; otherwise left null.
 export const useSaveDeepDiveToUniverse = () => {
   const valueBot = useContext(ValueBotContext);
-  const resolvedContext = valueBot?.context as ValueBotAnalysisContext | undefined;
   const { user } = useAuth();
 
   const [isSaving, setIsSaving] = useState(false);
@@ -25,6 +24,8 @@ export const useSaveDeepDiveToUniverse = () => {
 
   const validateAndBuildPayload = useCallback(
     (): { payload: Record<string, unknown> } | { error: string } => {
+      const resolvedContext = valueBot?.context as ValueBotAnalysisContext | undefined;
+
       if (!resolvedContext) {
         return { error: 'Deep-dive context is unavailable. Please open ValueBot again.' };
       }
@@ -63,7 +64,7 @@ export const useSaveDeepDiveToUniverse = () => {
         }
       };
     },
-    [resolvedContext, user?.id]
+    [user?.id, valueBot]
   );
 
   const saveDeepDive = useCallback(async (): Promise<SaveResult> => {
@@ -88,6 +89,7 @@ export const useSaveDeepDiveToUniverse = () => {
     }
 
     const { payload } = validation;
+    const resolvedContext = valueBot?.context as ValueBotAnalysisContext | undefined;
     const masterMeta = resolvedContext?.masterMeta || null;
 
     try {

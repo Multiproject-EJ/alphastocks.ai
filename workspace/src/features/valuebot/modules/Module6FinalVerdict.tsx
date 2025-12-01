@@ -14,6 +14,7 @@ const Module6FinalVerdict: FunctionalComponent<ValueBotModuleProps> = ({ context
   const [localError, setLocalError] = useState<string | null>(null);
   const [localWarning, setLocalWarning] = useState<string | null>(null);
   const [moduleOutput, setModuleOutput] = useState<string>(resolvedContext?.module6Markdown || '');
+  const [isSavingWithMeta, setIsSavingWithMeta] = useState(false);
 
   const deepDiveConfig = resolvedContext?.deepDiveConfig || {};
   const ticker = deepDiveConfig?.ticker?.trim();
@@ -32,12 +33,8 @@ const Module6FinalVerdict: FunctionalComponent<ValueBotModuleProps> = ({ context
   const module4Markdown = resolvedContext?.module4Markdown?.trim();
   const module5Markdown = resolvedContext?.module5Markdown?.trim();
   const module6Markdown = resolvedContext?.module6Markdown?.trim();
-  const {
-    runMasterMetaSummary,
-    loadingMeta: isGeneratingMeta,
-    metaError,
-    masterMeta: resolvedMasterMeta
-  } = useRunMasterMetaSummary();
+  const { runMasterMetaSummary, loading: isGeneratingMeta, error: metaError, meta: hookMasterMeta } =
+    useRunMasterMetaSummary();
 
   const hasTicker = Boolean(ticker);
   const hasModule1Output = Boolean(module1Markdown);
@@ -52,15 +49,9 @@ const Module6FinalVerdict: FunctionalComponent<ValueBotModuleProps> = ({ context
 
   const { saveDeepDive, isSaving: isSavingDeepDive, saveError, saveWarning, saveSuccess } = useSaveDeepDiveToUniverse();
   const canSaveDeepDive = hasTicker && hasModule6Output;
-  const masterMeta = resolvedMasterMeta ?? resolvedContext?.masterMeta ?? null;
-  const needsMeta =
-    !masterMeta ||
-    !masterMeta.risk_label ||
-    !masterMeta.quality_label ||
-    !masterMeta.timing_label ||
-    typeof masterMeta.composite_score !== 'number';
-  const isBusy = isSavingDeepDive || isGeneratingMeta;
-  const saveButtonLabel = isBusy ? 'Saving with score summary…' : 'Save to Universe';
+  const masterMeta = hookMasterMeta ?? resolvedContext?.masterMeta ?? null;
+  const isBusy = isSavingWithMeta || isSavingDeepDive || isGeneratingMeta;
+  const saveButtonLabel = isSavingWithMeta ? 'Saving…' : 'Save to Universe';
 
   useEffect(() => {
     if (resolvedContext?.module6Markdown && resolvedContext.module6Markdown !== moduleOutput) {
@@ -189,18 +180,15 @@ ${MASTER_STOCK_ANALYSIS_INSTRUCTIONS}`;
 
     const { meta, error: metaGenerationError } = await runMasterMetaSummary();
 
-    if (meta) {
-      updateContext?.({ masterMeta: meta });
-    }
-
     if (metaGenerationError || !meta) {
       setLocalWarning(metaGenerationError || 'Unable to refresh the score summary right now.');
     }
   };
 
   const handleSaveToUniverse = async () => {
-    setLocalError(null);
-    setLocalWarning(null);
+    if (isSavingWithMeta) {
+      return;
+    }
 
     if (!hasTicker) {
       setLocalError('Run Module 0 to configure the deep dive first.');
@@ -212,21 +200,27 @@ ${MASTER_STOCK_ANALYSIS_INSTRUCTIONS}`;
       return;
     }
 
-    try {
-      if (needsMeta) {
-        console.log('[ValueBot] MASTER meta missing — generating before save.');
-        const { meta, error: metaGenerationError } = await runMasterMetaSummary();
+    setLocalError(null);
+    setLocalWarning(null);
+    setIsSavingWithMeta(true);
 
-        if (meta) {
-          updateContext?.({ masterMeta: meta });
-        }
+    let meta = hookMasterMeta ?? resolvedContext?.masterMeta ?? null;
 
-        if (metaGenerationError || !meta) {
-          console.warn('[ValueBot] MASTER meta generation failed — proceeding to save without refreshing scores.');
-          setLocalWarning('Could not generate score summary; saving deep dive without labels.');
-        }
+    if (!meta && resolvedContext?.module6Markdown?.trim()) {
+      const { meta: generatedMeta, error: metaGenError } = await runMasterMetaSummary();
+
+      if (metaGenError && !generatedMeta) {
+        setLocalWarning(
+          'Score summary could not be generated. Saving deep dive without Risk/Quality/Timing/Score labels.'
+        );
       }
 
+      if (generatedMeta) {
+        meta = generatedMeta;
+      }
+    }
+
+    try {
       const result = await saveDeepDive();
 
       if (result?.error) {
@@ -234,6 +228,8 @@ ${MASTER_STOCK_ANALYSIS_INSTRUCTIONS}`;
       }
     } catch (err) {
       setLocalError(err?.message || 'Unable to save deep dive right now.');
+    } finally {
+      setIsSavingWithMeta(false);
     }
   };
 
