@@ -23,10 +23,20 @@ export interface DeepDivePipelineProgress {
     module4: DeepDiveStepStatus;
     module5: DeepDiveStepStatus;
     module6: DeepDiveStepStatus;
-    module7: DeepDiveStepStatus;
+    scoreSummary: DeepDiveStepStatus;
   };
   errorMessage?: string | null;
 }
+
+export type DeepDivePipelineStep =
+  | 'module0'
+  | 'module1'
+  | 'module2'
+  | 'module3'
+  | 'module4'
+  | 'module5'
+  | 'module6'
+  | 'scoreSummary';
 
 export type ValueBotMasterMeta = {
   risk_label: string;
@@ -87,7 +97,7 @@ export const defaultPipelineProgress: DeepDivePipelineProgress = {
     module4: 'pending',
     module5: 'pending',
     module6: 'pending',
-    module7: 'pending'
+    scoreSummary: 'pending'
   },
   errorMessage: null
 };

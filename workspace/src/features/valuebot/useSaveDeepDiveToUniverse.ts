@@ -91,6 +91,8 @@ export const useSaveDeepDiveToUniverse = () => {
     const { payload } = validation;
     const resolvedContext = valueBot?.context as ValueBotAnalysisContext | undefined;
     const masterMeta = resolvedContext?.masterMeta || null;
+    const compositeScore =
+      typeof masterMeta?.composite_score === 'number' ? masterMeta.composite_score : null;
 
     try {
       const { error } = await supabase.from('valuebot_deep_dives').insert(payload);
@@ -111,7 +113,7 @@ export const useSaveDeepDiveToUniverse = () => {
         last_risk_label: masterMeta?.risk_label ?? null,
         last_quality_label: masterMeta?.quality_label ?? null,
         last_timing_label: masterMeta?.timing_label ?? null,
-        last_composite_score: masterMeta?.composite_score ?? null
+        last_composite_score: compositeScore
       };
 
       const companyName = (payload?.company_name as string | null) || tickerSymbol || null;
