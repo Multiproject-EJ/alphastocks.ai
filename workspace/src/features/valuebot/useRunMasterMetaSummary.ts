@@ -1,5 +1,5 @@
-import { useState } from 'preact/hooks';
-import { ValueBotDeepDiveConfig, ValueBotMasterMeta } from './types.ts';
+import { useContext, useState } from 'preact/hooks';
+import { ValueBotContext, ValueBotDeepDiveConfig, ValueBotMasterMeta } from './types.ts';
 
 type RunMetaSummaryInput = {
   deepDiveConfig: ValueBotDeepDiveConfig;
@@ -8,7 +8,11 @@ type RunMetaSummaryInput = {
 };
 
 type RunMetaSummaryResult = {
+  runMasterMetaSummary: (input: RunMetaSummaryInput) => Promise<ValueBotMasterMeta>;
   runMetaSummary: (input: RunMetaSummaryInput) => Promise<ValueBotMasterMeta>;
+  loadingMeta: boolean;
+  metaError: string | null;
+  masterMeta: ValueBotMasterMeta | null;
   loading: boolean;
   error: string | null;
   data: ValueBotMasterMeta | null;
@@ -17,11 +21,12 @@ type RunMetaSummaryResult = {
 const DEFAULT_ERROR_MESSAGE = 'Unable to generate score summary right now.';
 
 export function useRunMasterMetaSummary(): RunMetaSummaryResult {
+  const valueBot = useContext(ValueBotContext);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<ValueBotMasterMeta | null>(null);
 
-  const runMetaSummary = async ({ deepDiveConfig, module6Markdown, companyName }: RunMetaSummaryInput) => {
+  const runMasterMetaSummary = async ({ deepDiveConfig, module6Markdown, companyName }: RunMetaSummaryInput) => {
     const trimmedMarkdown = module6Markdown?.trim();
     if (!trimmedMarkdown) {
       const message = 'Module 6 MASTER markdown is required to generate the score summary.';
@@ -65,17 +70,27 @@ export function useRunMasterMetaSummary(): RunMetaSummaryResult {
       }
 
       setData(meta);
+      valueBot?.updateContext?.({ masterMeta: meta });
       return meta;
     } catch (err) {
       const message = err?.message || DEFAULT_ERROR_MESSAGE;
       setError(message);
-      throw err;
+      throw err instanceof Error ? err : new Error(message);
     } finally {
       setLoading(false);
     }
   };
 
-  return { runMetaSummary, loading, error, data };
+  return {
+    runMasterMetaSummary,
+    runMetaSummary: runMasterMetaSummary,
+    loadingMeta: loading,
+    metaError: error,
+    masterMeta: data,
+    loading,
+    error,
+    data
+  };
 }
 
 export default useRunMasterMetaSummary;
