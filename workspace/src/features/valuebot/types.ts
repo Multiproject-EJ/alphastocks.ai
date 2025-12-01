@@ -89,7 +89,7 @@ export interface ValueBotQueueJob {
   id: string;
   created_at: string;
   user_id: string | null;
-  ticker: string;
+  ticker: string | null;
   company_name: string | null;
   provider: string;
   model: string | null;

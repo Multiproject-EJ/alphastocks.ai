@@ -1,8 +1,3 @@
-/**
- * Vercel Serverless Function: ValueBot batch worker
- * Processes pending rows from valuebot_analysis_queue and runs full deep dives.
- */
-
 import { createClient } from '@supabase/supabase-js';
 import { runDeepDiveForConfig } from '../workspace/src/features/valuebot/runDeepDiveForConfig.ts';
 
@@ -11,10 +6,12 @@ function createSupabaseClient() {
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
 
   if (!supabaseUrl || !serviceKey) {
-    throw new Error('Supabase service role credentials are required.');
+    return null;
   }
 
-  return createClient(supabaseUrl, serviceKey, { auth: { autoRefreshToken: false, persistSession: false } });
+  return createClient(supabaseUrl, serviceKey, {
+    auth: { autoRefreshToken: false, persistSession: false }
+  });
 }
 
 function resolveMaxJobs(queryValue) {
@@ -23,112 +20,154 @@ function resolveMaxJobs(queryValue) {
   return Math.min(parsed, 10);
 }
 
+async function processJobs(supabase, maxJobs) {
+  const { data: jobs, error: fetchError } = await supabase
+    .from('valuebot_analysis_queue')
+    .select('*')
+    .eq('status', 'pending')
+    .order('priority', { ascending: true })
+    .order('scheduled_at', { ascending: true, nullsFirst: true })
+    .order('created_at', { ascending: true })
+    .limit(maxJobs);
+
+  if (fetchError) {
+    throw new Error(fetchError.message || 'Unable to fetch pending jobs');
+  }
+
+  if (!jobs || jobs.length === 0) {
+    const { count: remainingCount } = await supabase
+      .from('valuebot_analysis_queue')
+      .select('id', { count: 'exact', head: true })
+      .eq('status', 'pending');
+
+    return { processed: 0, remaining: remainingCount ?? 0 };
+  }
+
+  let processedCount = 0;
+
+  for (const job of jobs) {
+    const startedAt = new Date().toISOString();
+    const startUpdate = await supabase
+      .from('valuebot_analysis_queue')
+      .update({
+        status: 'running',
+        attempts: (job.attempts ?? 0) + 1,
+        started_at: startedAt,
+        last_run_at: startedAt,
+        last_error: null
+      })
+      .eq('id', job.id);
+
+    if (startUpdate.error) {
+      console.error('[valuebot-batch-worker] Failed to mark job running', { jobId: job.id, error: startUpdate.error });
+      continue;
+    }
+
+    try {
+      const config = {
+        profileId: job.user_id,
+        ticker: job.ticker || '',
+        companyName: job.company_name || null,
+        provider: job.provider || 'openai',
+        model: job.model || null,
+        timeframe: job.timeframe || null,
+        customQuestion: job.custom_question || null
+      };
+
+      const result = await runDeepDiveForConfig({
+        config,
+        userId: job.user_id,
+        supabaseClient: supabase
+      });
+
+      const finishedAt = new Date().toISOString();
+
+      if (result.success) {
+        const successUpdate = await supabase
+          .from('valuebot_analysis_queue')
+          .update({
+            status: 'succeeded',
+            completed_at: finishedAt,
+            last_error: null,
+            deep_dive_id: result.deepDiveId || job.deep_dive_id || null,
+            last_run_at: finishedAt
+          })
+          .eq('id', job.id);
+
+        if (successUpdate.error) {
+          console.error('[valuebot-batch-worker] Failed to mark job succeeded', {
+            jobId: job.id,
+            error: successUpdate.error
+          });
+        }
+      } else {
+        const errorMessage = result.error || 'Deep dive failed';
+        const failureUpdate = await supabase
+          .from('valuebot_analysis_queue')
+          .update({
+            status: 'failed',
+            last_error: errorMessage.slice(0, 500),
+            completed_at: null,
+            last_run_at: finishedAt
+          })
+          .eq('id', job.id);
+
+        if (failureUpdate.error) {
+          console.error('[valuebot-batch-worker] Failed to mark job failed', {
+            jobId: job.id,
+            error: failureUpdate.error
+          });
+        }
+      }
+    } catch (err) {
+      const failureUpdate = await supabase
+        .from('valuebot_analysis_queue')
+        .update({
+          status: 'failed',
+          last_error: (err?.message || 'Unexpected worker error').slice(0, 500),
+          completed_at: null,
+          last_run_at: new Date().toISOString()
+        })
+        .eq('id', job.id);
+
+      if (failureUpdate.error) {
+        console.error('[valuebot-batch-worker] Failed to mark job failed after exception', {
+          jobId: job.id,
+          error: failureUpdate.error
+        });
+      }
+    }
+
+    processedCount += 1;
+  }
+
+  const { count: remainingCount } = await supabase
+    .from('valuebot_analysis_queue')
+    .select('id', { count: 'exact', head: true })
+    .eq('status', 'pending');
+
+  return { processed: processedCount, remaining: remainingCount ?? 0 };
+}
+
 export default async function handler(req, res) {
   if (!['GET', 'POST'].includes(req.method)) {
     return res.status(405).json({ message: 'Method not allowed' });
   }
 
-  let supabase;
-  try {
-    supabase = createSupabaseClient();
-  } catch (error) {
-    console.error('[ValueBot worker] Supabase init failed', error);
-    return res.status(500).json({ message: error?.message || 'Supabase not configured' });
+  const supabase = createSupabaseClient();
+
+  if (!supabase) {
+    console.error('[valuebot-batch-worker] Supabase service credentials not configured.');
+    return res.status(500).json({ error: 'Supabase service credentials not configured.' });
   }
 
   const maxJobs = resolveMaxJobs(req.query?.maxJobs);
 
-  const { data: jobs, error: fetchError } = await supabase
-    .from('valuebot_analysis_queue')
-    .select('*')
-    .eq('status', 'pending')
-    .order('created_at', { ascending: true })
-    .limit(maxJobs);
-
-  if (fetchError) {
-    console.error('[ValueBot worker] Failed to fetch jobs', fetchError);
-    return res.status(500).json({ message: 'Unable to fetch pending jobs' });
+  try {
+    const { processed, remaining } = await processJobs(supabase, maxJobs);
+    return res.status(200).json({ ok: true, processed, remaining });
+  } catch (err) {
+    console.error('[valuebot-batch-worker] Failed to run worker', err);
+    return res.status(500).json({ ok: false, error: err?.message || 'Failed to run worker' });
   }
-
-  if (!jobs || jobs.length === 0) {
-    return res.status(200).json({ processed: 0, message: 'No pending jobs' });
-  }
-
-  let completedCount = 0;
-  let failedCount = 0;
-
-  for (const job of jobs) {
-    try {
-      const { error: updateError } = await supabase
-        .from('valuebot_analysis_queue')
-        .update({
-          status: 'processing',
-          attempt_count: (job.attempt_count || 0) + 1,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', job.id);
-
-      if (updateError) {
-        console.error('[ValueBot worker] Failed to mark processing', { jobId: job.id, error: updateError });
-        failedCount += 1;
-        continue;
-      }
-
-      const config = {
-        profileId: job.profile_id,
-        ticker: job.ticker,
-        companyName: job.company_name,
-        currency: job.currency,
-        provider: job.provider || 'openai',
-        model: job.model || undefined,
-        timeframe: job.timeframe || undefined,
-        customQuestion: job.custom_question || undefined
-      };
-
-      console.log('[ValueBot worker] Running deep dive', { jobId: job.id, ticker: job.ticker });
-      const result = await runDeepDiveForConfig({ config, userId: job.profile_id, supabaseClient: supabase });
-
-      if (result.success) {
-        await supabase
-          .from('valuebot_analysis_queue')
-          .update({
-            status: 'completed',
-            last_error: null,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', job.id);
-        completedCount += 1;
-        console.log('[ValueBot worker] Completed job', { jobId: job.id, ticker: job.ticker });
-      } else {
-        await supabase
-          .from('valuebot_analysis_queue')
-          .update({
-            status: 'failed',
-            last_error: result.error || 'Deep dive failed',
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', job.id);
-        failedCount += 1;
-        console.error('[ValueBot worker] Deep dive failed', { jobId: job.id, ticker: job.ticker, error: result.error });
-      }
-    } catch (error) {
-      await supabase
-        .from('valuebot_analysis_queue')
-        .update({
-          status: 'failed',
-          last_error: error?.message || 'Unexpected worker error',
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', job.id);
-      failedCount += 1;
-      console.error('[ValueBot worker] Unexpected error', { jobId: job.id, ticker: job.ticker, error });
-    }
-  }
-
-  return res.status(200).json({
-    processed: jobs.length,
-    completed: completedCount,
-    failed: failedCount,
-    jobIds: jobs.map((j) => j.id)
-  });
 }
