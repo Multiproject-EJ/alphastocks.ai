@@ -260,11 +260,22 @@ IMPORTANT
         >
           {isPipelineRunning ? 'Running full deep dive…' : 'Run Full Deep Dive (0–7)'}
         </button>
-        {pipelineProgress?.status === 'error' && pipelineProgress?.errorMessage && (
-          <div className="ai-error" role="alert">
-            {pipelineProgress.errorMessage}
-          </div>
-        )}
+        {pipelineProgress?.status === 'error' &&
+          pipelineProgress?.errorMessage ===
+            'Module 6 MASTER markdown is required to generate the score summary.' &&
+          pipelineProgress?.steps?.module7 === 'error' && (
+            <div className="ai-error" role="alert">
+              {pipelineProgress.errorMessage}
+            </div>
+          )}
+        {pipelineProgress?.status === 'error' &&
+          pipelineProgress?.errorMessage &&
+          pipelineProgress?.errorMessage !==
+            'Module 6 MASTER markdown is required to generate the score summary.' && (
+            <div className="ai-error" role="alert">
+              {pipelineProgress.errorMessage}
+            </div>
+          )}
         {pipelineProgress?.status === 'success' && (
           <div className="detail-meta" role="status">
             Deep dive complete. Review the modules 0–7 results or re-run individual steps if needed.

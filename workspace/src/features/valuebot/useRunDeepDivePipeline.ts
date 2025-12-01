@@ -587,7 +587,7 @@ export const useRunDeepDivePipeline = () => {
         }
       );
 
-      await runStep(
+      const module6Output = await runStep(
         'module6',
         6,
         () =>
@@ -607,6 +607,20 @@ export const useRunDeepDivePipeline = () => {
         }
       );
 
+      const refreshedContext = valueBot?.context ?? currentContext;
+      const module6Markdown = (module6Output || refreshedContext?.module6Markdown || '').trim();
+      const ticker = refreshedContext?.deepDiveConfig?.ticker?.trim() || '';
+      const missingModule6Message = 'Module 6 MASTER markdown is required to generate the score summary.';
+
+      if (!refreshedContext?.module6Markdown && module6Output) {
+        updateContext({ module6Markdown: module6Output, module6Output });
+      }
+
+      console.debug('[ValueBot] Starting Step 7 — Score Summary', {
+        ticker,
+        hasModule6Markdown: Boolean(module6Markdown)
+      });
+
       safeSetProgress((prev) => ({
         ...prev,
         status: 'running',
@@ -618,10 +632,26 @@ export const useRunDeepDivePipeline = () => {
         }
       }));
 
+      if (!module6Markdown) {
+        safeSetProgress((prev) => ({
+          ...prev,
+          status: 'error',
+          currentStep: 7,
+          steps: {
+            ...prev.steps,
+            module7: 'error'
+          },
+          errorMessage: missingModule6Message
+        }));
+        console.debug('[ValueBot] Step 7 skipped — missing Module 6 markdown', { ticker });
+        return;
+      }
+
       try {
-        const { error } = await runMasterMetaSummary();
+        const { error, meta } = await runMasterMetaSummary();
 
         if (error) {
+          console.debug('[ValueBot] Step 7 meta generation failed', { ticker, error });
           safeSetProgress((prev) => ({
             ...prev,
             status: 'error',
@@ -633,6 +663,13 @@ export const useRunDeepDivePipeline = () => {
             errorMessage: error
           }));
         } else {
+          console.debug('[ValueBot] Step 7 meta generation succeeded', {
+            ticker,
+            risk: meta?.risk_label,
+            quality: meta?.quality_label,
+            timing: meta?.timing_label,
+            score: meta?.composite_score
+          });
           safeSetProgress((prev) => ({
             ...prev,
             status: 'success',
@@ -645,6 +682,8 @@ export const useRunDeepDivePipeline = () => {
           }));
         }
       } catch (err: any) {
+        const errorMessage = err?.message || 'Unexpected error in Step 7';
+        console.debug('[ValueBot] Step 7 meta generation threw', { ticker, errorMessage });
         safeSetProgress((prev) => ({
           ...prev,
           status: 'error',
@@ -653,7 +692,7 @@ export const useRunDeepDivePipeline = () => {
             ...prev.steps,
             module7: 'error'
           },
-          errorMessage: err?.message || 'Unexpected error in Step 7'
+          errorMessage
         }));
       }
     } catch (error) {

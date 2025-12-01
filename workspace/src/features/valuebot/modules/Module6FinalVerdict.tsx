@@ -204,6 +204,10 @@ ${MASTER_STOCK_ANALYSIS_INSTRUCTIONS}`;
       if (result?.error) {
         setLocalError(result.error);
       }
+
+      if (result?.metadataWarning) {
+        setLocalWarning(result.metadataWarning);
+      }
     } catch (err) {
       setLocalError(err?.message || 'Unable to save deep dive right now.');
     }
