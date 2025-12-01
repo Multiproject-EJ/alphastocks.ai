@@ -17,82 +17,78 @@ type InvestmentUniverseInsert = {
 };
 
 /**
- * The MASTER summary JSON returned by Module 6 is intended to mirror the standardized
- * tables in the MASTER markdown. We expect a fenced ```json block with keys like:
- * {
- *   "summary": "...",
- *   "risk": "Low",
- *   "quality": "World Class",
- *   "timing": "Buy",
- *   "composite_score": 7.8
- * }
- *
- * This helper is defensive: it will try the first fenced ```json block, then fall back
- * to the first/last braces in the markdown. On any parse issue it returns null so the
- * save flow can still proceed without blocking the user.
+ * Extracts the strict MASTER summary JSON emitted by Module 6. Looks for the last fenced
+ * ```json block in the markdown and parses it. Returns undefined on any failure so the
+ * save flow can proceed without blocking the user.
  */
 type MasterSummary = {
-  risk_label?: string;
-  quality_label?: string;
-  timing_label?: string;
-  composite_score?: number;
+  risk_label: string;
+  quality_label: string;
+  timing_label: string;
+  composite_score: number;
 };
 
-function extractMasterSummaryFromMarkdown(markdown: string): MasterSummary | null {
-  if (!markdown) return null;
+function extractMasterSummaryFromMarkdown(markdown: string): MasterSummary | undefined {
+  if (!markdown) return undefined;
 
-  const fencedMatch = markdown.match(/```json\s*([\s\S]*?)```/i);
-  let jsonCandidate: string | null = fencedMatch?.[1]?.trim() || null;
+  const segments = markdown.split('```');
+  let lastJsonBlock: string | null = null;
 
-  if (!jsonCandidate) {
-    const firstBrace = markdown.indexOf('{');
-    const lastBrace = markdown.lastIndexOf('}');
-    if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
-      jsonCandidate = markdown.slice(firstBrace, lastBrace + 1);
+  for (const segment of segments) {
+    const trimmed = segment.trimStart();
+    if (trimmed.toLowerCase().startsWith('json')) {
+      const content = trimmed.slice('json'.length).trim();
+      if (content) {
+        lastJsonBlock = content;
+      }
     }
   }
 
-  if (!jsonCandidate) {
-    console.warn('[ValueBot] No JSON block found in Module 6 MASTER markdown.');
-    return null;
+  if (!lastJsonBlock) {
+    console.warn('[ValueBot] Unable to parse MASTER JSON summary', {
+      error: 'No fenced json block found',
+      snippet: markdown.slice(0, 200)
+    });
+    return undefined;
   }
 
   try {
-    const parsed = JSON.parse(jsonCandidate);
-    const source = parsed?.summary && typeof parsed.summary === 'object' ? parsed.summary : parsed;
+    const parsed = JSON.parse(lastJsonBlock) as Record<string, unknown>;
+    const compositeScoreValue =
+      typeof parsed.composite_score === 'number'
+        ? parsed.composite_score
+        : typeof parsed.composite_score === 'string'
+          ? Number.parseFloat(parsed.composite_score)
+          : NaN;
 
-    const pickString = (keys: string[]) => {
-      for (const key of keys) {
-        const value = source?.[key];
-        if (typeof value === 'string') return value;
-      }
+    if (
+      typeof parsed.risk_label !== 'string' ||
+      typeof parsed.quality_label !== 'string' ||
+      typeof parsed.timing_label !== 'string' ||
+      Number.isNaN(compositeScoreValue)
+    ) {
+      console.warn('[ValueBot] Unable to parse MASTER JSON summary', {
+        error: 'Missing required summary fields',
+        snippet: markdown.slice(0, 200)
+      });
       return undefined;
-    };
-
-    const pickNumber = (keys: string[]) => {
-      for (const key of keys) {
-        const value = source?.[key];
-        if (typeof value === 'number') return value;
-        if (typeof value === 'string') {
-          const parsedNumber = Number.parseFloat(value);
-          if (!Number.isNaN(parsedNumber)) return parsedNumber;
-        }
-      }
-      return undefined;
-    };
+    }
 
     const summary: MasterSummary = {
-      risk_label: pickString(['risk', 'risk_label', 'riskLabel']),
-      quality_label: pickString(['quality', 'quality_label', 'qualityLabel']),
-      timing_label: pickString(['timing', 'timing_label', 'timingLabel']),
-      composite_score: pickNumber(['composite_score', 'score', 'overall_score', 'compositeScore'])
+      risk_label: parsed.risk_label,
+      quality_label: parsed.quality_label,
+      timing_label: parsed.timing_label,
+      composite_score: compositeScoreValue
     };
 
     console.info('[ValueBot] Parsed MASTER summary from Module 6:', summary);
     return summary;
   } catch (error) {
-    console.warn('[ValueBot] Unable to parse Module 6 MASTER summary JSON.', error);
-    return null;
+    console.warn('[ValueBot] Unable to parse MASTER JSON summary', {
+      error,
+      snippet: markdown.slice(0, 200)
+    });
+    return undefined;
   }
 }
 
@@ -180,7 +176,7 @@ export const useSaveDeepDiveToUniverse = () => {
 
     const { payload } = validation;
     const module6Markdown = (payload?.module6_markdown as string) || '';
-    const summary = extractMasterSummaryFromMarkdown(module6Markdown);
+    const masterSummary = extractMasterSummaryFromMarkdown(module6Markdown);
 
     try {
       const { error } = await supabase.from('valuebot_deep_dives').insert(payload);
@@ -194,7 +190,7 @@ export const useSaveDeepDiveToUniverse = () => {
       let universeWarning: string | null = null;
 
       if (user?.id) {
-        if (!summary) {
+        if (!masterSummary) {
           const parsingWarning =
             'Unable to parse MASTER summary JSON. Deep dive saved, but Investing Universe metadata was not updated.';
           console.warn('[ValueBot] Deep dive saved, but MASTER summary could not be parsed for investment_universe payload.');
@@ -206,14 +202,13 @@ export const useSaveDeepDiveToUniverse = () => {
           symbol: (payload?.ticker as string) || '',
           name: (payload?.company_name as string | null) || (payload?.ticker as string) || null,
           profile_id: user.id,
-          ...(summary
+          ...(masterSummary
             ? {
                 last_deep_dive_at: new Date().toISOString(),
-                last_risk_label: summary.risk_label || null,
-                last_quality_label: summary.quality_label || null,
-                last_timing_label: summary.timing_label || null,
-                last_composite_score:
-                  typeof summary.composite_score === 'number' ? summary.composite_score : null
+                last_risk_label: masterSummary.risk_label,
+                last_quality_label: masterSummary.quality_label,
+                last_timing_label: masterSummary.timing_label,
+                last_composite_score: masterSummary.composite_score
               }
             : {})
         };
