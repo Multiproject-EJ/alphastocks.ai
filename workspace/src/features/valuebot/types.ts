@@ -8,6 +8,27 @@ export interface ValueBotDeepDiveConfig {
   customQuestion?: string | null;
 }
 
+export interface ValueBotPipelineResult {
+  ticker: string;
+  companyName?: string | null;
+  market?: string | null;
+  provider: string;
+  model?: string | null;
+  module0Markdown: string;
+  module1Markdown: string;
+  module2Markdown: string;
+  module3Markdown: string;
+  module4Markdown: string;
+  module5Markdown: string;
+  module6Markdown: string;
+  masterMeta?: {
+    risk_label?: string | null;
+    quality_label?: string | null;
+    timing_label?: string | null;
+    composite_score?: number | null;
+  } | null;
+}
+
 export type DeepDivePipelineStatus = 'idle' | 'running' | 'success' | 'error';
 
 export type DeepDiveStepStatus = 'pending' | 'running' | 'done' | 'error';
@@ -57,6 +78,20 @@ export interface InvestmentUniverseRow {
   last_timing_label?: string | null;
   last_composite_score?: number | string | null;
   last_model?: string | null;
+}
+
+export interface QueueJob {
+  id: string;
+  created_at: string;
+  ticker: string;
+  company_name?: string | null;
+  status: 'pending' | 'running' | 'succeeded' | 'failed' | 'skipped';
+  attempts: number;
+  priority: number;
+  scheduled_at?: string | null;
+  last_run_at?: string | null;
+  completed_at?: string | null;
+  last_error?: string | null;
 }
 
 export interface ValueBotAnalysisContext {

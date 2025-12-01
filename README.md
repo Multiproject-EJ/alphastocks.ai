@@ -79,6 +79,7 @@ Legend: ☐ not started • 🕒 in progress • ☑ done
 - 2025-11-05: Added `supabase/patches/002_valuebot_deep_dives.sql` documenting the `valuebot_deep_dives` table that stores full ValueBot deep-dive outputs (Modules 0–6) for each ticker.
 - 2025-11-08: Added `supabase/patches/003_investment_universe_deep_dive_metadata.sql` to capture the latest ValueBot deep-dive metadata (risk, quality, timing, composite score, and timestamp) on each `investment_universe` row.
 - 2025-11-09: Added `supabase/patches/004_investment_universe_last_model.sql` to capture the AI model string used for the latest MASTER deep dive on each `investment_universe` row.
+- 2025-11-10: Added `supabase/patches/004_valuebot_analysis_queue.sql` to manage queued ValueBot deep dives processed by the `/api/valuebot-batch-worker` cron endpoint. The queue holds ticker, provider/model, optional timeframe/question, status/attempt metadata, and scheduling fields for the background worker.
 
 ### Feature: Today Dashboard
 - ☑ Design layout for dashboard cards (notable events, financial calendar, watchlist movers, headlines, market stats) using current UI patterns.
