@@ -1,7 +1,7 @@
 import { useCallback, useContext, useState } from 'preact/hooks';
 import { supabase } from '../../lib/supabaseClient.js';
 import { useAuth } from '../../context/AuthContext.jsx';
-import { ValueBotContext, ValueBotAnalysisContext } from './types.ts';
+import { InvestmentUniverseRow, ValueBotContext, ValueBotAnalysisContext } from './types.ts';
 
 type SaveResult = { error?: string; metadataWarning?: string };
 
@@ -31,6 +31,8 @@ export const useSaveDeepDiveToUniverse = () => {
       }
 
       const deepDiveConfig = resolvedContext.deepDiveConfig || {};
+      const provider = deepDiveConfig?.provider?.trim() || 'openai';
+      const rawModel = (deepDiveConfig?.model || '').trim();
       const ticker = deepDiveConfig?.ticker?.trim();
       const module6Markdown = resolvedContext?.module6Markdown?.trim();
 
@@ -45,8 +47,8 @@ export const useSaveDeepDiveToUniverse = () => {
       return {
         payload: {
           ticker,
-          provider: deepDiveConfig?.provider || 'openai',
-          model: deepDiveConfig?.model || null,
+          provider,
+          model: rawModel || null,
           timeframe: deepDiveConfig?.timeframe || null,
           custom_question: deepDiveConfig?.customQuestion || null,
           company_name: resolvedContext?.companyName?.trim() || null,
@@ -90,9 +92,14 @@ export const useSaveDeepDiveToUniverse = () => {
 
     const { payload } = validation;
     const resolvedContext = valueBot?.context as ValueBotAnalysisContext | undefined;
+    const deepDiveConfig = resolvedContext?.deepDiveConfig || {};
     const masterMeta = resolvedContext?.masterMeta || null;
     const compositeScore =
       typeof masterMeta?.composite_score === 'number' ? masterMeta.composite_score : null;
+
+    const provider = deepDiveConfig?.provider?.trim() || 'openai';
+    const rawModel = (deepDiveConfig?.model || '').trim();
+    const lastModel = rawModel ? `${provider}:${rawModel}` : provider || null;
 
     try {
       const { error } = await supabase.from('valuebot_deep_dives').insert(payload);
@@ -106,14 +113,17 @@ export const useSaveDeepDiveToUniverse = () => {
       let metadataWarning: string | null = null;
 
       const tickerSymbol = (payload?.ticker as string) || '';
-      const universePayload: Record<string, unknown> = {
+      const universePayload: Partial<InvestmentUniverseRow> & { profile_id: string | null; symbol: string } = {
         profile_id: user?.id || null,
         symbol: tickerSymbol,
         last_deep_dive_at: new Date().toISOString(),
         last_risk_label: masterMeta?.risk_label ?? null,
         last_quality_label: masterMeta?.quality_label ?? null,
         last_timing_label: masterMeta?.timing_label ?? null,
-        last_composite_score: compositeScore
+        last_composite_score: compositeScore,
+        // Snapshot of the model used for the latest MASTER deep dive; this will not retroactively change
+        // if default models are updated later.
+        last_model: lastModel || null
       };
 
       const companyName = (payload?.company_name as string | null) || tickerSymbol || null;

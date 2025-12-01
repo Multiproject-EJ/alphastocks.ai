@@ -1871,6 +1871,7 @@ const App = () => {
             <th title="From the most recent MASTER deep dive">Quality</th>
             <th title="From the most recent MASTER deep dive">Timing</th>
             <th title="From the most recent MASTER deep dive">Score</th>
+            <th>Model</th>
             <th>Added</th>
             <th>Deep Dive</th>
             <th>Actions</th>
@@ -1917,6 +1918,7 @@ const App = () => {
                 <td>{row.last_quality_label || '—'}</td>
                 <td>{row.last_timing_label || '—'}</td>
                 <td>{formatScore(row.last_composite_score)}</td>
+                <td>{row.last_model ? row.last_model : '—'}</td>
                 <td title={row.last_deep_dive_at ? `Last deep dive ${formatDateLabel(row.last_deep_dive_at)}` : undefined}>
                   {formatDateLabel(row.created_at || new Date().toISOString())}
                 </td>

@@ -45,6 +45,20 @@ export type ValueBotMasterMeta = {
   composite_score: number;
 };
 
+export interface InvestmentUniverseRow {
+  id: string;
+  profile_id: string | null;
+  symbol: string | null;
+  name?: string | null;
+  created_at?: string | null;
+  last_deep_dive_at?: string | null;
+  last_risk_label?: string | null;
+  last_quality_label?: string | null;
+  last_timing_label?: string | null;
+  last_composite_score?: number | string | null;
+  last_model?: string | null;
+}
+
 export interface ValueBotAnalysisContext {
   deepDiveConfig: ValueBotDeepDiveConfig;
   module0OutputMarkdown?: string | null;
