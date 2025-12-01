@@ -53,4 +53,17 @@ Formatting rules:
 - Tables first, then clearly labeled headings 0–6 with concise paragraphs.
 - Keep synthesis crisp; do not paste large sections from the sources.
 - If source material is missing, proceed but explicitly note the uncertainty.
+
+After you have finished the full markdown report, output a final fenced code block labeled json that contains only this object and nothing else:
+
+\`\`\`json
+{
+  "risk_label": "<Low | Medium | High>",
+  "quality_label": "<World Class | Excellent | Very Strong | Strong | Good | Average | Weak | Poor | Very Poor | Horrific>",
+  "timing_label": "<Buy | Hold | Wait | Avoid>",
+  "composite_score": X.X
+}
+\`\`\`
+
+Do not include any extra keys, comments, or prose in this JSON block. Place this JSON block at the very end of the response.
 `;
