@@ -1,6 +1,7 @@
 import { useCallback, useContext, useState } from 'preact/hooks';
 import { supabase } from '../../lib/supabaseClient.js';
 import { useAuth } from '../../context/AuthContext.jsx';
+import { resolveEffectiveModelId } from './modelDefaults.ts';
 import { InvestmentUniverseRow, ValueBotContext, ValueBotAnalysisContext } from './types.ts';
 
 type SaveResult = { error?: string; metadataWarning?: string };
@@ -27,8 +28,8 @@ export const useSaveDeepDiveToUniverse = () => {
       deepDiveConfig?: ValueBotAnalysisContext['deepDiveConfig']
     ): { provider: string; modelSnapshot: string | null } => {
       const provider = (deepDiveConfig?.provider || 'openai').trim();
-      const rawModel = (deepDiveConfig?.model || '').trim();
-      const modelSnapshot = rawModel || null;
+      const rawModel = deepDiveConfig?.model ?? null;
+      const modelSnapshot = resolveEffectiveModelId(provider, rawModel);
 
       return { provider, modelSnapshot };
     },
@@ -105,7 +106,7 @@ export const useSaveDeepDiveToUniverse = () => {
     const { payload } = validation;
     const resolvedContext = valueBot?.context as ValueBotAnalysisContext | undefined;
     const deepDiveConfig = resolvedContext?.deepDiveConfig || {};
-    const { modelSnapshot } = resolveProviderAndModel(deepDiveConfig);
+    const { provider, modelSnapshot } = resolveProviderAndModel(deepDiveConfig);
     const masterMeta = resolvedContext?.masterMeta || null;
     const compositeScore =
       typeof masterMeta?.composite_score === 'number' ? masterMeta.composite_score : null;
@@ -148,6 +149,8 @@ export const useSaveDeepDiveToUniverse = () => {
 
       console.log('[ValueBot] Universe upsert payload', {
         ticker: tickerSymbol,
+        provider,
+        effectiveModelId: modelSnapshot,
         last_model: modelSnapshot,
         last_risk_label: universePayload.last_risk_label,
         last_quality_label: universePayload.last_quality_label,
