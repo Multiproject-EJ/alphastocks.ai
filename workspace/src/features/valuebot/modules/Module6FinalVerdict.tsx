@@ -12,6 +12,7 @@ const Module6FinalVerdict: FunctionalComponent<ValueBotModuleProps> = ({ context
   const updateContext = valueBot?.updateContext ?? onUpdateContext;
   const { runAnalysis, loading, error, data } = useRunStockAnalysis();
   const [localError, setLocalError] = useState<string | null>(null);
+  const [localWarning, setLocalWarning] = useState<string | null>(null);
   const [moduleOutput, setModuleOutput] = useState<string>(resolvedContext?.module6Markdown || '');
   const [localMasterMeta, setLocalMasterMeta] = useState<ValueBotMasterMeta | null>(
     resolvedContext?.masterMeta ?? null
@@ -57,6 +58,21 @@ const Module6FinalVerdict: FunctionalComponent<ValueBotModuleProps> = ({ context
 
   const { saveDeepDive, isSaving: isSavingDeepDive, saveError, saveWarning, saveSuccess } = useSaveDeepDiveToUniverse();
   const canSaveDeepDive = hasTicker && hasModule6Output;
+  const masterMeta = localMasterMeta ?? resolvedMasterMeta ?? resolvedContext?.masterMeta ?? null;
+  const needsMeta =
+    !masterMeta ||
+    !masterMeta.risk_label ||
+    !masterMeta.quality_label ||
+    !masterMeta.timing_label ||
+    typeof masterMeta.composite_score !== 'number';
+  const isBusy = isSavingDeepDive || isGeneratingMeta || isSaveFlowRunning;
+  const saveButtonLabel = isSaveFlowRunning
+    ? saveNeedsMeta
+      ? 'Generating scores + saving…'
+      : 'Saving…'
+    : isSavingDeepDive
+      ? 'Saving…'
+      : 'Save to Universe';
 
   useEffect(() => {
     if (resolvedContext?.module6Markdown && resolvedContext.module6Markdown !== moduleOutput) {
@@ -188,23 +204,25 @@ ${MASTER_STOCK_ANALYSIS_INSTRUCTIONS}`;
     }
 
     const markdownSource = (moduleOutput || module6Markdown || '').trim();
+    setLocalWarning(null);
 
-    try {
-      const meta = await runMasterMetaSummary({
-        deepDiveConfig,
-        module6Markdown: markdownSource,
-        companyName
-      });
+    const meta = await runMasterMetaSummary({
+      deepDiveConfig,
+      module6Markdown: markdownSource,
+      companyName
+    });
 
+    if (meta) {
       setLocalMasterMeta(meta);
       updateContext?.({ masterMeta: meta });
-    } catch (err) {
-      console.error('[ValueBot] Failed to generate MASTER meta summary', err);
+    } else {
+      setLocalWarning('Unable to refresh the score summary right now.');
     }
   };
 
   const handleSaveToUniverse = async () => {
     setLocalError(null);
+    setLocalWarning(null);
 
     if (!hasTicker) {
       setLocalError('Run Module 0 to configure the deep dive first.');
@@ -219,39 +237,32 @@ ${MASTER_STOCK_ANALYSIS_INSTRUCTIONS}`;
     const markdownSource = (moduleOutput || module6Markdown || '').trim();
 
     try {
-      const needsMeta =
-        !resolvedContext?.masterMeta ||
-        !resolvedContext.masterMeta.risk_label ||
-        !resolvedContext.masterMeta.quality_label ||
-        !resolvedContext.masterMeta.timing_label;
-
       setSaveNeedsMeta(needsMeta);
       setIsSaveFlowRunning(true);
 
-      let metaGenerationError: string | null = null;
+      if (needsMeta) {
+        console.log('[ValueBot] MASTER meta missing — generating before save.');
+        const generatedMeta = await runMasterMetaSummary({
+          deepDiveConfig,
+          module6Markdown: markdownSource,
+          companyName
+        });
 
-      if (needsMeta && markdownSource) {
-        try {
-          const meta = await runMasterMetaSummary({
-            deepDiveConfig,
-            module6Markdown: markdownSource,
-            companyName
-          });
-          if (meta) {
-            setLocalMasterMeta(meta);
-            updateContext?.({ masterMeta: meta });
-          }
-        } catch (err) {
-          metaGenerationError = err?.message || 'Unable to generate score summary. Proceeding to save without it.';
+        if (generatedMeta) {
+          setLocalMasterMeta(generatedMeta);
+          updateContext?.({ masterMeta: generatedMeta });
+        } else {
+          console.warn('[ValueBot] MASTER meta generation failed — proceeding to save without refreshing scores.');
+          setLocalWarning('Score summary could not be refreshed before saving. Proceeding without updated labels.');
         }
+      } else {
+        console.log('[ValueBot] MASTER meta already available — skipping regeneration before save.');
       }
 
       const result = await saveDeepDive();
 
       if (result?.error) {
         setLocalError(result.error);
-      } else if (metaGenerationError) {
-        setLocalError(metaGenerationError);
       }
     } catch (err) {
       setLocalError(err?.message || 'Unable to save deep dive right now.');
@@ -375,8 +386,8 @@ ${MASTER_STOCK_ANALYSIS_INSTRUCTIONS}`;
             type="button"
             className="btn-secondary"
             onClick={handleGenerateMetaSummary}
-            disabled={!hasModule6Text || isGeneratingMeta}
-            aria-busy={isGeneratingMeta}
+            disabled={!hasModule6Text || isBusy}
+            aria-busy={isBusy}
             title={!hasModule6Text ? 'Generate the MASTER report before requesting a score summary.' : undefined}
           >
             {isGeneratingMeta
@@ -401,8 +412,8 @@ ${MASTER_STOCK_ANALYSIS_INSTRUCTIONS}`;
       <div className="detail-card">
         <h4>Score summary (Risk / Quality / Timing / Score)</h4>
         <p className="detail-meta">
-          Scores are auto-generated from the MASTER verdict when you save to the Universe. Use “Update score summary” to refresh
-          them without saving.
+          Scores are generated automatically the next time you save this deep dive. Use “Update score summary” if you want to
+          refresh them manually before saving.
         </p>
         {localMasterMeta || resolvedMasterMeta ? (
           <dl className="detail-meta" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
@@ -437,22 +448,17 @@ ${MASTER_STOCK_ANALYSIS_INSTRUCTIONS}`;
           tracker.
         </p>
         <p className="detail-meta">
-          Saving will also generate or refresh the Risk / Quality / Timing / Score summary and update the Investing Universe row
-          for this ticker.
+          Saving will also refresh Risk / Quality / Timing / Score from the MASTER report if needed.
         </p>
         <button
           type="button"
           className="btn-primary"
           onClick={handleSaveToUniverse}
-          disabled={!canSaveDeepDive || isSavingDeepDive || isGeneratingMeta || isSaveFlowRunning}
-          aria-busy={isSavingDeepDive || isGeneratingMeta || isSaveFlowRunning}
+          disabled={!canSaveDeepDive || isBusy}
+          aria-busy={isBusy}
           title={!canSaveDeepDive ? 'Complete the deep-dive configuration and run Module 6 before saving.' : undefined}
         >
-          {isSavingDeepDive || isSaveFlowRunning
-            ? saveNeedsMeta
-              ? 'Generating score & saving…'
-              : 'Saving…'
-            : 'Save to Universe'}
+          {saveButtonLabel}
         </button>
         {!hasTicker && (
           <p className="detail-meta" role="status">
@@ -472,6 +478,11 @@ ${MASTER_STOCK_ANALYSIS_INSTRUCTIONS}`;
         {saveSuccess && (
           <p className="detail-meta" role="status">
             Saved to Universe ✔
+          </p>
+        )}
+        {localWarning && (
+          <p className="detail-meta" role="status">
+            {localWarning}
           </p>
         )}
         {saveError && (

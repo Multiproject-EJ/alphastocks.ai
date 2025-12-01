@@ -8,8 +8,8 @@ type RunMetaSummaryInput = {
 };
 
 type RunMetaSummaryResult = {
-  runMasterMetaSummary: (input: RunMetaSummaryInput) => Promise<ValueBotMasterMeta>;
-  runMetaSummary: (input: RunMetaSummaryInput) => Promise<ValueBotMasterMeta>;
+  runMasterMetaSummary: (input: RunMetaSummaryInput) => Promise<ValueBotMasterMeta | null>;
+  runMetaSummary: (input: RunMetaSummaryInput) => Promise<ValueBotMasterMeta | null>;
   loadingMeta: boolean;
   metaError: string | null;
   masterMeta: ValueBotMasterMeta | null;
@@ -31,7 +31,8 @@ export function useRunMasterMetaSummary(): RunMetaSummaryResult {
     if (!trimmedMarkdown) {
       const message = 'Module 6 MASTER markdown is required to generate the score summary.';
       setError(message);
-      throw new Error(message);
+      console.error('[ValueBot] Skipping MASTER meta generation — missing Module 6 markdown.');
+      return null;
     }
 
     setLoading(true);
@@ -58,7 +59,8 @@ export function useRunMasterMetaSummary(): RunMetaSummaryResult {
       if (!response.ok) {
         const message = payload?.message || payload?.error || DEFAULT_ERROR_MESSAGE;
         setError(message);
-        throw new Error(message);
+        console.error('[ValueBot] MASTER meta generation failed:', message, payload);
+        return null;
       }
 
       const meta: ValueBotMasterMeta | undefined = payload?.meta || payload?.data;
@@ -66,16 +68,19 @@ export function useRunMasterMetaSummary(): RunMetaSummaryResult {
       if (!meta) {
         const message = 'AI response did not include a score summary.';
         setError(message);
-        throw new Error(message);
+        console.error('[ValueBot] MASTER meta generation returned no meta object.', payload);
+        return null;
       }
 
+      console.log('[ValueBot] MASTER meta generation succeeded with parsed meta:', meta);
       setData(meta);
       valueBot?.updateContext?.({ masterMeta: meta });
       return meta;
     } catch (err) {
       const message = err?.message || DEFAULT_ERROR_MESSAGE;
       setError(message);
-      throw err instanceof Error ? err : new Error(message);
+      console.error('[ValueBot] Unexpected error during MASTER meta generation:', err);
+      return null;
     } finally {
       setLoading(false);
     }
