@@ -4,8 +4,11 @@ export interface ValueBotDeepDiveConfig {
   provider: string;
   model?: string | null;
   ticker: string;
+  companyName?: string | null;
+  currency?: string | null;
   timeframe?: string | null;
   customQuestion?: string | null;
+  profileId?: string | null;
 }
 
 export interface ValueBotPipelineResult {
@@ -131,8 +134,11 @@ export const defaultDeepDiveConfig: ValueBotDeepDiveConfig = {
   provider: 'openai',
   model: '',
   ticker: '',
+  companyName: '',
+  currency: '',
   timeframe: '',
-  customQuestion: ''
+  customQuestion: '',
+  profileId: null
 };
 
 export const defaultPipelineProgress: DeepDivePipelineProgress = {

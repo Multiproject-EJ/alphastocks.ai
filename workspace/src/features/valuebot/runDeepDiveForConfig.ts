@@ -1,5 +1,12 @@
-import { analyzeStockAPI } from '../../lib/useStockAnalysis.js';
-import { ValueBotDeepDiveConfig, ValueBotPipelineResult, defaultDeepDiveConfig } from './types.ts';
+import { SupabaseClient } from '@supabase/supabase-js';
+import { analyzeStockAPI, buildApiUrl } from '../../lib/useStockAnalysis.js';
+import { resolveEffectiveModelId } from './modelDefaults.ts';
+import {
+  ValueBotDeepDiveConfig,
+  ValueBotPipelineResult,
+  ValueBotMasterMeta,
+  defaultDeepDiveConfig
+} from './types.ts';
 
 export const createInitialSteps = () => ({
   module0: 'pending' as const,
@@ -13,6 +20,14 @@ export const createInitialSteps = () => ({
 });
 
 export type DeepDiveStepKey = keyof ReturnType<typeof createInitialSteps>;
+
+export type DeepDiveRunResult = {
+  success: boolean;
+  error?: string;
+  deepDiveId?: string;
+  ticker: string;
+  meta?: ValueBotMasterMeta | null;
+};
 
 const buildModule0Prompt = (config = defaultDeepDiveConfig) => {
   const ticker = config?.ticker?.trim() || '[Not provided]';
@@ -422,7 +437,7 @@ async function runScoreSummary({
   }
 
   try {
-    const response = await fetch('/api/master-meta-summary', {
+    const response = await fetch(buildApiUrl('/api/master-meta-summary'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -449,11 +464,89 @@ async function runScoreSummary({
   }
 }
 
+async function saveDeepDiveToSupabase(params: {
+  supabaseClient?: SupabaseClient;
+  pipeline: ValueBotPipelineResult;
+  config: ValueBotDeepDiveConfig;
+  masterMeta: ValueBotMasterMeta | null | undefined;
+  userId?: string | null;
+}): Promise<{ deepDiveId: string | null; warning?: string | null }> {
+  const { supabaseClient, pipeline, config, masterMeta, userId } = params;
+
+  if (!supabaseClient) {
+    throw new Error('Supabase client is required to save deep dives.');
+  }
+
+  const provider = (config.provider || 'openai').trim();
+  const modelSnapshot = resolveEffectiveModelId(provider, config.model ?? null);
+  const compositeScore =
+    typeof masterMeta?.composite_score === 'number' ? masterMeta.composite_score : null;
+  const ownerId = userId || config.profileId || null;
+
+  const payload = {
+    ticker: pipeline.ticker?.trim() || '',
+    provider,
+    model: modelSnapshot,
+    timeframe: config.timeframe || null,
+    custom_question: config.customQuestion || null,
+    company_name: config.companyName?.trim() || null,
+    currency: config.currency?.trim() || null,
+    module0_markdown: pipeline.module0Markdown,
+    module1_markdown: pipeline.module1Markdown,
+    module2_markdown: pipeline.module2Markdown,
+    module3_markdown: pipeline.module3Markdown,
+    module4_markdown: pipeline.module4Markdown,
+    module5_markdown: pipeline.module5Markdown,
+    module6_markdown: pipeline.module6Markdown,
+    source: 'valuebot_deep_dive',
+    user_id: ownerId
+  };
+
+  const { data: insertData, error } = await supabaseClient
+    .from('valuebot_deep_dives')
+    .insert(payload)
+    .select('id')
+    .single();
+
+  if (error) {
+    throw new Error(error.message || 'Unable to save deep dive.');
+  }
+
+  let metadataWarning: string | null = null;
+
+  const { error: universeError } = await supabaseClient
+    .from('investment_universe')
+    .upsert(
+      {
+        profile_id: ownerId,
+        symbol: payload.ticker,
+        name: payload.company_name || payload.ticker,
+        last_deep_dive_at: new Date().toISOString(),
+        last_risk_label: masterMeta?.risk_label ?? null,
+        last_quality_label: masterMeta?.quality_label ?? null,
+        last_timing_label: masterMeta?.timing_label ?? null,
+        last_composite_score: compositeScore,
+        last_model: modelSnapshot
+      },
+      { onConflict: 'profile_id,symbol' }
+    );
+
+  if (universeError) {
+    metadataWarning =
+      "Saved, but couldn't refresh Risk / Quality / Timing / Score. Check console logs and Module 6 JSON block.";
+    console.error('Universe upsert failed', universeError);
+  }
+
+  return { deepDiveId: insertData?.id ?? null, warning: metadataWarning };
+}
+
 export async function runDeepDiveForConfig(params: {
   config: ValueBotDeepDiveConfig;
   userId?: string | null;
+  supabaseClient?: SupabaseClient;
+  skipSave?: boolean;
   onStepStatusChange?: (step: DeepDiveStepKey, status: 'running' | 'done' | 'error') => void;
-}): Promise<ValueBotPipelineResult> {
+}): Promise<DeepDiveRunResult> {
   const config = params?.config || defaultDeepDiveConfig;
   const notify = params?.onStepStatusChange;
 
@@ -582,7 +675,7 @@ export async function runDeepDiveForConfig(params: {
     safeNotify('scoreSummary', 'done');
   }
 
-  return {
+  const pipelineResult: ValueBotPipelineResult = {
     ticker: config.ticker?.trim() || '',
     provider: config.provider || 'openai',
     model: config.model || null,
@@ -595,6 +688,34 @@ export async function runDeepDiveForConfig(params: {
     module6Markdown,
     masterMeta: meta || null
   };
+
+  try {
+    if (!params?.skipSave) {
+      const { deepDiveId } = await saveDeepDiveToSupabase({
+        supabaseClient: params?.supabaseClient,
+        pipeline: pipelineResult,
+        config,
+        masterMeta: meta,
+        userId: params?.userId
+      });
+
+      return {
+        success: true,
+        deepDiveId: deepDiveId || undefined,
+        ticker: pipelineResult.ticker,
+        meta: meta || null
+      };
+    }
+
+    return { success: true, deepDiveId: undefined, ticker: pipelineResult.ticker, meta: meta || null };
+  } catch (error: any) {
+    return {
+      success: false,
+      error: error?.message || 'Unable to save deep dive',
+      ticker: pipelineResult.ticker,
+      meta: meta || null
+    };
+  }
 }
 
 export {

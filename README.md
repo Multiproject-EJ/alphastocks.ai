@@ -81,6 +81,11 @@ Legend: ☐ not started • 🕒 in progress • ☑ done
 - 2025-11-09: Added `supabase/patches/004_investment_universe_last_model.sql` to capture the AI model string used for the latest MASTER deep dive on each `investment_universe` row.
 - 2025-11-10: Added `supabase/patches/004_valuebot_analysis_queue.sql` to manage queued ValueBot deep dives processed by the `/api/valuebot-batch-worker` cron endpoint. The queue holds ticker, provider/model, optional timeframe/question, status/attempt metadata, and scheduling fields for the background worker.
 
+### ValueBot batch worker (background deep dives)
+- The `valuebot_analysis_queue` table stores pending deep-dive requests (ticker, provider/model, timeframe/question, status, attempts, and errors).
+- `/api/valuebot-batch-worker` processes pending rows in small batches (default 3; override with `?maxJobs=5`, capped at 10) by running the full ValueBot deep-dive pipeline and saving outputs to `valuebot_deep_dives` while refreshing `investment_universe` metadata.
+- Intended for scheduled triggers (e.g., Vercel cron hitting `/api/valuebot-batch-worker?maxJobs=3` every few minutes) or manual HTTP debugging; no front-end UI enqueues jobs yet.
+
 ### Feature: Today Dashboard
 - ☑ Design layout for dashboard cards (notable events, financial calendar, watchlist movers, headlines, market stats) using current UI patterns.
   - 2025-11-01: Introduced a responsive 12-column dashboard grid with hero, spotlight, and tertiary cards drawing on Atlassian's [layout guidance](https://atlassian.design/foundations/layout/grid) and Material's [adaptive design](https://m3.material.io/foundations/adaptive-design/large-screens/overview) patterns. Cards surface events, portfolio metrics, reflections, AI queue, and ledger activity.

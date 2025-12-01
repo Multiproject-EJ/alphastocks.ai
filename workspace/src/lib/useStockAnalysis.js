@@ -7,6 +7,32 @@
 
 import { useState } from 'preact/hooks';
 
+export const resolveApiBaseUrl = () => {
+  if (typeof window !== 'undefined' && window.location) {
+    return '';
+  }
+
+  const envUrl =
+    process.env.SITE_URL ||
+    process.env.VERCEL_URL ||
+    process.env.DEPLOYMENT_URL ||
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    process.env.PUBLIC_URL;
+
+  if (envUrl) {
+    const normalized = envUrl.startsWith('http') ? envUrl : `https://${envUrl}`;
+    return normalized.replace(/\/$/, '');
+  }
+
+  return 'http://localhost:3000';
+};
+
+export const buildApiUrl = (path) => {
+  const base = resolveApiBaseUrl();
+  if (!base) return path;
+  return `${base}${path}`;
+};
+
 /**
  * Custom hook for stock analysis
  * 
@@ -47,7 +73,7 @@ export function useStockAnalysis() {
     setData(null);
 
     try {
-      const response = await fetch('/api/stock-analysis', {
+      const response = await fetch(buildApiUrl('/api/stock-analysis'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -101,7 +127,7 @@ export function useStockAnalysis() {
  */
 export async function analyzeStockAPI({ provider, model, ticker, question, timeframe }) {
   try {
-    const response = await fetch('/api/stock-analysis', {
+    const response = await fetch(buildApiUrl('/api/stock-analysis'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
