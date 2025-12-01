@@ -1,4 +1,4 @@
-import { useContext, useMemo, useState } from 'preact/hooks';
+import { useCallback, useContext, useMemo, useState } from 'preact/hooks';
 import { ValueBotContext, ValueBotMasterMeta } from './types.ts';
 
 type RunMasterMetaSummaryResult = {
@@ -15,6 +15,7 @@ type RunMetaSummaryHookResult = {
   loading: boolean;
   error: string | null;
   data: ValueBotMasterMeta | null;
+  meta: ValueBotMasterMeta | null;
 };
 
 const DEFAULT_ERROR_MESSAGE = 'Unable to generate score summary right now.';
@@ -23,15 +24,16 @@ export function useRunMasterMetaSummary(): RunMetaSummaryHookResult {
   const valueBot = useContext(ValueBotContext);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [data, setData] = useState<ValueBotMasterMeta | null>(null);
+  const [meta, setMeta] = useState<ValueBotMasterMeta | null>(null);
 
-  const resolvedContext = valueBot?.context;
-
-  const runMasterMetaSummary = async (): Promise<RunMasterMetaSummaryResult> => {
+  const runMasterMetaSummary = useCallback(async (): Promise<RunMasterMetaSummaryResult> => {
+    const resolvedContext = valueBot?.context;
     const trimmedMarkdown = resolvedContext?.module6Markdown?.trim();
+
     if (!trimmedMarkdown) {
       const message = 'Module 6 MASTER markdown is required to generate the score summary.';
       setError(message);
+      setMeta(null);
       console.error('[ValueBot] Skipping MASTER meta generation — missing Module 6 markdown.');
       return { meta: null, error: message };
     }
@@ -60,44 +62,49 @@ export function useRunMasterMetaSummary(): RunMetaSummaryHookResult {
       if (!response.ok) {
         const message = payload?.message || payload?.error || DEFAULT_ERROR_MESSAGE;
         setError(message);
+        setMeta(null);
         console.error('[ValueBot] MASTER meta generation failed:', message, payload);
         return { meta: null, error: message };
       }
 
-      const meta: ValueBotMasterMeta | undefined = payload?.meta || payload?.data;
+      const parsedMeta: ValueBotMasterMeta | undefined = payload?.meta || payload?.data;
 
-      if (!meta) {
+      if (!parsedMeta) {
         const message = 'AI response did not include a score summary.';
         setError(message);
+        setMeta(null);
         console.error('[ValueBot] MASTER meta generation returned no meta object.', payload);
         return { meta: null, error: message };
       }
 
-      console.log('[ValueBot] MASTER meta generation succeeded with parsed meta:', meta);
-      setData(meta);
-      valueBot?.updateContext?.({ masterMeta: meta });
-      return { meta, error: null };
-    } catch (err) {
-      const message = err?.message || DEFAULT_ERROR_MESSAGE;
+      console.log('[ValueBot] MASTER meta generation succeeded with parsed meta:', parsedMeta);
+      setMeta(parsedMeta);
+      valueBot?.updateContext?.({ masterMeta: parsedMeta });
+      return { meta: parsedMeta, error: null };
+    } catch (err: unknown) {
+      const message = (err as Error)?.message || DEFAULT_ERROR_MESSAGE;
       setError(message);
+      setMeta(null);
       console.error('[ValueBot] Unexpected error during MASTER meta generation:', err);
       return { meta: null, error: message };
     } finally {
       setLoading(false);
     }
-  };
+  }, [valueBot]);
 
-  const masterMetaFromContext = useMemo(() => resolvedContext?.masterMeta ?? null, [resolvedContext?.masterMeta]);
+  const masterMetaFromContext = useMemo(() => valueBot?.context?.masterMeta ?? null, [valueBot?.context?.masterMeta]);
+  const resolvedMeta = meta ?? masterMetaFromContext;
 
   return {
     runMasterMetaSummary,
     runMetaSummary: runMasterMetaSummary,
     loadingMeta: loading,
     metaError: error,
-    masterMeta: data ?? masterMetaFromContext,
+    masterMeta: resolvedMeta,
     loading,
     error,
-    data: data ?? masterMetaFromContext
+    data: resolvedMeta,
+    meta: resolvedMeta
   };
 }
 
