@@ -5,9 +5,12 @@ import {
   ValueBotModuleProps,
   ValueBotDeepDiveConfig,
   ValueBotContext,
-  defaultDeepDiveConfig
+  defaultDeepDiveConfig,
+  DeepDivePipelineStep,
+  DeepDivePipelineProgress
 } from '../types.ts';
 import { useRunDeepDivePipeline } from '../useRunDeepDivePipeline.ts';
+import { useSaveDeepDiveToUniverse } from '../useSaveDeepDiveToUniverse.ts';
 
 const providerOptions = [
   { value: 'openai', label: 'OpenAI' },
@@ -41,6 +44,11 @@ const Module0DataLoader: FunctionalComponent<ValueBotModuleProps> = ({ context, 
   const updateContext = valueBot?.updateContext ?? onUpdateContext;
   const { runAnalysis, loading, error, data } = useRunStockAnalysis();
   const { runPipeline, pipelineProgress } = useRunDeepDivePipeline();
+  const { saveDeepDive, isSaving: isSavingDeepDive } = useSaveDeepDiveToUniverse();
+  const [isRunningAndSaving, setIsRunningAndSaving] = useState(false);
+  const [runSaveError, setRunSaveError] = useState<string | null>(null);
+  const [runSaveWarning, setRunSaveWarning] = useState<string | null>(null);
+  const [runSaveSuccess, setRunSaveSuccess] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
   const [config, setConfig] = useState<ValueBotDeepDiveConfig>(
     resolvedContext?.deepDiveConfig || defaultDeepDiveConfig
@@ -156,7 +164,7 @@ IMPORTANT
 
   const providerModelOptions = modelOptions[config.provider as keyof typeof modelOptions] ?? modelOptions.openai;
 
-  const pipelineSteps = [
+  const pipelineSteps: { key: DeepDivePipelineStep; label: string }[] = [
     { key: 'module0', label: 'Module 0 — Data Loader' },
     { key: 'module1', label: 'Module 1 — Core Diagnostics' },
     { key: 'module2', label: 'Module 2 — Growth Engine' },
@@ -164,10 +172,46 @@ IMPORTANT
     { key: 'module4', label: 'Module 4 — Valuation Engine' },
     { key: 'module5', label: 'Module 5 — Timing & Momentum' },
     { key: 'module6', label: 'Module 6 — Final Verdict' },
-    { key: 'module7', label: 'Step 7 — Score Summary' }
+    { key: 'scoreSummary', label: 'Step 7 — Score Summary' }
   ];
 
   const isPipelineRunning = pipelineProgress?.status === 'running';
+
+  const handleRunFullDeepDiveAndSave = useCallback(async () => {
+    setRunSaveError(null);
+    setRunSaveWarning(null);
+    setRunSaveSuccess(false);
+    setIsRunningAndSaving(true);
+
+    try {
+      const pipelineResult = await runPipeline();
+      const coreModulesOk = Boolean(pipelineResult?.coreModulesSucceeded);
+
+      if (!coreModulesOk) {
+        setRunSaveError('Deep dive pipeline did not complete. Fix errors above before saving.');
+        return;
+      }
+
+      const saveResult = await saveDeepDive();
+
+      if (saveResult?.error) {
+        setRunSaveError(saveResult.error);
+        setRunSaveSuccess(false);
+      }
+
+      if (saveResult?.metadataWarning) {
+        setRunSaveWarning(saveResult.metadataWarning);
+      }
+
+      if (!saveResult?.error) {
+        setRunSaveSuccess(true);
+      }
+    } catch (err: any) {
+      setRunSaveError(err?.message || 'Unexpected error while running deep dive + save.');
+    } finally {
+      setIsRunningAndSaving(false);
+    }
+  }, [runPipeline, saveDeepDive]);
 
   return (
     <div className="detail-grid detail-grid--balanced">
@@ -260,10 +304,19 @@ IMPORTANT
         >
           {isPipelineRunning ? 'Running full deep dive…' : 'Run Full Deep Dive (0–7)'}
         </button>
+        <button
+          type="button"
+          className="btn-primary btn-primary--outline"
+          onClick={handleRunFullDeepDiveAndSave}
+          disabled={isPipelineRunning || isRunningAndSaving || isSavingDeepDive}
+          aria-busy={isRunningAndSaving}
+        >
+          {isRunningAndSaving ? 'Running deep dive + saving…' : 'Run Full Deep Dive + Save to Universe'}
+        </button>
         {pipelineProgress?.status === 'error' &&
           pipelineProgress?.errorMessage ===
             'Module 6 MASTER markdown is required to generate the score summary.' &&
-          pipelineProgress?.steps?.module7 === 'error' && (
+          pipelineProgress?.steps?.scoreSummary === 'error' && (
             <div className="ai-error" role="alert">
               {pipelineProgress.errorMessage}
             </div>
@@ -276,6 +329,21 @@ IMPORTANT
               {pipelineProgress.errorMessage}
             </div>
           )}
+        {runSaveError && (
+          <div className="ai-error" role="alert">
+            {runSaveError}
+          </div>
+        )}
+        {runSaveWarning && (
+          <div className="detail-meta" role="status">
+            {runSaveWarning}
+          </div>
+        )}
+        {runSaveSuccess && !runSaveError && (
+          <div className="detail-meta" role="status">
+            Deep dive saved to Investing Universe.
+          </div>
+        )}
         {pipelineProgress?.status === 'success' && (
           <div className="detail-meta" role="status">
             Deep dive complete. Review the modules 0–7 results or re-run individual steps if needed.
@@ -286,7 +354,12 @@ IMPORTANT
           <ul className="detail-meta">
             {pipelineSteps.map((step) => (
               <li key={step.key}>
-                {step.label}: {pipelineProgress?.steps?.[step.key as keyof typeof pipelineProgress.steps] || 'pending'}
+                {step.label}:{' '}
+                {(
+                  pipelineProgress?.steps?.[
+                    step.key as keyof DeepDivePipelineProgress['steps']
+                  ] || 'pending'
+                )}
               </li>
             ))}
           </ul>

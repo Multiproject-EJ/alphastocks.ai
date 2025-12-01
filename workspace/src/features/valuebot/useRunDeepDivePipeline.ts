@@ -2,6 +2,7 @@ import { useCallback, useContext } from 'preact/hooks';
 import { useRunStockAnalysis } from '../ai-analysis/useRunStockAnalysis.ts';
 import {
   DeepDivePipelineProgress,
+  DeepDivePipelineStep,
   DeepDiveStepStatus,
   ValueBotContext,
   defaultDeepDiveConfig,
@@ -17,7 +18,7 @@ const createInitialSteps = () => ({
   module4: 'pending' as DeepDiveStepStatus,
   module5: 'pending' as DeepDiveStepStatus,
   module6: 'pending' as DeepDiveStepStatus,
-  module7: 'pending' as DeepDiveStepStatus
+  scoreSummary: 'pending' as DeepDiveStepStatus
 });
 
 const buildModule0Prompt = (config = defaultDeepDiveConfig) => {
@@ -422,28 +423,50 @@ export const useRunDeepDivePipeline = () => {
     const config = currentContext?.deepDiveConfig ?? defaultDeepDiveConfig;
     const ticker = config.ticker?.trim();
 
+    let latestContext = { ...currentContext };
+    let latestProgress: DeepDivePipelineProgress = {
+      ...(currentContext?.pipelineProgress ?? defaultPipelineProgress),
+      steps: createInitialSteps()
+    };
+
+    const missingTickerProgress: DeepDivePipelineProgress = {
+      ...defaultPipelineProgress,
+      status: 'error',
+      errorMessage: 'Please enter a company or ticker to run the full deep dive pipeline.',
+      steps: createInitialSteps()
+    };
+
     if (!ticker) {
-      setPipelineProgress({
-        ...defaultPipelineProgress,
-        status: 'error',
-        errorMessage: 'Please enter a company or ticker to run the full deep dive pipeline.',
-        steps: createInitialSteps()
-      });
-      return;
+      latestProgress = missingTickerProgress;
+      setPipelineProgress(missingTickerProgress);
+      return {
+        pipelineProgress: missingTickerProgress,
+        coreModulesSucceeded: false,
+        masterMetaGenerated: Boolean(latestContext.masterMeta)
+      };
     }
+
+    const areCoreStepsSuccessful = (steps: DeepDivePipelineProgress['steps']) =>
+      ['module0', 'module1', 'module2', 'module3', 'module4', 'module5', 'module6'].every(
+        (step) => steps[step as keyof DeepDivePipelineProgress['steps']] === 'done'
+      );
+
+    const buildResult = () => ({
+      pipelineProgress: latestProgress,
+      coreModulesSucceeded: areCoreStepsSuccessful(latestProgress.steps),
+      masterMetaGenerated: Boolean(latestContext.masterMeta)
+    });
 
     const safeSetProgress = (
       updater:
         | DeepDivePipelineProgress
         | ((prev: DeepDivePipelineProgress) => DeepDivePipelineProgress)
     ) => {
-      setPipelineProgress((prev) => {
-        const previous = prev ?? { ...defaultPipelineProgress, steps: createInitialSteps() };
-        return typeof updater === 'function' ? updater(previous) : updater;
-      });
+      const previous = latestProgress ?? { ...defaultPipelineProgress, steps: createInitialSteps() };
+      const next = typeof updater === 'function' ? updater(previous) : updater;
+      latestProgress = next;
+      setPipelineProgress(next);
     };
-
-    let latestModule6Markdown = currentContext?.module6Markdown?.trim() || '';
 
     safeSetProgress({
       status: 'running',
@@ -453,7 +476,7 @@ export const useRunDeepDivePipeline = () => {
     });
 
     const runStep = async (
-      stepKey: keyof DeepDivePipelineProgress['steps'],
+      stepKey: DeepDivePipelineStep,
       stepNumber: DeepDivePipelineProgress['currentStep'],
       promptBuilder: () => string,
       onSuccess: (output: string) => void
@@ -514,10 +537,12 @@ export const useRunDeepDivePipeline = () => {
 
     try {
       const module0Output = await runStep('module0', 0, () => buildModule0Prompt(config), (output) => {
-        updateContext({
+        latestContext = {
+          ...latestContext,
           module0OutputMarkdown: output,
           deepDiveConfig: { ...config }
-        });
+        };
+        updateContext(latestContext);
       });
 
       const module1Output = await runStep(
@@ -525,7 +550,11 @@ export const useRunDeepDivePipeline = () => {
         1,
         () => buildModule1Prompt(config, module0Output || currentContext?.module0OutputMarkdown),
         (output) => {
-          updateContext({ module1OutputMarkdown: output });
+          latestContext = {
+            ...latestContext,
+            module1OutputMarkdown: output
+          };
+          updateContext(latestContext);
         }
       );
 
@@ -539,7 +568,11 @@ export const useRunDeepDivePipeline = () => {
             module1Output || currentContext?.module1OutputMarkdown
           ),
         (output) => {
-          updateContext({ module2Markdown: output });
+          latestContext = {
+            ...latestContext,
+            module2Markdown: output
+          };
+          updateContext(latestContext);
         }
       );
 
@@ -554,7 +587,12 @@ export const useRunDeepDivePipeline = () => {
             module2Output || currentContext?.module2Markdown
           ),
         (output) => {
-          updateContext({ module3Markdown: output, module3Output: output });
+          latestContext = {
+            ...latestContext,
+            module3Markdown: output,
+            module3Output: output
+          };
+          updateContext(latestContext);
         }
       );
 
@@ -570,7 +608,12 @@ export const useRunDeepDivePipeline = () => {
             module3Output || currentContext?.module3Markdown
           ),
         (output) => {
-          updateContext({ module4Markdown: output, module4Output: output });
+          latestContext = {
+            ...latestContext,
+            module4Markdown: output,
+            module4Output: output
+          };
+          updateContext(latestContext);
         }
       );
 
@@ -585,7 +628,12 @@ export const useRunDeepDivePipeline = () => {
             module4Output || currentContext?.module4Markdown
           ),
         (output) => {
-          updateContext({ module5Markdown: output, module5Output: output });
+          latestContext = {
+            ...latestContext,
+            module5Markdown: output,
+            module5Output: output
+          };
+          updateContext(latestContext);
         }
       );
 
@@ -605,22 +653,21 @@ export const useRunDeepDivePipeline = () => {
             module5Output || currentContext?.module5Markdown
           ),
         (output) => {
-          updateContext({ module6Markdown: output, module6Output: output });
+          latestContext = {
+            ...latestContext,
+            module6Markdown: output,
+            module6Output: output
+          };
+          updateContext(latestContext);
         }
       );
 
-      const refreshedContext = valueBot?.context ?? currentContext;
-      latestModule6Markdown = (module6Output || refreshedContext?.module6Markdown || '').trim();
-      const module6Markdown = latestModule6Markdown;
-      const ticker = refreshedContext?.deepDiveConfig?.ticker?.trim() || '';
+      const module6Markdown = (module6Output || latestContext?.module6Markdown || '').trim();
+      const tickerSymbol = latestContext?.deepDiveConfig?.ticker?.trim() || '';
       const missingModule6Message = 'Module 6 MASTER markdown is required to generate the score summary.';
 
-      if (!refreshedContext?.module6Markdown && module6Output) {
-        updateContext({ module6Markdown: module6Output, module6Output });
-      }
-
       console.debug('[ValueBot] Starting Step 7 — Score Summary', {
-        ticker,
+        ticker: tickerSymbol,
         hasModule6Markdown: Boolean(module6Markdown)
       });
 
@@ -631,7 +678,7 @@ export const useRunDeepDivePipeline = () => {
         errorMessage: null,
         steps: {
           ...prev.steps,
-          module7: 'running'
+          scoreSummary: 'running'
         }
       }));
 
@@ -642,32 +689,37 @@ export const useRunDeepDivePipeline = () => {
           currentStep: 7,
           steps: {
             ...prev.steps,
-            module7: 'error'
+            scoreSummary: 'error'
           },
           errorMessage: missingModule6Message
         }));
-        console.debug('[ValueBot] Step 7 skipped — missing Module 6 markdown', { ticker });
-        return;
+        console.debug('[ValueBot] Step 7 skipped — missing Module 6 markdown', { ticker: tickerSymbol });
+        return buildResult();
       }
 
       try {
-        const { error, meta } = await runMasterMetaSummary(latestModule6Markdown);
+        const { error, meta } = await runMasterMetaSummary({ markdownOverride: module6Markdown });
 
         if (error) {
-          console.debug('[ValueBot] Step 7 meta generation failed', { ticker, error });
+          console.debug('[ValueBot] Step 7 meta generation failed', { ticker: tickerSymbol, error });
           safeSetProgress((prev) => ({
             ...prev,
             status: 'error',
             currentStep: 7,
             steps: {
               ...prev.steps,
-              module7: 'error'
+              scoreSummary: 'error'
             },
             errorMessage: error
           }));
         } else {
+          latestContext = {
+            ...latestContext,
+            masterMeta: meta ?? null
+          };
+          updateContext(latestContext);
           console.debug('[ValueBot] Step 7 meta generation succeeded', {
-            ticker,
+            ticker: tickerSymbol,
             risk: meta?.risk_label,
             quality: meta?.quality_label,
             timing: meta?.timing_label,
@@ -680,27 +732,31 @@ export const useRunDeepDivePipeline = () => {
             errorMessage: null,
             steps: {
               ...prev.steps,
-              module7: 'done'
+              scoreSummary: 'done'
             }
           }));
         }
       } catch (err: any) {
         const errorMessage = err?.message || 'Unexpected error in Step 7';
-        console.debug('[ValueBot] Step 7 meta generation threw', { ticker, errorMessage });
+        console.debug('[ValueBot] Step 7 meta generation threw', { ticker: tickerSymbol, errorMessage });
         safeSetProgress((prev) => ({
           ...prev,
           status: 'error',
           currentStep: 7,
           steps: {
             ...prev.steps,
-            module7: 'error'
+            scoreSummary: 'error'
           },
           errorMessage
         }));
       }
+      return buildResult();
     } catch (error) {
       // Errors are handled inside runStep; no additional action required here.
+      return buildResult();
     }
+
+    return buildResult();
   }, [currentContext, runAnalysis, runMasterMetaSummary, setPipelineProgress, updateContext]);
 
   return { runPipeline, resetPipeline, pipelineProgress };

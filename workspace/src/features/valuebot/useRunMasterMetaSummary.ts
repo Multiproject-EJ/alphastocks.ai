@@ -1,6 +1,10 @@
 import { useCallback, useContext, useMemo, useState } from 'preact/hooks';
 import { ValueBotContext, ValueBotMasterMeta } from './types.ts';
 
+export type RunMasterMetaArgs = {
+  markdownOverride?: string;
+};
+
 type RunMasterMetaSummaryResult = {
   meta: ValueBotMasterMeta | null;
   error: string | null;
@@ -15,10 +19,10 @@ export function useRunMasterMetaSummary() {
   const [lastMeta, setLastMeta] = useState<ValueBotMasterMeta | null>(null);
 
   const runMasterMetaSummary = useCallback(
-    async (overrideMarkdown?: string): Promise<RunMasterMetaSummaryResult> => {
+    async (opts?: RunMasterMetaArgs): Promise<RunMasterMetaSummaryResult> => {
       const resolvedContext = valueBot?.context;
       const sourceMarkdown =
-        overrideMarkdown?.trim() || resolvedContext?.module6Markdown?.trim() || '';
+        opts?.markdownOverride?.trim() || resolvedContext?.module6Markdown?.trim() || '';
 
       if (!sourceMarkdown) {
         const message = 'Module 6 MASTER markdown is required to generate the score summary.';
