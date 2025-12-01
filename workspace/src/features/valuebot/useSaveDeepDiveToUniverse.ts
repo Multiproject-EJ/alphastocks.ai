@@ -5,80 +5,59 @@ import { ValueBotContext, ValueBotAnalysisContext } from './types.ts';
 
 type SaveResult = { error?: string; metadataWarning?: string };
 
-type InvestmentUniverseInsert = {
-  symbol: string;
-  name: string | null;
-  profile_id: string | null;
-  last_deep_dive_at?: string | null;
-  last_risk_label?: string | null;
-  last_quality_label?: string | null;
-  last_timing_label?: string | null;
-  last_composite_score?: number | null;
-};
-
-/**
- * Extracts the strict MASTER summary JSON emitted by Module 6. Looks for the last fenced
- * ```json block in the markdown and parses it. Returns null on any failure so the
- * save flow can proceed without blocking the user.
- */
-type MasterSummary = {
+type MasterSummaryMeta = {
   risk_label: string;
   quality_label: string;
   timing_label: string;
   composite_score: number;
 };
 
-function extractMasterSummaryFromMarkdown(markdown: string): MasterSummary | null {
+function extractMasterSummaryFromMarkdown(markdown: string | null | undefined): MasterSummaryMeta | null {
   if (!markdown) return null;
 
-  const matches = [...markdown.matchAll(/```json\s*([\s\S]*?)\s*```/gi)];
-  const lastMatch = matches.at(-1);
+  const trimmed = markdown.trim();
+  if (!trimmed) return null;
 
-  if (!lastMatch || !lastMatch[1]) {
-    console.warn('ValueBot MASTER summary parse failed', {
-      reason: 'No fenced json block found',
-      markdownSnippet: markdown.slice(0, 400)
-    });
+  const lines = trimmed.split('\n');
+  const lastLine = lines[lines.length - 1].trim();
+
+  if (!lastLine.startsWith('{') || !lastLine.endsWith('}')) {
+    console.warn('[ValueBot] MASTER summary: last line is not JSON:', lastLine);
     return null;
   }
 
   try {
-    const parsed = JSON.parse(lastMatch[1]);
-
-    const compositeScoreValue =
-      typeof parsed.composite_score === 'number'
-        ? parsed.composite_score
-        : typeof parsed.composite_score === 'string'
-          ? Number.parseFloat(parsed.composite_score)
-          : NaN;
-
-    const summary: MasterSummary = {
-      risk_label: typeof parsed.risk_label === 'string' ? parsed.risk_label.trim() : '',
-      quality_label: typeof parsed.quality_label === 'string' ? parsed.quality_label.trim() : '',
-      timing_label: typeof parsed.timing_label === 'string' ? parsed.timing_label.trim() : '',
-      composite_score: compositeScoreValue
-    };
+    const parsed = JSON.parse(lastLine);
+    const risk = parsed.risk_label;
+    const quality = parsed.quality_label;
+    const timing = parsed.timing_label;
+    const score = parsed.composite_score;
 
     if (
-      !summary.risk_label ||
-      !summary.quality_label ||
-      !summary.timing_label ||
-      !Number.isFinite(summary.composite_score)
+      typeof risk !== 'string' ||
+      typeof quality !== 'string' ||
+      typeof timing !== 'string' ||
+      (typeof score !== 'number' && typeof score !== 'string')
     ) {
-      console.warn('ValueBot MASTER summary parse failed', {
-        reason: 'Missing required fields',
-        markdownSnippet: markdown.slice(0, 400)
-      });
+      console.warn('[ValueBot] MASTER summary JSON missing required fields:', parsed);
       return null;
     }
 
-    console.log('ValueBot MASTER summary parsed', summary);
-    return summary;
-  } catch (error) {
-    console.warn('ValueBot MASTER summary parse failed', {
-      reason: error instanceof Error ? error.message : 'Invalid JSON',
-      markdownSnippet: markdown.slice(0, 400)
-    });
+    const compositeScore = typeof score === 'string' ? Number(score) : score;
+
+    if (!Number.isFinite(compositeScore)) {
+      console.warn('[ValueBot] MASTER summary JSON composite_score is not a number:', parsed);
+      return null;
+    }
+
+    return {
+      risk_label: risk,
+      quality_label: quality,
+      timing_label: timing,
+      composite_score: compositeScore
+    };
+  } catch (err) {
+    console.warn('[ValueBot] Failed to parse MASTER summary JSON:', err, 'last line:', lastLine);
     return null;
   }
 }
@@ -167,7 +146,7 @@ export const useSaveDeepDiveToUniverse = () => {
 
     const { payload } = validation;
     const module6Markdown = (payload?.module6_markdown as string) || '';
-    const masterSummary = extractMasterSummaryFromMarkdown(module6Markdown);
+    const meta = extractMasterSummaryFromMarkdown(module6Markdown);
 
     try {
       const { error } = await supabase.from('valuebot_deep_dives').insert(payload);
@@ -180,38 +159,30 @@ export const useSaveDeepDiveToUniverse = () => {
 
       let metadataWarning: string | null = null;
 
-      const nowIso = new Date().toISOString();
-      const baseUniversePayload: InvestmentUniverseInsert = {
-        symbol: (payload?.ticker as string) || '',
-        name: (payload?.company_name as string | null) || (payload?.ticker as string) || null,
-        profile_id: user?.id ?? null,
-        last_deep_dive_at: nowIso
+      const tickerSymbol = (payload?.ticker as string) || '';
+      const universePayload: Record<string, unknown> = {
+        profile_id: user?.id || null,
+        symbol: tickerSymbol,
+        last_deep_dive_at: new Date().toISOString()
       };
 
-      const metadata = masterSummary;
-      const universePayload: InvestmentUniverseInsert = metadata
-        ? {
-            ...baseUniversePayload,
-            last_risk_label: metadata.risk_label,
-            last_quality_label: metadata.quality_label,
-            last_timing_label: metadata.timing_label,
-            last_composite_score: metadata.composite_score
-          }
-        : baseUniversePayload;
+      const companyName = (payload?.company_name as string | null) || tickerSymbol || null;
+      if (companyName) {
+        universePayload.name = companyName;
+      }
 
-      if (!metadata) {
+      if (meta) {
+        universePayload.last_risk_label = meta.risk_label;
+        universePayload.last_quality_label = meta.quality_label;
+        universePayload.last_timing_label = meta.timing_label;
+        universePayload.last_composite_score = meta.composite_score;
+      } else {
         metadataWarning =
-          "Saved, but couldn't refresh Risk / Quality / Timing / Score. Check console logs and Module 6 JSON block.";
+          'MASTER JSON summary could not be parsed. Deep dive was saved, but Risk/Quality/Timing/Score were not updated in the Investing Universe.';
         setSaveWarning(metadataWarning);
       }
 
-      console.info('[ValueBot] Upserting investment_universe payload:', {
-        symbol: universePayload.symbol,
-        last_risk_label: universePayload.last_risk_label,
-        last_quality_label: universePayload.last_quality_label,
-        last_timing_label: universePayload.last_timing_label,
-        last_composite_score: universePayload.last_composite_score
-      });
+      console.log('[ValueBot] Upserting Investing Universe metadata:', universePayload);
 
       try {
         const { error: universeError } = await supabase
