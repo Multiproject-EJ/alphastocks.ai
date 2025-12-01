@@ -11,32 +11,7 @@ import {
 } from '../types.ts';
 import { useRunDeepDivePipeline } from '../useRunDeepDivePipeline.ts';
 import { useSaveDeepDiveToUniverse } from '../useSaveDeepDiveToUniverse.ts';
-
-const providerOptions = [
-  { value: 'openai', label: 'OpenAI' },
-  { value: 'gemini', label: 'Google Gemini' },
-  { value: 'openrouter', label: 'OpenRouter' }
-];
-
-const modelOptions = {
-  openai: [
-    { value: '', label: 'Use default (gpt-4o-mini)' },
-    { value: 'gpt-4o', label: 'gpt-4o (quality)' },
-    { value: 'gpt-4o-mini', label: 'gpt-4o-mini (fast & cost effective)' },
-    { value: 'gpt-4.1', label: 'gpt-4.1 (premium)' }
-  ],
-  gemini: [
-    { value: '', label: 'Use default (gemini-1.5-flash)' },
-    { value: 'gemini-1.5-pro', label: 'gemini-1.5-pro (quality)' },
-    { value: 'gemini-1.5-flash', label: 'gemini-1.5-flash (fast)' }
-  ],
-  openrouter: [
-    { value: '', label: 'Use default (openai/gpt-3.5-turbo)' },
-    { value: 'openai/gpt-4o', label: 'openai/gpt-4o (quality)' },
-    { value: 'openai/gpt-3.5-turbo', label: 'openai/gpt-3.5-turbo (fast & low cost)' },
-    { value: 'mistralai/mistral-large', label: 'mistralai/mistral-large (balanced)' }
-  ]
-};
+import { getModelOptionsForProvider, providerOptions } from '../providerConfig.ts';
 
 const Module0DataLoader: FunctionalComponent<ValueBotModuleProps> = ({ context, onUpdateContext }) => {
   const valueBot = useContext(ValueBotContext);
@@ -162,7 +137,7 @@ IMPORTANT
     }
   };
 
-  const providerModelOptions = modelOptions[config.provider as keyof typeof modelOptions] ?? modelOptions.openai;
+  const providerModelOptions = getModelOptionsForProvider(config.provider);
 
   const pipelineSteps: { key: DeepDivePipelineStep; label: string }[] = [
     { key: 'module0', label: 'Module 0 — Data Loader' },

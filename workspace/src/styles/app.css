@@ -62,6 +62,11 @@ body[data-theme='dark'] {
   background: rgba(87, 102, 138, 0.08);
 }
 
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
 .universe-actions-cell {
   position: relative;
 }
@@ -431,6 +436,28 @@ body[data-theme='dark'] {
 .valuebot-tab.active {
   background: var(--accent, #2563eb);
   border-color: var(--accent, #2563eb);
+  color: #fff;
+}
+
+.valuebot-tab--batch {
+  border-color: rgba(16, 185, 129, 0.45);
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(59, 130, 246, 0.08));
+}
+
+.valuebot-tab--batch.active {
+  background: linear-gradient(135deg, #10b981, #22d3ee);
+  border-color: #22d3ee;
+  color: #fff;
+}
+
+.valuebot-tab--quicktake {
+  border-color: rgba(251, 146, 60, 0.5);
+  background: linear-gradient(135deg, rgba(251, 146, 60, 0.16), rgba(245, 158, 11, 0.12));
+}
+
+.valuebot-tab--quicktake.active {
+  background: linear-gradient(135deg, #fb923c, #f59e0b);
+  border-color: #fb923c;
   color: #fff;
 }
 
