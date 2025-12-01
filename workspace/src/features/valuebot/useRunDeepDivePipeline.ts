@@ -424,6 +424,7 @@ export const useRunDeepDivePipeline = () => {
     const ticker = config.ticker?.trim();
 
     let latestContext = { ...currentContext };
+    let latestModule6Markdown = '';
     let latestProgress: DeepDivePipelineProgress = {
       ...(currentContext?.pipelineProgress ?? defaultPipelineProgress),
       steps: createInitialSteps()
@@ -651,20 +652,20 @@ export const useRunDeepDivePipeline = () => {
             module3Output || currentContext?.module3Markdown,
             module4Output || currentContext?.module4Markdown,
             module5Output || currentContext?.module5Markdown
-          ),
+        ),
         (output) => {
           latestContext = {
             ...latestContext,
             module6Markdown: output,
             module6Output: output
           };
+          latestModule6Markdown = (output || '').trim();
           updateContext(latestContext);
         }
       );
 
       const module6Markdown = (module6Output || latestContext?.module6Markdown || '').trim();
       const tickerSymbol = latestContext?.deepDiveConfig?.ticker?.trim() || '';
-      const missingModule6Message = 'Module 6 MASTER markdown is required to generate the score summary.';
 
       console.debug('[ValueBot] Starting Step 7 — Score Summary', {
         ticker: tickerSymbol,
@@ -682,37 +683,21 @@ export const useRunDeepDivePipeline = () => {
         }
       }));
 
-      if (!module6Markdown) {
-        safeSetProgress((prev) => ({
-          ...prev,
-          status: 'error',
-          currentStep: 7,
-          steps: {
-            ...prev.steps,
-            scoreSummary: 'error'
-          },
-          errorMessage: missingModule6Message
-        }));
-        console.debug('[ValueBot] Step 7 skipped — missing Module 6 markdown', { ticker: tickerSymbol });
-        return buildResult();
-      }
-
       try {
-        const { error, meta } = await runMasterMetaSummary({ markdownOverride: module6Markdown });
+        const primaryMarkdown = (latestModule6Markdown && latestModule6Markdown.trim()) || undefined;
+        let { meta, error } = await runMasterMetaSummary(primaryMarkdown);
 
-        if (error) {
-          console.debug('[ValueBot] Step 7 meta generation failed', { ticker: tickerSymbol, error });
-          safeSetProgress((prev) => ({
-            ...prev,
-            status: 'error',
-            currentStep: 7,
-            steps: {
-              ...prev.steps,
-              scoreSummary: 'error'
-            },
-            errorMessage: error
-          }));
-        } else {
+        const needsRetry =
+          !meta &&
+          Boolean(error) &&
+          error.toLowerCase().includes('master markdown is required');
+
+        if (needsRetry) {
+          await new Promise((resolve) => setTimeout(resolve, 300));
+          ({ meta, error } = await runMasterMetaSummary(primaryMarkdown));
+        }
+
+        if (meta) {
           latestContext = {
             ...latestContext,
             masterMeta: meta ?? null
@@ -735,9 +720,26 @@ export const useRunDeepDivePipeline = () => {
               scoreSummary: 'done'
             }
           }));
+        } else {
+          const fallbackMessage =
+            error ||
+            'Unable to generate score summary automatically. You can open Module 6 and click “Update score summary” or “Save to Universe” to refresh it manually.';
+          console.debug('[ValueBot] Step 7 meta generation failed', { ticker: tickerSymbol, error: fallbackMessage });
+          safeSetProgress((prev) => ({
+            ...prev,
+            status: 'error',
+            currentStep: 7,
+            steps: {
+              ...prev.steps,
+              scoreSummary: 'error'
+            },
+            errorMessage: fallbackMessage
+          }));
         }
       } catch (err: any) {
-        const errorMessage = err?.message || 'Unexpected error in Step 7';
+        const errorMessage =
+          err?.message ||
+          'Unexpected error while generating score summary. Try rerunning or update it from Module 6.';
         console.debug('[ValueBot] Step 7 meta generation threw', { ticker: tickerSymbol, errorMessage });
         safeSetProgress((prev) => ({
           ...prev,

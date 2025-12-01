@@ -1,35 +1,38 @@
-import { useCallback, useContext, useMemo, useState } from 'preact/hooks';
-import { ValueBotContext, ValueBotMasterMeta } from './types.ts';
-
-export type RunMasterMetaArgs = {
-  markdownOverride?: string;
-};
+import { useCallback, useContext, useEffect, useMemo, useState } from 'preact/hooks';
+import { ValueBotContext, ValueBotMasterMeta, ValueBotAnalysisContext } from './types.ts';
 
 type RunMasterMetaSummaryResult = {
-  meta: ValueBotMasterMeta | null;
-  error: string | null;
+  meta?: ValueBotMasterMeta | null;
+  error?: string | null;
 };
 
 const DEFAULT_ERROR_MESSAGE = 'Unable to generate score summary right now.';
 
 export function useRunMasterMetaSummary() {
   const valueBot = useContext(ValueBotContext);
+  const [localContext, setLocalContext] = useState<ValueBotAnalysisContext | null>(valueBot?.context ?? null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastMeta, setLastMeta] = useState<ValueBotMasterMeta | null>(null);
 
-  const runMasterMetaSummary = useCallback(
-    async (opts?: RunMasterMetaArgs): Promise<RunMasterMetaSummaryResult> => {
-      const resolvedContext = valueBot?.context;
-      const sourceMarkdown =
-        opts?.markdownOverride?.trim() || resolvedContext?.module6Markdown?.trim() || '';
+  useEffect(() => {
+    if (valueBot?.context) {
+      setLocalContext(valueBot.context);
+    }
+  }, [valueBot?.context]);
 
-      if (!sourceMarkdown) {
+  const runMasterMetaSummary = useCallback(
+    async (markdownOverride?: string): Promise<RunMasterMetaSummaryResult> => {
+      const resolvedContext = valueBot?.context ?? localContext;
+      const contextMarkdown = resolvedContext?.module6Markdown?.trim() || '';
+      const markdown = (markdownOverride && markdownOverride.trim()) || contextMarkdown;
+
+      if (!markdown) {
         const message = 'Module 6 MASTER markdown is required to generate the score summary.';
         setError(message);
         setLastMeta(null);
         console.error('[ValueBot] Skipping MASTER meta generation — missing Module 6 markdown.');
-        return { meta: null, error: message };
+        return { error: message };
       }
 
       setLoading(true);
@@ -46,7 +49,8 @@ export function useRunMasterMetaSummary() {
             model: resolvedContext?.deepDiveConfig?.model || null,
             ticker: resolvedContext?.deepDiveConfig?.ticker?.trim() || '',
             companyName: resolvedContext?.companyName?.trim() || null,
-            module6Markdown: sourceMarkdown,
+            module6Markdown: markdown,
+            markdown,
             response_format: 'json_object'
           })
         });
@@ -85,10 +89,13 @@ export function useRunMasterMetaSummary() {
         setLoading(false);
       }
     },
-    [valueBot]
+    [localContext, valueBot]
   );
 
-  const masterMetaFromContext = useMemo(() => valueBot?.context?.masterMeta ?? null, [valueBot?.context?.masterMeta]);
+  const masterMetaFromContext = useMemo(
+    () => valueBot?.context?.masterMeta ?? localContext?.masterMeta ?? null,
+    [localContext?.masterMeta, valueBot?.context?.masterMeta]
+  );
   const resolvedMeta = lastMeta ?? masterMetaFromContext;
 
   return {
