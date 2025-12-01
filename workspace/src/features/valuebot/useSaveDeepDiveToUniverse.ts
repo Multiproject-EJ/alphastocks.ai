@@ -97,9 +97,9 @@ export const useSaveDeepDiveToUniverse = () => {
     const compositeScore =
       typeof masterMeta?.composite_score === 'number' ? masterMeta.composite_score : null;
 
-    const provider = deepDiveConfig?.provider?.trim() || 'openai';
-    const rawModel = (deepDiveConfig?.model || '').trim();
-    const lastModel = rawModel ? `${provider}:${rawModel}` : provider || null;
+    const trimmedProvider = (deepDiveConfig?.provider || 'openai').trim();
+    const trimmedModel = (deepDiveConfig?.model || '').trim();
+    const modelSnapshot = trimmedModel ? `${trimmedProvider}:${trimmedModel}` : trimmedProvider;
 
     try {
       const { error } = await supabase.from('valuebot_deep_dives').insert(payload);
@@ -123,7 +123,7 @@ export const useSaveDeepDiveToUniverse = () => {
         last_composite_score: compositeScore,
         // Snapshot of the model used for the latest MASTER deep dive; this will not retroactively change
         // if default models are updated later.
-        last_model: lastModel || null
+        last_model: modelSnapshot || null
       };
 
       const companyName = (payload?.company_name as string | null) || tickerSymbol || null;
@@ -148,7 +148,7 @@ export const useSaveDeepDiveToUniverse = () => {
           metadataWarning =
             "Saved, but couldn't refresh Risk / Quality / Timing / Score. Check console logs and Module 6 JSON block.";
           setSaveWarning(metadataWarning);
-          console.error('Universe upsert failed', universeError);
+          console.error('Universe upsert failed', universeError, universePayload);
         } else {
           console.info(
             `[ValueBot] Linked deep dive ticker ${universePayload.symbol} to investment_universe for user ${user?.id ?? 'anon'}`
@@ -158,7 +158,7 @@ export const useSaveDeepDiveToUniverse = () => {
         metadataWarning =
           "Saved, but couldn't refresh Risk / Quality / Timing / Score. Check console logs and Module 6 JSON block.";
         setSaveWarning(metadataWarning);
-        console.error('Universe upsert failed', universeError);
+        console.error('Universe upsert failed', universeError, universePayload);
       }
 
       setSaveSuccess(true);
