@@ -16,29 +16,54 @@ type InvestmentUniverseInsert = {
   last_composite_score?: number | null;
 };
 
-type DeepDiveSummary = {
-  risk?: string;
-  quality?: string;
-  timing?: string;
+/**
+ * The MASTER summary JSON returned by Module 6 is intended to mirror the standardized
+ * tables in the MASTER markdown. We expect a fenced ```json block with keys like:
+ * {
+ *   "summary": "...",
+ *   "risk": "Low",
+ *   "quality": "World Class",
+ *   "timing": "Buy",
+ *   "composite_score": 7.8
+ * }
+ *
+ * This helper is defensive: it will try the first fenced ```json block, then fall back
+ * to the first/last braces in the markdown. On any parse issue it returns null so the
+ * save flow can still proceed without blocking the user.
+ */
+type MasterSummary = {
+  risk_label?: string;
+  quality_label?: string;
+  timing_label?: string;
   composite_score?: number;
 };
 
-const extractSummaryFromModule6 = (markdown: string): DeepDiveSummary => {
-  if (!markdown?.includes('```')) {
-    return {};
+function extractMasterSummaryFromMarkdown(markdown: string): MasterSummary | null {
+  if (!markdown) return null;
+
+  const fencedMatch = markdown.match(/```json\s*([\s\S]*?)```/i);
+  let jsonCandidate: string | null = fencedMatch?.[1]?.trim() || null;
+
+  if (!jsonCandidate) {
+    const firstBrace = markdown.indexOf('{');
+    const lastBrace = markdown.lastIndexOf('}');
+    if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+      jsonCandidate = markdown.slice(firstBrace, lastBrace + 1);
+    }
   }
 
-  const match = markdown.match(/```json\s*([\s\S]*?)```/i);
-  if (!match?.[1]) {
-    return {};
+  if (!jsonCandidate) {
+    console.warn('[ValueBot] No JSON block found in Module 6 MASTER markdown.');
+    return null;
   }
 
   try {
-    const parsed = JSON.parse(match[1]);
+    const parsed = JSON.parse(jsonCandidate);
+    const source = parsed?.summary && typeof parsed.summary === 'object' ? parsed.summary : parsed;
 
     const pickString = (keys: string[]) => {
       for (const key of keys) {
-        const value = parsed?.[key];
+        const value = source?.[key];
         if (typeof value === 'string') return value;
       }
       return undefined;
@@ -46,7 +71,7 @@ const extractSummaryFromModule6 = (markdown: string): DeepDiveSummary => {
 
     const pickNumber = (keys: string[]) => {
       for (const key of keys) {
-        const value = parsed?.[key];
+        const value = source?.[key];
         if (typeof value === 'number') return value;
         if (typeof value === 'string') {
           const parsedNumber = Number.parseFloat(value);
@@ -56,17 +81,20 @@ const extractSummaryFromModule6 = (markdown: string): DeepDiveSummary => {
       return undefined;
     };
 
-    return {
-      risk: pickString(['risk', 'risk_label', 'riskLabel']),
-      quality: pickString(['quality', 'quality_label', 'qualityLabel']),
-      timing: pickString(['timing', 'timing_label', 'timingLabel']),
+    const summary: MasterSummary = {
+      risk_label: pickString(['risk', 'risk_label', 'riskLabel']),
+      quality_label: pickString(['quality', 'quality_label', 'qualityLabel']),
+      timing_label: pickString(['timing', 'timing_label', 'timingLabel']),
       composite_score: pickNumber(['composite_score', 'score', 'overall_score', 'compositeScore'])
     };
+
+    console.info('[ValueBot] Parsed MASTER summary from Module 6:', summary);
+    return summary;
   } catch (error) {
     console.warn('[ValueBot] Unable to parse Module 6 MASTER summary JSON.', error);
-    return {};
+    return null;
   }
-};
+}
 
 // Persists the full deep-dive (modules 0–6) to Supabase so the Investing Universe can read it later.
 // Expected table: valuebot_deep_dives
@@ -152,7 +180,7 @@ export const useSaveDeepDiveToUniverse = () => {
 
     const { payload } = validation;
     const module6Markdown = (payload?.module6_markdown as string) || '';
-    const summary = extractSummaryFromModule6(module6Markdown);
+    const summary = extractMasterSummaryFromMarkdown(module6Markdown);
 
     try {
       const { error } = await supabase.from('valuebot_deep_dives').insert(payload);
@@ -166,16 +194,37 @@ export const useSaveDeepDiveToUniverse = () => {
       let universeWarning: string | null = null;
 
       if (user?.id) {
+        if (!summary) {
+          const parsingWarning =
+            'Unable to parse MASTER summary JSON. Deep dive saved, but Investing Universe metadata was not updated.';
+          console.warn('[ValueBot] Deep dive saved, but MASTER summary could not be parsed for investment_universe payload.');
+          setSaveWarning(parsingWarning);
+          universeWarning = parsingWarning;
+        }
+
         const investmentUniversePayload: InvestmentUniverseInsert = {
           symbol: (payload?.ticker as string) || '',
           name: (payload?.company_name as string | null) || (payload?.ticker as string) || null,
           profile_id: user.id,
-          last_deep_dive_at: new Date().toISOString(),
-          last_risk_label: summary.risk || null,
-          last_quality_label: summary.quality || null,
-          last_timing_label: summary.timing || null,
-          last_composite_score: typeof summary.composite_score === 'number' ? summary.composite_score : null
+          ...(summary
+            ? {
+                last_deep_dive_at: new Date().toISOString(),
+                last_risk_label: summary.risk_label || null,
+                last_quality_label: summary.quality_label || null,
+                last_timing_label: summary.timing_label || null,
+                last_composite_score:
+                  typeof summary.composite_score === 'number' ? summary.composite_score : null
+              }
+            : {})
         };
+
+        console.info('[ValueBot] Upserting investment_universe payload:', {
+          symbol: investmentUniversePayload.symbol,
+          last_risk_label: investmentUniversePayload.last_risk_label,
+          last_quality_label: investmentUniversePayload.last_quality_label,
+          last_timing_label: investmentUniversePayload.last_timing_label,
+          last_composite_score: investmentUniversePayload.last_composite_score
+        });
 
         try {
           const { error: universeError } = await supabase
