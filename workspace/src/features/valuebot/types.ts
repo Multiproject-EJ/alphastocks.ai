@@ -83,18 +83,28 @@ export interface InvestmentUniverseRow {
   last_model?: string | null;
 }
 
-export interface QueueJob {
+export type ValueBotQueueStatus = 'pending' | 'running' | 'succeeded' | 'failed' | 'skipped';
+
+export interface ValueBotQueueJob {
   id: string;
   created_at: string;
+  user_id: string | null;
   ticker: string;
-  company_name?: string | null;
-  status: 'pending' | 'running' | 'succeeded' | 'failed' | 'skipped';
-  attempts: number;
+  company_name: string | null;
+  provider: string;
+  model: string | null;
+  timeframe: string | null;
+  custom_question: string | null;
+  status: ValueBotQueueStatus;
   priority: number;
-  scheduled_at?: string | null;
-  last_run_at?: string | null;
-  completed_at?: string | null;
-  last_error?: string | null;
+  attempts: number;
+  last_error: string | null;
+  scheduled_at: string | null;
+  started_at: string | null;
+  completed_at: string | null;
+  last_run_at: string | null;
+  deep_dive_id: string | null;
+  source: string;
 }
 
 export interface ValueBotAnalysisContext {

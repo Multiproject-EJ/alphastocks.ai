@@ -11,6 +11,7 @@ import Module3ScenarioEngine from './features/valuebot/modules/Module3ScenarioEn
 import Module4ValuationEngine from './features/valuebot/modules/Module4ValuationEngine.tsx';
 import Module5TimingMomentum from './features/valuebot/modules/Module5TimingMomentum.tsx';
 import Module6FinalVerdict from './features/valuebot/modules/Module6FinalVerdict.tsx';
+import BatchQueueTab from './features/valuebot/BatchQueueTab.tsx';
 import {
   ValueBotContext,
   defaultPipelineProgress,
@@ -98,6 +99,18 @@ const createInitialAlertState = () =>
   }, {});
 
 const valueBotTabs = [
+  {
+    id: 'valuebot-batch-queue',
+    label: 'Batch Queue',
+    title: 'Batch Queue — Deep-Dive Job Manager',
+    description: 'Add, monitor, and maintain jobs in the ValueBot deep-dive batch worker queue.',
+    component: BatchQueueTab,
+    bullets: [
+      'Insert pending deep-dive jobs scoped to your account.',
+      'Refresh the queue to track status, attempts, and errors.',
+      'Requeue or cancel entries without touching the worker logic.'
+    ]
+  },
   {
     id: 'valuebot-quicktake',
     label: 'QuickTake',
@@ -410,6 +423,10 @@ Return JSON containing:
     ]
   }
 ];
+
+const defaultValueBotTabId = 'valuebot-quicktake';
+const defaultValueBotTabLabel =
+  valueBotTabs.find((tab) => tab.id === defaultValueBotTabId)?.label ?? valueBotTabs[0].label;
 
 const sectionTabsById = {
   dashboard: dashboardTabs,
@@ -755,9 +772,12 @@ const App = () => {
     [...mainNavigation.map((item) => item.id), settingsNavItem.id].forEach((sectionId) => {
       initialMap[sectionId] = getSectionTabs(sectionId)[0];
     });
+    if (defaultValueBotTabLabel) {
+      initialMap.valuebot = defaultValueBotTabLabel;
+    }
     return initialMap;
   });
-  const [activeValueBotTab, setActiveValueBotTab] = useState(valueBotTabs[0].id);
+  const [activeValueBotTab, setActiveValueBotTab] = useState(defaultValueBotTabId);
   const [valueBotContext, setValueBotContext] = useState(() => ({
     ...defaultValueBotAnalysisContext,
     deepDiveConfig: { ...defaultValueBotAnalysisContext.deepDiveConfig }
@@ -2178,6 +2198,8 @@ const App = () => {
           <div className="detail-component valuebot-content-panel">
             {activeValueBotConfig?.id === 'valuebot-quicktake' ? (
               <AIAnalysis />
+            ) : activeValueBotConfig?.id === 'valuebot-batch-queue' ? (
+              <BatchQueueTab />
             ) : (
               <>
                 {activeValueBotConfig?.id === 'valuebot-data-loader' && <Module0DataLoader />}
@@ -2446,18 +2468,37 @@ const App = () => {
 
           <div className="workspace" id="workspace">
             <div className="app-tabs" role="tablist">
-              {tabsForSection.map((tab) => (
-                <button
-                  key={tab}
-                  className={`tab${activeTab === tab ? ' active' : ''}`}
-                  role="tab"
-                  aria-selected={activeTab === tab}
-                  onClick={() => handleTabSelection(tab)}
-                  type="button"
-                >
-                  {tab}
-                </button>
-              ))}
+              {tabsForSection.map((tab) => {
+                const valueBotTabConfig =
+                  activeSection === 'valuebot'
+                    ? valueBotTabs.find((item) => item.label === tab || item.id === tab)
+                    : null;
+
+                const tabClasses = ['tab'];
+                if (activeTab === tab) tabClasses.push('active');
+                if (valueBotTabConfig) {
+                  tabClasses.push('valuebot-tab');
+                  if (valueBotTabConfig.id === 'valuebot-batch-queue') {
+                    tabClasses.push('valuebot-tab--batch');
+                  }
+                  if (valueBotTabConfig.id === 'valuebot-quicktake') {
+                    tabClasses.push('valuebot-tab--quicktake');
+                  }
+                }
+
+                return (
+                  <button
+                    key={tab}
+                    className={tabClasses.join(' ')}
+                    role="tab"
+                    aria-selected={activeTab === tab}
+                    onClick={() => handleTabSelection(tab)}
+                    type="button"
+                  >
+                    {tab}
+                  </button>
+                );
+              })}
             </div>
 
             <div className="app-panels">
