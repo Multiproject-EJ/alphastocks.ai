@@ -776,6 +776,7 @@ const App = () => {
   const [newStockName, setNewStockName] = useState('');
   const [newStockSymbol, setNewStockSymbol] = useState('');
   const [editingUniverseId, setEditingUniverseId] = useState(null);
+  const [openUniverseActionsId, setOpenUniverseActionsId] = useState(null);
   const [editStockName, setEditStockName] = useState('');
   const [editStockSymbol, setEditStockSymbol] = useState('');
   const [universeMutationError, setUniverseMutationError] = useState(null);
@@ -1244,6 +1245,27 @@ const App = () => {
     [cancelUniverseEdit, dataService, editingUniverseId, isUniverseMutating, universeRows]
   );
 
+  const handleUniverseDeleteWithConfirm = useCallback(
+    async (row) => {
+      if (!row?.id) {
+        return;
+      }
+
+      const label = row.name || row.symbol || row.ticker || 'this entry';
+      const confirmed = window.confirm(
+        `Delete ${label} from your Investing Universe? This will not delete any saved deep dives.`
+      );
+
+      if (!confirmed) {
+        return;
+      }
+
+      await handleUniverseDelete(row.id);
+      setOpenUniverseActionsId((current) => (current === row.id ? null : current));
+    },
+    [handleUniverseDelete]
+  );
+
   useEffect(() => {
     document.body.setAttribute('data-theme', theme);
   }, [theme]);
@@ -1342,8 +1364,33 @@ const App = () => {
         }
 
         return prev;
-      });
+    });
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!(event.target instanceof Element)) return;
+
+      const actionsCell = event.target.closest('.universe-actions-cell');
+      if (!actionsCell) {
+        setOpenUniverseActionsId(null);
+      }
     };
+
+    const handleEscape = (event) => {
+      if (event.key === 'Escape') {
+        setOpenUniverseActionsId(null);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    document.addEventListener('keydown', handleEscape);
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, []);
 
     syncMorningNewsWindow();
     const timer = window.setInterval(syncMorningNewsWindow, 60 * 1000);
@@ -1889,7 +1936,7 @@ const App = () => {
                     {hasDeepDive ? 'Deep Dive' : 'No Deep Dive'}
                   </button>
                 </td>
-                <td>
+                <td className="universe-actions-cell">
                   {editingUniverseId === row.id ? (
                     <div className="table-actions">
                       <button
@@ -1919,37 +1966,63 @@ const App = () => {
                     <div className="table-actions">
                       <button
                         type="button"
-                        className="btn-secondary"
+                        className="btn-secondary btn-compact universe-actions-trigger"
                         onClick={(event) => {
                           event.stopPropagation();
-                          setSelectedUniverseRowId(row.id);
+                          setOpenUniverseActionsId((current) =>
+                            current === row.id ? null : row.id
+                          );
                         }}
                         disabled={isUniverseMutating}
+                        aria-expanded={openUniverseActionsId === row.id}
+                        aria-haspopup="menu"
                       >
-                        View
+                        Actions
                       </button>
-                      <button
-                        type="button"
-                        className="btn-secondary"
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          beginUniverseEdit(row);
-                        }}
-                        disabled={isUniverseMutating}
-                      >
-                        Edit
-                      </button>
-                      <button
-                        type="button"
-                        className="btn-secondary"
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          handleUniverseDelete(row.id);
-                        }}
-                        disabled={isUniverseMutating}
-                      >
-                        Delete
-                      </button>
+                      {openUniverseActionsId === row.id && (
+                        <div
+                          className="universe-actions-menu"
+                          role="menu"
+                          onClick={(event) => event.stopPropagation()}
+                        >
+                          <button
+                            type="button"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              setSelectedUniverseRowId(row.id);
+                              setOpenUniverseActionsId(null);
+                            }}
+                            disabled={isUniverseMutating}
+                            role="menuitem"
+                          >
+                            View
+                          </button>
+                          <button
+                            type="button"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              beginUniverseEdit(row);
+                              setOpenUniverseActionsId(null);
+                            }}
+                            disabled={isUniverseMutating}
+                            role="menuitem"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            type="button"
+                            className="danger"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              handleUniverseDeleteWithConfirm(row);
+                            }}
+                            disabled={isUniverseMutating}
+                            role="menuitem"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      )}
                     </div>
                   )}
                 </td>
