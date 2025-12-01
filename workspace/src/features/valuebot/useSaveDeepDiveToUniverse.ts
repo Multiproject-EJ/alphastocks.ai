@@ -97,9 +97,8 @@ export const useSaveDeepDiveToUniverse = () => {
     const compositeScore =
       typeof masterMeta?.composite_score === 'number' ? masterMeta.composite_score : null;
 
-    const trimmedProvider = (deepDiveConfig?.provider || 'openai').trim();
-    const trimmedModel = (deepDiveConfig?.model || '').trim();
-    const modelSnapshot = trimmedModel ? `${trimmedProvider}:${trimmedModel}` : trimmedProvider;
+    const rawModel = deepDiveConfig?.model?.trim() || null;
+    const modelSnapshot = rawModel || null;
 
     try {
       const { error } = await supabase.from('valuebot_deep_dives').insert(payload);
@@ -123,7 +122,7 @@ export const useSaveDeepDiveToUniverse = () => {
         last_composite_score: compositeScore,
         // Snapshot of the model used for the latest MASTER deep dive; this will not retroactively change
         // if default models are updated later.
-        last_model: modelSnapshot || null
+        last_model: modelSnapshot
       };
 
       const companyName = (payload?.company_name as string | null) || tickerSymbol || null;
