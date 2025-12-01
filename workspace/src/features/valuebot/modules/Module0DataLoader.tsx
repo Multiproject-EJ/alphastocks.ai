@@ -163,7 +163,8 @@ IMPORTANT
     { key: 'module3', label: 'Module 3 — Scenario Engine' },
     { key: 'module4', label: 'Module 4 — Valuation Engine' },
     { key: 'module5', label: 'Module 5 — Timing & Momentum' },
-    { key: 'module6', label: 'Module 6 — Final Verdict' }
+    { key: 'module6', label: 'Module 6 — Final Verdict' },
+    { key: 'module7', label: 'Step 7 — Score Summary' }
   ];
 
   const isPipelineRunning = pipelineProgress?.status === 'running';
@@ -247,8 +248,8 @@ IMPORTANT
         <div className="detail-divider" aria-hidden="true" />
         <h4>Run Full Deep Dive</h4>
         <p className="detail-meta">
-          Runs Modules 0–6 in sequence using separate AI calls for each step. You can still run any module individually at any
-          time.
+          Runs Modules 0–7 in sequence using separate AI calls for each step, finishing with the score summary. You can still
+          run any module individually at any time.
         </p>
         <button
           type="button"
@@ -257,7 +258,7 @@ IMPORTANT
           disabled={isPipelineRunning}
           aria-busy={isPipelineRunning}
         >
-          {isPipelineRunning ? 'Running full deep dive…' : 'Run Full Deep Dive (0–6)'}
+          {isPipelineRunning ? 'Running full deep dive…' : 'Run Full Deep Dive (0–7)'}
         </button>
         {pipelineProgress?.status === 'error' && pipelineProgress?.errorMessage && (
           <div className="ai-error" role="alert">
@@ -266,7 +267,7 @@ IMPORTANT
         )}
         {pipelineProgress?.status === 'success' && (
           <div className="detail-meta" role="status">
-            Deep dive complete. Review the modules 0–6 results or re-run individual steps if needed.
+            Deep dive complete. Review the modules 0–7 results or re-run individual steps if needed.
           </div>
         )}
         <div className="detail-meta" style={{ marginTop: '0.75rem' }}>

@@ -14,7 +14,7 @@ export type DeepDiveStepStatus = 'pending' | 'running' | 'done' | 'error';
 
 export interface DeepDivePipelineProgress {
   status: DeepDivePipelineStatus;
-  currentStep: 0 | 1 | 2 | 3 | 4 | 5 | 6 | null;
+  currentStep: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | null;
   steps: {
     module0: DeepDiveStepStatus;
     module1: DeepDiveStepStatus;
@@ -23,6 +23,7 @@ export interface DeepDivePipelineProgress {
     module4: DeepDiveStepStatus;
     module5: DeepDiveStepStatus;
     module6: DeepDiveStepStatus;
+    module7: DeepDiveStepStatus;
   };
   errorMessage?: string | null;
 }
@@ -85,7 +86,8 @@ export const defaultPipelineProgress: DeepDivePipelineProgress = {
     module3: 'pending',
     module4: 'pending',
     module5: 'pending',
-    module6: 'pending'
+    module6: 'pending',
+    module7: 'pending'
   },
   errorMessage: null
 };

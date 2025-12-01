@@ -14,7 +14,6 @@ const Module6FinalVerdict: FunctionalComponent<ValueBotModuleProps> = ({ context
   const [localError, setLocalError] = useState<string | null>(null);
   const [localWarning, setLocalWarning] = useState<string | null>(null);
   const [moduleOutput, setModuleOutput] = useState<string>(resolvedContext?.module6Markdown || '');
-  const [isSavingWithMeta, setIsSavingWithMeta] = useState(false);
 
   const deepDiveConfig = resolvedContext?.deepDiveConfig || {};
   const ticker = deepDiveConfig?.ticker?.trim();
@@ -50,8 +49,8 @@ const Module6FinalVerdict: FunctionalComponent<ValueBotModuleProps> = ({ context
   const { saveDeepDive, isSaving: isSavingDeepDive, saveError, saveWarning, saveSuccess } = useSaveDeepDiveToUniverse();
   const canSaveDeepDive = hasTicker && hasModule6Output;
   const masterMeta = hookMasterMeta ?? resolvedContext?.masterMeta ?? null;
-  const isBusy = isSavingWithMeta || isSavingDeepDive || isGeneratingMeta;
-  const saveButtonLabel = isSavingWithMeta ? 'Saving…' : 'Save to Universe';
+  const isBusy = isSavingDeepDive || isGeneratingMeta;
+  const saveButtonLabel = isSavingDeepDive ? 'Saving…' : 'Save to Universe';
 
   useEffect(() => {
     if (resolvedContext?.module6Markdown && resolvedContext.module6Markdown !== moduleOutput) {
@@ -186,10 +185,6 @@ ${MASTER_STOCK_ANALYSIS_INSTRUCTIONS}`;
   };
 
   const handleSaveToUniverse = async () => {
-    if (isSavingWithMeta) {
-      return;
-    }
-
     if (!hasTicker) {
       setLocalError('Run Module 0 to configure the deep dive first.');
       return;
@@ -202,23 +197,6 @@ ${MASTER_STOCK_ANALYSIS_INSTRUCTIONS}`;
 
     setLocalError(null);
     setLocalWarning(null);
-    setIsSavingWithMeta(true);
-
-    let meta = hookMasterMeta ?? resolvedContext?.masterMeta ?? null;
-
-    if (!meta && resolvedContext?.module6Markdown?.trim()) {
-      const { meta: generatedMeta, error: metaGenError } = await runMasterMetaSummary();
-
-      if (metaGenError && !generatedMeta) {
-        setLocalWarning(
-          'Score summary could not be generated. Saving deep dive without Risk/Quality/Timing/Score labels.'
-        );
-      }
-
-      if (generatedMeta) {
-        meta = generatedMeta;
-      }
-    }
 
     try {
       const result = await saveDeepDive();
@@ -228,8 +206,6 @@ ${MASTER_STOCK_ANALYSIS_INSTRUCTIONS}`;
       }
     } catch (err) {
       setLocalError(err?.message || 'Unable to save deep dive right now.');
-    } finally {
-      setIsSavingWithMeta(false);
     }
   };
 
@@ -373,8 +349,8 @@ ${MASTER_STOCK_ANALYSIS_INSTRUCTIONS}`;
       <div className="detail-card">
         <h4>Score summary (Risk / Quality / Timing / Score)</h4>
         <p className="detail-meta">
-          Scores are generated automatically the next time you save this deep dive. Use “Update score summary” if you want to
-          refresh them manually before saving.
+          Scores are generated automatically when you run the full deep-dive pipeline. Use “Update score summary” if you want
+          to refresh them manually.
         </p>
         {masterMeta ? (
           <dl className="detail-meta" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
@@ -405,11 +381,8 @@ ${MASTER_STOCK_ANALYSIS_INSTRUCTIONS}`;
       <div className="detail-card">
         <h4>Save deep-dive to Investing Universe</h4>
         <p className="detail-meta">
-          Save the complete ValueBot deep dive (Modules 0–6) and ensure this ticker is added to your Investing Universe
+          Save the complete ValueBot deep dive (Modules 0–7, including the score summary) and ensure this ticker is added to your Investing Universe
           tracker.
-        </p>
-        <p className="detail-meta">
-          Saving will also refresh Risk / Quality / Timing / Score from the MASTER report if needed.
         </p>
         <button
           type="button"

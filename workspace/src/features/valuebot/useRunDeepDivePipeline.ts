@@ -7,6 +7,7 @@ import {
   defaultDeepDiveConfig,
   defaultPipelineProgress
 } from './types.ts';
+import { useRunMasterMetaSummary } from './useRunMasterMetaSummary.ts';
 
 const createInitialSteps = () => ({
   module0: 'pending' as DeepDiveStepStatus,
@@ -15,7 +16,8 @@ const createInitialSteps = () => ({
   module3: 'pending' as DeepDiveStepStatus,
   module4: 'pending' as DeepDiveStepStatus,
   module5: 'pending' as DeepDiveStepStatus,
-  module6: 'pending' as DeepDiveStepStatus
+  module6: 'pending' as DeepDiveStepStatus,
+  module7: 'pending' as DeepDiveStepStatus
 });
 
 const buildModule0Prompt = (config = defaultDeepDiveConfig) => {
@@ -396,6 +398,7 @@ ${timingNote}`;
 export const useRunDeepDivePipeline = () => {
   const valueBot = useContext(ValueBotContext);
   const { runAnalysis } = useRunStockAnalysis();
+  const { runMasterMetaSummary } = useRunMasterMetaSummary();
   const currentContext = valueBot?.context;
   const updateContext = valueBot?.updateContext;
   const setPipelineProgress = valueBot?.setPipelineProgress;
@@ -606,18 +609,57 @@ export const useRunDeepDivePipeline = () => {
 
       safeSetProgress((prev) => ({
         ...prev,
-        status: 'success',
-        currentStep: null,
+        status: 'running',
+        currentStep: 7,
         errorMessage: null,
         steps: {
           ...prev.steps,
-          module6: 'done'
+          module7: 'running'
         }
       }));
+
+      try {
+        const { error } = await runMasterMetaSummary();
+
+        if (error) {
+          safeSetProgress((prev) => ({
+            ...prev,
+            status: 'error',
+            currentStep: 7,
+            steps: {
+              ...prev.steps,
+              module7: 'error'
+            },
+            errorMessage: error
+          }));
+        } else {
+          safeSetProgress((prev) => ({
+            ...prev,
+            status: 'success',
+            currentStep: null,
+            errorMessage: null,
+            steps: {
+              ...prev.steps,
+              module7: 'done'
+            }
+          }));
+        }
+      } catch (err: any) {
+        safeSetProgress((prev) => ({
+          ...prev,
+          status: 'error',
+          currentStep: 7,
+          steps: {
+            ...prev.steps,
+            module7: 'error'
+          },
+          errorMessage: err?.message || 'Unexpected error in Step 7'
+        }));
+      }
     } catch (error) {
       // Errors are handled inside runStep; no additional action required here.
     }
-  }, [currentContext, runAnalysis, setPipelineProgress, updateContext]);
+  }, [currentContext, runAnalysis, runMasterMetaSummary, setPipelineProgress, updateContext]);
 
   return { runPipeline, resetPipeline, pipelineProgress };
 };
