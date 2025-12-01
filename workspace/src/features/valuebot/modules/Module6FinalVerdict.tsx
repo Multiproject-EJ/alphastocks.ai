@@ -2,8 +2,9 @@ import { FunctionalComponent } from 'preact';
 import { useContext, useEffect, useMemo, useState } from 'preact/hooks';
 import { useRunStockAnalysis } from '../../ai-analysis/useRunStockAnalysis.ts';
 import { MASTER_STOCK_ANALYSIS_INSTRUCTIONS } from '../prompts/masterStockAnalysisPrompt.ts';
-import { ValueBotContext, ValueBotModuleProps } from '../types.ts';
+import { ValueBotContext, ValueBotMasterMeta, ValueBotModuleProps } from '../types.ts';
 import { useSaveDeepDiveToUniverse } from '../useSaveDeepDiveToUniverse.ts';
+import { useRunMasterMetaSummary } from '../useRunMasterMetaSummary.ts';
 
 const Module6FinalVerdict: FunctionalComponent<ValueBotModuleProps> = ({ context, onUpdateContext }) => {
   const valueBot = useContext(ValueBotContext);
@@ -12,6 +13,9 @@ const Module6FinalVerdict: FunctionalComponent<ValueBotModuleProps> = ({ context
   const { runAnalysis, loading, error, data } = useRunStockAnalysis();
   const [localError, setLocalError] = useState<string | null>(null);
   const [moduleOutput, setModuleOutput] = useState<string>(resolvedContext?.module6Markdown || '');
+  const [localMasterMeta, setLocalMasterMeta] = useState<ValueBotMasterMeta | null>(
+    resolvedContext?.masterMeta ?? null
+  );
 
   const deepDiveConfig = resolvedContext?.deepDiveConfig || {};
   const ticker = deepDiveConfig?.ticker?.trim();
@@ -30,6 +34,7 @@ const Module6FinalVerdict: FunctionalComponent<ValueBotModuleProps> = ({ context
   const module4Markdown = resolvedContext?.module4Markdown?.trim();
   const module5Markdown = resolvedContext?.module5Markdown?.trim();
   const module6Markdown = resolvedContext?.module6Markdown?.trim();
+  const { runMetaSummary, loading: isGeneratingMeta, error: metaError } = useRunMasterMetaSummary();
 
   const hasTicker = Boolean(ticker);
   const hasModule1Output = Boolean(module1Markdown);
@@ -38,6 +43,7 @@ const Module6FinalVerdict: FunctionalComponent<ValueBotModuleProps> = ({ context
   const hasModule4Output = Boolean(module4Markdown);
   const hasModule5Output = Boolean(module5Markdown);
   const hasModule6Output = Boolean(module6Markdown);
+  const hasModule6Text = Boolean((moduleOutput || module6Markdown || '').trim());
 
   const canRunModule = hasTicker && hasModule1Output && hasModule2Output && hasModule3Output && hasModule4Output;
 
@@ -49,6 +55,12 @@ const Module6FinalVerdict: FunctionalComponent<ValueBotModuleProps> = ({ context
       setModuleOutput(resolvedContext.module6Markdown);
     }
   }, [moduleOutput, resolvedContext?.module6Markdown]);
+
+  useEffect(() => {
+    if (resolvedContext?.masterMeta !== undefined && resolvedContext.masterMeta !== localMasterMeta) {
+      setLocalMasterMeta(resolvedContext.masterMeta ?? null);
+    }
+  }, [localMasterMeta, resolvedContext?.masterMeta]);
 
   const prompt = useMemo(() => {
     const tickerValue = ticker || '[Ticker not set]';
@@ -162,6 +174,27 @@ ${MASTER_STOCK_ANALYSIS_INSTRUCTIONS}`;
     }
   };
 
+  const handleGenerateMetaSummary = async () => {
+    if (!hasModule6Text || !ticker) {
+      return;
+    }
+
+    const markdownSource = (moduleOutput || module6Markdown || '').trim();
+
+    try {
+      const meta = await runMetaSummary({
+        deepDiveConfig,
+        module6Markdown: markdownSource,
+        companyName
+      });
+
+      setLocalMasterMeta(meta);
+      updateContext?.({ masterMeta: meta });
+    } catch (err) {
+      console.error('[ValueBot] Failed to generate MASTER meta summary', err);
+    }
+  };
+
   const prerequisites = [
     { label: 'Module 1 — Core Risk & Quality Diagnostics', complete: hasModule1Output },
     { label: 'Module 2 — Business Model & Growth Engine', complete: hasModule2Output },
@@ -269,6 +302,63 @@ ${MASTER_STOCK_ANALYSIS_INSTRUCTIONS}`;
         {data?.provider && (
           <p className="detail-meta" aria-live="polite">
             Provider: {data.provider} {data.modelUsed ? `• Model: ${data.modelUsed}` : ''}
+          </p>
+        )}
+        <div className="detail-meta" style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+          <button
+            type="button"
+            className="btn-secondary"
+            onClick={handleGenerateMetaSummary}
+            disabled={!hasModule6Text || isGeneratingMeta}
+            aria-busy={isGeneratingMeta}
+            title={!hasModule6Text ? 'Generate the MASTER report before requesting a score summary.' : undefined}
+          >
+            {isGeneratingMeta
+              ? 'Generating score summary…'
+              : localMasterMeta
+                ? 'Update score summary'
+                : 'Generate score summary'}
+          </button>
+          {!hasModule6Text && (
+            <span className="detail-meta" role="status">
+              Run Module 6 to enable the score summary.
+            </span>
+          )}
+          {metaError && (
+            <div className="ai-error" role="status">
+              {metaError}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="detail-card">
+        <h4>Score summary (Risk / Quality / Timing / Score)</h4>
+        <p className="detail-meta">
+          Generate a JSON-only summary from the MASTER markdown so the Investing Universe can track these labels reliably.
+        </p>
+        {localMasterMeta ? (
+          <dl className="detail-meta" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+            <div>
+              <dt>Risk</dt>
+              <dd>{localMasterMeta.risk_label}</dd>
+            </div>
+            <div>
+              <dt>Quality</dt>
+              <dd>{localMasterMeta.quality_label}</dd>
+            </div>
+            <div>
+              <dt>Timing</dt>
+              <dd>{localMasterMeta.timing_label}</dd>
+            </div>
+            <div>
+              <dt>Composite score</dt>
+              <dd>{localMasterMeta.composite_score}</dd>
+            </div>
+          </dl>
+        ) : (
+          <p className="detail-meta" role="status">
+            No score summary generated yet. Run the MASTER report, then click “Generate score summary.”
           </p>
         )}
       </div>

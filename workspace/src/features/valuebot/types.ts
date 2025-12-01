@@ -27,6 +27,13 @@ export interface DeepDivePipelineProgress {
   errorMessage?: string | null;
 }
 
+export type ValueBotMasterMeta = {
+  risk_label: string;
+  quality_label: string;
+  timing_label: string;
+  composite_score: number;
+};
+
 export interface ValueBotAnalysisContext {
   deepDiveConfig: ValueBotDeepDiveConfig;
   module0OutputMarkdown?: string | null;
@@ -50,6 +57,7 @@ export interface ValueBotAnalysisContext {
   valuationNotes?: string;
   timingNotes?: string;
   finalVerdict?: string;
+  masterMeta?: ValueBotMasterMeta | null;
   pipelineProgress?: DeepDivePipelineProgress;
 }
 
@@ -105,6 +113,7 @@ export const defaultValueBotAnalysisContext: ValueBotAnalysisContext = {
   valuationNotes: '',
   timingNotes: '',
   finalVerdict: '',
+  masterMeta: null,
   pipelineProgress: { ...defaultPipelineProgress }
 };
 
