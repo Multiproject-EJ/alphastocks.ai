@@ -2,7 +2,7 @@ import { FunctionalComponent } from 'preact';
 import { useContext, useEffect, useMemo, useState } from 'preact/hooks';
 import { useRunStockAnalysis } from '../../ai-analysis/useRunStockAnalysis.ts';
 import { MASTER_STOCK_ANALYSIS_INSTRUCTIONS } from '../prompts/masterStockAnalysisPrompt.ts';
-import { ValueBotContext, ValueBotMasterMeta, ValueBotModuleProps } from '../types.ts';
+import { ValueBotContext, ValueBotModuleProps } from '../types.ts';
 import { useSaveDeepDiveToUniverse } from '../useSaveDeepDiveToUniverse.ts';
 import { useRunMasterMetaSummary } from '../useRunMasterMetaSummary.ts';
 
@@ -14,9 +14,6 @@ const Module6FinalVerdict: FunctionalComponent<ValueBotModuleProps> = ({ context
   const [localError, setLocalError] = useState<string | null>(null);
   const [localWarning, setLocalWarning] = useState<string | null>(null);
   const [moduleOutput, setModuleOutput] = useState<string>(resolvedContext?.module6Markdown || '');
-  const [localMasterMeta, setLocalMasterMeta] = useState<ValueBotMasterMeta | null>(
-    resolvedContext?.masterMeta ?? null
-  );
 
   const deepDiveConfig = resolvedContext?.deepDiveConfig || {};
   const ticker = deepDiveConfig?.ticker?.trim();
@@ -51,40 +48,25 @@ const Module6FinalVerdict: FunctionalComponent<ValueBotModuleProps> = ({ context
   const hasModule6Output = Boolean(module6Markdown);
   const hasModule6Text = Boolean((moduleOutput || module6Markdown || '').trim());
 
-  const [isSaveFlowRunning, setIsSaveFlowRunning] = useState(false);
-  const [saveNeedsMeta, setSaveNeedsMeta] = useState(false);
-
   const canRunModule = hasTicker && hasModule1Output && hasModule2Output && hasModule3Output && hasModule4Output;
 
   const { saveDeepDive, isSaving: isSavingDeepDive, saveError, saveWarning, saveSuccess } = useSaveDeepDiveToUniverse();
   const canSaveDeepDive = hasTicker && hasModule6Output;
-  const masterMeta = localMasterMeta ?? resolvedMasterMeta ?? resolvedContext?.masterMeta ?? null;
+  const masterMeta = resolvedMasterMeta ?? resolvedContext?.masterMeta ?? null;
   const needsMeta =
     !masterMeta ||
     !masterMeta.risk_label ||
     !masterMeta.quality_label ||
     !masterMeta.timing_label ||
     typeof masterMeta.composite_score !== 'number';
-  const isBusy = isSavingDeepDive || isGeneratingMeta || isSaveFlowRunning;
-  const saveButtonLabel = isSaveFlowRunning
-    ? saveNeedsMeta
-      ? 'Generating scores + saving…'
-      : 'Saving…'
-    : isSavingDeepDive
-      ? 'Saving…'
-      : 'Save to Universe';
+  const isBusy = isSavingDeepDive || isGeneratingMeta;
+  const saveButtonLabel = isBusy ? 'Saving with score summary…' : 'Save to Universe';
 
   useEffect(() => {
     if (resolvedContext?.module6Markdown && resolvedContext.module6Markdown !== moduleOutput) {
       setModuleOutput(resolvedContext.module6Markdown);
     }
   }, [moduleOutput, resolvedContext?.module6Markdown]);
-
-  useEffect(() => {
-    if (resolvedContext?.masterMeta !== undefined && resolvedContext.masterMeta !== localMasterMeta) {
-      setLocalMasterMeta(resolvedContext.masterMeta ?? null);
-    }
-  }, [localMasterMeta, resolvedContext?.masterMeta]);
 
   const prompt = useMemo(() => {
     const tickerValue = ticker || '[Ticker not set]';
@@ -203,20 +185,16 @@ ${MASTER_STOCK_ANALYSIS_INSTRUCTIONS}`;
       return;
     }
 
-    const markdownSource = (moduleOutput || module6Markdown || '').trim();
     setLocalWarning(null);
 
-    const meta = await runMasterMetaSummary({
-      deepDiveConfig,
-      module6Markdown: markdownSource,
-      companyName
-    });
+    const { meta, error: metaGenerationError } = await runMasterMetaSummary();
 
     if (meta) {
-      setLocalMasterMeta(meta);
       updateContext?.({ masterMeta: meta });
-    } else {
-      setLocalWarning('Unable to refresh the score summary right now.');
+    }
+
+    if (metaGenerationError || !meta) {
+      setLocalWarning(metaGenerationError || 'Unable to refresh the score summary right now.');
     }
   };
 
@@ -234,29 +212,19 @@ ${MASTER_STOCK_ANALYSIS_INSTRUCTIONS}`;
       return;
     }
 
-    const markdownSource = (moduleOutput || module6Markdown || '').trim();
-
     try {
-      setSaveNeedsMeta(needsMeta);
-      setIsSaveFlowRunning(true);
-
       if (needsMeta) {
         console.log('[ValueBot] MASTER meta missing — generating before save.');
-        const generatedMeta = await runMasterMetaSummary({
-          deepDiveConfig,
-          module6Markdown: markdownSource,
-          companyName
-        });
+        const { meta, error: metaGenerationError } = await runMasterMetaSummary();
 
-        if (generatedMeta) {
-          setLocalMasterMeta(generatedMeta);
-          updateContext?.({ masterMeta: generatedMeta });
-        } else {
-          console.warn('[ValueBot] MASTER meta generation failed — proceeding to save without refreshing scores.');
-          setLocalWarning('Score summary could not be refreshed before saving. Proceeding without updated labels.');
+        if (meta) {
+          updateContext?.({ masterMeta: meta });
         }
-      } else {
-        console.log('[ValueBot] MASTER meta already available — skipping regeneration before save.');
+
+        if (metaGenerationError || !meta) {
+          console.warn('[ValueBot] MASTER meta generation failed — proceeding to save without refreshing scores.');
+          setLocalWarning('Could not generate score summary; saving deep dive without labels.');
+        }
       }
 
       const result = await saveDeepDive();
@@ -266,9 +234,6 @@ ${MASTER_STOCK_ANALYSIS_INSTRUCTIONS}`;
       }
     } catch (err) {
       setLocalError(err?.message || 'Unable to save deep dive right now.');
-    } finally {
-      setIsSaveFlowRunning(false);
-      setSaveNeedsMeta(false);
     }
   };
 
@@ -392,7 +357,7 @@ ${MASTER_STOCK_ANALYSIS_INSTRUCTIONS}`;
           >
             {isGeneratingMeta
               ? 'Generating score summary…'
-              : localMasterMeta
+              : masterMeta
                 ? 'Update score summary'
                 : 'Generate score summary'}
           </button>
@@ -415,23 +380,23 @@ ${MASTER_STOCK_ANALYSIS_INSTRUCTIONS}`;
           Scores are generated automatically the next time you save this deep dive. Use “Update score summary” if you want to
           refresh them manually before saving.
         </p>
-        {localMasterMeta || resolvedMasterMeta ? (
+        {masterMeta ? (
           <dl className="detail-meta" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
             <div>
               <dt>Risk</dt>
-              <dd>{(localMasterMeta || resolvedMasterMeta)?.risk_label}</dd>
+              <dd>{masterMeta?.risk_label}</dd>
             </div>
             <div>
               <dt>Quality</dt>
-              <dd>{(localMasterMeta || resolvedMasterMeta)?.quality_label}</dd>
+              <dd>{masterMeta?.quality_label}</dd>
             </div>
             <div>
               <dt>Timing</dt>
-              <dd>{(localMasterMeta || resolvedMasterMeta)?.timing_label}</dd>
+              <dd>{masterMeta?.timing_label}</dd>
             </div>
             <div>
               <dt>Composite score</dt>
-              <dd>{(localMasterMeta || resolvedMasterMeta)?.composite_score}</dd>
+              <dd>{masterMeta?.composite_score}</dd>
             </div>
           </dl>
         ) : (
