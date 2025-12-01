@@ -443,6 +443,8 @@ export const useRunDeepDivePipeline = () => {
       });
     };
 
+    let latestModule6Markdown = currentContext?.module6Markdown?.trim() || '';
+
     safeSetProgress({
       status: 'running',
       currentStep: 0,
@@ -608,7 +610,8 @@ export const useRunDeepDivePipeline = () => {
       );
 
       const refreshedContext = valueBot?.context ?? currentContext;
-      const module6Markdown = (module6Output || refreshedContext?.module6Markdown || '').trim();
+      latestModule6Markdown = (module6Output || refreshedContext?.module6Markdown || '').trim();
+      const module6Markdown = latestModule6Markdown;
       const ticker = refreshedContext?.deepDiveConfig?.ticker?.trim() || '';
       const missingModule6Message = 'Module 6 MASTER markdown is required to generate the score summary.';
 
@@ -648,7 +651,7 @@ export const useRunDeepDivePipeline = () => {
       }
 
       try {
-        const { error, meta } = await runMasterMetaSummary();
+        const { error, meta } = await runMasterMetaSummary(latestModule6Markdown);
 
         if (error) {
           console.debug('[ValueBot] Step 7 meta generation failed', { ticker, error });
