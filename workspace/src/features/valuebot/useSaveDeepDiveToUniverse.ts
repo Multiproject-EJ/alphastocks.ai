@@ -22,6 +22,19 @@ export const useSaveDeepDiveToUniverse = () => {
   const [saveWarning, setSaveWarning] = useState<string | null>(null);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
+  const resolveProviderAndModel = useCallback(
+    (
+      deepDiveConfig?: ValueBotAnalysisContext['deepDiveConfig']
+    ): { provider: string; modelSnapshot: string | null } => {
+      const provider = (deepDiveConfig?.provider || 'openai').trim();
+      const rawModel = (deepDiveConfig?.model || '').trim();
+      const modelSnapshot = rawModel || null;
+
+      return { provider, modelSnapshot };
+    },
+    []
+  );
+
   const validateAndBuildPayload = useCallback(
     (): { payload: Record<string, unknown> } | { error: string } => {
       const resolvedContext = valueBot?.context as ValueBotAnalysisContext | undefined;
@@ -31,8 +44,7 @@ export const useSaveDeepDiveToUniverse = () => {
       }
 
       const deepDiveConfig = resolvedContext.deepDiveConfig || {};
-      const provider = deepDiveConfig?.provider?.trim() || 'openai';
-      const rawModel = (deepDiveConfig?.model || '').trim();
+      const { provider, modelSnapshot } = resolveProviderAndModel(deepDiveConfig);
       const ticker = deepDiveConfig?.ticker?.trim();
       const module6Markdown = resolvedContext?.module6Markdown?.trim();
 
@@ -48,7 +60,7 @@ export const useSaveDeepDiveToUniverse = () => {
         payload: {
           ticker,
           provider,
-          model: rawModel || null,
+          model: modelSnapshot,
           timeframe: deepDiveConfig?.timeframe || null,
           custom_question: deepDiveConfig?.customQuestion || null,
           company_name: resolvedContext?.companyName?.trim() || null,
@@ -66,7 +78,7 @@ export const useSaveDeepDiveToUniverse = () => {
         }
       };
     },
-    [user?.id, valueBot]
+    [resolveProviderAndModel, user?.id, valueBot]
   );
 
   const saveDeepDive = useCallback(async (): Promise<SaveResult> => {
@@ -93,12 +105,10 @@ export const useSaveDeepDiveToUniverse = () => {
     const { payload } = validation;
     const resolvedContext = valueBot?.context as ValueBotAnalysisContext | undefined;
     const deepDiveConfig = resolvedContext?.deepDiveConfig || {};
+    const { modelSnapshot } = resolveProviderAndModel(deepDiveConfig);
     const masterMeta = resolvedContext?.masterMeta || null;
     const compositeScore =
       typeof masterMeta?.composite_score === 'number' ? masterMeta.composite_score : null;
-
-    const rawModel = deepDiveConfig?.model?.trim() || null;
-    const modelSnapshot = rawModel || null;
 
     try {
       const { error } = await supabase.from('valuebot_deep_dives').insert(payload);
@@ -136,7 +146,14 @@ export const useSaveDeepDiveToUniverse = () => {
         setSaveWarning(metadataWarning);
       }
 
-      console.log('[ValueBot] Upserting Investing Universe metadata:', universePayload);
+      console.log('[ValueBot] Universe upsert payload', {
+        ticker: tickerSymbol,
+        last_model: modelSnapshot,
+        last_risk_label: universePayload.last_risk_label,
+        last_quality_label: universePayload.last_quality_label,
+        last_timing_label: universePayload.last_timing_label,
+        last_composite_score: universePayload.last_composite_score
+      });
 
       try {
         const { error: universeError } = await supabase
@@ -169,7 +186,7 @@ export const useSaveDeepDiveToUniverse = () => {
     } finally {
       setIsSaving(false);
     }
-  }, [validateAndBuildPayload]);
+  }, [resolveProviderAndModel, validateAndBuildPayload]);
 
   return { saveDeepDive, isSaving, saveError, saveWarning, saveSuccess };
 };
