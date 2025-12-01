@@ -20,6 +20,8 @@ const BatchQueueTab: FunctionalComponent = () => {
   const [error, setError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isRunningWorker, setIsRunningWorker] = useState(false);
+  const [workerStatus, setWorkerStatus] = useState<string | null>(null);
   const [newTicker, setNewTicker] = useState('');
   const [newCompanyName, setNewCompanyName] = useState('');
   const [newTimeframe, setNewTimeframe] = useState('');
@@ -83,8 +85,8 @@ const BatchQueueTab: FunctionalComponent = () => {
     const timeframe = newTimeframe.trim();
     const customQuestion = newCustomQuestion.trim();
 
-    if (!ticker) {
-      setFormError('Ticker is required to queue a deep dive.');
+    if (!ticker && !companyName) {
+      setFormError('Enter a ticker, a company name, or both.');
       return;
     }
 
@@ -97,7 +99,7 @@ const BatchQueueTab: FunctionalComponent = () => {
     setFormError(null);
 
     const payload = {
-      ticker,
+      ticker: ticker || null,
       company_name: companyName || null,
       provider: newProvider,
       model: newModel?.trim() || null,
@@ -204,13 +206,12 @@ const BatchQueueTab: FunctionalComponent = () => {
 
         <form className="detail-grid" onSubmit={handleAddJob}>
           <label className="field">
-            <span>Ticker *</span>
+            <span>Ticker</span>
             <input
               type="text"
               placeholder="NVDA"
               value={newTicker}
               onInput={(event) => setNewTicker(event.currentTarget.value)}
-              required
             />
           </label>
 
@@ -223,6 +224,10 @@ const BatchQueueTab: FunctionalComponent = () => {
               onInput={(event) => setNewCompanyName(event.currentTarget.value)}
             />
           </label>
+
+          <p className="detail-meta" style={{ gridColumn: '1 / -1' }}>
+            You can add jobs with just a ticker, just a company name, or both. Use whatever you have.
+          </p>
 
           <label className="field">
             <span>Market / timeframe (optional)</span>
@@ -296,8 +301,45 @@ const BatchQueueTab: FunctionalComponent = () => {
             <button className="btn-secondary" type="button" onClick={loadJobs} disabled={isLoading}>
               {isLoading ? 'Loading…' : 'Refresh'}
             </button>
+            <button
+              className="btn-secondary"
+              type="button"
+              onClick={async () => {
+                if (isRunningWorker) return;
+                setWorkerStatus('Running batch worker…');
+                setIsRunningWorker(true);
+
+                try {
+                  const response = await fetch('/api/valuebot-batch-worker', { method: 'POST' });
+                  const payload = await response.json().catch(() => ({}));
+
+                  if (response.ok && payload?.ok !== false) {
+                    const processed = payload?.processed ?? 0;
+                    const remaining = payload?.remaining ?? 0;
+                    setWorkerStatus(`Worker finished: processed ${processed} jobs, remaining ${remaining}.`);
+                    loadJobs();
+                  } else {
+                    const message = payload?.error || payload?.message || 'Worker request failed.';
+                    setWorkerStatus(`Worker failed: ${message}`);
+                  }
+                } catch (err: any) {
+                  setWorkerStatus(`Worker failed: ${err?.message || 'Unexpected error.'}`);
+                } finally {
+                  setIsRunningWorker(false);
+                }
+              }}
+              disabled={isRunningWorker || isLoading}
+            >
+              {isRunningWorker ? 'Running…' : 'Run worker now'}
+            </button>
           </div>
         </div>
+
+        {workerStatus && (
+          <p className="detail-meta" role="status">
+            {workerStatus}
+          </p>
+        )}
 
         {error && (
           <p className="form-error" role="alert">
@@ -333,9 +375,10 @@ const BatchQueueTab: FunctionalComponent = () => {
                 {jobs.map((job) => {
                   const canRequeue = job.status === 'failed' || job.status === 'skipped' || job.status === 'succeeded';
                   const canCancel = job.status === 'pending' || job.status === 'running' || job.status === 'failed';
+                  const tickerLabel = job.ticker || '—';
                   return (
                     <tr key={job.id}>
-                      <td>{job.ticker}</td>
+                      <td>{tickerLabel}</td>
                       <td>{job.company_name || '—'}</td>
                       <td>{renderStatus(job.status)}</td>
                       <td>{job.provider || 'default'}</td>
