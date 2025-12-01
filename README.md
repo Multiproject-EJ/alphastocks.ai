@@ -78,6 +78,7 @@ Legend: ☐ not started • 🕒 in progress • ☑ done
 - 2025-11-01: Added `workspace/scripts/generateSupabaseSeed.js` to convert demo fixtures into SQL with optional CLI flags for alternate destinations or stdout. Mirrors Supabase's [seeding guide](https://supabase.com/docs/guides/database/seeding) and aligns with the CLI's [`supabase db seed`](https://supabase.com/docs/reference/cli/supabase-db-seed) workflow. Current live patch: `supabase/patches/001_create_investment_universe.sql` creates the lightweight `investment_universe` table without bulk demo rows.
 - 2025-11-05: Added `supabase/patches/002_valuebot_deep_dives.sql` documenting the `valuebot_deep_dives` table that stores full ValueBot deep-dive outputs (Modules 0–6) for each ticker.
 - 2025-11-08: Added `supabase/patches/003_investment_universe_deep_dive_metadata.sql` to capture the latest ValueBot deep-dive metadata (risk, quality, timing, composite score, and timestamp) on each `investment_universe` row.
+- 2025-11-09: Added `supabase/patches/004_investment_universe_last_model.sql` to capture the AI model string used for the latest MASTER deep dive on each `investment_universe` row.
 
 ### Feature: Today Dashboard
 - ☑ Design layout for dashboard cards (notable events, financial calendar, watchlist movers, headlines, market stats) using current UI patterns.
