@@ -54,16 +54,16 @@ Formatting rules:
 - Keep synthesis crisp; do not paste large sections from the sources.
 - If source material is missing, proceed but explicitly note the uncertainty.
 
-After you have finished the full markdown report, output a final fenced code block labeled json that contains only this object and nothing else:
+After you have finished the full markdown report, output a final fenced code block labeled json. At the very end of your answer, output a fenced JSON block like this (must be valid JSON, one object only, and the last fenced code block in the answer; tables + narrative can be above it):
 
 \`\`\`json
 {
-  "risk_label": "<Low | Medium | High>",
-  "quality_label": "<World Class | Excellent | Very Strong | Strong | Good | Average | Weak | Poor | Very Poor | Horrific>",
-  "timing_label": "<Buy | Hold | Wait | Avoid>",
-  "composite_score": X.X
+  "risk_label": "Low | Medium | High",
+  "quality_label": "World Class | Excellent | Very Strong | Strong | Good | Average | Weak | Poor | Very Poor | Horrific",
+  "timing_label": "Buy | Hold | Wait | Avoid",
+  "composite_score": 0.0
 }
 \`\`\`
 
-Do not include any extra keys, comments, or prose in this JSON block. Place this JSON block at the very end of the response.
+Do not include any extra keys, comments, or prose in this JSON block. It must be valid JSON and the final fenced block.
 `;

@@ -3,12 +3,12 @@ import { supabase } from '../../lib/supabaseClient.js';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { ValueBotContext, ValueBotAnalysisContext } from './types.ts';
 
-type SaveResult = { error?: string; universeWarning?: string };
+type SaveResult = { error?: string; metadataWarning?: string };
 
 type InvestmentUniverseInsert = {
   symbol: string;
   name: string | null;
-  profile_id: string;
+  profile_id: string | null;
   last_deep_dive_at?: string | null;
   last_risk_label?: string | null;
   last_quality_label?: string | null;
@@ -18,7 +18,7 @@ type InvestmentUniverseInsert = {
 
 /**
  * Extracts the strict MASTER summary JSON emitted by Module 6. Looks for the last fenced
- * ```json block in the markdown and parses it. Returns undefined on any failure so the
+ * ```json block in the markdown and parses it. Returns null on any failure so the
  * save flow can proceed without blocking the user.
  */
 type MasterSummary = {
@@ -28,32 +28,23 @@ type MasterSummary = {
   composite_score: number;
 };
 
-function extractMasterSummaryFromMarkdown(markdown: string): MasterSummary | undefined {
-  if (!markdown) return undefined;
+function extractMasterSummaryFromMarkdown(markdown: string): MasterSummary | null {
+  if (!markdown) return null;
 
-  const segments = markdown.split('```');
-  let lastJsonBlock: string | null = null;
+  const matches = [...markdown.matchAll(/```json\s*([\s\S]*?)\s*```/gi)];
+  const lastMatch = matches.at(-1);
 
-  for (const segment of segments) {
-    const trimmed = segment.trimStart();
-    if (trimmed.toLowerCase().startsWith('json')) {
-      const content = trimmed.slice('json'.length).trim();
-      if (content) {
-        lastJsonBlock = content;
-      }
-    }
-  }
-
-  if (!lastJsonBlock) {
-    console.warn('[ValueBot] Unable to parse MASTER JSON summary', {
-      error: 'No fenced json block found',
-      snippet: markdown.slice(0, 200)
+  if (!lastMatch || !lastMatch[1]) {
+    console.warn('ValueBot MASTER summary parse failed', {
+      reason: 'No fenced json block found',
+      markdownSnippet: markdown.slice(0, 400)
     });
-    return undefined;
+    return null;
   }
 
   try {
-    const parsed = JSON.parse(lastJsonBlock) as Record<string, unknown>;
+    const parsed = JSON.parse(lastMatch[1]);
+
     const compositeScoreValue =
       typeof parsed.composite_score === 'number'
         ? parsed.composite_score
@@ -61,34 +52,34 @@ function extractMasterSummaryFromMarkdown(markdown: string): MasterSummary | und
           ? Number.parseFloat(parsed.composite_score)
           : NaN;
 
-    if (
-      typeof parsed.risk_label !== 'string' ||
-      typeof parsed.quality_label !== 'string' ||
-      typeof parsed.timing_label !== 'string' ||
-      Number.isNaN(compositeScoreValue)
-    ) {
-      console.warn('[ValueBot] Unable to parse MASTER JSON summary', {
-        error: 'Missing required summary fields',
-        snippet: markdown.slice(0, 200)
-      });
-      return undefined;
-    }
-
     const summary: MasterSummary = {
-      risk_label: parsed.risk_label,
-      quality_label: parsed.quality_label,
-      timing_label: parsed.timing_label,
+      risk_label: typeof parsed.risk_label === 'string' ? parsed.risk_label.trim() : '',
+      quality_label: typeof parsed.quality_label === 'string' ? parsed.quality_label.trim() : '',
+      timing_label: typeof parsed.timing_label === 'string' ? parsed.timing_label.trim() : '',
       composite_score: compositeScoreValue
     };
 
-    console.info('[ValueBot] Parsed MASTER summary from Module 6:', summary);
+    if (
+      !summary.risk_label ||
+      !summary.quality_label ||
+      !summary.timing_label ||
+      !Number.isFinite(summary.composite_score)
+    ) {
+      console.warn('ValueBot MASTER summary parse failed', {
+        reason: 'Missing required fields',
+        markdownSnippet: markdown.slice(0, 400)
+      });
+      return null;
+    }
+
+    console.log('ValueBot MASTER summary parsed', summary);
     return summary;
   } catch (error) {
-    console.warn('[ValueBot] Unable to parse MASTER JSON summary', {
-      error,
-      snippet: markdown.slice(0, 200)
+    console.warn('ValueBot MASTER summary parse failed', {
+      reason: error instanceof Error ? error.message : 'Invalid JSON',
+      markdownSnippet: markdown.slice(0, 400)
     });
-    return undefined;
+    return null;
   }
 }
 
@@ -187,67 +178,65 @@ export const useSaveDeepDiveToUniverse = () => {
         return { error: message };
       }
 
-      let universeWarning: string | null = null;
+      let metadataWarning: string | null = null;
 
-      if (user?.id) {
-        if (!masterSummary) {
-          const parsingWarning =
-            'Unable to parse MASTER summary JSON. Deep dive saved, but Investing Universe metadata was not updated.';
-          console.warn('[ValueBot] Deep dive saved, but MASTER summary could not be parsed for investment_universe payload.');
-          setSaveWarning(parsingWarning);
-          universeWarning = parsingWarning;
-        }
+      const nowIso = new Date().toISOString();
+      const baseUniversePayload: InvestmentUniverseInsert = {
+        symbol: (payload?.ticker as string) || '',
+        name: (payload?.company_name as string | null) || (payload?.ticker as string) || null,
+        profile_id: user?.id ?? null,
+        last_deep_dive_at: nowIso
+      };
 
-        const investmentUniversePayload: InvestmentUniverseInsert = {
-          symbol: (payload?.ticker as string) || '',
-          name: (payload?.company_name as string | null) || (payload?.ticker as string) || null,
-          profile_id: user.id,
-          ...(masterSummary
-            ? {
-                last_deep_dive_at: new Date().toISOString(),
-                last_risk_label: masterSummary.risk_label,
-                last_quality_label: masterSummary.quality_label,
-                last_timing_label: masterSummary.timing_label,
-                last_composite_score: masterSummary.composite_score
-              }
-            : {})
-        };
-
-        console.info('[ValueBot] Upserting investment_universe payload:', {
-          symbol: investmentUniversePayload.symbol,
-          last_risk_label: investmentUniversePayload.last_risk_label,
-          last_quality_label: investmentUniversePayload.last_quality_label,
-          last_timing_label: investmentUniversePayload.last_timing_label,
-          last_composite_score: investmentUniversePayload.last_composite_score
-        });
-
-        try {
-          const { error: universeError } = await supabase
-            .from('investment_universe')
-            .upsert(investmentUniversePayload, { onConflict: 'profile_id,symbol' });
-
-          if (universeError) {
-            const warningMessage =
-              'Deep dive saved, but adding to Investing Universe failed. You can still add this ticker manually.';
-            setSaveWarning(warningMessage);
-            console.error('[ValueBot] Failed to link deep dive to investment_universe', universeError);
-            universeWarning = warningMessage;
-          } else {
-            console.info(
-              `[ValueBot] Linked deep dive ticker ${investmentUniversePayload.symbol} to investment_universe for user ${user.id}`
-            );
+      const metadata = masterSummary;
+      const universePayload: InvestmentUniverseInsert = metadata
+        ? {
+            ...baseUniversePayload,
+            last_risk_label: metadata.risk_label,
+            last_quality_label: metadata.quality_label,
+            last_timing_label: metadata.timing_label,
+            last_composite_score: metadata.composite_score
           }
-        } catch (universeError) {
-          const warningMessage =
-            'Deep dive saved, but adding to Investing Universe failed. You can still add this ticker manually.';
-          setSaveWarning(warningMessage);
-          console.error('[ValueBot] Exception while linking deep dive to investment_universe', universeError);
-          universeWarning = warningMessage;
+        : baseUniversePayload;
+
+      if (!metadata) {
+        metadataWarning =
+          "Saved, but couldn't refresh Risk / Quality / Timing / Score. Check console logs and Module 6 JSON block.";
+        setSaveWarning(metadataWarning);
+      }
+
+      console.info('[ValueBot] Upserting investment_universe payload:', {
+        symbol: universePayload.symbol,
+        last_risk_label: universePayload.last_risk_label,
+        last_quality_label: universePayload.last_quality_label,
+        last_timing_label: universePayload.last_timing_label,
+        last_composite_score: universePayload.last_composite_score
+      });
+
+      try {
+        const { error: universeError } = await supabase
+          .from('investment_universe')
+          .upsert(universePayload, { onConflict: 'profile_id,symbol' });
+
+        if (universeError) {
+          metadataWarning =
+            "Saved, but couldn't refresh Risk / Quality / Timing / Score. Check console logs and Module 6 JSON block.";
+          setSaveWarning(metadataWarning);
+          console.error('Universe upsert failed', universeError);
+        } else {
+          console.info(
+            `[ValueBot] Linked deep dive ticker ${universePayload.symbol} to investment_universe for user ${user?.id ?? 'anon'}`
+          );
         }
+      } catch (universeError) {
+        metadataWarning =
+          "Saved, but couldn't refresh Risk / Quality / Timing / Score. Check console logs and Module 6 JSON block.";
+        setSaveWarning(metadataWarning);
+        console.error('Universe upsert failed', universeError);
       }
 
       setSaveSuccess(true);
-      return universeWarning ? { universeWarning } : {};
+      return metadataWarning ? { metadataWarning } : {};
     } catch (err) {
       const message = err?.message || 'Unexpected error while saving deep dive.';
       setSaveError(message);
