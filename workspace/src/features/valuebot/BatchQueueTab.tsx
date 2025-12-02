@@ -169,6 +169,77 @@ const BatchQueueTab: FunctionalComponent = () => {
     await updateJobStatus(job, 'pending');
   };
 
+  const handleDeleteJob = async (jobId: string) => {
+    if (!isSupabaseReady) {
+      setWorkerStatus('Supabase is not configured.');
+      return;
+    }
+
+    const confirmed = window.confirm(
+      'Delete this job from the batch queue? This cannot be undone.'
+    );
+    if (!confirmed) return;
+
+    const { error: deleteError } = await supabase
+      .from('valuebot_analysis_queue')
+      .delete()
+      .eq('id', jobId);
+
+    if (deleteError) {
+      console.error('[BatchQueue] Failed to delete job', jobId, deleteError);
+      setWorkerStatus('Failed to delete job (see console).');
+      return;
+    }
+
+    setWorkerStatus('Job deleted from queue.');
+    await loadJobs();
+  };
+
+  const handleRunWorkerNow = useCallback(async () => {
+    if (isRunningWorker) return;
+
+    setIsRunningWorker(true);
+    setWorkerStatus('Running worker…');
+
+    try {
+      const response = await fetch('/api/valuebot-batch-worker', { method: 'POST' });
+
+      const rawText = await response.text();
+      let payload: any = null;
+
+      try {
+        payload = JSON.parse(rawText);
+      } catch (parseErr) {
+        console.error('[BatchQueue] Worker returned non-JSON response:', rawText);
+        setWorkerStatus('Worker failed: unexpected response format (see console).');
+        await loadJobs();
+        return;
+      }
+
+      if (!response.ok || !payload?.ok) {
+        console.error('[BatchQueue] Worker error payload:', payload);
+        setWorkerStatus(
+          `Worker failed: ${payload?.error || `status ${response.status}`}`
+        );
+        await loadJobs();
+        return;
+      }
+
+      const processed = payload.processed ?? 0;
+      const remaining = payload.remaining ?? 0;
+      setWorkerStatus(
+        `Worker finished: processed ${processed} jobs, remaining ${remaining}.`
+      );
+      await loadJobs();
+    } catch (err) {
+      console.error('[BatchQueue] Worker request failed:', err);
+      setWorkerStatus('Worker failed: network or server error (see console).');
+      await loadJobs();
+    } finally {
+      setIsRunningWorker(false);
+    }
+  }, [isRunningWorker, loadJobs]);
+
   const renderStatus = (status: ValueBotQueueStatus) => statusLabels[status] ?? status;
 
   return (
@@ -318,30 +389,7 @@ const BatchQueueTab: FunctionalComponent = () => {
               <button
                 className="btn-secondary"
                 type="button"
-                onClick={async () => {
-                  if (isRunningWorker) return;
-                  setWorkerStatus('Running batch worker…');
-                  setIsRunningWorker(true);
-
-                  try {
-                    const response = await fetch('/api/valuebot-batch-worker', { method: 'POST' });
-                    const payload = await response.json().catch(() => ({}));
-
-                    if (response.ok && payload?.ok !== false) {
-                      const processed = payload?.processed ?? 0;
-                      const remaining = payload?.remaining ?? 0;
-                      setWorkerStatus(`Worker finished: processed ${processed} jobs, remaining ${remaining}.`);
-                      loadJobs();
-                    } else {
-                      const message = payload?.error || payload?.message || 'Worker request failed.';
-                      setWorkerStatus(`Worker failed: ${message}`);
-                    }
-                  } catch (err: any) {
-                    setWorkerStatus(`Worker failed: ${err?.message || 'Unexpected error.'}`);
-                  } finally {
-                    setIsRunningWorker(false);
-                  }
-                }}
+                onClick={handleRunWorkerNow}
                 disabled={isRunningWorker || isLoading}
               >
                 {isRunningWorker ? 'Running…' : 'Run worker now'}
@@ -418,6 +466,14 @@ const BatchQueueTab: FunctionalComponent = () => {
                                 Cancel
                               </button>
                             )}
+                            <button
+                              type="button"
+                              className="btn-secondary btn-secondary--sm"
+                              onClick={() => handleDeleteJob(job.id)}
+                              disabled={job.status === 'running'}
+                            >
+                              Delete
+                            </button>
                           </div>
                         </td>
                       </tr>
