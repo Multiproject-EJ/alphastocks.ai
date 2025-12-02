@@ -1,26 +1,12 @@
-import { createClient } from '@supabase/supabase-js';
-import { runDeepDiveForConfig } from './lib/valuebot/runDeepDiveForConfig.js';
-
-function createSupabaseClient() {
-  const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
-
-  if (!supabaseUrl || !serviceKey) {
-    return null;
-  }
-
-  return createClient(supabaseUrl, serviceKey, {
-    auth: { autoRefreshToken: false, persistSession: false }
-  });
-}
-
 function resolveMaxJobs(queryValue) {
   const parsed = Number(queryValue);
   if (Number.isNaN(parsed) || parsed <= 0) return 3;
   return Math.min(parsed, 10);
 }
 
-async function processJobs(supabase, maxJobs) {
+async function processBatchJobs(supabase, runDeepDiveForConfig, maxJobs) {
+  const limit = resolveMaxJobs(maxJobs);
+
   const { data: jobs, error: fetchError } = await supabase
     .from('valuebot_analysis_queue')
     .select('*')
@@ -28,7 +14,7 @@ async function processJobs(supabase, maxJobs) {
     .order('priority', { ascending: true })
     .order('scheduled_at', { ascending: true, nullsFirst: true })
     .order('created_at', { ascending: true })
-    .limit(maxJobs);
+    .limit(limit);
 
   if (fetchError) {
     throw new Error(fetchError.message || 'Unable to fetch pending jobs');
@@ -218,34 +204,63 @@ async function processJobs(supabase, maxJobs) {
 
 export default async function handler(req, res) {
   try {
+    // --- Valid POST only ---
+    if (req.method !== 'POST') {
+      return res.status(405).json({
+        ok: false,
+        error: 'Method not allowed',
+        detail: `Received ${req.method}, expected POST`
+      });
+    }
+
+    // --- Validate env vars early ---
     if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-      console.error('[worker] Missing Supabase env vars');
-      return res
-        .status(500)
-        .json({ ok: false, error: 'Supabase server credentials are not configured.' });
+      return res.status(500).json({
+        ok: false,
+        error: 'Missing Supabase credentials',
+        detail: {
+          SUPABASE_URL: !!process.env.SUPABASE_URL,
+          SUPABASE_SERVICE_ROLE_KEY: !!process.env.SUPABASE_SERVICE_ROLE_KEY
+        }
+      });
     }
 
-    if (!['GET', 'POST'].includes(req.method)) {
-      return res.status(405).json({ ok: false, error: 'Method not allowed' });
+    // --- Load Supabase + worker safely ---
+    let createClient;
+    let runDeepDiveForConfig;
+
+    try {
+      const supabasePkg = await import('@supabase/supabase-js');
+      createClient = supabasePkg.createClient;
+
+      runDeepDiveForConfig = (await import('../../workspace/src/features/valuebot/runDeepDiveForConfig.js')).runDeepDiveForConfig;
+    } catch (importErr) {
+      return res.status(500).json({
+        ok: false,
+        error: 'Import failure',
+        detail: String(importErr)
+      });
     }
 
-    const supabase = createSupabaseClient();
+    // --- Normal worker logic continues here ---
+    const supabase = createClient(
+      process.env.SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_ROLE_KEY
+    );
 
-    if (!supabase) {
-      console.error('[valuebot-batch-worker] Supabase service credentials not configured.');
-      return res
-        .status(500)
-        .json({ ok: false, error: 'Supabase service credentials not configured.' });
-    }
+    const result = await processBatchJobs(supabase, runDeepDiveForConfig, req.query?.maxJobs);
 
-    const maxJobs = resolveMaxJobs(req.query?.maxJobs);
+    return res.status(200).json({
+      ok: true,
+      ...result
+    });
 
-    const { processed, remaining, failed } = await processJobs(supabase, maxJobs);
-    return res.status(200).json({ ok: true, processed, remaining, failed });
   } catch (err) {
-    console.error('[worker] Unhandled error', err);
-    return res
-      .status(500)
-      .json({ ok: false, error: err?.message || 'Failed to run worker' });
+    // Failsafe: never return HTML
+    return res.status(500).json({
+      ok: false,
+      error: 'Unhandled worker error',
+      detail: String(err)
+    });
   }
 }
