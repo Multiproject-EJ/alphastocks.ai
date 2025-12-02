@@ -40,10 +40,11 @@ async function processJobs(supabase, maxJobs) {
       .select('id', { count: 'exact', head: true })
       .eq('status', 'pending');
 
-    return { processed: 0, remaining: remainingCount ?? 0 };
+    return { processed: 0, remaining: remainingCount ?? 0, failed: 0 };
   }
 
   let processedCount = 0;
+  let failedCount = 0;
 
   for (const job of jobs) {
     const startedAt = new Date().toISOString();
@@ -64,62 +65,126 @@ async function processJobs(supabase, maxJobs) {
     }
 
     try {
-      const config = {
-        profileId: job.user_id,
-        ticker: job.ticker || '',
-        companyName: job.company_name || null,
-        provider: job.provider || 'openai',
-        model: job.model || null,
-        timeframe: job.timeframe || null,
-        customQuestion: job.custom_question || null
-      };
+      const rawTicker = job.ticker;
+      const ticker = typeof rawTicker === 'string' ? rawTicker.trim() : '';
+      const hasTicker = Boolean(ticker);
+      const hasCompanyName = typeof job.company_name === 'string' && job.company_name.trim().length > 0;
 
-      const result = await runDeepDiveForConfig({
-        config,
-        userId: job.user_id,
-        supabaseClient: supabase
-      });
+      if (!hasTicker) {
+        const failureReason = hasCompanyName
+          ? 'Ticker is required for automated deep dive. Please add a ticker in the queue and requeue this job.'
+          : 'Missing ticker and company_name for deep dive job.';
 
-      const finishedAt = new Date().toISOString();
+        console.warn('[ValueBot Worker] Skipping job with missing ticker:', {
+          id: job.id,
+          company_name: job.company_name
+        });
 
-      if (result.success) {
-        const successUpdate = await supabase
-          .from('valuebot_analysis_queue')
-          .update({
-            status: 'succeeded',
-            completed_at: finishedAt,
-            last_error: null,
-            deep_dive_id: result.deepDiveId || job.deep_dive_id || null,
-            last_run_at: finishedAt
-          })
-          .eq('id', job.id);
-
-        if (successUpdate.error) {
-          console.error('[valuebot-batch-worker] Failed to mark job succeeded', {
-            jobId: job.id,
-            error: successUpdate.error
-          });
-        }
-      } else {
-        const errorMessage = result.error || 'Deep dive failed';
         const failureUpdate = await supabase
           .from('valuebot_analysis_queue')
           .update({
             status: 'failed',
-            last_error: errorMessage.slice(0, 500),
+            last_error: failureReason.slice(0, 500),
             completed_at: null,
-            last_run_at: finishedAt
+            last_run_at: new Date().toISOString()
           })
           .eq('id', job.id);
 
         if (failureUpdate.error) {
-          console.error('[valuebot-batch-worker] Failed to mark job failed', {
+          console.error('[valuebot-batch-worker] Failed to mark job failed for missing ticker', {
             jobId: job.id,
             error: failureUpdate.error
           });
         }
+
+        failedCount += 1;
+        processedCount += 1;
+        continue;
+      }
+
+      const config = {
+        profileId: job.user_id,
+        provider: job.provider || 'openai',
+        model: job.model || undefined,
+        ticker,
+        companyName: hasCompanyName ? job.company_name.trim() : null,
+        timeframe: job.timeframe || null,
+        customQuestion: job.custom_question || null
+      };
+
+      try {
+        const result = await runDeepDiveForConfig({
+          config,
+          userId: job.user_id || null,
+          supabaseClient: supabase
+        });
+
+        const finishedAt = new Date().toISOString();
+
+        if (result.success) {
+          const successUpdate = await supabase
+            .from('valuebot_analysis_queue')
+            .update({
+              status: 'succeeded',
+              completed_at: finishedAt,
+              last_error: null,
+              deep_dive_id: result.deepDiveId || job.deep_dive_id || null,
+              last_run_at: finishedAt
+            })
+            .eq('id', job.id);
+
+          if (successUpdate.error) {
+            console.error('[valuebot-batch-worker] Failed to mark job succeeded', {
+              jobId: job.id,
+              error: successUpdate.error
+            });
+          }
+        } else {
+          const errorMessage = result.error || 'Deep dive failed';
+          const failureUpdate = await supabase
+            .from('valuebot_analysis_queue')
+            .update({
+              status: 'failed',
+              last_error: errorMessage.slice(0, 500),
+              completed_at: null,
+              last_run_at: finishedAt
+            })
+            .eq('id', job.id);
+
+          if (failureUpdate.error) {
+            console.error('[valuebot-batch-worker] Failed to mark job failed', {
+              jobId: job.id,
+              error: failureUpdate.error
+            });
+          }
+
+          failedCount += 1;
+        }
+      } catch (err) {
+        console.error('[ValueBot Worker] Deep dive failed for job', job.id, err);
+
+        const failureUpdate = await supabase
+          .from('valuebot_analysis_queue')
+          .update({
+            status: 'failed',
+            last_error: (err?.message || 'Unexpected worker error').slice(0, 500),
+            completed_at: null,
+            last_run_at: new Date().toISOString()
+          })
+          .eq('id', job.id);
+
+        if (failureUpdate.error) {
+          console.error('[valuebot-batch-worker] Failed to mark job failed after exception', {
+            jobId: job.id,
+            error: failureUpdate.error
+          });
+        }
+
+        failedCount += 1;
       }
     } catch (err) {
+      console.error('[valuebot-batch-worker] Unexpected error while processing job', job.id, err);
+
       const failureUpdate = await supabase
         .from('valuebot_analysis_queue')
         .update({
@@ -131,11 +196,13 @@ async function processJobs(supabase, maxJobs) {
         .eq('id', job.id);
 
       if (failureUpdate.error) {
-        console.error('[valuebot-batch-worker] Failed to mark job failed after exception', {
+        console.error('[valuebot-batch-worker] Failed to mark job failed after unexpected error', {
           jobId: job.id,
           error: failureUpdate.error
         });
       }
+
+      failedCount += 1;
     }
 
     processedCount += 1;
@@ -146,7 +213,7 @@ async function processJobs(supabase, maxJobs) {
     .select('id', { count: 'exact', head: true })
     .eq('status', 'pending');
 
-  return { processed: processedCount, remaining: remainingCount ?? 0 };
+  return { processed: processedCount, remaining: remainingCount ?? 0, failed: failedCount };
 }
 
 export default async function handler(req, res) {
@@ -173,8 +240,8 @@ export default async function handler(req, res) {
 
     const maxJobs = resolveMaxJobs(req.query?.maxJobs);
 
-    const { processed, remaining } = await processJobs(supabase, maxJobs);
-    return res.status(200).json({ ok: true, processed, remaining });
+    const { processed, remaining, failed } = await processJobs(supabase, maxJobs);
+    return res.status(200).json({ ok: true, processed, remaining, failed });
   } catch (err) {
     console.error('[worker] Unhandled error', err);
     return res

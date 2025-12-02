@@ -441,7 +441,13 @@ const BatchQueueTab: FunctionalComponent = () => {
                   {jobs.map((job) => {
                     const canRequeue = job.status === 'failed' || job.status === 'skipped' || job.status === 'succeeded';
                     const canCancel = job.status === 'pending' || job.status === 'running' || job.status === 'failed';
-                    const tickerLabel = job.ticker || '—';
+                    const tickerLabel = job.ticker
+                      ? job.ticker
+                      : job.company_name
+                        ? '(no ticker)'
+                        : '—';
+                    const errorMessage =
+                      job.last_error || (job.status === 'failed' ? 'Failed (no error recorded).' : '—');
                     return (
                       <tr key={job.id}>
                         <td>{tickerLabel}</td>
@@ -451,7 +457,11 @@ const BatchQueueTab: FunctionalComponent = () => {
                         <td>{job.model || 'default'}</td>
                         <td>{formatDate(job.last_run_at)}</td>
                         <td>{job.attempts ?? 0}</td>
-                        <td title={job.last_error || ''}>{job.last_error ? job.last_error.slice(0, 60) + (job.last_error.length > 60 ? '…' : '') : '—'}</td>
+                        <td title={errorMessage}>{
+                          errorMessage !== '—'
+                            ? errorMessage.slice(0, 60) + (errorMessage.length > 60 ? '…' : '')
+                            : '—'
+                        }</td>
                         <td>{formatDate(job.created_at)}</td>
                         <td>{job.source || 'manual_queue'}</td>
                         <td>
