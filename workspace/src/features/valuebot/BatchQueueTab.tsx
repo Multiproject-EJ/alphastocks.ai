@@ -22,6 +22,7 @@ const BatchQueueTab: FunctionalComponent = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isRunningWorker, setIsRunningWorker] = useState(false);
   const [workerStatus, setWorkerStatus] = useState<string | null>(null);
+  const [workerError, setWorkerError] = useState<string | null>(null);
   const [newTicker, setNewTicker] = useState('');
   const [newCompanyName, setNewCompanyName] = useState('');
   const [newTimeframe, setNewTimeframe] = useState('');
@@ -68,6 +69,10 @@ const BatchQueueTab: FunctionalComponent = () => {
 
   useEffect(() => {
     loadJobs();
+  }, [loadJobs]);
+
+  const fetchQueue = useCallback(async () => {
+    await loadJobs();
   }, [loadJobs]);
 
   const formatDate = (value: string | null) => {
@@ -169,76 +174,63 @@ const BatchQueueTab: FunctionalComponent = () => {
     await updateJobStatus(job, 'pending');
   };
 
-  const handleDeleteJob = async (jobId: string) => {
-    if (!isSupabaseReady) {
-      setWorkerStatus('Supabase is not configured.');
-      return;
-    }
-
-    const confirmed = window.confirm(
-      'Delete this job from the batch queue? This cannot be undone.'
-    );
-    if (!confirmed) return;
-
+  const deleteQueueJob = async (id: string) => {
     const { error: deleteError } = await supabase
       .from('valuebot_analysis_queue')
       .delete()
-      .eq('id', jobId);
+      .eq('id', id);
 
-    if (deleteError) {
-      console.error('[BatchQueue] Failed to delete job', jobId, deleteError);
-      setWorkerStatus('Failed to delete job (see console).');
-      return;
+    if (deleteError) setWorkerError(deleteError.message);
+    else {
+      setWorkerStatus('Job deleted from queue.');
+      fetchQueue();
     }
-
-    setWorkerStatus('Job deleted from queue.');
-    await loadJobs();
   };
 
   const handleRunWorkerNow = useCallback(async () => {
     if (isRunningWorker) return;
 
     setIsRunningWorker(true);
-    setWorkerStatus('Running worker…');
+    setWorkerStatus('Triggering batch worker…');
+    setWorkerError(null);
 
     try {
-      const response = await fetch('/api/valuebot-batch-worker', { method: 'POST' });
+      const res = await fetch('/api/valuebot-batch-worker', {
+        method: 'POST',
+        headers: { 'Accept': 'application/json' }
+      });
 
-      const rawText = await response.text();
-      let payload: any = null;
+      const raw = await res.text();
+      console.log('Worker raw response:', raw);
 
+      let data: any = null;
       try {
-        payload = JSON.parse(rawText);
+        data = JSON.parse(raw);
       } catch (parseErr) {
-        console.error('[BatchQueue] Worker returned non-JSON response:', rawText);
-        setWorkerStatus('Worker failed: unexpected response format (see console).');
-        await loadJobs();
+        setWorkerStatus(`Worker failed: non-JSON response (${res.status}).`);
+        setWorkerError(`Raw response:\n${raw.slice(0, 500)}`);
+        setIsRunningWorker(false);
         return;
       }
 
-      if (!response.ok || !payload?.ok) {
-        console.error('[BatchQueue] Worker error payload:', payload);
+      if (!data.ok) {
+        setWorkerStatus(`Worker error (${res.status}).`);
+        setWorkerError(data.error || JSON.stringify(data));
+      } else {
         setWorkerStatus(
-          `Worker failed: ${payload?.error || `status ${response.status}`}`
+          `Worker finished: processed ${data.processed}, remaining ${data.remaining}.`
         );
-        await loadJobs();
-        return;
       }
 
-      const processed = payload.processed ?? 0;
-      const remaining = payload.remaining ?? 0;
-      setWorkerStatus(
-        `Worker finished: processed ${processed} jobs, remaining ${remaining}.`
-      );
-      await loadJobs();
-    } catch (err) {
-      console.error('[BatchQueue] Worker request failed:', err);
-      setWorkerStatus('Worker failed: network or server error (see console).');
-      await loadJobs();
-    } finally {
-      setIsRunningWorker(false);
+    } catch (networkErr) {
+      setWorkerStatus('Worker request failed.');
+      setWorkerError(String(networkErr));
     }
-  }, [isRunningWorker, loadJobs]);
+
+    // Always refresh queue
+    await fetchQueue();
+    setIsRunningWorker(false);
+  }, [fetchQueue, isRunningWorker]);
 
   const renderStatus = (status: ValueBotQueueStatus) => statusLabels[status] ?? status;
 
@@ -407,6 +399,12 @@ const BatchQueueTab: FunctionalComponent = () => {
             </p>
           )}
 
+          {workerError && (
+            <p className="form-error" role="alert">
+              {workerError}
+            </p>
+          )}
+
           {error && (
             <p className="form-error" role="alert">
               {error}
@@ -477,10 +475,11 @@ const BatchQueueTab: FunctionalComponent = () => {
                               </button>
                             )}
                             <button
-                              type="button"
-                              className="btn-secondary btn-secondary--sm"
-                              onClick={() => handleDeleteJob(job.id)}
-                              disabled={job.status === 'running'}
+                              onClick={() => {
+                                if (!confirm('Delete this job from the queue?')) return;
+                                deleteQueueJob(job.id);
+                              }}
+                              className="btn-danger"
                             >
                               Delete
                             </button>
