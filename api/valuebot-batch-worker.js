@@ -1,10 +1,13 @@
+import { createClient } from '@supabase/supabase-js';
+import { runDeepDiveForConfigServer } from './valuebot-run-deep-dive.js';
+
 function resolveMaxJobs(queryValue) {
   const parsed = Number(queryValue);
   if (Number.isNaN(parsed) || parsed <= 0) return 3;
   return Math.min(parsed, 10);
 }
 
-async function processBatchJobs(supabase, runDeepDiveForConfig, maxJobs) {
+async function processBatchJobs(supabase, maxJobs) {
   const limit = resolveMaxJobs(maxJobs);
 
   const { data: jobs, error: fetchError } = await supabase
@@ -38,7 +41,6 @@ async function processBatchJobs(supabase, runDeepDiveForConfig, maxJobs) {
       .from('valuebot_analysis_queue')
       .update({
         status: 'running',
-        attempts: (job.attempts ?? 0) + 1,
         started_at: startedAt,
         last_run_at: startedAt,
         last_error: null
@@ -70,6 +72,7 @@ async function processBatchJobs(supabase, runDeepDiveForConfig, maxJobs) {
           .from('valuebot_analysis_queue')
           .update({
             status: 'failed',
+            attempts: (job.attempts ?? 0) + 1,
             last_error: failureReason.slice(0, 500),
             completed_at: null,
             last_run_at: new Date().toISOString()
@@ -89,17 +92,20 @@ async function processBatchJobs(supabase, runDeepDiveForConfig, maxJobs) {
       }
 
       const config = {
-        profileId: job.user_id,
+        ticker,
+        company_name: hasCompanyName ? job.company_name.trim() : null,
+        timeframe: job.timeframe || null,
+        custom_question: job.custom_question || null,
         provider: job.provider || 'openai',
         model: job.model || undefined,
-        ticker,
-        companyName: hasCompanyName ? job.company_name.trim() : null,
-        timeframe: job.timeframe || null,
+        market: job.market || null,
+        profileId: job.user_id,
+        model_id: job.model_id || null,
         customQuestion: job.custom_question || null
       };
 
       try {
-        const result = await runDeepDiveForConfig({
+        const result = await runDeepDiveForConfigServer({
           config,
           userId: job.user_id || null,
           supabaseClient: supabase
@@ -107,11 +113,12 @@ async function processBatchJobs(supabase, runDeepDiveForConfig, maxJobs) {
 
         const finishedAt = new Date().toISOString();
 
-        if (result.success) {
+        if (result.ok) {
           const successUpdate = await supabase
             .from('valuebot_analysis_queue')
             .update({
-              status: 'succeeded',
+              status: 'completed',
+              attempts: (job.attempts ?? 0) + 1,
               completed_at: finishedAt,
               last_error: null,
               deep_dive_id: result.deepDiveId || job.deep_dive_id || null,
@@ -131,6 +138,7 @@ async function processBatchJobs(supabase, runDeepDiveForConfig, maxJobs) {
             .from('valuebot_analysis_queue')
             .update({
               status: 'failed',
+              attempts: (job.attempts ?? 0) + 1,
               last_error: errorMessage.slice(0, 500),
               completed_at: null,
               last_run_at: finishedAt
@@ -153,6 +161,7 @@ async function processBatchJobs(supabase, runDeepDiveForConfig, maxJobs) {
           .from('valuebot_analysis_queue')
           .update({
             status: 'failed',
+            attempts: (job.attempts ?? 0) + 1,
             last_error: (err?.message || 'Unexpected worker error').slice(0, 500),
             completed_at: null,
             last_run_at: new Date().toISOString()
@@ -175,6 +184,7 @@ async function processBatchJobs(supabase, runDeepDiveForConfig, maxJobs) {
         .from('valuebot_analysis_queue')
         .update({
           status: 'failed',
+          attempts: (job.attempts ?? 0) + 1,
           last_error: (err?.message || 'Unexpected worker error').slice(0, 500),
           completed_at: null,
           last_run_at: new Date().toISOString()
@@ -202,65 +212,44 @@ async function processBatchJobs(supabase, runDeepDiveForConfig, maxJobs) {
   return { processed: processedCount, remaining: remainingCount ?? 0, failed: failedCount };
 }
 
-export default async function handler(req, res) {
+export default async function handler(req) {
   try {
-    // --- Valid POST only ---
     if (req.method !== 'POST') {
-      return res.status(405).json({
-        ok: false,
-        error: 'Method not allowed',
-        detail: `Received ${req.method}, expected POST`
-      });
+      return new Response(
+        JSON.stringify({
+          ok: false,
+          error: 'Method not allowed',
+          detail: `Received ${req.method}, expected POST`
+        }),
+        { status: 405, headers: { 'Content-Type': 'application/json' } }
+      );
     }
 
-    // --- Validate env vars early ---
     if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-      return res.status(500).json({
-        ok: false,
-        error: 'Missing Supabase credentials',
-        detail: {
-          SUPABASE_URL: !!process.env.SUPABASE_URL,
-          SUPABASE_SERVICE_ROLE_KEY: !!process.env.SUPABASE_SERVICE_ROLE_KEY
-        }
-      });
+      return new Response(
+        JSON.stringify({
+          ok: false,
+          error: 'Missing Supabase credentials'
+        }),
+        { status: 500, headers: { 'Content-Type': 'application/json' } }
+      );
     }
 
-    // --- Load Supabase + worker safely ---
-    let createClient;
-    let runDeepDiveForConfig;
+    const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
 
-    try {
-      const supabasePkg = await import('@supabase/supabase-js');
-      createClient = supabasePkg.createClient;
+    const result = await processBatchJobs(supabase, req.query?.maxJobs);
 
-      runDeepDiveForConfig = (await import('../../workspace/src/features/valuebot/runDeepDiveForConfig.js')).runDeepDiveForConfig;
-    } catch (importErr) {
-      return res.status(500).json({
-        ok: false,
-        error: 'Import failure',
-        detail: String(importErr)
-      });
-    }
-
-    // --- Normal worker logic continues here ---
-    const supabase = createClient(
-      process.env.SUPABASE_URL,
-      process.env.SUPABASE_SERVICE_ROLE_KEY
+    return new Response(
+      JSON.stringify({
+        ok: true,
+        ...result
+      }),
+      { status: 200, headers: { 'Content-Type': 'application/json' } }
     );
-
-    const result = await processBatchJobs(supabase, runDeepDiveForConfig, req.query?.maxJobs);
-
-    return res.status(200).json({
-      ok: true,
-      ...result
-    });
-
   } catch (err) {
-    // Failsafe: never return HTML
-    return res.status(500).json({
-      ok: false,
-      error: 'Unhandled worker error',
-      detail: String(err)
-    });
+    return new Response(
+      JSON.stringify({ ok: false, error: 'Worker failed: ' + err?.message }),
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
+    );
   }
 }

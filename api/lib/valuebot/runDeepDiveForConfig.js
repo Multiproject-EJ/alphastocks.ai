@@ -620,6 +620,8 @@ export async function runDeepDiveForConfig(params = {}) {
     }
   };
 
+  let pipelineResult = null;
+
   const module0Markdown = await (async () => {
     safeNotify('module0', 'running');
     try {
@@ -737,7 +739,7 @@ export async function runDeepDiveForConfig(params = {}) {
     safeNotify('scoreSummary', 'done');
   }
 
-  const pipelineResult = {
+  pipelineResult = {
     ticker: config.ticker?.trim() || '',
     provider: config.provider || 'openai',
     model: config.model || null,
@@ -765,17 +767,46 @@ export async function runDeepDiveForConfig(params = {}) {
         success: true,
         deepDiveId: deepDiveId || undefined,
         ticker: pipelineResult.ticker,
-        meta: meta || null
+        meta: meta || null,
+        masterMeta: meta || null,
+        module0Markdown,
+        module1Markdown,
+        module2Markdown,
+        module3Markdown,
+        module4Markdown,
+        module5Markdown,
+        module6Markdown
       };
     }
 
-    return { success: true, deepDiveId: undefined, ticker: pipelineResult.ticker, meta: meta || null };
+    return {
+      success: true,
+      deepDiveId: undefined,
+      ticker: pipelineResult.ticker,
+      meta: meta || null,
+      masterMeta: meta || null,
+      module0Markdown,
+      module1Markdown,
+      module2Markdown,
+      module3Markdown,
+      module4Markdown,
+      module5Markdown,
+      module6Markdown
+    };
   } catch (error) {
     return {
       success: false,
       error: error?.message || 'Unable to save deep dive',
-      ticker: pipelineResult.ticker,
-      meta: meta || null
+      ticker: pipelineResult?.ticker || config.ticker?.trim() || '',
+      meta: meta || null,
+      masterMeta: meta || null,
+      module0Markdown: pipelineResult?.module0Markdown,
+      module1Markdown: pipelineResult?.module1Markdown,
+      module2Markdown: pipelineResult?.module2Markdown,
+      module3Markdown: pipelineResult?.module3Markdown,
+      module4Markdown: pipelineResult?.module4Markdown,
+      module5Markdown: pipelineResult?.module5Markdown,
+      module6Markdown: pipelineResult?.module6Markdown
     };
   }
 }
