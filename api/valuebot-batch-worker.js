@@ -150,24 +150,35 @@ async function processJobs(supabase, maxJobs) {
 }
 
 export default async function handler(req, res) {
-  if (!['GET', 'POST'].includes(req.method)) {
-    return res.status(405).json({ message: 'Method not allowed' });
-  }
-
-  const supabase = createSupabaseClient();
-
-  if (!supabase) {
-    console.error('[valuebot-batch-worker] Supabase service credentials not configured.');
-    return res.status(500).json({ error: 'Supabase service credentials not configured.' });
-  }
-
-  const maxJobs = resolveMaxJobs(req.query?.maxJobs);
-
   try {
+    if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      console.error('[worker] Missing Supabase env vars');
+      return res
+        .status(500)
+        .json({ ok: false, error: 'Supabase server credentials are not configured.' });
+    }
+
+    if (!['GET', 'POST'].includes(req.method)) {
+      return res.status(405).json({ ok: false, error: 'Method not allowed' });
+    }
+
+    const supabase = createSupabaseClient();
+
+    if (!supabase) {
+      console.error('[valuebot-batch-worker] Supabase service credentials not configured.');
+      return res
+        .status(500)
+        .json({ ok: false, error: 'Supabase service credentials not configured.' });
+    }
+
+    const maxJobs = resolveMaxJobs(req.query?.maxJobs);
+
     const { processed, remaining } = await processJobs(supabase, maxJobs);
     return res.status(200).json({ ok: true, processed, remaining });
   } catch (err) {
-    console.error('[valuebot-batch-worker] Failed to run worker', err);
-    return res.status(500).json({ ok: false, error: err?.message || 'Failed to run worker' });
+    console.error('[worker] Unhandled error', err);
+    return res
+      .status(500)
+      .json({ ok: false, error: err?.message || 'Failed to run worker' });
   }
 }
