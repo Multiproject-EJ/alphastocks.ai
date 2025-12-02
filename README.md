@@ -83,6 +83,7 @@ Legend: ☐ not started • 🕒 in progress • ☑ done
 
 ### ValueBot batch worker (background deep dives)
 - The `valuebot_analysis_queue` table stores pending deep-dive requests (ticker, provider/model, timeframe/question, status, attempts, and errors).
+  - `ticker` (text, nullable) – optional primary lookup; jobs may be created with ticker, company_name, or both.
 - `/api/valuebot-batch-worker` processes pending rows in small batches (default 3; override with `?maxJobs=5`, capped at 10) by running the full ValueBot deep-dive pipeline and saving outputs to `valuebot_deep_dives` while refreshing `investment_universe` metadata.
 - Intended for scheduled triggers (e.g., Vercel cron hitting `/api/valuebot-batch-worker?maxJobs=3` every few minutes) or manual HTTP debugging; no front-end UI enqueues jobs yet.
 
