@@ -5,21 +5,15 @@ import {
   DeepDivePipelineStep,
   DeepDiveStepStatus,
   ValueBotContext,
+  createDefaultPipelineSteps,
   defaultDeepDiveConfig,
   defaultPipelineProgress
 } from './types.ts';
 import { useRunMasterMetaSummary } from './useRunMasterMetaSummary.ts';
 
-const createInitialSteps = () => ({
-  module0: 'pending' as DeepDiveStepStatus,
-  module1: 'pending' as DeepDiveStepStatus,
-  module2: 'pending' as DeepDiveStepStatus,
-  module3: 'pending' as DeepDiveStepStatus,
-  module4: 'pending' as DeepDiveStepStatus,
-  module5: 'pending' as DeepDiveStepStatus,
-  module6: 'pending' as DeepDiveStepStatus,
-  scoreSummary: 'pending' as DeepDiveStepStatus
-});
+const createInitialSteps = () => createDefaultPipelineSteps();
+
+const MAX_RETRIES_PER_STEP = 3;
 
 const buildModule0Prompt = (config = defaultDeepDiveConfig) => {
   const ticker = config?.ticker?.trim() || '[Not provided]';
@@ -405,6 +399,7 @@ export const useRunDeepDivePipeline = () => {
   const setPipelineProgress = valueBot?.setPipelineProgress;
 
   const pipelineProgress = currentContext?.pipelineProgress ?? defaultPipelineProgress;
+  const pipelineError = pipelineProgress?.errorMessage ?? null;
 
   const resetPipeline = useCallback(() => {
     if (!setPipelineProgress) return;
@@ -412,6 +407,14 @@ export const useRunDeepDivePipeline = () => {
       ...defaultPipelineProgress,
       steps: createInitialSteps()
     });
+  }, [setPipelineProgress]);
+
+  const clearPipelineError = useCallback(() => {
+    if (!setPipelineProgress) return;
+    setPipelineProgress((prev) => ({
+      ...(prev || defaultPipelineProgress),
+      errorMessage: null
+    }));
   }, [setPipelineProgress]);
 
   const runPipeline = useCallback(async () => {
@@ -449,7 +452,8 @@ export const useRunDeepDivePipeline = () => {
 
     const areCoreStepsSuccessful = (steps: DeepDivePipelineProgress['steps']) =>
       ['module0', 'module1', 'module2', 'module3', 'module4', 'module5', 'module6'].every(
-        (step) => steps[step as keyof DeepDivePipelineProgress['steps']] === 'done'
+        (step) =>
+          steps[step as keyof DeepDivePipelineProgress['steps']]?.status === 'done'
       );
 
     const buildResult = () => ({
@@ -469,6 +473,134 @@ export const useRunDeepDivePipeline = () => {
       setPipelineProgress(next);
     };
 
+    const runStepWithRetries = async (
+      stepKey: DeepDivePipelineStep,
+      stepNumber: DeepDivePipelineProgress['currentStep'],
+      label: string,
+      runnerFn: () => Promise<void>
+    ) => {
+      let attempts = 0;
+      let lastError: string | null = null;
+
+      while (attempts < MAX_RETRIES_PER_STEP) {
+        attempts += 1;
+
+        safeSetProgress((prev) => {
+          const prevSteps = prev?.steps ?? createInitialSteps();
+          const prevStep = prevSteps[stepKey] || ({ status: 'pending' as DeepDiveStepStatus } as any);
+
+          return {
+            ...prev,
+            status: 'running',
+            currentStep: stepNumber,
+            errorMessage: null,
+            steps: {
+              ...prevSteps,
+              [stepKey]: {
+                ...prevStep,
+                status: 'running',
+                attempts,
+                lastError: null
+              }
+            }
+          };
+        });
+
+        try {
+          await runnerFn();
+          console.info(`[ValueBot Pipeline] Step ${label} succeeded on attempt ${attempts}`);
+          safeSetProgress((prev) => {
+            const prevSteps = prev?.steps ?? createInitialSteps();
+            const prevStep = prevSteps[stepKey] || ({ status: 'pending' as DeepDiveStepStatus } as any);
+
+            return {
+              ...prev,
+              status: 'running',
+              currentStep: null,
+              errorMessage: null,
+              steps: {
+                ...prevSteps,
+                [stepKey]: {
+                  ...prevStep,
+                  status: 'done',
+                  attempts,
+                  lastError: null
+                }
+              }
+            };
+          });
+          return { ok: true as const, attempts };
+        } catch (err: any) {
+          const message =
+            (err &&
+              (err.message || (typeof err.toString === 'function' ? err.toString() : String(err)))) ||
+            'Unknown error';
+
+          lastError = message;
+
+          safeSetProgress((prev) => {
+            const prevSteps = prev?.steps ?? createInitialSteps();
+            const prevStep = prevSteps[stepKey] || ({ status: 'pending' as DeepDiveStepStatus } as any);
+
+            return {
+              ...prev,
+              status: 'error',
+              currentStep: stepNumber,
+              errorMessage: message,
+              steps: {
+                ...prevSteps,
+                [stepKey]: {
+                  ...prevStep,
+                  status: 'error',
+                  attempts,
+                  lastError: message
+                }
+              }
+            };
+          });
+
+          if (attempts < MAX_RETRIES_PER_STEP) {
+            await new Promise((resolve) => setTimeout(resolve, 2000));
+            continue;
+          }
+
+          console.error(
+            `[ValueBot Pipeline] Step ${label} failed after ${attempts} attempts`,
+            err
+          );
+          return { ok: false as const, error: message, attempts };
+        }
+      }
+
+      return { ok: false as const, error: lastError || 'Unknown pipeline step error', attempts };
+    };
+
+    const markFinalFailure = (
+      message: string,
+      stepKey: DeepDivePipelineStep,
+      stepNumber: DeepDivePipelineProgress['currentStep']
+    ) => {
+      safeSetProgress((prev) => {
+        const prevSteps = prev?.steps ?? createInitialSteps();
+        const prevStep = prevSteps[stepKey] || ({ status: 'pending' as DeepDiveStepStatus } as any);
+
+        return {
+          ...prev,
+          status: 'error',
+          currentStep: stepNumber,
+          errorMessage: message,
+          steps: {
+            ...prevSteps,
+            [stepKey]: {
+              ...prevStep,
+              status: 'error',
+              lastError: prevStep?.lastError || message
+            }
+          }
+        };
+      });
+    };
+
     safeSetProgress({
       status: 'running',
       currentStep: 0,
@@ -476,31 +608,16 @@ export const useRunDeepDivePipeline = () => {
       errorMessage: null
     });
 
-    const runStep = async (
-      stepKey: DeepDivePipelineStep,
-      stepNumber: DeepDivePipelineProgress['currentStep'],
-      promptBuilder: () => string,
-      onSuccess: (output: string) => void
-    ) => {
-      safeSetProgress((prev) => ({
-        ...prev,
-        status: 'running',
-        currentStep: stepNumber,
-        steps: {
-          ...prev.steps,
-          [stepKey]: 'running'
-        },
-        errorMessage: null
-      }));
-
-      try {
+    try {
+      const module0Label = 'Module 0 — Data Loader';
+      const module0Result = await runStepWithRetries('module0', 0, module0Label, async () => {
         const response = await runAnalysis({
           provider: config.provider || 'openai',
           model: config.model || undefined,
           ticker,
           timeframe: config.timeframe || undefined,
           customQuestion: config.customQuestion || undefined,
-          prompt: promptBuilder()
+          prompt: buildModule0Prompt(config)
         });
 
         const output =
@@ -508,36 +625,6 @@ export const useRunDeepDivePipeline = () => {
           response?.summary ||
           'No response received from the AI provider.';
 
-        onSuccess(output);
-
-        safeSetProgress((prev) => ({
-          ...prev,
-          status: 'running',
-          currentStep: null,
-          steps: {
-            ...prev.steps,
-            [stepKey]: 'done'
-          }
-        }));
-        return output;
-      } catch (error: any) {
-        const message = error?.message || `Module ${stepNumber} failed.`;
-        safeSetProgress((prev) => ({
-          ...prev,
-          status: 'error',
-          currentStep: stepNumber,
-          steps: {
-            ...prev.steps,
-            [stepKey]: 'error'
-          },
-          errorMessage: message
-        }));
-        throw error;
-      }
-    };
-
-    try {
-      const module0Output = await runStep('module0', 0, () => buildModule0Prompt(config), (output) => {
         latestContext = {
           ...latestContext,
           module0OutputMarkdown: output,
@@ -546,125 +633,239 @@ export const useRunDeepDivePipeline = () => {
         updateContext(latestContext);
       });
 
-      const module1Output = await runStep(
-        'module1',
-        1,
-        () => buildModule1Prompt(config, module0Output || currentContext?.module0OutputMarkdown),
-        (output) => {
-          latestContext = {
-            ...latestContext,
-            module1OutputMarkdown: output
-          };
-          updateContext(latestContext);
-        }
-      );
+      if (!module0Result.ok) {
+        markFinalFailure(
+          `${module0Label} failed after ${module0Result.attempts ?? MAX_RETRIES_PER_STEP} attempts: ${module0Result.error}`,
+          'module0',
+          0
+        );
+        return buildResult();
+      }
 
-      const module2Output = await runStep(
-        'module2',
-        2,
-        () =>
-          buildModule2Prompt(
+      const module1Label = 'Module 1 — Core Risk & Quality Diagnostics';
+      const module1Result = await runStepWithRetries('module1', 1, module1Label, async () => {
+        const response = await runAnalysis({
+          provider: config.provider || 'openai',
+          model: config.model || undefined,
+          ticker,
+          timeframe: config.timeframe || undefined,
+          customQuestion: config.customQuestion || undefined,
+          prompt: buildModule1Prompt(config, latestContext?.module0OutputMarkdown)
+        });
+
+        const output =
+          response?.rawResponse ||
+          response?.summary ||
+          'No response received from the AI provider.';
+
+        latestContext = {
+          ...latestContext,
+          module1OutputMarkdown: output
+        };
+        updateContext(latestContext);
+      });
+
+      if (!module1Result.ok) {
+        markFinalFailure(
+          `${module1Label} failed after ${module1Result.attempts ?? MAX_RETRIES_PER_STEP} attempts: ${module1Result.error}`,
+          'module1',
+          1
+        );
+        return buildResult();
+      }
+
+      const module2Label = 'Module 2 — Business Model & Growth Engine';
+      const module2Result = await runStepWithRetries('module2', 2, module2Label, async () => {
+        const response = await runAnalysis({
+          provider: config.provider || 'openai',
+          model: config.model || undefined,
+          ticker,
+          timeframe: config.timeframe || undefined,
+          customQuestion: config.customQuestion || undefined,
+          prompt: buildModule2Prompt(config, latestContext?.module0OutputMarkdown, latestContext?.module1OutputMarkdown)
+        });
+
+        const output =
+          response?.rawResponse ||
+          response?.summary ||
+          'No response received from the AI provider.';
+
+        latestContext = {
+          ...latestContext,
+          module2Markdown: output
+        };
+        updateContext(latestContext);
+      });
+
+      if (!module2Result.ok) {
+        markFinalFailure(
+          `${module2Label} failed after ${module2Result.attempts ?? MAX_RETRIES_PER_STEP} attempts: ${module2Result.error}`,
+          'module2',
+          2
+        );
+        return buildResult();
+      }
+
+      const module3Label = 'Module 3 — Scenario Engine';
+      const module3Result = await runStepWithRetries('module3', 3, module3Label, async () => {
+        const response = await runAnalysis({
+          provider: config.provider || 'openai',
+          model: config.model || undefined,
+          ticker,
+          timeframe: config.timeframe || undefined,
+          customQuestion: config.customQuestion || undefined,
+          prompt: buildModule3Prompt(
             config,
-            module0Output || currentContext?.module0OutputMarkdown,
-            module1Output || currentContext?.module1OutputMarkdown
-          ),
-        (output) => {
-          latestContext = {
-            ...latestContext,
-            module2Markdown: output
-          };
-          updateContext(latestContext);
-        }
-      );
+            latestContext?.module0OutputMarkdown,
+            latestContext?.module1OutputMarkdown,
+            latestContext?.module2Markdown
+          )
+        });
 
-      const module3Output = await runStep(
-        'module3',
-        3,
-        () =>
-          buildModule3Prompt(
+        const output =
+          response?.rawResponse ||
+          response?.summary ||
+          'No response received from the AI provider.';
+
+        latestContext = {
+          ...latestContext,
+          module3Markdown: output,
+          module3Output: output
+        };
+        updateContext(latestContext);
+      });
+
+      if (!module3Result.ok) {
+        markFinalFailure(
+          `${module3Label} failed after ${module3Result.attempts ?? MAX_RETRIES_PER_STEP} attempts: ${module3Result.error}`,
+          'module3',
+          3
+        );
+        return buildResult();
+      }
+
+      const module4Label = 'Module 4 — Valuation Engine';
+      const module4Result = await runStepWithRetries('module4', 4, module4Label, async () => {
+        const response = await runAnalysis({
+          provider: config.provider || 'openai',
+          model: config.model || undefined,
+          ticker,
+          timeframe: config.timeframe || undefined,
+          customQuestion: config.customQuestion || undefined,
+          prompt: buildModule4Prompt(
             config,
-            module0Output || currentContext?.module0OutputMarkdown,
-            module1Output || currentContext?.module1OutputMarkdown,
-            module2Output || currentContext?.module2Markdown
-          ),
-        (output) => {
-          latestContext = {
-            ...latestContext,
-            module3Markdown: output,
-            module3Output: output
-          };
-          updateContext(latestContext);
-        }
-      );
+            latestContext?.module0OutputMarkdown,
+            latestContext?.module1OutputMarkdown,
+            latestContext?.module2Markdown,
+            latestContext?.module3Markdown
+          )
+        });
 
-      const module4Output = await runStep(
-        'module4',
-        4,
-        () =>
-          buildModule4Prompt(
+        const output =
+          response?.rawResponse ||
+          response?.summary ||
+          'No response received from the AI provider.';
+
+        latestContext = {
+          ...latestContext,
+          module4Markdown: output,
+          module4Output: output
+        };
+        updateContext(latestContext);
+      });
+
+      if (!module4Result.ok) {
+        markFinalFailure(
+          `${module4Label} failed after ${module4Result.attempts ?? MAX_RETRIES_PER_STEP} attempts: ${module4Result.error}`,
+          'module4',
+          4
+        );
+        return buildResult();
+      }
+
+      const module5Label = 'Module 5 — Timing & Momentum';
+      const module5Result = await runStepWithRetries('module5', 5, module5Label, async () => {
+        const response = await runAnalysis({
+          provider: config.provider || 'openai',
+          model: config.model || undefined,
+          ticker,
+          timeframe: config.timeframe || undefined,
+          customQuestion: config.customQuestion || undefined,
+          prompt: buildModule5Prompt(
             config,
-            module0Output || currentContext?.module0OutputMarkdown,
-            module1Output || currentContext?.module1OutputMarkdown,
-            module2Output || currentContext?.module2Markdown,
-            module3Output || currentContext?.module3Markdown
-          ),
-        (output) => {
-          latestContext = {
-            ...latestContext,
-            module4Markdown: output,
-            module4Output: output
-          };
-          updateContext(latestContext);
-        }
-      );
+            latestContext?.module1OutputMarkdown,
+            latestContext?.module3Output,
+            latestContext?.module4Output
+          )
+        });
 
-      const module5Output = await runStep(
-        'module5',
-        5,
-        () =>
-          buildModule5Prompt(
-            config,
-            module1Output || currentContext?.module1OutputMarkdown,
-            module3Output || currentContext?.module3Markdown,
-            module4Output || currentContext?.module4Markdown
-          ),
-        (output) => {
-          latestContext = {
-            ...latestContext,
-            module5Markdown: output,
-            module5Output: output
-          };
-          updateContext(latestContext);
-        }
-      );
+        const output =
+          response?.rawResponse ||
+          response?.summary ||
+          'No response received from the AI provider.';
 
-      const module6Output = await runStep(
-        'module6',
-        6,
-        () =>
-          buildModule6Prompt(
+        latestContext = {
+          ...latestContext,
+          module5Markdown: output,
+          module5Output: output
+        };
+        updateContext(latestContext);
+      });
+
+      if (!module5Result.ok) {
+        markFinalFailure(
+          `${module5Label} failed after ${module5Result.attempts ?? MAX_RETRIES_PER_STEP} attempts: ${module5Result.error}`,
+          'module5',
+          5
+        );
+        return buildResult();
+      }
+
+      const module6Label = 'Module 6 — Final Verdict';
+      const module6Result = await runStepWithRetries('module6', 6, module6Label, async () => {
+        const response = await runAnalysis({
+          provider: config.provider || 'openai',
+          model: config.model || undefined,
+          ticker,
+          timeframe: config.timeframe || undefined,
+          customQuestion: config.customQuestion || undefined,
+          prompt: buildModule6Prompt(
             config,
             currentContext?.companyName,
             currentContext?.currentPrice ?? null,
-            module0Output || currentContext?.module0OutputMarkdown,
-            module1Output || currentContext?.module1OutputMarkdown,
-            module2Output || currentContext?.module2Markdown,
-            module3Output || currentContext?.module3Markdown,
-            module4Output || currentContext?.module4Markdown,
-            module5Output || currentContext?.module5Markdown
-        ),
-        (output) => {
-          latestContext = {
-            ...latestContext,
-            module6Markdown: output,
-            module6Output: output
-          };
-          latestModule6Markdown = (output || '').trim();
-          updateContext(latestContext);
-        }
-      );
+            latestContext?.module0OutputMarkdown,
+            latestContext?.module1OutputMarkdown,
+            latestContext?.module2Markdown,
+            latestContext?.module3Markdown,
+            latestContext?.module4Markdown,
+            latestContext?.module5Markdown
+          )
+        });
 
-      const module6Markdown = (module6Output || latestContext?.module6Markdown || '').trim();
+        const output =
+          response?.rawResponse ||
+          response?.summary ||
+          'No response received from the AI provider.';
+
+        latestContext = {
+          ...latestContext,
+          module6Markdown: output,
+          module6Output: output
+        };
+        latestModule6Markdown = (output || '').trim();
+        updateContext(latestContext);
+      });
+
+      if (!module6Result.ok) {
+        markFinalFailure(
+          `${module6Label} failed after ${module6Result.attempts ?? MAX_RETRIES_PER_STEP} attempts: ${module6Result.error}`,
+          'module6',
+          6
+        );
+        return buildResult();
+      }
+
+      const module6Markdown = (latestModule6Markdown || latestContext?.module6Markdown || '').trim();
       const tickerSymbol = latestContext?.deepDiveConfig?.ticker?.trim() || '';
 
       console.debug('[ValueBot] Starting Step 7 — Score Summary', {
@@ -672,94 +873,110 @@ export const useRunDeepDivePipeline = () => {
         hasModule6Markdown: Boolean(module6Markdown)
       });
 
-      safeSetProgress((prev) => ({
-        ...prev,
-        status: 'running',
-        currentStep: 7,
-        errorMessage: null,
-        steps: {
-          ...prev.steps,
-          scoreSummary: 'running'
+      const scoreSummaryLabel = 'Master Score Summary';
+      const scoreSummaryResult = await runStepWithRetries(
+        'scoreSummary',
+        7,
+        scoreSummaryLabel,
+        async () => {
+          const primaryMarkdown = (module6Markdown && module6Markdown.trim()) || undefined;
+          let { meta, error } = await runMasterMetaSummary(primaryMarkdown);
+
+          const needsRetry =
+            !meta && Boolean(error) && error.toLowerCase().includes('master markdown is required');
+
+          if (needsRetry) {
+            await new Promise((resolve) => setTimeout(resolve, 300));
+            ({ meta, error } = await runMasterMetaSummary(primaryMarkdown));
+          }
+
+          if (meta) {
+            latestContext = {
+              ...latestContext,
+              masterMeta: meta ?? null
+            };
+            updateContext(latestContext);
+            console.debug('[ValueBot] Step 7 meta generation succeeded', {
+              ticker: tickerSymbol,
+              risk: meta?.risk_label,
+              quality: meta?.quality_label,
+              timing: meta?.timing_label,
+              score: meta?.composite_score
+            });
+            return;
+          }
+
+          const fallbackMessage =
+            error ||
+            'Unable to generate score summary automatically. You can open Module 6 and click “Update score summary” or “Save to Universe” to refresh it manually.';
+
+          throw new Error(fallbackMessage);
         }
-      }));
+      );
 
-      try {
-        const primaryMarkdown = (latestModule6Markdown && latestModule6Markdown.trim()) || undefined;
-        let { meta, error } = await runMasterMetaSummary(primaryMarkdown);
-
-        const needsRetry =
-          !meta &&
-          Boolean(error) &&
-          error.toLowerCase().includes('master markdown is required');
-
-        if (needsRetry) {
-          await new Promise((resolve) => setTimeout(resolve, 300));
-          ({ meta, error } = await runMasterMetaSummary(primaryMarkdown));
-        }
-
-        if (meta) {
-          latestContext = {
-            ...latestContext,
-            masterMeta: meta ?? null
-          };
-          updateContext(latestContext);
-          console.debug('[ValueBot] Step 7 meta generation succeeded', {
-            ticker: tickerSymbol,
-            risk: meta?.risk_label,
-            quality: meta?.quality_label,
-            timing: meta?.timing_label,
-            score: meta?.composite_score
-          });
-          safeSetProgress((prev) => ({
+      if (scoreSummaryResult.ok) {
+        safeSetProgress((prev) => {
+          const prevSteps = prev?.steps ?? createInitialSteps();
+          return {
             ...prev,
             status: 'success',
             currentStep: null,
             errorMessage: null,
             steps: {
-              ...prev.steps,
-              scoreSummary: 'done'
+              ...prevSteps,
+              scoreSummary: {
+                ...prevSteps.scoreSummary,
+                status: 'done',
+                attempts: scoreSummaryResult.attempts,
+                lastError: null
+              }
             }
-          }));
-        } else {
-          const fallbackMessage =
-            error ||
-            'Unable to generate score summary automatically. You can open Module 6 and click “Update score summary” or “Save to Universe” to refresh it manually.';
-          console.debug('[ValueBot] Step 7 meta generation failed', { ticker: tickerSymbol, error: fallbackMessage });
-          safeSetProgress((prev) => ({
+          };
+        });
+      } else {
+        const fallbackMessage =
+          scoreSummaryResult.error ||
+          'Deep dive finished, but score summary failed after retries. You can regenerate it manually in Module 6.';
+
+        console.warn('[ValueBot Pipeline] Master meta summary failed after retries:', fallbackMessage);
+
+        const errorMessage = `Deep dive finished, but score summary failed after ${
+          scoreSummaryResult.attempts ?? MAX_RETRIES_PER_STEP
+        } attempts. You can regenerate it manually in Module 6. Last error: ${fallbackMessage}`;
+
+        safeSetProgress((prev) => {
+          const prevSteps = prev?.steps ?? createInitialSteps();
+          return {
             ...prev,
             status: 'error',
             currentStep: 7,
+            errorMessage,
             steps: {
-              ...prev.steps,
-              scoreSummary: 'error'
-            },
-            errorMessage: fallbackMessage
-          }));
-        }
-      } catch (err: any) {
-        const errorMessage =
-          err?.message ||
-          'Unexpected error while generating score summary. Try rerunning or update it from Module 6.';
-        console.debug('[ValueBot] Step 7 meta generation threw', { ticker: tickerSymbol, errorMessage });
-        safeSetProgress((prev) => ({
-          ...prev,
-          status: 'error',
-          currentStep: 7,
-          steps: {
-            ...prev.steps,
-            scoreSummary: 'error'
-          },
-          errorMessage
-        }));
+              ...prevSteps,
+              scoreSummary: {
+                ...prevSteps.scoreSummary,
+                status: 'error',
+                attempts: scoreSummaryResult.attempts,
+                lastError: fallbackMessage
+              }
+            }
+          };
+        });
       }
+
       return buildResult();
     } catch (error) {
-      // Errors are handled inside runStep; no additional action required here.
       return buildResult();
     }
 
     return buildResult();
-  }, [currentContext, runAnalysis, runMasterMetaSummary, setPipelineProgress, updateContext]);
+  }, [
+    currentContext,
+    runAnalysis,
+    runMasterMetaSummary,
+    setPipelineProgress,
+    updateContext
+  ]);
 
-  return { runPipeline, resetPipeline, pipelineProgress };
+  return { runPipeline, resetPipeline, pipelineProgress, pipelineError, clearPipelineError };
 };

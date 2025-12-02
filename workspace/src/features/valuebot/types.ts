@@ -36,19 +36,27 @@ export type DeepDivePipelineStatus = 'idle' | 'running' | 'success' | 'error';
 
 export type DeepDiveStepStatus = 'pending' | 'running' | 'done' | 'error';
 
+export interface DeepDiveStepProgress {
+  status: DeepDiveStepStatus;
+  attempts?: number;
+  lastError?: string | null;
+}
+
+export interface DeepDivePipelineSteps {
+  module0: DeepDiveStepProgress;
+  module1: DeepDiveStepProgress;
+  module2: DeepDiveStepProgress;
+  module3: DeepDiveStepProgress;
+  module4: DeepDiveStepProgress;
+  module5: DeepDiveStepProgress;
+  module6: DeepDiveStepProgress;
+  scoreSummary: DeepDiveStepProgress;
+}
+
 export interface DeepDivePipelineProgress {
   status: DeepDivePipelineStatus;
   currentStep: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | null;
-  steps: {
-    module0: DeepDiveStepStatus;
-    module1: DeepDiveStepStatus;
-    module2: DeepDiveStepStatus;
-    module3: DeepDiveStepStatus;
-    module4: DeepDiveStepStatus;
-    module5: DeepDiveStepStatus;
-    module6: DeepDiveStepStatus;
-    scoreSummary: DeepDiveStepStatus;
-  };
+  steps: DeepDivePipelineSteps;
   errorMessage?: string | null;
 }
 
@@ -151,19 +159,27 @@ export const defaultDeepDiveConfig: ValueBotDeepDiveConfig = {
   profileId: null
 };
 
+export const createDefaultStepProgress = (): DeepDiveStepProgress => ({
+  status: 'pending',
+  attempts: 0,
+  lastError: null
+});
+
+export const createDefaultPipelineSteps = (): DeepDivePipelineSteps => ({
+  module0: createDefaultStepProgress(),
+  module1: createDefaultStepProgress(),
+  module2: createDefaultStepProgress(),
+  module3: createDefaultStepProgress(),
+  module4: createDefaultStepProgress(),
+  module5: createDefaultStepProgress(),
+  module6: createDefaultStepProgress(),
+  scoreSummary: createDefaultStepProgress()
+});
+
 export const defaultPipelineProgress: DeepDivePipelineProgress = {
   status: 'idle',
   currentStep: null,
-  steps: {
-    module0: 'pending',
-    module1: 'pending',
-    module2: 'pending',
-    module3: 'pending',
-    module4: 'pending',
-    module5: 'pending',
-    module6: 'pending',
-    scoreSummary: 'pending'
-  },
+  steps: createDefaultPipelineSteps(),
   errorMessage: null
 };
 

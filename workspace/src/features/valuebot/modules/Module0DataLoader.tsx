@@ -291,7 +291,7 @@ IMPORTANT
         {pipelineProgress?.status === 'error' &&
           pipelineProgress?.errorMessage ===
             'Module 6 MASTER markdown is required to generate the score summary.' &&
-          pipelineProgress?.steps?.scoreSummary === 'error' && (
+          pipelineProgress?.steps?.scoreSummary?.status === 'error' && (
             <div className="ai-error" role="alert">
               {pipelineProgress.errorMessage}
             </div>
@@ -330,11 +330,25 @@ IMPORTANT
             {pipelineSteps.map((step) => (
               <li key={step.key}>
                 {step.label}:{' '}
-                {(
-                  pipelineProgress?.steps?.[
-                    step.key as keyof DeepDivePipelineProgress['steps']
-                  ] || 'pending'
-                )}
+                {(() => {
+                  const stepProgress =
+                    pipelineProgress?.steps?.[
+                      step.key as keyof DeepDivePipelineProgress['steps']
+                    ];
+                  const statusLabel =
+                    (typeof stepProgress === 'string'
+                      ? stepProgress
+                      : stepProgress?.status) || 'pending';
+                  const attemptsLabel =
+                    typeof stepProgress === 'object' && stepProgress?.attempts
+                      ? ` (attempts: ${stepProgress.attempts}${
+                          stepProgress.lastError && stepProgress.status === 'error'
+                            ? `, last error: ${stepProgress.lastError}`
+                            : ''
+                        })`
+                      : '';
+                  return `${statusLabel}${attemptsLabel}`;
+                })()}
               </li>
             ))}
           </ul>
