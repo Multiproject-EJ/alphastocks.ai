@@ -1,4 +1,12 @@
+import { createClient } from '@supabase/supabase-js';
 import { runDeepDiveForConfig } from './lib/valuebot/runDeepDiveForConfig.js';
+
+function jsonResponse(status, payload) {
+  return new Response(JSON.stringify(payload), {
+    status,
+    headers: { 'Content-Type': 'application/json' }
+  });
+}
 
 export async function runDeepDiveForConfigServer(options = {}) {
   const supabaseClient = options.supabaseClient;
@@ -52,5 +60,41 @@ export async function runDeepDiveForConfigServer(options = {}) {
   } catch (err) {
     console.error('[ValueBot Worker] Deep dive exception', { ticker, error: err });
     return { ok: false, error: err?.message || 'Deep dive failed unexpectedly' };
+  }
+}
+
+export default async function handler(req) {
+  try {
+    if (req.method !== 'POST') {
+      return jsonResponse(405, { ok: false, error: `Method not allowed: ${req.method}` });
+    }
+
+    let body = {};
+    try {
+      if (typeof req.json === 'function') {
+        body = await req.json();
+      } else {
+        body = req.body || {};
+      }
+    } catch (err) {
+      console.error('[ValueBot Debug] Failed to parse request body', err);
+      body = req.body || {};
+    }
+
+    const supabaseClient =
+      process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY
+        ? createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY)
+        : null;
+
+    const pipeline = await runDeepDiveForConfigServer({
+      config: body,
+      supabaseClient,
+      userId: body?.userId || body?.user_id || null
+    });
+
+    return jsonResponse(200, { ok: true, pipeline });
+  } catch (err) {
+    console.error('[ValueBot Debug] Deep dive handler failed', err);
+    return jsonResponse(500, { ok: false, error: err?.message || 'Deep dive failed' });
   }
 }

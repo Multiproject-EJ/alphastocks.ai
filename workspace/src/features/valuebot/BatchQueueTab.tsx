@@ -20,9 +20,8 @@ const BatchQueueTab: FunctionalComponent = () => {
   const [error, setError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isRunningWorker, setIsRunningWorker] = useState(false);
-  const [workerStatus, setWorkerStatus] = useState<string | null>(null);
-  const [workerError, setWorkerError] = useState<string | null>(null);
+  const [workerRunning, setWorkerRunning] = useState(false);
+  const [workerStatusMessage, setWorkerStatusMessage] = useState<string | null>(null);
   const [newTicker, setNewTicker] = useState('');
   const [newCompanyName, setNewCompanyName] = useState('');
   const [newTimeframe, setNewTimeframe] = useState('');
@@ -180,57 +179,49 @@ const BatchQueueTab: FunctionalComponent = () => {
       .delete()
       .eq('id', id);
 
-    if (deleteError) setWorkerError(deleteError.message);
+    if (deleteError) setWorkerStatusMessage(deleteError.message);
     else {
-      setWorkerStatus('Job deleted from queue.');
+      setWorkerStatusMessage('Job deleted from queue.');
       fetchQueue();
     }
   };
 
   const handleRunWorkerNow = useCallback(async () => {
-    if (isRunningWorker) return;
+    if (workerRunning) return;
 
-    setIsRunningWorker(true);
-    setWorkerStatus('Triggering batch worker…');
-    setWorkerError(null);
+    setWorkerRunning(true);
+    setWorkerStatusMessage('Worker running…');
 
     try {
       const res = await fetch('/api/valuebot-batch-worker', {
         method: 'POST',
-        headers: { 'Accept': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ source: 'manual_queue' })
       });
 
-      const raw = await res.text();
-      console.log('Worker raw response:', raw);
-
       let data: any = null;
+
       try {
-        data = JSON.parse(raw);
+        data = await res.json();
       } catch (parseErr) {
-        setWorkerStatus(`Worker failed: non-JSON response (${res.status}).`);
-        setWorkerError(`Raw response:\n${raw.slice(0, 500)}`);
-        setIsRunningWorker(false);
-        return;
+        throw new Error('Worker returned a non-JSON error response');
       }
 
-      if (!data.ok) {
-        setWorkerStatus(`Worker error (${res.status}).`);
-        setWorkerError(data.error || JSON.stringify(data));
+      if (!res.ok || !data?.ok) {
+        const message = data?.error || 'Unknown worker error';
+        setWorkerStatusMessage(`Worker error (${res.status}): ${message}`);
       } else {
-        setWorkerStatus(
-          `Worker finished: processed ${data.processed}, remaining ${data.remaining}.`
+        setWorkerStatusMessage(
+          `Worker finished: processed ${data.processed ?? 0} jobs, remaining ${data.remaining ?? 0}.`
         );
       }
-
     } catch (networkErr) {
-      setWorkerStatus('Worker request failed.');
-      setWorkerError(String(networkErr));
+      setWorkerStatusMessage(`Worker error (500): ${networkErr instanceof Error ? networkErr.message : String(networkErr)}`);
     }
 
-    // Always refresh queue
     await fetchQueue();
-    setIsRunningWorker(false);
-  }, [fetchQueue, isRunningWorker]);
+    setWorkerRunning(false);
+  }, [fetchQueue, workerRunning]);
 
   const renderStatus = (status: ValueBotQueueStatus) => statusLabels[status] ?? status;
 
@@ -382,9 +373,9 @@ const BatchQueueTab: FunctionalComponent = () => {
                 className="btn-secondary"
                 type="button"
                 onClick={handleRunWorkerNow}
-                disabled={isRunningWorker || isLoading}
+                disabled={workerRunning || isLoading}
               >
-                {isRunningWorker ? 'Running…' : 'Run worker now'}
+                {workerRunning ? 'Running…' : 'Run worker now'}
               </button>
             </div>
           </div>
@@ -393,15 +384,9 @@ const BatchQueueTab: FunctionalComponent = () => {
             Jobs are processed by the /api/valuebot-batch-worker in small batches. Use “Run worker now” to trigger a manual run.
           </p>
 
-          {workerStatus && (
+          {workerStatusMessage && (
             <p className="detail-meta" role="status">
-              {workerStatus}
-            </p>
-          )}
-
-          {workerError && (
-            <p className="form-error" role="alert">
-              {workerError}
+              {workerStatusMessage}
             </p>
           )}
 
@@ -455,11 +440,11 @@ const BatchQueueTab: FunctionalComponent = () => {
                         <td>{job.model || 'default'}</td>
                         <td>{formatDate(job.last_run_at)}</td>
                         <td>{job.attempts ?? 0}</td>
-                        <td title={errorMessage}>{
-                          errorMessage !== '—'
-                            ? errorMessage.slice(0, 60) + (errorMessage.length > 60 ? '…' : '')
-                            : '—'
-                        }</td>
+                        <td title={errorMessage}>
+                          {errorMessage !== '—'
+                            ? errorMessage.slice(0, 120) + (errorMessage.length > 120 ? '…' : '')
+                            : '—'}
+                        </td>
                         <td>{formatDate(job.created_at)}</td>
                         <td>{job.source || 'manual_queue'}</td>
                         <td>
@@ -480,6 +465,7 @@ const BatchQueueTab: FunctionalComponent = () => {
                                 deleteQueueJob(job.id);
                               }}
                               className="btn-danger"
+                              disabled={workerRunning}
                             >
                               Delete
                             </button>
