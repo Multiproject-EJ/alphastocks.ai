@@ -3,36 +3,118 @@
 // - api/lib/valuebot/runDeepDiveForConfig.js (serverless worker)
 // Keep their behavior in sync when making pipeline changes.
 
-import { SupabaseClient } from '@supabase/supabase-js';
-import { analyzeStockAPI, buildApiUrl } from '../../lib/useStockAnalysis.js';
-import { resolveEffectiveModelId } from './modelDefaults.ts';
-import {
-  ValueBotDeepDiveConfig,
-  ValueBotPipelineResult,
-  ValueBotMasterMeta,
-  defaultDeepDiveConfig
-} from './types.ts';
+function resolveApiBaseUrl() {
+  if (typeof window !== 'undefined' && window.location) {
+    return '';
+  }
+
+  const envUrl =
+    process.env.SITE_URL ||
+    process.env.VERCEL_URL ||
+    process.env.DEPLOYMENT_URL ||
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    process.env.PUBLIC_URL;
+
+  if (envUrl) {
+    const normalized = envUrl.startsWith('http') ? envUrl : `https://${envUrl}`;
+    return normalized.replace(/\/$/, '');
+  }
+
+  return 'http://localhost:3000';
+}
+
+export function buildApiUrl(path) {
+  const base = resolveApiBaseUrl();
+  if (!base) return path;
+  return `${base}${path}`;
+}
+
+export async function analyzeStockAPI({ provider, model, ticker, question, timeframe }) {
+  try {
+    const response = await fetch(buildApiUrl('/api/stock-analysis'), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        provider: provider || 'openai',
+        model,
+        ticker,
+        question,
+        timeframe
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      return {
+        data: null,
+        error: data?.message || `HTTP error ${response.status}`
+      };
+    }
+
+    return {
+      data,
+      error: null
+    };
+  } catch (err) {
+    return {
+      data: null,
+      error: err?.message || 'Failed to analyze stock'
+    };
+  }
+}
+
+function getDefaultModelForProvider(provider) {
+  switch (provider) {
+    case 'openai':
+      return 'gpt-4o-mini';
+    default:
+      return null;
+  }
+}
+
+function resolveEffectiveModelId(provider, rawModel) {
+  const trimmedModel = rawModel?.trim();
+  if (trimmedModel) return trimmedModel;
+  return getDefaultModelForProvider(provider);
+}
+
+export const defaultDeepDiveConfig = {
+  provider: 'openai',
+  model: '',
+  ticker: '',
+  companyName: '',
+  currency: '',
+  timeframe: '',
+  customQuestion: '',
+  profileId: null
+};
 
 export const createInitialSteps = () => ({
-  module0: 'pending' as const,
-  module1: 'pending' as const,
-  module2: 'pending' as const,
-  module3: 'pending' as const,
-  module4: 'pending' as const,
-  module5: 'pending' as const,
-  module6: 'pending' as const,
-  scoreSummary: 'pending' as const
+  module0: 'pending',
+  module1: 'pending',
+  module2: 'pending',
+  module3: 'pending',
+  module4: 'pending',
+  module5: 'pending',
+  module6: 'pending',
+  scoreSummary: 'pending'
 });
 
-export type DeepDiveStepKey = keyof ReturnType<typeof createInitialSteps>;
+/**
+ * @typedef {'module0' | 'module1' | 'module2' | 'module3' | 'module4' | 'module5' | 'module6' | 'scoreSummary'} DeepDiveStepKey
+ */
 
-export type DeepDiveRunResult = {
-  success: boolean;
-  error?: string;
-  deepDiveId?: string;
-  ticker: string;
-  meta?: ValueBotMasterMeta | null;
-};
+/**
+ * @typedef {Object} DeepDiveRunResult
+ * @property {boolean} success
+ * @property {string} [error]
+ * @property {string} [deepDiveId]
+ * @property {string} ticker
+ * @property {Object|null} [meta]
+ */
 
 const buildModule0Prompt = (config = defaultDeepDiveConfig) => {
   const ticker = config?.ticker?.trim() || '[Not provided]';
@@ -84,7 +166,7 @@ IMPORTANT
 - Keep everything concise but clear, ready to be reused in later modules.`;
 };
 
-const buildModule1Prompt = (config = defaultDeepDiveConfig, module0Markdown?: string | null) => {
+const buildModule1Prompt = (config = defaultDeepDiveConfig, module0Markdown) => {
   const tickerValue = config?.ticker?.trim() || '[Not provided]';
   const timeframe = config?.timeframe?.trim() || 'General';
   const customQuestion = config?.customQuestion?.trim() || 'None';
@@ -135,11 +217,7 @@ Produce a markdown analysis covering:
 Return only markdown.`;
 };
 
-const buildModule2Prompt = (
-  config = defaultDeepDiveConfig,
-  module0Markdown?: string | null,
-  module1Markdown?: string | null
-) => {
+const buildModule2Prompt = (config = defaultDeepDiveConfig, module0Markdown, module1Markdown) => {
   const tickerValue = config?.ticker?.trim() || '[Not provided]';
   const timeframeValue = config?.timeframe?.trim() || 'General';
   const module0Context = module0Markdown?.trim() || '[No data]';
@@ -188,12 +266,7 @@ ${module1Context}
 - Keep everything as MARKDOWN ONLY.`;
 };
 
-const buildModule3Prompt = (
-  config = defaultDeepDiveConfig,
-  module0Markdown?: string | null,
-  module1Markdown?: string | null,
-  module2Markdown?: string | null
-) => {
+const buildModule3Prompt = (config = defaultDeepDiveConfig, module0Markdown, module1Markdown, module2Markdown) => {
   const tickerValue = config?.ticker?.trim() || '[Ticker not set]';
   const timeframeValue = config?.timeframe?.trim() || '5–15 year horizon';
   const questionValue = config?.customQuestion?.trim() || 'No custom question provided.';
@@ -224,10 +297,10 @@ ${module2Context}`;
 
 const buildModule4Prompt = (
   config = defaultDeepDiveConfig,
-  module0Markdown?: string | null,
-  module1Markdown?: string | null,
-  module2Markdown?: string | null,
-  module3Markdown?: string | null
+  module0Markdown,
+  module1Markdown,
+  module2Markdown,
+  module3Markdown
 ) => {
   const tickerValue = config?.ticker?.trim() || '[Ticker not set]';
   const timeframeValue = config?.timeframe?.trim() || '5–15 year horizon';
@@ -291,12 +364,7 @@ Output format:
 - Do NOT repeat the full risk/business description; assume the reader has Modules 1–3 available. Focus on valuation logic.`;
 };
 
-const buildModule5Prompt = (
-  config = defaultDeepDiveConfig,
-  module1Markdown?: string | null,
-  module3Markdown?: string | null,
-  module4Markdown?: string | null
-) => {
+const buildModule5Prompt = (config = defaultDeepDiveConfig, module1Markdown, module3Markdown, module4Markdown) => {
   const tickerValue = config?.ticker?.trim() || '[Ticker not set]';
   const timeframeValue = config?.timeframe?.trim() || '5–15 year horizon';
   const module1Context = module1Markdown?.trim() || '[Module 1 — Core Diagnostics output missing]';
@@ -332,14 +400,14 @@ Output format: markdown narrative with short heading, then bullet or mini-subhea
 
 const buildModule6Prompt = (
   config = defaultDeepDiveConfig,
-  companyName?: string | null,
-  currentPrice?: number | null,
-  module0Markdown?: string | null,
-  module1Markdown?: string | null,
-  module2Markdown?: string | null,
-  module3Markdown?: string | null,
-  module4Markdown?: string | null,
-  module5Markdown?: string | null
+  companyName,
+  currentPrice,
+  module0Markdown,
+  module1Markdown,
+  module2Markdown,
+  module3Markdown,
+  module4Markdown,
+  module5Markdown
 ) => {
   const tickerValue = config?.ticker?.trim() || '[Ticker not set]';
   const timeframeValue = config?.timeframe?.trim() || '5–15 year horizon';
@@ -409,10 +477,7 @@ ${module5Context}
 ${timingNote}`;
 };
 
-async function runModuleAnalysis(params: {
-  config: ValueBotDeepDiveConfig;
-  prompt: string;
-}) {
+async function runModuleAnalysis(params) {
   const { config, prompt } = params;
   const response = await analyzeStockAPI({
     provider: config.provider || 'openai',
@@ -430,13 +495,7 @@ async function runModuleAnalysis(params: {
   return output?.trim?.() || '';
 }
 
-async function runScoreSummary({
-  config,
-  module6Markdown
-}: {
-  config: ValueBotDeepDiveConfig;
-  module6Markdown: string;
-}) {
+async function runScoreSummary({ config, module6Markdown }) {
   if (!module6Markdown?.trim()) {
     return { meta: null, error: 'Module 6 markdown is required for score summary.' };
   }
@@ -464,18 +523,12 @@ async function runScoreSummary({
     }
 
     return { meta: payload?.meta || payload?.data || null, error: null };
-  } catch (error: any) {
+  } catch (error) {
     return { meta: null, error: error?.message || 'Unable to generate score summary.' };
   }
 }
 
-async function saveDeepDiveToSupabase(params: {
-  supabaseClient?: SupabaseClient;
-  pipeline: ValueBotPipelineResult;
-  config: ValueBotDeepDiveConfig;
-  masterMeta: ValueBotMasterMeta | null | undefined;
-  userId?: string | null;
-}): Promise<{ deepDiveId: string | null; warning?: string | null }> {
+async function saveDeepDiveToSupabase(params) {
   const { supabaseClient, pipeline, config, masterMeta, userId } = params;
 
   if (!supabaseClient) {
@@ -517,7 +570,7 @@ async function saveDeepDiveToSupabase(params: {
     throw new Error(error.message || 'Unable to save deep dive.');
   }
 
-  let metadataWarning: string | null = null;
+  let metadataWarning = null;
 
   const { error: universeError } = await supabaseClient
     .from('investment_universe')
@@ -545,17 +598,21 @@ async function saveDeepDiveToSupabase(params: {
   return { deepDiveId: insertData?.id ?? null, warning: metadataWarning };
 }
 
-export async function runDeepDiveForConfig(params: {
-  config: ValueBotDeepDiveConfig;
-  userId?: string | null;
-  supabaseClient?: SupabaseClient;
-  skipSave?: boolean;
-  onStepStatusChange?: (step: DeepDiveStepKey, status: 'running' | 'done' | 'error') => void;
-}): Promise<DeepDiveRunResult> {
+/**
+ * Runs the ValueBot deep-dive pipeline server-side.
+ * @param {Object} params
+ * @param {Object} params.config - Deep dive configuration (ticker, companyName, provider, model, timeframe, customQuestion, userId, etc.).
+ * @param {string|null} [params.userId]
+ * @param {Object} [params.supabaseClient]
+ * @param {boolean} [params.skipSave]
+ * @param {(step: DeepDiveStepKey, status: 'running' | 'done' | 'error') => void} [params.onStepStatusChange]
+ * @returns {Promise<DeepDiveRunResult>}
+ */
+export async function runDeepDiveForConfig(params = {}) {
   const config = params?.config || defaultDeepDiveConfig;
   const notify = params?.onStepStatusChange;
 
-  const safeNotify = (step: DeepDiveStepKey, status: 'running' | 'done' | 'error') => {
+  const safeNotify = (step, status) => {
     try {
       notify?.(step, status);
     } catch (err) {
@@ -680,7 +737,7 @@ export async function runDeepDiveForConfig(params: {
     safeNotify('scoreSummary', 'done');
   }
 
-  const pipelineResult: ValueBotPipelineResult = {
+  const pipelineResult = {
     ticker: config.ticker?.trim() || '',
     provider: config.provider || 'openai',
     model: config.model || null,
@@ -713,7 +770,7 @@ export async function runDeepDiveForConfig(params: {
     }
 
     return { success: true, deepDiveId: undefined, ticker: pipelineResult.ticker, meta: meta || null };
-  } catch (error: any) {
+  } catch (error) {
     return {
       success: false,
       error: error?.message || 'Unable to save deep dive',
