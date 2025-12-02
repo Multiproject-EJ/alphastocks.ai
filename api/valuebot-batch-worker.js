@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import { runDeepDiveForConfig } from '../workspace/src/features/valuebot/runDeepDiveForConfig.ts';
+import { runDeepDiveForConfig } from './lib/valuebot/runDeepDiveForConfig.js';
 
 function createSupabaseClient() {
   const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
