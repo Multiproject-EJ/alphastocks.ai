@@ -456,11 +456,28 @@ export const useRunDeepDivePipeline = () => {
           steps[step as keyof DeepDivePipelineProgress['steps']]?.status === 'done'
       );
 
-    const buildResult = () => ({
-      pipelineProgress: latestProgress,
-      coreModulesSucceeded: areCoreStepsSuccessful(latestProgress.steps),
-      masterMetaGenerated: Boolean(latestContext.masterMeta)
-    });
+    const buildResult = () => {
+      const latestMasterMarkdown =
+        (latestContext?.masterMarkdown || latestContext?.module6Markdown || '').trim();
+      const latestMasterMeta = latestContext?.masterMeta ?? null;
+
+      if ((latestMasterMarkdown || latestMasterMeta) && updateContext) {
+        updateContext({
+          lastPipelineResult: {
+            masterMarkdown: latestMasterMarkdown || null,
+            masterMeta: latestMasterMeta
+          }
+        });
+      }
+
+      return {
+        pipelineProgress: latestProgress,
+        coreModulesSucceeded: areCoreStepsSuccessful(latestProgress.steps),
+        masterMetaGenerated: Boolean(latestContext.masterMeta),
+        masterMarkdown: latestMasterMarkdown,
+        masterMeta: latestMasterMeta
+      };
+    };
 
     const safeSetProgress = (
       updater:
@@ -849,6 +866,7 @@ export const useRunDeepDivePipeline = () => {
 
         latestContext = {
           ...latestContext,
+          masterMarkdown: output,
           module6Markdown: output,
           module6Output: output
         };

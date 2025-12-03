@@ -20,6 +20,8 @@ const Module0DataLoader: FunctionalComponent<ValueBotModuleProps> = ({ context, 
   const { runAnalysis, loading, error, data } = useRunStockAnalysis();
   const { runPipeline, pipelineProgress } = useRunDeepDivePipeline();
   const { saveDeepDive, isSaving: isSavingDeepDive } = useSaveDeepDiveToUniverse();
+  const missingMasterMessage =
+    'Final verdict is missing. Run Module 6 to generate the MASTER report before saving.';
   const [isRunningAndSaving, setIsRunningAndSaving] = useState(false);
   const [runSaveError, setRunSaveError] = useState<string | null>(null);
   const [runSaveWarning, setRunSaveWarning] = useState<string | null>(null);
@@ -151,6 +153,17 @@ IMPORTANT
   ];
 
   const isPipelineRunning = pipelineProgress?.status === 'running';
+  const lastPipelineMasterMarkdown = resolvedContext?.lastPipelineResult?.masterMarkdown;
+  const hasMasterMarkdown =
+    resolvedContext?.masterMarkdown?.trim() ||
+    resolvedContext?.module6Markdown?.trim() ||
+    lastPipelineMasterMarkdown?.trim();
+  const showMissingMasterWarning = !hasMasterMarkdown && !isPipelineRunning;
+  const shouldShowRunSaveError =
+    Boolean(runSaveError) &&
+    (runSaveError !== missingMasterMessage || showMissingMasterWarning);
+  const showMissingMasterAlert =
+    showMissingMasterWarning && !shouldShowRunSaveError;
 
   const handleRunFullDeepDiveAndSave = useCallback(async () => {
     setRunSaveError(null);
@@ -160,6 +173,12 @@ IMPORTANT
 
     try {
       const pipelineResult = await runPipeline();
+
+      if (!pipelineResult) {
+        setRunSaveError('Deep dive pipeline did not start. Please try again.');
+        return;
+      }
+
       const coreModulesOk = Boolean(pipelineResult?.coreModulesSucceeded);
 
       if (!coreModulesOk) {
@@ -167,7 +186,29 @@ IMPORTANT
         return;
       }
 
-      const saveResult = await saveDeepDive();
+      const module6Completed =
+        pipelineResult?.pipelineProgress?.steps?.module6?.status === 'done';
+      const scoreSummaryCompleted =
+        pipelineResult?.pipelineProgress?.steps?.scoreSummary?.status === 'done';
+      const pipelineMasterMarkdown = pipelineResult?.masterMarkdown?.trim?.() || '';
+      const canAutoSave = Boolean(
+        pipelineMasterMarkdown || (module6Completed && scoreSummaryCompleted)
+      );
+
+      if (!canAutoSave) {
+        console.warn(
+          '[ValueBot Pipeline] Auto-save skipped: missing masterMarkdown in pipeline result.'
+        );
+        setRunSaveWarning(
+          'Deep dive finished, but the final verdict could not be captured automatically. Open Module 6 to review and save manually.'
+        );
+        return;
+      }
+
+      const saveResult = await saveDeepDive({
+        masterMarkdownOverride: pipelineMasterMarkdown,
+        metaOverride: pipelineResult?.masterMeta ?? null
+      });
 
       if (saveResult?.error) {
         setRunSaveError(saveResult.error);
@@ -304,9 +345,14 @@ IMPORTANT
               {pipelineProgress.errorMessage}
             </div>
           )}
-        {runSaveError && (
+        {shouldShowRunSaveError && (
           <div className="ai-error" role="alert">
             {runSaveError}
+          </div>
+        )}
+        {showMissingMasterAlert && (
+          <div className="ai-error" role="alert">
+            {missingMasterMessage}
           </div>
         )}
         {runSaveWarning && (
