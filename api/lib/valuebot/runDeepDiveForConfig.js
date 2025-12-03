@@ -131,7 +131,7 @@ function getDefaultModelForProvider(provider) {
 
 function resolveEffectiveModelId(provider, rawModel) {
   const trimmedModel = rawModel?.trim();
-  if (trimmedModel) return trimmedModel;
+  if (trimmedModel && trimmedModel !== 'default') return trimmedModel;
   return getDefaultModelForProvider(provider);
 }
 
@@ -679,7 +679,8 @@ export async function runDeepDiveForConfig(params = {}) {
   const config = {
     ...rawConfig,
     ticker: rawTicker || null,
-    companyName: rawCompanyName || null
+    companyName: rawCompanyName || null,
+    model: resolveEffectiveModelId(rawConfig?.provider || 'openai', rawConfig?.model ?? null)
   };
   const notify = params?.onStepStatusChange;
 

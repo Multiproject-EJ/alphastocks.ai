@@ -571,7 +571,8 @@ export async function runDeepDiveForConfig(params: {
   const config: ValueBotDeepDiveConfig = {
     ...rawConfig,
     ticker: rawTicker || null,
-    companyName: rawCompanyName || null
+    companyName: rawCompanyName || null,
+    model: resolveEffectiveModelId(rawConfig?.provider || 'openai', rawConfig?.model ?? null)
   };
   const notify = params?.onStepStatusChange;
 

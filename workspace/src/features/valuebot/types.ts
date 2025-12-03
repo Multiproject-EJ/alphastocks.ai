@@ -115,9 +115,11 @@ export interface ValueBotQueueJob {
   priority: number;
   attempts: number;
   last_error: string | null;
+  error?: string | null;
   scheduled_at: string | null;
   started_at: string | null;
   completed_at: string | null;
+  last_run?: string | null;
   last_run_at: string | null;
   deep_dive_id: string | null;
   source: string;

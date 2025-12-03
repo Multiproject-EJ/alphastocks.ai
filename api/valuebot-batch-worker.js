@@ -48,7 +48,9 @@ export default async function handler(req, res) {
     const { data: jobs, error: fetchError } = await supabase
       .from('valuebot_analysis_queue')
       .select('*')
-      .eq('status', QUEUE_STATUS.PENDING)
+      .or(
+        ['status.is.null', `status.eq.${QUEUE_STATUS.PENDING}`, `status.eq.${QUEUE_STATUS.RUNNING}`].join(',')
+      )
       .order('created_at', { ascending: true })
       .limit(BATCH_SIZE);
 
@@ -65,16 +67,32 @@ export default async function handler(req, res) {
     const jobsToProcess = jobs || [];
 
     async function markJobStatus(supabaseAdmin, job, status, extra = {}) {
+      const now = new Date().toISOString();
+      const isFinal = status === QUEUE_STATUS.COMPLETED || status === QUEUE_STATUS.FAILED;
+      const attempts = isFinal ? (job.attempts || 0) + 1 : job.attempts || 0;
+
+      const updates = {
+        status,
+        updated_at: now
+      };
+
+      if (isFinal) {
+        updates.last_run = now;
+        updates.last_run_at = now;
+        updates.attempts = attempts;
+        updates.error = status === QUEUE_STATUS.FAILED ? extra.errorSnippet || null : null;
+        updates.last_error = status === QUEUE_STATUS.FAILED ? extra.errorSnippet || null : null;
+        if (status === QUEUE_STATUS.COMPLETED) {
+          updates.error = null;
+          updates.last_error = null;
+        }
+      } else if (status === QUEUE_STATUS.RUNNING) {
+        updates.started_at = now;
+      }
+
       const { error } = await supabaseAdmin
         .from('valuebot_analysis_queue')
-        .update({
-          status,
-          last_run_at: new Date().toISOString(),
-          attempts: (job.attempts || 0) + (status === QUEUE_STATUS.RUNNING ? 0 : 1),
-          error: status === QUEUE_STATUS.FAILED ? extra.errorSnippet || null : null,
-          last_error: status === QUEUE_STATUS.FAILED ? extra.errorSnippet || null : null,
-          updated_at: new Date().toISOString()
-        })
+        .update(updates)
         .eq('id', job.id);
 
       if (error) {
@@ -141,11 +159,22 @@ export default async function handler(req, res) {
     const { count: remainingPending, error: remainingError } = await supabase
       .from('valuebot_analysis_queue')
       .select('*', { count: 'exact', head: true })
-      .eq('status', QUEUE_STATUS.PENDING);
+      .or(
+        ['status.is.null', `status.eq.${QUEUE_STATUS.PENDING}`, `status.eq.${QUEUE_STATUS.RUNNING}`].join(',')
+      );
+
+    const { count: completedCount, error: completedError } = await supabase
+      .from('valuebot_analysis_queue')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', QUEUE_STATUS.COMPLETED);
 
     const remainingCount = remainingError ? 0 : remainingPending ?? 0;
+    const completed = completedError ? 0 : completedCount ?? 0;
     if (remainingError) {
       console.error('[ValueBot Worker] Failed to count remaining jobs', remainingError);
+    }
+    if (completedError) {
+      console.error('[ValueBot Worker] Failed to count completed jobs', completedError);
     }
 
     const response = jsonResponse(200, {
@@ -153,6 +182,7 @@ export default async function handler(req, res) {
       processed: processedCount,
       failed: failedCount,
       remaining: remainingCount,
+      completed,
       errors: jobErrors
     });
     res.status(response.status).setHeader('Content-Type', 'application/json');
