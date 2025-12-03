@@ -621,151 +621,187 @@ export async function runDeepDiveForConfig(params = {}) {
   };
 
   let pipelineResult = null;
+  let currentStage = 'pipeline:init';
+  let module0Markdown;
+  let module1Markdown;
+  let module2Markdown;
+  let module3Markdown;
+  let module4Markdown;
+  let module5Markdown;
+  let module6Markdown;
+  let meta = null;
 
-  const module0Markdown = await (async () => {
-    safeNotify('module0', 'running');
-    try {
-      const output = await runModuleAnalysis({ config, prompt: buildModule0Prompt(config) });
-      safeNotify('module0', 'done');
-      return output;
-    } catch (error) {
-      safeNotify('module0', 'error');
-      throw error;
-    }
-  })();
+  try {
+    currentStage = 'module_0_data_loader';
+    module0Markdown = await (async () => {
+      safeNotify('module0', 'running');
+      try {
+        const output = await runModuleAnalysis({ config, prompt: buildModule0Prompt(config) });
+        safeNotify('module0', 'done');
+        return output;
+      } catch (error) {
+        safeNotify('module0', 'error');
+        throw error;
+      }
+    })();
 
-  const module1Markdown = await (async () => {
-    safeNotify('module1', 'running');
-    try {
-      const output = await runModuleAnalysis({ config, prompt: buildModule1Prompt(config, module0Markdown) });
-      safeNotify('module1', 'done');
-      return output;
-    } catch (error) {
-      safeNotify('module1', 'error');
-      throw error;
-    }
-  })();
+    currentStage = 'module_1_core_diagnostics';
+    module1Markdown = await (async () => {
+      safeNotify('module1', 'running');
+      try {
+        const output = await runModuleAnalysis({ config, prompt: buildModule1Prompt(config, module0Markdown) });
+        safeNotify('module1', 'done');
+        return output;
+      } catch (error) {
+        safeNotify('module1', 'error');
+        throw error;
+      }
+    })();
 
-  const module2Markdown = await (async () => {
-    safeNotify('module2', 'running');
-    try {
-      const output = await runModuleAnalysis({
-        config,
-        prompt: buildModule2Prompt(config, module0Markdown, module1Markdown)
-      });
-      safeNotify('module2', 'done');
-      return output;
-    } catch (error) {
-      safeNotify('module2', 'error');
-      throw error;
-    }
-  })();
-
-  const module3Markdown = await (async () => {
-    safeNotify('module3', 'running');
-    try {
-      const output = await runModuleAnalysis({
-        config,
-        prompt: buildModule3Prompt(config, module0Markdown, module1Markdown, module2Markdown)
-      });
-      safeNotify('module3', 'done');
-      return output;
-    } catch (error) {
-      safeNotify('module3', 'error');
-      throw error;
-    }
-  })();
-
-  const module4Markdown = await (async () => {
-    safeNotify('module4', 'running');
-    try {
-      const output = await runModuleAnalysis({
-        config,
-        prompt: buildModule4Prompt(config, module0Markdown, module1Markdown, module2Markdown, module3Markdown)
-      });
-      safeNotify('module4', 'done');
-      return output;
-    } catch (error) {
-      safeNotify('module4', 'error');
-      throw error;
-    }
-  })();
-
-  const module5Markdown = await (async () => {
-    safeNotify('module5', 'running');
-    try {
-      const output = await runModuleAnalysis({
-        config,
-        prompt: buildModule5Prompt(config, module1Markdown, module3Markdown, module4Markdown)
-      });
-      safeNotify('module5', 'done');
-      return output;
-    } catch (error) {
-      safeNotify('module5', 'error');
-      throw error;
-    }
-  })();
-
-  const module6Markdown = await (async () => {
-    safeNotify('module6', 'running');
-    try {
-      const output = await runModuleAnalysis({
-        config,
-        prompt: buildModule6Prompt(
+    currentStage = 'module_2_business_model';
+    module2Markdown = await (async () => {
+      safeNotify('module2', 'running');
+      try {
+        const output = await runModuleAnalysis({
           config,
-          null,
-          null,
+          prompt: buildModule2Prompt(config, module0Markdown, module1Markdown)
+        });
+        safeNotify('module2', 'done');
+        return output;
+      } catch (error) {
+        safeNotify('module2', 'error');
+        throw error;
+      }
+    })();
+
+    currentStage = 'module_3_scenario_engine';
+    module3Markdown = await (async () => {
+      safeNotify('module3', 'running');
+      try {
+        const output = await runModuleAnalysis({
+          config,
+          prompt: buildModule3Prompt(config, module0Markdown, module1Markdown, module2Markdown)
+        });
+        safeNotify('module3', 'done');
+        return output;
+      } catch (error) {
+        safeNotify('module3', 'error');
+        throw error;
+      }
+    })();
+
+    currentStage = 'module_4_competitive_dynamics';
+    module4Markdown = await (async () => {
+      safeNotify('module4', 'running');
+      try {
+        const output = await runModuleAnalysis({
+          config,
+          prompt: buildModule4Prompt(config, module0Markdown, module1Markdown, module2Markdown, module3Markdown)
+        });
+        safeNotify('module4', 'done');
+        return output;
+      } catch (error) {
+        safeNotify('module4', 'error');
+        throw error;
+      }
+    })();
+
+    currentStage = 'module_5_capital_allocation';
+    module5Markdown = await (async () => {
+      safeNotify('module5', 'running');
+      try {
+        const output = await runModuleAnalysis({
+          config,
+          prompt: buildModule5Prompt(config, module1Markdown, module3Markdown, module4Markdown)
+        });
+        safeNotify('module5', 'done');
+        return output;
+      } catch (error) {
+        safeNotify('module5', 'error');
+        throw error;
+      }
+    })();
+
+    currentStage = 'module_6_final_verdict';
+    module6Markdown = await (async () => {
+      safeNotify('module6', 'running');
+      try {
+        const output = await runModuleAnalysis({
+          config,
+          prompt: buildModule6Prompt(
+            config,
+            null,
+            null,
+            module0Markdown,
+            module1Markdown,
+            module2Markdown,
+            module3Markdown,
+            module4Markdown,
+            module5Markdown
+          )
+        });
+        safeNotify('module6', 'done');
+        return output;
+      } catch (error) {
+        safeNotify('module6', 'error');
+        throw error;
+      }
+    })();
+
+    currentStage = 'step_7_score_summary';
+    safeNotify('scoreSummary', 'running');
+    const scoreResult = await runScoreSummary({ config, module6Markdown });
+    meta = scoreResult.meta;
+    if (scoreResult.error) {
+      safeNotify('scoreSummary', 'error');
+    } else {
+      safeNotify('scoreSummary', 'done');
+    }
+
+    pipelineResult = {
+      ticker: config.ticker?.trim() || '',
+      provider: config.provider || 'openai',
+      model: config.model || null,
+      module0Markdown,
+      module1Markdown,
+      module2Markdown,
+      module3Markdown,
+      module4Markdown,
+      module5Markdown,
+      module6Markdown,
+      masterMeta: meta || null
+    };
+
+    currentStage = 'save_deep_dive';
+    try {
+      if (!params?.skipSave) {
+        const { deepDiveId } = await saveDeepDiveToSupabase({
+          supabaseClient: params?.supabaseClient,
+          pipeline: pipelineResult,
+          config,
+          masterMeta: meta,
+          userId: params?.userId
+        });
+
+        return {
+          success: true,
+          deepDiveId: deepDiveId || undefined,
+          ticker: pipelineResult.ticker,
+          meta: meta || null,
+          masterMeta: meta || null,
           module0Markdown,
           module1Markdown,
           module2Markdown,
           module3Markdown,
           module4Markdown,
-          module5Markdown
-        )
-      });
-      safeNotify('module6', 'done');
-      return output;
-    } catch (error) {
-      safeNotify('module6', 'error');
-      throw error;
-    }
-  })();
-
-  safeNotify('scoreSummary', 'running');
-  const { meta, error } = await runScoreSummary({ config, module6Markdown });
-  if (error) {
-    safeNotify('scoreSummary', 'error');
-  } else {
-    safeNotify('scoreSummary', 'done');
-  }
-
-  pipelineResult = {
-    ticker: config.ticker?.trim() || '',
-    provider: config.provider || 'openai',
-    model: config.model || null,
-    module0Markdown,
-    module1Markdown,
-    module2Markdown,
-    module3Markdown,
-    module4Markdown,
-    module5Markdown,
-    module6Markdown,
-    masterMeta: meta || null
-  };
-
-  try {
-    if (!params?.skipSave) {
-      const { deepDiveId } = await saveDeepDiveToSupabase({
-        supabaseClient: params?.supabaseClient,
-        pipeline: pipelineResult,
-        config,
-        masterMeta: meta,
-        userId: params?.userId
-      });
+          module5Markdown,
+          module6Markdown
+        };
+      }
 
       return {
         success: true,
-        deepDiveId: deepDiveId || undefined,
+        deepDiveId: undefined,
         ticker: pipelineResult.ticker,
         meta: meta || null,
         masterMeta: meta || null,
@@ -777,37 +813,74 @@ export async function runDeepDiveForConfig(params = {}) {
         module5Markdown,
         module6Markdown
       };
+    } catch (error) {
+      return {
+        success: false,
+        error: error?.message || 'Unable to save deep dive',
+        ticker: pipelineResult?.ticker || config.ticker?.trim() || '',
+        meta: meta || null,
+        masterMeta: meta || null,
+        module0Markdown: pipelineResult?.module0Markdown,
+        module1Markdown: pipelineResult?.module1Markdown,
+        module2Markdown: pipelineResult?.module2Markdown,
+        module3Markdown: pipelineResult?.module3Markdown,
+        module4Markdown: pipelineResult?.module4Markdown,
+        module5Markdown: pipelineResult?.module5Markdown,
+        module6Markdown: pipelineResult?.module6Markdown
+      };
+    }
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    const wrapped = `[stage=${currentStage}] ${msg}`;
+    console.error('[ValueBot Worker] Deep-dive error', { currentStage, msg });
+    throw new Error(wrapped);
+  }
+}
+
+export async function runDeepDiveForConfigServer({ supabase, job }) {
+  const ticker = job?.ticker?.trim?.() || job?.company_name || '[unknown]';
+  const companyName = job?.company_name?.trim?.() || '';
+
+  console.log('[ValueBot Worker] Starting deep dive', { ticker, companyName });
+
+  try {
+    const result = await runDeepDiveForConfig({
+      supabaseClient: supabase,
+      userId: job?.user_id || job?.profileId || null,
+      config: {
+        provider: job?.provider || 'openai',
+        model: job?.model || job?.model_id || '',
+        ticker: job?.ticker || '',
+        companyName,
+        timeframe: job?.timeframe || job?.time_horizon || '',
+        customQuestion: job?.custom_question || job?.customQuestion || '',
+        profileId: job?.profileId || job?.user_id || null,
+        market: job?.market || ''
+      }
+    });
+
+    if (!result?.success) {
+      throw new Error(result?.error || 'Deep dive failed');
     }
 
+    console.log('[ValueBot Worker] Deep dive completed', { ticker, companyName });
+
     return {
-      success: true,
-      deepDiveId: undefined,
-      ticker: pipelineResult.ticker,
-      meta: meta || null,
-      masterMeta: meta || null,
-      module0Markdown,
-      module1Markdown,
-      module2Markdown,
-      module3Markdown,
-      module4Markdown,
-      module5Markdown,
-      module6Markdown
+      ok: true,
+      deepDiveId: result?.deepDiveId,
+      module0Markdown: result?.module0Markdown,
+      module1Markdown: result?.module1Markdown,
+      module2Markdown: result?.module2Markdown,
+      module3Markdown: result?.module3Markdown,
+      module4Markdown: result?.module4Markdown,
+      module5Markdown: result?.module5Markdown,
+      module6Markdown: result?.module6Markdown,
+      masterMeta: result?.masterMeta || result?.meta || null
     };
-  } catch (error) {
-    return {
-      success: false,
-      error: error?.message || 'Unable to save deep dive',
-      ticker: pipelineResult?.ticker || config.ticker?.trim() || '',
-      meta: meta || null,
-      masterMeta: meta || null,
-      module0Markdown: pipelineResult?.module0Markdown,
-      module1Markdown: pipelineResult?.module1Markdown,
-      module2Markdown: pipelineResult?.module2Markdown,
-      module3Markdown: pipelineResult?.module3Markdown,
-      module4Markdown: pipelineResult?.module4Markdown,
-      module5Markdown: pipelineResult?.module5Markdown,
-      module6Markdown: pipelineResult?.module6Markdown
-    };
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error('[ValueBot Worker] Deep dive exception', { ticker, error: msg });
+    throw new Error(msg);
   }
 }
 

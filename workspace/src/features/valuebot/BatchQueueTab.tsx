@@ -5,10 +5,11 @@ import { useAuth } from '../../context/AuthContext.jsx';
 import { defaultDeepDiveConfig, ValueBotQueueJob, ValueBotQueueStatus } from './types.ts';
 import { getModelOptionsForProvider, providerOptions } from './providerConfig.ts';
 
-const statusLabels: Record<ValueBotQueueStatus, string> = {
+const statusLabels: Record<string, string> = {
   pending: 'Pending',
   running: 'Running',
   succeeded: 'Completed',
+  completed: 'Completed',
   failed: 'Failed',
   skipped: 'Skipped'
 };
@@ -192,6 +193,8 @@ const BatchQueueTab: FunctionalComponent = () => {
     setWorkerRunning(true);
     setWorkerStatusMessage('Worker running…');
 
+    let message: string | null = null;
+
     try {
       const res = await fetch('/api/valuebot-batch-worker', {
         method: 'POST',
@@ -204,23 +207,28 @@ const BatchQueueTab: FunctionalComponent = () => {
       try {
         data = await res.json();
       } catch (parseErr) {
-        throw new Error('Worker returned a non-JSON error response');
+        message = 'Worker error (non-JSON response)';
       }
 
-      if (!res.ok || !data?.ok) {
-        const message = data?.error || 'Unknown worker error';
-        setWorkerStatusMessage(`Worker error (${res.status}): ${message}`);
-      } else {
-        setWorkerStatusMessage(
-          `Worker finished: processed ${data.processed ?? 0} jobs, remaining ${data.remaining ?? 0}.`
-        );
+      if (data) {
+        if (!res.ok || !data?.ok) {
+          const errorDetail = data?.error || 'Unknown worker error';
+          message = `Worker error (${res.status}): ${errorDetail}`;
+        } else {
+          const elapsedLabel = typeof data.elapsedSec === 'number' ? `${Math.round(data.elapsedSec * 10) / 10}s` : 'n/a';
+          const budgetNote = data.timeBudgetHit ? ' (time budget reached)' : '';
+          message = `Worker finished: processed ${data.processed ?? 0} jobs, remaining ${data.remaining ?? 0} (elapsed ${elapsedLabel})${budgetNote}.`;
+        }
       }
     } catch (networkErr) {
-      setWorkerStatusMessage(`Worker error (500): ${networkErr instanceof Error ? networkErr.message : String(networkErr)}`);
+      message = `Worker error (500): ${networkErr instanceof Error ? networkErr.message : String(networkErr)}`;
+    } finally {
+      if (message) {
+        setWorkerStatusMessage(message);
+      }
+      await fetchQueue();
+      setWorkerRunning(false);
     }
-
-    await fetchQueue();
-    setWorkerRunning(false);
   }, [fetchQueue, workerRunning]);
 
   const renderStatus = (status: ValueBotQueueStatus) => statusLabels[status] ?? status;
@@ -430,7 +438,9 @@ const BatchQueueTab: FunctionalComponent = () => {
                         ? '(no ticker)'
                         : '—';
                     const errorMessage =
-                      job.last_error || (job.status === 'failed' ? 'Failed (no error recorded).' : '—');
+                      (job as any)?.error ||
+                      job.last_error ||
+                      (job.status === 'failed' ? 'Failed (no error recorded).' : '—');
                     return (
                       <tr key={job.id}>
                         <td>{tickerLabel}</td>
@@ -442,7 +452,7 @@ const BatchQueueTab: FunctionalComponent = () => {
                         <td>{job.attempts ?? 0}</td>
                         <td title={errorMessage}>
                           {errorMessage !== '—'
-                            ? errorMessage.slice(0, 120) + (errorMessage.length > 120 ? '…' : '')
+                            ? errorMessage.slice(0, 80) + (errorMessage.length > 80 ? '…' : '')
                             : '—'}
                         </td>
                         <td>{formatDate(job.created_at)}</td>
