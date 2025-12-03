@@ -1,7 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
 import { runDeepDiveForConfigServer } from './lib/valuebot/runDeepDiveForConfig.js';
 
-const MAX_JOBS_PER_RUN = 3;
+const BATCH_SIZE = 1;
+const MAX_WORKER_MS = 250_000;
 
 function jsonResponse(status, payload) {
   return new Response(JSON.stringify(payload), {
@@ -30,69 +31,60 @@ export default async function handler(req, res) {
     auth: { persistSession: false }
   });
 
+  const start = Date.now();
+  let processed = 0;
+  const jobErrors = [];
+
   try {
-    const { data: jobs, count: pendingCount, error: fetchError } = await supabase
+    const { data: jobs, error: fetchError } = await supabase
       .from('valuebot_analysis_queue')
-      .select('*', { count: 'exact' })
+      .select('*')
       .eq('status', 'pending')
       .order('created_at', { ascending: true })
-      .limit(MAX_JOBS_PER_RUN);
+      .limit(BATCH_SIZE);
 
     if (fetchError) {
-      const response = jsonResponse(500, { ok: false, error: 'Failed to fetch pending jobs' });
-      res.status(response.status).setHeader('Content-Type', 'application/json');
-      return res.end(await response.text());
-    }
-
-    if (!jobs || jobs.length === 0) {
-      const response = jsonResponse(200, {
-        ok: true,
-        processed: 0,
-        remaining: pendingCount || 0
+      const response = jsonResponse(500, {
+        ok: false,
+        error: 'Failed to fetch pending jobs',
+        details: fetchError.message || String(fetchError)
       });
       res.status(response.status).setHeader('Content-Type', 'application/json');
       return res.end(await response.text());
     }
 
-    const now = new Date().toISOString();
-    const claimedJobs = jobs.map((job) => ({
-      id: job.id,
-      status: 'running',
-      attempts: (job.attempts || 0) + 1,
-      last_run: now,
-      error: null
-    }));
-
-    const { data: claimed, error: claimError } = await supabase
-      .from('valuebot_analysis_queue')
-      .upsert(claimedJobs, { onConflict: 'id' })
-      .select();
-
-    if (claimError) {
-      const response = jsonResponse(500, { ok: false, error: 'Failed to claim jobs' });
-      res.status(response.status).setHeader('Content-Type', 'application/json');
-      return res.end(await response.text());
-    }
-
-    let processed = 0;
-    const jobsToProcess = claimed?.length ? claimed : jobs;
+    const jobsToProcess = jobs || [];
 
     for (const job of jobsToProcess) {
       const ticker = (job.ticker || '').trim() || null;
       const companyName = (job.company_name || '').trim() || null;
+      const baseAttempts = (job.attempts || 0) + 1;
 
       if (!ticker && !companyName) {
+        const errorMessage = 'Missing ticker and company name';
         console.error('[ValueBot Worker] Job failed - missing identifiers', { id: job.id });
         await supabase
           .from('valuebot_analysis_queue')
           .update({
             status: 'failed',
-            error: 'Missing ticker and company name',
+            attempts: baseAttempts,
+            error: errorMessage,
             last_run: new Date().toISOString()
           })
           .eq('id', job.id);
+        jobErrors.push({ id: job.id, error: errorMessage });
         continue;
       }
+
+      await supabase
+        .from('valuebot_analysis_queue')
+        .update({
+          status: 'running',
+          attempts: baseAttempts,
+          last_run: new Date().toISOString(),
+          error: null
+        })
+        .eq('id', job.id);
 
       const deepDiveConfig = {
         provider: (job.provider || 'openai').trim(),
@@ -116,6 +108,7 @@ export default async function handler(req, res) {
           .from('valuebot_analysis_queue')
           .update({
             status: 'completed',
+            attempts: baseAttempts,
             error: null,
             last_run: new Date().toISOString()
           })
@@ -128,10 +121,17 @@ export default async function handler(req, res) {
           .from('valuebot_analysis_queue')
           .update({
             status: 'failed',
-            error: message.slice(0, 500),
+            attempts: baseAttempts,
+            error: message.slice(0, 300),
             last_run: new Date().toISOString()
           })
           .eq('id', job.id);
+
+        jobErrors.push({ id: job.id, error: message.slice(0, 300) });
+      }
+
+      if (Date.now() - start > MAX_WORKER_MS) {
+        break;
       }
     }
 
@@ -140,23 +140,25 @@ export default async function handler(req, res) {
       .select('*', { count: 'exact', head: true })
       .eq('status', 'pending');
 
+    const remaining = remainingError ? 0 : remainingPending ?? 0;
     if (remainingError) {
-      const response = jsonResponse(500, { ok: false, error: 'Failed to count remaining jobs' });
-      res.status(response.status).setHeader('Content-Type', 'application/json');
-      return res.end(await response.text());
+      console.error('[ValueBot Worker] Failed to count remaining jobs', remainingError);
     }
 
     const response = jsonResponse(200, {
       ok: true,
       processed,
-      remaining: remainingPending ?? 0
+      remaining,
+      errors: jobErrors
     });
     res.status(response.status).setHeader('Content-Type', 'application/json');
     return res.end(await response.text());
   } catch (err) {
+    console.error('[ValueBot Worker] Fatal error', err);
     const response = jsonResponse(500, {
       ok: false,
-      error: 'Worker failed: ' + (err?.message || String(err))
+      error: 'Worker fatal error',
+      details: err?.message || String(err)
     });
     res.status(response.status).setHeader('Content-Type', 'application/json');
     return res.end(await response.text());
