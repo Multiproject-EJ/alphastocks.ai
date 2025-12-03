@@ -4,6 +4,14 @@ import { runDeepDiveForConfigServer } from './lib/valuebot/runDeepDiveForConfig.
 const BATCH_SIZE = 1;
 const MAX_WORKER_MS = 250_000;
 
+const QUEUE_STATUS = {
+  PENDING: 'pending',
+  RUNNING: 'running',
+  COMPLETED: 'completed',
+  FAILED: 'failed',
+  CANCELLED: 'cancelled'
+};
+
 function jsonResponse(status, payload) {
   return new Response(JSON.stringify(payload), {
     status,
@@ -32,14 +40,15 @@ export default async function handler(req, res) {
   });
 
   const start = Date.now();
-  let processed = 0;
+  let processedCount = 0;
+  let failedCount = 0;
   const jobErrors = [];
 
   try {
     const { data: jobs, error: fetchError } = await supabase
       .from('valuebot_analysis_queue')
       .select('*')
-      .in('status', ['pending', 'running', 'failed'])
+      .eq('status', QUEUE_STATUS.PENDING)
       .order('created_at', { ascending: true })
       .limit(BATCH_SIZE);
 
@@ -55,83 +64,73 @@ export default async function handler(req, res) {
 
     const jobsToProcess = jobs || [];
 
-    for (const job of jobsToProcess) {
-      const ticker = (job.ticker || '').trim() || null;
-      const companyName = (job.company_name || '').trim() || null;
-      const baseAttempts = (job.attempts || 0) + 1;
-
-      if (!ticker && !companyName) {
-        const errorMessage = 'Missing ticker and company name';
-        console.error('[ValueBot Worker] Job failed - missing identifiers', { id: job.id });
-        await supabase
-          .from('valuebot_analysis_queue')
-          .update({
-            status: 'failed',
-            attempts: baseAttempts,
-            last_error: errorMessage,
-            last_run_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', job.id);
-        jobErrors.push({ id: job.id, error: errorMessage });
-        continue;
-      }
-
-      await supabase
+    async function markJobStatus(supabaseAdmin, job, status, extra = {}) {
+      const { error } = await supabaseAdmin
         .from('valuebot_analysis_queue')
         .update({
-          status: 'running',
-          attempts: baseAttempts,
+          status,
           last_run_at: new Date().toISOString(),
-          last_error: null,
+          attempts: (job.attempts || 0) + (status === QUEUE_STATUS.RUNNING ? 0 : 1),
+          error: status === QUEUE_STATUS.FAILED ? extra.errorSnippet || null : null,
+          last_error: status === QUEUE_STATUS.FAILED ? extra.errorSnippet || null : null,
           updated_at: new Date().toISOString()
         })
         .eq('id', job.id);
 
-      const deepDiveConfig = {
-        provider: (job.provider || 'openai').trim(),
-        model: (job.model || '').trim() || null,
-        ticker,
-        companyName,
-        timeframe: (job.timeframe || '').trim() || null,
-        customQuestion: (job.custom_question || '').trim() || null
-      };
+      if (error) {
+        console.error('[ValueBot Worker] Failed to update job status', { id: job.id, status, error });
+      }
+    }
+
+    for (const job of jobsToProcess) {
+      const ticker = (job.ticker || '').trim() || null;
+      const companyName = (job.company_name || '').trim() || null;
+
+      if (!ticker && !companyName) {
+        const errorMessage = 'Missing ticker and company name';
+        console.error('[ValueBot Worker] Job failed - missing identifiers', { id: job.id });
+        await markJobStatus(supabase, job, QUEUE_STATUS.FAILED, { errorSnippet: errorMessage });
+        jobErrors.push({ id: job.id, error: errorMessage });
+        failedCount++;
+        continue;
+      }
+
+      await markJobStatus(supabase, job, QUEUE_STATUS.RUNNING);
 
       try {
-        await runDeepDiveForConfigServer({
+        const result = await runDeepDiveForConfigServer({
           supabase,
-          job: { ...job, ...deepDiveConfig, company_name: companyName }
+          job: {
+            ...job,
+            provider: job.provider || 'openai',
+            model: job.model || 'default',
+            ticker,
+            company_name: companyName,
+            identifier: job.identifier || ticker || companyName || null
+          }
         });
 
-        processed += 1;
-        console.log('[ValueBot Worker] Job completed', { id: job.id, ticker, companyName });
+        if (!result || !result.ok) {
+          throw new Error(result?.error || 'Unknown deep-dive error');
+        }
 
-        await supabase
-          .from('valuebot_analysis_queue')
-          .update({
-            status: 'completed',
-            attempts: baseAttempts,
-            last_error: null,
-            last_run_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', job.id);
+        await markJobStatus(supabase, job, QUEUE_STATUS.COMPLETED);
+        console.info('[ValueBot Worker] Job completed', { id: job.id, ticker, company: companyName });
+        processedCount++;
       } catch (err) {
         const message = typeof err?.message === 'string' ? err.message : String(err);
-        console.error('[ValueBot Worker] Job failed', { id: job.id, ticker, companyName, error: message });
+        console.error('[ValueBot Worker] Job failed', {
+          id: job.id,
+          ticker,
+          company: companyName,
+          error: message
+        });
 
-        await supabase
-          .from('valuebot_analysis_queue')
-          .update({
-            status: 'failed',
-            attempts: baseAttempts,
-            last_error: message.slice(0, 300),
-            last_run_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', job.id);
-
-        jobErrors.push({ id: job.id, error: message.slice(0, 300) });
+        await markJobStatus(supabase, job, QUEUE_STATUS.FAILED, {
+          errorSnippet: message.slice(0, 600)
+        });
+        jobErrors.push({ id: job.id, error: message.slice(0, 600) });
+        failedCount++;
       }
 
       if (Date.now() - start > MAX_WORKER_MS) {
@@ -142,17 +141,18 @@ export default async function handler(req, res) {
     const { count: remainingPending, error: remainingError } = await supabase
       .from('valuebot_analysis_queue')
       .select('*', { count: 'exact', head: true })
-      .in('status', ['pending', 'running', 'failed']);
+      .eq('status', QUEUE_STATUS.PENDING);
 
-    const remaining = remainingError ? 0 : remainingPending ?? 0;
+    const remainingCount = remainingError ? 0 : remainingPending ?? 0;
     if (remainingError) {
       console.error('[ValueBot Worker] Failed to count remaining jobs', remainingError);
     }
 
     const response = jsonResponse(200, {
       ok: true,
-      processed,
-      remaining,
+      processed: processedCount,
+      failed: failedCount,
+      remaining: remainingCount,
       errors: jobErrors
     });
     res.status(response.status).setHeader('Content-Type', 'application/json');
