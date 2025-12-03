@@ -5,7 +5,7 @@ import { useAuth } from '../../context/AuthContext.jsx';
 import { defaultDeepDiveConfig, ValueBotQueueJob, ValueBotQueueStatus } from './types.ts';
 import { getModelOptionsForProvider, providerOptions } from './providerConfig.ts';
 
-const statusLabels: Record<string, string> = {
+const STATUS_LABELS: Record<string, string> = {
   pending: 'Pending',
   running: 'Running',
   completed: 'Completed',
@@ -18,8 +18,6 @@ const statusLabels: Record<string, string> = {
 const BatchQueueTab: FunctionalComponent = () => {
   const { user } = useAuth();
   const [queueJobs, setQueueJobs] = useState<ValueBotQueueJob[]>([]);
-  const [completedJobs, setCompletedJobs] = useState<ValueBotQueueJob[]>([]);
-  const [completedCount, setCompletedCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
@@ -44,45 +42,30 @@ const BatchQueueTab: FunctionalComponent = () => {
     if (!isSupabaseReady) {
       setError('Supabase is not configured. Connect Supabase to manage the batch queue.');
       setQueueJobs([]);
-      setCompletedJobs([]);
-      setCompletedCount(0);
       return;
     }
 
     setIsLoading(true);
     setError(null);
 
-    let activeQuery = supabase
+    let queueQuery = supabase
       .from('valuebot_analysis_queue')
-      .select('*')
-      .in('status', ['pending', 'running', 'failed', 'cancelled', 'skipped'])
+      .select(
+        'id, ticker, company_name, status, provider, model, last_run, last_run_at, attempts, error, last_error, created_at, source, user_id'
+      )
       .order('created_at', { ascending: true });
 
-    let completedQuery = supabase
-      .from('valuebot_analysis_queue')
-      .select('*')
-      .eq('status', 'completed')
-      .order('last_run_at', { ascending: false });
-
     if (profileId) {
-      activeQuery = activeQuery.eq('user_id', profileId);
-      completedQuery = completedQuery.eq('user_id', profileId);
+      queueQuery = queueQuery.eq('user_id', profileId);
     }
 
-    const [{ data: active, error: activeError }, { data: completed, error: completedError }] = await Promise.all([
-      activeQuery,
-      completedQuery
-    ]);
+    const { data, error: fetchError } = await queueQuery;
 
-    if (activeError || completedError) {
-      setError(activeError?.message || completedError?.message || 'Failed to load queue.');
+    if (fetchError) {
+      setError(fetchError.message || 'Failed to load queue.');
       setQueueJobs([]);
-      setCompletedJobs([]);
-      setCompletedCount(0);
     } else {
-      setQueueJobs((active as ValueBotQueueJob[]) ?? []);
-      setCompletedJobs((completed as ValueBotQueueJob[]) ?? []);
-      setCompletedCount((completed || []).length);
+      setQueueJobs((data as ValueBotQueueJob[]) ?? []);
     }
 
     setIsLoading(false);
@@ -234,7 +217,7 @@ const BatchQueueTab: FunctionalComponent = () => {
       }
 
       if (payload?.ok === true) {
-        message = `Worker finished: processed ${payload.processed} jobs, remaining ${payload.remaining ?? 'unknown'}.`;
+        message = `Worker finished: processed ${payload.processed} jobs, failed ${payload.failed ?? 0}, remaining ${payload.remaining ?? 'unknown'}.`;
       } else {
         message = `Worker error (${response.status}): ${payload?.error || 'Unexpected error.'}`;
       }
@@ -250,7 +233,22 @@ const BatchQueueTab: FunctionalComponent = () => {
     }
   }, [fetchQueue, workerRunning]);
 
-  const renderStatus = (status: ValueBotQueueStatus) => statusLabels[status] ?? status;
+  const pendingOrFailedJobs = useMemo(
+    () =>
+      queueJobs.filter(
+        (job) => job.status === 'pending' || job.status === 'failed' || job.status === 'running'
+      ),
+    [queueJobs]
+  );
+
+  const completedJobs = useMemo(
+    () => queueJobs.filter((job) => job.status === 'completed'),
+    [queueJobs]
+  );
+
+  const completedCount = completedJobs.length;
+
+  const renderStatus = (status: ValueBotQueueStatus) => STATUS_LABELS[status] ?? status;
 
   return (
     <div className="valuebot-batch-layout">
@@ -433,11 +431,11 @@ const BatchQueueTab: FunctionalComponent = () => {
 
           {isLoading && <p className="detail-meta">Loading queue…</p>}
 
-          {!isLoading && !error && queueJobs.length === 0 && (
+          {!isLoading && !error && pendingOrFailedJobs.length === 0 && (
             <p className="detail-meta">No jobs queued yet. Use the form above to add your first ticker.</p>
           )}
 
-          {!isLoading && !error && queueJobs.length > 0 && (
+          {!isLoading && !error && pendingOrFailedJobs.length > 0 && (
             <div className="valuebot-batch-queue-table">
               <table className="table subtle">
                 <thead>
@@ -456,23 +454,24 @@ const BatchQueueTab: FunctionalComponent = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {queueJobs.map((job) => {
+                  {pendingOrFailedJobs.map((job) => {
                     const canRequeue =
                       job.status === 'failed' ||
                       job.status === 'skipped' ||
                       job.status === 'succeeded' ||
                       job.status === 'completed' ||
                       job.status === 'cancelled';
-                    const canCancel = job.status === 'pending' || job.status === 'running' || job.status === 'failed';
+                    const canCancel = job.status === 'pending' || job.status === 'running';
                     const tickerLabel = job.ticker
                       ? job.ticker
                       : job.company_name
                         ? '(no ticker)'
                         : '—';
                     const errorMessage =
+                      job.error ||
+                      job.last_error ||
                       (job as any)?.last_error ||
                       (job as any)?.error ||
-                      job.last_error ||
                       (job.status === 'failed' ? 'Failed (no error recorded).' : '—');
                     const statusLabel = renderStatus(job.status);
                     return (
@@ -547,10 +546,10 @@ const BatchQueueTab: FunctionalComponent = () => {
                     <tr>
                       <th>Ticker</th>
                       <th>Company</th>
-                      <th>Status</th>
-                      <th>Attempts</th>
-                      <th>Error</th>
                       <th>Last run</th>
+                      <th>Attempts</th>
+                      <th>Created</th>
+                      <th>Source</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -558,12 +557,10 @@ const BatchQueueTab: FunctionalComponent = () => {
                       <tr key={job.id}>
                         <td>{job.ticker || '—'}</td>
                         <td>{job.company_name || '—'}</td>
-                        <td className={`status-pill status-${job.status}`}>{renderStatus(job.status)}</td>
-                        <td>{job.attempts ?? 0}</td>
-                        <td className="queue-error-cell">
-                          {job.last_error ? job.last_error.slice(0, 120) : '—'}
-                        </td>
                         <td>{formatDate((job as any).last_run_at ?? (job as any).last_run ?? null)}</td>
+                        <td>{job.attempts ?? 0}</td>
+                        <td>{formatDate(job.created_at)}</td>
+                        <td>{job.source || 'manual_queue'}</td>
                       </tr>
                     ))}
                   </tbody>
