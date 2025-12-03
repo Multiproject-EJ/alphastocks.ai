@@ -65,7 +65,23 @@ const BatchQueueTab: FunctionalComponent = () => {
       setError(fetchError.message || 'Failed to load queue.');
       setQueueJobs([]);
     } else {
-      setQueueJobs((data as ValueBotQueueJob[]) ?? []);
+      const normalized = ((data as ValueBotQueueJob[]) ?? []).map((job) => {
+        const status = (job.status as string) || 'pending';
+        const lastRun = (job as any).last_run ?? (job as any).last_run_at ?? null;
+        const attempts = typeof job.attempts === 'number' ? job.attempts : 0;
+        const error = (job as any).error ?? (job as any).last_error ?? null;
+
+        return {
+          ...job,
+          status: status as ValueBotQueueStatus,
+          last_run: lastRun,
+          last_run_at: lastRun,
+          attempts,
+          error
+        } as ValueBotQueueJob;
+      });
+
+      setQueueJobs(normalized);
     }
 
     setIsLoading(false);
@@ -233,13 +249,12 @@ const BatchQueueTab: FunctionalComponent = () => {
     }
   }, [fetchQueue, workerRunning]);
 
-  const pendingOrFailedJobs = useMemo(
-    () =>
-      queueJobs.filter(
-        (job) => job.status === 'pending' || job.status === 'failed' || job.status === 'running'
-      ),
-    [queueJobs]
-  );
+  const pendingOrFailedJobs = useMemo(() => {
+    return queueJobs.filter((job) => {
+      const status = (job.status as string) || 'pending';
+      return status === 'pending' || status === 'running' || status === 'failed';
+    });
+  }, [queueJobs]);
 
   const completedJobs = useMemo(
     () => queueJobs.filter((job) => job.status === 'completed'),
@@ -468,10 +483,8 @@ const BatchQueueTab: FunctionalComponent = () => {
                         ? '(no ticker)'
                         : '—';
                     const errorMessage =
-                      job.error ||
-                      job.last_error ||
-                      (job as any)?.last_error ||
                       (job as any)?.error ||
+                      (job as any)?.last_error ||
                       (job.status === 'failed' ? 'Failed (no error recorded).' : '—');
                     const statusLabel = renderStatus(job.status);
                     return (
@@ -548,6 +561,8 @@ const BatchQueueTab: FunctionalComponent = () => {
                       <th>Company</th>
                       <th>Last run</th>
                       <th>Attempts</th>
+                      <th>Provider</th>
+                      <th>Model</th>
                       <th>Created</th>
                       <th>Source</th>
                     </tr>
@@ -559,6 +574,8 @@ const BatchQueueTab: FunctionalComponent = () => {
                         <td>{job.company_name || '—'}</td>
                         <td>{formatDate((job as any).last_run_at ?? (job as any).last_run ?? null)}</td>
                         <td>{job.attempts ?? 0}</td>
+                        <td>{job.provider || 'openai'}</td>
+                        <td>{job.model || 'gpt-4o-mini'}</td>
                         <td>{formatDate(job.created_at)}</td>
                         <td>{job.source || 'manual_queue'}</td>
                       </tr>

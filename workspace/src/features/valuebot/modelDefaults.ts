@@ -11,7 +11,7 @@ export function getDefaultModelForProvider(provider: ProviderId): string | null 
 
 export function resolveEffectiveModelId(provider: ProviderId, rawModel?: string | null): string | null {
   const trimmedModel = rawModel?.trim();
-  if (trimmedModel) return trimmedModel;
+  if (trimmedModel && trimmedModel !== 'default') return trimmedModel;
 
   return getDefaultModelForProvider(provider);
 }
