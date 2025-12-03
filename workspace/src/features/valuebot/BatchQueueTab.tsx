@@ -8,10 +8,11 @@ import { getModelOptionsForProvider, providerOptions } from './providerConfig.ts
 const statusLabels: Record<string, string> = {
   pending: 'Pending',
   running: 'Running',
-  succeeded: 'Completed',
   completed: 'Completed',
+  succeeded: 'Completed',
   failed: 'Failed',
-  skipped: 'Skipped'
+  skipped: 'Cancelled',
+  cancelled: 'Cancelled'
 };
 
 const BatchQueueTab: FunctionalComponent = () => {
@@ -143,10 +144,8 @@ const BatchQueueTab: FunctionalComponent = () => {
       .from('valuebot_analysis_queue')
       .update({
         status,
-        last_error: null,
-        started_at: null,
-        completed_at: null,
-        last_run_at: null
+        error: null,
+        last_run: null
       })
       .eq('id', job.id);
 
@@ -208,19 +207,19 @@ const BatchQueueTab: FunctionalComponent = () => {
       try {
         payload = JSON.parse(text);
       } catch (err) {
-        setWorkerStatusMessage(`Worker error (${response.status}): Non-JSON response`);
-        await fetchQueue();
-        setWorkerRunning(false);
+        console.error('Worker returned non-JSON response', err, text);
+        message = 'Worker request failed. See console for details.';
         return;
       }
 
       if (payload?.ok === true) {
-        message = `Worker finished: processed ${payload.processed} jobs, failures ${payload.failures || 0}, remaining ${payload.remaining ?? 'unknown'}.`;
+        message = `Worker finished: processed ${payload.processed} jobs, remaining ${payload.remaining ?? 'unknown'}.`;
       } else {
         message = `Worker error (${response.status}): ${payload?.error || 'Unexpected error.'}`;
       }
     } catch (networkErr) {
-      message = `Worker error (500): ${networkErr instanceof Error ? networkErr.message : String(networkErr)}`;
+      console.error('Worker request failed', networkErr);
+      message = 'Worker request failed. See console for details.';
     } finally {
       if (message) {
         setWorkerStatusMessage(message);
@@ -429,7 +428,12 @@ const BatchQueueTab: FunctionalComponent = () => {
                 </thead>
                 <tbody>
                   {jobs.map((job) => {
-                    const canRequeue = job.status === 'failed' || job.status === 'skipped' || job.status === 'succeeded';
+                    const canRequeue =
+                      job.status === 'failed' ||
+                      job.status === 'skipped' ||
+                      job.status === 'succeeded' ||
+                      job.status === 'completed' ||
+                      job.status === 'cancelled';
                     const canCancel = job.status === 'pending' || job.status === 'running' || job.status === 'failed';
                     const tickerLabel = job.ticker
                       ? job.ticker
@@ -438,16 +442,17 @@ const BatchQueueTab: FunctionalComponent = () => {
                         : '—';
                     const errorMessage =
                       (job as any)?.error ||
-                      job.last_error ||
+                      job.error ||
                       (job.status === 'failed' ? 'Failed (no error recorded).' : '—');
+                    const statusLabel = renderStatus(job.status);
                     return (
                       <tr key={job.id}>
                         <td>{tickerLabel}</td>
                         <td>{job.company_name || '—'}</td>
-                        <td>{renderStatus(job.status)}</td>
+                        <td className={`status-pill status-${job.status}`}>{statusLabel}</td>
                         <td>{job.provider || 'default'}</td>
                         <td>{job.model || 'default'}</td>
-                        <td>{formatDate(job.last_run_at)}</td>
+                        <td>{formatDate((job as any).last_run ?? (job as any).last_run_at ?? null)}</td>
                         <td>{job.attempts ?? 0}</td>
                         <td title={errorMessage}>
                           {errorMessage !== '—'
