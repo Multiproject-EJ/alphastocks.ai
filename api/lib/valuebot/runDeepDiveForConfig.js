@@ -29,33 +29,63 @@ export function buildApiUrl(path) {
   return `${base}${path}`;
 }
 
-export async function analyzeStockAPI({ provider, model, ticker, question, timeframe }) {
+export async function safeJsonFetch(url, options, stageLabel = 'unknown_stage') {
+  const res = await fetch(url, options);
+  const text = await res.text();
+  const contentType = res.headers?.get?.('content-type') || '';
+  const snippet = text.slice(0, 300);
+
+  console.error('[ValueBot Worker fetch]', {
+    stageLabel,
+    url,
+    status: res.status,
+    contentType,
+    snippet
+  });
+
+  if (!contentType.toLowerCase().includes('application/json')) {
+    throw new Error(`[stage=${stageLabel}] Non-JSON response from ${url} (status ${res.status})`);
+  }
+
   try {
-    const response = await fetch(buildApiUrl('/api/stock-analysis'), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
+    const json = JSON.parse(text);
+    return { json, status: res.status, ok: res.ok };
+  } catch (err) {
+    throw new Error(
+      `[stage=${stageLabel}] JSON parse failed from ${url} (status ${res.status}): ${String(err)}`
+    );
+  }
+}
+
+export async function analyzeStockAPI({ provider, model, ticker, question, timeframe, stageLabel }) {
+  try {
+    const { json, ok } = await safeJsonFetch(
+      buildApiUrl('/api/stock-analysis'),
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          provider: provider || 'openai',
+          model,
+          ticker,
+          question,
+          timeframe
+        })
       },
-      body: JSON.stringify({
-        provider: provider || 'openai',
-        model,
-        ticker,
-        question,
-        timeframe
-      })
-    });
+      stageLabel || 'module_0_data_loader'
+    );
 
-    const data = await response.json();
-
-    if (!response.ok) {
+    if (!ok) {
       return {
         data: null,
-        error: data?.message || `HTTP error ${response.status}`
+        error: json?.message || 'HTTP error'
       };
     }
 
     return {
-      data,
+      data: json,
       error: null
     };
   } catch (err) {
@@ -478,13 +508,14 @@ ${timingNote}`;
 };
 
 async function runModuleAnalysis(params) {
-  const { config, prompt } = params;
+  const { config, prompt, stageLabel } = params;
   const response = await analyzeStockAPI({
     provider: config.provider || 'openai',
     model: config.model || undefined,
     ticker: config.ticker?.trim(),
     timeframe: config.timeframe || undefined,
-    question: prompt
+    question: prompt,
+    stageLabel
   });
 
   if (response?.error) {
@@ -501,24 +532,27 @@ async function runScoreSummary({ config, module6Markdown }) {
   }
 
   try {
-    const response = await fetch(buildApiUrl('/api/master-meta-summary'), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
+    const { json: payload, ok } = await safeJsonFetch(
+      buildApiUrl('/api/master-meta-summary'),
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          provider: config.provider || 'openai',
+          model: config.model || null,
+          ticker: config.ticker?.trim() || '',
+          companyName: null,
+          module6Markdown,
+          markdown: module6Markdown,
+          response_format: 'json_object'
+        })
       },
-      body: JSON.stringify({
-        provider: config.provider || 'openai',
-        model: config.model || null,
-        ticker: config.ticker?.trim() || '',
-        companyName: null,
-        module6Markdown,
-        markdown: module6Markdown,
-        response_format: 'json_object'
-      })
-    });
+      'score_summary'
+    );
 
-    const payload = await response.json();
-    if (!response.ok) {
+    if (!ok) {
       return { meta: null, error: payload?.message || 'Unable to generate score summary.' };
     }
 
@@ -636,7 +670,11 @@ export async function runDeepDiveForConfig(params = {}) {
     module0Markdown = await (async () => {
       safeNotify('module0', 'running');
       try {
-        const output = await runModuleAnalysis({ config, prompt: buildModule0Prompt(config) });
+        const output = await runModuleAnalysis({
+          config,
+          prompt: buildModule0Prompt(config),
+          stageLabel: 'module_0_data_loader'
+        });
         safeNotify('module0', 'done');
         return output;
       } catch (error) {
@@ -649,7 +687,11 @@ export async function runDeepDiveForConfig(params = {}) {
     module1Markdown = await (async () => {
       safeNotify('module1', 'running');
       try {
-        const output = await runModuleAnalysis({ config, prompt: buildModule1Prompt(config, module0Markdown) });
+        const output = await runModuleAnalysis({
+          config,
+          prompt: buildModule1Prompt(config, module0Markdown),
+          stageLabel: 'module_1_core_diagnostics'
+        });
         safeNotify('module1', 'done');
         return output;
       } catch (error) {
@@ -664,7 +706,8 @@ export async function runDeepDiveForConfig(params = {}) {
       try {
         const output = await runModuleAnalysis({
           config,
-          prompt: buildModule2Prompt(config, module0Markdown, module1Markdown)
+          prompt: buildModule2Prompt(config, module0Markdown, module1Markdown),
+          stageLabel: 'module_2_business_model'
         });
         safeNotify('module2', 'done');
         return output;
@@ -680,7 +723,8 @@ export async function runDeepDiveForConfig(params = {}) {
       try {
         const output = await runModuleAnalysis({
           config,
-          prompt: buildModule3Prompt(config, module0Markdown, module1Markdown, module2Markdown)
+          prompt: buildModule3Prompt(config, module0Markdown, module1Markdown, module2Markdown),
+          stageLabel: 'module_3_scenario_engine'
         });
         safeNotify('module3', 'done');
         return output;
@@ -696,7 +740,8 @@ export async function runDeepDiveForConfig(params = {}) {
       try {
         const output = await runModuleAnalysis({
           config,
-          prompt: buildModule4Prompt(config, module0Markdown, module1Markdown, module2Markdown, module3Markdown)
+          prompt: buildModule4Prompt(config, module0Markdown, module1Markdown, module2Markdown, module3Markdown),
+          stageLabel: 'module_4_competitive_dynamics'
         });
         safeNotify('module4', 'done');
         return output;
@@ -712,7 +757,8 @@ export async function runDeepDiveForConfig(params = {}) {
       try {
         const output = await runModuleAnalysis({
           config,
-          prompt: buildModule5Prompt(config, module1Markdown, module3Markdown, module4Markdown)
+          prompt: buildModule5Prompt(config, module1Markdown, module3Markdown, module4Markdown),
+          stageLabel: 'module_5_capital_allocation'
         });
         safeNotify('module5', 'done');
         return output;
@@ -738,7 +784,8 @@ export async function runDeepDiveForConfig(params = {}) {
             module3Markdown,
             module4Markdown,
             module5Markdown
-          )
+          ),
+          stageLabel: 'module_6_final_verdict'
         });
         safeNotify('module6', 'done');
         return output;
