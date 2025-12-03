@@ -8,7 +8,7 @@
  * company query and will attempt to resolve analysis accordingly.
  */
 
-import { analyzeStock } from '../workspace/src/server/ai/stockAnalysisService.js';
+import { analyzeStock, normalizeModel } from '../workspace/src/server/ai/stockAnalysisService.js';
 
 const FALLBACK_MAX_RAW_RESPONSE_LENGTH = 2000;
 const FALLBACK_SUMMARY_LENGTH = 500;
@@ -101,7 +101,7 @@ async function runOpenAIFallback(query, { model, question, timeframe }) {
     throw error;
   }
 
-  const defaultModel = model || 'gpt-4o-mini';
+  const defaultModel = normalizeModel('openai', model);
   const prompt = `You are an AI analyst for Alphastocks.ai. Provide a comprehensive stock or company analysis for "${query}".
 
 Timeframe: ${timeframe || 'not specified'}

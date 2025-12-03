@@ -13,6 +13,34 @@ const PLAIN_TEXT_SUMMARY_LENGTH = 500; // Length of summary when JSON parsing fa
 const API_TIMEOUT_MS = 30000; // API request timeout in milliseconds (30 seconds)
 
 /**
+ * Normalizes the model selection for a provider
+ * @param {string} provider - AI provider name
+ * @param {string | undefined | null} model - Requested model identifier
+ * @returns {string} - Resolved model identifier
+ */
+export function normalizeModel(provider, model) {
+  const trimmed = typeof model === 'string' ? model.trim() : model;
+
+  if (!trimmed || trimmed === 'default') {
+    switch (provider) {
+      case 'openai':
+        return process.env.OPENAI_STOCK_MODEL || 'gpt-4o-mini-2024-07-18';
+
+      case 'gemini':
+        return process.env.GEMINI_STOCK_MODEL || 'models/gemini-1.5-pro-latest';
+
+      case 'openrouter':
+        return process.env.OPENROUTER_STOCK_MODEL || 'openai/gpt-3.5-turbo';
+
+      default:
+        return trimmed || 'gpt-4o-mini-2024-07-18';
+    }
+  }
+
+  return trimmed;
+}
+
+/**
  * Validates the provider parameter
  * @param {string} provider - The AI provider to use
  * @returns {string} - Normalized provider name
@@ -152,8 +180,8 @@ function parseResponse(rawResponse) {
  * @returns {Promise<object>} - API response
  */
 async function callOpenAI(apiKey, model, prompt) {
-  const defaultModel = model || 'gpt-4o-mini';
-  
+  const resolvedModel = model || 'gpt-4o-mini-2024-07-18';
+
   const response = await fetchWithTimeout('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: {
@@ -161,7 +189,7 @@ async function callOpenAI(apiKey, model, prompt) {
       'Authorization': `Bearer ${apiKey}`
     },
     body: JSON.stringify({
-      model: defaultModel,
+      model: resolvedModel,
       messages: [
         {
           role: 'system',
@@ -184,7 +212,7 @@ async function callOpenAI(apiKey, model, prompt) {
 
   const data = await response.json();
   return {
-    modelUsed: data.model || defaultModel,
+    modelUsed: data.model || resolvedModel,
     content: data.choices[0]?.message?.content || ''
   };
 }
@@ -197,9 +225,9 @@ async function callOpenAI(apiKey, model, prompt) {
  * @returns {Promise<object>} - API response
  */
 async function callGemini(apiKey, model, prompt) {
-  const defaultModel = model || 'gemini-1.5-flash';
-  
-  const response = await fetchWithTimeout(`https://generativelanguage.googleapis.com/v1beta/models/${defaultModel}:generateContent`, {
+  const resolvedModel = model || 'models/gemini-1.5-pro-latest';
+
+  const response = await fetchWithTimeout(`https://generativelanguage.googleapis.com/v1beta/models/${resolvedModel}:generateContent`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -229,9 +257,9 @@ async function callGemini(apiKey, model, prompt) {
 
   const data = await response.json();
   const content = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-  
+
   return {
-    modelUsed: defaultModel,
+    modelUsed: resolvedModel,
     content
   };
 }
@@ -299,6 +327,8 @@ export async function analyzeStock({ provider, model, ticker, question, timefram
   const normalizedProvider = validateProvider(provider);
   validateTicker(ticker);
 
+  const resolvedModel = normalizeModel(normalizedProvider, model);
+
   // Build the prompt
   const prompt = buildPrompt(ticker, timeframe, question);
 
@@ -313,7 +343,7 @@ export async function analyzeStock({ provider, model, ticker, question, timefram
         if (!apiKey) {
           throw new Error('Missing OPENAI_API_KEY environment variable');
         }
-        response = await callOpenAI(apiKey, model, prompt);
+        response = await callOpenAI(apiKey, resolvedModel, prompt);
         break;
 
       case 'gemini':
@@ -321,7 +351,7 @@ export async function analyzeStock({ provider, model, ticker, question, timefram
         if (!apiKey) {
           throw new Error('Missing GEMINI_API_KEY environment variable');
         }
-        response = await callGemini(apiKey, model, prompt);
+        response = await callGemini(apiKey, resolvedModel, prompt);
         break;
 
       case 'openrouter':
@@ -329,7 +359,7 @@ export async function analyzeStock({ provider, model, ticker, question, timefram
         if (!apiKey) {
           throw new Error('Missing OPENROUTER_API_KEY environment variable');
         }
-        response = await callOpenRouter(apiKey, model, prompt);
+        response = await callOpenRouter(apiKey, resolvedModel, prompt);
         break;
 
       default:
