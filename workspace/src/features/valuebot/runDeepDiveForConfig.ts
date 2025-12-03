@@ -417,7 +417,8 @@ async function runModuleAnalysis(params: {
   const response = await analyzeStockAPI({
     provider: config.provider || 'openai',
     model: config.model || undefined,
-    ticker: config.ticker?.trim(),
+    ticker: config.ticker?.trim() || undefined,
+    companyName: config.companyName?.trim() || undefined,
     timeframe: config.timeframe || undefined,
     question: prompt
   });
@@ -451,7 +452,7 @@ async function runScoreSummary({
         provider: config.provider || 'openai',
         model: config.model || null,
         ticker: config.ticker?.trim() || '',
-        companyName: null,
+        companyName: config.companyName?.trim() || null,
         module6Markdown,
         markdown: module6Markdown,
         response_format: 'json_object'
@@ -519,6 +520,13 @@ async function saveDeepDiveToSupabase(params: {
 
   let metadataWarning: string | null = null;
 
+  if (!payload.ticker) {
+    console.warn(
+      '[useSaveDeepDiveToUniverse] Skipping investment_universe upsert because ticker is missing; deep dive will still be saved'
+    );
+    return { deepDiveId: insertData?.id ?? null, warning: metadataWarning };
+  }
+
   const { error: universeError } = await supabaseClient
     .from('investment_universe')
     .upsert(
@@ -552,7 +560,19 @@ export async function runDeepDiveForConfig(params: {
   skipSave?: boolean;
   onStepStatusChange?: (step: DeepDiveStepKey, status: 'running' | 'done' | 'error') => void;
 }): Promise<DeepDiveRunResult> {
-  const config = params?.config || defaultDeepDiveConfig;
+  const rawConfig = params?.config || defaultDeepDiveConfig;
+  const rawTicker = rawConfig?.ticker?.trim() || '';
+  const rawCompanyName = rawConfig?.companyName?.trim() || '';
+
+  if (!rawTicker && !rawCompanyName) {
+    throw new Error('Ticker or company name is required for a deep dive.');
+  }
+
+  const config: ValueBotDeepDiveConfig = {
+    ...rawConfig,
+    ticker: rawTicker || null,
+    companyName: rawCompanyName || null
+  };
   const notify = params?.onStepStatusChange;
 
   const safeNotify = (step: DeepDiveStepKey, status: 'running' | 'done' | 'error') => {
@@ -682,6 +702,7 @@ export async function runDeepDiveForConfig(params: {
 
   const pipelineResult: ValueBotPipelineResult = {
     ticker: config.ticker?.trim() || '',
+    companyName: config.companyName?.trim() || null,
     provider: config.provider || 'openai',
     model: config.model || null,
     masterMarkdown: module6Markdown,

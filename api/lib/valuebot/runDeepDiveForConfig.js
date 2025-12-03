@@ -79,7 +79,15 @@ export async function safeJsonFetch(stageLabel = 'unknown_stage', url, init = {}
   }
 }
 
-export async function analyzeStockAPI({ provider, model, ticker, question, timeframe, stageLabel }) {
+export async function analyzeStockAPI({
+  provider,
+  model,
+  ticker,
+  companyName,
+  question,
+  timeframe,
+  stageLabel
+}) {
   try {
     const { json, ok } = await safeJsonFetch(stageLabel || 'module_0_data_loader', stockAnalysisUrl, {
       method: 'POST',
@@ -87,6 +95,7 @@ export async function analyzeStockAPI({ provider, model, ticker, question, timef
         provider: provider || 'openai',
         model,
         ticker,
+        companyName,
         question,
         timeframe
       })
@@ -528,6 +537,7 @@ async function runModuleAnalysis(params) {
     provider: config.provider || 'openai',
     model: config.model || undefined,
     ticker: config.ticker?.trim(),
+    companyName: config.companyName?.trim(),
     timeframe: config.timeframe || undefined,
     question: prompt,
     stageLabel
@@ -553,7 +563,7 @@ async function runScoreSummary({ config, module6Markdown }) {
         provider: config.provider || 'openai',
         model: config.model || null,
         ticker: config.ticker?.trim() || '',
-        companyName: null,
+        companyName: config.companyName?.trim() || null,
         module6Markdown,
         markdown: module6Markdown,
         response_format: 'json_object'
@@ -614,6 +624,13 @@ async function saveDeepDiveToSupabase(params) {
 
   let metadataWarning = null;
 
+  if (!payload.ticker) {
+    console.warn(
+      '[useSaveDeepDiveToUniverse] Skipping investment_universe upsert because ticker is missing; deep dive will still be saved.'
+    );
+    return { deepDiveId: insertData?.id ?? null, warning: metadataWarning };
+  }
+
   const { error: universeError } = await supabaseClient
     .from('investment_universe')
     .upsert(
@@ -651,7 +668,19 @@ async function saveDeepDiveToSupabase(params) {
  * @returns {Promise<DeepDiveRunResult>}
  */
 export async function runDeepDiveForConfig(params = {}) {
-  const config = params?.config || defaultDeepDiveConfig;
+  const rawConfig = params?.config || defaultDeepDiveConfig;
+  const rawTicker = rawConfig?.ticker?.trim?.() || '';
+  const rawCompanyName = rawConfig?.companyName?.trim?.() || '';
+
+  if (!rawTicker && !rawCompanyName) {
+    throw new Error('Ticker or company name is required for a deep dive.');
+  }
+
+  const config = {
+    ...rawConfig,
+    ticker: rawTicker || null,
+    companyName: rawCompanyName || null
+  };
   const notify = params?.onStepStatusChange;
 
   const safeNotify = (step, status) => {
@@ -815,6 +844,7 @@ export async function runDeepDiveForConfig(params = {}) {
 
     pipelineResult = {
       ticker: config.ticker?.trim() || '',
+      companyName: config.companyName?.trim() || null,
       provider: config.provider || 'openai',
       model: config.model || null,
       module0Markdown,
@@ -893,10 +923,11 @@ export async function runDeepDiveForConfig(params = {}) {
 }
 
 export async function runDeepDiveForConfigServer({ supabase, job }) {
-  const ticker = job?.ticker?.trim?.() || job?.company_name || '[unknown]';
+  const ticker = job?.ticker?.trim?.() || '';
   const companyName = job?.company_name?.trim?.() || '';
+  const identifier = ticker || companyName || '[unknown]';
 
-  console.log('[ValueBot Worker] Starting deep dive', { ticker, companyName });
+  console.log('[ValueBot Worker] Starting deep dive', { ticker, companyName, identifier });
 
   try {
     const result = await runDeepDiveForConfig({
@@ -905,8 +936,8 @@ export async function runDeepDiveForConfigServer({ supabase, job }) {
       config: {
         provider: job?.provider || 'openai',
         model: job?.model || job?.model_id || '',
-        ticker: job?.ticker || '',
-        companyName,
+        ticker: ticker || null,
+        companyName: companyName || null,
         timeframe: job?.timeframe || job?.time_horizon || '',
         customQuestion: job?.custom_question || job?.customQuestion || '',
         profileId: job?.profileId || job?.user_id || null,
@@ -918,7 +949,7 @@ export async function runDeepDiveForConfigServer({ supabase, job }) {
       throw new Error(result?.error || 'Deep dive failed');
     }
 
-    console.log('[ValueBot Worker] Deep dive completed', { ticker, companyName });
+    console.log('[ValueBot Worker] Deep dive completed', { ticker, companyName, identifier });
 
     return {
       ok: true,
@@ -934,7 +965,7 @@ export async function runDeepDiveForConfigServer({ supabase, job }) {
     };
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    console.error('[ValueBot Worker] Deep dive exception', { ticker, error: msg });
+    console.error('[ValueBot Worker] Deep dive exception', { ticker, companyName, identifier, error: msg });
     throw new Error(msg);
   }
 }

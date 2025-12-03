@@ -57,6 +57,7 @@ export const useSaveDeepDiveToUniverse = () => {
       const deepDiveConfig = resolvedContext.deepDiveConfig || {};
       const { provider, modelSnapshot } = resolveProviderAndModel(deepDiveConfig);
       const ticker = deepDiveConfig?.ticker?.trim();
+      const companyName = resolvedContext?.companyName?.trim() || null;
       const effectiveMasterMarkdown =
         opts?.masterMarkdownOverride?.trim() ||
         resolvedContext?.masterMarkdown?.trim?.() ||
@@ -66,8 +67,8 @@ export const useSaveDeepDiveToUniverse = () => {
         '';
       const masterMeta = opts?.metaOverride ?? resolvedContext?.masterMeta ?? null;
 
-      if (!ticker) {
-        return { error: 'Ticker is required. Run Module 0 — Data Loader to set up the deep dive first.' };
+      if (!ticker && !companyName) {
+        return { error: 'Ticker or company name is required for a deep dive.' };
       }
 
       if (!effectiveMasterMarkdown) {
@@ -81,12 +82,12 @@ export const useSaveDeepDiveToUniverse = () => {
 
       return {
         payload: {
-          ticker,
+          ticker: ticker || '',
           provider,
           model: modelSnapshot,
           timeframe: deepDiveConfig?.timeframe || null,
           custom_question: deepDiveConfig?.customQuestion || null,
-          company_name: resolvedContext?.companyName?.trim() || null,
+          company_name: companyName,
           // Using market as the best available proxy for currency until a dedicated currency field exists.
           currency: resolvedContext?.market?.trim() || null,
           module0_markdown: resolvedContext?.module0OutputMarkdown || null,
@@ -147,9 +148,15 @@ export const useSaveDeepDiveToUniverse = () => {
         let metadataWarning: string | null = null;
 
         const tickerSymbol = (payload?.ticker as string) || '';
+        if (!tickerSymbol) {
+          metadataWarning =
+            '[useSaveDeepDiveToUniverse] Skipping investment_universe upsert because ticker is missing; deep dive will still be saved.';
+          setSaveWarning(metadataWarning);
+        }
+
         const universePayload: Partial<InvestmentUniverseRow> & { profile_id: string | null; symbol: string } = {
           profile_id: user?.id || null,
-          symbol: tickerSymbol,
+          symbol: tickerSymbol || '',
           last_deep_dive_at: new Date().toISOString(),
           last_risk_label: masterMeta?.risk_label ?? null,
           last_quality_label: masterMeta?.quality_label ?? null,
@@ -160,9 +167,9 @@ export const useSaveDeepDiveToUniverse = () => {
           last_model: modelSnapshot
         };
 
-        const companyName = (payload?.company_name as string | null) || tickerSymbol || null;
-        if (companyName) {
-          universePayload.name = companyName;
+        const resolvedCompanyName = companyName || tickerSymbol || null;
+        if (resolvedCompanyName) {
+          universePayload.name = resolvedCompanyName;
         }
 
         if (!masterMeta) {
@@ -171,37 +178,41 @@ export const useSaveDeepDiveToUniverse = () => {
           setSaveWarning(metadataWarning);
         }
 
-        console.log('[ValueBot] Universe upsert payload', {
-          ticker: tickerSymbol,
-          provider,
-          effectiveModelId: modelSnapshot,
-          last_model: modelSnapshot,
-          last_risk_label: universePayload.last_risk_label,
-          last_quality_label: universePayload.last_quality_label,
-          last_timing_label: universePayload.last_timing_label,
-          last_composite_score: universePayload.last_composite_score
-        });
+        if (tickerSymbol) {
+          console.log('[ValueBot] Universe upsert payload', {
+            ticker: tickerSymbol,
+            provider,
+            effectiveModelId: modelSnapshot,
+            last_model: modelSnapshot,
+            last_risk_label: universePayload.last_risk_label,
+            last_quality_label: universePayload.last_quality_label,
+            last_timing_label: universePayload.last_timing_label,
+            last_composite_score: universePayload.last_composite_score
+          });
+        }
 
-        try {
-          const { error: universeError } = await supabase
-            .from('investment_universe')
-            .upsert(universePayload, { onConflict: 'profile_id,symbol' });
+        if (tickerSymbol) {
+          try {
+            const { error: universeError } = await supabase
+              .from('investment_universe')
+              .upsert(universePayload, { onConflict: 'profile_id,symbol' });
 
-          if (universeError) {
+            if (universeError) {
+              metadataWarning =
+                "Saved, but couldn't refresh Risk / Quality / Timing / Score. Check console logs and Module 6 JSON block.";
+              setSaveWarning(metadataWarning);
+              console.error('Universe upsert failed', universeError, universePayload);
+            } else {
+              console.info(
+                `[ValueBot] Linked deep dive ticker ${universePayload.symbol} to investment_universe for user ${user?.id ?? 'anon'}`
+              );
+            }
+          } catch (universeError) {
             metadataWarning =
               "Saved, but couldn't refresh Risk / Quality / Timing / Score. Check console logs and Module 6 JSON block.";
             setSaveWarning(metadataWarning);
             console.error('Universe upsert failed', universeError, universePayload);
-          } else {
-            console.info(
-              `[ValueBot] Linked deep dive ticker ${universePayload.symbol} to investment_universe for user ${user?.id ?? 'anon'}`
-            );
           }
-        } catch (universeError) {
-          metadataWarning =
-            "Saved, but couldn't refresh Risk / Quality / Timing / Score. Check console logs and Module 6 JSON block.";
-          setSaveWarning(metadataWarning);
-          console.error('Universe upsert failed', universeError, universePayload);
         }
 
         setSaveSuccess(true);
