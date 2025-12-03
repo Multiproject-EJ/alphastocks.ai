@@ -120,12 +120,13 @@ export function useStockAnalysis() {
  * @param {object} params - Analysis parameters
  * @param {string} params.provider - AI provider: 'openai' | 'gemini' | 'openrouter'
  * @param {string} params.model - Optional model override
- * @param {string} params.ticker - Stock ticker symbol (required)
+ * @param {string} params.ticker - Stock ticker symbol (optional if companyName provided)
+ * @param {string} [params.companyName] - Company name (optional alternative identifier)
  * @param {string} params.question - Optional additional question
  * @param {string} params.timeframe - Optional timeframe (e.g., '1y', '5y')
  * @returns {Promise<object>} - Analysis result with { data, error }
  */
-export async function analyzeStockAPI({ provider, model, ticker, question, timeframe }) {
+export async function analyzeStockAPI({ provider, model, ticker, companyName, question, timeframe }) {
   try {
     const response = await fetch(buildApiUrl('/api/stock-analysis'), {
       method: 'POST',
@@ -136,6 +137,7 @@ export async function analyzeStockAPI({ provider, model, ticker, question, timef
         provider: provider || 'openai',
         model,
         ticker,
+        companyName,
         question,
         timeframe
       })

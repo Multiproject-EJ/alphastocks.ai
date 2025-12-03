@@ -3,7 +3,7 @@ import { createContext } from 'preact';
 export interface ValueBotDeepDiveConfig {
   provider: string;
   model?: string | null;
-  ticker: string;
+  ticker?: string | null;
   companyName?: string | null;
   currency?: string | null;
   timeframe?: string | null;
