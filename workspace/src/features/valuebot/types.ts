@@ -92,7 +92,14 @@ export interface InvestmentUniverseRow {
   last_model?: string | null;
 }
 
-export type ValueBotQueueStatus = 'pending' | 'running' | 'succeeded' | 'failed' | 'skipped';
+export type ValueBotQueueStatus =
+  | 'pending'
+  | 'running'
+  | 'succeeded'
+  | 'failed'
+  | 'skipped'
+  | 'cancelled'
+  | 'completed';
 
 export interface ValueBotQueueJob {
   id: string;

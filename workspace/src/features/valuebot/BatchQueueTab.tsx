@@ -17,13 +17,16 @@ const statusLabels: Record<string, string> = {
 
 const BatchQueueTab: FunctionalComponent = () => {
   const { user } = useAuth();
-  const [jobs, setJobs] = useState<ValueBotQueueJob[]>([]);
+  const [queueJobs, setQueueJobs] = useState<ValueBotQueueJob[]>([]);
+  const [completedJobs, setCompletedJobs] = useState<ValueBotQueueJob[]>([]);
+  const [completedCount, setCompletedCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [workerRunning, setWorkerRunning] = useState(false);
   const [workerStatusMessage, setWorkerStatusMessage] = useState<string | null>(null);
+  const [showCompletedModal, setShowCompletedModal] = useState(false);
   const [newTicker, setNewTicker] = useState('');
   const [newCompanyName, setNewCompanyName] = useState('');
   const [newTimeframe, setNewTimeframe] = useState('');
@@ -40,29 +43,46 @@ const BatchQueueTab: FunctionalComponent = () => {
   const loadJobs = useCallback(async () => {
     if (!isSupabaseReady) {
       setError('Supabase is not configured. Connect Supabase to manage the batch queue.');
-      setJobs([]);
+      setQueueJobs([]);
+      setCompletedJobs([]);
+      setCompletedCount(0);
       return;
     }
 
     setIsLoading(true);
     setError(null);
 
-    let query = supabase
+    let activeQuery = supabase
       .from('valuebot_analysis_queue')
       .select('*')
-      .order('created_at', { ascending: false });
+      .in('status', ['pending', 'running', 'failed', 'cancelled', 'skipped'])
+      .order('created_at', { ascending: true });
+
+    let completedQuery = supabase
+      .from('valuebot_analysis_queue')
+      .select('*')
+      .eq('status', 'completed')
+      .order('last_run_at', { ascending: false });
 
     if (profileId) {
-      query = query.eq('user_id', profileId);
+      activeQuery = activeQuery.eq('user_id', profileId);
+      completedQuery = completedQuery.eq('user_id', profileId);
     }
 
-    const { data, error: fetchError } = await query;
+    const [{ data: active, error: activeError }, { data: completed, error: completedError }] = await Promise.all([
+      activeQuery,
+      completedQuery
+    ]);
 
-    if (fetchError) {
-      setError(fetchError.message);
-      setJobs([]);
+    if (activeError || completedError) {
+      setError(activeError?.message || completedError?.message || 'Failed to load queue.');
+      setQueueJobs([]);
+      setCompletedJobs([]);
+      setCompletedCount(0);
     } else {
-      setJobs((data as ValueBotQueueJob[]) ?? []);
+      setQueueJobs((active as ValueBotQueueJob[]) ?? []);
+      setCompletedJobs((completed as ValueBotQueueJob[]) ?? []);
+      setCompletedCount((completed || []).length);
     }
 
     setIsLoading(false);
@@ -144,8 +164,9 @@ const BatchQueueTab: FunctionalComponent = () => {
       .from('valuebot_analysis_queue')
       .update({
         status,
-        error: null,
-        last_run: null
+        last_error: null,
+        last_run_at: null,
+        updated_at: new Date().toISOString()
       })
       .eq('id', job.id);
 
@@ -376,6 +397,14 @@ const BatchQueueTab: FunctionalComponent = () => {
                 {isLoading ? 'Loading…' : 'Refresh'}
               </button>
               <button
+                type="button"
+                className="btn-secondary"
+                onClick={() => setShowCompletedModal(true)}
+                disabled={completedCount === 0}
+              >
+                Completed ({completedCount})
+              </button>
+              <button
                 className="btn-secondary"
                 type="button"
                 onClick={handleRunWorkerNow}
@@ -404,11 +433,11 @@ const BatchQueueTab: FunctionalComponent = () => {
 
           {isLoading && <p className="detail-meta">Loading queue…</p>}
 
-          {!isLoading && !error && jobs.length === 0 && (
+          {!isLoading && !error && queueJobs.length === 0 && (
             <p className="detail-meta">No jobs queued yet. Use the form above to add your first ticker.</p>
           )}
 
-          {!isLoading && !error && jobs.length > 0 && (
+          {!isLoading && !error && queueJobs.length > 0 && (
             <div className="valuebot-batch-queue-table">
               <table className="table subtle">
                 <thead>
@@ -427,7 +456,7 @@ const BatchQueueTab: FunctionalComponent = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {jobs.map((job) => {
+                  {queueJobs.map((job) => {
                     const canRequeue =
                       job.status === 'failed' ||
                       job.status === 'skipped' ||
@@ -441,8 +470,9 @@ const BatchQueueTab: FunctionalComponent = () => {
                         ? '(no ticker)'
                         : '—';
                     const errorMessage =
+                      (job as any)?.last_error ||
                       (job as any)?.error ||
-                      job.error ||
+                      job.last_error ||
                       (job.status === 'failed' ? 'Failed (no error recorded).' : '—');
                     const statusLabel = renderStatus(job.status);
                     return (
@@ -494,6 +524,55 @@ const BatchQueueTab: FunctionalComponent = () => {
           )}
         </div>
       </section>
+
+      {showCompletedModal && (
+        <div className="modal-backdrop" role="dialog" aria-modal="true">
+          <div className="modal valuebot-batch-explainer-modal">
+            <div className="detail-card__header" style={{ marginBottom: '12px' }}>
+              <div>
+                <p className="eyebrow">Queue</p>
+                <h3>Completed jobs</h3>
+              </div>
+              <button type="button" className="btn-ghost" onClick={() => setShowCompletedModal(false)}>
+                Close
+              </button>
+            </div>
+
+            {completedJobs.length === 0 ? (
+              <p className="detail-meta">No completed jobs yet.</p>
+            ) : (
+              <div className="valuebot-batch-queue-table">
+                <table className="table subtle">
+                  <thead>
+                    <tr>
+                      <th>Ticker</th>
+                      <th>Company</th>
+                      <th>Status</th>
+                      <th>Attempts</th>
+                      <th>Error</th>
+                      <th>Last run</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {completedJobs.map((job) => (
+                      <tr key={job.id}>
+                        <td>{job.ticker || '—'}</td>
+                        <td>{job.company_name || '—'}</td>
+                        <td className={`status-pill status-${job.status}`}>{renderStatus(job.status)}</td>
+                        <td>{job.attempts ?? 0}</td>
+                        <td className="queue-error-cell">
+                          {job.last_error ? job.last_error.slice(0, 120) : '—'}
+                        </td>
+                        <td>{formatDate((job as any).last_run_at ?? (job as any).last_run ?? null)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

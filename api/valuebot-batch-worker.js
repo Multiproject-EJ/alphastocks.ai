@@ -39,7 +39,7 @@ export default async function handler(req, res) {
     const { data: jobs, error: fetchError } = await supabase
       .from('valuebot_analysis_queue')
       .select('*')
-      .eq('status', 'pending')
+      .in('status', ['pending', 'running', 'failed'])
       .order('created_at', { ascending: true })
       .limit(BATCH_SIZE);
 
@@ -68,8 +68,9 @@ export default async function handler(req, res) {
           .update({
             status: 'failed',
             attempts: baseAttempts,
-            error: errorMessage,
-            last_run: new Date().toISOString()
+            last_error: errorMessage,
+            last_run_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
           })
           .eq('id', job.id);
         jobErrors.push({ id: job.id, error: errorMessage });
@@ -81,8 +82,9 @@ export default async function handler(req, res) {
         .update({
           status: 'running',
           attempts: baseAttempts,
-          last_run: new Date().toISOString(),
-          error: null
+          last_run_at: new Date().toISOString(),
+          last_error: null,
+          updated_at: new Date().toISOString()
         })
         .eq('id', job.id);
 
@@ -109,8 +111,9 @@ export default async function handler(req, res) {
           .update({
             status: 'completed',
             attempts: baseAttempts,
-            error: null,
-            last_run: new Date().toISOString()
+            last_error: null,
+            last_run_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
           })
           .eq('id', job.id);
       } catch (err) {
@@ -122,8 +125,9 @@ export default async function handler(req, res) {
           .update({
             status: 'failed',
             attempts: baseAttempts,
-            error: message.slice(0, 300),
-            last_run: new Date().toISOString()
+            last_error: message.slice(0, 300),
+            last_run_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
           })
           .eq('id', job.id);
 
@@ -138,7 +142,7 @@ export default async function handler(req, res) {
     const { count: remainingPending, error: remainingError } = await supabase
       .from('valuebot_analysis_queue')
       .select('*', { count: 'exact', head: true })
-      .eq('status', 'pending');
+      .in('status', ['pending', 'running', 'failed']);
 
     const remaining = remainingError ? 0 : remainingPending ?? 0;
     if (remainingError) {
