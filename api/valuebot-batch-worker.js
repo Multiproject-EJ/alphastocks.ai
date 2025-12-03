@@ -1,6 +1,13 @@
 import { createClient } from '@supabase/supabase-js';
 import { runDeepDiveForConfigServer } from './lib/valuebot/runDeepDiveForConfig.js';
 
+function jsonResponse(status, payload) {
+  return new Response(JSON.stringify(payload), {
+    status,
+    headers: { 'Content-Type': 'application/json' }
+  });
+}
+
 async function runBatchWorker() {
   const startedAt = Date.now();
   let processed = 0;
@@ -112,18 +119,15 @@ async function runBatchWorker() {
 }
 
 export default async function handler(req) {
-  if (req.method !== 'POST') {
-    return Response.json({ ok: false, error: 'Method not allowed' }, { status: 405 });
-  }
-
   try {
+    if (req.method !== 'POST') {
+      return jsonResponse(405, { ok: false, error: 'Method not allowed' });
+    }
+
     const result = await runBatchWorker();
-    return Response.json({ ok: true, ...result }, { status: 200 });
+    return jsonResponse(200, { ok: true, ...result });
   } catch (err) {
     console.error('[ValueBot Worker fatal error]', err);
-    return Response.json(
-      { ok: false, error: String(err?.message || err) },
-      { status: 500 }
-    );
+    return jsonResponse(500, { ok: false, error: String(err?.message || err) });
   }
 }

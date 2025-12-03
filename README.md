@@ -87,6 +87,21 @@ Legend: ☐ not started • 🕒 in progress • ☑ done
 - `/api/valuebot-batch-worker` processes pending rows in small batches (default 3; override with `?maxJobs=5`, capped at 10) by running the full ValueBot deep-dive pipeline and saving outputs to `valuebot_deep_dives` while refreshing `investment_universe` metadata.
 - Intended for scheduled triggers (e.g., Vercel cron hitting `/api/valuebot-batch-worker?maxJobs=3` every few minutes) or manual HTTP debugging; no front-end UI enqueues jobs yet.
 
+#### Vercel AI protection / worker fetches
+
+The ValueBot batch worker calls the `/api/stock-analysis` route from the server.
+Vercel’s AI protection may block these server-side calls and return an HTML 401
+page unless we send a Protection Bypass Token.
+
+Set the following env var in Vercel:
+
+- `VERCEL_PROTECTION_BYPASS` – the protection bypass token from your project’s
+  Protection settings (Vercel dashboard).
+
+The worker will automatically include this token via the
+`x-vercel-protection-bypass` header on internal API calls (stock analysis, score
+summary, etc.), ensuring JSON responses instead of HTML.
+
 ### Feature: Today Dashboard
 - ☑ Design layout for dashboard cards (notable events, financial calendar, watchlist movers, headlines, market stats) using current UI patterns.
   - 2025-11-01: Introduced a responsive 12-column dashboard grid with hero, spotlight, and tertiary cards drawing on Atlassian's [layout guidance](https://atlassian.design/foundations/layout/grid) and Material's [adaptive design](https://m3.material.io/foundations/adaptive-design/large-screens/overview) patterns. Cards surface events, portfolio metrics, reflections, AI queue, and ledger activity.

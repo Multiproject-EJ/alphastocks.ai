@@ -3,7 +3,14 @@
 // - api/lib/valuebot/runDeepDiveForConfig.js (serverless worker)
 // Keep their behavior in sync when making pipeline changes.
 
+const PROTECTION_BYPASS_TOKEN = process.env.VERCEL_PROTECTION_BYPASS;
+const VALUEBOT_API_BASE_URL = process.env.VALUEBOT_API_BASE_URL || '';
+
 function resolveApiBaseUrl() {
+  if (VALUEBOT_API_BASE_URL) {
+    return VALUEBOT_API_BASE_URL;
+  }
+
   if (typeof window !== 'undefined' && window.location) {
     return '';
   }
@@ -20,7 +27,7 @@ function resolveApiBaseUrl() {
     return normalized.replace(/\/$/, '');
   }
 
-  return 'http://localhost:3000';
+  return '';
 }
 
 export function buildApiUrl(path) {
@@ -29,8 +36,23 @@ export function buildApiUrl(path) {
   return `${base}${path}`;
 }
 
-export async function safeJsonFetch(url, options, stageLabel = 'unknown_stage') {
-  const res = await fetch(url, options);
+const stockAnalysisUrl = buildApiUrl('/api/stock-analysis');
+const masterMetaSummaryUrl = buildApiUrl('/api/master-meta-summary');
+
+export async function safeJsonFetch(stageLabel = 'unknown_stage', url, init = {}) {
+  const headers = new Headers(init.headers || {});
+
+  if (!headers.has('Content-Type') && init.body) {
+    headers.set('Content-Type', 'application/json');
+  }
+
+  if (PROTECTION_BYPASS_TOKEN) {
+    headers.set('x-vercel-protection-bypass', PROTECTION_BYPASS_TOKEN);
+  }
+
+  const finalInit = { ...init, headers };
+
+  const res = await fetch(url, finalInit);
   const text = await res.text();
   const contentType = res.headers?.get?.('content-type') || '';
   const snippet = text.slice(0, 300);
@@ -59,23 +81,16 @@ export async function safeJsonFetch(url, options, stageLabel = 'unknown_stage') 
 
 export async function analyzeStockAPI({ provider, model, ticker, question, timeframe, stageLabel }) {
   try {
-    const { json, ok } = await safeJsonFetch(
-      buildApiUrl('/api/stock-analysis'),
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          provider: provider || 'openai',
-          model,
-          ticker,
-          question,
-          timeframe
-        })
-      },
-      stageLabel || 'module_0_data_loader'
-    );
+    const { json, ok } = await safeJsonFetch(stageLabel || 'module_0_data_loader', stockAnalysisUrl, {
+      method: 'POST',
+      body: JSON.stringify({
+        provider: provider || 'openai',
+        model,
+        ticker,
+        question,
+        timeframe
+      })
+    });
 
     if (!ok) {
       return {
@@ -532,25 +547,18 @@ async function runScoreSummary({ config, module6Markdown }) {
   }
 
   try {
-    const { json: payload, ok } = await safeJsonFetch(
-      buildApiUrl('/api/master-meta-summary'),
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          provider: config.provider || 'openai',
-          model: config.model || null,
-          ticker: config.ticker?.trim() || '',
-          companyName: null,
-          module6Markdown,
-          markdown: module6Markdown,
-          response_format: 'json_object'
-        })
-      },
-      'score_summary'
-    );
+    const { json: payload, ok } = await safeJsonFetch('score_summary', masterMetaSummaryUrl, {
+      method: 'POST',
+      body: JSON.stringify({
+        provider: config.provider || 'openai',
+        model: config.model || null,
+        ticker: config.ticker?.trim() || '',
+        companyName: null,
+        module6Markdown,
+        markdown: module6Markdown,
+        response_format: 'json_object'
+      })
+    });
 
     if (!ok) {
       return { meta: null, error: payload?.message || 'Unable to generate score summary.' };
