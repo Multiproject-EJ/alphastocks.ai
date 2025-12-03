@@ -196,29 +196,28 @@ const BatchQueueTab: FunctionalComponent = () => {
     let message: string | null = null;
 
     try {
-      const res = await fetch('/api/valuebot-batch-worker', {
+      const response = await fetch('/api/valuebot-batch-worker', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ source: 'manual_queue' })
+        body: JSON.stringify({})
       });
 
-      let data: any = null;
+      const text = await response.text();
+      let payload: any;
 
       try {
-        data = await res.json();
-      } catch (parseErr) {
-        message = 'Worker error (non-JSON response)';
+        payload = JSON.parse(text);
+      } catch (err) {
+        setWorkerStatusMessage(`Worker error (${response.status}): Non-JSON response`);
+        await fetchQueue();
+        setWorkerRunning(false);
+        return;
       }
 
-      if (data) {
-        if (!res.ok || !data?.ok) {
-          const errorDetail = data?.error || 'Unknown worker error';
-          message = `Worker error (${res.status}): ${errorDetail}`;
-        } else {
-          const elapsedLabel = typeof data.elapsedSec === 'number' ? `${Math.round(data.elapsedSec * 10) / 10}s` : 'n/a';
-          const budgetNote = data.timeBudgetHit ? ' (time budget reached)' : '';
-          message = `Worker finished: processed ${data.processed ?? 0} jobs, remaining ${data.remaining ?? 0} (elapsed ${elapsedLabel})${budgetNote}.`;
-        }
+      if (payload?.ok === true) {
+        message = `Worker finished: processed ${payload.processed} jobs, failures ${payload.failures || 0}, remaining ${payload.remaining ?? 'unknown'}.`;
+      } else {
+        message = `Worker error (${response.status}): ${payload?.error || 'Unexpected error.'}`;
       }
     } catch (networkErr) {
       message = `Worker error (500): ${networkErr instanceof Error ? networkErr.message : String(networkErr)}`;
