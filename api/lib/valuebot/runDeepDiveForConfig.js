@@ -3,7 +3,8 @@
 // - api/lib/valuebot/runDeepDiveForConfig.js (serverless worker)
 // Keep their behavior in sync when making pipeline changes.
 
-const PROTECTION_BYPASS_TOKEN = process.env.VERCEL_PROTECTION_BYPASS;
+const AUTOMATION_BYPASS_SECRET =
+  process.env.VERCEL_AUTOMATION_BYPASS_SECRET || process.env.VERCEL_PROTECTION_BYPASS;
 const VALUEBOT_API_BASE_URL = process.env.VALUEBOT_API_BASE_URL || '';
 
 function resolveApiBaseUrl() {
@@ -42,12 +43,11 @@ const masterMetaSummaryUrl = buildApiUrl('/api/master-meta-summary');
 export async function safeJsonFetch(stageLabel = 'unknown_stage', url, init = {}) {
   const headers = new Headers(init.headers || {});
 
-  if (!headers.has('Content-Type') && init.body) {
-    headers.set('Content-Type', 'application/json');
-  }
+  headers.set('Content-Type', 'application/json');
 
-  if (PROTECTION_BYPASS_TOKEN) {
-    headers.set('x-vercel-protection-bypass', PROTECTION_BYPASS_TOKEN);
+  if (AUTOMATION_BYPASS_SECRET) {
+    headers.set('x-vercel-protection-bypass', AUTOMATION_BYPASS_SECRET);
+    console.log('[ValueBot Worker fetch] Using protection-bypass header for', stageLabel);
   }
 
   const finalInit = { ...init, headers };
