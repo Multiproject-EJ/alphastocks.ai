@@ -684,6 +684,7 @@ export async function runDeepDiveForConfig(params: {
     ticker: config.ticker?.trim() || '',
     provider: config.provider || 'openai',
     model: config.model || null,
+    masterMarkdown: module6Markdown,
     module0Markdown,
     module1Markdown,
     module2Markdown,

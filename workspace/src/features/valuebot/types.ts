@@ -17,6 +17,7 @@ export interface ValueBotPipelineResult {
   market?: string | null;
   provider: string;
   model?: string | null;
+  masterMarkdown?: string | null;
   module0Markdown: string;
   module1Markdown: string;
   module2Markdown: string;
@@ -138,7 +139,9 @@ export interface ValueBotAnalysisContext {
   valuationNotes?: string;
   timingNotes?: string;
   finalVerdict?: string;
+  masterMarkdown?: string | null;
   masterMeta?: ValueBotMasterMeta | null;
+  lastPipelineResult?: { masterMarkdown?: string | null; masterMeta?: ValueBotMasterMeta | null } | null;
   pipelineProgress?: DeepDivePipelineProgress;
 }
 
@@ -192,6 +195,7 @@ export const defaultValueBotAnalysisContext: ValueBotAnalysisContext = {
   module4Markdown: '',
   module5Markdown: '',
   module6Markdown: '',
+  masterMarkdown: '',
   module3Output: null,
   module4Output: null,
   module5Output: null,
@@ -207,6 +211,7 @@ export const defaultValueBotAnalysisContext: ValueBotAnalysisContext = {
   timingNotes: '',
   finalVerdict: '',
   masterMeta: null,
+  lastPipelineResult: null,
   pipelineProgress: { ...defaultPipelineProgress }
 };
 
