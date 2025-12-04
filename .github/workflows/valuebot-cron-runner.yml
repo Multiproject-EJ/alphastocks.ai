@@ -8,8 +8,12 @@ on:
 jobs:
   run-valuebot-cron-worker:
     runs-on: ubuntu-latest
+    env:
+      VALUEBOT_CRON_SECRET: ${{ secrets.VALUEBOT_CRON_SECRET }}
     steps:
       - name: Call ValueBot cron worker
         run: |
-          RESPONSE=$(curl -sS --fail "https://alphastocks.ai/api/valuebot-cron-worker?secret=${{ secrets.VALUEBOT_CRON_SECRET }}")
+          set -euo pipefail
+          RESPONSE=$(curl -sS --fail -X POST "https://alphastocks.ai/api/valuebot-cron-worker" \
+            -H "x-valuebot-cron-secret: $VALUEBOT_CRON_SECRET")
           echo "Response: $RESPONSE"
