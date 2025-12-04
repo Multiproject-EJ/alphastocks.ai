@@ -8,6 +8,37 @@ function jsonResponse(status, payload) {
   });
 }
 
+export async function runValuebotBatchOnce({ maxJobs = 1, trigger = 'manual', supabase: providedSupabase } = {}) {
+  const SUPABASE_URL = process.env.SUPABASE_URL;
+  const SERVICE_ROLE = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!providedSupabase && (!SUPABASE_URL || !SERVICE_ROLE)) {
+    throw new Error('Missing Supabase credentials');
+  }
+
+  const supabase =
+    providedSupabase ||
+    createClient(SUPABASE_URL, SERVICE_ROLE, {
+      auth: { persistSession: false }
+    });
+
+  const result = await runQueueWorker({
+    supabase,
+    maxJobs,
+    runSource: trigger || 'manual'
+  });
+
+  return {
+    processed: result?.processed ?? 0,
+    failed: result?.failed ?? 0,
+    remaining: result?.remaining ?? 0,
+    jobs: result?.jobs ?? [],
+    completed: result?.completed ?? 0,
+    errors: result?.errors ?? [],
+    runSource: result?.runSource || trigger || 'manual'
+  };
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     const response = jsonResponse(405, { ok: false, error: 'Method not allowed' });
@@ -15,26 +46,12 @@ export default async function handler(req, res) {
     return res.end(await response.text());
   }
 
-  const SUPABASE_URL = process.env.SUPABASE_URL;
-  const SERVICE_ROLE = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-  if (!SUPABASE_URL || !SERVICE_ROLE) {
-    const response = jsonResponse(500, { ok: false, error: 'Missing Supabase credentials' });
-    res.status(response.status).setHeader('Content-Type', 'application/json');
-    return res.end(await response.text());
-  }
-
-  const supabase = createClient(SUPABASE_URL, SERVICE_ROLE, {
-    auth: { persistSession: false }
-  });
-
   const maxJobs = Number(req.body?.maxJobs) || 1;
 
   try {
-    const result = await runQueueWorker({
-      supabase,
+    const result = await runValuebotBatchOnce({
       maxJobs,
-      runSource: 'manual'
+      trigger: 'manual'
     });
 
     return res.status(200).json({
@@ -47,7 +64,7 @@ export default async function handler(req, res) {
     return res.status(500).json({
       ok: false,
       source: 'manual',
-      error: 'Worker fatal error',
+      error: err?.message || 'Worker fatal error',
       details: err?.message || String(err)
     });
   }
