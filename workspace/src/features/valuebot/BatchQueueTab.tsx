@@ -9,10 +9,7 @@ const STATUS_LABELS: Record<string, string> = {
   pending: 'Pending',
   running: 'Running',
   completed: 'Completed',
-  succeeded: 'Completed',
-  failed: 'Failed',
-  skipped: 'Cancelled',
-  cancelled: 'Cancelled'
+  failed: 'Failed'
 };
 
 const BatchQueueTab: FunctionalComponent = () => {
@@ -186,7 +183,7 @@ const BatchQueueTab: FunctionalComponent = () => {
     const confirmed = window.confirm('Cancel this queued deep dive?');
     if (!confirmed) return;
 
-    await updateJobStatus(job, 'skipped');
+    await deleteQueueJob(job.id);
   };
 
   const handleRequeue = async (job: ValueBotQueueJob) => {
