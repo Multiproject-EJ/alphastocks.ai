@@ -91,6 +91,7 @@ Legend: ☐ not started • 🕒 in progress • ☑ done
 - Intended for scheduled triggers (e.g., external schedulers hitting `/api/valuebot-batch-worker?maxJobs=3` every few minutes) or manual HTTP debugging; no front-end UI enqueues jobs yet.
 - The cron worker updates `valuebot_settings.last_auto_run_at` after each attempt, and the Batch Queue UI surfaces the last auto run plus an approximate “next run” countdown based on a 5-minute interval.
 - While auto-queue is ON and jobs remain pending/running, the Batch Queue view auto-refreshes queue + settings to keep status current.
+- The auto runner caps each cycle using `VALUEBOT_CRON_MAX_JOBS` (default 5). Each full deep dive can take ~70 seconds, so limiting auto runs to roughly 3–4 jobs keeps execution under GitHub Actions’ ~300-second window. The Batch Queue UI displays the current max-jobs setting and a rough time estimate per auto run.
 
 #### Vercel AI protection / worker fetches
 

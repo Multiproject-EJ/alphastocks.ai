@@ -2,6 +2,8 @@ import { createClient } from '@supabase/supabase-js';
 import { runDeepDiveForConfigServer } from './runDeepDiveForConfig.js';
 
 const DEFAULT_BATCH_SIZE = 1;
+export const DEFAULT_CRON_MAX_JOBS = 5;
+export const SECONDS_PER_JOB_ESTIMATE = 70;
 const MAX_WORKER_MS = 250_000;
 
 export const QUEUE_STATUS = {
@@ -11,6 +13,16 @@ export const QUEUE_STATUS = {
   FAILED: 'failed',
   CANCELLED: 'cancelled'
 };
+
+export function getConfiguredMaxJobs(maxJobsInput) {
+  const envMax = Number.parseInt(process.env.VALUEBOT_CRON_MAX_JOBS || '', 10);
+  const envConfiguredMax = Number.isFinite(envMax) && envMax > 0 ? envMax : DEFAULT_CRON_MAX_JOBS;
+
+  if (maxJobsInput === undefined || maxJobsInput === null) return envConfiguredMax;
+
+  const provided = Number(maxJobsInput);
+  return Number.isFinite(provided) && provided > 0 ? provided : envConfiguredMax;
+}
 
 function ensureSupabaseClient(supabase) {
   if (supabase) return supabase;
@@ -84,9 +96,10 @@ async function markJobStatus(supabaseAdmin, job, status, extra = {}) {
   return { status, error: updates.error || null };
 }
 
-export async function runQueueWorker({ supabase: providedSupabase, maxJobs = DEFAULT_BATCH_SIZE, runSource = 'manual' }) {
+export async function runQueueWorker({ supabase: providedSupabase, maxJobs, runSource = 'manual' }) {
   const supabase = ensureSupabaseClient(providedSupabase);
-  const batchSize = Math.max(1, Number(maxJobs) || DEFAULT_BATCH_SIZE);
+  const resolvedMaxJobs = getConfiguredMaxJobs(maxJobs);
+  const batchSize = Math.max(1, Number(resolvedMaxJobs) || DEFAULT_BATCH_SIZE);
   const start = Date.now();
   let processedCount = 0;
   let failedCount = 0;
@@ -205,6 +218,9 @@ export async function runQueueWorker({ supabase: providedSupabase, maxJobs = DEF
     console.error('[ValueBot Worker] Failed to count completed jobs', completedError);
   }
 
+  const jobsConsidered = Math.min(remainingCount + processedCount, resolvedMaxJobs);
+  const estimatedSecondsThisRun = jobsConsidered * SECONDS_PER_JOB_ESTIMATE;
+
   return {
     processed: processedCount,
     failed: failedCount,
@@ -212,6 +228,9 @@ export async function runQueueWorker({ supabase: providedSupabase, maxJobs = DEF
     completed,
     errors: jobErrors,
     jobs: jobSummaries,
-    runSource
+    runSource,
+    maxJobs: resolvedMaxJobs,
+    secondsPerJobEstimate: SECONDS_PER_JOB_ESTIMATE,
+    estimatedSecondsThisRun
   };
 }

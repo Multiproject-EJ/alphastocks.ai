@@ -2,7 +2,7 @@ import { FunctionalComponent } from 'preact';
 import { useCallback, useEffect, useMemo, useState } from 'preact/hooks';
 import { supabase } from '../../lib/supabaseClient.js';
 import { useAuth } from '../../context/AuthContext.jsx';
-import { defaultDeepDiveConfig, ValueBotQueueJob, ValueBotQueueStatus } from './types.ts';
+import { defaultDeepDiveConfig, ValuebotAutoSettings, ValueBotQueueJob, ValueBotQueueStatus } from './types.ts';
 import { getModelOptionsForProvider, providerOptions } from './providerConfig.ts';
 
 const STATUS_LABELS: Record<string, string> = {
@@ -36,6 +36,8 @@ const BatchQueueTab: FunctionalComponent = () => {
   const [isSavingAutoToggle, setIsSavingAutoToggle] = useState(false);
   const [lastAutoRunAt, setLastAutoRunAt] = useState<string | null>(null);
   const [nextRunCountdown, setNextRunCountdown] = useState<string | null>(null);
+  const [autoMaxJobs, setAutoMaxJobs] = useState<number | null>(null);
+  const [secondsPerJobEstimate, setSecondsPerJobEstimate] = useState<number | null>(null);
 
   const profileId = user?.id ?? null;
   const modelChoices = useMemo(() => getModelOptionsForProvider(newProvider), [newProvider]);
@@ -101,9 +103,11 @@ const BatchQueueTab: FunctionalComponent = () => {
       if (!response.ok) {
         throw new Error(`Failed to load auto queue setting (${response.status})`);
       }
-      const payload = await response.json();
+      const payload: ValuebotAutoSettings = await response.json();
       setAutoQueueEnabled(payload?.autoQueueEnabled !== false);
       setLastAutoRunAt(payload?.lastAutoRunAt ?? null);
+      if (payload?.maxJobs != null) setAutoMaxJobs(payload.maxJobs);
+      if (payload?.secondsPerJobEstimate != null) setSecondsPerJobEstimate(payload.secondsPerJobEstimate);
     } catch (err) {
       console.error('[ValueBot UI] Failed to load auto queue setting', err);
       // Default to enabled to mirror server-side fail-safe.
@@ -335,6 +339,8 @@ const BatchQueueTab: FunctionalComponent = () => {
       if (payload?.ok === true) {
         wasSuccessful = true;
         message = `Auto pass finished: processed ${payload.processed ?? 0} jobs, failed ${payload.failed ?? 0}, remaining ${payload.remaining ?? 'unknown'}.`;
+        if (payload?.maxJobs != null) setAutoMaxJobs(payload.maxJobs);
+        if (payload?.secondsPerJobEstimate != null) setSecondsPerJobEstimate(payload.secondsPerJobEstimate);
       } else {
         message = `Auto pass error (${response.status}): ${payload?.error || 'Unexpected error.'}`;
       }
@@ -366,6 +372,11 @@ const BatchQueueTab: FunctionalComponent = () => {
       return status === 'pending' || status === 'running';
     });
   }, [queueJobs]);
+
+  const pendingCount = useMemo(
+    () => queueJobs.filter((job) => job.status === 'pending').length,
+    [queueJobs]
+  );
 
   useEffect(() => {
     if (!autoQueueEnabled) {
@@ -438,6 +449,16 @@ const BatchQueueTab: FunctionalComponent = () => {
 
   const renderStatus = (status: ValueBotQueueStatus) => STATUS_LABELS[status] ?? status;
   const manualButtonLabel = workerRunning ? 'Running…' : autoQueueEnabled ? 'Run 1 job now' : 'Run worker now';
+
+  const maxJobsFromServer = autoMaxJobs ?? 0;
+  const secondsPerJob = secondsPerJobEstimate ?? 70;
+  const jobsPerRun = maxJobsFromServer || 1;
+  const estimatedSecondsPerRun = jobsPerRun * secondsPerJob;
+  const estimatedMinutesPerRun = Math.round(estimatedSecondsPerRun / 60);
+  const cyclesNeeded = maxJobsFromServer > 0 ? Math.ceil(pendingCount / maxJobsFromServer) : 0;
+  const totalSecondsAllCycles = cyclesNeeded * estimatedSecondsPerRun;
+  const totalMinutesAllCycles = Math.round(totalSecondsAllCycles / 60);
+  const totalHoursAllCycles = totalMinutesAllCycles / 60;
 
   return (
     <div className="valuebot-batch-layout">
@@ -664,6 +685,49 @@ const BatchQueueTab: FunctionalComponent = () => {
               </>
             )}
           </div>
+
+          {autoMaxJobs !== null && autoMaxJobs > 0 && (
+            <div className="detail-meta" style={{ marginTop: '6px', display: 'grid', gap: '4px', fontSize: '12px' }}>
+              <div>
+                Max jobs per auto run: <strong style={{ color: '#e2e8f0' }}>{autoMaxJobs}</strong>{' '}
+                <span style={{ opacity: 0.75 }}>(server setting)</span>
+              </div>
+
+              {estimatedMinutesPerRun > 0 && (
+                <div>
+                  Rough time per auto run:{' '}
+                  <strong style={{ color: '#e2e8f0' }}>~{estimatedMinutesPerRun} min</strong>{' '}
+                  <span style={{ opacity: 0.75 }}>(assuming ~{secondsPerJob} sec per deep dive)</span>
+                </div>
+              )}
+
+              {pendingCount > autoMaxJobs && cyclesNeeded > 1 && autoMaxJobs > 0 && (
+                <div
+                  style={{
+                    marginTop: '4px',
+                    borderRadius: '6px',
+                    border: '1px solid rgba(245, 158, 11, 0.4)',
+                    background: 'rgba(245, 158, 11, 0.1)',
+                    padding: '8px',
+                    color: '#fcd34d'
+                  }}
+                >
+                  You currently have <strong>{pendingCount}</strong> pending jobs. The auto runner will process up to{' '}
+                  <strong>{autoMaxJobs}</strong> per cycle, so clearing the queue will likely take about{' '}
+                  <strong>
+                    {cyclesNeeded} run{cyclesNeeded > 1 ? 's' : ''}
+                  </strong>
+                  {totalMinutesAllCycles > 0 && (
+                    <>
+                      {' '}(~{totalMinutesAllCycles} min
+                      {totalHoursAllCycles >= 1 && ` ≈ ${totalHoursAllCycles.toFixed(1)} hours`})
+                    </>
+                  )}
+                  .
+                </div>
+              )}
+            </div>
+          )}
 
           {workerStatusMessage && (
             <p className="detail-meta" role="status">
