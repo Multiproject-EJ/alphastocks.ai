@@ -1,11 +1,5 @@
 {
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
-  "framework": "vite",
-  "crons": [
-    {
-      "path": "/api/valuebot-cron-worker",
-      "schedule": "*/20 * * * *"
-    }
-  ]
+  "framework": "vite"
 }
