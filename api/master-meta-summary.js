@@ -11,8 +11,8 @@
 const DEFAULT_MODEL = 'gpt-4o-mini';
 
 function buildPrompt({ ticker, companyName, module6Markdown }) {
-  const companyLabel = companyName?.trim() || ticker || 'the company';
-  const tickerLabel = ticker?.trim() || 'N/A';
+  const companyLabel = (companyName || '').trim() || (ticker || '').trim() || 'the company';
+  const tickerLabel = (ticker || '').trim() || 'N/A';
 
   return `You are a summarizer for ValueBot.ai. Given the following final MASTER report (markdown) for ${tickerLabel} / ${companyLabel}, output only valid JSON with this exact shape:
 

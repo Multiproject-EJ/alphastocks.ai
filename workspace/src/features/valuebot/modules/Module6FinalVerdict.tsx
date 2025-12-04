@@ -2,6 +2,7 @@ import { FunctionalComponent } from 'preact';
 import { useContext, useEffect, useMemo, useState } from 'preact/hooks';
 import { useRunStockAnalysis } from '../../ai-analysis/useRunStockAnalysis.ts';
 import { MASTER_STOCK_ANALYSIS_INSTRUCTIONS } from '../prompts/masterStockAnalysisPrompt.ts';
+import { renderPromptTemplate } from '../promptTemplateRenderer.ts';
 import { ValueBotContext, ValueBotModuleProps } from '../types.ts';
 import { useSaveDeepDiveToUniverse } from '../useSaveDeepDiveToUniverse.ts';
 import { useRunMasterMetaSummary } from '../useRunMasterMetaSummary.ts';
@@ -16,13 +17,24 @@ const Module6FinalVerdict: FunctionalComponent<ValueBotModuleProps> = ({ context
   const [moduleOutput, setModuleOutput] = useState<string>(resolvedContext?.module6Markdown || '');
 
   const deepDiveConfig = resolvedContext?.deepDiveConfig || {};
-  const ticker = deepDiveConfig?.ticker?.trim();
+  const ticker =
+    resolvedContext?.ticker?.trim() || deepDiveConfig?.ticker?.trim() || '';
   const timeframe = deepDiveConfig?.timeframe?.trim();
   const model = deepDiveConfig?.model?.trim();
   const provider = deepDiveConfig?.provider || 'openai';
   const customQuestion = deepDiveConfig?.customQuestion?.trim();
 
-  const companyName = resolvedContext?.companyName?.trim();
+  const companyName =
+    resolvedContext?.companyName?.trim() ||
+    deepDiveConfig?.companyName?.trim() ||
+    ticker ||
+    '';
+  const companyNameLabel =
+    companyName ||
+    resolvedContext?.deepDiveConfig?.companyName?.trim() ||
+    resolvedContext?.deepDiveConfig?.ticker?.trim() ||
+    'the company';
+  const tickerLabel = ticker || resolvedContext?.deepDiveConfig?.ticker?.trim() || '';
   const currentPrice = resolvedContext?.currentPrice;
 
   const module0Markdown = resolvedContext?.module0OutputMarkdown?.trim();
@@ -35,7 +47,7 @@ const Module6FinalVerdict: FunctionalComponent<ValueBotModuleProps> = ({ context
   const { runMasterMetaSummary, loading: isGeneratingMeta, error: metaError, meta: hookMasterMeta } =
     useRunMasterMetaSummary();
 
-  const hasTicker = Boolean(ticker);
+  const hasTicker = Boolean(tickerLabel);
   const hasModule1Output = Boolean(module1Markdown);
   const hasModule2Output = Boolean(module2Markdown);
   const hasModule3Output = Boolean(module3Markdown);
@@ -59,9 +71,9 @@ const Module6FinalVerdict: FunctionalComponent<ValueBotModuleProps> = ({ context
   }, [moduleOutput, resolvedContext?.module6Markdown]);
 
   const prompt = useMemo(() => {
-    const tickerValue = ticker || '[Ticker not set]';
+    const tickerValue = tickerLabel || '[Ticker not set]';
     const timeframeValue = timeframe || '5–15 year horizon';
-    const companyLabel = companyName || 'the company';
+    const companyLabel = companyNameLabel;
     const priceLabel = typeof currentPrice === 'number' ? `$${currentPrice}` : 'Price not provided';
     const modelLabel = model || 'Default model for provider';
 
@@ -153,13 +165,28 @@ ${MASTER_STOCK_ANALYSIS_INSTRUCTIONS}`;
     }
 
     try {
+      const renderedPrompt = renderPromptTemplate(
+        prompt,
+        {
+          ticker: tickerLabel,
+          companyName: companyNameLabel,
+          deepDiveConfig,
+          module0Markdown,
+          module1Markdown,
+          module2Markdown,
+          module3Markdown,
+          module4Markdown,
+          module5Markdown
+        },
+        'Module 6 — Final Verdict'
+      );
       const response = await runAnalysis({
         provider,
         model: model || undefined,
         ticker: ticker!,
         timeframe: timeframe || undefined,
         customQuestion: customQuestion || undefined,
-        prompt
+        prompt: renderedPrompt
       });
 
       const output = response?.rawResponse || response?.summary || 'No response received from the AI provider.';

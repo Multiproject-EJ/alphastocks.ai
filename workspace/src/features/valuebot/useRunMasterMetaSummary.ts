@@ -47,8 +47,12 @@ export function useRunMasterMetaSummary() {
           body: JSON.stringify({
             provider: resolvedContext?.deepDiveConfig?.provider || 'openai',
             model: resolvedContext?.deepDiveConfig?.model || null,
-            ticker: resolvedContext?.deepDiveConfig?.ticker?.trim() || '',
-            companyName: resolvedContext?.companyName?.trim() || null,
+            ticker:
+              resolvedContext?.deepDiveConfig?.ticker?.trim() || resolvedContext?.ticker || '',
+            companyName:
+              resolvedContext?.companyName?.trim() ||
+              resolvedContext?.deepDiveConfig?.companyName?.trim() ||
+              null,
             module6Markdown: markdown,
             markdown,
             response_format: 'json_object'

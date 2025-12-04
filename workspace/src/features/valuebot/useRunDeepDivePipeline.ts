@@ -10,7 +10,8 @@ import {
   defaultPipelineProgress
 } from './types.ts';
 import { useRunMasterMetaSummary } from './useRunMasterMetaSummary.ts';
-import { resolveIdentifiers } from './identifierUtils.ts';
+import { renderPromptTemplate } from './promptTemplateRenderer.ts';
+import { resolveIdentifiersFromModule0AndConfig } from './identifierUtils.ts';
 
 const createInitialSteps = () => createDefaultPipelineSteps();
 
@@ -435,6 +436,32 @@ export const useRunDeepDivePipeline = () => {
     let companyName = config.companyName?.trim();
 
     let latestContext = { ...currentContext };
+    const initializeIdentifiers = () => {
+      ticker = ticker || '';
+      companyName = companyName || '';
+      config = { ...config, ticker, companyName };
+      latestContext = {
+        ...latestContext,
+        deepDiveConfig: config,
+        ticker: ticker || latestContext.ticker || '',
+        companyName: companyName || latestContext.companyName || ''
+      };
+      updateContext(latestContext);
+    };
+
+    initializeIdentifiers();
+    const renderPromptWithContext = (template: string, templateName: string) =>
+      renderPromptTemplate(
+        template,
+        {
+          ticker,
+          companyName,
+          deepDiveConfig: config,
+          timeframe: config.timeframe,
+          customQuestion: config.customQuestion
+        },
+        templateName
+      );
     let latestModule6Markdown = '';
     let latestProgress: DeepDivePipelineProgress = {
       ...(currentContext?.pipelineProgress ?? defaultPipelineProgress),
@@ -636,6 +663,7 @@ export const useRunDeepDivePipeline = () => {
     try {
       const module0Label = 'Module 0 — Data Loader';
       const module0Result = await runStepWithRetries('module0', 0, module0Label, async () => {
+        const module0Prompt = renderPromptWithContext(buildModule0Prompt(config), module0Label);
         const response = await runAnalysis({
           provider: config.provider || 'openai',
           model: config.model || undefined,
@@ -643,7 +671,7 @@ export const useRunDeepDivePipeline = () => {
           companyName,
           timeframe: config.timeframe || undefined,
           customQuestion: config.customQuestion || undefined,
-          prompt: buildModule0Prompt(config)
+          prompt: module0Prompt
         });
 
         const output =
@@ -651,13 +679,16 @@ export const useRunDeepDivePipeline = () => {
           response?.summary ||
           'No response received from the AI provider.';
 
-        const { effectiveTicker, effectiveCompanyName } = resolveIdentifiers({
-          dataLoaderResult: response,
-          rawConfig: config
-        });
+        const { ticker: resolvedTicker, companyName: resolvedCompanyName } =
+          resolveIdentifiersFromModule0AndConfig({
+            rawConfig: config,
+            module0Output: response,
+            fallbackTicker: ticker,
+            fallbackCompanyName: companyName
+          });
 
-        const nextTicker = effectiveTicker || ticker || '';
-        const nextCompanyName = effectiveCompanyName || companyName || '';
+        const nextTicker = resolvedTicker || ticker || '';
+        const nextCompanyName = resolvedCompanyName || companyName || '';
 
         config = { ...config, ticker: nextTicker, companyName: nextCompanyName };
         ticker = nextTicker;
@@ -667,6 +698,7 @@ export const useRunDeepDivePipeline = () => {
           ...latestContext,
           module0OutputMarkdown: output,
           module0Data: response || null,
+          ticker: nextTicker || latestContext.ticker,
           companyName: nextCompanyName || latestContext.companyName,
           resolvedIdentifiers: { effectiveTicker: nextTicker, effectiveCompanyName: nextCompanyName },
           deepDiveConfig: { ...config }
@@ -692,7 +724,10 @@ export const useRunDeepDivePipeline = () => {
           companyName,
           timeframe: config.timeframe || undefined,
           customQuestion: config.customQuestion || undefined,
-          prompt: buildModule1Prompt(config, latestContext?.module0OutputMarkdown)
+          prompt: renderPromptWithContext(
+            buildModule1Prompt(config, latestContext?.module0OutputMarkdown),
+            module1Label
+          )
         });
 
         const output =
@@ -725,7 +760,14 @@ export const useRunDeepDivePipeline = () => {
           companyName,
           timeframe: config.timeframe || undefined,
           customQuestion: config.customQuestion || undefined,
-          prompt: buildModule2Prompt(config, latestContext?.module0OutputMarkdown, latestContext?.module1OutputMarkdown)
+          prompt: renderPromptWithContext(
+            buildModule2Prompt(
+              config,
+              latestContext?.module0OutputMarkdown,
+              latestContext?.module1OutputMarkdown
+            ),
+            module2Label
+          )
         });
 
         const output =
@@ -758,11 +800,14 @@ export const useRunDeepDivePipeline = () => {
           companyName,
           timeframe: config.timeframe || undefined,
           customQuestion: config.customQuestion || undefined,
-          prompt: buildModule3Prompt(
-            config,
-            latestContext?.module0OutputMarkdown,
-            latestContext?.module1OutputMarkdown,
-            latestContext?.module2Markdown
+          prompt: renderPromptWithContext(
+            buildModule3Prompt(
+              config,
+              latestContext?.module0OutputMarkdown,
+              latestContext?.module1OutputMarkdown,
+              latestContext?.module2Markdown
+            ),
+            module3Label
           )
         });
 
@@ -797,12 +842,15 @@ export const useRunDeepDivePipeline = () => {
           companyName,
           timeframe: config.timeframe || undefined,
           customQuestion: config.customQuestion || undefined,
-          prompt: buildModule4Prompt(
-            config,
-            latestContext?.module0OutputMarkdown,
-            latestContext?.module1OutputMarkdown,
-            latestContext?.module2Markdown,
-            latestContext?.module3Markdown
+          prompt: renderPromptWithContext(
+            buildModule4Prompt(
+              config,
+              latestContext?.module0OutputMarkdown,
+              latestContext?.module1OutputMarkdown,
+              latestContext?.module2Markdown,
+              latestContext?.module3Markdown
+            ),
+            module4Label
           )
         });
 
@@ -837,11 +885,14 @@ export const useRunDeepDivePipeline = () => {
           companyName,
           timeframe: config.timeframe || undefined,
           customQuestion: config.customQuestion || undefined,
-          prompt: buildModule5Prompt(
-            config,
-            latestContext?.module1OutputMarkdown,
-            latestContext?.module3Output,
-            latestContext?.module4Output
+          prompt: renderPromptWithContext(
+            buildModule5Prompt(
+              config,
+              latestContext?.module1OutputMarkdown,
+              latestContext?.module3Output,
+              latestContext?.module4Output
+            ),
+            module5Label
           )
         });
 
@@ -876,16 +927,19 @@ export const useRunDeepDivePipeline = () => {
           companyName,
           timeframe: config.timeframe || undefined,
           customQuestion: config.customQuestion || undefined,
-          prompt: buildModule6Prompt(
-            config,
-            latestContext?.companyName || currentContext?.companyName,
-            currentContext?.currentPrice ?? null,
-            latestContext?.module0OutputMarkdown,
-            latestContext?.module1OutputMarkdown,
-            latestContext?.module2Markdown,
-            latestContext?.module3Markdown,
-            latestContext?.module4Markdown,
-            latestContext?.module5Markdown
+          prompt: renderPromptWithContext(
+            buildModule6Prompt(
+              config,
+              latestContext?.companyName || currentContext?.companyName,
+              currentContext?.currentPrice ?? null,
+              latestContext?.module0OutputMarkdown,
+              latestContext?.module1OutputMarkdown,
+              latestContext?.module2Markdown,
+              latestContext?.module3Markdown,
+              latestContext?.module4Markdown,
+              latestContext?.module5Markdown
+            ),
+            module6Label
           )
         });
 

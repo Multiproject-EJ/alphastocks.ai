@@ -57,9 +57,16 @@ export const useSaveDeepDiveToUniverse = () => {
       const deepDiveConfig = resolvedContext.deepDiveConfig || {};
       const { provider, modelSnapshot } = resolveProviderAndModel(deepDiveConfig);
       const resolvedIds = resolvedContext?.resolvedIdentifiers;
-      const ticker = resolvedIds?.effectiveTicker?.trim() || deepDiveConfig?.ticker?.trim();
+      const ticker =
+        deepDiveConfig?.ticker?.trim() ||
+        resolvedContext?.ticker?.trim() ||
+        resolvedIds?.effectiveTicker?.trim() ||
+        '';
       const companyName =
-        resolvedContext?.companyName?.trim() || resolvedIds?.effectiveCompanyName?.trim() || null;
+        resolvedContext?.companyName?.trim() ||
+        deepDiveConfig?.companyName?.trim() ||
+        resolvedIds?.effectiveCompanyName?.trim() ||
+        '';
       const effectiveMasterMarkdown =
         opts?.masterMarkdownOverride?.trim() ||
         resolvedContext?.masterMarkdown?.trim?.() ||
@@ -89,7 +96,7 @@ export const useSaveDeepDiveToUniverse = () => {
           model: modelSnapshot,
           timeframe: deepDiveConfig?.timeframe || null,
           custom_question: deepDiveConfig?.customQuestion || null,
-          company_name: companyName,
+          company_name: companyName || null,
           // Using market as the best available proxy for currency until a dedicated currency field exists.
           currency: resolvedContext?.market?.trim() || null,
           module0_markdown: resolvedContext?.module0OutputMarkdown || null,
