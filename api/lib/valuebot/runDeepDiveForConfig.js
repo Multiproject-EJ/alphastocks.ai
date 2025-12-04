@@ -3,6 +3,8 @@
 // - api/lib/valuebot/runDeepDiveForConfig.js (serverless worker)
 // Keep their behavior in sync when making pipeline changes.
 
+import { resolveIdentifiersFromModule0 } from './identifierUtils.js';
+
 const AUTOMATION_BYPASS_SECRET =
   process.env.VERCEL_AUTOMATION_BYPASS_SECRET || process.env.VERCEL_PROTECTION_BYPASS;
 const VALUEBOT_API_BASE_URL = process.env.VALUEBOT_API_BASE_URL || '';
@@ -172,6 +174,7 @@ export const createInitialSteps = () => ({
 
 const buildModule0Prompt = (config = defaultDeepDiveConfig) => {
   const ticker = config?.ticker?.trim() || '[Not provided]';
+  const companyName = config?.companyName?.trim() || '[Not provided]';
   const timeframe = config?.timeframe?.trim() || 'General / not specified';
   const customQuestion = config?.customQuestion?.trim() || 'None provided';
 
@@ -179,11 +182,13 @@ const buildModule0Prompt = (config = defaultDeepDiveConfig) => {
 
 Step: MODULE 0 — Data Loader (Pre-Step).
 
-Company or ticker: ${ticker}
+Ticker (may be blank): ${ticker}
+Company name (may be blank): ${companyName}
 Optional timeframe focus: ${timeframe}
 Additional investor note (if any): ${customQuestion}
 
 TASK
+- Resolve identifiers: if only ticker is given, infer the canonical company name and exchange. If only the company name is given, infer the primary ticker and exchange. If both are given, normalize them and correct obvious mistakes.
 - Return a clean, spreadsheet-friendly **markdown output** that summarizes the company’s key factual data and history, without giving any final investment verdict yet.
 - Focus on objective facts and structured lists/tables that later modules can build on.
 
@@ -194,24 +199,26 @@ REQUIRED STRUCTURE
    - Exchange, ticker, currency
    - Latest fiscal year and most recent reported quarter
 
-2. Key Financials Table (last 5–10 years if easily available)
+2. JSON block (indented markdown) labeled "company_snapshot" with keys: company_name, ticker, exchange, currency, latest_fiscal_year, latest_reported_quarter. Always fill company_name and ticker even if you had to infer them.
+
+3. Key Financials Table (last 5–10 years if easily available)
    | Year | Revenue | Operating Income | Net Income | EPS (basic or diluted) | Free Cash Flow | Notes |
    (Fill what you reasonably can; if data is sparse, use fewer years but still keep the header.)
 
-3. Margin & Return Snapshot
+4. Margin & Return Snapshot
    - Bullet list with recent gross margin, operating margin, net margin.
    - Any notable trends (improving, stable, deteriorating).
 
-4. Balance Sheet & Debt Snapshot
+5. Balance Sheet & Debt Snapshot
    - Total debt, cash & equivalents (approx.)
    - Net debt (if possible)
    - Brief comments on leverage (low/medium/high).
 
-5. Ownership & Capital Allocation Notes
+6. Ownership & Capital Allocation Notes
    - Any known major shareholders or insider ownership (if relevant).
    - Brief history of dividends, buybacks, or major M&A.
 
-6. Data Quality Notes
+7. Data Quality Notes
    - Mention any missing data, inconsistencies, or caveats in the above numbers.
 
 IMPORTANT

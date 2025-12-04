@@ -121,6 +121,7 @@ export interface ValueBotQueueJob {
 export interface ValueBotAnalysisContext {
   deepDiveConfig: ValueBotDeepDiveConfig;
   module0OutputMarkdown?: string | null;
+  module0Data?: any;
   module1OutputMarkdown?: string | null;
   module2Markdown?: string | null;
   module3Markdown?: string | null;
@@ -143,6 +144,7 @@ export interface ValueBotAnalysisContext {
   finalVerdict?: string;
   masterMarkdown?: string | null;
   masterMeta?: ValueBotMasterMeta | null;
+  resolvedIdentifiers?: { effectiveTicker?: string; effectiveCompanyName?: string } | null;
   lastPipelineResult?: { masterMarkdown?: string | null; masterMeta?: ValueBotMasterMeta | null } | null;
   pipelineProgress?: DeepDivePipelineProgress;
 }
@@ -191,6 +193,7 @@ export const defaultPipelineProgress: DeepDivePipelineProgress = {
 export const defaultValueBotAnalysisContext: ValueBotAnalysisContext = {
   deepDiveConfig: { ...defaultDeepDiveConfig },
   module0OutputMarkdown: null,
+  module0Data: null,
   module1OutputMarkdown: null,
   module2Markdown: '',
   module3Markdown: '',
@@ -213,6 +216,7 @@ export const defaultValueBotAnalysisContext: ValueBotAnalysisContext = {
   timingNotes: '',
   finalVerdict: '',
   masterMeta: null,
+  resolvedIdentifiers: null,
   lastPipelineResult: null,
   pipelineProgress: { ...defaultPipelineProgress }
 };

@@ -28,9 +28,10 @@ function validateRequest(body) {
 
   const hasTicker = typeof body.ticker === 'string' && body.ticker.trim().length > 0;
   const hasQuery = typeof body.query === 'string' && body.query.trim().length > 0;
+  const hasCompanyName = typeof body.companyName === 'string' && body.companyName.trim().length > 0;
 
-  if (!hasTicker && !hasQuery) {
-    errors.push('ticker or query is required and must be a non-empty string');
+  if (!hasTicker && !hasQuery && !hasCompanyName) {
+    errors.push('ticker, query, or companyName is required and must be a non-empty string');
   }
 
   if (body.ticker && (typeof body.ticker !== 'string' || body.ticker.trim().length === 0)) {
@@ -205,6 +206,10 @@ export default async function handler(req, res) {
   try {
     // Parse and validate the request body
     const body = req.body;
+
+    if (!body.query && typeof body.companyName === 'string') {
+      body.query = body.companyName.trim();
+    }
     const validation = validateRequest(body);
 
     if (!validation.valid) {
@@ -227,6 +232,7 @@ export default async function handler(req, res) {
       model,
       ticker,
       query,
+      companyName,
       question,
       timeframe
     } = body;

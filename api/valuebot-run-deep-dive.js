@@ -13,8 +13,12 @@ export async function runDeepDiveForConfigServer(options = {}) {
   const userId = options.userId ?? null;
   const rawConfig = options.config || {};
 
-  const ticker = rawConfig.ticker?.trim?.() || rawConfig.company_name || '[unknown]';
-  const companyName = rawConfig.company_name?.trim?.() || '';
+  const ticker = rawConfig.ticker?.trim?.() || '';
+  const companyName = rawConfig.companyName?.trim?.() || rawConfig.company_name?.trim?.() || '';
+
+  if (!ticker && !companyName) {
+    return { ok: false, error: 'Provide at least a ticker or a company name.' };
+  }
 
   console.log('[ValueBot Worker] Starting deep dive', { ticker, companyName });
 

@@ -56,8 +56,10 @@ export const useSaveDeepDiveToUniverse = () => {
 
       const deepDiveConfig = resolvedContext.deepDiveConfig || {};
       const { provider, modelSnapshot } = resolveProviderAndModel(deepDiveConfig);
-      const ticker = deepDiveConfig?.ticker?.trim();
-      const companyName = resolvedContext?.companyName?.trim() || null;
+      const resolvedIds = resolvedContext?.resolvedIdentifiers;
+      const ticker = resolvedIds?.effectiveTicker?.trim() || deepDiveConfig?.ticker?.trim();
+      const companyName =
+        resolvedContext?.companyName?.trim() || resolvedIds?.effectiveCompanyName?.trim() || null;
       const effectiveMasterMarkdown =
         opts?.masterMarkdownOverride?.trim() ||
         resolvedContext?.masterMarkdown?.trim?.() ||
