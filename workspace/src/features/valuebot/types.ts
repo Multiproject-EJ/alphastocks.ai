@@ -132,6 +132,7 @@ export interface ValueBotAnalysisContext {
   module4Output?: string | null;
   module5Output?: string | null;
   module6Output?: string | null;
+  ticker?: string | null;
   companyName?: string;
   market?: string;
   currentPrice?: number;
@@ -205,6 +206,7 @@ export const defaultValueBotAnalysisContext: ValueBotAnalysisContext = {
   module4Output: null,
   module5Output: null,
   module6Output: null,
+  ticker: '',
   companyName: '',
   market: '',
   currentPrice: null,
