@@ -29,6 +29,8 @@ const BatchQueueTab: FunctionalComponent = () => {
   const [newProvider, setNewProvider] = useState(defaultDeepDiveConfig.provider);
   const [newModel, setNewModel] = useState(defaultDeepDiveConfig.model || '');
   const [showExplainer, setShowExplainer] = useState(false);
+  const [autoQueueEnabled, setAutoQueueEnabled] = useState<boolean | null>(null);
+  const [isSavingAutoToggle, setIsSavingAutoToggle] = useState(false);
 
   const profileId = user?.id ?? null;
   const modelChoices = useMemo(() => getModelOptionsForProvider(newProvider), [newProvider]);
@@ -87,6 +89,25 @@ const BatchQueueTab: FunctionalComponent = () => {
   useEffect(() => {
     loadJobs();
   }, [loadJobs]);
+
+  useEffect(() => {
+    const fetchAutoQueueSetting = async () => {
+      try {
+        const response = await fetch('/api/valuebot-auto-settings');
+        if (!response.ok) {
+          throw new Error(`Failed to load auto queue setting (${response.status})`);
+        }
+        const payload = await response.json();
+        setAutoQueueEnabled(payload?.autoQueueEnabled !== false);
+      } catch (err) {
+        console.error('[ValueBot UI] Failed to load auto queue setting', err);
+        // Default to enabled to mirror server-side fail-safe.
+        setAutoQueueEnabled(true);
+      }
+    };
+
+    fetchAutoQueueSetting();
+  }, []);
 
   const fetchQueue = useCallback(async () => {
     await loadJobs();
@@ -149,6 +170,34 @@ const BatchQueueTab: FunctionalComponent = () => {
 
     setIsSubmitting(false);
   };
+
+  const handleAutoToggle = useCallback(
+    async (nextValue: boolean) => {
+      if (autoQueueEnabled === null) return;
+
+      setAutoQueueEnabled(nextValue);
+      setIsSavingAutoToggle(true);
+
+      try {
+        const response = await fetch('/api/valuebot-auto-settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ autoQueueEnabled: nextValue })
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to save auto queue setting (${response.status})`);
+        }
+      } catch (err) {
+        console.error('[ValueBot UI] Failed to update auto queue setting', err);
+        setAutoQueueEnabled(!nextValue);
+        setWorkerStatusMessage('Failed to update auto queue runner setting.');
+      } finally {
+        setIsSavingAutoToggle(false);
+      }
+    },
+    [autoQueueEnabled]
+  );
 
   const updateJobStatus = async (job: ValueBotQueueJob, status: ValueBotQueueStatus) => {
     if (!isSupabaseReady) {
@@ -401,6 +450,9 @@ const BatchQueueTab: FunctionalComponent = () => {
             <div>
               <p className="eyebrow">Queue</p>
               <h3>Analysis queue</h3>
+              <p className="detail-meta" role="status">
+                Auto queue runner: {autoQueueEnabled === null ? 'Loading…' : autoQueueEnabled ? 'ON' : 'OFF'}
+              </p>
             </div>
             <div className="pill-list">
               <button className="btn-secondary" type="button" onClick={loadJobs} disabled={isLoading}>
@@ -428,6 +480,40 @@ const BatchQueueTab: FunctionalComponent = () => {
           <p className="detail-meta">
             Jobs are processed by the /api/valuebot-batch-worker in small batches. Use “Run worker now” to trigger a manual run.
           </p>
+
+          <div
+            className="valuebot-auto-toggle-row"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              flexWrap: 'wrap',
+              gap: '12px',
+              margin: '12px 0'
+            }}
+          >
+            <label className="valuebot-auto-toggle-label" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <span style={{ fontWeight: 600 }}>Auto queue runner</span>
+              <span className="detail-meta">
+                When enabled, a background GitHub Actions workflow will periodically call the ValueBot worker to process pending jobs.
+              </span>
+            </label>
+            <label
+              style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+              aria-label="Toggle automatic queue runner"
+            >
+              <input
+                type="checkbox"
+                checked={!!autoQueueEnabled}
+                disabled={autoQueueEnabled === null || isSavingAutoToggle}
+                onChange={(event) => handleAutoToggle(event.currentTarget.checked)}
+              />
+              <span className="detail-meta">
+                {autoQueueEnabled === null ? 'Loading…' : autoQueueEnabled ? 'On' : 'Off'}
+                {isSavingAutoToggle ? ' (saving…) ' : ''}
+              </span>
+            </label>
+          </div>
 
           {workerStatusMessage && (
             <p className="detail-meta" role="status">
