@@ -66,38 +66,52 @@ export default async function handler(req, res) {
 
     const jobsToProcess = jobs || [];
 
-    async function markJobStatus(supabaseAdmin, job, status, extra = {}) {
-      const now = new Date().toISOString();
-      const isFinal = status === QUEUE_STATUS.COMPLETED || status === QUEUE_STATUS.FAILED;
-      const attempts = isFinal ? (job.attempts || 0) + 1 : job.attempts || 0;
-
-      const updates = {
-        status,
-        updated_at: now
+    async function updateJobStatus(supabaseAdmin, jobId, patch) {
+      const nowIso = new Date().toISOString();
+      const updatePayload = {
+        ...patch,
+        updated_at: nowIso
       };
-
-      if (isFinal) {
-        updates.last_run = now;
-        updates.last_run_at = now;
-        updates.attempts = attempts;
-        updates.error = status === QUEUE_STATUS.FAILED ? extra.errorSnippet || null : null;
-        updates.last_error = status === QUEUE_STATUS.FAILED ? extra.errorSnippet || null : null;
-        if (status === QUEUE_STATUS.COMPLETED) {
-          updates.error = null;
-          updates.last_error = null;
-        }
-      } else if (status === QUEUE_STATUS.RUNNING) {
-        updates.started_at = now;
-      }
 
       const { error } = await supabaseAdmin
         .from('valuebot_analysis_queue')
-        .update(updates)
-        .eq('id', job.id);
+        .update(updatePayload)
+        .eq('id', jobId);
 
       if (error) {
-        console.error('[ValueBot Worker] Failed to update job status', { id: job.id, status, error });
+        console.error('[ValueBot Worker] Failed to update job status', { id: jobId, ...patch, error });
       }
+    }
+
+    async function markJobStatus(supabaseAdmin, job, status, extra = {}) {
+      const now = new Date().toISOString();
+      if (status === QUEUE_STATUS.RUNNING) {
+        const attempts = (job.attempts || 0) + 1;
+        return updateJobStatus(supabaseAdmin, job.id, {
+          status,
+          started_at: now,
+          last_run: now,
+          last_run_at: now,
+          attempts
+        });
+      }
+
+      const updates = {
+        status,
+        last_run: now,
+        last_run_at: now
+      };
+
+      if (status === QUEUE_STATUS.COMPLETED) {
+        updates.error = null;
+        updates.last_error = null;
+      } else if (status === QUEUE_STATUS.FAILED) {
+        const snippet = extra.errorSnippet || null;
+        updates.error = snippet;
+        updates.last_error = snippet;
+      }
+
+      await updateJobStatus(supabaseAdmin, job.id, updates);
     }
 
     for (const job of jobsToProcess) {
