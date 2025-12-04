@@ -67,7 +67,7 @@ export function useStockAnalysis() {
    * @param {string} params.timeframe - Optional timeframe (e.g., '1y', '5y')
    * @returns {Promise<object>} - Analysis result
    */
-  const analyzeStock = async ({ provider, model, ticker, question, timeframe }) => {
+  const analyzeStock = async ({ provider, model, ticker, companyName, question, timeframe }) => {
     setLoading(true);
     setError(null);
     setData(null);
@@ -82,6 +82,7 @@ export function useStockAnalysis() {
           provider: provider || 'openai',
           model,
           ticker,
+          companyName,
           question,
           timeframe
         })

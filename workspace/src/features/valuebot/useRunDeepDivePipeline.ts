@@ -10,6 +10,7 @@ import {
   defaultPipelineProgress
 } from './types.ts';
 import { useRunMasterMetaSummary } from './useRunMasterMetaSummary.ts';
+import { resolveIdentifiers } from './identifierUtils.ts';
 
 const createInitialSteps = () => createDefaultPipelineSteps();
 
@@ -17,6 +18,7 @@ const MAX_RETRIES_PER_STEP = 3;
 
 const buildModule0Prompt = (config = defaultDeepDiveConfig) => {
   const ticker = config?.ticker?.trim() || '[Not provided]';
+  const companyName = config?.companyName?.trim() || '[Not provided]';
   const timeframe = config?.timeframe?.trim() || 'General / not specified';
   const customQuestion = config?.customQuestion?.trim() || 'None provided';
 
@@ -24,11 +26,13 @@ const buildModule0Prompt = (config = defaultDeepDiveConfig) => {
 
 Step: MODULE 0 — Data Loader (Pre-Step).
 
-Company or ticker: ${ticker}
+Ticker (may be blank): ${ticker}
+Company name (may be blank): ${companyName}
 Optional timeframe focus: ${timeframe}
 Additional investor note (if any): ${customQuestion}
 
 TASK
+- Resolve identifiers: if only ticker is given, infer the canonical company name and exchange. If only the company name is given, infer the primary ticker and exchange. If both are given, normalize them and correct obvious mistakes.
 - Return a clean, spreadsheet-friendly **markdown output** that summarizes the company’s key factual data and history, without giving any final investment verdict yet.
 - Focus on objective facts and structured lists/tables that later modules can build on.
 
@@ -39,24 +43,26 @@ REQUIRED STRUCTURE
    - Exchange, ticker, currency
    - Latest fiscal year and most recent reported quarter
 
-2. Key Financials Table (last 5–10 years if easily available)
+2. JSON block (indented markdown) labeled "company_snapshot" with keys: company_name, ticker, exchange, currency, latest_fiscal_year, latest_reported_quarter. Always fill company_name and ticker even if you had to infer them.
+
+3. Key Financials Table (last 5–10 years if easily available)
    | Year | Revenue | Operating Income | Net Income | EPS (basic or diluted) | Free Cash Flow | Notes |
    (Fill what you reasonably can; if data is sparse, use fewer years but still keep the header.)
 
-3. Margin & Return Snapshot
+4. Margin & Return Snapshot
    - Bullet list with recent gross margin, operating margin, net margin.
    - Any notable trends (improving, stable, deteriorating).
 
-4. Balance Sheet & Debt Snapshot
+5. Balance Sheet & Debt Snapshot
    - Total debt, cash & equivalents (approx.)
    - Net debt (if possible)
    - Brief comments on leverage (low/medium/high).
 
-5. Ownership & Capital Allocation Notes
+6. Ownership & Capital Allocation Notes
    - Any known major shareholders or insider ownership (if relevant).
    - Brief history of dividends, buybacks, or major M&A.
 
-6. Data Quality Notes
+7. Data Quality Notes
    - Mention any missing data, inconsistencies, or caveats in the above numbers.
 
 IMPORTANT
@@ -423,8 +429,10 @@ export const useRunDeepDivePipeline = () => {
       return;
     }
 
-    const config = currentContext?.deepDiveConfig ?? defaultDeepDiveConfig;
-    const ticker = config.ticker?.trim();
+    const initialConfig = currentContext?.deepDiveConfig ?? defaultDeepDiveConfig;
+    let config = { ...initialConfig };
+    let ticker = config.ticker?.trim();
+    let companyName = config.companyName?.trim();
 
     let latestContext = { ...currentContext };
     let latestModule6Markdown = '';
@@ -433,18 +441,18 @@ export const useRunDeepDivePipeline = () => {
       steps: createInitialSteps()
     };
 
-    const missingTickerProgress: DeepDivePipelineProgress = {
+    const missingIdentifiersProgress: DeepDivePipelineProgress = {
       ...defaultPipelineProgress,
       status: 'error',
-      errorMessage: 'Please enter a company or ticker to run the full deep dive pipeline.',
+      errorMessage: 'Enter a ticker, a company name, or both to run the full deep dive pipeline.',
       steps: createInitialSteps()
     };
 
-    if (!ticker) {
-      latestProgress = missingTickerProgress;
-      setPipelineProgress(missingTickerProgress);
+    if (!ticker && !companyName) {
+      latestProgress = missingIdentifiersProgress;
+      setPipelineProgress(missingIdentifiersProgress);
       return {
-        pipelineProgress: missingTickerProgress,
+        pipelineProgress: missingIdentifiersProgress,
         coreModulesSucceeded: false,
         masterMetaGenerated: Boolean(latestContext.masterMeta)
       };
@@ -632,6 +640,7 @@ export const useRunDeepDivePipeline = () => {
           provider: config.provider || 'openai',
           model: config.model || undefined,
           ticker,
+          companyName,
           timeframe: config.timeframe || undefined,
           customQuestion: config.customQuestion || undefined,
           prompt: buildModule0Prompt(config)
@@ -642,9 +651,24 @@ export const useRunDeepDivePipeline = () => {
           response?.summary ||
           'No response received from the AI provider.';
 
+        const { effectiveTicker, effectiveCompanyName } = resolveIdentifiers({
+          dataLoaderResult: response,
+          rawConfig: config
+        });
+
+        const nextTicker = effectiveTicker || ticker || '';
+        const nextCompanyName = effectiveCompanyName || companyName || '';
+
+        config = { ...config, ticker: nextTicker, companyName: nextCompanyName };
+        ticker = nextTicker;
+        companyName = nextCompanyName;
+
         latestContext = {
           ...latestContext,
           module0OutputMarkdown: output,
+          module0Data: response || null,
+          companyName: nextCompanyName || latestContext.companyName,
+          resolvedIdentifiers: { effectiveTicker: nextTicker, effectiveCompanyName: nextCompanyName },
           deepDiveConfig: { ...config }
         };
         updateContext(latestContext);
@@ -665,6 +689,7 @@ export const useRunDeepDivePipeline = () => {
           provider: config.provider || 'openai',
           model: config.model || undefined,
           ticker,
+          companyName,
           timeframe: config.timeframe || undefined,
           customQuestion: config.customQuestion || undefined,
           prompt: buildModule1Prompt(config, latestContext?.module0OutputMarkdown)
@@ -697,6 +722,7 @@ export const useRunDeepDivePipeline = () => {
           provider: config.provider || 'openai',
           model: config.model || undefined,
           ticker,
+          companyName,
           timeframe: config.timeframe || undefined,
           customQuestion: config.customQuestion || undefined,
           prompt: buildModule2Prompt(config, latestContext?.module0OutputMarkdown, latestContext?.module1OutputMarkdown)
@@ -729,6 +755,7 @@ export const useRunDeepDivePipeline = () => {
           provider: config.provider || 'openai',
           model: config.model || undefined,
           ticker,
+          companyName,
           timeframe: config.timeframe || undefined,
           customQuestion: config.customQuestion || undefined,
           prompt: buildModule3Prompt(
@@ -767,6 +794,7 @@ export const useRunDeepDivePipeline = () => {
           provider: config.provider || 'openai',
           model: config.model || undefined,
           ticker,
+          companyName,
           timeframe: config.timeframe || undefined,
           customQuestion: config.customQuestion || undefined,
           prompt: buildModule4Prompt(
@@ -806,6 +834,7 @@ export const useRunDeepDivePipeline = () => {
           provider: config.provider || 'openai',
           model: config.model || undefined,
           ticker,
+          companyName,
           timeframe: config.timeframe || undefined,
           customQuestion: config.customQuestion || undefined,
           prompt: buildModule5Prompt(
@@ -844,11 +873,12 @@ export const useRunDeepDivePipeline = () => {
           provider: config.provider || 'openai',
           model: config.model || undefined,
           ticker,
+          companyName,
           timeframe: config.timeframe || undefined,
           customQuestion: config.customQuestion || undefined,
           prompt: buildModule6Prompt(
             config,
-            currentContext?.companyName,
+            latestContext?.companyName || currentContext?.companyName,
             currentContext?.currentPrice ?? null,
             latestContext?.module0OutputMarkdown,
             latestContext?.module1OutputMarkdown,
