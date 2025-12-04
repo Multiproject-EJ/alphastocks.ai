@@ -1,5 +1,7 @@
 // Optional: set VALUEBOT_CRON_SECRET to require a matching ?secret=... query or x-valuebot-cron-secret header.
 import { runQueueWorker } from './lib/valuebot/runQueueWorker.js';
+import { getAutoQueueEnabled } from './lib/valuebot/settings.js';
+import { getSupabaseAdminClient } from './lib/supabaseAdmin.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'GET' && req.method !== 'POST') {
@@ -15,13 +17,45 @@ export default async function handler(req, res) {
   }
 
   try {
+    const autoQueueEnabled = await getAutoQueueEnabled();
+
+    if (!autoQueueEnabled) {
+      let remaining = 0;
+      try {
+        const supabase = getSupabaseAdminClient();
+        const { count, error: countError } = await supabase
+          .from('valuebot_analysis_queue')
+          .select('*', { count: 'exact', head: true })
+          .or(['status.is.null', 'status.eq.pending', 'status.eq.running'].join(','));
+
+        if (countError) {
+          console.error('[ValueBot Cron Worker] Failed to count pending jobs', countError);
+        }
+
+        remaining = count ?? 0;
+      } catch (countErr) {
+        console.error('[ValueBot Cron Worker] Failed to read queue state while disabled', countErr);
+      }
+
+      return res.status(200).json({
+        ok: true,
+        autoEnabled: false,
+        processed: 0,
+        failed: 0,
+        remaining,
+        reason: 'Auto queue runner disabled via settings'
+      });
+    }
+
     const result = await runQueueWorker({
+      supabase: getSupabaseAdminClient(),
       maxJobs: 1,
       runSource: 'cron'
     });
 
     return res.status(200).json({
       ok: true,
+      autoEnabled: true,
       processed: result?.processed ?? 0,
       failed: result?.failed ?? 0,
       remaining: result?.remaining ?? 0
