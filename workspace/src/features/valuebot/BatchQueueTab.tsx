@@ -22,8 +22,9 @@ const BatchQueueTab: FunctionalComponent = () => {
   const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [workerRunning, setWorkerRunning] = useState(false);
-  const [isRunningAutoPass, setIsRunningAutoPass] = useState(false);
   const [workerStatusMessage, setWorkerStatusMessage] = useState<string | null>(null);
+  const [isAutoRunLoading, setIsAutoRunLoading] = useState(false);
+  const [lastAutoRunMessage, setLastAutoRunMessage] = useState<string | null>(null);
   const [showCompletedModal, setShowCompletedModal] = useState(false);
   const [newTicker, setNewTicker] = useState('');
   const [newCompanyName, setNewCompanyName] = useState('');
@@ -310,54 +311,48 @@ const BatchQueueTab: FunctionalComponent = () => {
     }
   }, [autoQueueEnabled, fetchAutoSettings, fetchQueue, workerRunning]);
 
-  const handleRunAutoPassNow = useCallback(async () => {
-    if (isRunningAutoPass || !autoQueueEnabled) return;
-
-    setIsRunningAutoPass(true);
-    setWorkerStatusMessage('Auto pass running…');
-
-    let message: string | null = null;
-    let wasSuccessful = false;
-
+  async function handleAutoRunOnce() {
     try {
+      setIsAutoRunLoading(true);
+      setLastAutoRunMessage(null);
+
       const response = await fetch('/api/valuebot-auto-run-once', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
+        headers: {
+          'Content-Type': 'application/json'
+        }
       });
 
-      const text = await response.text();
-      let payload: any;
-
-      try {
-        payload = JSON.parse(text);
-      } catch (err) {
-        console.error('[ValueBot UI] Auto pass returned non-JSON response', err, text);
-        message = 'Auto pass request failed. See console for details.';
+      if (!response.ok) {
+        const text = await response.text().catch(() => '');
+        console.error('[ValueBot UI] Auto run once failed', response.status, text);
+        setLastAutoRunMessage('Auto run failed – see logs.');
         return;
       }
 
-      if (payload?.ok === true) {
-        wasSuccessful = true;
-        message = `Auto pass finished: processed ${payload.processed ?? 0} jobs, failed ${payload.failed ?? 0}, remaining ${payload.remaining ?? 'unknown'}.`;
-        if (payload?.maxJobs != null) setAutoMaxJobs(payload.maxJobs);
-        if (payload?.secondsPerJobEstimate != null) setSecondsPerJobEstimate(payload.secondsPerJobEstimate);
-      } else {
-        message = `Auto pass error (${response.status}): ${payload?.error || 'Unexpected error.'}`;
-      }
-    } catch (networkErr) {
-      console.error('[ValueBot UI] Auto pass request failed', networkErr);
-      message = 'Auto pass request failed. See console for details.';
+      const data = await response.json().catch(() => ({} as any));
+
+      const processed = data?.processed ?? 0;
+      const failed = data?.failed ?? 0;
+      const remaining = data?.remaining ?? 0;
+
+      setLastAutoRunMessage(
+        `Auto cycle: processed ${processed}, failed ${failed}, remaining ${remaining}.`
+      );
+
+      await Promise.all(
+        [
+          fetchQueue?.(),
+          fetchAutoSettings?.()
+        ].filter(Boolean)
+      );
+    } catch (err) {
+      console.error('[ValueBot UI] Auto run once error', err);
+      setLastAutoRunMessage('Auto run failed – see console for details.');
     } finally {
-      if (message) {
-        setWorkerStatusMessage(message);
-      }
-      await fetchQueue();
-      if (wasSuccessful) {
-        await fetchAutoSettings();
-      }
-      setIsRunningAutoPass(false);
+      setIsAutoRunLoading(false);
     }
-  }, [autoQueueEnabled, fetchAutoSettings, fetchQueue, isRunningAutoPass]);
+  }
 
   const pendingOrFailedJobs = useMemo(() => {
     return queueJobs.filter((job) => {
@@ -448,7 +443,7 @@ const BatchQueueTab: FunctionalComponent = () => {
   const completedCount = completedJobs.length;
 
   const renderStatus = (status: ValueBotQueueStatus) => STATUS_LABELS[status] ?? status;
-  const manualButtonLabel = workerRunning ? 'Running…' : autoQueueEnabled ? 'Run 1 job now' : 'Run worker now';
+  const manualButtonLabel = workerRunning ? 'Running…' : 'Run 1 job now';
 
   const maxJobsFromServer = autoMaxJobs ?? 0;
   const secondsPerJob = secondsPerJobEstimate ?? 70;
@@ -623,19 +618,11 @@ const BatchQueueTab: FunctionalComponent = () => {
               >
                 {manualButtonLabel}
               </button>
-              <button
-                className="btn-secondary"
-                type="button"
-                onClick={handleRunAutoPassNow}
-                disabled={!autoQueueEnabled || isRunningAutoPass || workerRunning || isLoading}
-              >
-                {isRunningAutoPass ? 'Running…' : 'Run auto pass now'}
-              </button>
             </div>
           </div>
 
           <p className="detail-meta">
-            Jobs are processed by the /api/valuebot-batch-worker in small batches. Use “Run worker now” to trigger a manual run.
+            Jobs are processed by the /api/valuebot-batch-worker in small batches. Use “Run 1 job now” to trigger a manual run.
           </p>
 
           <div
@@ -670,6 +657,23 @@ const BatchQueueTab: FunctionalComponent = () => {
                 {isSavingAutoToggle ? ' (saving…) ' : ''}
               </span>
             </label>
+          </div>
+
+          <div style={{ marginTop: 8, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <button
+              type="button"
+              className="btn-tertiary"
+              onClick={handleAutoRunOnce}
+              disabled={
+                isAutoRunLoading || !autoQueueEnabled || isLoading
+              }
+            >
+              {isAutoRunLoading ? 'Running auto cycle…' : 'Run auto cycle now'}
+            </button>
+
+            {lastAutoRunMessage && (
+              <span style={{ fontSize: 12, opacity: 0.8 }}>{lastAutoRunMessage}</span>
+            )}
           </div>
 
           <div className="detail-meta" style={{ margin: '4px 0 12px', display: 'grid', gap: '4px' }}>
