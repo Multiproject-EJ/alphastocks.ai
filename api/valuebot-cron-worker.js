@@ -1,5 +1,5 @@
 // Optional: set VALUEBOT_CRON_SECRET to require a matching ?secret=... query or x-valuebot-cron-secret header.
-import { getConfiguredMaxJobs, runQueueWorker, SECONDS_PER_JOB_ESTIMATE } from './lib/valuebot/runQueueWorker.js';
+import { runQueueWorker, SECONDS_PER_JOB_ESTIMATE } from './lib/valuebot/runQueueWorker.js';
 import { getAutoSettings, updateLastAutoRunAt } from './lib/valuebot/settings.js';
 import { getSupabaseAdminClient } from './lib/supabaseAdmin.js';
 
@@ -8,19 +8,25 @@ export default async function handler(req, res) {
     return res.status(405).json({ ok: false, error: 'Method not allowed' });
   }
 
-  const cronSecret = process.env.VALUEBOT_CRON_SECRET;
-  if (cronSecret) {
-    const providedSecret = req.query?.secret || req.headers['x-valuebot-cron-secret'];
-    if (providedSecret !== cronSecret) {
-      return res.status(401).json({ ok: false, error: 'Unauthorized' });
+  const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
+  const sourceParam = url.searchParams.get('source');
+  const source = sourceParam === 'ui' ? 'ui' : 'cron';
+  const secretParam = url.searchParams.get('secret') || null;
+  const cronSecret = process.env.VALUEBOT_CRON_SECRET || '';
+
+  if (source === 'cron') {
+    if (!cronSecret || secretParam !== cronSecret) {
+      return res.status(401).json({ ok: false, error: 'Unauthorized cron call' });
     }
   }
+
+  const rawMax = process.env.VALUEBOT_CRON_MAX_JOBS;
+  const parsedMax = Number(rawMax);
+  const maxJobs = Number.isFinite(parsedMax) && parsedMax > 0 ? parsedMax : 5;
 
   try {
     const supabase = getSupabaseAdminClient();
     const { autoQueueEnabled, lastAutoRunAt } = await getAutoSettings();
-
-    const maxJobs = getConfiguredMaxJobs();
 
     if (!autoQueueEnabled) {
       let remaining = 0;
@@ -41,6 +47,7 @@ export default async function handler(req, res) {
 
       return res.status(200).json({
         ok: true,
+        source,
         autoEnabled: false,
         processed: 0,
         failed: 0,
@@ -48,23 +55,31 @@ export default async function handler(req, res) {
         reason: 'Auto queue runner disabled via settings',
         lastAutoRunAt: lastAutoRunAt ?? null,
         maxJobs,
-        secondsPerJobEstimate: SECONDS_PER_JOB_ESTIMATE,
-        estimatedSecondsThisRun: 0
+        perJobMs: SECONDS_PER_JOB_ESTIMATE * 1000,
+        estimatedCycleMs: 0
       });
     }
 
     const result = await runQueueWorker({
       supabase,
       maxJobs,
-      runSource: 'cron'
+      runSource: source
     });
 
     const updatedLastRunAt = await updateLastAutoRunAt(supabase);
 
     return res.status(200).json({
       ok: true,
+      source,
       autoEnabled: true,
-      ...result,
+      processed: result.processed,
+      failed: result.failed,
+      remaining: result.remaining,
+      maxJobs: result.maxJobs,
+      perJobMs: SECONDS_PER_JOB_ESTIMATE * 1000,
+      estimatedCycleMs: (result.estimatedSecondsThisRun ?? 0) * 1000,
+      secondsPerJobEstimate: result.secondsPerJobEstimate,
+      estimatedSecondsThisRun: result.estimatedSecondsThisRun,
       lastAutoRunAt: updatedLastRunAt
     });
   } catch (err) {

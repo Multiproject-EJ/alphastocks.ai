@@ -316,7 +316,7 @@ const BatchQueueTab: FunctionalComponent = () => {
       setIsAutoRunLoading(true);
       setLastAutoRunMessage(null);
 
-      const response = await fetch('/api/valuebot-auto-run-once', {
+      const response = await fetch('/api/valuebot-cron-worker?source=ui', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -443,7 +443,7 @@ const BatchQueueTab: FunctionalComponent = () => {
   const completedCount = completedJobs.length;
 
   const renderStatus = (status: ValueBotQueueStatus) => STATUS_LABELS[status] ?? status;
-  const manualButtonLabel = workerRunning ? 'Running…' : 'Run 1 job now';
+  const manualButtonLabel = workerRunning ? 'Running…' : 'Manual (1 job)';
 
   const maxJobsFromServer = autoMaxJobs ?? 0;
   const secondsPerJob = secondsPerJobEstimate ?? 70;
@@ -622,7 +622,7 @@ const BatchQueueTab: FunctionalComponent = () => {
           </div>
 
           <p className="detail-meta">
-            Jobs are processed by the /api/valuebot-batch-worker in small batches. Use “Run 1 job now” to trigger a manual run.
+            Jobs are processed by the /api/valuebot-batch-worker in small batches. Use “Manual (1 job)” to trigger a manual run.
           </p>
 
           <div
