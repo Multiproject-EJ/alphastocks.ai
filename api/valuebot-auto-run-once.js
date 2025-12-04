@@ -1,4 +1,3 @@
-// Optional: set VALUEBOT_CRON_SECRET to require a matching ?secret=... query or x-valuebot-cron-secret header.
 import { runQueueWorker } from './lib/valuebot/runQueueWorker.js';
 import { getAutoSettings, updateLastAutoRunAt } from './lib/valuebot/settings.js';
 import { getSupabaseAdminClient } from './lib/supabaseAdmin.js';
@@ -6,14 +5,6 @@ import { getSupabaseAdminClient } from './lib/supabaseAdmin.js';
 export default async function handler(req, res) {
   if (req.method !== 'GET' && req.method !== 'POST') {
     return res.status(405).json({ ok: false, error: 'Method not allowed' });
-  }
-
-  const cronSecret = process.env.VALUEBOT_CRON_SECRET;
-  if (cronSecret) {
-    const providedSecret = req.query?.secret || req.headers['x-valuebot-cron-secret'];
-    if (providedSecret !== cronSecret) {
-      return res.status(401).json({ ok: false, error: 'Unauthorized' });
-    }
   }
 
   try {
@@ -29,17 +20,18 @@ export default async function handler(req, res) {
           .or(['status.is.null', 'status.eq.pending', 'status.eq.running'].join(','));
 
         if (countError) {
-          console.error('[ValueBot Cron Worker] Failed to count pending jobs', countError);
+          console.error('[ValueBot Auto Run Once] Failed to count pending jobs', countError);
         }
 
         remaining = count ?? 0;
       } catch (countErr) {
-        console.error('[ValueBot Cron Worker] Failed to read queue state while disabled', countErr);
+        console.error('[ValueBot Auto Run Once] Failed to read queue state while disabled', countErr);
       }
 
       return res.status(200).json({
         ok: true,
         autoEnabled: false,
+        autoQueueEnabled: false,
         processed: 0,
         failed: 0,
         remaining,
@@ -53,7 +45,7 @@ export default async function handler(req, res) {
     const result = await runQueueWorker({
       supabase,
       maxJobs,
-      runSource: 'cron'
+      runSource: 'manual_auto'
     });
 
     const updatedLastRunAt = await updateLastAutoRunAt(supabase);
@@ -61,16 +53,17 @@ export default async function handler(req, res) {
     return res.status(200).json({
       ok: true,
       autoEnabled: true,
+      autoQueueEnabled: true,
       processed: result?.processed ?? 0,
       failed: result?.failed ?? 0,
       remaining: result?.remaining ?? 0,
       lastAutoRunAt: updatedLastRunAt
     });
   } catch (err) {
-    console.error('[ValueBot Cron Worker] Fatal error', err);
+    console.error('[ValueBot Auto Run Once] Fatal error', err);
     return res.status(500).json({
       ok: false,
-      error: err?.message || 'Cron worker error'
+      error: err?.message || 'Auto run error'
     });
   }
 }
