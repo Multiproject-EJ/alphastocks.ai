@@ -1,0 +1,15 @@
+name: ValueBot queue runner
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+jobs:
+  run-valuebot-cron-worker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call ValueBot cron worker
+        run: |
+          RESPONSE=$(curl -sS --fail "https://alphastocks.ai/api/valuebot-cron-worker?secret=${{ secrets.VALUEBOT_CRON_SECRET }}")
+          echo "Response: $RESPONSE"
