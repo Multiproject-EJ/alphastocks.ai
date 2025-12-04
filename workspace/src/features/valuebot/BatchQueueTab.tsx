@@ -12,6 +12,8 @@ const STATUS_LABELS: Record<string, string> = {
   failed: 'Failed'
 };
 
+const AUTO_INTERVAL_MS = 5 * 60 * 1000;
+
 const BatchQueueTab: FunctionalComponent = () => {
   const { user } = useAuth();
   const [queueJobs, setQueueJobs] = useState<ValueBotQueueJob[]>([]);
@@ -31,6 +33,8 @@ const BatchQueueTab: FunctionalComponent = () => {
   const [showExplainer, setShowExplainer] = useState(false);
   const [autoQueueEnabled, setAutoQueueEnabled] = useState<boolean | null>(null);
   const [isSavingAutoToggle, setIsSavingAutoToggle] = useState(false);
+  const [lastAutoRunAt, setLastAutoRunAt] = useState<string | null>(null);
+  const [nextRunCountdown, setNextRunCountdown] = useState<string | null>(null);
 
   const profileId = user?.id ?? null;
   const modelChoices = useMemo(() => getModelOptionsForProvider(newProvider), [newProvider]);
@@ -90,24 +94,25 @@ const BatchQueueTab: FunctionalComponent = () => {
     loadJobs();
   }, [loadJobs]);
 
-  useEffect(() => {
-    const fetchAutoQueueSetting = async () => {
-      try {
-        const response = await fetch('/api/valuebot-auto-settings');
-        if (!response.ok) {
-          throw new Error(`Failed to load auto queue setting (${response.status})`);
-        }
-        const payload = await response.json();
-        setAutoQueueEnabled(payload?.autoQueueEnabled !== false);
-      } catch (err) {
-        console.error('[ValueBot UI] Failed to load auto queue setting', err);
-        // Default to enabled to mirror server-side fail-safe.
-        setAutoQueueEnabled(true);
+  const fetchAutoSettings = useCallback(async () => {
+    try {
+      const response = await fetch('/api/valuebot-auto-settings');
+      if (!response.ok) {
+        throw new Error(`Failed to load auto queue setting (${response.status})`);
       }
-    };
-
-    fetchAutoQueueSetting();
+      const payload = await response.json();
+      setAutoQueueEnabled(payload?.autoQueueEnabled !== false);
+      setLastAutoRunAt(payload?.lastAutoRunAt ?? null);
+    } catch (err) {
+      console.error('[ValueBot UI] Failed to load auto queue setting', err);
+      // Default to enabled to mirror server-side fail-safe.
+      setAutoQueueEnabled(true);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchAutoSettings();
+  }, [fetchAutoSettings]);
 
   const fetchQueue = useCallback(async () => {
     await loadJobs();
@@ -301,6 +306,75 @@ const BatchQueueTab: FunctionalComponent = () => {
       return status === 'pending' || status === 'running' || status === 'failed';
     });
   }, [queueJobs]);
+
+  const hasPendingOrRunningJobs = useMemo(() => {
+    return queueJobs.some((job) => {
+      const status = (job.status as string) || 'pending';
+      return status === 'pending' || status === 'running';
+    });
+  }, [queueJobs]);
+
+  useEffect(() => {
+    if (!autoQueueEnabled) {
+      setNextRunCountdown(null);
+      return;
+    }
+
+    if (!lastAutoRunAt) {
+      setNextRunCountdown('Next auto run: awaiting first run…');
+      return;
+    }
+
+    const computeCountdown = () => {
+      const lastRunMs = new Date(lastAutoRunAt).getTime();
+      if (Number.isNaN(lastRunMs)) {
+        setNextRunCountdown('Next auto run: awaiting schedule…');
+        return;
+      }
+
+      const delta = AUTO_INTERVAL_MS - (Date.now() - lastRunMs);
+
+      if (delta <= 0) {
+        setNextRunCountdown('Next auto run: due any moment…');
+        return;
+      }
+
+      const minutes = Math.floor(delta / 60000);
+      const seconds = Math.floor((delta % 60000) / 1000);
+      setNextRunCountdown(`Next auto run in ~${minutes}m ${seconds}s`);
+    };
+
+    computeCountdown();
+    const timer = setInterval(computeCountdown, 1000);
+    return () => clearInterval(timer);
+  }, [autoQueueEnabled, lastAutoRunAt]);
+
+  useEffect(() => {
+    if (!autoQueueEnabled || !hasPendingOrRunningJobs) return;
+
+    const interval = setInterval(() => {
+      fetchQueue();
+      fetchAutoSettings();
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, [autoQueueEnabled, hasPendingOrRunningJobs, fetchQueue, fetchAutoSettings]);
+
+  const formatLastAutoRun = (value: string | null) => {
+    if (!value) return 'not recorded yet.';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return 'not recorded yet.';
+
+    const diffMs = Date.now() - date.getTime();
+    const diffMinutes = Math.floor(diffMs / 60000);
+    if (diffMinutes < 1) return 'just now';
+    if (diffMinutes < 60) return `${diffMinutes} min ago`;
+
+    const diffHours = Math.floor(diffMinutes / 60);
+    if (diffHours < 24) return `${diffHours} hr ago`;
+
+    return date.toLocaleString();
+  };
 
   const completedJobs = useMemo(
     () => queueJobs.filter((job) => job.status === 'completed'),
@@ -513,6 +587,20 @@ const BatchQueueTab: FunctionalComponent = () => {
                 {isSavingAutoToggle ? ' (saving…) ' : ''}
               </span>
             </label>
+          </div>
+
+          <div className="detail-meta" style={{ margin: '4px 0 12px', display: 'grid', gap: '4px' }}>
+            <div>
+              <strong>Auto runner:</strong> {autoQueueEnabled === null ? 'Loading…' : autoQueueEnabled ? 'ON' : 'OFF'}
+            </div>
+            {autoQueueEnabled === false ? (
+              <div>Auto runner is OFF.</div>
+            ) : (
+              <>
+                <div>Last auto run: {lastAutoRunAt ? formatLastAutoRun(lastAutoRunAt) : 'not recorded yet.'}</div>
+                <div>{nextRunCountdown || 'Next auto run: due any moment…'}</div>
+              </>
+            )}
           </div>
 
           {workerStatusMessage && (
