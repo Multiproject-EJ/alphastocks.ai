@@ -22,6 +22,7 @@ const BatchQueueTab: FunctionalComponent = () => {
   const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [workerRunning, setWorkerRunning] = useState(false);
+  const [isRunningAutoPass, setIsRunningAutoPass] = useState(false);
   const [workerStatusMessage, setWorkerStatusMessage] = useState<string | null>(null);
   const [showCompletedModal, setShowCompletedModal] = useState(false);
   const [newTicker, setNewTicker] = useState('');
@@ -264,6 +265,7 @@ const BatchQueueTab: FunctionalComponent = () => {
     setWorkerStatusMessage('Worker running…');
 
     let message: string | null = null;
+    let wasSuccessful = false;
 
     try {
       const response = await fetch('/api/valuebot-batch-worker', {
@@ -284,6 +286,7 @@ const BatchQueueTab: FunctionalComponent = () => {
       }
 
       if (payload?.ok === true) {
+        wasSuccessful = true;
         message = `Worker finished: processed ${payload.processed} jobs, failed ${payload.failed ?? 0}, remaining ${payload.remaining ?? 'unknown'}.`;
       } else {
         message = `Worker error (${response.status}): ${payload?.error || 'Unexpected error.'}`;
@@ -296,9 +299,59 @@ const BatchQueueTab: FunctionalComponent = () => {
         setWorkerStatusMessage(message);
       }
       await fetchQueue();
+      if (wasSuccessful && autoQueueEnabled) {
+        await fetchAutoSettings();
+      }
       setWorkerRunning(false);
     }
-  }, [fetchQueue, workerRunning]);
+  }, [autoQueueEnabled, fetchAutoSettings, fetchQueue, workerRunning]);
+
+  const handleRunAutoPassNow = useCallback(async () => {
+    if (isRunningAutoPass || !autoQueueEnabled) return;
+
+    setIsRunningAutoPass(true);
+    setWorkerStatusMessage('Auto pass running…');
+
+    let message: string | null = null;
+    let wasSuccessful = false;
+
+    try {
+      const response = await fetch('/api/valuebot-auto-run-once', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      const text = await response.text();
+      let payload: any;
+
+      try {
+        payload = JSON.parse(text);
+      } catch (err) {
+        console.error('[ValueBot UI] Auto pass returned non-JSON response', err, text);
+        message = 'Auto pass request failed. See console for details.';
+        return;
+      }
+
+      if (payload?.ok === true) {
+        wasSuccessful = true;
+        message = `Auto pass finished: processed ${payload.processed ?? 0} jobs, failed ${payload.failed ?? 0}, remaining ${payload.remaining ?? 'unknown'}.`;
+      } else {
+        message = `Auto pass error (${response.status}): ${payload?.error || 'Unexpected error.'}`;
+      }
+    } catch (networkErr) {
+      console.error('[ValueBot UI] Auto pass request failed', networkErr);
+      message = 'Auto pass request failed. See console for details.';
+    } finally {
+      if (message) {
+        setWorkerStatusMessage(message);
+      }
+      await fetchQueue();
+      if (wasSuccessful) {
+        await fetchAutoSettings();
+      }
+      setIsRunningAutoPass(false);
+    }
+  }, [autoQueueEnabled, fetchAutoSettings, fetchQueue, isRunningAutoPass]);
 
   const pendingOrFailedJobs = useMemo(() => {
     return queueJobs.filter((job) => {
@@ -384,6 +437,7 @@ const BatchQueueTab: FunctionalComponent = () => {
   const completedCount = completedJobs.length;
 
   const renderStatus = (status: ValueBotQueueStatus) => STATUS_LABELS[status] ?? status;
+  const manualButtonLabel = workerRunning ? 'Running…' : autoQueueEnabled ? 'Run 1 job now' : 'Run worker now';
 
   return (
     <div className="valuebot-batch-layout">
@@ -546,7 +600,15 @@ const BatchQueueTab: FunctionalComponent = () => {
                 onClick={handleRunWorkerNow}
                 disabled={workerRunning || isLoading}
               >
-                {workerRunning ? 'Running…' : 'Run worker now'}
+                {manualButtonLabel}
+              </button>
+              <button
+                className="btn-secondary"
+                type="button"
+                onClick={handleRunAutoPassNow}
+                disabled={!autoQueueEnabled || isRunningAutoPass || workerRunning || isLoading}
+              >
+                {isRunningAutoPass ? 'Running…' : 'Run auto pass now'}
               </button>
             </div>
           </div>
