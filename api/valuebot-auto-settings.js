@@ -1,9 +1,9 @@
-import { getAutoQueueEnabled, setAutoQueueEnabled } from './lib/valuebot/settings.js';
+import { getAutoSettings, setAutoQueueEnabled } from './lib/valuebot/settings.js';
 
 export default async function handler(req, res) {
   if (req.method === 'GET') {
-    const autoQueueEnabled = await getAutoQueueEnabled();
-    return res.status(200).json({ autoQueueEnabled });
+    const { autoQueueEnabled, lastAutoRunAt } = await getAutoSettings();
+    return res.status(200).json({ autoQueueEnabled, lastAutoRunAt });
   }
 
   if (req.method === 'POST') {
@@ -16,7 +16,8 @@ export default async function handler(req, res) {
       }
 
       await setAutoQueueEnabled(autoQueueEnabled);
-      return res.status(200).json({ autoQueueEnabled });
+      const { lastAutoRunAt } = await getAutoSettings();
+      return res.status(200).json({ autoQueueEnabled, lastAutoRunAt });
     } catch (err) {
       console.error('[ValueBot auto-settings] POST failed', err);
       return res.status(500).json({ error: 'Failed to update autoQueueEnabled' });
