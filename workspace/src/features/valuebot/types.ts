@@ -118,6 +118,15 @@ export interface ValueBotQueueJob {
   source: string;
 }
 
+export interface ValuebotAutoSettings {
+  autoQueueEnabled: boolean;
+  autoEnabled?: boolean;
+  lastAutoRunAt?: string | null;
+  maxJobs?: number | null;
+  secondsPerJobEstimate?: number | null;
+  estimatedSecondsThisRun?: number | null;
+}
+
 export interface ValueBotAnalysisContext {
   deepDiveConfig: ValueBotDeepDiveConfig;
   module0OutputMarkdown?: string | null;
