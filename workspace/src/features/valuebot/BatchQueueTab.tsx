@@ -26,6 +26,9 @@ const BatchQueueTab: FunctionalComponent = () => {
   const [isAutoRunLoading, setIsAutoRunLoading] = useState(false);
   const [lastAutoRunMessage, setLastAutoRunMessage] = useState<string | null>(null);
   const [showCompletedModal, setShowCompletedModal] = useState(false);
+  const [completedJobs, setCompletedJobs] = useState<ValueBotQueueJob[]>([]);
+  const [isClearingCompleted, setIsClearingCompleted] = useState(false);
+  const [clearCompletedError, setClearCompletedError] = useState<string | null>(null);
   const [newTicker, setNewTicker] = useState('');
   const [newCompanyName, setNewCompanyName] = useState('');
   const [newTimeframe, setNewTimeframe] = useState('');
@@ -89,6 +92,7 @@ const BatchQueueTab: FunctionalComponent = () => {
       });
 
       setQueueJobs(normalized);
+      setCompletedJobs(normalized.filter((job) => job.status === 'completed'));
     }
 
     setIsLoading(false);
@@ -263,6 +267,43 @@ const BatchQueueTab: FunctionalComponent = () => {
     }
   };
 
+  const closeCompletedModal = () => setShowCompletedModal(false);
+
+  const handleClearCompletedJobs = async () => {
+    try {
+      setIsClearingCompleted(true);
+      setClearCompletedError(null);
+
+      const response = await fetch('/api/valuebot-batch-worker?action=clear_completed', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ action: 'clear_completed' })
+      });
+
+      const json = await response.json().catch(() => ({} as any));
+
+      if (!response.ok || !json?.ok) {
+        throw new Error(json?.error || 'Failed to clear completed jobs');
+      }
+
+      setCompletedJobs([]);
+
+      await Promise.all(
+        [
+          fetchQueue?.(),
+          fetchAutoSettings?.()
+        ].filter(Boolean)
+      );
+    } catch (err: any) {
+      console.error('[ValueBot] Failed to clear completed jobs', err);
+      setClearCompletedError(err?.message || 'Failed to clear completed jobs');
+    } finally {
+      setIsClearingCompleted(false);
+    }
+  };
+
   const handleRunWorkerNow = useCallback(async () => {
     if (workerRunning) return;
 
@@ -434,11 +475,6 @@ const BatchQueueTab: FunctionalComponent = () => {
 
     return date.toLocaleString();
   };
-
-  const completedJobs = useMemo(
-    () => queueJobs.filter((job) => job.status === 'completed'),
-    [queueJobs]
-  );
 
   const completedCount = completedJobs.length;
 
@@ -839,14 +875,18 @@ const BatchQueueTab: FunctionalComponent = () => {
       </section>
 
       {showCompletedModal && (
-        <div className="modal-backdrop" role="dialog" aria-modal="true">
-          <div className="modal valuebot-batch-explainer-modal">
-            <div className="detail-card__header" style={{ marginBottom: '12px' }}>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70"
+          role="dialog"
+          aria-modal="true"
+        >
+          <div className="w-full max-w-4xl max-h-[80vh] rounded-xl bg-slate-900/95 p-4 shadow-xl flex flex-col">
+            <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="eyebrow">Queue</p>
                 <h3>Completed jobs</h3>
               </div>
-              <button type="button" className="btn-ghost" onClick={() => setShowCompletedModal(false)}>
+              <button type="button" className="btn-ghost" onClick={closeCompletedModal}>
                 Close
               </button>
             </div>
@@ -854,37 +894,72 @@ const BatchQueueTab: FunctionalComponent = () => {
             {completedJobs.length === 0 ? (
               <p className="detail-meta">No completed jobs yet.</p>
             ) : (
-              <div className="valuebot-batch-queue-table">
-                <table className="table subtle">
-                  <thead>
-                    <tr>
-                      <th>Ticker</th>
-                      <th>Company</th>
-                      <th>Last run</th>
-                      <th>Attempts</th>
-                      <th>Provider</th>
-                      <th>Model</th>
-                      <th>Created</th>
-                      <th>Source</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {completedJobs.map((job) => (
-                      <tr key={job.id}>
-                        <td>{job.ticker || '—'}</td>
-                        <td>{job.company_name || '—'}</td>
-                        <td>{formatDate((job as any).last_run_at ?? (job as any).last_run ?? null)}</td>
-                        <td>{job.attempts ?? 0}</td>
-                        <td>{job.provider || 'openai'}</td>
-                        <td>{job.model || 'gpt-4o-mini'}</td>
-                        <td>{formatDate(job.created_at)}</td>
-                        <td>{job.source || 'manual_queue'}</td>
+              <div className="mt-4 max-h-[60vh] overflow-y-auto border border-slate-800/60 rounded-lg divide-y divide-slate-800/60 bg-slate-950/80">
+                <div className="valuebot-batch-queue-table">
+                  <table className="table subtle">
+                    <thead>
+                      <tr>
+                        <th>Ticker</th>
+                        <th>Company</th>
+                        <th>Last run</th>
+                        <th>Attempts</th>
+                        <th>Provider</th>
+                        <th>Model</th>
+                        <th>Created</th>
+                        <th>Source</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {completedJobs.map((job) => (
+                        <tr key={job.id}>
+                          <td>{job.ticker || '—'}</td>
+                          <td>{job.company_name || '—'}</td>
+                          <td>{formatDate((job as any).last_run_at ?? (job as any).last_run ?? null)}</td>
+                          <td>{job.attempts ?? 0}</td>
+                          <td>{job.provider || 'openai'}</td>
+                          <td>{job.model || 'gpt-4o-mini'}</td>
+                          <td>{formatDate(job.created_at)}</td>
+                          <td>{job.source || 'manual_queue'}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             )}
+
+            <div className="mt-4 flex items-center justify-between gap-3">
+              <div className="text-xs text-slate-400">
+                {clearCompletedError ? (
+                  <div className="text-red-400">{clearCompletedError}</div>
+                ) : (
+                  <span>
+                    {completedJobs.length === 0
+                      ? 'No completed jobs to clear.'
+                      : `Completed jobs: ${completedJobs.length}`}
+                  </span>
+                )}
+              </div>
+
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={handleClearCompletedJobs}
+                  disabled={isClearingCompleted || completedJobs.length === 0}
+                  className="rounded-md bg-red-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-500 disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  {isClearingCompleted ? 'Clearing…' : 'Clear completed'}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={closeCompletedModal}
+                  className="rounded-md bg-slate-700 px-3 py-1.5 text-xs font-medium text-slate-50 hover:bg-slate-600"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
