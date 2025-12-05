@@ -108,29 +108,6 @@ const BatchQueueTab: FunctionalComponent = () => {
     loadJobs();
   }, [loadJobs]);
 
-  useEffect(() => {
-    if (typeof document === 'undefined') return;
-
-    const previousOverflow = document.body.style.overflow;
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && isCompletedOpen) {
-        setIsCompletedOpen(false);
-      }
-    };
-
-    if (isCompletedOpen) {
-      document.body.style.overflow = 'hidden';
-      document.addEventListener('keydown', handleKeyDown);
-    } else {
-      document.body.style.overflow = previousOverflow;
-    }
-
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [isCompletedOpen]);
-
   const fetchAutoSettings = useCallback(async () => {
     try {
       const response = await fetch('/api/valuebot-auto-settings');
@@ -394,15 +371,7 @@ const BatchQueueTab: FunctionalComponent = () => {
       const data = await response.json().catch(() => ({} as any));
 
       if (data?.ok) {
-        const processed = Number(data?.processed ?? 0);
-        const failed = Number(data?.failed ?? 0);
-        const remaining = Number(data?.remaining ?? 0);
-        const baseMessage = `Auto run processed ${processed} jobs (failed: ${failed}). ${remaining} remaining in queue.`;
-        const tail = remaining > 0
-          ? ' The GitHub Actions cron will keep processing the remaining jobs in future cycles.'
-          : '';
-
-        setAutoRunStatus({ state: 'success', message: baseMessage + tail });
+        setAutoRunStatus({ state: 'success', message: data?.message || 'Auto run completed.' });
       } else {
         setAutoRunStatus({
           state: 'error',
@@ -963,8 +932,8 @@ function CompletedJobsModal({
       aria-modal="true"
     >
       <div
-        className="w-full rounded-xl bg-slate-900/95 p-5 shadow-2xl border border-slate-800/70"
-        style={{ maxHeight: '70vh', minWidth: '70vw', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
+        className="w-full max-w-5xl rounded-xl bg-slate-900/95 p-5 shadow-2xl border border-slate-800/70"
+        style={{ maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}
       >
         <div className="flex items-start justify-between gap-4">
           <div>
@@ -981,16 +950,13 @@ function CompletedJobsModal({
           </button>
         </div>
 
-        <div
-          className="mt-4 flex-1 overflow-hidden rounded-lg border border-slate-800/60 bg-slate-950/70"
-          style={{ display: 'flex', flexDirection: 'column', flex: 1 }}
-        >
+        <div className="mt-4 flex-1 overflow-hidden rounded-lg border border-slate-800/60 bg-slate-950/70">
           {completedJobs.length === 0 ? (
             <div className="p-4">
               <p className="detail-meta">No completed jobs yet.</p>
             </div>
           ) : (
-            <div className="valuebot-batch-queue-table" style={{ maxHeight: '50vh', overflowY: 'auto' }}>
+            <div className="valuebot-batch-queue-table" style={{ maxHeight: '60vh', overflowY: 'auto' }}>
               <table className="table subtle">
                 <thead>
                   <tr>
@@ -1025,7 +991,7 @@ function CompletedJobsModal({
 
         <div
           className="mt-4 flex items-center justify-between gap-3 border-t border-slate-800/70 pt-3"
-          style={{ position: 'sticky', bottom: 0, background: 'rgba(15, 23, 42, 0.85)' }}
+          style={{ position: 'sticky', bottom: 0 }}
         >
           <div className="text-xs text-slate-400">
             {clearError ? (

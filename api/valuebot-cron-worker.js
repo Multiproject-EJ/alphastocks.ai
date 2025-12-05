@@ -72,17 +72,7 @@ export default async function handler(req, res) {
     const processed = result.processed ?? 0;
     const failed = result.failed ?? 0;
     const remaining = result.remaining ?? 0;
-    const message = `Auto run processed ${processed} jobs (${failed} failed). ${remaining} remaining in queue.` +
-      (failed > 0 ? ' Auto run completed with some job errors; see job logs.' : '');
-
-    console.log('[ValueBot Cron] Auto run completed', {
-      source,
-      processed,
-      failed,
-      remaining,
-      maxJobs,
-      estimatedSecondsThisRun: result.estimatedSecondsThisRun
-    });
+    const message = `Auto run processed ${processed} jobs (${failed} failed). ${remaining} remaining in queue.`;
 
     return res.status(200).json({
       ok: true,
