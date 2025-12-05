@@ -5,7 +5,7 @@ import { getSupabaseAdminClient } from './lib/supabaseAdmin.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'GET' && req.method !== 'POST') {
-    return res.status(405).json({ ok: false, error: 'Method not allowed' });
+    return res.status(200).json({ ok: false, message: 'Method not allowed' });
   }
 
   const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
@@ -16,7 +16,7 @@ export default async function handler(req, res) {
 
   if (source === 'cron') {
     if (!cronSecret || secretParam !== cronSecret) {
-      return res.status(401).json({ ok: false, error: 'Unauthorized cron call' });
+      return res.status(200).json({ ok: false, message: 'Unauthorized cron call', errorCode: 'unauthorized' });
     }
   }
 
@@ -52,6 +52,7 @@ export default async function handler(req, res) {
         processed: 0,
         failed: 0,
         remaining,
+        message: `Auto queue runner disabled via settings. ${remaining} remaining in queue.`,
         reason: 'Auto queue runner disabled via settings',
         lastAutoRunAt: lastAutoRunAt ?? null,
         maxJobs,
@@ -68,13 +69,19 @@ export default async function handler(req, res) {
 
     const updatedLastRunAt = await updateLastAutoRunAt(supabase);
 
+    const processed = result.processed ?? 0;
+    const failed = result.failed ?? 0;
+    const remaining = result.remaining ?? 0;
+    const message = `Auto run processed ${processed} jobs (${failed} failed). ${remaining} remaining in queue.`;
+
     return res.status(200).json({
       ok: true,
       source,
       autoEnabled: true,
-      processed: result.processed,
-      failed: result.failed,
-      remaining: result.remaining,
+      processed,
+      failed,
+      remaining,
+      message,
       maxJobs: result.maxJobs,
       perJobMs: SECONDS_PER_JOB_ESTIMATE * 1000,
       estimatedCycleMs: (result.estimatedSecondsThisRun ?? 0) * 1000,
@@ -84,9 +91,11 @@ export default async function handler(req, res) {
     });
   } catch (err) {
     console.error('[ValueBot Cron Worker] Fatal error', err);
-    return res.status(500).json({
+    const detail = (err?.message || 'Cron worker error').slice(0, 200);
+    return res.status(200).json({
       ok: false,
-      error: err?.message || 'Cron worker error'
+      message: 'Auto run failed. Please try again shortly.',
+      errorDetail: detail
     });
   }
 }

@@ -1,5 +1,11 @@
 import { FunctionalComponent } from 'preact';
 import { useCallback, useEffect, useMemo, useState } from 'preact/hooks';
+
+type AutoRunStatus =
+  | { state: 'idle' }
+  | { state: 'running' }
+  | { state: 'success'; message: string }
+  | { state: 'error'; message: string; detail?: string };
 import { supabase } from '../../lib/supabaseClient.js';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { defaultDeepDiveConfig, ValuebotAutoSettings, ValueBotQueueJob, ValueBotQueueStatus } from './types.ts';
@@ -24,8 +30,8 @@ const BatchQueueTab: FunctionalComponent = () => {
   const [workerRunning, setWorkerRunning] = useState(false);
   const [workerStatusMessage, setWorkerStatusMessage] = useState<string | null>(null);
   const [isAutoRunLoading, setIsAutoRunLoading] = useState(false);
-  const [lastAutoRunMessage, setLastAutoRunMessage] = useState<string | null>(null);
-  const [showCompletedModal, setShowCompletedModal] = useState(false);
+  const [autoRunStatus, setAutoRunStatus] = useState<AutoRunStatus>({ state: 'idle' });
+  const [isCompletedOpen, setIsCompletedOpen] = useState(false);
   const [completedJobs, setCompletedJobs] = useState<ValueBotQueueJob[]>([]);
   const [isClearingCompleted, setIsClearingCompleted] = useState(false);
   const [clearCompletedError, setClearCompletedError] = useState<string | null>(null);
@@ -267,8 +273,6 @@ const BatchQueueTab: FunctionalComponent = () => {
     }
   };
 
-  const closeCompletedModal = () => setShowCompletedModal(false);
-
   const handleClearCompletedJobs = async () => {
     try {
       setIsClearingCompleted(true);
@@ -355,7 +359,7 @@ const BatchQueueTab: FunctionalComponent = () => {
   async function handleAutoRunOnce() {
     try {
       setIsAutoRunLoading(true);
-      setLastAutoRunMessage(null);
+      setAutoRunStatus({ state: 'running' });
 
       const response = await fetch('/api/valuebot-cron-worker?source=ui', {
         method: 'POST',
@@ -364,22 +368,17 @@ const BatchQueueTab: FunctionalComponent = () => {
         }
       });
 
-      if (!response.ok) {
-        const text = await response.text().catch(() => '');
-        console.error('[ValueBot UI] Auto run once failed', response.status, text);
-        setLastAutoRunMessage('Auto run failed – see logs.');
-        return;
-      }
-
       const data = await response.json().catch(() => ({} as any));
 
-      const processed = data?.processed ?? 0;
-      const failed = data?.failed ?? 0;
-      const remaining = data?.remaining ?? 0;
-
-      setLastAutoRunMessage(
-        `Auto cycle: processed ${processed}, failed ${failed}, remaining ${remaining}.`
-      );
+      if (data?.ok) {
+        setAutoRunStatus({ state: 'success', message: data?.message || 'Auto run completed.' });
+      } else {
+        setAutoRunStatus({
+          state: 'error',
+          message: data?.message || 'Auto run failed.',
+          detail: data?.errorDetail || data?.error || data?.reason
+        });
+      }
 
       await Promise.all(
         [
@@ -389,7 +388,11 @@ const BatchQueueTab: FunctionalComponent = () => {
       );
     } catch (err) {
       console.error('[ValueBot UI] Auto run once error', err);
-      setLastAutoRunMessage('Auto run failed – see console for details.');
+      setAutoRunStatus({
+        state: 'error',
+        message: 'Auto run failed.',
+        detail: err instanceof Error ? err.message : String(err)
+      });
     } finally {
       setIsAutoRunLoading(false);
     }
@@ -641,7 +644,7 @@ const BatchQueueTab: FunctionalComponent = () => {
               <button
                 type="button"
                 className="btn-secondary"
-                onClick={() => setShowCompletedModal(true)}
+                onClick={() => setIsCompletedOpen(true)}
                 disabled={completedCount === 0}
               >
                 Completed ({completedCount})
@@ -695,7 +698,7 @@ const BatchQueueTab: FunctionalComponent = () => {
             </label>
           </div>
 
-          <div style={{ marginTop: 8, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          <div style={{ marginTop: 8, display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
             <button
               type="button"
               className="btn-tertiary"
@@ -707,8 +710,22 @@ const BatchQueueTab: FunctionalComponent = () => {
               {isAutoRunLoading ? 'Running auto cycle…' : 'Run auto cycle now'}
             </button>
 
-            {lastAutoRunMessage && (
-              <span style={{ fontSize: 12, opacity: 0.8 }}>{lastAutoRunMessage}</span>
+            {autoRunStatus.state === 'running' && (
+              <span style={{ fontSize: 12, opacity: 0.8 }}>Auto run in progress…</span>
+            )}
+            {autoRunStatus.state === 'success' && (
+              <span style={{ fontSize: 12, opacity: 0.9 }}>{autoRunStatus.message}</span>
+            )}
+            {autoRunStatus.state === 'error' && (
+              <span style={{ fontSize: 12, opacity: 0.9, color: '#fca5a5', display: 'grid', gap: 2 }}>
+                <span>Auto run failed: {autoRunStatus.message}</span>
+                {autoRunStatus.detail && (
+                  <span style={{ fontSize: 11, opacity: 0.8 }}>
+                    {(autoRunStatus.detail || '').slice(0, 140)}
+                    {autoRunStatus.detail.length > 140 ? '…' : ''}
+                  </span>
+                )}
+              </span>
             )}
           </div>
 
@@ -874,97 +891,140 @@ const BatchQueueTab: FunctionalComponent = () => {
         </div>
       </section>
 
-      {showCompletedModal && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70"
-          role="dialog"
-          aria-modal="true"
-        >
-          <div className="w-full max-w-4xl max-h-[80vh] rounded-xl bg-slate-900/95 p-4 shadow-xl flex flex-col">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="eyebrow">Queue</p>
-                <h3>Completed jobs</h3>
-              </div>
-              <button type="button" className="btn-ghost" onClick={closeCompletedModal}>
-                Close
-              </button>
-            </div>
-
-            {completedJobs.length === 0 ? (
-              <p className="detail-meta">No completed jobs yet.</p>
-            ) : (
-              <div className="mt-4 max-h-[60vh] overflow-y-auto border border-slate-800/60 rounded-lg divide-y divide-slate-800/60 bg-slate-950/80">
-                <div className="valuebot-batch-queue-table">
-                  <table className="table subtle">
-                    <thead>
-                      <tr>
-                        <th>Ticker</th>
-                        <th>Company</th>
-                        <th>Last run</th>
-                        <th>Attempts</th>
-                        <th>Provider</th>
-                        <th>Model</th>
-                        <th>Created</th>
-                        <th>Source</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {completedJobs.map((job) => (
-                        <tr key={job.id}>
-                          <td>{job.ticker || '—'}</td>
-                          <td>{job.company_name || '—'}</td>
-                          <td>{formatDate((job as any).last_run_at ?? (job as any).last_run ?? null)}</td>
-                          <td>{job.attempts ?? 0}</td>
-                          <td>{job.provider || 'openai'}</td>
-                          <td>{job.model || 'gpt-4o-mini'}</td>
-                          <td>{formatDate(job.created_at)}</td>
-                          <td>{job.source || 'manual_queue'}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-
-            <div className="mt-4 flex items-center justify-between gap-3">
-              <div className="text-xs text-slate-400">
-                {clearCompletedError ? (
-                  <div className="text-red-400">{clearCompletedError}</div>
-                ) : (
-                  <span>
-                    {completedJobs.length === 0
-                      ? 'No completed jobs to clear.'
-                      : `Completed jobs: ${completedJobs.length}`}
-                  </span>
-                )}
-              </div>
-
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={handleClearCompletedJobs}
-                  disabled={isClearingCompleted || completedJobs.length === 0}
-                  className="rounded-md bg-red-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-500 disabled:opacity-40 disabled:cursor-not-allowed"
-                >
-                  {isClearingCompleted ? 'Clearing…' : 'Clear completed'}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={closeCompletedModal}
-                  className="rounded-md bg-slate-700 px-3 py-1.5 text-xs font-medium text-slate-50 hover:bg-slate-600"
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <CompletedJobsModal
+        open={isCompletedOpen}
+        onClose={() => setIsCompletedOpen(false)}
+        completedJobs={completedJobs}
+        onClearCompleted={handleClearCompletedJobs}
+        formatDate={formatDate}
+        isClearing={isClearingCompleted}
+        clearError={clearCompletedError}
+      />
     </div>
   );
 };
 
 export default BatchQueueTab;
+
+function CompletedJobsModal({
+  open,
+  onClose,
+  completedJobs,
+  onClearCompleted,
+  formatDate,
+  isClearing,
+  clearError
+}: {
+  open: boolean;
+  onClose: () => void;
+  completedJobs: ValueBotQueueJob[];
+  onClearCompleted: () => Promise<void> | void;
+  formatDate: (value: string | null) => string;
+  isClearing: boolean;
+  clearError: string | null;
+}) {
+  if (!open) return null;
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80"
+      role="dialog"
+      aria-modal="true"
+    >
+      <div
+        className="w-full max-w-5xl rounded-xl bg-slate-900/95 p-5 shadow-2xl border border-slate-800/70"
+        style={{ maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}
+      >
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="eyebrow">Queue</p>
+            <h3>Completed jobs ({completedJobs.length})</h3>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="btn-ghost"
+            aria-label="Close completed jobs"
+          >
+            ×
+          </button>
+        </div>
+
+        <div className="mt-4 flex-1 overflow-hidden rounded-lg border border-slate-800/60 bg-slate-950/70">
+          {completedJobs.length === 0 ? (
+            <div className="p-4">
+              <p className="detail-meta">No completed jobs yet.</p>
+            </div>
+          ) : (
+            <div className="valuebot-batch-queue-table" style={{ maxHeight: '60vh', overflowY: 'auto' }}>
+              <table className="table subtle">
+                <thead>
+                  <tr>
+                    <th>Ticker</th>
+                    <th>Company</th>
+                    <th>Last run</th>
+                    <th>Attempts</th>
+                    <th>Provider</th>
+                    <th>Model</th>
+                    <th>Created</th>
+                    <th>Source</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {completedJobs.map((job) => (
+                    <tr key={job.id}>
+                      <td>{job.ticker || '—'}</td>
+                      <td>{job.company_name || '—'}</td>
+                      <td>{formatDate((job as any).last_run_at ?? (job as any).last_run ?? null)}</td>
+                      <td>{job.attempts ?? 0}</td>
+                      <td>{job.provider || 'openai'}</td>
+                      <td>{job.model || 'gpt-4o-mini'}</td>
+                      <td>{formatDate(job.created_at)}</td>
+                      <td>{job.source || 'manual_queue'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        <div
+          className="mt-4 flex items-center justify-between gap-3 border-t border-slate-800/70 pt-3"
+          style={{ position: 'sticky', bottom: 0 }}
+        >
+          <div className="text-xs text-slate-400">
+            {clearError ? (
+              <div className="text-red-400">{clearError}</div>
+            ) : (
+              <span>
+                {completedJobs.length === 0
+                  ? 'No completed jobs to clear.'
+                  : `Completed jobs: ${completedJobs.length}`}
+              </span>
+            )}
+          </div>
+
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={onClearCompleted}
+              disabled={isClearing || completedJobs.length === 0}
+              className="rounded-md bg-red-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-500 disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              {isClearing ? 'Clearing…' : 'Clear completed'}
+            </button>
+
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-md bg-slate-700 px-3 py-1.5 text-xs font-medium text-slate-50 hover:bg-slate-600"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
