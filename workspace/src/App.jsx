@@ -74,9 +74,9 @@ const ALERT_CONFIGS = [
   },
   {
     id: 'punchcard-catch',
-    name: 'Catch of the day (PUNCHCard MONOPLOY)',
+    name: 'Catch of the day (Investing Board)',
     schedule: 'Daily • Catch of the day spotlight',
-    description: 'Nudge to review the “PUNCHCard MONOPLOY - Fishing SWIPE” ideas list.',
+    description: 'Nudge to review The Investing Board Game moves and ValueBot Teacher coaching notes.',
     target: 'punchcard'
   }
 ];
@@ -446,8 +446,8 @@ const mainNavigation = [
   {
     id: 'punchcard',
     icon: '🎣',
-    title: 'PUNCHCard MONOPLOY - Fishing SWIPE',
-    caption: 'Patience & selectivity drill'
+    title: 'The Investing Board Game',
+    caption: 'ValueBot Teacher add-on for patient moves'
   },
   { id: 'quadrant', icon: '🧭', title: 'Investing Universe', caption: '' },
   { id: 'portfolio', icon: '💼', title: 'Portfolio', caption: 'Results & ledger', hasSubmenu: true },
@@ -673,16 +673,17 @@ const staticSections = {
     ]
   },
   punchcard: {
-    title: 'PUNCHCard MONOPLOY - Fishing SWIPE',
-    meta: 'Gamify patience: log the few swings you are willing to take and why they are worth the punch card.',
+    title: 'The Investing Board Game',
+    meta:
+      'Gamify patience with The Investing Board Game. Map your best swing to the board, then upsell the ValueBot Teacher add-on to coach conviction and selectivity.',
     cards: [
       {
-        title: 'Select the day’s one big cast',
+        title: 'Select the day’s winning move',
         body: (
           <>
             <p>
-              Document the single opportunity that deserves a punch. If it does not clear the conviction bar, let it pass and
-              record the lesson.
+              Document the single opportunity that deserves a placement on the board. If it does not clear the conviction bar,
+              let it pass and record the lesson. ValueBot Teacher can explain the why to prospective users.
             </p>
             <ul className="pill-list">
               <li className="pill">Set-up quality</li>
