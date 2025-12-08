@@ -12,6 +12,7 @@ import Module4ValuationEngine from './features/valuebot/modules/Module4Valuation
 import Module5TimingMomentum from './features/valuebot/modules/Module5TimingMomentum.tsx';
 import Module6FinalVerdict from './features/valuebot/modules/Module6FinalVerdict.tsx';
 import BatchQueueTab from './features/valuebot/BatchQueueTab.tsx';
+import BoardGameTab from './features/investing-board-game/BoardGameTab.jsx';
 import {
   ValueBotContext,
   defaultPipelineProgress,
@@ -676,56 +677,7 @@ const staticSections = {
     title: 'The Investing Board Game',
     meta:
       'Gamify patience with The Investing Board Game. Map your best swing to the board, then upsell the ValueBot Teacher add-on to coach conviction and selectivity.',
-    cards: [
-      {
-        title: 'Select the day’s winning move',
-        body: (
-          <>
-            <p>
-              Document the single opportunity that deserves a placement on the board. If it does not clear the conviction bar,
-              let it pass and record the lesson. ValueBot Teacher can explain the why to prospective users.
-            </p>
-            <ul className="pill-list">
-              <li className="pill">Set-up quality</li>
-              <li className="pill">Catalyst clarity</li>
-              <li className="pill">Sizing discipline</li>
-            </ul>
-          </>
-        )
-      },
-      {
-        title: 'Fishing swipe log',
-        body: (
-          <>
-            <p>Track which casts you actually took and whether they honored the punch card rules.</p>
-            <table className="table subtle">
-              <thead>
-                <tr>
-                  <th>Timestamp</th>
-                  <th>Opportunity</th>
-                  <th>Reason</th>
-                  <th>Discipline score</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>09:45</td>
-                  <td>Breakout retry</td>
-                  <td>Rejected – patience preserved</td>
-                  <td>⭐️⭐️⭐️⭐️</td>
-                </tr>
-                <tr>
-                  <td>14:10</td>
-                  <td>Pullback entry</td>
-                  <td>Taken – plan followed</td>
-                  <td>⭐️⭐️⭐️</td>
-                </tr>
-              </tbody>
-            </table>
-          </>
-        )
-      }
-    ]
+    component: <BoardGameTab />
   },
   quadrant: {
     title: 'Investing Universe',
