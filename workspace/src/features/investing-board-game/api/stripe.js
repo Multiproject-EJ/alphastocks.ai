@@ -1,9 +1,9 @@
 export async function startSkinPurchase(skinId) {
   try {
-    const response = await fetch('/api/create-wealth-skin-checkout', {
+    const response = await fetch('/api/provider-config', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ skinId })
+      body: JSON.stringify({ action: 'createWealthSkinCheckout', skinId })
     });
 
     if (!response.ok) {
