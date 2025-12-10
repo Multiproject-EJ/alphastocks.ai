@@ -433,7 +433,8 @@ const sectionTabsById = {
   dashboard: dashboardTabs,
   valuebot: valueBotTabs.map((tab) => tab.label),
   quadrant: ['Universe', 'Universe Quadrant', 'Add Stocks'],
-  checkin: ['Tab 1', 'Trading Journal', 'Tab 3', 'Tab 4', 'Tab 5']
+  checkin: ['Tab 1', 'Trading Journal', 'Tab 3', 'Tab 4', 'Tab 5'],
+  punchcard: []
 };
 
 const settingsNavItem = { id: 'settings', icon: '⚙️' };
@@ -999,9 +1000,12 @@ const App = () => {
   );
 
   const tabsForSection = getSectionTabs(activeSection);
-  const activeTab = activeTabsBySection[activeSection] ?? tabsForSection[0];
+  const hasTabs = tabsForSection.length > 0;
+  const activeTab = hasTabs ? activeTabsBySection[activeSection] ?? tabsForSection[0] : null;
 
   const handleTabSelection = (tab) => {
+    if (!hasTabs) return;
+
     setActiveTabsBySection((prev) => ({
       ...prev,
       [activeSection]: tab
@@ -2197,6 +2201,10 @@ const App = () => {
       return renderCheckInJournalPanel();
     }
 
+    if (!hasTabs) {
+      return renderDefaultSection();
+    }
+
     if (activeTab === tabsForSection[0]) {
       return renderDefaultSection();
     }
@@ -2420,39 +2428,41 @@ const App = () => {
           </nav>
 
           <div className="workspace" id="workspace">
-            <div className="app-tabs" role="tablist">
-              {tabsForSection.map((tab) => {
-                const valueBotTabConfig =
-                  activeSection === 'valuebot'
-                    ? valueBotTabs.find((item) => item.label === tab || item.id === tab)
-                    : null;
+            {hasTabs && (
+              <div className="app-tabs" role="tablist">
+                {tabsForSection.map((tab) => {
+                  const valueBotTabConfig =
+                    activeSection === 'valuebot'
+                      ? valueBotTabs.find((item) => item.label === tab || item.id === tab)
+                      : null;
 
-                const tabClasses = ['tab'];
-                if (activeTab === tab) tabClasses.push('active');
-                if (valueBotTabConfig) {
-                  tabClasses.push('valuebot-tab');
-                  if (valueBotTabConfig.id === 'valuebot-batch-queue') {
-                    tabClasses.push('valuebot-tab--batch');
+                  const tabClasses = ['tab'];
+                  if (activeTab === tab) tabClasses.push('active');
+                  if (valueBotTabConfig) {
+                    tabClasses.push('valuebot-tab');
+                    if (valueBotTabConfig.id === 'valuebot-batch-queue') {
+                      tabClasses.push('valuebot-tab--batch');
+                    }
+                    if (valueBotTabConfig.id === 'valuebot-quicktake') {
+                      tabClasses.push('valuebot-tab--quicktake');
+                    }
                   }
-                  if (valueBotTabConfig.id === 'valuebot-quicktake') {
-                    tabClasses.push('valuebot-tab--quicktake');
-                  }
-                }
 
-                return (
-                  <button
-                    key={tab}
-                    className={tabClasses.join(' ')}
-                    role="tab"
-                    aria-selected={activeTab === tab}
-                    onClick={() => handleTabSelection(tab)}
-                    type="button"
-                  >
-                    {tab}
-                  </button>
-                );
-              })}
-            </div>
+                  return (
+                    <button
+                      key={tab}
+                      className={tabClasses.join(' ')}
+                      role="tab"
+                      aria-selected={activeTab === tab}
+                      onClick={() => handleTabSelection(tab)}
+                      type="button"
+                    >
+                      {tab}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
 
             <div className="app-panels">
               <section className="app-detail" aria-label="Detail">

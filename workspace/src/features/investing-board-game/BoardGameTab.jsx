@@ -109,6 +109,7 @@ export default function BoardGameTab() {
   const [selectedTile, setSelectedTile] = useState(null);
   const [inJail, setInJail] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
+  const [isBoardLaunched, setIsBoardLaunched] = useState(false);
 
   const edges = useMemo(
     () => ({
@@ -167,41 +168,102 @@ export default function BoardGameTab() {
     checkSkinPurchaseCallback();
   }, [markSkinOwned]);
 
+  useEffect(() => {
+    if (!isBoardLaunched) return undefined;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isBoardLaunched]);
+
+  const closeBoard = useCallback(() => {
+    setIsBoardLaunched(false);
+    setSelectedTile(null);
+    setStatusMessage('');
+    setInJail(false);
+  }, []);
+
+  const openBoard = useCallback(() => {
+    setIsBoardLaunched(true);
+  }, []);
+
   return (
     <div className="board-game-tab">
-      <div className="board-game-layout">
-        <div className="skin-label">Active skin: {activeSkin.label}</div>
-        <div className="board-center">
-          <div>
-            <p className="detail-meta">Portfolio graph placeholder</p>
-            <p>Map your conviction move here.</p>
-          </div>
+      <div className="board-game-landing">
+        <div>
+          <p className="eyebrow">ValueBot Teacher add-on</p>
+          <h3>The Investing Board Game</h3>
+          <p className="detail-meta">Practice patient entries, celebrate quality casts, and unlock skins as you level up.</p>
+          <ul className="board-game-landing__list">
+            <li>Map conviction moves to the board before committing real capital.</li>
+            <li>Pause with a fishing trip when the setup is weak or patience is slipping.</li>
+            <li>Collect skins as coaching rewards for disciplined decision making.</li>
+          </ul>
         </div>
-        <div className="board-edges">
-          <div className="edge edge-top">
-            {edges.top.map((tile) => tile && <Tile key={tile.id} tile={tile} onClick={handleTileClick} activeSkin={activeSkin} />)}
-          </div>
-          <div className="edge edge-right">
-            {edges.right.map((tile) => tile && <Tile key={tile.id} tile={tile} onClick={handleTileClick} activeSkin={activeSkin} />)}
-          </div>
-          <div className="edge edge-bottom">
-            {edges.bottom.map((tile) => tile && <Tile key={tile.id} tile={tile} onClick={handleTileClick} activeSkin={activeSkin} />)}
-          </div>
-          <div className="edge edge-left">
-            {edges.left.map((tile) => tile && <Tile key={tile.id} tile={tile} onClick={handleTileClick} activeSkin={activeSkin} />)}
-          </div>
+        <div className="board-game-landing__actions">
+          <button className="btn-primary" type="button" onClick={openBoard}>
+            Launch board game
+          </button>
+          <p className="detail-meta">Opens full-screen without the workspace sidebar.</p>
         </div>
-        <button className="board-dice-button" type="button" onClick={rollDice} aria-label="Roll dice">
-          🎲
-        </button>
-        <SkinSelector state={state} setActiveSkin={setActiveSkin} markSkinOwned={markSkinOwned} />
       </div>
-      {statusMessage && (
-        <div className={`board-status-banner${inJail ? ' warning' : ''}`} aria-live="polite">
-          {statusMessage}
+
+      {isBoardLaunched && (
+        <div className="board-game-overlay" role="dialog" aria-modal="true" aria-label="The Investing Board Game">
+          <button className="board-game-close" type="button" onClick={closeBoard} aria-label="Close board game">
+            ×
+          </button>
+
+          <div className="board-game-overlay__content">
+            <div className="board-game-layout board-game-layout--fullscreen">
+              <div className="skin-label">Active skin: {activeSkin.label}</div>
+              <div className="board-center">
+                <div>
+                  <p className="detail-meta">Portfolio graph placeholder</p>
+                  <p>Map your conviction move here.</p>
+                </div>
+              </div>
+              <div className="board-edges">
+                <div className="edge edge-top">
+                  {edges.top.map((tile) => tile && (
+                    <Tile key={tile.id} tile={tile} onClick={handleTileClick} activeSkin={activeSkin} />
+                  ))}
+                </div>
+                <div className="edge edge-right">
+                  {edges.right.map((tile) => tile && (
+                    <Tile key={tile.id} tile={tile} onClick={handleTileClick} activeSkin={activeSkin} />
+                  ))}
+                </div>
+                <div className="edge edge-bottom">
+                  {edges.bottom.map((tile) => tile && (
+                    <Tile key={tile.id} tile={tile} onClick={handleTileClick} activeSkin={activeSkin} />
+                  ))}
+                </div>
+                <div className="edge edge-left">
+                  {edges.left.map((tile) => tile && (
+                    <Tile key={tile.id} tile={tile} onClick={handleTileClick} activeSkin={activeSkin} />
+                  ))}
+                </div>
+              </div>
+              <button className="board-dice-button" type="button" onClick={rollDice} aria-label="Roll dice">
+                🎲
+              </button>
+              <SkinSelector state={state} setActiveSkin={setActiveSkin} markSkinOwned={markSkinOwned} />
+            </div>
+
+            {statusMessage && (
+              <div className={`board-status-banner${inJail ? ' warning' : ''}`} aria-live="polite">
+                {statusMessage}
+              </div>
+            )}
+          </div>
+
+          {selectedTile && <TileModal tile={selectedTile} onClose={closeModal} inJail={inJail} />}
         </div>
       )}
-      {selectedTile && <TileModal tile={selectedTile} onClose={closeModal} inJail={inJail} />}
     </div>
   );
 }
