@@ -16,6 +16,19 @@ const BoardGameApp: FunctionalComponent = () => {
     color: 'rgba(245, 245, 245, 0.8)'
   };
 
+  const layoutStyle: JSX.CSSProperties = {
+    display: 'grid',
+    gap: '1.25rem',
+    gridTemplateColumns: '2fr 1fr',
+    alignItems: 'start'
+  };
+
+  const boardColumnStyle: JSX.CSSProperties = {
+    width: '100%',
+    maxWidth: '980px',
+    marginInline: 'auto'
+  };
+
   return (
     <div className="boardgame-app" style={shellStyle}>
       <header className="boardgame-header">
@@ -28,8 +41,10 @@ const BoardGameApp: FunctionalComponent = () => {
         </div>
       </header>
 
-      <div className="boardgame-layout">
-        <BoardRoot />
+      <div className="boardgame-layout" style={layoutStyle}>
+        <div style={boardColumnStyle}>
+          <BoardRoot />
+        </div>
         <CenterPanels />
       </div>
     </div>
