@@ -12,7 +12,7 @@ import Module4ValuationEngine from './features/valuebot/modules/Module4Valuation
 import Module5TimingMomentum from './features/valuebot/modules/Module5TimingMomentum.tsx';
 import Module6FinalVerdict from './features/valuebot/modules/Module6FinalVerdict.tsx';
 import BatchQueueTab from './features/valuebot/BatchQueueTab.tsx';
-import InvestingBoardGameTab from './features/investing-board-game/InvestingBoardGameTab.jsx';
+import InvestorGameTab from './features/investing-board-game/InvestorGameTab.jsx';
 import {
   ValueBotContext,
   defaultPipelineProgress,
@@ -75,10 +75,10 @@ const ALERT_CONFIGS = [
   },
   {
     id: 'investing-board-game-catch',
-    name: 'Catch of the day (Investing Board)',
+    name: 'Catch of the day (Investor Game)',
     schedule: 'Daily • Catch of the day spotlight',
-    description: 'Nudge to review The Investing Board Game moves and ValueBot Teacher coaching notes.',
-    target: 'investingBoardGame'
+    description: 'Nudge to review InvestorGame moves and ValueBot Teacher coaching notes.',
+    target: 'investorGame'
   }
 ];
 
@@ -434,7 +434,7 @@ const sectionTabsById = {
   valuebot: valueBotTabs.map((tab) => tab.label),
   quadrant: ['Universe', 'Universe Quadrant', 'Add Stocks'],
   checkin: ['Tab 1', 'Trading Journal', 'Tab 3', 'Tab 4', 'Tab 5'],
-  investingBoardGame: []
+  investorGame: []
 };
 
 const settingsNavItem = { id: 'settings', icon: '⚙️' };
@@ -446,9 +446,9 @@ const mainNavigation = [
   { id: 'checkin', icon: '🧘', title: 'Check-In', caption: 'Daily reflections' },
   { id: 'valuebot', icon: '🤖', title: 'ValueBot', caption: 'Valuation copilot' },
   {
-    id: 'investingBoardGame',
+    id: 'investorGame',
     icon: '🎣',
-    title: 'InvestingBoardGame',
+    title: 'InvestorGame',
     caption: ''
   },
   { id: 'quadrant', icon: '🧭', title: 'Investing Universe', caption: '' },
@@ -635,7 +635,7 @@ const staticSections = {
                 <li>Automated alerts when negative patterns emerge</li>
                 <li>Comparison with peer anonymized data for benchmarking</li>
                 <li>ML-powered prediction of likely next mistakes</li>
-                <li>Integration with the future InvestingBoardGame tab for unified discipline tracking</li>
+                <li>Integration with the future InvestorGame tab for unified discipline tracking</li>
               </ul>
               
               <h4>📊 Demo Data Source</h4>
@@ -674,10 +674,10 @@ const staticSections = {
       }
     ]
   },
-  investingBoardGame: {
-    title: 'InvestingBoardGame',
-    meta: 'A blank canvas for the next iteration of the InvestingBoardGame experience.',
-    component: <InvestingBoardGameTab />
+  investorGame: {
+    title: 'InvestorGame',
+    meta: 'A blank canvas for the next iteration of the InvestorGame experience.',
+    component: <InvestorGameTab />
   },
   quadrant: {
     title: 'Investing Universe',
