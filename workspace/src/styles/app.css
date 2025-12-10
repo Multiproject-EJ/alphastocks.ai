@@ -3,6 +3,29 @@
 
 :root {
   color-scheme: light dark;
+
+  /* Board Game – global theme tokens */
+  --boardgame-app-bg: #050608;
+  --boardgame-app-fg: #f5f5f5;
+  --boardgame-accent-primary: #d4af37; /* gold */
+  --boardgame-accent-secondary: #4fd1c5;
+
+  --boardgame-board-bg: #050608;
+  --boardgame-board-border-color: #2b2b2b;
+  --boardgame-board-border-width: 3px;
+  --boardgame-board-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
+
+  --boardgame-tile-bg: #080a0d;
+  --boardgame-tile-border-color: #555;
+  --boardgame-tile-border-width: 2px;
+  --boardgame-tile-radius: 18px;
+  --boardgame-tile-shadow: 0 8px 18px rgba(0, 0, 0, 0.6);
+  --boardgame-tile-glow-color: rgba(212, 175, 55, 0.4);
+  --boardgame-tile-glow-strength: 0; /* 0–1 scale, used later */
+
+  --boardgame-throne-base-bg: #050608;
+  --boardgame-throne-base-border: #222;
+  --boardgame-throne-base-shadow: 0 0 50px rgba(0, 0, 0, 0.9);
 }
 
 html,
@@ -165,6 +188,84 @@ body[data-theme='dark'] {
 .universe-actions-menu button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+/* Board Game scaffolding */
+.boardgame-app {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  background: var(--boardgame-app-bg);
+  color: var(--boardgame-app-fg);
+}
+
+.boardgame-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.boardgame-header h2 {
+  margin: 0.25rem 0 0.35rem;
+}
+
+.boardgame-layout {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  gap: 1rem;
+  align-items: stretch;
+}
+
+@media (max-width: 960px) {
+  .boardgame-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.boardgame-board {
+  background: var(--boardgame-board-bg);
+  border: var(--boardgame-board-border-width) solid var(--boardgame-board-border-color);
+  border-radius: var(--boardgame-tile-radius);
+  box-shadow: var(--boardgame-board-shadow);
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.boardgame-board__placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(245, 245, 245, 0.78);
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.08), rgba(79, 209, 197, 0.08));
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+}
+
+.boardgame-panels {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.boardgame-panel {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.9rem;
+  padding: 1rem;
+  box-shadow: 0 20px 32px rgba(0, 0, 0, 0.35);
+}
+
+.boardgame-panel h3 {
+  margin-top: 0;
+  color: var(--boardgame-accent-primary);
 }
 
 .alerts-table .alert-name {

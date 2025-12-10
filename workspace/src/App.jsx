@@ -13,6 +13,7 @@ import Module5TimingMomentum from './features/valuebot/modules/Module5TimingMome
 import Module6FinalVerdict from './features/valuebot/modules/Module6FinalVerdict.tsx';
 import BatchQueueTab from './features/valuebot/BatchQueueTab.tsx';
 import InvestorGameTab from './features/investor-game/InvestorGameTab.jsx';
+import BoardGameApp from './features/boardgame/BoardGameApp.tsx';
 import {
   ValueBotContext,
   defaultPipelineProgress,
@@ -428,20 +429,28 @@ Return JSON containing:
 const defaultValueBotTabId = 'valuebot-quicktake';
 const defaultValueBotTabLabel =
   valueBotTabs.find((tab) => tab.id === defaultValueBotTabId)?.label ?? valueBotTabs[0].label;
+const ENABLE_BOARDGAME = true; // TODO: make this env/feature-flag driven
 
 const sectionTabsById = {
   dashboard: dashboardTabs,
   valuebot: valueBotTabs.map((tab) => tab.label),
   quadrant: ['Universe', 'Universe Quadrant', 'Add Stocks'],
   checkin: ['Tab 1', 'Trading Journal', 'Tab 3', 'Tab 4', 'Tab 5'],
-  investorgame: []
+  investorgame: [],
+  boardgame: []
 };
 
 const settingsNavItem = { id: 'settings', icon: '⚙️' };
 
 const getSectionTabs = (sectionId) => sectionTabsById[sectionId] ?? defaultSectionTabs;
+const boardGameNavItem = {
+  id: 'boardgame',
+  icon: '🎲',
+  title: 'Investing Board Game',
+  caption: 'Dice-driven sim'
+};
 
-const mainNavigation = [
+const baseNavigation = [
   { id: 'dashboard', icon: '🏠', title: 'Today / Dashboard', caption: 'Overview' },
   { id: 'checkin', icon: '🧘', title: 'Check-In', caption: 'Daily reflections' },
   { id: 'valuebot', icon: '🤖', title: 'ValueBot', caption: 'Valuation copilot' },
@@ -452,8 +461,12 @@ const mainNavigation = [
     caption: 'ValueBot Teacher add-on for patient moves'
   },
   { id: 'quadrant', icon: '🧭', title: 'Investing Universe', caption: '' },
-  { id: 'portfolio', icon: '💼', title: 'Portfolio', caption: 'Results & ledger', hasSubmenu: true },
+  { id: 'portfolio', icon: '💼', title: 'Portfolio', caption: 'Results & ledger', hasSubmenu: true }
 ];
+
+const mainNavigation = ENABLE_BOARDGAME
+  ? [...baseNavigation.slice(0, 4), boardGameNavItem, ...baseNavigation.slice(4)]
+  : baseNavigation;
 
 const DemoBanner = () => (
   <div className="demo-banner" role="status">
@@ -678,6 +691,11 @@ const staticSections = {
     title: 'InvestorGame',
     meta: 'Placeholder for InvestorGame.',
     component: <InvestorGameTab />
+  },
+  boardgame: {
+    title: 'Investing Board Game (Beta)',
+    meta: 'Dice-driven investing simulation powered by ValueBot.',
+    component: <BoardGameApp />
   },
   quadrant: {
     title: 'Investing Universe',
