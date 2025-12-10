@@ -12,7 +12,7 @@ import Module4ValuationEngine from './features/valuebot/modules/Module4Valuation
 import Module5TimingMomentum from './features/valuebot/modules/Module5TimingMomentum.tsx';
 import Module6FinalVerdict from './features/valuebot/modules/Module6FinalVerdict.tsx';
 import BatchQueueTab from './features/valuebot/BatchQueueTab.tsx';
-import BoardGameTab from './features/investing-board-game/BoardGameTab.jsx';
+import InvestingBoardGameTab from './features/investing-board-game/InvestingBoardGameTab.jsx';
 import {
   ValueBotContext,
   defaultPipelineProgress,
@@ -74,11 +74,11 @@ const ALERT_CONFIGS = [
     target: 'dashboard'
   },
   {
-    id: 'punchcard-catch',
+    id: 'investing-board-game-catch',
     name: 'Catch of the day (Investing Board)',
     schedule: 'Daily • Catch of the day spotlight',
     description: 'Nudge to review The Investing Board Game moves and ValueBot Teacher coaching notes.',
-    target: 'punchcard'
+    target: 'investingBoardGame'
   }
 ];
 
@@ -433,7 +433,8 @@ const sectionTabsById = {
   dashboard: dashboardTabs,
   valuebot: valueBotTabs.map((tab) => tab.label),
   quadrant: ['Universe', 'Universe Quadrant', 'Add Stocks'],
-  checkin: ['Tab 1', 'Trading Journal', 'Tab 3', 'Tab 4', 'Tab 5']
+  checkin: ['Tab 1', 'Trading Journal', 'Tab 3', 'Tab 4', 'Tab 5'],
+  investingBoardGame: []
 };
 
 const settingsNavItem = { id: 'settings', icon: '⚙️' };
@@ -445,10 +446,10 @@ const mainNavigation = [
   { id: 'checkin', icon: '🧘', title: 'Check-In', caption: 'Daily reflections' },
   { id: 'valuebot', icon: '🤖', title: 'ValueBot', caption: 'Valuation copilot' },
   {
-    id: 'punchcard',
+    id: 'investingBoardGame',
     icon: '🎣',
-    title: 'The Investing Board Game',
-    caption: 'ValueBot Teacher add-on for patient moves'
+    title: 'InvestingBoardGame',
+    caption: ''
   },
   { id: 'quadrant', icon: '🧭', title: 'Investing Universe', caption: '' },
   { id: 'portfolio', icon: '💼', title: 'Portfolio', caption: 'Results & ledger', hasSubmenu: true },
@@ -488,7 +489,7 @@ const staticSections = {
               <li>
                 Use the robot for both timing <em>and</em> sizing decisions—run simulations to understand exposure and risk.
               </li>
-              <li>Practice with the Monopoly punchcard fishing game to reinforce patience and selectivity.</li>
+              <li>Practice patience and selectivity with deliberate, low-stakes simulations.</li>
               <li>
                 Update your profiles to top-tier standards. Review the Pandora sale and other exits: why did you sell, do you
                 regret it, and what should have been handled differently? Capture how each move felt, categorize the lessons,
@@ -587,8 +588,8 @@ const staticSections = {
             <div className="learning-summary">
               <p><strong>Overall Learning Indicator:</strong> 📊 Positive trajectory with areas to watch</p>
               <p>
-                <strong>Key Insight:</strong> You're successfully implementing patience disciplines from the punchcard system. 
-                However, watch for overconfidence cycles after profitable periods.
+                <strong>Key Insight:</strong> You're successfully implementing patience disciplines from your current
+                practice routines. However, watch for overconfidence cycles after profitable periods.
               </p>
             </div>
           </>
@@ -634,7 +635,7 @@ const staticSections = {
                 <li>Automated alerts when negative patterns emerge</li>
                 <li>Comparison with peer anonymized data for benchmarking</li>
                 <li>ML-powered prediction of likely next mistakes</li>
-                <li>Integration with punchcard system for unified discipline tracking</li>
+                <li>Integration with the future InvestingBoardGame tab for unified discipline tracking</li>
               </ul>
               
               <h4>📊 Demo Data Source</h4>
@@ -673,11 +674,10 @@ const staticSections = {
       }
     ]
   },
-  punchcard: {
-    title: 'The Investing Board Game',
-    meta:
-      'Gamify patience with The Investing Board Game. Map your best swing to the board, then upsell the ValueBot Teacher add-on to coach conviction and selectivity.',
-    component: <BoardGameTab />
+  investingBoardGame: {
+    title: 'InvestingBoardGame',
+    meta: 'A blank canvas for the next iteration of the InvestingBoardGame experience.',
+    component: <InvestingBoardGameTab />
   },
   quadrant: {
     title: 'Investing Universe',
@@ -999,9 +999,12 @@ const App = () => {
   );
 
   const tabsForSection = getSectionTabs(activeSection);
-  const activeTab = activeTabsBySection[activeSection] ?? tabsForSection[0];
+  const hasTabs = tabsForSection.length > 0;
+  const activeTab = hasTabs ? activeTabsBySection[activeSection] ?? tabsForSection[0] : null;
 
   const handleTabSelection = (tab) => {
+    if (!hasTabs) return;
+
     setActiveTabsBySection((prev) => ({
       ...prev,
       [activeSection]: tab
@@ -2197,6 +2200,10 @@ const App = () => {
       return renderCheckInJournalPanel();
     }
 
+    if (!hasTabs) {
+      return renderDefaultSection();
+    }
+
     if (activeTab === tabsForSection[0]) {
       return renderDefaultSection();
     }
@@ -2420,39 +2427,41 @@ const App = () => {
           </nav>
 
           <div className="workspace" id="workspace">
-            <div className="app-tabs" role="tablist">
-              {tabsForSection.map((tab) => {
-                const valueBotTabConfig =
-                  activeSection === 'valuebot'
-                    ? valueBotTabs.find((item) => item.label === tab || item.id === tab)
-                    : null;
+            {hasTabs && (
+              <div className="app-tabs" role="tablist">
+                {tabsForSection.map((tab) => {
+                  const valueBotTabConfig =
+                    activeSection === 'valuebot'
+                      ? valueBotTabs.find((item) => item.label === tab || item.id === tab)
+                      : null;
 
-                const tabClasses = ['tab'];
-                if (activeTab === tab) tabClasses.push('active');
-                if (valueBotTabConfig) {
-                  tabClasses.push('valuebot-tab');
-                  if (valueBotTabConfig.id === 'valuebot-batch-queue') {
-                    tabClasses.push('valuebot-tab--batch');
+                  const tabClasses = ['tab'];
+                  if (activeTab === tab) tabClasses.push('active');
+                  if (valueBotTabConfig) {
+                    tabClasses.push('valuebot-tab');
+                    if (valueBotTabConfig.id === 'valuebot-batch-queue') {
+                      tabClasses.push('valuebot-tab--batch');
+                    }
+                    if (valueBotTabConfig.id === 'valuebot-quicktake') {
+                      tabClasses.push('valuebot-tab--quicktake');
+                    }
                   }
-                  if (valueBotTabConfig.id === 'valuebot-quicktake') {
-                    tabClasses.push('valuebot-tab--quicktake');
-                  }
-                }
 
-                return (
-                  <button
-                    key={tab}
-                    className={tabClasses.join(' ')}
-                    role="tab"
-                    aria-selected={activeTab === tab}
-                    onClick={() => handleTabSelection(tab)}
-                    type="button"
-                  >
-                    {tab}
-                  </button>
-                );
-              })}
-            </div>
+                  return (
+                    <button
+                      key={tab}
+                      className={tabClasses.join(' ')}
+                      role="tab"
+                      aria-selected={activeTab === tab}
+                      onClick={() => handleTabSelection(tab)}
+                      type="button"
+                    >
+                      {tab}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
 
             <div className="app-panels">
               <section className="app-detail" aria-label="Detail">
