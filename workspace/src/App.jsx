@@ -12,7 +12,7 @@ import Module4ValuationEngine from './features/valuebot/modules/Module4Valuation
 import Module5TimingMomentum from './features/valuebot/modules/Module5TimingMomentum.tsx';
 import Module6FinalVerdict from './features/valuebot/modules/Module6FinalVerdict.tsx';
 import BatchQueueTab from './features/valuebot/BatchQueueTab.tsx';
-import BoardGameTab from './features/investing-board-game/BoardGameTab.jsx';
+import InvestorGameTab from './features/investor-game/InvestorGameTab.jsx';
 import {
   ValueBotContext,
   defaultPipelineProgress,
@@ -74,11 +74,11 @@ const ALERT_CONFIGS = [
     target: 'dashboard'
   },
   {
-    id: 'punchcard-catch',
-    name: 'Catch of the day (Investing Board)',
+    id: 'investorgame-catch',
+    name: 'Catch of the day (InvestorGame)',
     schedule: 'Daily • Catch of the day spotlight',
-    description: 'Nudge to review The Investing Board Game moves and ValueBot Teacher coaching notes.',
-    target: 'punchcard'
+    description: 'Nudge to review the InvestorGame moves and ValueBot Teacher coaching notes.',
+    target: 'investorgame'
   }
 ];
 
@@ -434,7 +434,7 @@ const sectionTabsById = {
   valuebot: valueBotTabs.map((tab) => tab.label),
   quadrant: ['Universe', 'Universe Quadrant', 'Add Stocks'],
   checkin: ['Tab 1', 'Trading Journal', 'Tab 3', 'Tab 4', 'Tab 5'],
-  punchcard: []
+  investorgame: []
 };
 
 const settingsNavItem = { id: 'settings', icon: '⚙️' };
@@ -446,9 +446,9 @@ const mainNavigation = [
   { id: 'checkin', icon: '🧘', title: 'Check-In', caption: 'Daily reflections' },
   { id: 'valuebot', icon: '🤖', title: 'ValueBot', caption: 'Valuation copilot' },
   {
-    id: 'punchcard',
+    id: 'investorgame',
     icon: '🎣',
-    title: 'The Investing Board Game',
+    title: 'InvestorGame',
     caption: 'ValueBot Teacher add-on for patient moves'
   },
   { id: 'quadrant', icon: '🧭', title: 'Investing Universe', caption: '' },
@@ -489,7 +489,7 @@ const staticSections = {
               <li>
                 Use the robot for both timing <em>and</em> sizing decisions—run simulations to understand exposure and risk.
               </li>
-              <li>Practice with the Monopoly punchcard fishing game to reinforce patience and selectivity.</li>
+              <li>Practice with the InvestorGame exercises to reinforce patience and selectivity.</li>
               <li>
                 Update your profiles to top-tier standards. Review the Pandora sale and other exits: why did you sell, do you
                 regret it, and what should have been handled differently? Capture how each move felt, categorize the lessons,
@@ -588,7 +588,7 @@ const staticSections = {
             <div className="learning-summary">
               <p><strong>Overall Learning Indicator:</strong> 📊 Positive trajectory with areas to watch</p>
               <p>
-                <strong>Key Insight:</strong> You're successfully implementing patience disciplines from the punchcard system. 
+                <strong>Key Insight:</strong> You're successfully implementing patience disciplines from the InvestorGame system.
                 However, watch for overconfidence cycles after profitable periods.
               </p>
             </div>
@@ -635,7 +635,7 @@ const staticSections = {
                 <li>Automated alerts when negative patterns emerge</li>
                 <li>Comparison with peer anonymized data for benchmarking</li>
                 <li>ML-powered prediction of likely next mistakes</li>
-                <li>Integration with punchcard system for unified discipline tracking</li>
+                <li>Integration with InvestorGame system for unified discipline tracking</li>
               </ul>
               
               <h4>📊 Demo Data Source</h4>
@@ -674,11 +674,10 @@ const staticSections = {
       }
     ]
   },
-  punchcard: {
-    title: 'The Investing Board Game',
-    meta:
-      'Gamify patience with The Investing Board Game. Map your best swing to the board, then upsell the ValueBot Teacher add-on to coach conviction and selectivity.',
-    component: <BoardGameTab />
+  investorgame: {
+    title: 'InvestorGame',
+    meta: 'Placeholder for InvestorGame.',
+    component: <InvestorGameTab />
   },
   quadrant: {
     title: 'Investing Universe',
