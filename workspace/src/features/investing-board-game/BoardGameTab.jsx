@@ -168,6 +168,17 @@ export default function BoardGameTab() {
     checkSkinPurchaseCallback();
   }, [markSkinOwned]);
 
+  useEffect(() => {
+    if (!isBoardLaunched) return undefined;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isBoardLaunched]);
+
   const closeBoard = useCallback(() => {
     setIsBoardLaunched(false);
     setSelectedTile(null);
