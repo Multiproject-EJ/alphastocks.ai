@@ -12,7 +12,6 @@ import Module4ValuationEngine from './features/valuebot/modules/Module4Valuation
 import Module5TimingMomentum from './features/valuebot/modules/Module5TimingMomentum.tsx';
 import Module6FinalVerdict from './features/valuebot/modules/Module6FinalVerdict.tsx';
 import BatchQueueTab from './features/valuebot/BatchQueueTab.tsx';
-import InvestorGameTab from './features/investor-game/InvestorGameTab.jsx';
 import BoardGameApp from './features/boardgame/BoardGameApp.tsx';
 import {
   ValueBotContext,
@@ -73,13 +72,6 @@ const ALERT_CONFIGS = [
     schedule: 'Quarterly • Every 3 months',
     description: 'Recap upcoming earnings releases and filings so the team can prep early.',
     target: 'dashboard'
-  },
-  {
-    id: 'investorgame-catch',
-    name: 'Catch of the day (InvestorGame)',
-    schedule: 'Daily • Catch of the day spotlight',
-    description: 'Nudge to review the InvestorGame moves and ValueBot Teacher coaching notes.',
-    target: 'investorgame'
   }
 ];
 
@@ -436,7 +428,6 @@ const sectionTabsById = {
   valuebot: valueBotTabs.map((tab) => tab.label),
   quadrant: ['Universe', 'Universe Quadrant', 'Add Stocks'],
   checkin: ['Tab 1', 'Trading Journal', 'Tab 3', 'Tab 4', 'Tab 5'],
-  investorgame: [],
   boardgame: []
 };
 
@@ -454,18 +445,12 @@ const baseNavigation = [
   { id: 'dashboard', icon: '🏠', title: 'Today / Dashboard', caption: 'Overview' },
   { id: 'checkin', icon: '🧘', title: 'Check-In', caption: 'Daily reflections' },
   { id: 'valuebot', icon: '🤖', title: 'ValueBot', caption: 'Valuation copilot' },
-  {
-    id: 'investorgame',
-    icon: '🎣',
-    title: 'InvestorGame',
-    caption: 'ValueBot Teacher add-on for patient moves'
-  },
   { id: 'quadrant', icon: '🧭', title: 'Investing Universe', caption: '' },
   { id: 'portfolio', icon: '💼', title: 'Portfolio', caption: 'Results & ledger', hasSubmenu: true }
 ];
 
 const mainNavigation = ENABLE_BOARDGAME
-  ? [...baseNavigation.slice(0, 4), boardGameNavItem, ...baseNavigation.slice(4)]
+  ? [...baseNavigation.slice(0, 3), boardGameNavItem, ...baseNavigation.slice(3)]
   : baseNavigation;
 
 const DemoBanner = () => (
@@ -686,11 +671,6 @@ const staticSections = {
         )
       }
     ]
-  },
-  investorgame: {
-    title: 'InvestorGame',
-    meta: 'Placeholder for InvestorGame.',
-    component: <InvestorGameTab />
   },
   boardgame: {
     title: 'Investing Board Game (Beta)',
