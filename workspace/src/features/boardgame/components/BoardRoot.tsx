@@ -2,6 +2,7 @@ import { FunctionalComponent, JSX } from 'preact';
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import AvatarToken from './AvatarToken.js';
 import Dice from './Dice.js';
+import { WealthThrone } from './WealthThrone.js';
 
 export type BoardTileType = 'corner' | 'category' | 'event';
 
@@ -14,9 +15,17 @@ export interface BoardTile {
 
 interface BoardRootProps {
   onTileLanded?: (tile: BoardTile, tileIndex: number, rollValue: number) => void;
+  startingNetWorth: number;
+  currentNetWorth: number;
+  holdingsCount: number;
 }
 
-const BoardRoot: FunctionalComponent<BoardRootProps> = ({ onTileLanded }) => {
+const BoardRoot: FunctionalComponent<BoardRootProps> = ({
+  onTileLanded,
+  startingNetWorth,
+  currentNetWorth,
+  holdingsCount
+}) => {
   const tiles: BoardTile[] = useMemo(
     () => [
       { id: 'corner_go', label: 'GO', type: 'corner' },
@@ -39,6 +48,7 @@ const BoardRoot: FunctionalComponent<BoardRootProps> = ({ onTileLanded }) => {
   const [currentTileIndex, setCurrentTileIndex] = useState<number>(0);
   const [phase, setPhase] = useState<'idle' | 'rolling' | 'moving' | 'tile_action'>('idle');
   const [lastRollValue, setLastRollValue] = useState<number | null>(null);
+  const [hoveredTileIndex, setHoveredTileIndex] = useState<number | null>(null);
   const intervalRef = useRef<number | null>(null);
   const lastRollValueRef = useRef<number | null>(null);
 
@@ -88,72 +98,164 @@ const BoardRoot: FunctionalComponent<BoardRootProps> = ({ onTileLanded }) => {
     setPhase('idle');
   };
 
-  const boardStyle: JSX.CSSProperties = {
-    display: 'grid',
-    gridTemplateColumns: `repeat(${tiles.length}, minmax(96px, 1fr))`,
-    gap: '0.5rem',
+  const boardContainerStyle: JSX.CSSProperties = {
+    position: 'relative',
     width: '100%',
-    padding: '1rem',
-    background: 'var(--boardgame-board-bg)',
-    borderRadius: '1rem',
-    border: '1px solid rgba(255, 255, 255, 0.08)',
-    boxShadow: '0 12px 36px rgba(0, 0, 0, 0.35)'
+    maxWidth: '900px',
+    aspectRatio: '16 / 9',
+    margin: '0 auto',
+    borderRadius: 32,
+    background: '#020617',
+    boxShadow: '0 0 40px rgba(0,0,0,0.9)',
+    border: '2px solid rgba(148, 163, 184, 0.35)',
+    padding: '1.5rem 1.5rem 3.5rem',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'flex-end',
+    overflow: 'hidden'
+  };
+
+  const innerOutlineStyle: JSX.CSSProperties = {
+    position: 'absolute',
+    inset: '0.75rem',
+    borderRadius: 26,
+    border: '1px solid rgba(148, 163, 184, 0.25)',
+    pointerEvents: 'none'
+  };
+
+  const centerAreaStyle: JSX.CSSProperties = {
+    position: 'relative',
+    flex: 1,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingBottom: '1rem'
+  };
+
+  const tileRowStyle: JSX.CSSProperties = {
+    position: 'relative',
+    zIndex: 1,
+    display: 'flex',
+    gap: '0.85rem',
+    alignItems: 'stretch',
+    overflowX: 'auto',
+    padding: '0.25rem 0.25rem 0.5rem',
+    scrollbarWidth: 'thin',
+    scrollbarColor: 'rgba(148, 163, 184, 0.5) transparent'
   };
 
   const renderTile = (tile: BoardTile, index: number) => {
     const isActive = index === currentTileIndex;
+    const isHovered = hoveredTileIndex === index;
 
     const tileStyle: JSX.CSSProperties = {
       position: 'relative',
-      padding: '0.75rem',
-      minHeight: '96px',
-      background: 'var(--boardgame-tile-bg)',
-      border: '1px solid var(--boardgame-tile-border)',
-      borderRadius: '0.75rem',
+      minWidth: 120,
+      padding: '0.5rem 0.75rem',
+      borderRadius: 18,
+      background: 'linear-gradient(145deg, #020617, #0b1220)',
+      border: '1px solid rgba(51, 65, 85, 0.9)',
+      boxShadow: '0 8px 16px rgba(15, 23, 42, 0.75)',
       color: 'var(--boardgame-tile-fg)',
       display: 'flex',
       flexDirection: 'column',
       justifyContent: 'space-between',
-      boxShadow: isActive
-        ? '0 0 0 3px var(--boardgame-tile-glow-color), 0 10px 24px rgba(0, 0, 0, 0.35)'
-        : '0 10px 24px rgba(0, 0, 0, 0.2)',
-      transition: 'box-shadow 150ms ease, transform 150ms ease'
+      gap: '0.35rem',
+      transition: 'box-shadow 180ms ease, transform 180ms ease, border 180ms ease',
+      cursor: 'pointer',
+      transform: 'translateY(0)'
     };
+
+    if (tile.type === 'corner') {
+      tileStyle.background = 'linear-gradient(145deg, #111827, #020617)';
+      tileStyle.border = '1px solid rgba(148, 163, 184, 0.55)';
+    }
+
+    if (tile.type === 'category') {
+      tileStyle.border = '1px solid rgba(94, 234, 212, 0.25)';
+    }
+
+    if (tile.type === 'event') {
+      tileStyle.border = '1px solid rgba(56, 189, 248, 0.35)';
+      tileStyle.background = 'linear-gradient(145deg, #0b1220, #0f172a)';
+    }
+
+    if (isHovered && !isActive) {
+      tileStyle.boxShadow = '0 10px 20px rgba(15, 23, 42, 0.85)';
+      tileStyle.transform = 'translateY(-2px)';
+      tileStyle.border = tileStyle.border ?? '1px solid rgba(148, 163, 184, 0.4)';
+    }
 
     const badgeStyle: JSX.CSSProperties = {
       alignSelf: 'flex-start',
-      padding: '0.2rem 0.6rem',
+      padding: '0.25rem 0.6rem',
       borderRadius: '999px',
       background: tile.type === 'corner' ? 'var(--boardgame-corner-bg)' : 'var(--boardgame-tile-chip-bg)',
       color: 'var(--boardgame-tile-chip-fg)',
       fontSize: '0.75rem',
       textTransform: 'uppercase',
-      letterSpacing: '0.04em'
+      letterSpacing: '0.06em',
+      fontWeight: 600,
+      border: '1px solid rgba(148, 163, 184, 0.25)'
     };
 
     const labelStyle: JSX.CSSProperties = {
       fontWeight: 700,
-      fontSize: '1rem'
+      fontSize: '1.05rem',
+      letterSpacing: '0.01em'
     };
 
     const colorStyle: JSX.CSSProperties | undefined = tile.color
       ? { color: 'var(--boardgame-tile-fg-strong)', opacity: 0.9 }
       : undefined;
 
+    if (isActive) {
+      tileStyle.border = '1px solid rgba(212, 175, 55, 0.9)';
+      tileStyle.boxShadow =
+        '0 0 18px rgba(212, 175, 55, 0.8), 0 10px 24px rgba(15, 23, 42, 0.85)';
+      tileStyle.transform = 'translateY(-4px)';
+    }
+
     return (
-      <div key={tile.id} className="boardgame-tile" style={tileStyle} aria-label={`Tile ${tile.label}`}>
-        <span style={badgeStyle}>{tile.type}</span>
+      <div
+        key={tile.id}
+        className="boardgame-tile"
+        style={tileStyle}
+        aria-label={`Tile ${tile.label}`}
+        onMouseEnter={() => setHoveredTileIndex(index)}
+        onMouseLeave={() =>
+          setHoveredTileIndex((prev) => (prev === index ? null : prev))
+        }
+      >
+        <span style={badgeStyle}>{tile.type.toUpperCase()}</span>
         <div style={labelStyle}>
           <span style={colorStyle}>{tile.label}</span>
         </div>
-        <AvatarToken tileIndex={index} activeIndex={currentTileIndex} />
+        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <AvatarToken tileIndex={index} activeIndex={currentTileIndex} />
+        </div>
       </div>
     );
   };
 
   return (
     <section className="boardgame-board" aria-label="Board game surface">
-      <div style={boardStyle}>{tiles.map((tile, index) => renderTile(tile, index))}</div>
+      <div style={boardContainerStyle}>
+        <div style={innerOutlineStyle} />
+        <div style={centerAreaStyle}>
+          <WealthThrone
+            startingNetWorth={startingNetWorth}
+            currentNetWorth={currentNetWorth}
+            holdingsCount={holdingsCount}
+          />
+        </div>
+
+        <div style={{ position: 'relative', zIndex: 1, width: '100%' }}>
+          <div style={tileRowStyle}>
+            {tiles.map((tile, index) => renderTile(tile, index))}
+          </div>
+        </div>
+      </div>
 
       <div className="boardgame-controls" style={{ marginTop: '1rem', display: 'flex', gap: '0.75rem' }}>
         <Dice disabled={phase !== 'idle'} onRoll={handleRoll} />

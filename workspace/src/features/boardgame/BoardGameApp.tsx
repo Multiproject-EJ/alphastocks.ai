@@ -20,6 +20,7 @@ interface CandidateStock {
 
 const BoardGameApp: FunctionalComponent = () => {
   const [cash, setCash] = useState<number>(100_000);
+  const [startingNetWorth] = useState<number>(100_000);
   const [holdings, setHoldings] = useState<Holding[]>([]);
   const [turnHistory, setTurnHistory] = useState<number[]>([]);
   const [lastLandedTile, setLastLandedTile] = useState<BoardTile | null>(null);
@@ -118,16 +119,24 @@ const BoardGameApp: FunctionalComponent = () => {
   };
 
   const layoutStyle: JSX.CSSProperties = {
-    display: 'grid',
-    gap: '1.25rem',
-    gridTemplateColumns: '2fr 1fr',
-    alignItems: 'start'
+    display: 'flex',
+    gap: '1.5rem',
+    alignItems: 'flex-start',
+    flexWrap: 'wrap'
   };
 
   const boardColumnStyle: JSX.CSSProperties = {
+    flex: 2,
     width: '100%',
+    minWidth: 'min(100%, 640px)',
     maxWidth: '980px',
     marginInline: 'auto'
+  };
+
+  const panelColumnStyle: JSX.CSSProperties = {
+    flex: 1.25,
+    width: '100%',
+    minWidth: '320px'
   };
 
   return (
@@ -144,18 +153,25 @@ const BoardGameApp: FunctionalComponent = () => {
 
       <div className="boardgame-layout" style={layoutStyle}>
         <div style={boardColumnStyle}>
-          <BoardRoot onTileLanded={handleTileLanded} />
+          <BoardRoot
+            onTileLanded={handleTileLanded}
+            startingNetWorth={startingNetWorth}
+            currentNetWorth={totalNetWorth}
+            holdingsCount={holdings.length}
+          />
         </div>
-        <CenterPanels
-          cash={cash}
-          totalPortfolioValue={totalPortfolioValue}
-          totalNetWorth={totalNetWorth}
-          holdings={holdings}
-          lastLandedTile={lastLandedTile}
-          candidateStock={candidateStock}
-          onBuyStock={handleBuyStock}
-          onPassStock={handlePassStock}
-        />
+        <div style={panelColumnStyle}>
+          <CenterPanels
+            cash={cash}
+            totalPortfolioValue={totalPortfolioValue}
+            totalNetWorth={totalNetWorth}
+            holdings={holdings}
+            lastLandedTile={lastLandedTile}
+            candidateStock={candidateStock}
+            onBuyStock={handleBuyStock}
+            onPassStock={handlePassStock}
+          />
+        </div>
       </div>
     </div>
   );
