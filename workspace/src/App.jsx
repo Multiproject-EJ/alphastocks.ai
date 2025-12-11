@@ -2237,58 +2237,65 @@ const App = () => {
   return (
     <ValueBotContext.Provider value={valueBotProviderValue}>
       <main className="app-stage">
-        <section className="immersive-stage" aria-label="Investing board game spotlight">
+        <section
+          className="immersive-stage"
+          aria-label="Investing board game spotlight"
+          aria-hidden="true"
+        >
           <div className="immersive-boardgame">
             <BoardGameApp />
           </div>
         </section>
 
-        <button
-          type="button"
-          className="pro-launcher"
-          onClick={() => setIsProToolsOpen(true)}
-          aria-haspopup="dialog"
-          aria-expanded={isProToolsOpen}
-          aria-label="Open Pro Tools"
-        >
-          ⚡ Launch Pro Tools
-        </button>
-
-        {isProToolsOpen && (
-          <div
-            className="pro-overlay visible"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Pro tools workspace"
+        <div className="app-foreground">
+          <button
+            type="button"
+            className={`pro-toggle${isProToolsOpen ? ' active' : ''}`}
+            onClick={() => setIsProToolsOpen((prev) => !prev)}
+            aria-haspopup="dialog"
+            aria-expanded={isProToolsOpen}
+            aria-pressed={isProToolsOpen}
+            aria-label="Toggle Pro Tools workspace"
           >
-            <div className="pro-overlay__backdrop" onClick={() => setIsProToolsOpen(false)} aria-hidden="true" />
-            <div className="pro-overlay__panel">
-              <header className="pro-overlay__header">
-                <div>
-                  <p className="detail-meta">Workspace</p>
-                  <h2>Pro Tools</h2>
-                </div>
-                <button
-                  type="button"
-                  className="btn-secondary"
-                  onClick={() => setIsProToolsOpen(false)}
-                  aria-label="Close Pro Tools"
-                >
-                  Close
-                </button>
-              </header>
-              <div className="pro-overlay__content">
-                <section className="app" aria-live="polite">
-                  {runtimeConfig.isDemoMode && <DemoBanner />}
-                  {dataError && (
-                    <div className="demo-banner warning" role="alert">
-                      Unable to load workspace profile. Check data service configuration.
-                    </div>
-                  )}
+            <span className="pro-toggle__indicator" aria-hidden="true" />
+            Pro Tools
+          </button>
 
-                  <div className="app-shell">
-                    <nav className="app-menu" aria-label="Primary">
-                      {isMobileView ? (
+          {isProToolsOpen && (
+            <div
+              className="pro-overlay visible"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Pro tools workspace"
+            >
+              <div className="pro-overlay__backdrop" onClick={() => setIsProToolsOpen(false)} aria-hidden="true" />
+              <div className="pro-overlay__panel">
+                <header className="pro-overlay__header">
+                  <div>
+                    <p className="detail-meta">Workspace</p>
+                    <h2>Pro Tools</h2>
+                  </div>
+                  <button
+                    type="button"
+                    className="btn-secondary"
+                    onClick={() => setIsProToolsOpen(false)}
+                    aria-label="Close Pro Tools"
+                  >
+                    Close
+                  </button>
+                </header>
+                <div className="pro-overlay__content">
+                  <section className="app" aria-live="polite">
+                    {runtimeConfig.isDemoMode && <DemoBanner />}
+                    {dataError && (
+                      <div className="demo-banner warning" role="alert">
+                        Unable to load workspace profile. Check data service configuration.
+                      </div>
+                    )}
+
+                    <div className="app-shell">
+                      <nav className="app-menu" aria-label="Primary">
+                        {isMobileView ? (
                       <div className="mobile-nav-shell">
                         <div className="mobile-nav-row" role="tablist">
                           {mobilePrimaryNav.map((item) => (
@@ -2642,7 +2649,8 @@ const App = () => {
               </div>
             </div>
           </div>
-        )}
+          )}
+        </div>
       </main>
     </ValueBotContext.Provider>
   );

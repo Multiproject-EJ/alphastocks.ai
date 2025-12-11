@@ -907,47 +907,89 @@ body[data-theme='dark'] {
   justify-content: center;
 }
 
-.immersive-stage {
+.app-stage {
+  position: relative;
   min-height: 100vh;
+  overflow: hidden;
+  background: #050608;
+}
+
+.immersive-stage {
+  position: fixed;
+  inset: 0;
   display: grid;
   place-items: center;
-  padding: 2rem 1.5rem 6rem;
+  padding: 0;
   background: radial-gradient(circle at 20% 20%, rgba(79, 70, 229, 0.2), transparent 35%),
     radial-gradient(circle at 80% 0%, rgba(14, 165, 233, 0.14), transparent 40%),
     linear-gradient(180deg, #0b1020 0%, #0a0f1d 60%, #090f1c 100%);
+  z-index: 0;
+  pointer-events: none;
+  filter: blur(8px);
+  opacity: 0.7;
 }
 
 .immersive-boardgame {
-  width: min(1200px, 96vw);
-  max-height: calc(100vh - 8rem);
+  width: min(1300px, 96vw);
+  max-height: calc(100vh - 2rem);
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0 auto;
+  transform: scale(1.05);
 }
 
-.pro-launcher {
+.app-foreground {
+  position: relative;
+  z-index: 2;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.pro-toggle {
   position: fixed;
-  right: 1.5rem;
-  bottom: 1.5rem;
-  z-index: 90;
-  background: linear-gradient(120deg, #6366f1, #22d3ee);
-  color: #0b1020;
-  border: none;
-  padding: 0.95rem 1.4rem;
+  top: 1.25rem;
+  right: 1.25rem;
+  z-index: 99;
+  background: rgba(18, 24, 40, 0.9);
+  color: #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 0.85rem 1.25rem;
   border-radius: 999px;
-  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.4), 0 6px 18px rgba(45, 212, 191, 0.35);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
   font-weight: 700;
   letter-spacing: 0.01em;
   display: inline-flex;
-  gap: 0.6rem;
+  gap: 0.65rem;
   align-items: center;
-  transition: transform 160ms ease, box-shadow 160ms ease;
+  transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease, border-color 160ms ease;
 }
 
-.pro-launcher:hover {
+.pro-toggle__indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: #1f2937;
+  box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+  transition: background 160ms ease, box-shadow 160ms ease;
+}
+
+.pro-toggle:hover {
   transform: translateY(-2px);
-  box-shadow: 0 26px 60px rgba(0, 0, 0, 0.5), 0 12px 26px rgba(45, 212, 191, 0.4);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.55);
+}
+
+.pro-toggle.active {
+  background: linear-gradient(120deg, rgba(34, 197, 94, 0.18), rgba(21, 128, 61, 0.9));
+  border-color: rgba(74, 222, 128, 0.6);
+  color: #ecfeff;
+  box-shadow: 0 0 0 1px rgba(74, 222, 128, 0.35), 0 20px 45px rgba(22, 163, 74, 0.45);
+}
+
+.pro-toggle.active .pro-toggle__indicator {
+  background: #4ade80;
+  box-shadow: 0 0 0 6px rgba(74, 222, 128, 0.25), 0 0 25px rgba(34, 197, 94, 0.6);
 }
 
 .pro-overlay {
@@ -967,8 +1009,8 @@ body[data-theme='dark'] {
 .pro-overlay__backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(4, 6, 15, 0.85);
-  backdrop-filter: blur(8px);
+  background: rgba(4, 6, 15, 0.6);
+  backdrop-filter: blur(14px);
 }
 
 .pro-overlay__panel {
