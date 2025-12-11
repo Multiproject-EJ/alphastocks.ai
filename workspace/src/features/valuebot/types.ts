@@ -90,6 +90,17 @@ export interface InvestmentUniverseRow {
   last_timing_label?: string | null;
   last_composite_score?: number | string | null;
   last_model?: string | null;
+  addon_summary?: string | null;
+  addon_flags?: AddOnFlags | null;
+  last_addon_run_at?: string | null;
+}
+
+export interface AddOnFlags {
+  debt_stress_flag?: boolean;
+  liquidity_risk_flag?: boolean;
+  dividend_at_risk_flag?: boolean;
+  fraud_red_flag?: boolean;
+  other_flags?: string[];
 }
 
 export type ValueBotQueueStatus = 'pending' | 'running' | 'completed' | 'failed';
