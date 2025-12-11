@@ -12,7 +12,11 @@ export interface BoardTile {
   color?: string;
 }
 
-const BoardRoot: FunctionalComponent = () => {
+interface BoardRootProps {
+  onTileLanded?: (tile: BoardTile, tileIndex: number, rollValue: number) => void;
+}
+
+const BoardRoot: FunctionalComponent<BoardRootProps> = ({ onTileLanded }) => {
   const tiles: BoardTile[] = useMemo(
     () => [
       { id: 'corner_go', label: 'GO', type: 'corner' },
@@ -34,7 +38,9 @@ const BoardRoot: FunctionalComponent = () => {
 
   const [currentTileIndex, setCurrentTileIndex] = useState<number>(0);
   const [phase, setPhase] = useState<'idle' | 'rolling' | 'moving' | 'tile_action'>('idle');
+  const [lastRollValue, setLastRollValue] = useState<number | null>(null);
   const intervalRef = useRef<number | null>(null);
+  const lastRollValueRef = useRef<number | null>(null);
 
   useEffect(() => {
     return () => {
@@ -48,6 +54,8 @@ const BoardRoot: FunctionalComponent = () => {
   const handleRoll = (value: number) => {
     if (phase !== 'idle') return;
     setPhase('rolling');
+    setLastRollValue(value);
+    lastRollValueRef.current = value;
 
     const steps = value;
     let step = 0;
@@ -66,8 +74,10 @@ const BoardRoot: FunctionalComponent = () => {
         window.clearInterval(intervalId);
         intervalRef.current = null;
         setPhase('tile_action');
-        // eslint-disable-next-line no-console
-        console.log('Landed on tile:', tiles[latestIndex]);
+        if (onTileLanded && lastRollValueRef.current != null) {
+          const landedTile = tiles[latestIndex];
+          onTileLanded(landedTile, latestIndex, lastRollValueRef.current);
+        }
       }
     }, 200);
 

@@ -1,8 +1,109 @@
 import { FunctionalComponent, JSX } from 'preact';
+import { useEffect, useState } from 'preact/hooks';
+import type { BoardTile } from './components/BoardRoot';
 import BoardRoot from './components/BoardRoot.js';
 import CenterPanels from './components/CenterPanels.js';
 
+interface Holding {
+  ticker: string;
+  name: string;
+  quantity: number;
+  price: number; // last purchase price (cost basis)
+}
+
+interface CandidateStock {
+  ticker: string;
+  name: string;
+  categoryLabel: string;
+  mockPrice: number;
+}
+
 const BoardGameApp: FunctionalComponent = () => {
+  const [cash, setCash] = useState<number>(100_000);
+  const [holdings, setHoldings] = useState<Holding[]>([]);
+  const [turnHistory, setTurnHistory] = useState<number[]>([]);
+  const [lastLandedTile, setLastLandedTile] = useState<BoardTile | null>(null);
+  const [lastRollValue, setLastRollValue] = useState<number | null>(null);
+  const [candidateStock, setCandidateStock] = useState<CandidateStock | null>(null);
+
+  const totalPortfolioValue = holdings.reduce(
+    (sum, h) => sum + h.quantity * h.price,
+    0
+  );
+
+  const totalNetWorth = cash + totalPortfolioValue;
+
+  useEffect(() => {
+    if (!lastLandedTile) return;
+    setTurnHistory((prev) => [...prev, totalNetWorth]);
+  }, [lastLandedTile, totalNetWorth]);
+
+  const handleTileLanded = (tile: BoardTile, index: number, rollValue: number) => {
+    setLastLandedTile(tile);
+    setLastRollValue(rollValue);
+
+    if (tile.type === 'category') {
+      const mockPrice = 100 + index * 3;
+      setCandidateStock({
+        ticker: `DUMMY-${tile.id.toUpperCase()}`,
+        name: `${tile.label} Corp`,
+        categoryLabel: tile.label,
+        mockPrice
+      });
+    } else {
+      setCandidateStock(null);
+    }
+  };
+
+  const handlePassStock = () => {
+    // For now we keep candidateStock visible; no state change required.
+    // eslint-disable-next-line no-console
+    console.log('Pass on stock');
+  };
+
+  const handleBuyStock = (size: 'small' | 'medium' | 'large') => {
+    if (!candidateStock) return;
+
+    const { ticker, name, mockPrice } = candidateStock;
+
+    const netWorth = totalNetWorth;
+    let targetPct = 0.02;
+    if (size === 'medium') targetPct = 0.05;
+    if (size === 'large') targetPct = 0.1;
+
+    const targetAmount = netWorth * targetPct;
+
+    const spend = Math.min(targetAmount, cash);
+    if (spend <= 0) return;
+
+    const quantity = Math.floor(spend / mockPrice);
+    if (quantity <= 0) return;
+
+    const actualCost = quantity * mockPrice;
+
+    setCash((prev) => prev - actualCost);
+
+    setHoldings((prev) => {
+      const existing = prev.find((h) => h.ticker === ticker);
+      if (!existing) {
+        return [
+          ...prev,
+          { ticker, name, quantity, price: mockPrice }
+        ];
+      }
+
+      const newQuantity = existing.quantity + quantity;
+      const newCostBasis =
+        (existing.quantity * existing.price + quantity * mockPrice) / newQuantity;
+
+      return prev.map((h) =>
+        h.ticker === ticker
+          ? { ...h, quantity: newQuantity, price: newCostBasis }
+          : h
+      );
+    });
+  };
+
   const shellStyle: JSX.CSSProperties = {
     background: 'var(--boardgame-app-bg)',
     color: 'var(--boardgame-app-fg)',
@@ -43,9 +144,18 @@ const BoardGameApp: FunctionalComponent = () => {
 
       <div className="boardgame-layout" style={layoutStyle}>
         <div style={boardColumnStyle}>
-          <BoardRoot />
+          <BoardRoot onTileLanded={handleTileLanded} />
         </div>
-        <CenterPanels />
+        <CenterPanels
+          cash={cash}
+          totalPortfolioValue={totalPortfolioValue}
+          totalNetWorth={totalNetWorth}
+          holdings={holdings}
+          lastLandedTile={lastLandedTile}
+          candidateStock={candidateStock}
+          onBuyStock={handleBuyStock}
+          onPassStock={handlePassStock}
+        />
       </div>
     </div>
   );
