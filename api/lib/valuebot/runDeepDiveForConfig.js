@@ -3,124 +3,12 @@
 // - api/lib/valuebot/runDeepDiveForConfig.js (serverless worker)
 // Keep their behavior in sync when making pipeline changes.
 
+import { analyzeStockAPI, buildApiUrl, safeJsonFetch } from './client.js';
+import { runAddOnEngineForTicker } from './addons/module7AddOnEngine.js';
 import { resolveIdentifiersFromModule0 } from './identifierUtils.js';
-
-const AUTOMATION_BYPASS_SECRET =
-  process.env.VERCEL_AUTOMATION_BYPASS_SECRET || process.env.VERCEL_PROTECTION_BYPASS;
-const VALUEBOT_API_BASE_URL = process.env.VALUEBOT_API_BASE_URL || '';
-
-function resolveApiBaseUrl() {
-  if (VALUEBOT_API_BASE_URL) {
-    return VALUEBOT_API_BASE_URL;
-  }
-
-  if (typeof window !== 'undefined' && window.location) {
-    return '';
-  }
-
-  const envUrl =
-    process.env.SITE_URL ||
-    process.env.VERCEL_URL ||
-    process.env.DEPLOYMENT_URL ||
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    process.env.PUBLIC_URL;
-
-  if (envUrl) {
-    const normalized = envUrl.startsWith('http') ? envUrl : `https://${envUrl}`;
-    return normalized.replace(/\/$/, '');
-  }
-
-  return '';
-}
-
-export function buildApiUrl(path) {
-  const base = resolveApiBaseUrl();
-  if (!base) return path;
-  return `${base}${path}`;
-}
 
 const stockAnalysisUrl = buildApiUrl('/api/stock-analysis');
 const masterMetaSummaryUrl = buildApiUrl('/api/master-meta-summary');
-
-export async function safeJsonFetch(stageLabel = 'unknown_stage', url, init = {}) {
-  const headers = new Headers(init.headers || {});
-
-  headers.set('Content-Type', 'application/json');
-
-  if (AUTOMATION_BYPASS_SECRET) {
-    headers.set('x-vercel-protection-bypass', AUTOMATION_BYPASS_SECRET);
-    console.log('[ValueBot Worker fetch] Using protection-bypass header for', stageLabel);
-  }
-
-  const finalInit = { ...init, headers };
-
-  const res = await fetch(url, finalInit);
-  const text = await res.text();
-  const contentType = res.headers?.get?.('content-type') || '';
-  const snippet = text.slice(0, 300);
-
-  console.error('[ValueBot Worker fetch]', {
-    stageLabel,
-    url,
-    status: res.status,
-    contentType,
-    snippet
-  });
-
-  if (!contentType.toLowerCase().includes('application/json')) {
-    throw new Error(`[stage=${stageLabel}] Non-JSON response from ${url} (status ${res.status})`);
-  }
-
-  try {
-    const json = JSON.parse(text);
-    return { json, status: res.status, ok: res.ok };
-  } catch (err) {
-    throw new Error(
-      `[stage=${stageLabel}] JSON parse failed from ${url} (status ${res.status}): ${String(err)}`
-    );
-  }
-}
-
-export async function analyzeStockAPI({
-  provider,
-  model,
-  ticker,
-  companyName,
-  question,
-  timeframe,
-  stageLabel
-}) {
-  try {
-    const { json, ok } = await safeJsonFetch(stageLabel || 'module_0_data_loader', stockAnalysisUrl, {
-      method: 'POST',
-      body: JSON.stringify({
-        provider: provider || 'openai',
-        model,
-        ticker,
-        companyName,
-        question,
-        timeframe
-      })
-    });
-
-    if (!ok) {
-      return {
-        data: null,
-        error: json?.message || 'HTTP error'
-      };
-    }
-
-    return {
-      data: json,
-      error: null
-    };
-  } catch (err) {
-    return {
-      data: null,
-      error: err?.message || 'Failed to analyze stock'
-    };
-  }
-}
 
 function getDefaultModelForProvider(provider) {
   switch (provider) {
@@ -588,7 +476,7 @@ async function runScoreSummary({ config, module6Markdown }) {
 }
 
 async function saveDeepDiveToSupabase(params) {
-  const { supabaseClient, pipeline, config, masterMeta, userId } = params;
+  const { supabaseClient, pipeline, config, masterMeta, addonResult, userId } = params;
 
   if (!supabaseClient) {
     throw new Error('Supabase client is required to save deep dives.');
@@ -598,6 +486,10 @@ async function saveDeepDiveToSupabase(params) {
   const modelSnapshot = resolveEffectiveModelId(provider, config.model ?? null);
   const compositeScore =
     typeof masterMeta?.composite_score === 'number' ? masterMeta.composite_score : null;
+  const addonPatch = addonResult?.universePatch || null;
+  const addonFlags = addonPatch?.addon_flags || addonResult?.addonFlags || null;
+  const addonSummary = addonPatch?.addon_summary || addonResult?.addonSummary || null;
+  const addonTimestamp = addonPatch?.last_addon_run_at || addonResult?.runTimestamp || null;
   const ownerId = userId || config.profileId || null;
 
   const payload = {
@@ -646,11 +538,14 @@ async function saveDeepDiveToSupabase(params) {
         symbol: payload.ticker,
         name: payload.company_name || payload.ticker,
         last_deep_dive_at: new Date().toISOString(),
-        last_risk_label: masterMeta?.risk_label ?? null,
-        last_quality_label: masterMeta?.quality_label ?? null,
-        last_timing_label: masterMeta?.timing_label ?? null,
-        last_composite_score: compositeScore,
-        last_model: modelSnapshot
+        last_risk_label: addonPatch?.last_risk_label ?? masterMeta?.risk_label ?? null,
+        last_quality_label: addonPatch?.last_quality_label ?? masterMeta?.quality_label ?? null,
+        last_timing_label: addonPatch?.last_timing_label ?? masterMeta?.timing_label ?? null,
+        last_composite_score: addonPatch?.last_composite_score ?? compositeScore,
+        last_model: modelSnapshot,
+        addon_summary: addonSummary ?? null,
+        addon_flags: addonFlags ?? null,
+        last_addon_run_at: addonTimestamp ?? null
       },
       { onConflict: 'profile_id,symbol' }
     );
@@ -850,6 +745,35 @@ export async function runDeepDiveForConfig(params = {}) {
       safeNotify('scoreSummary', 'done');
     }
 
+    let addonResult = null;
+    try {
+      addonResult = await runAddOnEngineForTicker({
+        supabaseClient: params?.supabaseClient,
+        ticker: config.ticker?.trim() || '',
+        profileId: params?.userId || config.profileId || null,
+        moduleOutputs: {
+          module0Markdown,
+          module1Markdown,
+          module2Markdown,
+          module3Markdown,
+          module4Markdown,
+          module5Markdown,
+          module6Markdown,
+          companyName: config.companyName || null
+        },
+        masterMeta: meta,
+        keyMetrics: config?.keyMetrics || {},
+        provider: config.provider || 'openai',
+        model: config.model || null
+      });
+
+      if (addonResult?.updatedMeta) {
+        meta = addonResult.updatedMeta;
+      }
+    } catch (addonError) {
+      console.warn('[AddOnEngine] Failed to run add-on engine', addonError);
+    }
+
     pipelineResult = {
       ticker: config.ticker?.trim() || '',
       companyName: config.companyName?.trim() || null,
@@ -873,6 +797,7 @@ export async function runDeepDiveForConfig(params = {}) {
           pipeline: pipelineResult,
           config,
           masterMeta: meta,
+          addonResult,
           userId: params?.userId
         });
 
