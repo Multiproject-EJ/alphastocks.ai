@@ -736,6 +736,7 @@ const App = () => {
   const [activeProfile, setActiveProfile] = useState(null);
   const [profileError, setProfileError] = useState(null);
   const [isAccountDialogOpen, setIsAccountDialogOpen] = useState(false);
+  const [isProToolsOpen, setIsProToolsOpen] = useState(false);
   const [isMobileView, setIsMobileView] = useState(false);
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [showFocusList, setShowFocusList] = useState(false);
@@ -1294,6 +1295,22 @@ const App = () => {
       document.body.classList.remove('dialog-open');
     };
   }, [isAccountDialogOpen]);
+
+  useEffect(() => {
+    if (!isProToolsOpen) return undefined;
+
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        setIsProToolsOpen(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isProToolsOpen]);
 
   useEffect(() => {
     const syncMorningNewsWindow = () => {
@@ -2220,369 +2237,414 @@ const App = () => {
   return (
     <ValueBotContext.Provider value={valueBotProviderValue}>
       <main className="app-stage">
-        <section className="app" aria-live="polite">
-          {runtimeConfig.isDemoMode && <DemoBanner />}
-          {dataError && (
-            <div className="demo-banner warning" role="alert">
-              Unable to load workspace profile. Check data service configuration.
-            </div>
-          )}
-
-          <div className="app-shell">
-            <nav className="app-menu" aria-label="Primary">
-              {isMobileView ? (
-              <div className="mobile-nav-shell">
-                <div className="mobile-nav-row" role="tablist">
-                  {mobilePrimaryNav.map((item) => (
-                    <button
-                      key={item.id}
-                      type="button"
-                      className={`menu-item${activeSection === item.id ? ' active' : ''}`}
-                      data-section={item.id}
-                      onClick={() => handleMenuSelection(item.id)}
-                      aria-label={item.label}
-                    >
-                      <span className="item-icon" aria-hidden="true">
-                        {item.icon}
-                      </span>
-                    </button>
-                  ))}
-
-                  <button
-                    type="button"
-                    className={`menu-item mobile-nav-more${isMobileNavOpen ? ' active' : ''}`}
-                    onClick={() => setIsMobileNavOpen((prev) => !prev)}
-                    aria-expanded={isMobileNavOpen}
-                    aria-haspopup="menu"
-                    aria-label="More navigation"
-                  >
-                    <span className="item-icon" aria-hidden="true">
-                      ⋯
-                    </span>
-                  </button>
-                </div>
-
-                {isMobileNavOpen && (
-                  <div className="mobile-nav-popover" role="menu" aria-label="More navigation">
-                    {[
-                      ...mobileOverflowNav,
-                      { ...settingsNavItem, title: 'Settings', caption: 'Preferences' },
-                      {
-                        id: 'account',
-                        icon: '👤',
-                        title: 'Account',
-                        caption: 'Profile & workspace',
-                        action: openAccountDialog
-                      },
-                      {
-                        id: 'theme',
-                        icon: theme === 'dark' ? '☀️' : '🌙',
-                        title: theme === 'dark' ? 'Light mode' : 'Dark mode',
-                        caption: themeCopy,
-                        action: () => setTheme(theme === 'dark' ? 'light' : 'dark')
-                      }
-                    ].map((item) => {
-                      const isDashboardItem = item.id === 'dashboard';
-                      const caption = isDashboardItem && hasMorningNewsPing ? 'Morning News' : item.caption;
-                      const handleClick = () => {
-                        if (item.action) {
-                          item.action();
-                          setIsMobileNavOpen(false);
-                          return;
-                        }
-                        handleMenuSelection(item.id);
-                      };
-                      return (
-                        <button
-                          key={item.id}
-                          className={`menu-item${activeSection === item.id ? ' active' : ''}`}
-                          data-section={item.id}
-                          onClick={handleClick}
-                          role="menuitem"
-                          aria-label={item.label ?? item.title}
-                        >
-                          {item.icon && (
-                            <span className="item-icon" aria-hidden="true">
-                              {item.icon}
-                            </span>
-                          )}
-                          <div className="item-copy">
-                            <span className="item-title">{item.title}</span>
-                            <span className="item-caption">
-                              {caption}
-                              {isDashboardItem && hasMorningNewsPing && (
-                                <span className="menu-alert-indicator" aria-hidden="true" />
-                              )}
-                            </span>
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            ) : (
-              <>
-                <div className="menu-item-split" aria-label="Account controls">
-                  <button
-                    type="button"
-                    className={`menu-item split-button account${isAccountDialogOpen ? ' active' : ''}`}
-                    onClick={openAccountDialog}
-                    aria-expanded={isAccountDialogOpen}
-                    aria-haspopup="dialog"
-                    aria-controls="accountDialog"
-                    aria-label="Account"
-                  >
-                    <span className="item-icon" aria-hidden="true">
-                      👤
-                    </span>
-                  </button>
-                  <button
-                    type="button"
-                    className={`menu-item split-button${activeSection === settingsNavItem.id ? ' active' : ''}`}
-                    data-section={settingsNavItem.id}
-                    onClick={() => handleMenuSelection(settingsNavItem.id)}
-                    aria-label="Settings"
-                  >
-                    {settingsNavItem.icon && (
-                      <span className="item-icon" aria-hidden="true">
-                        {settingsNavItem.icon}
-                      </span>
-                    )}
-                  </button>
-                  <button
-                    type="button"
-                    className="menu-item split-button"
-                    onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                    aria-label={themeCopy}
-                    aria-pressed={theme === 'dark'}
-                  >
-                    <span className="item-icon" aria-hidden="true">
-                      {theme === 'dark' ? '☀️' : '🌙'}
-                    </span>
-                  </button>
-                  <button
-                    type="button"
-                    className={`menu-item split-button${showFocusList ? ' active' : ''}`}
-                    onClick={() => setShowFocusList((prev) => !prev)}
-                    aria-pressed={showFocusList}
-                    aria-label="Focus list"
-                  >
-                    <span className="item-icon" aria-hidden="true">🎯</span>
-                  </button>
-                </div>
-                {showFocusList ? (
-                  <div className="menu-focus" aria-label="Focus list">
-                    <header className="list-header">
-                      <h2>Focus list</h2>
-                      <button className="btn-tertiary" type="button" disabled>
-                        + Add
-                      </button>
-                    </header>
-                    <ul className="list-items">
-                      {focusList.map((item, index) => (
-                        <li key={item.id} className={`list-item${index === 0 ? ' active' : ''}`}>
-                          <div>
-                            <strong>{item.title}</strong>
-                            <span>{item.caption}</span>
-                          </div>
-                          <span className={`tag ${item.tag?.tone || ''}`.trim()}>{item.tag?.label ?? 'Watch'}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ) : (
-                  mainNavigation.map((item) => {
-                    const isDashboardItem = item.id === 'dashboard';
-                    const caption = isDashboardItem && hasMorningNewsPing ? 'Morning News' : item.caption;
-                    return (
-                      <button
-                        key={item.id}
-                        className={`menu-item${activeSection === item.id ? ' active' : ''}`}
-                        data-section={item.id}
-                        onClick={() => handleMenuSelection(item.id)}
-                      >
-                        {item.icon && (
-                          <span className="item-icon" aria-hidden="true">
-                            {item.icon}
-                          </span>
-                        )}
-                        <div className="item-copy">
-                          <span className="item-title">{item.title}</span>
-                          <span className="item-caption">
-                            {caption}
-                            {isDashboardItem && hasMorningNewsPing && (
-                              <span className="menu-alert-indicator" aria-hidden="true" />
-                            )}
-                          </span>
-                        </div>
-                      </button>
-                    );
-                  })
-                )}
-              </>
-            )}
-          </nav>
-
-          <div className="workspace" id="workspace">
-            {hasTabs && (
-              <div className="app-tabs" role="tablist">
-                {tabsForSection.map((tab) => {
-                  const valueBotTabConfig =
-                    activeSection === 'valuebot'
-                      ? valueBotTabs.find((item) => item.label === tab || item.id === tab)
-                      : null;
-
-                  const tabClasses = ['tab'];
-                  if (activeTab === tab) tabClasses.push('active');
-                  if (valueBotTabConfig) {
-                    tabClasses.push('valuebot-tab');
-                    if (valueBotTabConfig.id === 'valuebot-batch-queue') {
-                      tabClasses.push('valuebot-tab--batch');
-                    }
-                    if (valueBotTabConfig.id === 'valuebot-quicktake') {
-                      tabClasses.push('valuebot-tab--quicktake');
-                    }
-                  }
-
-                  return (
-                    <button
-                      key={tab}
-                      className={tabClasses.join(' ')}
-                      role="tab"
-                      aria-selected={activeTab === tab}
-                      onClick={() => handleTabSelection(tab)}
-                      type="button"
-                    >
-                      {tab}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-
-            <div className="app-panels">
-              <section className="app-detail" aria-label="Detail">
-                <article className="detail-view visible">
-                  {renderActivePanel()}
-                </article>
-              </section>
-            </div>
+        <section className="immersive-stage" aria-label="Investing board game spotlight">
+          <div className="immersive-boardgame">
+            <BoardGameApp />
           </div>
-        </div>
-      </section>
+        </section>
 
-      {deepDiveModalTicker && (
-        <UniverseDeepDiveModal
-          ticker={deepDiveModalTicker}
-          companyName={deepDiveModalCompany}
-          onClose={closeDeepDiveModal}
-          onReopenDeepDive={(dive) => {
-            handleReopenDeepDive(dive);
-            closeDeepDiveModal();
-          }}
-          userId={user?.id || null}
-        />
-      )}
+        <button
+          type="button"
+          className="pro-launcher"
+          onClick={() => setIsProToolsOpen(true)}
+          aria-haspopup="dialog"
+          aria-expanded={isProToolsOpen}
+          aria-label="Open Pro Tools"
+        >
+          ⚡ Launch Pro Tools
+        </button>
 
-      <div
-        id="accountDialog"
-        className={`app-dialog${isAccountDialogOpen ? ' visible' : ''}`}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="accountDialogTitle"
-        aria-hidden={!isAccountDialogOpen}
-        hidden={!isAccountDialogOpen}
-      >
-        <div className="dialog-backdrop" onClick={closeAccountDialog} aria-hidden="true" />
-        <div className="dialog-panel" role="document">
-          <div className="dialog-header">
-            <h2 id="accountDialogTitle">Workspace account</h2>
-            <button
-              type="button"
-              className="dialog-close"
-              aria-label="Close account dialog"
-              onClick={closeAccountDialog}
-            >
-              ✕
-            </button>
-          </div>
-          <div className="dialog-body account-dialog">
-            <div className="workspace-title">
-              <h1>AlphaStocks Workspace</h1>
-              <p>
-                Welcome,
-                {' '}
-                {profileDisplayName}.
-              </p>
-            </div>
-            <div className="account-actions">
-              <button
-                type="button"
-                className="btn-secondary"
-                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                aria-pressed={theme === 'dark'}
-              >
-                {themeCopy}
-              </button>
-              <div className="app-user">{profileEmail}</div>
-              <button
-                type="button"
-                className="btn-secondary"
-                onClick={handleSignOut}
-                disabled={runtimeConfig.mode === 'demo' || isSigningOut}
-              >
-                {isSigningOut ? 'Signing out…' : 'Log out'}
-              </button>
-            </div>
-            <div className="account-debug" role="status" aria-live="polite">
-              <h3>Data service diagnostics</h3>
-              <ul>
-                <li>
-                  <strong>Mode:</strong>
-                  {' '}
-                  {dataDiagnostics.mode === 'supabase' ? 'Supabase' : 'Demo (live data disabled)'}
-                </li>
-                <li>
-                  <strong>Supabase URL configured:</strong>
-                  {' '}
-                  {dataDiagnostics.supabaseUrlConfigured ? 'Yes' : 'No'}
-                </li>
-                <li>
-                  <strong>Supabase anon key configured:</strong>
-                  {' '}
-                  {dataDiagnostics.supabaseAnonKeyConfigured ? 'Yes' : 'No'}
-                </li>
-                {dataDiagnostics.profileError && (
-                  <li>
-                    <strong>Profile load error:</strong>
-                    {' '}
-                    {dataDiagnostics.profileError}
-                  </li>
-                )}
-                {dataDiagnostics.dashboardError && (
-                  <li>
-                    <strong>Dashboard data error:</strong>
-                    {' '}
-                    {dataDiagnostics.dashboardError}
-                  </li>
-                )}
-                {!dataDiagnostics.profileError &&
-                  !dataDiagnostics.dashboardError &&
-                  dataDiagnostics.mode === 'supabase' &&
-                  dataDiagnostics.supabaseUrlConfigured &&
-                  dataDiagnostics.supabaseAnonKeyConfigured && (
-                    <li>
-                      Live Supabase configuration detected. Check browser devtools network panel for request responses.
-                    </li>
+        {isProToolsOpen && (
+          <div
+            className="pro-overlay visible"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Pro tools workspace"
+          >
+            <div className="pro-overlay__backdrop" onClick={() => setIsProToolsOpen(false)} aria-hidden="true" />
+            <div className="pro-overlay__panel">
+              <header className="pro-overlay__header">
+                <div>
+                  <p className="detail-meta">Workspace</p>
+                  <h2>Pro Tools</h2>
+                </div>
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  onClick={() => setIsProToolsOpen(false)}
+                  aria-label="Close Pro Tools"
+                >
+                  Close
+                </button>
+              </header>
+              <div className="pro-overlay__content">
+                <section className="app" aria-live="polite">
+                  {runtimeConfig.isDemoMode && <DemoBanner />}
+                  {dataError && (
+                    <div className="demo-banner warning" role="alert">
+                      Unable to load workspace profile. Check data service configuration.
+                    </div>
                   )}
-              </ul>
+
+                  <div className="app-shell">
+                    <nav className="app-menu" aria-label="Primary">
+                      {isMobileView ? (
+                      <div className="mobile-nav-shell">
+                        <div className="mobile-nav-row" role="tablist">
+                          {mobilePrimaryNav.map((item) => (
+                            <button
+                              key={item.id}
+                              type="button"
+                              className={`menu-item${activeSection === item.id ? ' active' : ''}`}
+                              data-section={item.id}
+                              onClick={() => handleMenuSelection(item.id)}
+                              aria-label={item.label}
+                            >
+                              <span className="item-icon" aria-hidden="true">
+                                {item.icon}
+                              </span>
+                            </button>
+                          ))}
+
+                          <button
+                            type="button"
+                            className={`menu-item mobile-nav-more${isMobileNavOpen ? ' active' : ''}`}
+                            onClick={() => setIsMobileNavOpen((prev) => !prev)}
+                            aria-expanded={isMobileNavOpen}
+                            aria-haspopup="menu"
+                            aria-label="More navigation"
+                          >
+                            <span className="item-icon" aria-hidden="true">
+                              ⋯
+                            </span>
+                          </button>
+                        </div>
+
+                        {isMobileNavOpen && (
+                          <div className="mobile-nav-popover" role="menu" aria-label="More navigation">
+                            {[
+                              ...mobileOverflowNav,
+                              { ...settingsNavItem, title: 'Settings', caption: 'Preferences' },
+                              {
+                                id: 'account',
+                                icon: '👤',
+                                title: 'Account',
+                                caption: 'Profile & workspace',
+                                action: openAccountDialog
+                              },
+                              {
+                                id: 'theme',
+                                icon: theme === 'dark' ? '☀️' : '🌙',
+                                title: theme === 'dark' ? 'Light mode' : 'Dark mode',
+                                caption: themeCopy,
+                                action: () => setTheme(theme === 'dark' ? 'light' : 'dark')
+                              }
+                            ].map((item) => {
+                              const isDashboardItem = item.id === 'dashboard';
+                              const caption = isDashboardItem && hasMorningNewsPing ? 'Morning News' : item.caption;
+                              const handleClick = () => {
+                                if (item.action) {
+                                  item.action();
+                                  setIsMobileNavOpen(false);
+                                  return;
+                                }
+                                handleMenuSelection(item.id);
+                              };
+                              return (
+                                <button
+                                  key={item.id}
+                                  className={`menu-item${activeSection === item.id ? ' active' : ''}`}
+                                  data-section={item.id}
+                                  onClick={handleClick}
+                                  role="menuitem"
+                                  aria-label={item.label ?? item.title}
+                                >
+                                  {item.icon && (
+                                    <span className="item-icon" aria-hidden="true">
+                                      {item.icon}
+                                    </span>
+                                  )}
+                                  <div className="item-copy">
+                                    <span className="item-title">{item.title}</span>
+                                    <span className="item-caption">
+                                      {caption}
+                                      {isDashboardItem && hasMorningNewsPing && (
+                                        <span className="menu-alert-indicator" aria-hidden="true" />
+                                      )}
+                                    </span>
+                                  </div>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <>
+                        <div className="menu-item-split" aria-label="Account controls">
+                          <button
+                            type="button"
+                            className={`menu-item split-button account${isAccountDialogOpen ? ' active' : ''}`}
+                            onClick={openAccountDialog}
+                            aria-expanded={isAccountDialogOpen}
+                            aria-haspopup="dialog"
+                            aria-controls="accountDialog"
+                            aria-label="Account"
+                          >
+                            <span className="item-icon" aria-hidden="true">
+                              👤
+                            </span>
+                          </button>
+                          <button
+                            type="button"
+                            className={`menu-item split-button${activeSection === settingsNavItem.id ? ' active' : ''}`}
+                            data-section={settingsNavItem.id}
+                            onClick={() => handleMenuSelection(settingsNavItem.id)}
+                            aria-label="Settings"
+                          >
+                            {settingsNavItem.icon && (
+                              <span className="item-icon" aria-hidden="true">
+                                {settingsNavItem.icon}
+                              </span>
+                            )}
+                          </button>
+                          <button
+                            type="button"
+                            className="menu-item split-button"
+                            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                            aria-label={themeCopy}
+                            aria-pressed={theme === 'dark'}
+                          >
+                            <span className="item-icon" aria-hidden="true">
+                              {theme === 'dark' ? '☀️' : '🌙'}
+                            </span>
+                          </button>
+                          <button
+                            type="button"
+                            className={`menu-item split-button${showFocusList ? ' active' : ''}`}
+                            onClick={() => setShowFocusList((prev) => !prev)}
+                            aria-pressed={showFocusList}
+                            aria-label="Focus list"
+                          >
+                            <span className="item-icon" aria-hidden="true">🎯</span>
+                          </button>
+                        </div>
+                        {showFocusList ? (
+                          <div className="menu-focus" aria-label="Focus list">
+                            <header className="list-header">
+                              <h2>Focus list</h2>
+                              <button className="btn-tertiary" type="button" disabled>
+                                + Add
+                              </button>
+                            </header>
+                            <ul className="list-items">
+                              {focusList.map((item, index) => (
+                                <li key={item.id} className={`list-item${index === 0 ? ' active' : ''}`}>
+                                  <div>
+                                    <strong>{item.title}</strong>
+                                    <span>{item.caption}</span>
+                                  </div>
+                                  <span className={`tag ${item.tag?.tone || ''}`.trim()}>{item.tag?.label ?? 'Watch'}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        ) : (
+                          mainNavigation.map((item) => {
+                            const isDashboardItem = item.id === 'dashboard';
+                            const caption = isDashboardItem && hasMorningNewsPing ? 'Morning News' : item.caption;
+                            return (
+                              <button
+                                key={item.id}
+                                className={`menu-item${activeSection === item.id ? ' active' : ''}`}
+                                data-section={item.id}
+                                onClick={() => handleMenuSelection(item.id)}
+                              >
+                                {item.icon && (
+                                  <span className="item-icon" aria-hidden="true">
+                                    {item.icon}
+                                  </span>
+                                )}
+                                <div className="item-copy">
+                                  <span className="item-title">{item.title}</span>
+                                  <span className="item-caption">
+                                    {caption}
+                                    {isDashboardItem && hasMorningNewsPing && (
+                                      <span className="menu-alert-indicator" aria-hidden="true" />
+                                    )}
+                                  </span>
+                                </div>
+                              </button>
+                            );
+                          })
+                        )}
+                      </>
+                    )}
+                  </nav>
+
+                  <div className="workspace" id="workspace">
+                    {hasTabs && (
+                      <div className="app-tabs" role="tablist">
+                        {tabsForSection.map((tab) => {
+                          const valueBotTabConfig =
+                            activeSection === 'valuebot'
+                              ? valueBotTabs.find((item) => item.label === tab || item.id === tab)
+                              : null;
+
+                          const tabClasses = ['tab'];
+                          if (activeTab === tab) tabClasses.push('active');
+                          if (valueBotTabConfig) {
+                            tabClasses.push('valuebot-tab');
+                            if (valueBotTabConfig.id === 'valuebot-batch-queue') {
+                              tabClasses.push('valuebot-tab--batch');
+                            }
+                            if (valueBotTabConfig.id === 'valuebot-quicktake') {
+                              tabClasses.push('valuebot-tab--quicktake');
+                            }
+                          }
+
+                          return (
+                            <button
+                              key={tab}
+                              className={tabClasses.join(' ')}
+                              role="tab"
+                              aria-selected={activeTab === tab}
+                              onClick={() => handleTabSelection(tab)}
+                              type="button"
+                            >
+                              {tab}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    <div className="app-panels">
+                      <section className="app-detail" aria-label="Detail">
+                        <article className="detail-view visible">
+                          {renderActivePanel()}
+                        </article>
+                      </section>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+                {deepDiveModalTicker && (
+                  <UniverseDeepDiveModal
+                    ticker={deepDiveModalTicker}
+                    companyName={deepDiveModalCompany}
+                    onClose={closeDeepDiveModal}
+                    onReopenDeepDive={(dive) => {
+                      handleReopenDeepDive(dive);
+                      closeDeepDiveModal();
+                    }}
+                    userId={user?.id || null}
+                  />
+                )}
+
+                <div
+                  id="accountDialog"
+                  className={`app-dialog${isAccountDialogOpen ? ' visible' : ''}`}
+                  role="dialog"
+                  aria-modal="true"
+                  aria-labelledby="accountDialogTitle"
+                  aria-hidden={!isAccountDialogOpen}
+                  hidden={!isAccountDialogOpen}
+                >
+                  <div className="dialog-backdrop" onClick={closeAccountDialog} aria-hidden="true" />
+                  <div className="dialog-panel" role="document">
+                    <div className="dialog-header">
+                      <h2 id="accountDialogTitle">Workspace account</h2>
+                      <button
+                        type="button"
+                        className="dialog-close"
+                        aria-label="Close account dialog"
+                        onClick={closeAccountDialog}
+                      >
+                        ✕
+                      </button>
+                    </div>
+                    <div className="dialog-body account-dialog">
+                      <div className="workspace-title">
+                        <h1>AlphaStocks Workspace</h1>
+                        <p>
+                          Welcome,
+                          {' '}
+                          {profileDisplayName}.
+                        </p>
+                      </div>
+                      <div className="account-actions">
+                        <button
+                          type="button"
+                          className="btn-secondary"
+                          onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                          aria-pressed={theme === 'dark'}
+                        >
+                          {themeCopy}
+                        </button>
+                        <div className="app-user">{profileEmail}</div>
+                        <button
+                          type="button"
+                          className="btn-secondary"
+                          onClick={handleSignOut}
+                          disabled={runtimeConfig.mode === 'demo' || isSigningOut}
+                        >
+                          {isSigningOut ? 'Signing out…' : 'Log out'}
+                        </button>
+                      </div>
+                      <div className="account-debug" role="status" aria-live="polite">
+                        <h3>Data service diagnostics</h3>
+                        <ul>
+                          <li>
+                            <strong>Mode:</strong>
+                            {' '}
+                            {dataDiagnostics.mode === 'supabase' ? 'Supabase' : 'Demo (live data disabled)'}
+                          </li>
+                          <li>
+                            <strong>Supabase URL configured:</strong>
+                            {' '}
+                            {dataDiagnostics.supabaseUrlConfigured ? 'Yes' : 'No'}
+                          </li>
+                          <li>
+                            <strong>Supabase anon key configured:</strong>
+                            {' '}
+                            {dataDiagnostics.supabaseAnonKeyConfigured ? 'Yes' : 'No'}
+                          </li>
+                          {dataDiagnostics.profileError && (
+                            <li>
+                              <strong>Profile load error:</strong>
+                              {' '}
+                              {dataDiagnostics.profileError}
+                            </li>
+                          )}
+                          {dataDiagnostics.dashboardError && (
+                            <li>
+                              <strong>Dashboard data error:</strong>
+                              {' '}
+                              {dataDiagnostics.dashboardError}
+                            </li>
+                          )}
+                          {!dataDiagnostics.profileError &&
+                            !dataDiagnostics.dashboardError &&
+                            dataDiagnostics.mode === 'supabase' &&
+                            dataDiagnostics.supabaseUrlConfigured &&
+                            dataDiagnostics.supabaseAnonKeyConfigured && (
+                              <li>
+                                Live Supabase configuration detected. Check browser devtools network panel for request responses.
+                              </li>
+                            )}
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
-    </main>
-  </ValueBotContext.Provider>
+        )}
+      </main>
+    </ValueBotContext.Provider>
   );
 };
 
