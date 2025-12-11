@@ -25,6 +25,32 @@ export const useDashboardData = ({ dataService, profileId, defaultFocusList = []
   useEffect(() => {
     let cancelled = false;
 
+    const shouldWaitForProfile = dataService?.mode === 'supabase' && !profileId;
+
+    if (shouldWaitForProfile) {
+      // Avoid triggering Supabase RLS errors before the authenticated profile is available.
+      setLoadError(null);
+      return undefined;
+    }
+
+    const buildScopedOptions = (table) => {
+      const tablesScopedToProfile = new Set([
+        'watchlist_items',
+        'portfolio_snapshots',
+        'portfolio_positions',
+        'portfolios',
+        'transactions',
+        'journal_entries',
+        'analysis_tasks'
+      ]);
+
+      if (!profileId || !tablesScopedToProfile.has(table)) {
+        return undefined;
+      }
+
+      return { match: { profile_id: profileId } };
+    };
+
     const loadWorkspaceData = async () => {
       try {
         const [
@@ -37,14 +63,14 @@ export const useDashboardData = ({ dataService, profileId, defaultFocusList = []
           journals,
           analysisTasks
         ] = await Promise.all([
-          dataService.getTable('watchlist_items'),
-          dataService.getTable('portfolio_snapshots'),
-          dataService.getTable('portfolio_positions'),
-          dataService.getTable('portfolios'),
-          dataService.getTable('transactions'),
+          dataService.getTable('watchlist_items', buildScopedOptions('watchlist_items')),
+          dataService.getTable('portfolio_snapshots', buildScopedOptions('portfolio_snapshots')),
+          dataService.getTable('portfolio_positions', buildScopedOptions('portfolio_positions')),
+          dataService.getTable('portfolios', buildScopedOptions('portfolios')),
+          dataService.getTable('transactions', buildScopedOptions('transactions')),
           dataService.getTable('events'),
-          dataService.getTable('journal_entries'),
-          dataService.getTable('analysis_tasks')
+          dataService.getTable('journal_entries', buildScopedOptions('journal_entries')),
+          dataService.getTable('analysis_tasks', buildScopedOptions('analysis_tasks'))
         ]);
 
         if (cancelled) {
@@ -72,7 +98,7 @@ export const useDashboardData = ({ dataService, profileId, defaultFocusList = []
     return () => {
       cancelled = true;
     };
-  }, [dataService, defaultFocusList]);
+  }, [dataService, defaultFocusList, profileId]);
 
   const hasGlobalEvents = useMemo(() => eventsRows.some((event) => !event?.profile_id), [eventsRows]);
   const hasPersonalEvents = useMemo(
