@@ -882,6 +882,9 @@ const App = () => {
     }
   }, [closeAccountDialog, isSigningOut, runtimeConfig.mode, signOut]);
   const handleMenuSelection = (sectionId) => {
+    if (sectionId === 'boardgame') {
+      setIsProToolsOpen(false);
+    }
     setActiveSection(sectionId);
     setIsMobileNavOpen(false);
   };
@@ -2239,20 +2242,23 @@ const App = () => {
     );
   };
 
+  const immersiveStageClass = `immersive-stage${isProToolsOpen ? ' is-muted' : ' is-active'}`;
+  const foregroundClassName = `app-foreground${isProToolsOpen ? '' : ' boardgame-active'}`;
+
   return (
     <ValueBotContext.Provider value={valueBotProviderValue}>
       <main className="app-stage">
         <section
-          className="immersive-stage"
+          className={immersiveStageClass}
           aria-label="Investing board game spotlight"
-          aria-hidden="true"
+          aria-hidden={isProToolsOpen}
         >
           <div className="immersive-boardgame">
             <BoardGameApp showProToolsButton={false} />
           </div>
         </section>
 
-        <div className="app-foreground">
+        <div className={foregroundClassName}>
           <button
             type="button"
             className={`pro-toggle${isProToolsOpen ? ' active' : ''}`}
