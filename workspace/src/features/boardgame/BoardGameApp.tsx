@@ -23,6 +23,175 @@ interface CandidateStock {
   mockPrice: number;
 }
 
+type ThriftyCategory =
+  | 'Groceries'
+  | 'Subscriptions'
+  | 'Transport'
+  | 'Impulse Control'
+  | 'Energy Bills'
+  | 'DIY / Repairs'
+  | 'Meal Prep'
+  | 'Budgeting Habit'
+  | 'Declutter & Sell';
+
+interface ThriftyPath {
+  id: string;
+  title: string;
+  description: string;
+  category: ThriftyCategory;
+  rewardStars: number;
+}
+
+const THRIFTY_PATH_LIBRARY: ThriftyPath[] = [
+  {
+    id: 'tp_sub_audit',
+    title: 'Subscription Audit',
+    description: 'Cancel or downgrade 1 subscription you don’t fully use.',
+    category: 'Subscriptions',
+    rewardStars: 8
+  },
+  {
+    id: 'tp_meal_plan',
+    title: 'Meal Plan Sprint',
+    description: 'Plan 3 dinners before shopping to avoid impulse buys.',
+    category: 'Meal Prep',
+    rewardStars: 6
+  },
+  {
+    id: 'tp_no_takeout',
+    title: 'No Takeout Day',
+    description: 'Cook at home today. Save the takeout cost.',
+    category: 'Groceries',
+    rewardStars: 5
+  },
+  {
+    id: 'tp_sell_one',
+    title: 'Sell One Item',
+    description: 'List one unused item for sale (FB Marketplace/FINN/eBay).',
+    category: 'Declutter & Sell',
+    rewardStars: 10
+  },
+  {
+    id: 'tp_drive_less',
+    title: 'Drive Less Day',
+    description: 'Replace one car errand with walking, biking, or public transport.',
+    category: 'Transport',
+    rewardStars: 5
+  },
+  {
+    id: 'tp_price_compare',
+    title: 'Price Compare 2x',
+    description: 'Compare prices at two stores before buying a staple item.',
+    category: 'Groceries',
+    rewardStars: 6
+  },
+  {
+    id: 'tp_cash_envelope',
+    title: 'Cash Envelope Trial',
+    description: 'Use cash for discretionary spend today to cap impulse buys.',
+    category: 'Impulse Control',
+    rewardStars: 7
+  },
+  {
+    id: 'tp_insulation',
+    title: 'Draft Blocker',
+    description: 'Seal one drafty window/door to cut heating/cooling loss.',
+    category: 'Energy Bills',
+    rewardStars: 9
+  },
+  {
+    id: 'tp_library_swap',
+    title: 'Library Swap',
+    description: 'Borrow a book/movie from the library instead of buying/renting.',
+    category: 'Budgeting Habit',
+    rewardStars: 5
+  },
+  {
+    id: 'tp_brew_coffee',
+    title: 'Home Brew Coffee',
+    description: 'Skip café coffee twice this week and brew at home.',
+    category: 'Groceries',
+    rewardStars: 4
+  },
+  {
+    id: 'tp_prep_snacks',
+    title: 'Prep Snacks',
+    description: 'Pack snacks to avoid vending machine or convenience store buys.',
+    category: 'Meal Prep',
+    rewardStars: 6
+  },
+  {
+    id: 'tp_switch_light',
+    title: 'LED Swap',
+    description: 'Swap one high-use bulb with an LED to trim power usage.',
+    category: 'Energy Bills',
+    rewardStars: 6
+  },
+  {
+    id: 'tp_negotiation',
+    title: 'Negotiate a Bill',
+    description: 'Call one provider to ask for a discount or promo rate.',
+    category: 'Subscriptions',
+    rewardStars: 9
+  },
+  {
+    id: 'tp_bike_tune',
+    title: 'DIY Bike Tune',
+    description: 'Oil your chain and inflate tires to keep biking cheap and fun.',
+    category: 'DIY / Repairs',
+    rewardStars: 7
+  },
+  {
+    id: 'tp_repair_clothes',
+    title: 'Repair Clothes',
+    description: 'Fix a button/hem instead of replacing the garment.',
+    category: 'DIY / Repairs',
+    rewardStars: 8
+  },
+  {
+    id: 'tp_five_min_budget',
+    title: '5-Min Budget Check',
+    description: 'Review your spending app for 5 minutes; note one tweak.',
+    category: 'Budgeting Habit',
+    rewardStars: 5
+  },
+  {
+    id: 'tp_free_activity',
+    title: 'Free Activity Swap',
+    description: 'Replace a paid outing with a free alternative today.',
+    category: 'Impulse Control',
+    rewardStars: 7
+  },
+  {
+    id: 'tp_meal_batch',
+    title: 'Batch Cook Base',
+    description: 'Cook a base (rice/beans) to anchor two meals this week.',
+    category: 'Meal Prep',
+    rewardStars: 6
+  },
+  {
+    id: 'tp_sell_digital',
+    title: 'Digital Declutter Sale',
+    description: 'Sell an unused digital subscription or license.',
+    category: 'Declutter & Sell',
+    rewardStars: 8
+  },
+  {
+    id: 'tp_carpool',
+    title: 'Arrange a Carpool',
+    description: 'Share one commute/errand trip with someone this week.',
+    category: 'Transport',
+    rewardStars: 7
+  },
+  {
+    id: 'tp_appliance_clean',
+    title: 'Clean Filters',
+    description: 'Clean dryer/AC filters to improve efficiency.',
+    category: 'Energy Bills',
+    rewardStars: 6
+  }
+];
+
 const BoardGameApp: FunctionalComponent<BoardGameAppProps> = ({
   onOpenProTools,
   showProToolsButton = Boolean(onOpenProTools)
@@ -34,6 +203,10 @@ const BoardGameApp: FunctionalComponent<BoardGameAppProps> = ({
   const [lastLandedTile, setLastLandedTile] = useState<BoardTile | null>(null);
   const [lastRollValue, setLastRollValue] = useState<number | null>(null);
   const [candidateStock, setCandidateStock] = useState<CandidateStock | null>(null);
+  const [stars, setStars] = useState<number>(0);
+  const [thriftyOffer, setThriftyOffer] = useState<ThriftyPath[] | null>(null);
+  const [lastChosenThriftyPath, setLastChosenThriftyPath] =
+    useState<ThriftyPath | null>(null);
 
   const totalPortfolioValue = holdings.reduce(
     (sum, h) => sum + h.quantity * h.price,
@@ -46,6 +219,16 @@ const BoardGameApp: FunctionalComponent<BoardGameAppProps> = ({
     if (!lastLandedTile) return;
     setTurnHistory((prev) => [...prev, totalNetWorth]);
   }, [lastLandedTile, totalNetWorth]);
+
+  function pickRandomUnique<T>(arr: T[], count: number): T[] {
+    const copy = [...arr];
+    const out: T[] = [];
+    while (out.length < count && copy.length > 0) {
+      const idx = Math.floor(Math.random() * copy.length);
+      out.push(copy.splice(idx, 1)[0]);
+    }
+    return out;
+  }
 
   const handleTileLanded = (tile: BoardTile, index: number, rollValue: number) => {
     setLastLandedTile(tile);
@@ -62,6 +245,26 @@ const BoardGameApp: FunctionalComponent<BoardGameAppProps> = ({
     } else {
       setCandidateStock(null);
     }
+
+    const shouldOfferThrifty =
+      tile.type === 'event' || (tile.type === 'category' && Math.random() < 0.2);
+
+    if (shouldOfferThrifty) {
+      setThriftyOffer(pickRandomUnique(THRIFTY_PATH_LIBRARY, 5));
+      setLastChosenThriftyPath(null);
+    } else {
+      setThriftyOffer(null);
+    }
+  };
+
+  const handleChooseThriftyPath = (path: ThriftyPath) => {
+    setStars((prev) => prev + path.rewardStars);
+    setLastChosenThriftyPath(path);
+    setThriftyOffer(null);
+  };
+
+  const handleSkipThriftyPath = () => {
+    setThriftyOffer(null);
   };
 
   const handlePassStock = () => {
@@ -183,6 +386,11 @@ const BoardGameApp: FunctionalComponent<BoardGameAppProps> = ({
             candidateStock={candidateStock}
             onBuyStock={handleBuyStock}
             onPassStock={handlePassStock}
+            stars={stars}
+            thriftyOffer={thriftyOffer}
+            lastChosenThriftyPath={lastChosenThriftyPath}
+            onChooseThriftyPath={handleChooseThriftyPath}
+            onSkipThriftyPath={handleSkipThriftyPath}
           />
         </div>
       </div>

@@ -15,6 +15,25 @@ interface CandidateStock {
   mockPrice: number;
 }
 
+type ThriftyCategory =
+  | 'Groceries'
+  | 'Subscriptions'
+  | 'Transport'
+  | 'Impulse Control'
+  | 'Energy Bills'
+  | 'DIY / Repairs'
+  | 'Meal Prep'
+  | 'Budgeting Habit'
+  | 'Declutter & Sell';
+
+interface ThriftyPath {
+  id: string;
+  title: string;
+  description: string;
+  category: ThriftyCategory;
+  rewardStars: number;
+}
+
 interface CenterPanelsProps {
   cash: number;
   totalPortfolioValue: number;
@@ -24,6 +43,11 @@ interface CenterPanelsProps {
   candidateStock: CandidateStock | null;
   onBuyStock: (size: 'small' | 'medium' | 'large') => void;
   onPassStock: () => void;
+  stars: number;
+  thriftyOffer: ThriftyPath[] | null;
+  lastChosenThriftyPath: ThriftyPath | null;
+  onChooseThriftyPath: (path: ThriftyPath) => void;
+  onSkipThriftyPath: () => void;
 }
 
 export const CenterPanels: React.FC<CenterPanelsProps> = ({
@@ -34,7 +58,12 @@ export const CenterPanels: React.FC<CenterPanelsProps> = ({
   lastLandedTile,
   candidateStock,
   onBuyStock,
-  onPassStock
+  onPassStock,
+  stars,
+  thriftyOffer,
+  lastChosenThriftyPath,
+  onChooseThriftyPath,
+  onSkipThriftyPath
 }) => {
   return (
     <div className="boardgame-panels">
@@ -54,6 +83,10 @@ export const CenterPanels: React.FC<CenterPanelsProps> = ({
             <div className="label">Holdings count</div>
             <div className="value">{holdings.length}</div>
           </div>
+          <div style={{ minWidth: '160px' }}>
+            <div className="label">Stars</div>
+            <div className="value">{stars}</div>
+          </div>
         </div>
         <button
           type="button"
@@ -62,6 +95,52 @@ export const CenterPanels: React.FC<CenterPanelsProps> = ({
         >
           Support development (coming soon)
         </button>
+
+        <div className="thrifty-path-card" style={{ marginTop: '1rem', display: 'grid', gap: '0.75rem' }}>
+          {!thriftyOffer ? (
+            <>
+              <div className="label">Thrifty Path</div>
+              {lastChosenThriftyPath ? (
+                <div>
+                  Last Thrifty Path: {lastChosenThriftyPath.title} (+
+                  {lastChosenThriftyPath.rewardStars} ⭐)
+                </div>
+              ) : (
+                <p style={{ opacity: 0.75 }}>No Thrifty Path opportunity right now.</p>
+              )}
+            </>
+          ) : (
+            <div>
+              <div style={{ marginBottom: '0.25rem' }}>
+                <div className="label">Thrifty Path Opportunity</div>
+                <div style={{ opacity: 0.8 }}>Choose 1 of 5 to earn Stars</div>
+              </div>
+              <div style={{ display: 'grid', gap: '0.5rem' }}>
+                {thriftyOffer.map((path) => (
+                  <button
+                    key={path.id}
+                    type="button"
+                    className="button button-secondary"
+                    style={{ textAlign: 'left', display: 'grid', gap: '0.15rem' }}
+                    onClick={() => onChooseThriftyPath(path)}
+                  >
+                    <div style={{ fontWeight: 700 }}>{path.title}</div>
+                    <div style={{ opacity: 0.8 }}>{path.description}</div>
+                    <div style={{ fontSize: '0.9rem' }}>+{path.rewardStars} ⭐</div>
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  className="button button-secondary"
+                  style={{ opacity: 0.8 }}
+                  onClick={onSkipThriftyPath}
+                >
+                  Skip
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </section>
 
       <section className="boardgame-panel">
