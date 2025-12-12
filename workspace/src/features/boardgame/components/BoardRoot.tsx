@@ -24,7 +24,7 @@ const BoardRoot: FunctionalComponent<BoardRootProps> = ({
   onTileLanded,
   startingNetWorth,
   currentNetWorth,
-  holdingsCount
+  holdingsCount,
 }) => {
   const tiles: BoardTile[] = useMemo(
     () => [
@@ -129,12 +129,13 @@ const BoardRoot: FunctionalComponent<BoardRootProps> = ({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingBottom: '1rem'
+    paddingBottom: '1rem',
+    zIndex: 1
   };
 
   const tileRowStyle: JSX.CSSProperties = {
     position: 'relative',
-    zIndex: 1,
+    zIndex: 2,
     display: 'flex',
     gap: '0.85rem',
     alignItems: 'stretch',
@@ -151,9 +152,9 @@ const BoardRoot: FunctionalComponent<BoardRootProps> = ({
     const tileStyle: JSX.CSSProperties = {
       position: 'relative',
       minWidth: 120,
-      padding: '0.5rem 0.75rem',
+      padding: '0.55rem 0.75rem',
       borderRadius: 18,
-      background: 'linear-gradient(145deg, #020617, #0b1220)',
+      background: 'linear-gradient(145deg, #020617, #020617)',
       border: '1px solid rgba(51, 65, 85, 0.9)',
       boxShadow: '0 8px 16px rgba(15, 23, 42, 0.75)',
       color: 'var(--boardgame-tile-fg)',
@@ -188,20 +189,23 @@ const BoardRoot: FunctionalComponent<BoardRootProps> = ({
 
     const badgeStyle: JSX.CSSProperties = {
       alignSelf: 'flex-start',
-      padding: '0.25rem 0.6rem',
+      padding: '0.22rem 0.55rem',
       borderRadius: '999px',
-      background: tile.type === 'corner' ? 'var(--boardgame-corner-bg)' : 'var(--boardgame-tile-chip-bg)',
+      background:
+        tile.type === 'corner'
+          ? 'var(--boardgame-corner-bg)'
+          : 'var(--boardgame-tile-chip-bg)',
       color: 'var(--boardgame-tile-chip-fg)',
-      fontSize: '0.75rem',
+      fontSize: '0.68rem',
       textTransform: 'uppercase',
-      letterSpacing: '0.06em',
-      fontWeight: 600,
+      letterSpacing: '0.08em',
+      fontWeight: 700,
       border: '1px solid rgba(148, 163, 184, 0.25)'
     };
 
     const labelStyle: JSX.CSSProperties = {
       fontWeight: 700,
-      fontSize: '1.05rem',
+      fontSize: '1.1rem',
       letterSpacing: '0.01em'
     };
 
@@ -250,7 +254,7 @@ const BoardRoot: FunctionalComponent<BoardRootProps> = ({
           />
         </div>
 
-        <div style={{ position: 'relative', zIndex: 1, width: '100%' }}>
+        <div style={{ position: 'relative', zIndex: 2, width: '100%' }}>
           <div style={tileRowStyle}>
             {tiles.map((tile, index) => renderTile(tile, index))}
           </div>
