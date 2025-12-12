@@ -438,8 +438,8 @@ const getSectionTabs = (sectionId) => sectionTabsById[sectionId] ?? defaultSecti
 const boardGameNavItem = {
   id: 'boardgame',
   icon: '🎲',
-  title: 'Investing Board Game',
-  caption: 'Dice-driven sim'
+  title: 'MarketTycoon',
+  caption: 'Board game sim'
 };
 
 const baseNavigation = [
@@ -676,8 +676,8 @@ const staticSections = {
     ]
   },
   boardgame: {
-    title: 'Investing Board Game (Beta)',
-    meta: 'Dice-driven investing simulation powered by ValueBot.',
+    title: 'MarketTycoon',
+    meta: 'Board game-style investing simulation powered by ValueBot.',
     component: <BoardGameApp />
   },
   quadrant: {
@@ -785,7 +785,7 @@ const App = () => {
   const isSupabaseMode = dataService?.mode === 'supabase';
   const themeCopy = theme === 'dark' ? 'Switch to light' : 'Switch to dark';
   const mobilePrimaryNav = [
-    { id: 'boardgame', icon: '🎲', label: 'Game' },
+    { id: 'boardgame', icon: '🎲', label: 'MarketTycoon' },
     { id: 'dashboard', icon: '🏠', label: 'Morning Sales' },
     { id: 'focuslist', icon: '🎯', label: 'Focus' },
     { id: 'valuebot', icon: '🤖', label: 'ValueBot' },
@@ -2373,12 +2373,12 @@ const App = () => {
             className="fullscreen-boardgame"
             role="dialog"
             aria-modal="true"
-            aria-label="Investing board game fullscreen"
+            aria-label="MarketTycoon fullscreen"
           >
             <header className="fullscreen-boardgame__header">
               <div>
-                <p className="detail-meta">Dice-driven sim</p>
-                <h2>Investing Board Game — Fullscreen</h2>
+                <p className="detail-meta">Board game sim</p>
+                <h2>MarketTycoon — Fullscreen</h2>
                 <p className="detail-meta">{dashboardCaption}</p>
               </div>
               <div className="fullscreen-boardgame__actions">
