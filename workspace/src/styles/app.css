@@ -244,16 +244,17 @@ body[data-theme='dark'] {
 }
 
 .boardgame-board {
-  background: var(--boardgame-board-bg);
-  border: var(--boardgame-board-border-width) solid var(--boardgame-board-border-color);
-  border-radius: var(--boardgame-tile-radius);
-  box-shadow: var(--boardgame-board-shadow);
-  aspect-ratio: 1 / 1;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  aspect-ratio: auto;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
+  align-items: stretch;
+  justify-content: stretch;
+  overflow: visible;
   position: relative;
+  padding: 0;
 }
 
 .boardgame-board__placeholder {
