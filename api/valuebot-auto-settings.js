@@ -1,5 +1,5 @@
-import { getAutoSettings, setAutoQueueEnabled } from './lib/valuebot/settings.js';
-import { getConfiguredMaxJobs, SECONDS_PER_JOB_ESTIMATE } from './lib/valuebot/runQueueWorker.js';
+import { getAutoSettings, setAutoQueueEnabled } from '../api-lib/valuebot/settings.js';
+import { getConfiguredMaxJobs, SECONDS_PER_JOB_ESTIMATE } from '../api-lib/valuebot/runQueueWorker.js';
 
 export default async function handler(req, res) {
   if (req.method === 'GET') {

@@ -1,6 +1,6 @@
 // NOTE: There are two versions of runDeepDiveForConfig:
 // - workspace/src/features/valuebot/runDeepDiveForConfig.ts (front-end / type-safe)
-// - api/lib/valuebot/runDeepDiveForConfig.js (serverless worker)
+// - api-lib/valuebot/runDeepDiveForConfig.js (serverless worker)
 // Keep their behavior in sync when making pipeline changes.
 
 import { SupabaseClient } from '@supabase/supabase-js';
