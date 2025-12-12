@@ -355,9 +355,9 @@ const BoardGameApp: FunctionalComponent<BoardGameAppProps> = ({
       <header className="boardgame-header">
         <div>
           <p className="badge">Beta</p>
-          <h2>Investing Board Game (Beta)</h2>
+          <h2>MarketTycoon</h2>
           <p className="detail-meta" style={subduedStyle}>
-            Dice-driven investing simulation powered by ValueBot
+            Board game-style investing simulation powered by ValueBot
           </p>
         </div>
         {showProToolsButton && (

@@ -438,8 +438,8 @@ const getSectionTabs = (sectionId) => sectionTabsById[sectionId] ?? defaultSecti
 const boardGameNavItem = {
   id: 'boardgame',
   icon: '🎲',
-  title: 'Investing Board Game',
-  caption: 'Dice-driven sim'
+  title: 'MarketTycoon',
+  caption: 'Board game sim'
 };
 
 const baseNavigation = [
@@ -676,8 +676,8 @@ const staticSections = {
     ]
   },
   boardgame: {
-    title: 'Investing Board Game (Beta)',
-    meta: 'Dice-driven investing simulation powered by ValueBot.',
+    title: 'MarketTycoon',
+    meta: 'Board game-style investing simulation powered by ValueBot.',
     component: <BoardGameApp />
   },
   quadrant: {
@@ -785,7 +785,7 @@ const App = () => {
   const isSupabaseMode = dataService?.mode === 'supabase';
   const themeCopy = theme === 'dark' ? 'Switch to light' : 'Switch to dark';
   const mobilePrimaryNav = [
-    { id: 'boardgame', icon: '🎲', label: 'Game' },
+    { id: 'boardgame', icon: '🎲', label: 'MarketTycoon' },
     { id: 'dashboard', icon: '🏠', label: 'Morning Sales' },
     { id: 'focuslist', icon: '🎯', label: 'Focus' },
     { id: 'valuebot', icon: '🤖', label: 'ValueBot' },
