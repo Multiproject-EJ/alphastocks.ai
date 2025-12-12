@@ -53,7 +53,7 @@ const DEFAULT_UNIVERSE_ROWS = [
   }
 ];
 
-const dashboardTabs = ['Overview', 'Notes', 'Tasks', 'Analytics', 'ValueBot'];
+const dashboardTabs = ['Morning Edition', 'Notes', 'Tasks', 'Analytics', 'ValueBot'];
 const defaultSectionTabs = ['Tab 1', 'Tab 2', 'Tab 3', 'Tab 4', 'Tab 5'];
 
 const MORNING_NEWS_ALERT_ID = 'morning-news';
@@ -442,14 +442,12 @@ const boardGameNavItem = {
 };
 
 const baseNavigation = [
-  { id: 'dashboard', icon: '🏠', title: 'Today / Dashboard', caption: 'Overview' },
+  { id: 'dashboard', icon: '🏠', title: 'Morning Sales Desk', caption: 'Added + updated' },
   { id: 'checkin', icon: '🧘', title: 'Check-In', caption: 'Daily reflections' },
   { id: 'valuebot', icon: '🤖', title: 'ValueBot', caption: 'Valuation copilot' },
   { id: 'quadrant', icon: '🧭', title: 'Investing Universe', caption: '' },
   { id: 'portfolio', icon: '💼', title: 'Portfolio', caption: 'Results & ledger', hasSubmenu: true }
 ];
-
-const mainNavigation = ENABLE_BOARDGAME ? [boardGameNavItem, ...baseNavigation] : baseNavigation;
 
 const DemoBanner = () => (
   <div className="demo-banner" role="status">
@@ -715,7 +713,26 @@ const staticSections = {
 
 const App = () => {
   const [theme, setTheme] = useState('dark');
+  const todayLabel = useMemo(
+    () =>
+      new Intl.DateTimeFormat('en-US', {
+        weekday: 'long',
+        month: 'short',
+        day: 'numeric'
+      }).format(new Date()),
+    []
+  );
+  const dashboardTitle = useMemo(
+    () => `Morning Sales Desk — ${todayLabel}`,
+    [todayLabel]
+  );
+  const dashboardCaption = 'Added to universe • Recently updated';
+  const mainNavigation = useMemo(
+    () => (ENABLE_BOARDGAME ? [boardGameNavItem, ...baseNavigation] : baseNavigation),
+    []
+  );
   const [activeSection, setActiveSection] = useState(ENABLE_BOARDGAME ? 'boardgame' : 'dashboard');
+  const [lastWorkspaceSection, setLastWorkspaceSection] = useState('dashboard');
   const [activeTabsBySection, setActiveTabsBySection] = useState(() => {
     const initialMap = {};
     [...mainNavigation.map((item) => item.id), settingsNavItem.id].forEach((sectionId) => {
@@ -726,6 +743,8 @@ const App = () => {
     }
     return initialMap;
   });
+  const [isBoardGameFullscreen, setIsBoardGameFullscreen] = useState(false);
+  const [authStatus, setAuthStatus] = useState(null);
   const [activeValueBotTab, setActiveValueBotTab] = useState(defaultValueBotTabId);
   const [valueBotContext, setValueBotContext] = useState(() => ({
     ...defaultValueBotAnalysisContext,
@@ -761,7 +780,7 @@ const App = () => {
   const themeCopy = theme === 'dark' ? 'Switch to light' : 'Switch to dark';
   const mobilePrimaryNav = [
     { id: 'boardgame', icon: '🎲', label: 'Game' },
-    { id: 'dashboard', icon: '🏠', label: 'Today' },
+    { id: 'dashboard', icon: '🏠', label: 'Morning Sales' },
     { id: 'valuebot', icon: '🤖', label: 'ValueBot' },
     { id: 'portfolio', icon: '💼', label: 'Portfolio' }
   ];
@@ -864,6 +883,21 @@ const App = () => {
     }),
     [dashboardError, profileError, runtimeConfig]
   );
+  const workspaceStatus = dataError
+    ? { tone: 'error', message: 'Unable to load workspace profile. Check data service configuration.' }
+    : authStatus;
+  useEffect(() => {
+    if (!user) return;
+
+    setAuthStatus({ tone: 'success', message: 'Sign in successful' });
+  }, [user]);
+
+  useEffect(() => {
+    if (authStatus?.tone !== 'success' || dataError) return undefined;
+
+    const timer = setTimeout(() => setAuthStatus(null), 4000);
+    return () => clearTimeout(timer);
+  }, [authStatus, dataError]);
   const openAccountDialog = useCallback(() => setIsAccountDialogOpen(true), []);
   const closeAccountDialog = useCallback(() => setIsAccountDialogOpen(false), []);
   const handleSignOut = useCallback(async () => {
@@ -884,10 +918,22 @@ const App = () => {
   const handleMenuSelection = (sectionId) => {
     if (sectionId === 'boardgame') {
       setIsProToolsOpen(false);
+      setLastWorkspaceSection(activeSection);
+      setIsBoardGameFullscreen(true);
+    } else {
+      setIsBoardGameFullscreen(false);
+      setLastWorkspaceSection(sectionId);
     }
     setActiveSection(sectionId);
     setIsMobileNavOpen(false);
   };
+
+  const handleExitBoardGameFullscreen = useCallback(() => {
+    setIsBoardGameFullscreen(false);
+    setActiveSection((current) =>
+      current === 'boardgame' ? lastWorkspaceSection || 'dashboard' : current
+    );
+  }, [lastWorkspaceSection]);
 
   const handleValueBotContextUpdate = useCallback((updates) => {
     setValueBotContext((prev) => ({
@@ -1668,8 +1714,8 @@ const App = () => {
       }
 
       return {
-        title: 'Today / Dashboard',
-        meta: eventsDigest?.meta ?? metaFallback,
+        title: dashboardTitle,
+        meta: `${dashboardCaption} — ${eventsDigest?.meta ?? metaFallback}`,
         layout: 'dashboard',
         cards
       };
@@ -1821,7 +1867,9 @@ const App = () => {
     ledgerHighlights,
     morningNewsAlert,
     portfolioSummary,
-    hasMorningNewsPing
+    hasMorningNewsPing,
+    dashboardTitle,
+    dashboardCaption
   ]);
 
   const renderDefaultSection = () => (
@@ -2211,6 +2259,10 @@ const App = () => {
   );
 
   const renderActivePanel = () => {
+    if (activeSection === 'boardgame' && isBoardGameFullscreen) {
+      return null;
+    }
+
     if (activeSection === 'valuebot' || (activeSection === 'dashboard' && activeTab === 'ValueBot')) {
       return renderValueBotWorkspace();
     }
@@ -2243,34 +2295,74 @@ const App = () => {
   };
 
   const immersiveStageClass = `immersive-stage${isProToolsOpen ? ' is-muted' : ' is-active'}`;
-  const foregroundClassName = `app-foreground${isProToolsOpen ? '' : ' boardgame-active'}`;
+  const foregroundClassName = `app-foreground${
+    !isProToolsOpen && !isBoardGameFullscreen ? ' boardgame-active' : ''
+  }${isBoardGameFullscreen ? ' boardgame-fullscreen' : ''}`;
 
   return (
     <ValueBotContext.Provider value={valueBotProviderValue}>
       <main className="app-stage">
-        <section
-          className={immersiveStageClass}
-          aria-label="Investing board game spotlight"
-          aria-hidden={isProToolsOpen}
-        >
-          <div className="immersive-boardgame">
-            <BoardGameApp showProToolsButton={false} />
+        {isBoardGameFullscreen && (
+          <div
+            className="fullscreen-boardgame"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Investing board game fullscreen"
+          >
+            <header className="fullscreen-boardgame__header">
+              <div>
+                <p className="detail-meta">Dice-driven sim</p>
+                <h2>Investing Board Game — Fullscreen</h2>
+                <p className="detail-meta">{dashboardCaption}</p>
+              </div>
+              <div className="fullscreen-boardgame__actions">
+                <button type="button" className="btn-secondary" onClick={handleExitBoardGameFullscreen}>
+                  Return to workspace
+                </button>
+              </div>
+            </header>
+            <div className="fullscreen-boardgame__body">
+              <BoardGameApp showProToolsButton={false} />
+            </div>
           </div>
-        </section>
+        )}
+
+        {!isBoardGameFullscreen && (
+          <section
+            className={immersiveStageClass}
+            aria-label="Investing board game spotlight"
+            aria-hidden={isProToolsOpen}
+          >
+            <div className="immersive-boardgame">
+              <BoardGameApp showProToolsButton={false} />
+            </div>
+          </section>
+        )}
 
         <div className={foregroundClassName}>
-          <button
-            type="button"
-            className={`pro-toggle${isProToolsOpen ? ' active' : ''}`}
-            onClick={() => setIsProToolsOpen((prev) => !prev)}
-            aria-haspopup="dialog"
-            aria-expanded={isProToolsOpen}
-            aria-pressed={isProToolsOpen}
-            aria-label="Toggle Pro Tools workspace"
-          >
-            <span className="pro-toggle__indicator" aria-hidden="true" />
-            Pro Tools
-          </button>
+          <div className="pro-toggle-bar">
+            <button
+              type="button"
+              className={`pro-toggle${isProToolsOpen ? ' active' : ''}`}
+              onClick={() => setIsProToolsOpen((prev) => !prev)}
+              aria-haspopup="dialog"
+              aria-expanded={isProToolsOpen}
+              aria-pressed={isProToolsOpen}
+              aria-label="Toggle Pro Tools workspace"
+            >
+              <span className="pro-toggle__indicator" aria-hidden="true" />
+              Pro Tools
+            </button>
+
+            {workspaceStatus && (
+              <span
+                className={`workspace-status workspace-status--${workspaceStatus.tone}`}
+                role={workspaceStatus.tone === 'error' ? 'alert' : 'status'}
+              >
+                {workspaceStatus.message}
+              </span>
+            )}
+          </div>
 
           {isProToolsOpen && (
             <div
@@ -2298,11 +2390,6 @@ const App = () => {
                 <div className="pro-overlay__content">
                   <section className="app" aria-live="polite">
                     {runtimeConfig.isDemoMode && <DemoBanner />}
-                    {dataError && (
-                      <div className="demo-banner warning" role="alert">
-                        Unable to load workspace profile. Check data service configuration.
-                      </div>
-                    )}
 
                     <div className="app-shell">
                       <nav className="app-menu" aria-label="Primary">
@@ -2359,7 +2446,11 @@ const App = () => {
                               }
                             ].map((item) => {
                               const isDashboardItem = item.id === 'dashboard';
-                              const caption = isDashboardItem && hasMorningNewsPing ? 'Morning News' : item.caption;
+                              const navTitle = isDashboardItem ? dashboardTitle : item.title;
+                              let caption = isDashboardItem ? dashboardCaption : item.caption;
+                              if (isDashboardItem && hasMorningNewsPing) {
+                                caption = `${dashboardCaption} • Morning News`;
+                              }
                               const handleClick = () => {
                                 if (item.action) {
                                   item.action();
@@ -2383,7 +2474,7 @@ const App = () => {
                                     </span>
                                   )}
                                   <div className="item-copy">
-                                    <span className="item-title">{item.title}</span>
+                                    <span className="item-title">{navTitle}</span>
                                     <span className="item-caption">
                                       {caption}
                                       {isDashboardItem && hasMorningNewsPing && (
@@ -2470,7 +2561,11 @@ const App = () => {
                         ) : (
                           mainNavigation.map((item) => {
                             const isDashboardItem = item.id === 'dashboard';
-                            const caption = isDashboardItem && hasMorningNewsPing ? 'Morning News' : item.caption;
+                            const navTitle = isDashboardItem ? dashboardTitle : item.title;
+                            let caption = isDashboardItem ? dashboardCaption : item.caption;
+                            if (isDashboardItem && hasMorningNewsPing) {
+                              caption = `${dashboardCaption} • Morning News`;
+                            }
                             return (
                               <button
                                 key={item.id}
@@ -2484,7 +2579,7 @@ const App = () => {
                                   </span>
                                 )}
                                 <div className="item-copy">
-                                  <span className="item-title">{item.title}</span>
+                                  <span className="item-title">{navTitle}</span>
                                   <span className="item-caption">
                                     {caption}
                                     {isDashboardItem && hasMorningNewsPing && (
