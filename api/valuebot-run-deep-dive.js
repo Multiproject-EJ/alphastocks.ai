@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import { runDeepDiveForConfig } from './lib/valuebot/runDeepDiveForConfig.js';
+import { runDeepDiveForConfig } from '../api-lib/valuebot/runDeepDiveForConfig.js';
 
 function jsonResponse(status, payload) {
   return new Response(JSON.stringify(payload), {

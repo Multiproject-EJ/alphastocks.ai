@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import { runQueueWorker } from './lib/valuebot/runQueueWorker.js';
+import { runQueueWorker } from '../api-lib/valuebot/runQueueWorker.js';
 
 function jsonResponse(status, payload) {
   return new Response(JSON.stringify(payload), {

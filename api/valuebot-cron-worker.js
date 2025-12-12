@@ -1,7 +1,7 @@
 // Optional: set VALUEBOT_CRON_SECRET to require a matching ?secret=... query or x-valuebot-cron-secret header.
-import { runQueueWorker, SECONDS_PER_JOB_ESTIMATE } from './lib/valuebot/runQueueWorker.js';
-import { getAutoSettings, updateLastAutoRunAt } from './lib/valuebot/settings.js';
-import { getSupabaseAdminClient } from './lib/supabaseAdmin.js';
+import { runQueueWorker, SECONDS_PER_JOB_ESTIMATE } from '../api-lib/valuebot/runQueueWorker.js';
+import { getAutoSettings, updateLastAutoRunAt } from '../api-lib/valuebot/settings.js';
+import { getSupabaseAdminClient } from '../api-lib/supabaseAdmin.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'GET' && req.method !== 'POST') {
