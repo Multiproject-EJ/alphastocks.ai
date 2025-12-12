@@ -68,7 +68,7 @@ export const CenterPanels: React.FC<CenterPanelsProps> = ({
   return (
     <div className="boardgame-panels">
       <section className="boardgame-panel">
-        <h3>Investing Board Game – Hub</h3>
+        <h3>MarketTycoon – Hub</h3>
         <p>Mission: Build a resilient portfolio without going broke.</p>
         <div className="boardgame-summary" style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
           <div style={{ minWidth: '160px' }}>

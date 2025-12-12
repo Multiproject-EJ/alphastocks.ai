@@ -2373,12 +2373,12 @@ const App = () => {
             className="fullscreen-boardgame"
             role="dialog"
             aria-modal="true"
-            aria-label="Investing board game fullscreen"
+            aria-label="MarketTycoon fullscreen"
           >
             <header className="fullscreen-boardgame__header">
               <div>
-                <p className="detail-meta">Dice-driven sim</p>
-                <h2>Investing Board Game — Fullscreen</h2>
+                <p className="detail-meta">Board game sim</p>
+                <h2>MarketTycoon — Fullscreen</h2>
                 <p className="detail-meta">{dashboardCaption}</p>
               </div>
               <div className="fullscreen-boardgame__actions">
