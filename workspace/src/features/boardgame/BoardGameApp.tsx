@@ -4,6 +4,11 @@ import type { BoardTile } from './components/BoardRoot';
 import BoardRoot from './components/BoardRoot.js';
 import CenterPanels from './components/CenterPanels.js';
 
+interface BoardGameAppProps {
+  onOpenProTools?: () => void;
+  showProToolsButton?: boolean;
+}
+
 interface Holding {
   ticker: string;
   name: string;
@@ -18,7 +23,10 @@ interface CandidateStock {
   mockPrice: number;
 }
 
-const BoardGameApp: FunctionalComponent = () => {
+const BoardGameApp: FunctionalComponent<BoardGameAppProps> = ({
+  onOpenProTools,
+  showProToolsButton = Boolean(onOpenProTools)
+}) => {
   const [cash, setCash] = useState<number>(100_000);
   const [startingNetWorth] = useState<number>(100_000);
   const [holdings, setHoldings] = useState<Holding[]>([]);
@@ -149,6 +157,11 @@ const BoardGameApp: FunctionalComponent = () => {
             Dice-driven investing simulation powered by ValueBot
           </p>
         </div>
+        {showProToolsButton && (
+          <button type="button" className="pro-tools-cta" onClick={onOpenProTools}>
+            Pro Tools
+          </button>
+        )}
       </header>
 
       <div className="boardgame-layout" style={layoutStyle}>
