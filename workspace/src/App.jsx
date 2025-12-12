@@ -915,6 +915,29 @@ const App = () => {
       setIsSigningOut(false);
     }
   }, [closeAccountDialog, isSigningOut, runtimeConfig.mode, signOut]);
+
+  const focusDashboardWorkspace = useCallback(() => {
+    setIsBoardGameFullscreen(false);
+    setActiveSection('dashboard');
+    setLastWorkspaceSection('dashboard');
+  }, []);
+
+  const openProToolsWorkspace = useCallback(() => {
+    focusDashboardWorkspace();
+    setIsProToolsOpen(true);
+  }, [focusDashboardWorkspace]);
+
+  const handleProToolsToggle = useCallback(() => {
+    setIsProToolsOpen((prev) => {
+      const nextIsOpen = !prev;
+
+      if (nextIsOpen) {
+        focusDashboardWorkspace();
+      }
+
+      return nextIsOpen;
+    });
+  }, [focusDashboardWorkspace]);
   const handleMenuSelection = (sectionId) => {
     if (sectionId === 'boardgame') {
       setIsProToolsOpen(false);
@@ -1848,7 +1871,7 @@ const App = () => {
     if (activeSection === 'boardgame') {
       return {
         ...staticSections.boardgame,
-        component: <BoardGameApp onOpenProTools={() => setIsProToolsOpen(true)} />
+        component: <BoardGameApp onOpenProTools={openProToolsWorkspace} />
       };
     }
 
@@ -2341,19 +2364,6 @@ const App = () => {
 
         <div className={foregroundClassName}>
           <div className="pro-toggle-bar">
-            <button
-              type="button"
-              className={`pro-toggle${isProToolsOpen ? ' active' : ''}`}
-              onClick={() => setIsProToolsOpen((prev) => !prev)}
-              aria-haspopup="dialog"
-              aria-expanded={isProToolsOpen}
-              aria-pressed={isProToolsOpen}
-              aria-label="Toggle Pro Tools workspace"
-            >
-              <span className="pro-toggle__indicator" aria-hidden="true" />
-              Pro Tools
-            </button>
-
             {workspaceStatus && (
               <span
                 className={`workspace-status workspace-status--${workspaceStatus.tone}`}
@@ -2362,6 +2372,19 @@ const App = () => {
                 {workspaceStatus.message}
               </span>
             )}
+
+            <button
+              type="button"
+              className={`pro-toggle${isProToolsOpen ? ' active' : ''}`}
+              onClick={handleProToolsToggle}
+              aria-haspopup="dialog"
+              aria-expanded={isProToolsOpen}
+              aria-pressed={isProToolsOpen}
+              aria-label="Toggle Pro Tools workspace"
+            >
+              <span className="pro-toggle__indicator" aria-hidden="true" />
+              Pro Tools
+            </button>
           </div>
 
           {isProToolsOpen && (
