@@ -449,9 +449,7 @@ const baseNavigation = [
   { id: 'portfolio', icon: '💼', title: 'Portfolio', caption: 'Results & ledger', hasSubmenu: true }
 ];
 
-const mainNavigation = ENABLE_BOARDGAME
-  ? [...baseNavigation.slice(0, 3), boardGameNavItem, ...baseNavigation.slice(3)]
-  : baseNavigation;
+const mainNavigation = ENABLE_BOARDGAME ? [boardGameNavItem, ...baseNavigation] : baseNavigation;
 
 const DemoBanner = () => (
   <div className="demo-banner" role="status">
@@ -717,7 +715,7 @@ const staticSections = {
 
 const App = () => {
   const [theme, setTheme] = useState('dark');
-  const [activeSection, setActiveSection] = useState('dashboard');
+  const [activeSection, setActiveSection] = useState(ENABLE_BOARDGAME ? 'boardgame' : 'dashboard');
   const [activeTabsBySection, setActiveTabsBySection] = useState(() => {
     const initialMap = {};
     [...mainNavigation.map((item) => item.id), settingsNavItem.id].forEach((sectionId) => {
@@ -762,10 +760,10 @@ const App = () => {
   const isSupabaseMode = dataService?.mode === 'supabase';
   const themeCopy = theme === 'dark' ? 'Switch to light' : 'Switch to dark';
   const mobilePrimaryNav = [
+    { id: 'boardgame', icon: '🎲', label: 'Game' },
     { id: 'dashboard', icon: '🏠', label: 'Today' },
     { id: 'valuebot', icon: '🤖', label: 'ValueBot' },
-    { id: 'portfolio', icon: '💼', label: 'Portfolio' },
-    { id: 'checkin', icon: '🧘', label: 'Check-In' }
+    { id: 'portfolio', icon: '💼', label: 'Portfolio' }
   ];
   const mobileOverflowNav = mainNavigation.filter(
     (item) => !mobilePrimaryNav.some((primary) => primary.id === item.id)
@@ -1798,6 +1796,13 @@ const App = () => {
       };
     }
 
+    if (activeSection === 'boardgame') {
+      return {
+        ...staticSections.boardgame,
+        component: <BoardGameApp onOpenProTools={() => setIsProToolsOpen(true)} />
+      };
+    }
+
     return staticSections[activeSection] ?? staticSections.checkin;
   }, [
     activeSection,
@@ -2243,7 +2248,7 @@ const App = () => {
           aria-hidden="true"
         >
           <div className="immersive-boardgame">
-            <BoardGameApp />
+            <BoardGameApp showProToolsButton={false} />
           </div>
         </section>
 
