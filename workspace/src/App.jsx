@@ -428,6 +428,7 @@ const sectionTabsById = {
   valuebot: valueBotTabs.map((tab) => tab.label),
   quadrant: ['Universe', 'Universe Quadrant', 'Add Stocks'],
   checkin: ['Tab 1', 'Trading Journal', 'Tab 3', 'Tab 4', 'Tab 5'],
+  focuslist: ['Focus List'],
   boardgame: []
 };
 
@@ -444,6 +445,7 @@ const boardGameNavItem = {
 const baseNavigation = [
   { id: 'dashboard', icon: '🏠', title: 'Morning Sales Desk', caption: 'Added + updated' },
   { id: 'checkin', icon: '🧘', title: 'Check-In', caption: 'Daily reflections' },
+  { id: 'focuslist', icon: '🎯', title: 'Focus List', caption: 'Priority names' },
   { id: 'valuebot', icon: '🤖', title: 'ValueBot', caption: 'Valuation copilot' },
   { id: 'quadrant', icon: '🧭', title: 'Investing Universe', caption: '' },
   { id: 'portfolio', icon: '💼', title: 'Portfolio', caption: 'Results & ledger', hasSubmenu: true }
@@ -643,6 +645,11 @@ const staticSections = {
       }
     ]
   },
+  focuslist: {
+    title: 'Focus list',
+    meta: 'Priority names, catalysts, and routines you want to keep visible during the session.',
+    cards: []
+  },
   valuebot: {
     title: 'ValueBot command center',
     meta: 'Give ValueBot a focused prompt, then drill into the dedicated tabs for management, moat, balance sheet, and more.',
@@ -756,7 +763,6 @@ const App = () => {
   const [isProToolsOpen, setIsProToolsOpen] = useState(false);
   const [isMobileView, setIsMobileView] = useState(false);
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
-  const [showFocusList, setShowFocusList] = useState(false);
   const [alertSettings, setAlertSettings] = useState(() => createInitialAlertState());
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [universeRows, setUniverseRows] = useState(DEFAULT_UNIVERSE_ROWS);
@@ -781,6 +787,7 @@ const App = () => {
   const mobilePrimaryNav = [
     { id: 'boardgame', icon: '🎲', label: 'Game' },
     { id: 'dashboard', icon: '🏠', label: 'Morning Sales' },
+    { id: 'focuslist', icon: '🎯', label: 'Focus' },
     { id: 'valuebot', icon: '🤖', label: 'ValueBot' },
     { id: 'portfolio', icon: '💼', label: 'Portfolio' }
   ];
@@ -2205,6 +2212,38 @@ const App = () => {
     );
   };
 
+  const renderFocusListPanel = () => {
+    if (hasTabs && activeTab !== 'Focus List') {
+      return renderDefaultSection();
+    }
+
+    return (
+      <>
+        <h2>{section.title}</h2>
+        {section.meta && <p className="detail-meta">{section.meta}</p>}
+        <div className="detail-card" data-size="wide">
+          <header className="list-header">
+            <h3>Today&apos;s focus</h3>
+            <button className="btn-tertiary" type="button" disabled>
+              + Add
+            </button>
+          </header>
+          <ul className="list-items">
+            {focusList.map((item, index) => (
+              <li key={item.id} className={`list-item${index === 0 ? ' active' : ''}`}>
+                <div>
+                  <strong>{item.title}</strong>
+                  <span>{item.caption}</span>
+                </div>
+                <span className={`tag ${item.tag?.tone || ''}`.trim()}>{item.tag?.label ?? 'Watch'}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </>
+    );
+  };
+
   const renderCheckInJournalPanel = () => (
     <>
       <h2>Trading Journal</h2>
@@ -2288,6 +2327,10 @@ const App = () => {
 
     if (activeSection === 'valuebot' || (activeSection === 'dashboard' && activeTab === 'ValueBot')) {
       return renderValueBotWorkspace();
+    }
+
+    if (activeSection === 'focuslist') {
+      return renderFocusListPanel();
     }
 
     if (activeSection === 'quadrant') {
@@ -2385,6 +2428,37 @@ const App = () => {
               <span className="pro-toggle__indicator" aria-hidden="true" />
               Pro Tools
             </button>
+
+            <div className="pro-toggle-actions" role="group" aria-label="Workspace quick actions">
+              <button
+                type="button"
+                className={`pro-action-button${isAccountDialogOpen ? ' active' : ''}`}
+                onClick={openAccountDialog}
+                aria-expanded={isAccountDialogOpen}
+                aria-haspopup="dialog"
+                aria-controls="accountDialog"
+                aria-label="Account"
+              >
+                <span className="item-icon" aria-hidden="true">👤</span>
+              </button>
+              <button
+                type="button"
+                className={`pro-action-button${activeSection === settingsNavItem.id ? ' active' : ''}`}
+                onClick={() => handleMenuSelection(settingsNavItem.id)}
+                aria-label="Settings"
+              >
+                <span className="item-icon" aria-hidden="true">{settingsNavItem.icon}</span>
+              </button>
+              <button
+                type="button"
+                className="pro-action-button"
+                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                aria-label={themeCopy}
+                aria-pressed={theme === 'dark'}
+              >
+                <span className="item-icon" aria-hidden="true">{theme === 'dark' ? '☀️' : '🌙'}</span>
+              </button>
+            </div>
           </div>
 
           {isProToolsOpen && (
@@ -2452,21 +2526,7 @@ const App = () => {
                           <div className="mobile-nav-popover" role="menu" aria-label="More navigation">
                             {[
                               ...mobileOverflowNav,
-                              { ...settingsNavItem, title: 'Settings', caption: 'Preferences' },
-                              {
-                                id: 'account',
-                                icon: '👤',
-                                title: 'Account',
-                                caption: 'Profile & workspace',
-                                action: openAccountDialog
-                              },
-                              {
-                                id: 'theme',
-                                icon: theme === 'dark' ? '☀️' : '🌙',
-                                title: theme === 'dark' ? 'Light mode' : 'Dark mode',
-                                caption: themeCopy,
-                                action: () => setTheme(theme === 'dark' ? 'light' : 'dark')
-                              }
+                              { ...settingsNavItem, title: 'Settings', caption: 'Preferences' }
                             ].map((item) => {
                               const isDashboardItem = item.id === 'dashboard';
                               const navTitle = isDashboardItem ? dashboardTitle : item.title;
@@ -2513,76 +2573,8 @@ const App = () => {
                       </div>
                     ) : (
                       <>
-                        <div className="menu-item-split" aria-label="Account controls">
-                          <button
-                            type="button"
-                            className={`menu-item split-button account${isAccountDialogOpen ? ' active' : ''}`}
-                            onClick={openAccountDialog}
-                            aria-expanded={isAccountDialogOpen}
-                            aria-haspopup="dialog"
-                            aria-controls="accountDialog"
-                            aria-label="Account"
-                          >
-                            <span className="item-icon" aria-hidden="true">
-                              👤
-                            </span>
-                          </button>
-                          <button
-                            type="button"
-                            className={`menu-item split-button${activeSection === settingsNavItem.id ? ' active' : ''}`}
-                            data-section={settingsNavItem.id}
-                            onClick={() => handleMenuSelection(settingsNavItem.id)}
-                            aria-label="Settings"
-                          >
-                            {settingsNavItem.icon && (
-                              <span className="item-icon" aria-hidden="true">
-                                {settingsNavItem.icon}
-                              </span>
-                            )}
-                          </button>
-                          <button
-                            type="button"
-                            className="menu-item split-button"
-                            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                            aria-label={themeCopy}
-                            aria-pressed={theme === 'dark'}
-                          >
-                            <span className="item-icon" aria-hidden="true">
-                              {theme === 'dark' ? '☀️' : '🌙'}
-                            </span>
-                          </button>
-                          <button
-                            type="button"
-                            className={`menu-item split-button${showFocusList ? ' active' : ''}`}
-                            onClick={() => setShowFocusList((prev) => !prev)}
-                            aria-pressed={showFocusList}
-                            aria-label="Focus list"
-                          >
-                            <span className="item-icon" aria-hidden="true">🎯</span>
-                          </button>
-                        </div>
-                        {showFocusList ? (
-                          <div className="menu-focus" aria-label="Focus list">
-                            <header className="list-header">
-                              <h2>Focus list</h2>
-                              <button className="btn-tertiary" type="button" disabled>
-                                + Add
-                              </button>
-                            </header>
-                            <ul className="list-items">
-                              {focusList.map((item, index) => (
-                                <li key={item.id} className={`list-item${index === 0 ? ' active' : ''}`}>
-                                  <div>
-                                    <strong>{item.title}</strong>
-                                    <span>{item.caption}</span>
-                                  </div>
-                                  <span className={`tag ${item.tag?.tone || ''}`.trim()}>{item.tag?.label ?? 'Watch'}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        ) : (
-                          mainNavigation.map((item) => {
+                        {[...mainNavigation, { ...settingsNavItem, title: 'Settings', caption: 'Preferences' }].map(
+                          (item) => {
                             const isDashboardItem = item.id === 'dashboard';
                             const navTitle = isDashboardItem ? dashboardTitle : item.title;
                             let caption = isDashboardItem ? dashboardCaption : item.caption;
@@ -2612,7 +2604,7 @@ const App = () => {
                                 </div>
                               </button>
                             );
-                          })
+                          }
                         )}
                       </>
                     )}
