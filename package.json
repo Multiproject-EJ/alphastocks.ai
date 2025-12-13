@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "npm run build:board-game-v3 && vite build",
     "preview": "vite preview",
     "generate:seed": "node workspace/scripts/generateSupabaseSeed.js",
     "build:board-game-v3": "cd apps/investing-board-game-v3 && npm install && npm run build && cd ../.. && rm -rf public/board-game-v3 && mkdir -p public/board-game-v3 && cp -r apps/investing-board-game-v3/dist/* public/board-game-v3/"
