@@ -18,7 +18,7 @@ investing-board-game-v2/
 
 ## Key Features
 
-- **Scoped Styling**: All styles use `.board-game-v2-root` prefix to avoid conflicts
+- **Scoped Styling**: All styles use `.board-game-v2-` prefix to avoid conflicts
 - **TypeScript Support**: Written in TypeScript for type safety
 - **Preact Compatible**: Uses Preact's FunctionalComponent types
 - **Dark Theme Support**: Includes dark theme CSS variables
@@ -54,9 +54,9 @@ _To be documented as components are ported from the donor repository in Step 2._
 
 **Current Status**: A minimal placeholder GameBoard component has been created to demonstrate the integration pattern. Once access to the donor repository is available, the actual game components will be ported.
 
-### Step 3 (Pending)
-- [ ] Add navigation entry
-- [ ] Test coexistence with legacy board game
+### Step 3 (Completed)
+- ✅ Add navigation entry
+- ✅ Test coexistence with legacy board game
 
 ## Style Guidelines
 
