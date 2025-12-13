@@ -752,8 +752,8 @@ const App = () => {
   const [lastWorkspaceSection, setLastWorkspaceSection] = useState('dashboard');
   const [activeTabsBySection, setActiveTabsBySection] = useState(() => {
     const initialMap = {};
-    [...mainNavigation.map((item) => item.id), settingsNavItem.id].forEach((sectionId) => {
-      initialMap[sectionId] = getSectionTabs(sectionId)[0];
+    mainNavigation.forEach((item) => {
+      initialMap[item.id] = getSectionTabs(item.id)[0];
     });
     if (defaultValueBotTabLabel) {
       initialMap.valuebot = defaultValueBotTabLabel;
@@ -770,6 +770,7 @@ const App = () => {
   const [activeProfile, setActiveProfile] = useState(null);
   const [profileError, setProfileError] = useState(null);
   const [isAccountDialogOpen, setIsAccountDialogOpen] = useState(false);
+  const [isSettingsDialogOpen, setIsSettingsDialogOpen] = useState(false);
   const [isProToolsOpen, setIsProToolsOpen] = useState(false);
   const [isMobileView, setIsMobileView] = useState(false);
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
@@ -917,6 +918,8 @@ const App = () => {
   }, [authStatus, dataError]);
   const openAccountDialog = useCallback(() => setIsAccountDialogOpen(true), []);
   const closeAccountDialog = useCallback(() => setIsAccountDialogOpen(false), []);
+  const openSettingsDialog = useCallback(() => setIsSettingsDialogOpen(true), []);
+  const closeSettingsDialog = useCallback(() => setIsSettingsDialogOpen(false), []);
   const handleSignOut = useCallback(async () => {
     if (runtimeConfig.mode === 'demo' || isSigningOut) {
       return;
@@ -1372,7 +1375,7 @@ const App = () => {
   }, [isMobileNavOpen]);
 
   useEffect(() => {
-    if (isAccountDialogOpen) {
+    if (isAccountDialogOpen || isSettingsDialogOpen) {
       document.body.classList.add('dialog-open');
     } else {
       document.body.classList.remove('dialog-open');
@@ -1381,7 +1384,7 @@ const App = () => {
     return () => {
       document.body.classList.remove('dialog-open');
     };
-  }, [isAccountDialogOpen]);
+  }, [isAccountDialogOpen, isSettingsDialogOpen]);
 
   useEffect(() => {
     if (!isProToolsOpen) return undefined;
@@ -1795,90 +1798,6 @@ const App = () => {
               </ul>
             ) : (
               <p>No recent transactions recorded in demo data.</p>
-            )
-          }
-        ]
-      };
-    }
-
-    if (activeSection === 'settings') {
-      return {
-        title: 'Settings',
-        meta: 'Preferences for alerts, integrations, and localization.',
-        cards: [
-          {
-            title: 'Quick preferences',
-            body: (
-              <>
-                <p>Select an area to configure:</p>
-                <ul>
-                  <li>Alerts &amp; notifications</li>
-                  <li>AI integrations</li>
-                  <li>Localization</li>
-                </ul>
-              </>
-            )
-          },
-          {
-            title: 'In-app alert settings',
-            body: (
-              <>
-                <p>Control which nudges surface inside the workspace navigation.</p>
-                <table className="table subtle alerts-table">
-                  <thead>
-                    <tr>
-                      <th scope="col">Alert</th>
-                      <th scope="col">Schedule</th>
-                      <th scope="col">Status</th>
-                      <th scope="col">Enabled</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {ALERT_CONFIGS.map((alert) => {
-                      const state = alertSettings[alert.id];
-                      const isMorningAlert = alert.id === MORNING_NEWS_ALERT_ID;
-                      const waiting = Boolean(state?.enabled && state?.triggered && state?.unread);
-                      return (
-                        <tr key={alert.id}>
-                          <td>
-                            <div className="alert-name">
-                              <strong>{alert.name}</strong>
-                              <span>{alert.description}</span>
-                            </div>
-                          </td>
-                          <td>
-                            <span className="detail-meta">{alert.schedule}</span>
-                          </td>
-                          <td>
-                            {waiting ? (
-                              <span className="tag tag-red">Waiting</span>
-                            ) : state?.triggered ? (
-                              <span className="tag tag-green">Acknowledged</span>
-                            ) : (
-                              <span className="detail-meta">Idle</span>
-                            )}
-                            {isMorningAlert && state?.lastTriggered && !waiting && (
-                              <p className="detail-meta" aria-live="polite">
-                                Last ping {formatDateLabel(state.lastTriggered)}
-                              </p>
-                            )}
-                          </td>
-                          <td>
-                            <label className="alert-toggle">
-                              <input
-                                type="checkbox"
-                                checked={Boolean(state?.enabled)}
-                                onChange={() => handleAlertToggle(alert.id)}
-                              />
-                              <span className="alert-toggle-slider" aria-hidden="true" />
-                            </label>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </>
             )
           }
         ]
@@ -2370,6 +2289,82 @@ const App = () => {
     );
   };
 
+  const renderSettingsDialogContent = () => (
+    <div className="settings-dialog__content">
+      <div className="detail-card">
+        <p>Select an area to configure:</p>
+        <ul>
+          <li>Alerts &amp; notifications</li>
+          <li>AI integrations</li>
+          <li>Localization</li>
+        </ul>
+      </div>
+      <div className="detail-card">
+        <div className="settings-dialog__header">
+          <div>
+            <p className="detail-meta">Notifications</p>
+            <h3>In-app alert settings</h3>
+          </div>
+          <p className="detail-meta">Control which nudges surface inside the workspace navigation.</p>
+        </div>
+        <table className="table subtle alerts-table">
+          <thead>
+            <tr>
+              <th scope="col">Alert</th>
+              <th scope="col">Schedule</th>
+              <th scope="col">Status</th>
+              <th scope="col">Enabled</th>
+            </tr>
+          </thead>
+          <tbody>
+            {ALERT_CONFIGS.map((alert) => {
+              const state = alertSettings[alert.id];
+              const isMorningAlert = alert.id === MORNING_NEWS_ALERT_ID;
+              const waiting = Boolean(state?.enabled && state?.triggered && state?.unread);
+              return (
+                <tr key={alert.id}>
+                  <td>
+                    <div className="alert-name">
+                      <strong>{alert.name}</strong>
+                      <span>{alert.description}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <span className="detail-meta">{alert.schedule}</span>
+                  </td>
+                  <td>
+                    {waiting ? (
+                      <span className="tag tag-red">Waiting</span>
+                    ) : state?.triggered ? (
+                      <span className="tag tag-green">Acknowledged</span>
+                    ) : (
+                      <span className="detail-meta">Idle</span>
+                    )}
+                    {isMorningAlert && state?.lastTriggered && !waiting && (
+                      <p className="detail-meta" aria-live="polite">
+                        Last ping {formatDateLabel(state.lastTriggered)}
+                      </p>
+                    )}
+                  </td>
+                  <td>
+                    <label className="alert-toggle">
+                      <input
+                        type="checkbox"
+                        checked={Boolean(state?.enabled)}
+                        onChange={() => handleAlertToggle(alert.id)}
+                      />
+                      <span className="alert-toggle-slider" aria-hidden="true" />
+                    </label>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+
   const immersiveStageClass = `immersive-stage${isProToolsOpen ? ' is-muted' : ' is-active'}`;
   const foregroundClassName = `app-foreground${
     !isProToolsOpen && !isBoardGameFullscreen ? ' boardgame-active' : ''
@@ -2458,8 +2453,8 @@ const App = () => {
               </button>
               <button
                 type="button"
-                className={`pro-action-button${activeSection === settingsNavItem.id ? ' active' : ''}`}
-                onClick={() => handleMenuSelection(settingsNavItem.id)}
+                className={`pro-action-button${isSettingsDialogOpen ? ' active' : ''}`}
+                onClick={openSettingsDialog}
                 aria-label="Settings"
               >
                 <span className="item-icon" aria-hidden="true">{settingsNavItem.icon}</span>
@@ -2534,10 +2529,7 @@ const App = () => {
 
                         {isMobileNavOpen && (
                           <div className="mobile-nav-popover" role="menu" aria-label="More navigation">
-                            {[
-                              ...mobileOverflowNav,
-                              { ...settingsNavItem, title: 'Settings', caption: 'Preferences' }
-                            ].map((item) => {
+                            {mobileOverflowNav.map((item) => {
                               const isDashboardItem = item.id === 'dashboard';
                               const navTitle = isDashboardItem ? dashboardTitle : item.title;
                               let caption = isDashboardItem ? dashboardCaption : item.caption;
@@ -2583,8 +2575,7 @@ const App = () => {
                       </div>
                     ) : (
                       <>
-                        {[...mainNavigation, { ...settingsNavItem, title: 'Settings', caption: 'Preferences' }].map(
-                          (item) => {
+                        {mainNavigation.map((item) => {
                             const isDashboardItem = item.id === 'dashboard';
                             const navTitle = isDashboardItem ? dashboardTitle : item.title;
                             let caption = isDashboardItem ? dashboardCaption : item.caption;
@@ -2793,6 +2784,34 @@ const App = () => {
                         </ul>
                       </div>
                     </div>
+                  </div>
+                </div>
+                <div
+                  id="settingsDialog"
+                  className={`app-dialog${isSettingsDialogOpen ? ' visible' : ''}`}
+                  role="dialog"
+                  aria-modal="true"
+                  aria-labelledby="settingsDialogTitle"
+                  aria-hidden={!isSettingsDialogOpen}
+                  hidden={!isSettingsDialogOpen}
+                >
+                  <div className="dialog-backdrop" onClick={closeSettingsDialog} aria-hidden="true" />
+                  <div className="dialog-panel" role="document">
+                    <div className="dialog-header">
+                      <div>
+                        <p className="detail-meta">Preferences</p>
+                        <h2 id="settingsDialogTitle">Settings</h2>
+                      </div>
+                      <button
+                        type="button"
+                        className="dialog-close"
+                        aria-label="Close settings dialog"
+                        onClick={closeSettingsDialog}
+                      >
+                        ✕
+                      </button>
+                    </div>
+                    <div className="dialog-body settings-dialog">{renderSettingsDialogContent()}</div>
                   </div>
                 </div>
               </div>
