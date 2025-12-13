@@ -1,0 +1,166 @@
+/**
+ * BoardRoot Component Styles - Scoped to board-game-v2
+ */
+
+.board-game-v2-board-section {
+  width: 100%;
+}
+
+.board-game-v2-board-container {
+  position: relative;
+  width: 100%;
+  max-width: 900px;
+  aspect-ratio: 16 / 9;
+  margin: 0 auto;
+  border-radius: 32px;
+  background: #020617;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.9);
+  border: 2px solid rgba(148, 163, 184, 0.35);
+  padding: 1.5rem 1.5rem 3.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  overflow: hidden;
+}
+
+.board-game-v2-board-inner-outline {
+  position: absolute;
+  inset: 0.75rem;
+  border-radius: 26px;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  pointer-events: none;
+}
+
+.board-game-v2-board-center-area {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 1rem;
+  z-index: 1;
+}
+
+.board-game-v2-board-tiles-wrapper {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+}
+
+.board-game-v2-board-tiles-row {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  gap: 0.85rem;
+  align-items: stretch;
+  overflow-x: auto;
+  padding: 0.25rem 0.25rem 0.5rem;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.5) transparent;
+}
+
+.board-game-v2-tile {
+  position: relative;
+  min-width: 120px;
+  padding: 0.55rem 0.75rem;
+  border-radius: 18px;
+  background: linear-gradient(145deg, #020617, #020617);
+  border: 1px solid rgba(51, 65, 85, 0.9);
+  box-shadow: 0 8px 16px rgba(15, 23, 42, 0.75);
+  color: #f5f5f5;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0.35rem;
+  transition: box-shadow 180ms ease, transform 180ms ease, border 180ms ease;
+  cursor: pointer;
+  transform: translateY(0);
+}
+
+.board-game-v2-tile-corner {
+  background: linear-gradient(145deg, #111827, #020617);
+  border: 1px solid rgba(148, 163, 184, 0.55);
+}
+
+.board-game-v2-tile-category {
+  border: 1px solid rgba(94, 234, 212, 0.25);
+}
+
+.board-game-v2-tile-event {
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  background: linear-gradient(145deg, #0b1220, #0f172a);
+}
+
+.board-game-v2-tile-hovered {
+  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.85);
+  transform: translateY(-2px);
+}
+
+.board-game-v2-tile-active {
+  border: 1px solid rgba(212, 175, 55, 0.9);
+  box-shadow: 0 0 18px rgba(212, 175, 55, 0.8), 0 10px 24px rgba(15, 23, 42, 0.85);
+  transform: translateY(-4px);
+}
+
+.board-game-v2-tile-badge {
+  align-self: flex-start;
+  padding: 0.22rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.15);
+  color: rgba(245, 245, 245, 0.9);
+  fontSize: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+.board-game-v2-tile-corner .board-game-v2-tile-badge {
+  background: rgba(148, 163, 184, 0.25);
+}
+
+.board-game-v2-tile-label-wrapper {
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: 0.01em;
+}
+
+.board-game-v2-tile-label-colored {
+  color: rgba(245, 245, 245, 0.95);
+  opacity: 0.9;
+}
+
+.board-game-v2-tile-token-container {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.board-game-v2-controls {
+  margin-top: 1rem;
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.board-game-v2-end-turn-button {
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(51, 65, 85, 0.9);
+  background: linear-gradient(145deg, #020617, #020617);
+  color: #f5f5f5;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.board-game-v2-end-turn-button:hover {
+  background: linear-gradient(145deg, #111827, #020617);
+  border-color: rgba(148, 163, 184, 0.55);
+}
+
+.board-game-v2-phase-indicator {
+  align-self: center;
+  color: rgba(245, 245, 245, 0.8);
+  font-size: 0.9rem;
+}

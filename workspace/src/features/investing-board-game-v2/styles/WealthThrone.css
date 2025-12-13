@@ -1,0 +1,78 @@
+/**
+ * WealthThrone Component Styles - Scoped to board-game-v2
+ */
+
+.board-game-v2-wealth-throne-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.board-game-v2-wealth-throne-outer {
+  width: 45%;
+  max-width: 260px;
+  aspect-ratio: 1 / 1;
+  border-radius: 9999px;
+  border: 2px solid rgba(148, 163, 184, 0.4);
+  box-shadow: 0 0 40px rgba(15, 23, 42, 0.9);
+  background: radial-gradient(circle at 50% 0%, rgba(148, 163, 184, 0.25), #020617);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+}
+
+.board-game-v2-wealth-throne-middle {
+  width: 78%;
+  height: 78%;
+  border-radius: 9999px;
+  border: 1px solid rgba(148, 163, 184, 0.5);
+  background: radial-gradient(circle at 50% 25%, #020617, #020617 45%, #020617);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.board-game-v2-wealth-throne-inner {
+  width: 70%;
+  height: 70%;
+  border-radius: 9999px;
+  background: radial-gradient(circle at 30% 20%, #fefce8, #d4af37, #0b0e11);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: box-shadow 250ms ease-out, transform 250ms ease-out;
+  color: #f9fafb;
+  text-align: center;
+  padding: 0.4rem;
+}
+
+.board-game-v2-wealth-throne-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.board-game-v2-wealth-throne-title {
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+
+.board-game-v2-wealth-throne-percent {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-top: 0.1rem;
+}
+
+.board-game-v2-wealth-throne-holdings {
+  font-size: 0.7rem;
+  margin-top: 0.1rem;
+  opacity: 0.8;
+}
