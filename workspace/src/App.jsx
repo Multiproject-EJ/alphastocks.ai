@@ -441,23 +441,24 @@ const sectionTabsById = {
   boardgame: []
 };
 
-const settingsNavItem = { id: 'settings', icon: '⚙️' };
+const settingsNavItem = { id: 'settings', icon: '⚙️', shortLabel: 'Prefs' };
 
 const getSectionTabs = (sectionId) => sectionTabsById[sectionId] ?? defaultSectionTabs;
 const boardGameNavItem = {
   id: 'boardgame',
   icon: '🎲',
   title: 'MarketTycoon',
-  caption: 'Board game sim'
+  caption: 'Board game sim',
+  shortLabel: 'Game'
 };
 
 const baseNavigation = [
-  { id: 'dashboard', icon: '🏠', title: 'Morning Sales Desk', caption: 'Added + updated' },
-  { id: 'checkin', icon: '🧘', title: 'Check-In', caption: 'Daily reflections' },
-  { id: 'focuslist', icon: '🎯', title: 'Focus List', caption: 'Priority names' },
-  { id: 'valuebot', icon: '🤖', title: 'ValueBot', caption: 'Valuation copilot' },
-  { id: 'quadrant', icon: '🧭', title: 'Investing Universe', caption: '' },
-  { id: 'portfolio', icon: '💼', title: 'Portfolio', caption: 'Results & ledger', hasSubmenu: true }
+  { id: 'dashboard', icon: '🏠', title: 'Morning Sales Desk', caption: 'Added + updated', shortLabel: 'Desk' },
+  { id: 'checkin', icon: '🧘', title: 'Check-In', caption: 'Daily reflections', shortLabel: 'Calm' },
+  { id: 'focuslist', icon: '🎯', title: 'Focus List', caption: 'Priority names', shortLabel: 'Focus' },
+  { id: 'valuebot', icon: '🤖', title: 'ValueBot', caption: 'Valuation copilot', shortLabel: 'Bot' },
+  { id: 'quadrant', icon: '🧭', title: 'Investing Universe', caption: '', shortLabel: 'Map' },
+  { id: 'portfolio', icon: '💼', title: 'Portfolio', caption: 'Results & ledger', hasSubmenu: true, shortLabel: 'Book' }
 ];
 
 const DemoBanner = () => (
@@ -2495,7 +2496,10 @@ const App = () => {
                     {runtimeConfig.isDemoMode && <DemoBanner />}
 
                     <div className="app-shell">
-                      <nav className="app-menu" aria-label="Primary">
+                      <nav
+                        className={`app-menu${!isMobileView ? ' app-menu--compact' : ''}`}
+                        aria-label="Primary"
+                      >
                         {isMobileView ? (
                       <div className="mobile-nav-shell">
                         <div className="mobile-nav-row" role="tablist">
@@ -2587,27 +2591,36 @@ const App = () => {
                             if (isDashboardItem && hasMorningNewsPing) {
                               caption = `${dashboardCaption} • Morning News`;
                             }
+                            const isActive = activeSection === item.id;
+                            const buttonClasses = ['menu-item'];
+                            if (isActive) {
+                              buttonClasses.push('active', 'menu-item--expanded');
+                            }
                             return (
                               <button
                                 key={item.id}
-                                className={`menu-item${activeSection === item.id ? ' active' : ''}`}
+                                className={buttonClasses.join(' ')}
                                 data-section={item.id}
                                 onClick={() => handleMenuSelection(item.id)}
+                                aria-expanded={isActive}
                               >
                                 {item.icon && (
                                   <span className="item-icon" aria-hidden="true">
                                     {item.icon}
                                   </span>
                                 )}
-                                <div className="item-copy">
-                                  <span className="item-title">{navTitle}</span>
-                                  <span className="item-caption">
-                                    {caption}
-                                    {isDashboardItem && hasMorningNewsPing && (
-                                      <span className="menu-alert-indicator" aria-hidden="true" />
-                                    )}
-                                  </span>
-                                </div>
+                                <span className="menu-item__label">{item.shortLabel ?? item.title}</span>
+                                {isActive && (
+                                  <div className="menu-item__details">
+                                    <span className="item-title">{navTitle}</span>
+                                    <span className="item-caption">
+                                      {caption || 'Explore more'}
+                                      {isDashboardItem && hasMorningNewsPing && (
+                                        <span className="menu-alert-indicator" aria-hidden="true" />
+                                      )}
+                                    </span>
+                                  </div>
+                                )}
                               </button>
                             );
                           }

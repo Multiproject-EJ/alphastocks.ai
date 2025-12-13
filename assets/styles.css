@@ -695,7 +695,7 @@ body[data-theme="light"] .overlay-card {
 
 .app-shell {
   display: grid;
-  grid-template-columns: 220px 1fr;
+  grid-template-columns: 150px 1fr;
   gap: 1.5rem;
   min-height: 600px;
   align-items: flex-start;
@@ -715,6 +715,18 @@ body[data-theme="light"] .overlay-card {
   max-height: calc(100vh - 3rem);
   height: calc(100vh - 3rem);
   align-self: flex-start;
+}
+
+.app-menu--compact {
+  max-width: 150px;
+  width: 100%;
+  padding: 1rem 0.85rem 0.85rem;
+  gap: 0.8rem;
+}
+
+.app-menu--compact .menu-stack {
+  gap: 0.45rem;
+  padding-right: 0;
 }
 
 .menu-stack {
@@ -893,6 +905,17 @@ body[data-theme="light"] .overlay-card {
   border: 1px solid transparent;
 }
 
+.app-menu--compact .menu-item {
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.5rem;
+  padding: 0.65rem 0.55rem;
+  border-color: var(--border);
+  background: var(--surface-alt);
+  transition: background var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast);
+}
+
 .menu-item:hover {
   border-color: var(--border);
 }
@@ -901,6 +924,14 @@ body[data-theme="light"] .overlay-card {
   background: var(--accent-soft);
   border-color: var(--accent);
   color: var(--accent);
+}
+
+.app-menu--compact .menu-item.active {
+  align-items: flex-start;
+  background: linear-gradient(145deg, rgba(79, 70, 229, 0.24), rgba(56, 189, 248, 0.18));
+  border-color: var(--accent);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.35);
+  transform: translateY(-1px);
 }
 
 .item-title {
@@ -921,6 +952,49 @@ body[data-theme="light"] .overlay-card {
 .menu-item.active .item-icon {
   background: var(--accent);
   color: #fff;
+}
+
+.app-menu--compact .menu-item .item-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  font-size: 1.15rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+}
+
+.app-menu--compact .menu-item.active .item-icon {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 0 0 6px rgba(79, 70, 229, 0.2);
+}
+
+.menu-item__label {
+  font-variant: small-caps;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.25rem;
+  width: 100%;
+  text-align: center;
+}
+
+.app-menu--compact .menu-item.active .menu-item__label {
+  color: var(--accent);
+  border-color: var(--accent);
+  text-shadow: 0 0 12px rgba(56, 189, 248, 0.55);
+}
+
+.menu-item__details {
+  display: none;
+  width: 100%;
+  text-align: left;
+  gap: 0.2rem;
+}
+
+.menu-item--expanded .menu-item__details {
+  display: grid;
 }
 
 .item-copy {
