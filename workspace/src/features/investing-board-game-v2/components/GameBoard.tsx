@@ -27,8 +27,10 @@ const GameBoard: FunctionalComponent = () => {
       </div>
       
       <div className="board-game-v2-board-note">
-        <p><strong>Note:</strong> This is a placeholder. Game components from the donor repository 
-        will be integrated here once access is available.</p>
+        <p>
+          <strong>Note:</strong> This is a placeholder. Game components from the 
+          donor repository will be integrated here once access is available.
+        </p>
       </div>
     </div>
   );

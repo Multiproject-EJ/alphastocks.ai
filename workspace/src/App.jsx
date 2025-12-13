@@ -434,6 +434,7 @@ const defaultValueBotTabLabel =
 const valueBotPrimaryTabLabels = valueBotTabs.slice(0, 2).map((tab) => tab.label);
 const valueBotModuleTabLabels = valueBotTabs.slice(2).map((tab) => tab.label);
 const ENABLE_BOARDGAME = true; // TODO: make this env/feature-flag driven
+const ENABLE_BOARDGAME_V2 = true; // TODO: make this env/feature-flag driven
 
 const sectionTabsById = {
   dashboard: dashboardTabs,
@@ -761,11 +762,18 @@ const App = () => {
     [todayLabel]
   );
   const dashboardCaption = 'Added to universe • Recently updated';
-  const mainNavigation = useMemo(
-    () => (ENABLE_BOARDGAME ? [boardGameNavItem, boardGameV2NavItem, ...baseNavigation] : baseNavigation),
-    []
-  );
-  const [activeSection, setActiveSection] = useState(ENABLE_BOARDGAME ? 'boardgame' : 'dashboard');
+  const mainNavigation = useMemo(() => {
+    const nav = [...baseNavigation];
+    if (ENABLE_BOARDGAME) {
+      nav.unshift(boardGameNavItem);
+    }
+    if (ENABLE_BOARDGAME_V2) {
+      nav.unshift(boardGameV2NavItem);
+    }
+    return nav;
+  }, []);
+  const defaultActiveSection = ENABLE_BOARDGAME_V2 ? 'boardgame-v2' : ENABLE_BOARDGAME ? 'boardgame' : 'dashboard';
+  const [activeSection, setActiveSection] = useState(defaultActiveSection);
   const [lastWorkspaceSection, setLastWorkspaceSection] = useState('dashboard');
   const [activeTabsBySection, setActiveTabsBySection] = useState(() => {
     const initialMap = {};
