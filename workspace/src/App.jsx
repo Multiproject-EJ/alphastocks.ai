@@ -13,6 +13,7 @@ import Module5TimingMomentum from './features/valuebot/modules/Module5TimingMome
 import Module6FinalVerdict from './features/valuebot/modules/Module6FinalVerdict.tsx';
 import BatchQueueTab from './features/valuebot/BatchQueueTab.tsx';
 import BoardGameApp from './features/boardgame/BoardGameApp.tsx';
+import BoardGameV2Page from './features/investing-board-game-v2/BoardGameV2Page.tsx';
 import {
   ValueBotContext,
   defaultPipelineProgress,
@@ -433,6 +434,7 @@ const defaultValueBotTabLabel =
 const valueBotPrimaryTabLabels = valueBotTabs.slice(0, 2).map((tab) => tab.label);
 const valueBotModuleTabLabels = valueBotTabs.slice(2).map((tab) => tab.label);
 const ENABLE_BOARDGAME = true; // TODO: make this env/feature-flag driven
+const ENABLE_BOARDGAME_V2 = true; // TODO: make this env/feature-flag driven
 
 const sectionTabsById = {
   dashboard: dashboardTabs,
@@ -440,7 +442,8 @@ const sectionTabsById = {
   quadrant: ['Universe', 'Universe Quadrant', 'Add Stocks'],
   checkin: ['Tab 1', 'Trading Journal', 'Tab 3', 'Tab 4', 'Tab 5'],
   focuslist: ['Focus List'],
-  boardgame: []
+  boardgame: [],
+  'boardgame-v2': []
 };
 
 const settingsNavItem = { id: 'settings', icon: '⚙️', shortLabel: 'Prefs' };
@@ -452,6 +455,14 @@ const boardGameNavItem = {
   title: 'MarketTycoon',
   caption: 'Board game sim',
   shortLabel: 'Game'
+};
+
+const boardGameV2NavItem = {
+  id: 'boardgame-v2',
+  icon: '🎯',
+  title: 'Board Game (V2)',
+  caption: 'Enhanced board game',
+  shortLabel: 'Game V2'
 };
 
 const baseNavigation = [
@@ -692,6 +703,11 @@ const staticSections = {
     meta: 'Board game-style investing simulation powered by ValueBot.',
     component: <BoardGameApp />
   },
+  'boardgame-v2': {
+    title: 'Board Game (V2)',
+    meta: 'Enhanced investing board game with new features and improved gameplay.',
+    component: <BoardGameV2Page />
+  },
   quadrant: {
     title: 'Investing Universe',
     meta: 'Map market regimes, capital at risk, and opportunity sets into one actionable quadrant.',
@@ -746,11 +762,20 @@ const App = () => {
     [todayLabel]
   );
   const dashboardCaption = 'Added to universe • Recently updated';
-  const mainNavigation = useMemo(
-    () => (ENABLE_BOARDGAME ? [boardGameNavItem, ...baseNavigation] : baseNavigation),
-    []
-  );
-  const [activeSection, setActiveSection] = useState(ENABLE_BOARDGAME ? 'boardgame' : 'dashboard');
+  const mainNavigation = useMemo(() => {
+    const nav = [];
+    // Board games appear first when enabled (V2 before legacy for prominence)
+    if (ENABLE_BOARDGAME_V2) {
+      nav.push(boardGameV2NavItem);
+    }
+    if (ENABLE_BOARDGAME) {
+      nav.push(boardGameNavItem);
+    }
+    nav.push(...baseNavigation);
+    return nav;
+  }, []);
+  const defaultActiveSection = ENABLE_BOARDGAME_V2 ? 'boardgame-v2' : ENABLE_BOARDGAME ? 'boardgame' : 'dashboard';
+  const [activeSection, setActiveSection] = useState(defaultActiveSection);
   const [lastWorkspaceSection, setLastWorkspaceSection] = useState('dashboard');
   const [activeTabsBySection, setActiveTabsBySection] = useState(() => {
     const initialMap = {};
@@ -1886,6 +1911,13 @@ const App = () => {
       return {
         ...staticSections.boardgame,
         component: <BoardGameApp onOpenProTools={openProToolsWorkspace} />
+      };
+    }
+
+    if (activeSection === 'boardgame-v2') {
+      return {
+        ...staticSections['boardgame-v2'],
+        component: <BoardGameV2Page />
       };
     }
 
