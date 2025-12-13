@@ -712,9 +712,9 @@ body[data-theme="light"] .overlay-card {
   box-shadow: var(--shadow-soft);
   position: sticky;
   top: 1.5rem;
-  max-height: calc(100vh - 3rem);
-  height: calc(100vh - 3rem);
   align-self: flex-start;
+  max-height: none;
+  height: auto;
 }
 
 .app-menu--compact {
@@ -732,9 +732,8 @@ body[data-theme="light"] .overlay-card {
 .menu-stack {
   display: grid;
   gap: 0.6rem;
-  overflow-y: auto;
-  padding-right: 0.25rem;
-  flex: 1;
+  overflow: visible;
+  padding-right: 0;
 }
 
 .menu-footer {
