@@ -1,5 +1,5 @@
 import { FunctionalComponent } from 'preact';
-import { useEffect, useState } from 'preact/hooks';
+import { useState } from 'preact/hooks';
 import type { BoardTile } from './components/BoardRoot';
 import BoardRoot from './components/BoardRoot';
 import CenterPanels from './components/CenterPanels';
@@ -198,9 +198,7 @@ const BoardGameV2Page: FunctionalComponent = () => {
   const [cash, setCash] = useState<number>(100_000);
   const [startingNetWorth] = useState<number>(100_000);
   const [holdings, setHoldings] = useState<Holding[]>([]);
-  const [turnHistory, setTurnHistory] = useState<number[]>([]);
   const [lastLandedTile, setLastLandedTile] = useState<BoardTile | null>(null);
-  const [lastRollValue, setLastRollValue] = useState<number | null>(null);
   const [candidateStock, setCandidateStock] = useState<CandidateStock | null>(null);
   const [stars, setStars] = useState<number>(0);
   const [thriftyOffer, setThriftyOffer] = useState<ThriftyPath[] | null>(null);
@@ -214,11 +212,6 @@ const BoardGameV2Page: FunctionalComponent = () => {
 
   const totalNetWorth = cash + totalPortfolioValue;
 
-  useEffect(() => {
-    if (!lastLandedTile) return;
-    setTurnHistory((prev) => [...prev, totalNetWorth]);
-  }, [lastLandedTile, totalNetWorth]);
-
   function pickRandomUnique<T>(arr: T[], count: number): T[] {
     const copy = [...arr];
     const out: T[] = [];
@@ -231,7 +224,6 @@ const BoardGameV2Page: FunctionalComponent = () => {
 
   const handleTileLanded = (tile: BoardTile, index: number, rollValue: number) => {
     setLastLandedTile(tile);
-    setLastRollValue(rollValue);
 
     if (tile.type === 'category') {
       const mockPrice = 100 + index * 3;
@@ -267,9 +259,7 @@ const BoardGameV2Page: FunctionalComponent = () => {
   };
 
   const handlePassStock = () => {
-    // For now we keep candidateStock visible; no state change required.
-    // eslint-disable-next-line no-console
-    console.log('Pass on stock');
+    // Stock was passed - candidate stock remains visible for this turn
   };
 
   const handleBuyStock = (size: 'small' | 'medium' | 'large') => {
