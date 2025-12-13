@@ -7,7 +7,7 @@ const CORE_ASSETS = [
   '/assets/styles.css',
   '/assets/main.js',
   '/assets/pwa.js',
-  '/assets/favicon.png',
+  '/assets/favicon.svg',
   '/manifest.webmanifest',
   '/public/manifest.webmanifest',
   '/icons/icon-192x192.svg',
