@@ -2423,10 +2423,15 @@ const App = () => {
               aria-haspopup="dialog"
               aria-expanded={isProToolsOpen}
               aria-pressed={isProToolsOpen}
-              aria-label="Toggle Pro Tools workspace"
+              aria-label={isProToolsOpen ? 'Close Pro Tools workspace' : 'Open Pro Tools workspace'}
             >
               <span className="pro-toggle__indicator" aria-hidden="true" />
-              Pro Tools
+              <span className="pro-toggle__label">Pro Tools</span>
+              {isProToolsOpen && (
+                <span className="pro-toggle__close" aria-hidden="true" role="presentation">
+                  ✕
+                </span>
+              )}
             </button>
 
             <div className="pro-toggle-actions" role="group" aria-label="Workspace quick actions">
@@ -2475,14 +2480,6 @@ const App = () => {
                     <p className="detail-meta">Workspace</p>
                     <h2>Pro Tools</h2>
                   </div>
-                  <button
-                    type="button"
-                    className="btn-secondary"
-                    onClick={() => setIsProToolsOpen(false)}
-                    aria-label="Close Pro Tools"
-                  >
-                    Close
-                  </button>
                 </header>
                 <div className="pro-overlay__content">
                   <section className="app" aria-live="polite">

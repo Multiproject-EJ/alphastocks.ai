@@ -1003,7 +1003,7 @@ body[data-theme='dark'] {
   justify-content: flex-end;
 }
 
-.pro-toggle {
+.pro-toggle { 
   position: relative;
   background: rgba(18, 24, 40, 0.9);
   color: #e2e8f0;
@@ -1019,6 +1019,12 @@ body[data-theme='dark'] {
   transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease, border-color 160ms ease;
 }
 
+.pro-toggle__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
 .pro-toggle__indicator {
   width: 10px;
   height: 10px;
@@ -1032,6 +1038,21 @@ body[data-theme='dark'] {
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
+}
+
+.pro-toggle__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.85rem;
+  height: 1.85rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(15, 23, 42, 0.8);
+  color: #e2e8f0;
+  font-size: 0.9rem;
+  line-height: 1;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.4);
 }
 
 .pro-action-button {
@@ -1078,6 +1099,12 @@ body[data-theme='dark'] {
   border-color: rgba(74, 222, 128, 0.6);
   color: #ecfeff;
   box-shadow: 0 0 0 1px rgba(74, 222, 128, 0.35), 0 20px 45px rgba(22, 163, 74, 0.45);
+}
+
+.pro-toggle.active .pro-toggle__close {
+  border-color: rgba(74, 222, 128, 0.55);
+  background: rgba(34, 197, 94, 0.16);
+  color: #f0fdf4;
 }
 
 .workspace-status {
