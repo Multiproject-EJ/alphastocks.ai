@@ -430,6 +430,8 @@ Return JSON containing:
 const defaultValueBotTabId = 'valuebot-quicktake';
 const defaultValueBotTabLabel =
   valueBotTabs.find((tab) => tab.id === defaultValueBotTabId)?.label ?? valueBotTabs[0].label;
+const valueBotPrimaryTabLabels = valueBotTabs.slice(0, 2).map((tab) => tab.label);
+const valueBotModuleTabLabels = valueBotTabs.slice(2).map((tab) => tab.label);
 const ENABLE_BOARDGAME = true; // TODO: make this env/feature-flag driven
 
 const sectionTabsById = {
@@ -2148,24 +2150,28 @@ const App = () => {
       <>
         <h2>{section.title}</h2>
         {section.meta && <p className="detail-meta">{section.meta}</p>}
-        <div className="detail-card" data-size="wide">
-          <header className="list-header">
-            <h3>Today&apos;s focus</h3>
-            <button className="btn-tertiary" type="button" disabled>
-              + Add
-            </button>
-          </header>
-          <ul className="list-items">
-            {focusList.map((item, index) => (
-              <li key={item.id} className={`list-item${index === 0 ? ' active' : ''}`}>
-                <div>
-                  <strong>{item.title}</strong>
-                  <span>{item.caption}</span>
-                </div>
-                <span className={`tag ${item.tag?.tone || ''}`.trim()}>{item.tag?.label ?? 'Watch'}</span>
-              </li>
-            ))}
-          </ul>
+        <div className="detail-grid detail-grid--dashboard">
+          {[0, 1, 2].map((index) => (
+            <div className="detail-card" data-size="third" key={`focus-column-${index}`}>
+              <header className="list-header">
+                <h3>Today&apos;s focus</h3>
+                <button className="btn-tertiary" type="button" disabled>
+                  + Add
+                </button>
+              </header>
+              <ul className="list-items">
+                {focusList.map((item, itemIndex) => (
+                  <li key={`${item.id}-${index}`} className={`list-item${itemIndex === 0 ? ' active' : ''}`}>
+                    <div>
+                      <strong>{item.title}</strong>
+                      <span>{item.caption}</span>
+                    </div>
+                    <span className={`tag ${item.tag?.tone || ''}`.trim()}>{item.tag?.label ?? 'Watch'}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
       </>
     );
@@ -2284,6 +2290,70 @@ const App = () => {
           <p>This tab is reserved for future {section.title} content.</p>
         </div>
       </>
+    );
+  };
+
+  const renderTabButton = (tab) => {
+    const valueBotTabConfig =
+      activeSection === 'valuebot'
+        ? valueBotTabs.find((item) => item.label === tab || item.id === tab)
+        : null;
+
+    const displayLabel = valueBotTabConfig?.label ?? tab;
+    const fullLabel = valueBotTabConfig?.fullLabel ?? valueBotTabConfig?.title ?? tab;
+
+    const tabClasses = ['tab'];
+    if (activeTab === tab) tabClasses.push('active');
+    if (valueBotTabConfig) {
+      tabClasses.push('valuebot-tab');
+      if (valueBotTabConfig.id === 'valuebot-batch-queue') {
+        tabClasses.push('valuebot-tab--batch');
+      }
+      if (valueBotTabConfig.id === 'valuebot-quicktake') {
+        tabClasses.push('valuebot-tab--quicktake');
+      }
+    }
+
+    return (
+      <button
+        key={tab}
+        className={tabClasses.join(' ')}
+        role="tab"
+        aria-selected={activeTab === tab}
+        onClick={() => handleTabSelection(tab)}
+        type="button"
+        aria-label={fullLabel}
+      >
+        <span className="tab__label-short">{displayLabel}</span>
+        {fullLabel && fullLabel !== displayLabel ? (
+          <span className="tab__label-full" role="tooltip">
+            {fullLabel}
+          </span>
+        ) : null}
+      </button>
+    );
+  };
+
+  const renderTabs = () => {
+    if (!hasTabs) return null;
+
+    if (activeSection === 'valuebot') {
+      return (
+        <div className="valuebot-tab-groups" role="presentation">
+          <div className="app-tabs valuebot-tab-row" role="tablist" aria-label="ValueBot quick actions">
+            {valueBotPrimaryTabLabels.map(renderTabButton)}
+          </div>
+          <div className="app-tabs valuebot-tab-row valuebot-tab-row--modules" role="tablist" aria-label="ValueBot modules">
+            {valueBotModuleTabLabels.map(renderTabButton)}
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="app-tabs" role="tablist">
+        {tabsForSection.map(renderTabButton)}
+      </div>
     );
   };
 
@@ -2619,50 +2689,7 @@ const App = () => {
                   </nav>
 
                   <div className="workspace" id="workspace">
-                    {hasTabs && (
-                      <div className="app-tabs" role="tablist">
-                        {tabsForSection.map((tab) => {
-                          const valueBotTabConfig =
-                            activeSection === 'valuebot'
-                              ? valueBotTabs.find((item) => item.label === tab || item.id === tab)
-                              : null;
-
-                          const displayLabel = valueBotTabConfig?.label ?? tab;
-                          const fullLabel = valueBotTabConfig?.fullLabel ?? valueBotTabConfig?.title ?? tab;
-
-                          const tabClasses = ['tab'];
-                          if (activeTab === tab) tabClasses.push('active');
-                          if (valueBotTabConfig) {
-                            tabClasses.push('valuebot-tab');
-                            if (valueBotTabConfig.id === 'valuebot-batch-queue') {
-                              tabClasses.push('valuebot-tab--batch');
-                            }
-                            if (valueBotTabConfig.id === 'valuebot-quicktake') {
-                              tabClasses.push('valuebot-tab--quicktake');
-                            }
-                          }
-
-                          return (
-                            <button
-                              key={tab}
-                              className={tabClasses.join(' ')}
-                              role="tab"
-                              aria-selected={activeTab === tab}
-                              onClick={() => handleTabSelection(tab)}
-                              type="button"
-                              aria-label={fullLabel}
-                            >
-                              <span className="tab__label-short">{displayLabel}</span>
-                              {fullLabel && fullLabel !== displayLabel ? (
-                                <span className="tab__label-full" role="tooltip">
-                                  {fullLabel}
-                                </span>
-                              ) : null}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    )}
+                    {renderTabs()}
 
                     <div className="app-panels">
                       <section className="app-detail" aria-label="Detail">
