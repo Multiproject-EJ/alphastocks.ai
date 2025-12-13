@@ -96,6 +96,7 @@ const valueBotTabs = [
   {
     id: 'valuebot-batch-queue',
     label: 'Batch Queue',
+    fullLabel: 'Batch Queue — Deep-Dive Job Manager',
     title: 'Batch Queue — Deep-Dive Job Manager',
     description: 'Add, monitor, and maintain jobs in the ValueBot deep-dive batch worker queue.',
     component: BatchQueueTab,
@@ -108,6 +109,7 @@ const valueBotTabs = [
   {
     id: 'valuebot-quicktake',
     label: 'QuickTake',
+    fullLabel: 'QuickTake',
     title: 'QuickTake',
     description: 'One-glance summary of the company’s setup, latest signals, and what to tackle next.',
     component: AIAnalysis,
@@ -119,7 +121,8 @@ const valueBotTabs = [
   },
   {
     id: 'valuebot-data-loader',
-    label: 'MODULE 0 — Data Loader (Pre-Step)',
+    label: '0.Data',
+    fullLabel: 'MODULE 0 — Data Loader (Pre-Step)',
     title: 'MODULE 0 — Data Loader (Pre-Step)',
     description: 'Aggregate raw inputs before any analysis starts so the copilot has a clean foundation.',
     component: Module0DataLoader,
@@ -150,7 +153,8 @@ This data is then passed to all modules.`
   },
   {
     id: 'valuebot-core-diagnostics',
-    label: 'MODULE 1 — Core Risk & Quality Diagnostics',
+    label: 'Core',
+    fullLabel: 'MODULE 1 — Core Risk & Quality Diagnostics',
     title: 'MODULE 1 — Core Risk & Quality Diagnostics',
     description: 'Assess durability, governance, and downside guardrails before sizing conviction.',
     component: Module1CoreDiagnostics,
@@ -196,7 +200,8 @@ Rules:
   },
   {
     id: 'valuebot-growth-engine',
-    label: 'MODULE 2 — Business Model & Growth Engine',
+    label: 'Business',
+    fullLabel: 'MODULE 2 — Business Model & Growth Engine',
     title: 'MODULE 2 — Business Model & Growth Engine',
     description: 'Map how revenue, unit economics, and reinvestment create or erode advantage.',
     component: Module2GrowthEngine,
@@ -246,7 +251,8 @@ Return JSON:
   },
   {
     id: 'valuebot-scenario-engine',
-    label: 'MODULE 3 — Scenario Engine (Bear / Base / Bull)',
+    label: 'Scenarios',
+    fullLabel: 'MODULE 3 — Scenario Engine (Bear / Base / Bull)',
     title: 'MODULE 3 — Scenario Engine (Bear / Base / Bull)',
     description: 'Spin parallel futures with transparent assumptions for quick “what if” pivots.',
     component: Module3ScenarioEngine,
@@ -296,7 +302,8 @@ Create Bear, Base, and Bull scenarios with this JSON:
   },
   {
     id: 'valuebot-valuation-engine',
-    label: 'MODULE 4 — Valuation Engine (DCF + Reverse Engineering)',
+    label: 'Valuation',
+    fullLabel: 'MODULE 4 — Valuation Engine (DCF + Reverse Engineering)',
     title: 'MODULE 4 — Valuation Engine (DCF + Reverse Engineering)',
     description: 'Translate scenarios into intrinsic value ranges with forward and reverse math.',
     component: Module4ValuationEngine,
@@ -340,7 +347,8 @@ Return JSON:
   },
   {
     id: 'valuebot-timing-momentum',
-    label: 'MODULE 5 — Timing & Momentum',
+    label: 'Timing',
+    fullLabel: 'MODULE 5 — Timing & Momentum',
     title: 'MODULE 5 — Timing & Momentum',
     description: 'Blend technicals, catalysts, and positioning data to calibrate entry points.',
     component: Module5TimingMomentum,
@@ -381,7 +389,8 @@ Return JSON:
   },
   {
     id: 'valuebot-final-verdict',
-    label: 'MODULE 6 — Final Verdict Synthesizer',
+    label: 'Verdict',
+    fullLabel: 'MODULE 6 — Final Verdict Synthesizer',
     title: 'MODULE 6 — Final Verdict Synthesizer',
     description: 'Roll up the entire workbook into a crisp decision-ready brief.',
     component: Module6FinalVerdict,
@@ -2616,6 +2625,9 @@ const App = () => {
                               ? valueBotTabs.find((item) => item.label === tab || item.id === tab)
                               : null;
 
+                          const displayLabel = valueBotTabConfig?.label ?? tab;
+                          const fullLabel = valueBotTabConfig?.fullLabel ?? valueBotTabConfig?.title ?? tab;
+
                           const tabClasses = ['tab'];
                           if (activeTab === tab) tabClasses.push('active');
                           if (valueBotTabConfig) {
@@ -2636,8 +2648,14 @@ const App = () => {
                               aria-selected={activeTab === tab}
                               onClick={() => handleTabSelection(tab)}
                               type="button"
+                              aria-label={fullLabel}
                             >
-                              {tab}
+                              <span className="tab__label-short">{displayLabel}</span>
+                              {fullLabel && fullLabel !== displayLabel ? (
+                                <span className="tab__label-full" role="tooltip">
+                                  {fullLabel}
+                                </span>
+                              ) : null}
                             </button>
                           );
                         })}
