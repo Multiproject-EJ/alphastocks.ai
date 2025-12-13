@@ -1,4 +1,5 @@
 import { FunctionalComponent } from 'preact';
+import GameBoard from './components/GameBoard';
 import './styles/BoardGameV2Page.css';
 
 /**
@@ -18,10 +19,7 @@ const BoardGameV2Page: FunctionalComponent = () => {
       </header>
       
       <div className="board-game-v2-container">
-        {/* Game components will be added here in Step 2 */}
-        <div className="board-game-v2-placeholder">
-          <p>Board game content will be loaded here</p>
-        </div>
+        <GameBoard />
       </div>
     </div>
   );
