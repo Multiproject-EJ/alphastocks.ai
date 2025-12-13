@@ -1510,7 +1510,11 @@ const App = () => {
 
   useEffect(() => {
     if (activeSection === 'boardgame-v3') {
-      window.location.href = '/board-game-v3/';
+      // Provide a slight delay to show the loading message before redirect
+      const timer = setTimeout(() => {
+        window.location.assign('/board-game-v3/');
+      }, 500);
+      return () => clearTimeout(timer);
     }
   }, [activeSection]);
 
