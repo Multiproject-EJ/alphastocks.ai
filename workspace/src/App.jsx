@@ -972,11 +972,9 @@ const App = () => {
   };
 
   const handleExitBoardGameFullscreen = useCallback(() => {
-    setIsBoardGameFullscreen(false);
-    setActiveSection((current) =>
-      current === 'boardgame' ? lastWorkspaceSection || 'dashboard' : current
-    );
-  }, [lastWorkspaceSection]);
+    focusDashboardWorkspace();
+    setIsProToolsOpen(true);
+  }, [focusDashboardWorkspace]);
 
   const handleValueBotContextUpdate = useCallback((updates) => {
     setValueBotContext((prev) => ({
