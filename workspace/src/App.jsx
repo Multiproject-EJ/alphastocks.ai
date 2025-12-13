@@ -763,13 +763,15 @@ const App = () => {
   );
   const dashboardCaption = 'Added to universe • Recently updated';
   const mainNavigation = useMemo(() => {
-    const nav = [...baseNavigation];
-    if (ENABLE_BOARDGAME) {
-      nav.unshift(boardGameNavItem);
-    }
+    const nav = [];
+    // Board games appear first when enabled (V2 before legacy for prominence)
     if (ENABLE_BOARDGAME_V2) {
-      nav.unshift(boardGameV2NavItem);
+      nav.push(boardGameV2NavItem);
     }
+    if (ENABLE_BOARDGAME) {
+      nav.push(boardGameNavItem);
+    }
+    nav.push(...baseNavigation);
     return nav;
   }, []);
   const defaultActiveSection = ENABLE_BOARDGAME_V2 ? 'boardgame-v2' : ENABLE_BOARDGAME ? 'boardgame' : 'dashboard';
