@@ -157,4 +157,19 @@ summary, etc.), ensuring JSON responses instead of HTML.
 - Production build: `npm run build` outputs to `dist/`. Preview with `npm run preview`.
 - Copy `workspace/.env.example` to `workspace/.env` and populate Supabase keys to enable live mode; otherwise the workspace boots in demo data mode automatically.
 
+### Board Game V3 (Standalone Vite App)
+The investing board game V3 is a standalone Vite application located at `apps/investing-board-game-v3/`.
+
+#### Building and Deploying V3 Board Game
+- **Build**: Run `npm run build:board-game-v3` from the repository root. This will:
+  - Install dependencies in `apps/investing-board-game-v3/`
+  - Build the Vite app with base path `/board-game-v3/`
+  - Copy the built files to `public/board-game-v3/`
+- **Access**: Once built and deployed, the app is accessible at `/board-game-v3/` on your hosting platform.
+- **Development**: To develop the V3 board game in isolation:
+  - Navigate to `apps/investing-board-game-v3/`
+  - Run `npm install` (if not already installed)
+  - Run `npm run dev` to start the development server
+- **Navigation**: The AlphaStocks workspace includes a navigation item labeled "Board Game (V3 – Standalone)" that redirects to `/board-game-v3/`.
+
 _Last updated: 2025-11-01T03:45Z_

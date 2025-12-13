@@ -435,6 +435,7 @@ const valueBotPrimaryTabLabels = valueBotTabs.slice(0, 2).map((tab) => tab.label
 const valueBotModuleTabLabels = valueBotTabs.slice(2).map((tab) => tab.label);
 const ENABLE_BOARDGAME = true; // TODO: make this env/feature-flag driven
 const ENABLE_BOARDGAME_V2 = true; // TODO: make this env/feature-flag driven
+const ENABLE_BOARDGAME_V3 = true; // TODO: make this env/feature-flag driven
 
 const sectionTabsById = {
   dashboard: dashboardTabs,
@@ -443,7 +444,8 @@ const sectionTabsById = {
   checkin: ['Tab 1', 'Trading Journal', 'Tab 3', 'Tab 4', 'Tab 5'],
   focuslist: ['Focus List'],
   boardgame: [],
-  'boardgame-v2': []
+  'boardgame-v2': [],
+  'boardgame-v3': []
 };
 
 const settingsNavItem = { id: 'settings', icon: '⚙️', shortLabel: 'Prefs' };
@@ -463,6 +465,14 @@ const boardGameV2NavItem = {
   title: 'Board Game (V2)',
   caption: 'Enhanced board game',
   shortLabel: 'Game V2'
+};
+
+const boardGameV3NavItem = {
+  id: 'boardgame-v3',
+  icon: '🎮',
+  title: 'Board Game (V3 – Standalone)',
+  caption: 'Standalone Vite app',
+  shortLabel: 'Game V3'
 };
 
 const baseNavigation = [
@@ -708,6 +718,12 @@ const staticSections = {
     meta: 'Enhanced investing board game with new features and improved gameplay.',
     component: <BoardGameV2Page />
   },
+  'boardgame-v3': {
+    title: 'Board Game (V3 – Standalone)',
+    meta: 'Standalone Vite app for the investing board game experience.',
+    isExternal: true,
+    externalPath: '/board-game-v3/'
+  },
   quadrant: {
     title: 'Investing Universe',
     meta: 'Map market regimes, capital at risk, and opportunity sets into one actionable quadrant.',
@@ -765,6 +781,9 @@ const App = () => {
   const mainNavigation = useMemo(() => {
     const nav = [];
     // Board games appear first when enabled (V2 before legacy for prominence)
+    if (ENABLE_BOARDGAME_V3) {
+      nav.push(boardGameV3NavItem);
+    }
     if (ENABLE_BOARDGAME_V2) {
       nav.push(boardGameV2NavItem);
     }
@@ -774,7 +793,7 @@ const App = () => {
     nav.push(...baseNavigation);
     return nav;
   }, []);
-  const defaultActiveSection = ENABLE_BOARDGAME_V2 ? 'boardgame-v2' : ENABLE_BOARDGAME ? 'boardgame' : 'dashboard';
+  const defaultActiveSection = ENABLE_BOARDGAME_V3 ? 'boardgame-v3' : ENABLE_BOARDGAME_V2 ? 'boardgame-v2' : ENABLE_BOARDGAME ? 'boardgame' : 'dashboard';
   const [activeSection, setActiveSection] = useState(defaultActiveSection);
   const [lastWorkspaceSection, setLastWorkspaceSection] = useState('dashboard');
   const [activeTabsBySection, setActiveTabsBySection] = useState(() => {
@@ -1490,6 +1509,16 @@ const App = () => {
   }, [isAccountDialogOpen, isSettingsDialogOpen]);
 
   useEffect(() => {
+    if (activeSection === 'boardgame-v3') {
+      // Provide a slight delay to show the loading message before redirect
+      const timer = setTimeout(() => {
+        window.location.assign('/board-game-v3/');
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [activeSection]);
+
+  useEffect(() => {
     if (!isProToolsOpen) return undefined;
 
     const handleKeyDown = (event) => {
@@ -1921,6 +1950,12 @@ const App = () => {
       };
     }
 
+    if (activeSection === 'boardgame-v3') {
+      return {
+        ...staticSections['boardgame-v3']
+      };
+    }
+
     return staticSections[activeSection] ?? staticSections.checkin;
   }, [
     activeSection,
@@ -1941,23 +1976,40 @@ const App = () => {
     dashboardCaption
   ]);
 
-  const renderDefaultSection = () => (
-    <>
-      <h2>{section.title}</h2>
-      {section.meta && <p className="detail-meta">{section.meta}</p>}
-      {section.cards && section.cards.length > 0 && (
-        <div className={`detail-grid${section.layout ? ` detail-grid--${section.layout}` : ''}`}>
-          {section.cards.map((card) => (
-            <div key={card.title} className="detail-card" data-size={card.size}>
-              <h3>{card.title}</h3>
-              {card.body}
-            </div>
-          ))}
-        </div>
-      )}
-      {section.component && <div className="detail-component">{section.component}</div>}
-    </>
-  );
+  const renderDefaultSection = () => {
+    if (section.isExternal) {
+      return (
+        <>
+          <h2>{section.title}</h2>
+          {section.meta && <p className="detail-meta">{section.meta}</p>}
+          <div className="detail-card">
+            <p>Redirecting to standalone app...</p>
+            <p className="detail-meta">
+              If you are not redirected automatically, <a href={section.externalPath}>click here</a>.
+            </p>
+          </div>
+        </>
+      );
+    }
+
+    return (
+      <>
+        <h2>{section.title}</h2>
+        {section.meta && <p className="detail-meta">{section.meta}</p>}
+        {section.cards && section.cards.length > 0 && (
+          <div className={`detail-grid${section.layout ? ` detail-grid--${section.layout}` : ''}`}>
+            {section.cards.map((card) => (
+              <div key={card.title} className="detail-card" data-size={card.size}>
+                <h3>{card.title}</h3>
+                {card.body}
+              </div>
+            ))}
+          </div>
+        )}
+        {section.component && <div className="detail-component">{section.component}</div>}
+      </>
+    );
+  };
 
   const renderUniverseTable = () => {
     if (universeIsLoading) {

@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "generate:seed": "node workspace/scripts/generateSupabaseSeed.js"
+    "generate:seed": "node workspace/scripts/generateSupabaseSeed.js",
+    "build:board-game-v3": "cd apps/investing-board-game-v3 && npm install && npm run build && cd ../.. && rm -rf public/board-game-v3 && mkdir -p public/board-game-v3 && cp -r apps/investing-board-game-v3/dist/* public/board-game-v3/"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",
