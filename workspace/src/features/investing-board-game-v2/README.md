@@ -2,16 +2,27 @@
 
 ## Overview
 
-This feature module contains the new version of the Investing Board Game, integrated from the donor repository `Multiproject-EJ/investing-board-game`. It is designed to coexist with the legacy board game feature located at `workspace/src/features/boardgame/BoardGameApp.tsx`.
+This feature module contains the new version of the Investing Board Game, integrated from the legacy board game feature. It is designed to coexist with the legacy board game feature located at `workspace/src/features/boardgame/BoardGameApp.tsx`.
 
 ## Structure
 
 ```
 investing-board-game-v2/
-├── BoardGameV2Page.tsx      # Main page component
+├── BoardGameV2Page.tsx      # Main page component with game logic
 ├── components/              # Game-specific components
+│   ├── AvatarToken.tsx      # Player token visual
+│   ├── BoardRoot.tsx        # Main board with tiles and dice
+│   ├── CenterPanels.tsx     # Side panels with game state
+│   ├── Dice.tsx             # Dice rolling component
+│   └── WealthThrone.tsx     # Center display showing performance
 ├── styles/                  # Scoped CSS files
-│   └── BoardGameV2Page.css # Main page styles
+│   ├── AvatarToken.css
+│   ├── BoardGameV2Page.css  # Main page styles
+│   ├── BoardRoot.css
+│   ├── CenterPanels.css
+│   ├── Dice.css
+│   ├── GameBoard.css        # Legacy placeholder styles (unused)
+│   └── WealthThrone.css
 ├── index.ts                 # Module exports
 └── README.md               # This file
 ```
@@ -21,7 +32,8 @@ investing-board-game-v2/
 - **Scoped Styling**: All styles use `.board-game-v2-` prefix to avoid conflicts
 - **TypeScript Support**: Written in TypeScript for type safety
 - **Preact Compatible**: Uses Preact's FunctionalComponent types
-- **Dark Theme Support**: Includes dark theme CSS variables
+- **Dark Theme**: Styled with dark theme colors for consistency
+- **Full Game Logic**: Complete board game with stocks, thrifty paths, and wealth tracking
 
 ## Integration Points
 
@@ -31,41 +43,52 @@ This feature is integrated into the main application navigation. Users can acces
 ### Coexistence with Legacy
 The legacy board game (`BoardGameApp.tsx`) remains functional and accessible. Both versions can run simultaneously without conflicts.
 
+## Game Features
+
+### Board Game Mechanics
+- 13-tile board with corners, categories, and events
+- Dice rolling to move around the board
+- Land on tiles to trigger actions
+
+### Stock Trading
+- Buy stocks when landing on category tiles
+- Three position sizes: small (2%), medium (5%), large (10%)
+- Track portfolio holdings and net worth
+
+### Thrifty Path System
+- Earn stars by completing thrifty challenges
+- 21 different thrifty path options
+- Random selection of 5 paths when triggered
+
+### Wealth Tracking
+- Visual wealth throne showing performance
+- Track cash, portfolio value, and total net worth
+- Holdings table with detailed position info
+
 ## Dependencies
 
-Currently uses only standard dependencies from the host repository:
+Uses only standard dependencies from the host repository:
 - `preact`: ^10.19.3
 
-### New Dependencies (if any)
-_To be documented as components are ported from the donor repository in Step 2._
+No additional dependencies required.
 
 ## Development Notes
 
-### Step 1 (Completed)
+### Completed
 - ✅ Created feature module skeleton
-- ✅ Added placeholder component with scoped styles
+- ✅ Ported all components from legacy boardgame feature
+- ✅ Applied scoped V2 styling to all components
+- ✅ Integrated full game logic into BoardGameV2Page
 - ✅ Set up module exports
-
-### Step 2 (In Progress)
-- ⚠️ Donor repository `Multiproject-EJ/investing-board-game` requires authentication
-- ✅ Created placeholder GameBoard component
-- ⏳ Awaiting access to donor repository to port actual UI components
-- ⏳ Will document any new dependencies once components are ported
-
-**Current Status**: A minimal placeholder GameBoard component has been created to demonstrate the integration pattern. Once access to the donor repository is available, the actual game components will be ported.
-
-### Step 3 (Completed)
-- ✅ Add navigation entry
-- ✅ Test coexistence with legacy board game
 
 ## Style Guidelines
 
-All CSS classes must be prefixed with `board-game-v2-` to maintain style isolation. Example:
+All CSS classes are prefixed with `board-game-v2-` to maintain style isolation. Example:
 
 ```css
 .board-game-v2-root { }
 .board-game-v2-header { }
-.board-game-v2-container { }
+.board-game-v2-tile { }
 ```
 
 ## Usage
@@ -79,7 +102,10 @@ import BoardGameV2Page from './features/investing-board-game-v2';
 
 ## Testing
 
-_Testing instructions will be added as the feature develops._
+The feature can be tested by:
+1. Building the application with `npm run build`
+2. Running dev server with `npm run dev`
+3. Navigating to the Board Game (V2) section
 
 ## License
 

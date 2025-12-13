@@ -8,57 +8,61 @@
 .board-game-v2-root {
   width: 100%;
   height: 100%;
-  padding: 2rem;
-  box-sizing: border-box;
+  background: #020617;
+  color: #f5f5f5;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .board-game-v2-header {
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.board-game-v2-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  background: rgba(148, 163, 184, 0.2);
+  color: rgba(245, 245, 245, 0.9);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
 }
 
 .board-game-v2-header h1 {
-  font-size: 2rem;
-  font-weight: 600;
-  margin: 0 0 0.5rem 0;
-  color: var(--color-text-primary, #1a1a1a);
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0.5rem 0 0.25rem 0;
+  color: #f5f5f5;
 }
 
 .board-game-v2-subtitle {
-  font-size: 1rem;
-  color: var(--color-text-secondary, #666);
+  font-size: 0.95rem;
+  color: rgba(245, 245, 245, 0.8);
   margin: 0;
 }
 
-.board-game-v2-container {
-  background: var(--color-bg-secondary, #f5f5f5);
-  border-radius: 8px;
-  padding: 2rem;
-  min-height: 400px;
+.board-game-v2-layout {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  gap: 1.5rem;
+  align-items: flex-start;
+  flex-wrap: wrap;
 }
 
-.board-game-v2-placeholder {
-  text-align: center;
-  color: var(--color-text-secondary, #666);
+.board-game-v2-board-column {
+  flex: 2;
+  width: 100%;
+  min-width: min(100%, 640px);
+  max-width: 980px;
+  margin-inline: auto;
 }
 
-.board-game-v2-placeholder p {
-  margin: 0;
-  font-size: 1.125rem;
-}
-
-/* Dark theme support */
-[data-theme='dark'] .board-game-v2-header h1 {
-  color: var(--color-text-primary, #ffffff);
-}
-
-[data-theme='dark'] .board-game-v2-subtitle,
-[data-theme='dark'] .board-game-v2-placeholder {
-  color: var(--color-text-secondary, #aaa);
-}
-
-[data-theme='dark'] .board-game-v2-container {
-  background: var(--color-bg-secondary, #2a2a2a);
+.board-game-v2-panel-column {
+  flex: 1.25;
+  width: 100%;
+  min-width: 320px;
 }

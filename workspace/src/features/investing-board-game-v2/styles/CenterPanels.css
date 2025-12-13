@@ -1,0 +1,178 @@
+/**
+ * CenterPanels Component Styles - Scoped to board-game-v2
+ */
+
+.board-game-v2-panels {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.board-game-v2-panel {
+  background: linear-gradient(145deg, #0f172a, #020617);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.board-game-v2-panel-heading {
+  margin: 0 0 1rem 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #f5f5f5;
+}
+
+.board-game-v2-panel-text {
+  color: rgba(245, 245, 245, 0.9);
+  line-height: 1.5;
+}
+
+.board-game-v2-text-muted {
+  opacity: 0.75;
+}
+
+.board-game-v2-summary {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.75rem;
+}
+
+.board-game-v2-summary-item {
+  min-width: 160px;
+}
+
+.board-game-v2-label {
+  font-size: 0.875rem;
+  color: rgba(245, 245, 245, 0.7);
+  margin-bottom: 0.25rem;
+  font-weight: 500;
+}
+
+.board-game-v2-label-uppercase {
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.board-game-v2-value {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #f5f5f5;
+}
+
+.board-game-v2-button {
+  padding: 0.625rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  background: linear-gradient(145deg, #1e293b, #0f172a);
+  color: #f5f5f5;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.board-game-v2-button:hover {
+  background: linear-gradient(145deg, #334155, #1e293b);
+  border-color: rgba(148, 163, 184, 0.5);
+}
+
+.board-game-v2-button-secondary {
+  background: linear-gradient(145deg, #020617, #020617);
+  border-color: rgba(148, 163, 184, 0.2);
+}
+
+.board-game-v2-button-secondary:hover {
+  background: linear-gradient(145deg, #0f172a, #020617);
+  border-color: rgba(148, 163, 184, 0.4);
+}
+
+.board-game-v2-button-disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.board-game-v2-button-disabled:hover {
+  background: linear-gradient(145deg, #020617, #020617);
+  border-color: rgba(148, 163, 184, 0.2);
+}
+
+.board-game-v2-thrifty-path-card {
+  margin-top: 1rem;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.board-game-v2-thrifty-header {
+  margin-bottom: 0.25rem;
+}
+
+.board-game-v2-thrifty-options {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.board-game-v2-thrifty-option {
+  text-align: left;
+  display: grid;
+  gap: 0.15rem;
+}
+
+.board-game-v2-thrifty-title {
+  font-weight: 700;
+}
+
+.board-game-v2-thrifty-stars {
+  font-size: 0.9rem;
+}
+
+.board-game-v2-stock-card {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.board-game-v2-stock-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #f5f5f5;
+}
+
+.board-game-v2-stock-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.board-game-v2-portfolio-summary {
+  display: grid;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.board-game-v2-holdings {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.board-game-v2-holdings-header {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  font-weight: 700;
+  color: #f5f5f5;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.board-game-v2-holdings-row {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  align-items: center;
+  color: rgba(245, 245, 245, 0.9);
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.board-game-v2-holdings-row:last-child {
+  border-bottom: none;
+}
