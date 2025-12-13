@@ -42,7 +42,7 @@ const THRIFTY_PATH_LIBRARY: ThriftyPath[] = [
   {
     id: 'tp_sub_audit',
     title: 'Subscription Audit',
-    description: 'Cancel or downgrade 1 subscription you don't fully use.',
+    description: 'Cancel or downgrade 1 subscription you don\'t fully use.',
     category: 'Subscriptions',
     rewardStars: 8
   },
