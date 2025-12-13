@@ -903,6 +903,84 @@ const App = () => {
     }),
     [dashboardError, profileError, runtimeConfig]
   );
+  const demoAccountPlan = useMemo(
+    () => ({
+      planLabel: 'Pro trial',
+      daysRemaining: 12,
+      renewal: 'Renews Sep 30, 2024',
+      seats: { used: 2, total: 5 },
+      workspaceValue: '$1.27M',
+      ytd: '+12.4%',
+      bestStrategy: 'Momentum • Growth tilt',
+      usage: [
+        { label: 'API calls', used: 12500, limit: 50000 },
+        { label: 'Backtests', used: 8, limit: 20 },
+        { label: 'Storage', used: 18, limit: 50, unit: 'GB' }
+      ],
+      scheduledReports: ['Morning alpha drop', 'Friday factor brief']
+    }),
+    []
+  );
+  const proToolsPreview = useMemo(
+    () => [
+      {
+        name: 'Factor Lab',
+        description: 'Surface momentum, value, and quality tilts per portfolio',
+        status: 'Beta'
+      },
+      {
+        name: 'Scenario Studio',
+        description: 'Shock CPI, rates, or commodities and preview P&L impact',
+        status: 'Stable'
+      },
+      {
+        name: 'Signal Copilot',
+        description: 'Generate custom alerts with natural language prompts',
+        status: 'New'
+      }
+    ],
+    []
+  );
+  const signalIdeas = useMemo(
+    () => [
+      {
+        name: 'Growth acceleration',
+        detail: 'QoQ revenue +10% with margin expansion',
+        status: 'Armed'
+      },
+      {
+        name: 'Factor drift guardrail',
+        detail: 'Alert if value tilt > 20% while quality < 5%',
+        status: 'Idle'
+      },
+      {
+        name: 'Liquidity watch',
+        detail: 'Daily turnover < $5M triggers hedge suggestion',
+        status: 'Armed'
+      }
+    ],
+    []
+  );
+  const activityTimeline = useMemo(
+    () => [
+      {
+        label: 'Backtest completed',
+        timestamp: '3m ago',
+        detail: 'Momentum with volatility cap'
+      },
+      {
+        label: 'Import succeeded',
+        timestamp: 'Today, 7:45am',
+        detail: 'Synced 12 new holdings from Supabase'
+      },
+      {
+        label: 'Alert delivered',
+        timestamp: 'Yesterday',
+        detail: `Weekly factor drift digest sent to ${profileEmail}`
+      }
+    ],
+    [profileEmail]
+  );
   const workspaceStatus = dataError
     ? { tone: 'error', message: 'Unable to load workspace profile. Check data service configuration.' }
     : authStatus;
@@ -2738,75 +2816,261 @@ const App = () => {
                       </button>
                     </div>
                     <div className="dialog-body account-dialog">
-                      <div className="workspace-title">
-                        <h1>AlphaStocks Workspace</h1>
-                        <p>
-                          Welcome,
-                          {' '}
-                          {profileDisplayName}.
-                        </p>
-                      </div>
-                      <div className="account-actions">
-                        <button
-                          type="button"
-                          className="btn-secondary"
-                          onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                          aria-pressed={theme === 'dark'}
-                        >
-                          {themeCopy}
-                        </button>
-                        <div className="app-user">{profileEmail}</div>
-                        <button
-                          type="button"
-                          className="btn-secondary"
-                          onClick={handleSignOut}
-                          disabled={runtimeConfig.mode === 'demo' || isSigningOut}
-                        >
-                          {isSigningOut ? 'Signing out…' : 'Log out'}
-                        </button>
-                      </div>
-                      <div className="account-debug" role="status" aria-live="polite">
-                        <h3>Data service diagnostics</h3>
-                        <ul>
-                          <li>
-                            <strong>Mode:</strong>
+                      <div className="account-hero">
+                        <div className="workspace-title">
+                          <p className="eyebrow">Workspace account</p>
+                          <h1>AlphaStocks Workspace</h1>
+                          <p>
+                            Welcome,
                             {' '}
-                            {dataDiagnostics.mode === 'supabase' ? 'Supabase' : 'Demo (live data disabled)'}
-                          </li>
-                          <li>
-                            <strong>Supabase URL configured:</strong>
-                            {' '}
-                            {dataDiagnostics.supabaseUrlConfigured ? 'Yes' : 'No'}
-                          </li>
-                          <li>
-                            <strong>Supabase anon key configured:</strong>
-                            {' '}
-                            {dataDiagnostics.supabaseAnonKeyConfigured ? 'Yes' : 'No'}
-                          </li>
-                          {dataDiagnostics.profileError && (
-                            <li>
-                              <strong>Profile load error:</strong>
+                            {profileDisplayName}.
+                          </p>
+                          <div className="pill-row" aria-label="Workspace status chips">
+                            <span className="pill pill--brand">
+                              {demoAccountPlan.planLabel}
                               {' '}
-                              {dataDiagnostics.profileError}
-                            </li>
-                          )}
-                          {dataDiagnostics.dashboardError && (
-                            <li>
-                              <strong>Dashboard data error:</strong>
+                              •
                               {' '}
-                              {dataDiagnostics.dashboardError}
+                              {demoAccountPlan.daysRemaining}
+                              {' '}
+                              days left
+                            </span>
+                            <span className="pill">
+                              Seats
+                              {' '}
+                              {demoAccountPlan.seats.used}
+                              /
+                              {demoAccountPlan.seats.total}
+                            </span>
+                            <span className="pill">Last login · 2 hours ago</span>
+                          </div>
+                        </div>
+                        <div className="account-actions">
+                          <button
+                            type="button"
+                            className="btn-secondary"
+                            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                            aria-pressed={theme === 'dark'}
+                          >
+                            {themeCopy}
+                          </button>
+                          <div className="app-user" aria-label="Workspace email">
+                            {profileEmail}
+                          </div>
+                          <button
+                            type="button"
+                            className="btn-secondary"
+                            onClick={handleSignOut}
+                            disabled={runtimeConfig.mode === 'demo' || isSigningOut}
+                          >
+                            {isSigningOut ? 'Signing out…' : 'Log out'}
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="account-grid" role="list">
+                        <section className="account-card account-card--glow" role="listitem">
+                          <div className="card-header">
+                            <div>
+                              <p className="eyebrow">Plan & usage</p>
+                              <h3>Pro workspace trial</h3>
+                              <p className="card-subtle">{demoAccountPlan.renewal}</p>
+                            </div>
+                            <div className="pill pill--soft">Upgrade</div>
+                          </div>
+                          <div className="account-plan-grid">
+                            <dl>
+                              <div>
+                                <dt>Workspace value</dt>
+                                <dd>{demoAccountPlan.workspaceValue}</dd>
+                              </div>
+                              <div>
+                                <dt>YTD</dt>
+                                <dd>{demoAccountPlan.ytd}</dd>
+                              </div>
+                              <div>
+                                <dt>Top strategy</dt>
+                                <dd>{demoAccountPlan.bestStrategy}</dd>
+                              </div>
+                            </dl>
+                            <div className="usage-stack" aria-label="Usage meters">
+                              {demoAccountPlan.usage.map((item) => {
+                                const percentage = Math.min(100, Math.round((item.used / item.limit) * 100));
+                                const remaining = item.limit - item.used;
+
+                                return (
+                                  <div key={item.label} className="usage-meter">
+                                    <div className="usage-header">
+                                      <span>{item.label}</span>
+                                      <span>
+                                        {item.used.toLocaleString()}
+                                        {' '}
+                                        /
+                                        {' '}
+                                        {item.limit.toLocaleString()} {item.unit ?? ''}
+                                      </span>
+                                    </div>
+                                    <div className="usage-bar" role="progressbar" aria-valuenow={percentage} aria-valuemin="0" aria-valuemax="100">
+                                      <span style={{ width: `${percentage}%` }} />
+                                    </div>
+                                    <p className="card-subtle">
+                                      {remaining.toLocaleString()}
+                                      {' '}
+                                      {item.unit ?? 'calls'} remaining before reset
+                                    </p>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                          <div className="scheduled-reports" aria-label="Scheduled reports">
+                            <h4>Scheduled drops</h4>
+                            <ul>
+                              {demoAccountPlan.scheduledReports.map((report) => (
+                                <li key={report}>
+                                  <span className="status-dot status-dot--success" aria-hidden="true" />
+                                  {report}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        </section>
+
+                        <section className="account-card account-card--diagnostics" role="listitem" aria-live="polite">
+                          <div className="card-header">
+                            <div>
+                              <p className="eyebrow">Data service diagnostics</p>
+                              <h3>Supabase connection</h3>
+                              <p className="card-subtle">
+                                {dataDiagnostics.mode === 'supabase'
+                                  ? 'Live Supabase configuration detected.'
+                                  : 'Running in demo mode with live data disabled.'}
+                              </p>
+                            </div>
+                            <span
+                              className={`status-badge ${
+                                dataDiagnostics.dashboardError || dataDiagnostics.profileError ? 'status-badge--warning' : 'status-badge--success'
+                              }`}
+                            >
+                              {dataDiagnostics.dashboardError || dataDiagnostics.profileError ? 'Action needed' : 'Healthy'}
+                            </span>
+                          </div>
+                          <ul className="diagnostics-list">
+                            <li>
+                              <span>Mode</span>
+                              <div className="diagnostics-value">
+                                <span className="status-dot status-dot--success" aria-hidden="true" />
+                                {dataDiagnostics.mode === 'supabase' ? 'Supabase' : 'Demo'}
+                              </div>
                             </li>
-                          )}
-                          {!dataDiagnostics.profileError &&
-                            !dataDiagnostics.dashboardError &&
-                            dataDiagnostics.mode === 'supabase' &&
-                            dataDiagnostics.supabaseUrlConfigured &&
-                            dataDiagnostics.supabaseAnonKeyConfigured && (
-                              <li>
-                                Live Supabase configuration detected. Check browser devtools network panel for request responses.
-                              </li>
+                            <li>
+                              <span>Supabase URL</span>
+                              <div className="diagnostics-value">
+                                <span
+                                  className={`status-dot ${dataDiagnostics.supabaseUrlConfigured ? 'status-dot--success' : 'status-dot--warning'}`}
+                                  aria-hidden="true"
+                                />
+                                {dataDiagnostics.supabaseUrlConfigured ? 'Configured' : 'Missing'}
+                              </div>
+                            </li>
+                            <li>
+                              <span>Anon key</span>
+                              <div className="diagnostics-value">
+                                <span
+                                  className={`status-dot ${
+                                    dataDiagnostics.supabaseAnonKeyConfigured ? 'status-dot--success' : 'status-dot--warning'
+                                  }`}
+                                  aria-hidden="true"
+                                />
+                                {dataDiagnostics.supabaseAnonKeyConfigured ? 'Configured' : 'Missing'}
+                              </div>
+                            </li>
+                          </ul>
+                          <div className="diagnostics-callout">
+                            {dataDiagnostics.profileError && (
+                              <p>
+                                <strong>Profile load error:</strong>
+                                {' '}
+                                {dataDiagnostics.profileError}
+                              </p>
                             )}
-                        </ul>
+                            {dataDiagnostics.dashboardError ? (
+                              <p>
+                                <strong>Dashboard data error:</strong>
+                                {' '}
+                                {dataDiagnostics.dashboardError}
+                              </p>
+                            ) : (
+                              <p>No dashboard errors detected. Schema cache looks healthy.</p>
+                            )}
+                          </div>
+                        </section>
+
+                        <section className="account-card" role="listitem">
+                          <div className="card-header">
+                            <div>
+                              <p className="eyebrow">Pro tools preview</p>
+                              <h3>Level up your research</h3>
+                            </div>
+                            <span className="pill pill--soft">Included in trial</span>
+                          </div>
+                          <div className="pro-tools">
+                            {proToolsPreview.map((tool) => (
+                              <div key={tool.name} className="pro-tool">
+                                <div className="pro-tool__header">
+                                  <div>
+                                    <p className="pro-tool__title">{tool.name}</p>
+                                    <p className="card-subtle">{tool.description}</p>
+                                  </div>
+                                  <span className="status-badge status-badge--soft">{tool.status}</span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </section>
+
+                        <section className="account-card" role="listitem">
+                          <div className="card-header">
+                            <div>
+                              <p className="eyebrow">Signal ideas</p>
+                              <h3>Ready-made guardrails</h3>
+                            </div>
+                            <span className="pill pill--soft">Demo</span>
+                          </div>
+                          <ul className="signal-list">
+                            {signalIdeas.map((signal) => (
+                              <li key={signal.name}>
+                                <div>
+                                  <p className="signal-title">{signal.name}</p>
+                                  <p className="card-subtle">{signal.detail}</p>
+                                </div>
+                                <span className="status-badge status-badge--soft">{signal.status}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </section>
+
+                        <section className="account-card account-card--timeline" role="listitem">
+                          <div className="card-header">
+                            <div>
+                              <p className="eyebrow">Activity</p>
+                              <h3>Recent workspace events</h3>
+                            </div>
+                            <span className="pill pill--soft">Live demo</span>
+                          </div>
+                          <ol className="activity-timeline">
+                            {activityTimeline.map((event) => (
+                              <li key={event.label}>
+                                <div className="timeline-dot" aria-hidden="true" />
+                                <div>
+                                  <p className="signal-title">{event.label}</p>
+                                  <p className="card-subtle">{event.detail}</p>
+                                </div>
+                                <span className="timeline-time">{event.timestamp}</span>
+                              </li>
+                            ))}
+                          </ol>
+                        </section>
                       </div>
                     </div>
                   </div>
