@@ -3,7 +3,8 @@
   "outputDirectory": "dist",
   "framework": "vite",
   "routes": [
-    { "src": "/board-game-v3", "dest": "/board-game-v3/index.html" },
+    { "src": "/board-game-v3$", "dest": "/board-game-v3/index.html" },
+    { "src": "/board-game-v3/$", "dest": "/board-game-v3/index.html" },
     { "src": "/board-game-v3/(.*)", "dest": "/board-game-v3/$1" }
   ]
 }
