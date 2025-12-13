@@ -1228,7 +1228,10 @@ body[data-theme='dark'] {
 
 .pro-overlay__content .workspace {
   height: 100%;
-  overflow: hidden;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 .pro-overlay__content .app-panels {

@@ -962,9 +962,11 @@ body[data-theme="light"] .overlay-card {
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   padding: 1.5rem;
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 1.5rem;
   box-shadow: var(--shadow-soft);
+  min-height: 0;
 }
 
 .app-tabs {
@@ -995,6 +997,9 @@ body[data-theme="light"] .overlay-card {
   display: grid;
   grid-template-columns: 1fr;
   gap: 1.5rem;
+  flex: 1;
+  overflow: auto;
+  min-height: 0;
 }
 
 .app-list {
