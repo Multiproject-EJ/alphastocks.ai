@@ -324,7 +324,17 @@ function App() {
           {/* Pro Tools Button */}
           <div className="absolute bottom-8 right-8 z-40">
             <Button
-              onClick={() => setProToolsOpen(true)}
+              onClick={() => {
+                const proToolsUrl = '/?proTools=1'
+                if (typeof window !== 'undefined') {
+                  const win = window.open(proToolsUrl, '_blank', 'noopener,noreferrer')
+                  if (win) {
+                    win.focus()
+                    return
+                  }
+                }
+                setProToolsOpen(true)
+              }}
               className="bg-accent/90 hover:bg-accent text-accent-foreground shadow-lg hover:shadow-xl transition-all backdrop-blur-sm rounded-full w-14 h-14 p-0"
               size="icon"
               aria-label="Open Pro Tools"
