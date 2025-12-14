@@ -1,4 +1,4 @@
-import { Tile, Stock, ThriftyChallenge } from './types'
+import { Tile, Stock, ThriftyChallenge, BiasCaseStudy } from './types'
 
 export const BOARD_TILES: Tile[] = [
   { id: 0, type: 'corner', title: 'Start / ThriftyPath' },
@@ -108,4 +108,128 @@ export function getRandomStock(category: string): Stock {
 
 export function getRandomMarketEvent(): string {
   return MARKET_EVENTS[Math.floor(Math.random() * MARKET_EVENTS.length)]
+}
+
+export const BIAS_CASE_STUDIES: BiasCaseStudy[] = [
+  {
+    id: '1',
+    title: 'The Confirmation Bias Trap',
+    biasType: 'Confirmation Bias',
+    description: 'Learn how investors selectively seek information that confirms their existing beliefs.',
+    scenario: 'Sarah invested heavily in TechCorp after reading positive news articles. When negative earnings reports surfaced, she dismissed them as "short-term noise" and focused only on bullish analyst opinions that aligned with her initial thesis.',
+    context: [
+      'Confirmation bias leads investors to seek out information that supports their existing views while ignoring contradictory evidence.',
+      'This cognitive bias can prevent proper risk assessment and lead to holding onto losing positions too long.',
+      'Successful investors actively seek disconfirming evidence and challenge their own investment theses.',
+      'Professional analysts use devil\'s advocate approaches and pre-mortems to combat this bias.',
+    ],
+    quiz: [
+      {
+        id: 'q1',
+        question: 'What is the primary danger of confirmation bias in investing?',
+        options: [
+          'It makes you trade too frequently',
+          'It prevents you from seeing risks and contradictory evidence',
+          'It causes you to diversify too much',
+          'It leads to overconfidence in market timing',
+        ],
+        correctAnswer: 1,
+        explanation: 'Confirmation bias causes investors to filter out information that contradicts their beliefs, preventing them from seeing important risks and making balanced decisions.',
+      },
+      {
+        id: 'q2',
+        question: 'How can investors best combat confirmation bias?',
+        options: [
+          'Only read news from one trusted source',
+          'Avoid researching stocks entirely',
+          'Actively seek out opposing viewpoints and contradictory data',
+          'Make decisions based purely on gut feeling',
+        ],
+        correctAnswer: 2,
+        explanation: 'Actively seeking disconfirming evidence and opposing viewpoints helps investors make more balanced, rational decisions rather than falling into echo chambers.',
+      },
+    ],
+  },
+  {
+    id: '2',
+    title: 'Anchoring on Initial Prices',
+    biasType: 'Anchoring Bias',
+    description: 'Discover how initial price points unduly influence investment decisions.',
+    scenario: 'Mike bought shares of RetailCo at $100. When the price dropped to $60, he refused to sell because he was "waiting to get back to even." Meanwhile, the company\'s fundamentals had deteriorated significantly, but Mike remained anchored to his $100 purchase price.',
+    context: [
+      'Anchoring bias occurs when investors fixate on a specific price point (often their purchase price) as a reference.',
+      'This can prevent rational decision-making about current value and future prospects.',
+      'The market doesn\'t care what price you paid - each day is a new decision about whether to hold.',
+      'Professional investors evaluate positions based on forward prospects, not past prices.',
+    ],
+    quiz: [
+      {
+        id: 'q1',
+        question: 'What mistake is Mike making in the scenario?',
+        options: [
+          'He\'s not diversified enough',
+          'He\'s using his purchase price instead of current fundamentals to make decisions',
+          'He\'s trading too frequently',
+          'He\'s not using stop-loss orders',
+        ],
+        correctAnswer: 1,
+        explanation: 'Mike is anchored to his $100 purchase price and ignoring the fact that RetailCo\'s fundamentals have deteriorated. The purchase price is irrelevant to the current investment decision.',
+      },
+      {
+        id: 'q2',
+        question: 'What should be the primary consideration when deciding whether to hold a stock?',
+        options: [
+          'Whether you\'re up or down on the position',
+          'Your original purchase price',
+          'The company\'s current fundamentals and future prospects',
+          'How long you\'ve owned it',
+        ],
+        correctAnswer: 2,
+        explanation: 'Investment decisions should be based on current fundamentals and future prospects, not historical prices or psychological reference points.',
+      },
+    ],
+  },
+  {
+    id: '3',
+    title: 'Recency Bias in Market Cycles',
+    biasType: 'Recency Bias',
+    description: 'Understand how recent events disproportionately influence expectations.',
+    scenario: 'After experiencing a strong bull market for three years, Jennifer assumed "this time is different" and that the market would continue rising indefinitely. She ignored historical market cycles and increased her equity allocation to 100% just before a major correction.',
+    context: [
+      'Recency bias causes investors to overweight recent experiences when making predictions about the future.',
+      'This often leads to buying high (after a rally) and selling low (after a decline).',
+      'Markets are cyclical, but recency bias makes recent trends feel permanent.',
+      'Successful investors study history and understand that market conditions always change.',
+    ],
+    quiz: [
+      {
+        id: 'q1',
+        question: 'How does recency bias typically manifest in investing?',
+        options: [
+          'Assuming recent trends will continue indefinitely',
+          'Refusing to sell losing positions',
+          'Over-diversifying across sectors',
+          'Trading based on company fundamentals',
+        ],
+        correctAnswer: 0,
+        explanation: 'Recency bias leads investors to extrapolate recent trends into the future, whether it\'s assuming a bull market will continue forever or that a correction will never end.',
+      },
+      {
+        id: 'q2',
+        question: 'What is the best defense against recency bias?',
+        options: [
+          'Only invest in index funds',
+          'Study historical market cycles and maintain perspective',
+          'Increase allocation to cash during bull markets',
+          'Follow social media investment advice',
+        ],
+        correctAnswer: 1,
+        explanation: 'Understanding market history and cycles helps investors maintain perspective and avoid assuming that recent conditions represent a "new normal."',
+      },
+    ],
+  },
+]
+
+export function getRandomBiasCaseStudy(): BiasCaseStudy {
+  return BIAS_CASE_STUDIES[Math.floor(Math.random() * BIAS_CASE_STUDIES.length)]
 }

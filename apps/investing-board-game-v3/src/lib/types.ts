@@ -38,3 +38,21 @@ export interface GameState {
     totalCost: number
   }>
 }
+
+export interface BiasQuizQuestion {
+  id: string
+  question: string
+  options: string[]
+  correctAnswer: number
+  explanation: string
+}
+
+export interface BiasCaseStudy {
+  id: string
+  title: string
+  biasType: string
+  description: string
+  scenario: string
+  context: string[]
+  quiz: BiasQuizQuestion[]
+}
