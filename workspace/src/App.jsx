@@ -457,14 +457,6 @@ const boardGameNavItem = {
   shortLabel: 'Game'
 };
 
-const boardGameV2NavItem = {
-  id: 'boardgame-v2',
-  icon: '🎯',
-  title: 'Board Game (V2)',
-  caption: 'Enhanced board game',
-  shortLabel: 'Game V2'
-};
-
 const boardGameV3NavItem = {
   id: 'boardgame-v3',
   icon: '🎮',
@@ -773,20 +765,16 @@ const App = () => {
   const dashboardCaption = 'Added to universe • Recently updated';
   const mainNavigation = useMemo(() => {
     const nav = [];
-    // Board games appear first when enabled (V2 before legacy for prominence)
+    // V3 is the only visible board game
     if (ENABLE_BOARDGAME_V3) {
       nav.push(boardGameV3NavItem);
     }
-    if (ENABLE_BOARDGAME_V2) {
-      nav.push(boardGameV2NavItem);
-    }
-    if (ENABLE_BOARDGAME) {
-      nav.push(boardGameNavItem);
-    }
+    // V1 is hidden but remains in codebase (not added to nav)
+    // V2 has been deleted
     nav.push(...baseNavigation);
     return nav;
   }, []);
-  const defaultActiveSection = ENABLE_BOARDGAME_V3 ? 'boardgame-v3' : ENABLE_BOARDGAME_V2 ? 'boardgame-v2' : ENABLE_BOARDGAME ? 'boardgame' : 'dashboard';
+  const defaultActiveSection = ENABLE_BOARDGAME_V3 ? 'boardgame-v3' : 'dashboard';
   const [activeSection, setActiveSection] = useState(defaultActiveSection);
   const [lastWorkspaceSection, setLastWorkspaceSection] = useState('dashboard');
   const [activeTabsBySection, setActiveTabsBySection] = useState(() => {
@@ -835,7 +823,7 @@ const App = () => {
   const isSupabaseMode = dataService?.mode === 'supabase';
   const themeCopy = theme === 'dark' ? 'Switch to light' : 'Switch to dark';
   const mobilePrimaryNav = [
-    { id: 'boardgame', icon: '🎲', label: 'MarketTycoon' },
+    { id: 'boardgame-v3', icon: '🎮', label: 'Game' },
     { id: 'dashboard', icon: '🏠', label: 'Morning Sales' },
     { id: 'focuslist', icon: '🎯', label: 'Focus' },
     { id: 'valuebot', icon: '🤖', label: 'ValueBot' },
