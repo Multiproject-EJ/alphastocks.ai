@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef } from 'react'
+import type { MouseEvent } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -20,6 +21,8 @@ export function DiceHUD({ onRoll, lastRoll, phase, rollsRemaining, nextResetTime
   const [dice1, setDice1] = useState(1)
   const [dice2, setDice2] = useState(1)
   const [isExpanded, setIsExpanded] = useState(false)
+
+  const canRoll = phase === 'idle' && rollsRemaining > 0
 
   useEffect(() => {
     if (lastRoll !== null) {
@@ -59,6 +62,12 @@ export function DiceHUD({ onRoll, lastRoll, phase, rollsRemaining, nextResetTime
 
     return () => clearInterval(interval)
   }, [nextResetTime])
+
+  const handleCompactRoll = (event: MouseEvent<HTMLDivElement>) => {
+    event.stopPropagation()
+    if (!canRoll) return
+    onRoll()
+  }
 
   return (
     <motion.div
@@ -155,34 +164,57 @@ export function DiceHUD({ onRoll, lastRoll, phase, rollsRemaining, nextResetTime
             key="compact"
             type="button"
             onClick={() => setIsExpanded(true)}
-            className="relative flex items-center gap-2 rounded-full border-2 border-white/60 bg-card/80 backdrop-blur-md px-3 py-2 shadow-lg cursor-pointer"
-            animate={{
-              boxShadow: [
-                '0 0 0 0 rgba(255,255,255,0.45)',
-                '0 0 0 12px rgba(255,255,255,0)'
-              ],
-            }}
-            transition={{
-              duration: 1.8,
-              repeat: Infinity,
-              repeatType: 'loop',
-            }}
+            className="relative flex items-center justify-center w-24 h-24 rounded-full border-2 border-white/60 bg-card/80 backdrop-blur-md shadow-lg cursor-pointer"
           >
-            <AnimatedDice 
-              value={dice1} 
-              isRolling={phase === 'rolling'} 
-              isMoving={phase === 'moving'}
-              className="scale-90"
-            />
-            <AnimatedDice 
-              value={dice2} 
-              isRolling={phase === 'rolling'} 
-              isMoving={phase === 'moving'}
-              className="scale-90"
-            />
-            <span className="text-xs font-semibold text-accent-foreground/80 pr-1">
-              Dice
-            </span>
+            <div className="relative flex items-center justify-center w-full h-full">
+              <motion.div
+                className="flex items-center justify-center gap-1"
+                onClick={handleCompactRoll}
+              >
+                <motion.div
+                  animate={{
+                    boxShadow: [
+                      '0 0 0 0 rgba(255,255,255,0.45)',
+                      '0 0 0 12px rgba(255,255,255,0)'
+                    ],
+                  }}
+                  transition={{
+                    duration: 1.8,
+                    repeat: Infinity,
+                    repeatType: 'loop',
+                  }}
+                  className="rounded-full"
+                >
+                  <AnimatedDice
+                    value={dice1}
+                    isRolling={phase === 'rolling'}
+                    isMoving={phase === 'moving'}
+                    className="scale-90"
+                  />
+                </motion.div>
+                <motion.div
+                  animate={{
+                    boxShadow: [
+                      '0 0 0 0 rgba(255,255,255,0.45)',
+                      '0 0 0 12px rgba(255,255,255,0)'
+                    ],
+                  }}
+                  transition={{
+                    duration: 1.8,
+                    repeat: Infinity,
+                    repeatType: 'loop',
+                  }}
+                  className="rounded-full"
+                >
+                  <AnimatedDice
+                    value={dice2}
+                    isRolling={phase === 'rolling'}
+                    isMoving={phase === 'moving'}
+                    className="scale-90"
+                  />
+                </motion.div>
+              </motion.div>
+            </div>
             <span className="sr-only">Open dice HUD</span>
           </motion.button>
         )}
