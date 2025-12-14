@@ -345,7 +345,7 @@ function App() {
               </div>
 
               <div className="absolute top-0 bottom-0 right-0 flex flex-col gap-0 pointer-events-auto">
-                {BOARD_TILES.slice(7, 11).map((tile) => (
+                {BOARD_TILES.slice(8, 11).map((tile) => (
                   <Tile
                     key={tile.id}
                     tile={tile}
@@ -381,7 +381,7 @@ function App() {
               </div>
 
               <div className="absolute top-0 bottom-0 left-0 flex flex-col flex-col-reverse gap-0 pointer-events-auto">
-                {BOARD_TILES.slice(17).map((tile) => (
+                {BOARD_TILES.slice(18).map((tile) => (
                   <Tile
                     key={tile.id}
                     tile={tile}
