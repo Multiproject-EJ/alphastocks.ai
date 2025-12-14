@@ -1,14 +1,16 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 import { Stock } from '@/lib/types'
-import { TrendUp, Briefcase } from '@phosphor-icons/react'
+import { TrendUp, Briefcase, X } from '@phosphor-icons/react'
 
 interface CentralStockCardProps {
   stock: Stock | null
   isVisible: boolean
+  onClose?: () => void
 }
 
-export function CentralStockCard({ stock, isVisible }: CentralStockCardProps) {
+export function CentralStockCard({ stock, isVisible, onClose }: CentralStockCardProps) {
   return (
     <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30">
       <AnimatePresence>
@@ -26,6 +28,19 @@ export function CentralStockCard({ stock, isVisible }: CentralStockCardProps) {
             className="pointer-events-auto"
           >
             <Card className="w-[400px] p-6 bg-card/95 backdrop-blur-md border-4 border-accent/50 shadow-[0_0_60px_oklch(0.75_0.15_85_/_0.4)]">
+              {onClose && (
+                <div className="flex justify-end mb-2">
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={onClose}
+                    className="rounded-full"
+                    aria-label="Close card"
+                  >
+                    <X size={16} />
+                  </Button>
+                </div>
+              )}
               <div className="flex items-center gap-3 mb-4">
                 <div className="p-3 rounded-lg bg-accent/20">
                   <Briefcase size={28} className="text-accent" weight="fill" />

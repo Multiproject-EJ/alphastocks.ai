@@ -301,17 +301,21 @@ function App() {
             </div>
           </header>
 
-          <CentralStockCard stock={currentStock} isVisible={showCentralStock} />
+          <CentralStockCard
+            stock={currentStock}
+            isVisible={showCentralStock}
+            onClose={() => setShowCentralStock(false)}
+          />
 
           {/* Pro Tools Button */}
-          <div className="absolute top-8 left-8 z-40">
+          <div className="absolute bottom-8 right-8 z-40">
             <Button
               onClick={() => setProToolsOpen(true)}
-              className="gap-2 bg-accent/90 hover:bg-accent text-accent-foreground shadow-lg hover:shadow-xl transition-all backdrop-blur-sm"
-              size="lg"
+              className="bg-accent/90 hover:bg-accent text-accent-foreground shadow-lg hover:shadow-xl transition-all backdrop-blur-sm rounded-full w-14 h-14 p-0"
+              size="icon"
+              aria-label="Open Pro Tools"
             >
               <Toolbox size={20} weight="bold" />
-              Pro Tools
             </Button>
           </div>
 
