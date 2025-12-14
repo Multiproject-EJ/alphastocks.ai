@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { DiceFive, Clock } from '@phosphor-icons/react'
+import { DiceFive, Clock, X } from '@phosphor-icons/react'
 import { AnimatedDice } from '@/components/AnimatedDice'
 
 interface DiceHUDProps {
@@ -19,6 +19,7 @@ export function DiceHUD({ onRoll, lastRoll, phase, rollsRemaining, nextResetTime
   const [timeUntilReset, setTimeUntilReset] = useState('')
   const [dice1, setDice1] = useState(1)
   const [dice2, setDice2] = useState(1)
+  const [isExpanded, setIsExpanded] = useState(false)
 
   useEffect(() => {
     if (lastRoll !== null) {
@@ -67,68 +68,125 @@ export function DiceHUD({ onRoll, lastRoll, phase, rollsRemaining, nextResetTime
       dragConstraints={boardRef}
       onDragStart={() => setIsDragging(true)}
       onDragEnd={() => setIsDragging(false)}
-      className="absolute top-8 right-8 z-50 cursor-move"
+      className="absolute top-8 right-8 z-50"
       whileHover={{ scale: isDragging ? 1 : 1.02 }}
     >
-      <Card className="p-4 bg-card/90 backdrop-blur-md border-2 border-border shadow-xl">
-        <div className="flex flex-col gap-3 min-w-[200px]">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-bold text-foreground font-mono uppercase tracking-wider">
-              Dice HUD
-            </h3>
-          </div>
+      <AnimatePresence mode="wait" initial={false}>
+        {isExpanded ? (
+          <motion.div
+            key="expanded"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.15 }}
+            className="cursor-move"
+          >
+            <Card className="p-4 bg-card/90 backdrop-blur-md border-2 border-border shadow-xl">
+              <div className="flex flex-col gap-3 min-w-[220px]">
+                <div className="flex items-start justify-between">
+                  <h3 className="text-sm font-bold text-foreground font-mono uppercase tracking-wider">
+                    Dice HUD
+                  </h3>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => setIsExpanded(false)}
+                    className="rounded-full"
+                    aria-label="Collapse dice HUD"
+                  >
+                    <X size={16} />
+                  </Button>
+                </div>
 
-          <div className="flex items-center justify-center gap-3 py-4">
+                <div className="flex items-center justify-center gap-3 py-2">
+                  <AnimatedDice 
+                    value={dice1} 
+                    isRolling={phase === 'rolling'} 
+                    isMoving={phase === 'moving'}
+                  />
+                  <AnimatedDice 
+                    value={dice2} 
+                    isRolling={phase === 'rolling'} 
+                    isMoving={phase === 'moving'}
+                  />
+                </div>
+
+                <Button
+                  onClick={onRoll}
+                  disabled={phase === 'rolling' || phase === 'moving'}
+                  className="w-full gap-2 bg-accent text-accent-foreground hover:bg-accent/90 font-semibold"
+                  size="lg"
+                >
+                  <DiceFive size={20} weight="fill" />
+                  ROLL {rollsRemaining > 0 && `(${rollsRemaining})`}
+                </Button>
+
+                {lastRoll !== null && (
+                  <motion.div
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    className="text-center"
+                  >
+                    <div className="text-xs text-muted-foreground mb-1">Total Roll</div>
+                    <div className="text-2xl font-bold text-accent font-mono">{lastRoll}</div>
+                  </motion.div>
+                )}
+
+                <div className="text-xs text-muted-foreground space-y-2">
+                  <div className="font-mono text-center">
+                    Phase: <span className="text-accent">{phase}</span>
+                  </div>
+                  
+                  <div className="flex items-center gap-2 justify-center p-2 rounded bg-background/50">
+                    <Clock size={14} className="text-accent" />
+                    <div className="flex flex-col">
+                      <div className="text-[10px] opacity-60">Next reset in</div>
+                      <div className="font-mono text-accent text-xs">{timeUntilReset}</div>
+                    </div>
+                  </div>
+
+                  <div className="text-[10px] opacity-60 text-center">Drag me anywhere on the board</div>
+                </div>
+              </div>
+            </Card>
+          </motion.div>
+        ) : (
+          <motion.button
+            key="compact"
+            type="button"
+            onClick={() => setIsExpanded(true)}
+            className="relative flex items-center gap-2 rounded-full border-2 border-white/60 bg-card/80 backdrop-blur-md px-3 py-2 shadow-lg cursor-pointer"
+            animate={{
+              boxShadow: [
+                '0 0 0 0 rgba(255,255,255,0.45)',
+                '0 0 0 12px rgba(255,255,255,0)'
+              ],
+            }}
+            transition={{
+              duration: 1.8,
+              repeat: Infinity,
+              repeatType: 'loop',
+            }}
+          >
             <AnimatedDice 
               value={dice1} 
               isRolling={phase === 'rolling'} 
               isMoving={phase === 'moving'}
+              className="scale-90"
             />
             <AnimatedDice 
               value={dice2} 
               isRolling={phase === 'rolling'} 
               isMoving={phase === 'moving'}
+              className="scale-90"
             />
-          </div>
-
-          <Button
-            onClick={onRoll}
-            disabled={phase === 'rolling' || phase === 'moving'}
-            className="w-full gap-2 bg-accent text-accent-foreground hover:bg-accent/90 font-semibold"
-            size="lg"
-          >
-            <DiceFive size={20} weight="fill" />
-            ROLL {rollsRemaining > 0 && `(${rollsRemaining})`}
-          </Button>
-
-          {lastRoll !== null && (
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="text-center"
-            >
-              <div className="text-xs text-muted-foreground mb-1">Total Roll</div>
-              <div className="text-2xl font-bold text-accent font-mono">{lastRoll}</div>
-            </motion.div>
-          )}
-
-          <div className="text-xs text-muted-foreground space-y-2">
-            <div className="font-mono text-center">
-              Phase: <span className="text-accent">{phase}</span>
-            </div>
-            
-            <div className="flex items-center gap-2 justify-center p-2 rounded bg-background/50">
-              <Clock size={14} className="text-accent" />
-              <div className="flex flex-col">
-                <div className="text-[10px] opacity-60">Next reset in</div>
-                <div className="font-mono text-accent text-xs">{timeUntilReset}</div>
-              </div>
-            </div>
-
-            <div className="text-[10px] opacity-60 text-center">Drag me anywhere on the board</div>
-          </div>
-        </div>
-      </Card>
+            <span className="text-xs font-semibold text-accent-foreground/80 pr-1">
+              Dice
+            </span>
+            <span className="sr-only">Open dice HUD</span>
+          </motion.button>
+        )}
+      </AnimatePresence>
     </motion.div>
   )
 }
