@@ -35,8 +35,8 @@ export function ProToolsOverlay({
   useEffect(() => {
     if (!open || !iframeRef.current) return
 
-    const handleIframeLoad = () => {
-      const iframe = iframeRef.current
+    const handleIframeLoad = (event: Event) => {
+      const iframe = event.target as HTMLIFrameElement
       if (!iframe?.contentWindow) return
 
       // Send game context to iframe
