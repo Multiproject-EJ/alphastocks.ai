@@ -15,12 +15,12 @@ import { BiasSanctuaryModal } from '@/components/BiasSanctuaryModal'
 import { GameState, Stock, BiasCaseStudy } from '@/lib/types'
 import {
   BOARD_TILES,
-  getRandomStock,
   getRandomMarketEvent,
   getRandomBiasCaseStudy,
   THRIFTY_CHALLENGES,
 } from '@/lib/mockData'
 import { Info, Star, ChartLine, Toolbox } from '@phosphor-icons/react'
+import { useUniverseStocks } from '@/hooks/useUniverseStocks'
 
 type Phase = 'idle' | 'rolling' | 'moving' | 'landed'
 
@@ -34,7 +34,8 @@ function getNextMidnight(): Date {
 
 function App() {
   const boardRef = useRef<HTMLDivElement>(null)
-  
+  const stockSourceAnnounced = useRef<'supabase' | 'mock' | null>(null)
+
   const [gameState, setGameState] = useState<GameState>({
     cash: 100000,
     position: 0,
@@ -68,6 +69,9 @@ function App() {
   const [biasSanctuaryModalOpen, setBiasSanctuaryModalOpen] = useState(false)
   const [currentCaseStudy, setCurrentCaseStudy] = useState<BiasCaseStudy | null>(null)
 
+  const { getStockForCategory, loading: loadingUniverse, error: universeError, source: stockSource, universeCount } =
+    useUniverseStocks()
+
   useEffect(() => {
     const checkReset = setInterval(() => {
       const now = new Date()
@@ -82,6 +86,33 @@ function App() {
 
     return () => clearInterval(checkReset)
   }, [nextResetTime])
+
+  useEffect(() => {
+    if (universeError) {
+      toast.error('Unable to load your Supabase universe', {
+        description: universeError,
+      })
+    }
+  }, [universeError])
+
+  useEffect(() => {
+    if (loadingUniverse || universeError || !stockSource) return
+    if (stockSourceAnnounced.current === stockSource) return
+
+    if (stockSource === 'supabase') {
+      toast.success('Using your Supabase investment universe', {
+        description: universeCount
+          ? `Loaded ${universeCount} saved stocks for board draws.`
+          : 'Add stocks to your universe to personalize the board.',
+      })
+    } else {
+      toast.info('Using built-in demo stocks', {
+        description: 'Connect Supabase and add symbols to see your picks here.',
+      })
+    }
+
+    stockSourceAnnounced.current = stockSource
+  }, [loadingUniverse, stockSource, universeCount, universeError])
 
   const handleRoll = () => {
     if (phase !== 'idle') {
@@ -136,7 +167,7 @@ function App() {
     const tile = BOARD_TILES[position]
 
     if (tile.type === 'category' && tile.category) {
-      const stock = getRandomStock(tile.category)
+      const stock = getStockForCategory(tile.category)
       setCurrentStock(stock)
 
       setShowCentralStock(true)
