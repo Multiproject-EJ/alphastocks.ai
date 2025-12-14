@@ -1,5 +1,5 @@
-import { useEffect, useRef } from 'react'
-import { X } from '@phosphor-icons/react'
+import { useEffect } from 'react'
+import { X, ChartLine, TrendUp, Newspaper, BookOpen } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { GameState } from '@/lib/types'
 
@@ -7,17 +7,44 @@ interface ProToolsOverlayProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   gameState: GameState
-  sessionId?: string
+}
+
+const menuItems = [
+  {
+    title: 'Portfolio Analysis',
+    description: 'Analyze your portfolio performance and risk metrics',
+    icon: ChartLine,
+    comingSoon: true,
+  },
+  {
+    title: 'Market Insights',
+    description: 'Access real-time market data and trends',
+    icon: TrendUp,
+    comingSoon: true,
+  },
+  {
+    title: 'News & Updates',
+    description: 'Stay informed with the latest financial news',
+    icon: Newspaper,
+    comingSoon: true,
+  },
+  {
+    title: 'Learning Center',
+    description: 'Educational resources and investment guides',
+    icon: BookOpen,
+    comingSoon: true,
+  },
+]
+
+function formatCurrency(value: number): string {
+  return `$${(value / 1000).toFixed(1)}k`
 }
 
 export function ProToolsOverlay({ 
   open, 
   onOpenChange, 
-  gameState,
-  sessionId = 'BOARDGAME_V3_SESSION'
+  gameState
 }: ProToolsOverlayProps) {
-  const iframeRef = useRef<HTMLIFrameElement>(null)
-
   // Lock body scroll when overlay is open
   useEffect(() => {
     if (open) {
@@ -31,51 +58,7 @@ export function ProToolsOverlay({
     }
   }, [open])
 
-  // Send context to iframe when it loads
-  useEffect(() => {
-    if (!open || !iframeRef.current) return
-
-    const handleIframeLoad = (event: Event) => {
-      const iframe = event.target as HTMLIFrameElement
-      if (!iframe?.contentWindow) return
-
-      // Send game context to iframe
-      const message = {
-        type: 'ALPHASTOCKS_PT_CONTEXT',
-        version: 1,
-        source: 'boardgame-v3',
-        sessionId: sessionId,
-        payload: {
-          cash: gameState.cash,
-          netWorth: gameState.netWorth,
-          portfolioValue: gameState.portfolioValue,
-          stars: gameState.stars,
-          holdings: gameState.holdings.map(h => ({
-            ticker: h.stock.ticker,
-            name: h.stock.name,
-            shares: h.shares,
-            totalCost: h.totalCost,
-          })),
-        },
-      }
-
-      // Send message to iframe (same origin since we're using relative URL)
-      const targetOrigin = window.location.origin
-      iframe.contentWindow.postMessage(message, targetOrigin)
-    }
-
-    const iframe = iframeRef.current
-    if (iframe) {
-      iframe.addEventListener('load', handleIframeLoad)
-      return () => {
-        iframe.removeEventListener('load', handleIframeLoad)
-      }
-    }
-  }, [open, gameState, sessionId])
-
   if (!open) return null
-
-  const proToolsUrl = `/pro-tools?embed=1&source=boardgame-v3&session=${encodeURIComponent(sessionId)}`
 
   return (
     <div
@@ -84,33 +67,100 @@ export function ProToolsOverlay({
       aria-modal="true"
       aria-labelledby="pro-tools-title"
     >
-      {/* Title bar */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-card/50 backdrop-blur-sm">
-        <h2 
-          id="pro-tools-title" 
-          className="text-xl font-bold text-foreground"
-        >
-          Pro Tools
-        </h2>
+      {/* Header with ProTools logo */}
+      <div className="flex items-center justify-between px-8 py-6 border-b border-border bg-gradient-to-r from-accent/10 to-accent/5">
+        <div className="flex-1">
+          <h1 
+            id="pro-tools-title" 
+            className="text-4xl font-bold bg-gradient-to-r from-accent to-accent/70 bg-clip-text text-transparent tracking-tight"
+          >
+            ProTools
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Advanced investment tools for serious traders
+          </p>
+        </div>
         <Button
           variant="ghost"
           size="icon"
           onClick={() => onOpenChange(false)}
           aria-label="Close Pro Tools"
-          className="hover:bg-accent/50"
+          className="hover:bg-accent/20"
         >
-          <X size={24} weight="bold" />
+          <X size={28} weight="bold" />
         </Button>
       </div>
 
-      {/* Iframe content */}
-      <div className="flex-1 relative">
-        <iframe
-          ref={iframeRef}
-          src={proToolsUrl}
-          className="absolute inset-0 w-full h-full border-0"
-          title="Pro Tools"
-        />
+      {/* Main Menu */}
+      <div className="flex-1 overflow-auto p-8">
+        <div className="max-w-5xl mx-auto">
+          <div className="mb-8">
+            <h2 className="text-2xl font-semibold mb-2">Main Menu</h2>
+            <p className="text-muted-foreground">
+              Select a tool to get started with advanced investment features
+            </p>
+          </div>
+
+          {/* Game State Summary */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <div className="bg-card border border-border rounded-lg p-4">
+              <div className="text-sm text-muted-foreground mb-1">Cash</div>
+              <div className="text-2xl font-bold text-foreground">{formatCurrency(gameState.cash)}</div>
+            </div>
+            <div className="bg-card border border-border rounded-lg p-4">
+              <div className="text-sm text-muted-foreground mb-1">Net Worth</div>
+              <div className="text-2xl font-bold text-foreground">{formatCurrency(gameState.netWorth)}</div>
+            </div>
+            <div className="bg-card border border-border rounded-lg p-4">
+              <div className="text-sm text-muted-foreground mb-1">Portfolio</div>
+              <div className="text-2xl font-bold text-foreground">{formatCurrency(gameState.portfolioValue)}</div>
+            </div>
+            <div className="bg-card border border-border rounded-lg p-4">
+              <div className="text-sm text-muted-foreground mb-1">Holdings</div>
+              <div className="text-2xl font-bold text-foreground">{gameState.holdings.length}</div>
+            </div>
+          </div>
+
+          {/* Menu Items Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {menuItems.map((item) => {
+              const Icon = item.icon
+              return (
+                <button
+                  key={item.title}
+                  className="group relative bg-card border-2 border-border hover:border-accent/50 rounded-xl p-6 text-left transition-all hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={item.comingSoon}
+                >
+                  <div className="flex items-start gap-4">
+                    <div className="p-3 rounded-lg bg-accent/10 group-hover:bg-accent/20 transition-colors">
+                      <Icon size={28} className="text-accent" weight="bold" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold mb-1 flex items-center gap-2">
+                        {item.title}
+                        {item.comingSoon && (
+                          <span className="text-xs px-2 py-0.5 bg-muted rounded-full text-muted-foreground">
+                            Coming Soon
+                          </span>
+                        )}
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        {item.description}
+                      </p>
+                    </div>
+                  </div>
+                </button>
+              )
+            })}
+          </div>
+
+          {/* Footer info */}
+          <div className="mt-12 p-6 bg-muted/30 rounded-lg border border-border">
+            <p className="text-sm text-muted-foreground text-center">
+              ProTools is currently under development. Features will be added progressively to enhance your investment experience.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   )
