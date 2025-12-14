@@ -9,6 +9,37 @@ interface ProToolsOverlayProps {
   gameState: GameState
 }
 
+const menuItems = [
+  {
+    title: 'Portfolio Analysis',
+    description: 'Analyze your portfolio performance and risk metrics',
+    icon: ChartLine,
+    comingSoon: true,
+  },
+  {
+    title: 'Market Insights',
+    description: 'Access real-time market data and trends',
+    icon: TrendUp,
+    comingSoon: true,
+  },
+  {
+    title: 'News & Updates',
+    description: 'Stay informed with the latest financial news',
+    icon: Newspaper,
+    comingSoon: true,
+  },
+  {
+    title: 'Learning Center',
+    description: 'Educational resources and investment guides',
+    icon: BookOpen,
+    comingSoon: true,
+  },
+]
+
+function formatCurrency(value: number): string {
+  return `$${(value / 1000).toFixed(1)}k`
+}
+
 export function ProToolsOverlay({ 
   open, 
   onOpenChange, 
@@ -28,33 +59,6 @@ export function ProToolsOverlay({
   }, [open])
 
   if (!open) return null
-
-  const menuItems = [
-    {
-      title: 'Portfolio Analysis',
-      description: 'Analyze your portfolio performance and risk metrics',
-      icon: ChartLine,
-      comingSoon: true,
-    },
-    {
-      title: 'Market Insights',
-      description: 'Access real-time market data and trends',
-      icon: TrendUp,
-      comingSoon: true,
-    },
-    {
-      title: 'News & Updates',
-      description: 'Stay informed with the latest financial news',
-      icon: Newspaper,
-      comingSoon: true,
-    },
-    {
-      title: 'Learning Center',
-      description: 'Educational resources and investment guides',
-      icon: BookOpen,
-      comingSoon: true,
-    },
-  ]
 
   return (
     <div
@@ -101,15 +105,15 @@ export function ProToolsOverlay({
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
             <div className="bg-card border border-border rounded-lg p-4">
               <div className="text-sm text-muted-foreground mb-1">Cash</div>
-              <div className="text-2xl font-bold text-foreground">${(gameState.cash / 1000).toFixed(1)}k</div>
+              <div className="text-2xl font-bold text-foreground">{formatCurrency(gameState.cash)}</div>
             </div>
             <div className="bg-card border border-border rounded-lg p-4">
               <div className="text-sm text-muted-foreground mb-1">Net Worth</div>
-              <div className="text-2xl font-bold text-foreground">${(gameState.netWorth / 1000).toFixed(1)}k</div>
+              <div className="text-2xl font-bold text-foreground">{formatCurrency(gameState.netWorth)}</div>
             </div>
             <div className="bg-card border border-border rounded-lg p-4">
               <div className="text-sm text-muted-foreground mb-1">Portfolio</div>
-              <div className="text-2xl font-bold text-foreground">${(gameState.portfolioValue / 1000).toFixed(1)}k</div>
+              <div className="text-2xl font-bold text-foreground">{formatCurrency(gameState.portfolioValue)}</div>
             </div>
             <div className="bg-card border border-border rounded-lg p-4">
               <div className="text-sm text-muted-foreground mb-1">Holdings</div>
