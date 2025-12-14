@@ -113,7 +113,7 @@ export function DiceHUD({ onRoll, lastRoll, phase, rollsRemaining, nextResetTime
 
                 <Button
                   onClick={onRoll}
-                  disabled={phase === 'rolling' || phase === 'moving'}
+                  disabled={phase !== 'idle' || rollsRemaining <= 0}
                   className="w-full gap-2 bg-accent text-accent-foreground hover:bg-accent/90 font-semibold"
                   size="lg"
                 >

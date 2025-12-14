@@ -84,6 +84,20 @@ function App() {
   }, [nextResetTime])
 
   const handleRoll = () => {
+    if (phase !== 'idle') {
+      toast.info('Finish your current action first', {
+        description: 'Close any open cards or modals before rolling again.',
+      })
+      return
+    }
+
+    if (rollsRemaining <= 0) {
+      toast.error('No rolls remaining', {
+        description: 'Daily rolls refresh at midnight.',
+      })
+      return
+    }
+
     setPhase('rolling')
     const roll = Math.floor(Math.random() * 6) + 1
     setLastRoll(roll)
