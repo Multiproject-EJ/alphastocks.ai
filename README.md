@@ -171,5 +171,7 @@ The investing board game V3 is a standalone Vite application located at `apps/in
   - Run `npm install` (if not already installed)
   - Run `npm run dev` to start the development server
 - **Navigation**: The AlphaStocks workspace includes a navigation item labeled "Board Game (V3 – Standalone)" that redirects to `/board-game-v3/`.
+- **Verify locally**: Run `npm run build` followed by `npm run preview`, then load `http://localhost:4173/board-game-v3/` to confirm `dist/board-game-v3/index.html` and assets are served.
+- **Vercel deploy check**: In deployment logs, confirm `npm run build:board-game-v3` runs before `vite build` and that the copy step to `public/board-game-v3/` completes without errors.
 
-_Last updated: 2025-11-01T03:45Z_
+_Last updated: 2025-12-13T23:51Z_
