@@ -12,7 +12,6 @@ import Module4ValuationEngine from './features/valuebot/modules/Module4Valuation
 import Module5TimingMomentum from './features/valuebot/modules/Module5TimingMomentum.tsx';
 import Module6FinalVerdict from './features/valuebot/modules/Module6FinalVerdict.tsx';
 import BatchQueueTab from './features/valuebot/BatchQueueTab.tsx';
-import BoardGameApp from './features/boardgame/BoardGameApp.tsx';
 import {
   ValueBotContext,
   defaultPipelineProgress,
@@ -432,8 +431,6 @@ const defaultValueBotTabLabel =
   valueBotTabs.find((tab) => tab.id === defaultValueBotTabId)?.label ?? valueBotTabs[0].label;
 const valueBotPrimaryTabLabels = valueBotTabs.slice(0, 2).map((tab) => tab.label);
 const valueBotModuleTabLabels = valueBotTabs.slice(2).map((tab) => tab.label);
-const ENABLE_BOARDGAME = false; // V1 is hidden from UI but kept in codebase
-const ENABLE_BOARDGAME_V2 = false; // V2 will be deleted
 const ENABLE_BOARDGAME_V3 = true; // V3 is now the default and only visible game
 
 const sectionTabsById = {
@@ -442,21 +439,12 @@ const sectionTabsById = {
   quadrant: ['Universe', 'Universe Quadrant', 'Add Stocks'],
   checkin: ['Tab 1', 'Trading Journal', 'Tab 3', 'Tab 4', 'Tab 5'],
   focuslist: ['Focus List'],
-  boardgame: [],
   'boardgame-v3': []
 };
 
 const settingsNavItem = { id: 'settings', icon: '⚙️', shortLabel: 'Prefs' };
 
 const getSectionTabs = (sectionId) => sectionTabsById[sectionId] ?? defaultSectionTabs;
-const boardGameNavItem = {
-  id: 'boardgame',
-  icon: '🎲',
-  title: 'MarketTycoon',
-  caption: 'Board game sim',
-  shortLabel: 'Game'
-};
-
 const boardGameV3NavItem = {
   id: 'boardgame-v3',
   icon: '🎮',
@@ -698,11 +686,6 @@ const staticSections = {
       }
     ]
   },
-  boardgame: {
-    title: 'MarketTycoon',
-    meta: 'Board game-style investing simulation powered by ValueBot.',
-    component: <BoardGameApp />
-  },
   'boardgame-v3': {
     title: 'Investment Board Game',
     meta: 'Interactive investing simulation to sharpen your decision-making skills.',
@@ -776,7 +759,6 @@ const App = () => {
   }, []);
   const defaultActiveSection = ENABLE_BOARDGAME_V3 ? 'boardgame-v3' : 'dashboard';
   const [activeSection, setActiveSection] = useState(defaultActiveSection);
-  const [lastWorkspaceSection, setLastWorkspaceSection] = useState('dashboard');
   const [activeTabsBySection, setActiveTabsBySection] = useState(() => {
     const initialMap = {};
     mainNavigation.forEach((item) => {
@@ -787,7 +769,6 @@ const App = () => {
     }
     return initialMap;
   });
-  const [isBoardGameFullscreen, setIsBoardGameFullscreen] = useState(false);
   const [authStatus, setAuthStatus] = useState(null);
   const [activeValueBotTab, setActiveValueBotTab] = useState(defaultValueBotTabId);
   const [valueBotContext, setValueBotContext] = useState(() => ({
@@ -1042,9 +1023,7 @@ const App = () => {
   }, [closeAccountDialog, isSigningOut, runtimeConfig.mode, signOut]);
 
   const focusDashboardWorkspace = useCallback(() => {
-    setIsBoardGameFullscreen(false);
     setActiveSection('dashboard');
-    setLastWorkspaceSection('dashboard');
   }, []);
 
   const openProToolsWorkspace = useCallback(() => {
@@ -1067,28 +1046,17 @@ const App = () => {
 
       if (nextIsOpen) {
         focusDashboardWorkspace();
+      } else if (typeof window !== 'undefined') {
+        window.location.assign('/board-game-v3/');
       }
 
       return nextIsOpen;
     });
   }, [focusDashboardWorkspace]);
   const handleMenuSelection = (sectionId) => {
-    if (sectionId === 'boardgame') {
-      setIsProToolsOpen(false);
-      setLastWorkspaceSection(activeSection);
-      setIsBoardGameFullscreen(true);
-    } else {
-      setIsBoardGameFullscreen(false);
-      setLastWorkspaceSection(sectionId);
-    }
     setActiveSection(sectionId);
     setIsMobileNavOpen(false);
   };
-
-  const handleExitBoardGameFullscreen = useCallback(() => {
-    focusDashboardWorkspace();
-    setIsProToolsOpen(true);
-  }, [focusDashboardWorkspace]);
 
   const handleValueBotContextUpdate = useCallback((updates) => {
     setValueBotContext((prev) => ({
@@ -1926,13 +1894,6 @@ const App = () => {
       };
     }
 
-    if (activeSection === 'boardgame') {
-      return {
-        ...staticSections.boardgame,
-        component: <BoardGameApp onOpenProTools={openProToolsWorkspace} />
-      };
-    }
-
     if (activeSection === 'boardgame-v3') {
       return {
         ...staticSections['boardgame-v3']
@@ -2399,10 +2360,6 @@ const App = () => {
   );
 
   const renderActivePanel = () => {
-    if (activeSection === 'boardgame' && isBoardGameFullscreen) {
-      return null;
-    }
-
     if (activeSection === 'valuebot' || (activeSection === 'dashboard' && activeTab === 'ValueBot')) {
       return renderValueBotWorkspace();
     }
@@ -2578,52 +2535,10 @@ const App = () => {
     </div>
   );
 
-  const immersiveStageClass = `immersive-stage${isProToolsOpen ? ' is-muted' : ' is-active'}`;
-  const foregroundClassName = `app-foreground${
-    !isProToolsOpen && !isBoardGameFullscreen ? ' boardgame-active' : ''
-  }${isBoardGameFullscreen ? ' boardgame-fullscreen' : ''}`;
-
   return (
     <ValueBotContext.Provider value={valueBotProviderValue}>
       <main className="app-stage">
-        {isBoardGameFullscreen && (
-          <div
-            className="fullscreen-boardgame"
-            role="dialog"
-            aria-modal="true"
-            aria-label="MarketTycoon fullscreen"
-          >
-            <header className="fullscreen-boardgame__header">
-              <div>
-                <p className="detail-meta">Board game sim</p>
-                <h2>MarketTycoon — Fullscreen</h2>
-                <p className="detail-meta">{dashboardCaption}</p>
-              </div>
-              <div className="fullscreen-boardgame__actions">
-                <button type="button" className="btn-secondary" onClick={handleExitBoardGameFullscreen}>
-                  Return to workspace
-                </button>
-              </div>
-            </header>
-            <div className="fullscreen-boardgame__body">
-              <BoardGameApp showProToolsButton={false} />
-            </div>
-          </div>
-        )}
-
-        {!isBoardGameFullscreen && (
-          <section
-            className={immersiveStageClass}
-            aria-label="Investing board game spotlight"
-            aria-hidden={isProToolsOpen}
-          >
-            <div className="immersive-boardgame">
-              <BoardGameApp showProToolsButton={false} />
-            </div>
-          </section>
-        )}
-
-        <div className={foregroundClassName}>
+        <div className="app-foreground">
           <div className="pro-toggle-bar">
             {workspaceStatus && (
               <span
