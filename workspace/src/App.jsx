@@ -823,7 +823,7 @@ const App = () => {
   const isSupabaseMode = dataService?.mode === 'supabase';
   const themeCopy = theme === 'dark' ? 'Switch to light' : 'Switch to dark';
   const mobilePrimaryNav = [
-    { id: 'boardgame-v3', icon: '🎮', label: 'Game' },
+    { id: 'boardgame-v3', icon: '🎮', label: 'Investment Game' },
     { id: 'dashboard', icon: '🏠', label: 'Morning Sales' },
     { id: 'focuslist', icon: '🎯', label: 'Focus' },
     { id: 'valuebot', icon: '🤖', label: 'ValueBot' },
