@@ -157,21 +157,26 @@ summary, etc.), ensuring JSON responses instead of HTML.
 - Production build: `npm run build` outputs to `dist/`. Preview with `npm run preview`.
 - Copy `workspace/.env.example` to `workspace/.env` and populate Supabase keys to enable live mode; otherwise the workspace boots in demo data mode automatically.
 
-### Board Game V3 (Standalone Vite App)
-The investing board game V3 is a standalone Vite application located at `apps/investing-board-game-v3/`.
+### Investment Board Game (Standalone Vite App)
+The Investment Board Game is a standalone Vite application located at `apps/investing-board-game-v3/`. This is the only visible board game in the application.
 
-#### Building and Deploying V3 Board Game
+#### Building and Deploying the Investment Board Game
 - **Build**: Run `npm run build:board-game-v3` from the repository root. This will:
   - Install dependencies in `apps/investing-board-game-v3/`
   - Build the Vite app with base path `/board-game-v3/`
   - Copy the built files to `public/board-game-v3/`
 - **Access**: Once built and deployed, the app is accessible at `/board-game-v3/` on your hosting platform.
-- **Development**: To develop the V3 board game in isolation:
+- **Development**: To develop the board game in isolation:
   - Navigate to `apps/investing-board-game-v3/`
   - Run `npm install` (if not already installed)
   - Run `npm run dev` to start the development server
-- **Navigation**: The AlphaStocks workspace includes a navigation item labeled "Board Game (V3 – Standalone)" that redirects to `/board-game-v3/`.
+- **Navigation**: The AlphaStocks workspace includes a navigation item labeled "Investment Board Game" that redirects to `/board-game-v3/`.
 - **Verify locally**: Run `npm run build` followed by `npm run preview`, then load `http://localhost:4173/board-game-v3/` to confirm `dist/board-game-v3/index.html` and assets are served.
 - **Vercel deploy check**: In deployment logs, confirm `npm run build:board-game-v3` runs before `vite build` and that the copy step to `public/board-game-v3/` completes without errors.
 
-_Last updated: 2025-12-13T23:51Z_
+#### Version History
+- **V1** (MarketTycoon): Hidden from UI but remains in codebase at `workspace/src/features/boardgame/`. Not user-accessible.
+- **V2**: Fully removed from codebase.
+- **V3**: Default and only visible board game. Accessible via navigation and Pro Tools.
+
+_Last updated: 2025-12-14T00:16Z_

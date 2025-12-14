@@ -13,7 +13,6 @@ import Module5TimingMomentum from './features/valuebot/modules/Module5TimingMome
 import Module6FinalVerdict from './features/valuebot/modules/Module6FinalVerdict.tsx';
 import BatchQueueTab from './features/valuebot/BatchQueueTab.tsx';
 import BoardGameApp from './features/boardgame/BoardGameApp.tsx';
-import BoardGameV2Page from './features/investing-board-game-v2/BoardGameV2Page.tsx';
 import {
   ValueBotContext,
   defaultPipelineProgress,
@@ -433,9 +432,9 @@ const defaultValueBotTabLabel =
   valueBotTabs.find((tab) => tab.id === defaultValueBotTabId)?.label ?? valueBotTabs[0].label;
 const valueBotPrimaryTabLabels = valueBotTabs.slice(0, 2).map((tab) => tab.label);
 const valueBotModuleTabLabels = valueBotTabs.slice(2).map((tab) => tab.label);
-const ENABLE_BOARDGAME = true; // TODO: make this env/feature-flag driven
-const ENABLE_BOARDGAME_V2 = true; // TODO: make this env/feature-flag driven
-const ENABLE_BOARDGAME_V3 = true; // TODO: make this env/feature-flag driven
+const ENABLE_BOARDGAME = false; // V1 is hidden from UI but kept in codebase
+const ENABLE_BOARDGAME_V2 = false; // V2 will be deleted
+const ENABLE_BOARDGAME_V3 = true; // V3 is now the default and only visible game
 
 const sectionTabsById = {
   dashboard: dashboardTabs,
@@ -444,7 +443,6 @@ const sectionTabsById = {
   checkin: ['Tab 1', 'Trading Journal', 'Tab 3', 'Tab 4', 'Tab 5'],
   focuslist: ['Focus List'],
   boardgame: [],
-  'boardgame-v2': [],
   'boardgame-v3': []
 };
 
@@ -459,20 +457,12 @@ const boardGameNavItem = {
   shortLabel: 'Game'
 };
 
-const boardGameV2NavItem = {
-  id: 'boardgame-v2',
-  icon: '🎯',
-  title: 'Board Game (V2)',
-  caption: 'Enhanced board game',
-  shortLabel: 'Game V2'
-};
-
 const boardGameV3NavItem = {
   id: 'boardgame-v3',
   icon: '🎮',
-  title: 'Board Game (V3 – Standalone)',
-  caption: 'Standalone Vite app',
-  shortLabel: 'Game V3'
+  title: 'Investment Board Game',
+  caption: 'Interactive investing simulation',
+  shortLabel: 'Game'
 };
 
 const baseNavigation = [
@@ -713,14 +703,9 @@ const staticSections = {
     meta: 'Board game-style investing simulation powered by ValueBot.',
     component: <BoardGameApp />
   },
-  'boardgame-v2': {
-    title: 'Board Game (V2)',
-    meta: 'Enhanced investing board game with new features and improved gameplay.',
-    component: <BoardGameV2Page />
-  },
   'boardgame-v3': {
-    title: 'Board Game (V3 – Standalone)',
-    meta: 'Standalone Vite app for the investing board game experience.',
+    title: 'Investment Board Game',
+    meta: 'Interactive investing simulation to sharpen your decision-making skills.',
     isExternal: true,
     externalPath: '/board-game-v3/'
   },
@@ -780,20 +765,16 @@ const App = () => {
   const dashboardCaption = 'Added to universe • Recently updated';
   const mainNavigation = useMemo(() => {
     const nav = [];
-    // Board games appear first when enabled (V2 before legacy for prominence)
+    // V3 is the only visible board game
     if (ENABLE_BOARDGAME_V3) {
       nav.push(boardGameV3NavItem);
     }
-    if (ENABLE_BOARDGAME_V2) {
-      nav.push(boardGameV2NavItem);
-    }
-    if (ENABLE_BOARDGAME) {
-      nav.push(boardGameNavItem);
-    }
+    // V1 is hidden but remains in codebase (not added to nav)
+    // V2 has been deleted
     nav.push(...baseNavigation);
     return nav;
   }, []);
-  const defaultActiveSection = ENABLE_BOARDGAME_V3 ? 'boardgame-v3' : ENABLE_BOARDGAME_V2 ? 'boardgame-v2' : ENABLE_BOARDGAME ? 'boardgame' : 'dashboard';
+  const defaultActiveSection = ENABLE_BOARDGAME_V3 ? 'boardgame-v3' : 'dashboard';
   const [activeSection, setActiveSection] = useState(defaultActiveSection);
   const [lastWorkspaceSection, setLastWorkspaceSection] = useState('dashboard');
   const [activeTabsBySection, setActiveTabsBySection] = useState(() => {
@@ -842,7 +823,7 @@ const App = () => {
   const isSupabaseMode = dataService?.mode === 'supabase';
   const themeCopy = theme === 'dark' ? 'Switch to light' : 'Switch to dark';
   const mobilePrimaryNav = [
-    { id: 'boardgame', icon: '🎲', label: 'MarketTycoon' },
+    { id: 'boardgame-v3', icon: '🎮', label: 'Investment Game' },
     { id: 'dashboard', icon: '🏠', label: 'Morning Sales' },
     { id: 'focuslist', icon: '🎯', label: 'Focus' },
     { id: 'valuebot', icon: '🤖', label: 'ValueBot' },
@@ -1940,13 +1921,6 @@ const App = () => {
       return {
         ...staticSections.boardgame,
         component: <BoardGameApp onOpenProTools={openProToolsWorkspace} />
-      };
-    }
-
-    if (activeSection === 'boardgame-v2') {
-      return {
-        ...staticSections['boardgame-v2'],
-        component: <BoardGameV2Page />
       };
     }
 
