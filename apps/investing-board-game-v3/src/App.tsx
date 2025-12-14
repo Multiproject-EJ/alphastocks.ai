@@ -386,13 +386,10 @@ function App() {
           <div className="absolute bottom-8 right-8 z-40">
             <Button
               onClick={() => {
-                const proToolsUrl = '/?proTools=1'
+                const proToolsUrl = 'https://www.alphastocks.ai/?proTools=1'
                 if (typeof window !== 'undefined') {
-                  const win = window.open(proToolsUrl, '_blank', 'noopener,noreferrer')
-                  if (win) {
-                    win.focus()
-                    return
-                  }
+                  window.location.href = proToolsUrl
+                  return
                 }
                 setProToolsOpen(true)
               }}
