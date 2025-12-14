@@ -34,8 +34,8 @@ export function Tile({ tile, isActive, isHopping, isLanded, onClick, side }: Til
     <motion.div
       className={cn(
         'relative flex flex-col items-center justify-center rounded-lg cursor-pointer transition-all',
-        'bg-card/50 backdrop-blur-sm flex-shrink-0',
-        isCorner 
+        'bg-card/50 backdrop-blur-sm flex-shrink-0 overflow-visible',
+        isCorner
           ? 'w-[200px] h-[200px] border-4'
           : isVertical
           ? isEvent
@@ -82,13 +82,31 @@ export function Tile({ tile, isActive, isHopping, isLanded, onClick, side }: Til
     >
       {isActive && (
         <motion.div
-          className="absolute -top-10 left-1/2 -translate-x-1/2 z-10"
-          initial={{ y: -10, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+          className="absolute inset-0 flex items-center justify-center z-30 pointer-events-none"
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{
+            scale: 1,
+            opacity: 1,
+            y: isHopping ? -12 : isLanded ? -6 : -2,
+          }}
+          transition={{ type: 'spring', stiffness: 260, damping: 18 }}
         >
-          <div className="w-8 h-8 rounded-full bg-accent flex items-center justify-center text-accent-foreground text-sm font-bold shadow-lg">
-            ●
+          <div className="relative">
+            <div
+              className={cn(
+                'absolute inset-0 rounded-full blur-lg bg-accent/40',
+                isHopping ? 'animate-pulse' : 'animate-[pulse_2s_ease-in-out_infinite]'
+              )}
+              aria-hidden
+            />
+            <div
+              className={cn(
+                'w-10 h-10 rounded-full bg-accent flex items-center justify-center text-accent-foreground text-sm font-bold shadow-[0_10px_25px_oklch(0.75_0.15_85_/_0.35)]',
+                isLanded ? 'ring-4 ring-accent/60' : 'ring-2 ring-accent/40'
+              )}
+            >
+              ●
+            </div>
           </div>
         </motion.div>
       )}

@@ -114,6 +114,19 @@ function App() {
     stockSourceAnnounced.current = stockSource
   }, [loadingUniverse, stockSource, universeCount, universeError])
 
+  useEffect(() => {
+    const noActiveOverlays =
+      !stockModalOpen &&
+      !eventModalOpen &&
+      !thriftyModalOpen &&
+      !biasSanctuaryModalOpen &&
+      !showCentralStock
+
+    if (phase === 'landed' && noActiveOverlays) {
+      setPhase('idle')
+    }
+  }, [stockModalOpen, eventModalOpen, thriftyModalOpen, biasSanctuaryModalOpen, showCentralStock, phase])
+
   const handleRoll = () => {
     if (phase !== 'idle') {
       toast.info('Finish your current action first', {
