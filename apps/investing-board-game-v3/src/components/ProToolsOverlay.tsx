@@ -59,8 +59,9 @@ export function ProToolsOverlay({
         },
       }
 
-      // Send message to iframe
-      iframe.contentWindow.postMessage(message, window.location.origin)
+      // Send message to iframe (same origin since we're using relative URL)
+      const targetOrigin = window.location.origin
+      iframe.contentWindow.postMessage(message, targetOrigin)
     }
 
     const iframe = iframeRef.current
@@ -109,7 +110,6 @@ export function ProToolsOverlay({
           src={proToolsUrl}
           className="absolute inset-0 w-full h-full border-0"
           title="Pro Tools"
-          sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
         />
       </div>
     </div>
