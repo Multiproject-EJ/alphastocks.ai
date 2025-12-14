@@ -1,4 +1,4 @@
-import { Tile, Stock, ThriftyChallenge, BiasCaseStudy } from './types'
+import { Tile, Stock, ThriftyChallenge, BiasCaseStudy, TileCategory } from './types'
 
 export const BOARD_TILES: Tile[] = [
   { id: 0, type: 'corner', title: 'Start / ThriftyPath' },
@@ -101,7 +101,7 @@ export const THRIFTY_CHALLENGES: ThriftyChallenge[] = [
   },
 ]
 
-export function getRandomStock(category: string): Stock {
+export function getRandomStock(category: TileCategory): Stock {
   const stocks = MOCK_STOCKS[category] || []
   return stocks[Math.floor(Math.random() * stocks.length)]
 }
