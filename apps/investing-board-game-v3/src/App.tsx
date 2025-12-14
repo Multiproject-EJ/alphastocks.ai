@@ -10,6 +10,7 @@ import { StockModal } from '@/components/StockModal'
 import { EventModal } from '@/components/EventModal'
 import { ThriftyPathModal } from '@/components/ThriftyPathModal'
 import { PortfolioModal } from '@/components/PortfolioModal'
+import { ProToolsOverlay } from '@/components/ProToolsOverlay'
 import { GameState, Stock } from '@/lib/types'
 import {
   BOARD_TILES,
@@ -17,7 +18,7 @@ import {
   getRandomMarketEvent,
   THRIFTY_CHALLENGES,
 } from '@/lib/mockData'
-import { Info, Star, ChartLine } from '@phosphor-icons/react'
+import { Info, Star, ChartLine, Toolbox } from '@phosphor-icons/react'
 
 type Phase = 'idle' | 'rolling' | 'moving' | 'landed'
 
@@ -59,6 +60,8 @@ function App() {
   const [portfolioModalOpen, setPortfolioModalOpen] = useState(false)
 
   const [hubModalOpen, setHubModalOpen] = useState(false)
+
+  const [proToolsOpen, setProToolsOpen] = useState(false)
 
   useEffect(() => {
     const checkReset = setInterval(() => {
@@ -281,6 +284,18 @@ function App() {
 
           <CentralStockCard stock={currentStock} isVisible={showCentralStock} />
 
+          {/* Pro Tools Button */}
+          <div className="absolute top-8 left-8 z-40">
+            <Button
+              onClick={() => setProToolsOpen(true)}
+              className="gap-2 bg-accent/90 hover:bg-accent text-accent-foreground shadow-lg hover:shadow-xl transition-all backdrop-blur-sm"
+              size="lg"
+            >
+              <Toolbox size={20} weight="bold" />
+              Pro Tools
+            </Button>
+          </div>
+
           <DiceHUD
             onRoll={handleRoll}
             lastRoll={lastRoll}
@@ -415,6 +430,12 @@ function App() {
       <PortfolioModal
         open={portfolioModalOpen}
         onOpenChange={setPortfolioModalOpen}
+        gameState={gameState}
+      />
+
+      <ProToolsOverlay
+        open={proToolsOpen}
+        onOpenChange={setProToolsOpen}
         gameState={gameState}
       />
     </div>
