@@ -4,7 +4,7 @@ This document describes the Pro Tools overlay integration in the Investing Board
 
 ## Overview
 
-The Pro Tools overlay provides a full-screen interface for accessing advanced investment tools from within the board game. It uses an iframe to embed the Pro Tools UI and implements secure postMessage communication to share game state.
+The Pro Tools overlay provides a full-screen interface for accessing advanced investment tools from within the board game. It displays a main menu with placeholder items for future features and shows the current game state.
 
 ## Components
 
@@ -14,84 +14,67 @@ Located at: `src/components/ProToolsOverlay.tsx`
 
 **Features:**
 - Full-screen overlay with fixed positioning (z-index: 100)
-- Title bar with "Pro Tools" label and close button
-- Iframe embedding the Pro Tools UI from `/pro-tools`
+- Prominent "ProTools" text logo at the top with gradient styling
+- Main menu with tool categories (Portfolio Analysis, Market Insights, News & Updates, Learning Center)
+- Game state summary displaying Cash, Net Worth, Portfolio Value, and Holdings count
 - Background scroll locking when overlay is open
-- Secure postMessage communication
+- Close button (X) to dismiss the overlay
 
 **Props:**
 - `open: boolean` - Controls overlay visibility
 - `onOpenChange: (open: boolean) => void` - Callback when overlay state changes
-- `gameState: GameState` - Current game state to share with Pro Tools
-- `sessionId?: string` - Optional session identifier (defaults to 'BOARDGAME_V3_SESSION')
+- `gameState: GameState` - Current game state to display in the overlay
 
 ### Integration in App.tsx
 
-The Pro Tools button is positioned in the top-left corner of the board game interface. Clicking it opens the ProToolsOverlay.
+The Pro Tools button is positioned in the bottom-right corner of the board game interface. Clicking it opens the ProToolsOverlay.
 
-## PostMessage Communication
+**Button Location:** Bottom-right corner (absolute positioning with `bottom-8 right-8`)
+**Icon:** Toolbox icon from @phosphor-icons/react
+**State Management:** Uses React's `useState` hook with `proToolsOpen` state
 
-When the iframe loads, the parent window sends game context to the embedded Pro Tools page using the following message format:
+## Main Menu Items
 
-```typescript
-{
-  type: 'ALPHASTOCKS_PT_CONTEXT',
-  version: 1,
-  source: 'boardgame-v3',
-  sessionId: string,
-  payload: {
-    cash: number,
-    netWorth: number,
-    portfolioValue: number,
-    stars: number,
-    holdings: Array<{
-      ticker: string,
-      name: string,
-      shares: number,
-      totalCost: number
-    }>
-  }
-}
-```
+The overlay displays four main tool categories (currently marked as "Coming Soon"):
 
-### Receiving Messages in Pro Tools
+1. **Portfolio Analysis** - Analyze portfolio performance and risk metrics
+2. **Market Insights** - Access real-time market data and trends
+3. **News & Updates** - Stay informed with the latest financial news
+4. **Learning Center** - Educational resources and investment guides
 
-The Pro Tools page should listen for this message:
+## Game State Display
 
-```javascript
-window.addEventListener('message', (event) => {
-  // Verify origin for security
-  if (event.origin !== window.location.origin) return;
-  
-  // Check message type
-  if (event.data.type === 'ALPHASTOCKS_PT_CONTEXT') {
-    const { payload, sessionId } = event.data;
-    // Use the game state data...
-  }
-});
-```
+The overlay shows real-time game state information:
+- **Cash**: Current available cash balance
+- **Net Worth**: Total net worth (cash + portfolio value)
+- **Portfolio**: Total value of stock holdings
+- **Holdings**: Number of stocks owned
 
-## URL Parameters
-
-The iframe loads the Pro Tools with these query parameters:
-- `embed=1` - Indicates the page is embedded in an iframe
-- `source=boardgame-v3` - Identifies the embedding source
-- `session=<sessionId>` - Provides session tracking
-
-Example URL: `/pro-tools?embed=1&source=boardgame-v3&session=BOARDGAME_V3_SESSION`
-
-## Security Considerations
-
-1. **Same-Origin Policy**: The iframe loads from a relative URL on the same domain, ensuring same-origin policy protection.
-2. **PostMessage Targeting**: Messages are sent to `window.location.origin` to prevent leakage to other origins.
-3. **No Sandbox**: Since the iframe loads trusted content from the same origin, no sandbox restrictions are applied.
+All currency values are formatted using the `formatCurrency()` helper function (displays in thousands with 1 decimal place, e.g., "$100.0k").
 
 ## User Experience
 
-1. User clicks "Pro Tools" button in top-left corner
-2. Full-screen overlay appears instantly
-3. Background page scroll is locked
-4. Pro Tools UI loads in iframe
-5. Game state is sent to Pro Tools via postMessage
-6. User clicks X button to close overlay
-7. Overlay disappears and scroll is restored
+1. User clicks the ProTools button (Toolbox icon) in bottom-right corner
+2. Full-screen overlay appears instantly covering the entire viewport
+3. Background page scroll is locked (preventing interaction with game board)
+4. "ProTools" text logo is prominently displayed at the top
+5. Game state summary shows current financial status
+6. Main menu displays available tools (currently placeholders)
+7. User clicks X button to close overlay
+8. Overlay disappears and scroll is restored
+
+## Styling
+
+The overlay uses Tailwind CSS with:
+- Gradient background on header (`bg-gradient-to-r from-accent/10 to-accent/5`)
+- Gradient text for logo (`bg-gradient-to-r from-accent to-accent/70 bg-clip-text text-transparent`)
+- Responsive grid layout for game state cards and menu items
+- Hover effects on menu items
+- Disabled state styling for "Coming Soon" features
+
+## Accessibility
+
+- Proper ARIA attributes (`role="dialog"`, `aria-modal="true"`, `aria-labelledby="pro-tools-title"`)
+- Semantic HTML structure
+- Keyboard accessible close button
+- Clear labels and descriptions for all interactive elements
