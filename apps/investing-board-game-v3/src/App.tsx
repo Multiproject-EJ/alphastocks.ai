@@ -11,11 +11,13 @@ import { EventModal } from '@/components/EventModal'
 import { ThriftyPathModal } from '@/components/ThriftyPathModal'
 import { PortfolioModal } from '@/components/PortfolioModal'
 import { ProToolsOverlay } from '@/components/ProToolsOverlay'
-import { GameState, Stock } from '@/lib/types'
+import { BiasSanctuaryModal } from '@/components/BiasSanctuaryModal'
+import { GameState, Stock, BiasCaseStudy } from '@/lib/types'
 import {
   BOARD_TILES,
   getRandomStock,
   getRandomMarketEvent,
+  getRandomBiasCaseStudy,
   THRIFTY_CHALLENGES,
 } from '@/lib/mockData'
 import { Info, Star, ChartLine, Toolbox } from '@phosphor-icons/react'
@@ -62,6 +64,9 @@ function App() {
   const [hubModalOpen, setHubModalOpen] = useState(false)
 
   const [proToolsOpen, setProToolsOpen] = useState(false)
+
+  const [biasSanctuaryModalOpen, setBiasSanctuaryModalOpen] = useState(false)
+  const [currentCaseStudy, setCurrentCaseStudy] = useState<BiasCaseStudy | null>(null)
 
   useEffect(() => {
     const checkReset = setInterval(() => {
@@ -157,9 +162,9 @@ function App() {
           description: 'Feature coming soon',
         })
       } else if (tile.title === 'Bias Sanctuary') {
-        toast.info('Bias Sanctuary', {
-          description: 'Feature coming soon',
-        })
+        const caseStudy = getRandomBiasCaseStudy()
+        setCurrentCaseStudy(caseStudy)
+        setBiasSanctuaryModalOpen(true)
       }
       setTimeout(() => setPhase('idle'), 1000)
     }
@@ -227,6 +232,20 @@ function App() {
         setPhase('idle')
       }
     }, 500)
+  }
+
+  const handleBiasQuizComplete = (correct: number, total: number) => {
+    const percentage = (correct / total) * 100
+    const starsEarned = correct === total ? 5 : correct >= total / 2 ? 3 : 1
+
+    setGameState((prev) => ({
+      ...prev,
+      stars: prev.stars + starsEarned,
+    }))
+
+    toast.success(`Quiz complete: ${correct}/${total} correct`, {
+      description: `Earned ${starsEarned} stars! ⭐ ${percentage >= 100 ? 'Perfect score!' : ''}`,
+    })
   }
 
   const netWorthChange = ((gameState.netWorth - 100000) / 100000) * 100
@@ -437,6 +456,19 @@ function App() {
         open={proToolsOpen}
         onOpenChange={setProToolsOpen}
         gameState={gameState}
+      />
+
+      <BiasSanctuaryModal
+        open={biasSanctuaryModalOpen}
+        onOpenChange={(open) => {
+          setBiasSanctuaryModalOpen(open)
+          if (!open) {
+            setCurrentCaseStudy(null)
+            setTimeout(() => setPhase('idle'), 300)
+          }
+        }}
+        caseStudy={currentCaseStudy}
+        onComplete={handleBiasQuizComplete}
       />
     </div>
   )
