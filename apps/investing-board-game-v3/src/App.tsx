@@ -69,6 +69,10 @@ function App() {
   const [biasSanctuaryModalOpen, setBiasSanctuaryModalOpen] = useState(false)
   const [currentCaseStudy, setCurrentCaseStudy] = useState<BiasCaseStudy | null>(null)
 
+  const rollTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const hopIntervalRef = useRef<NodeJS.Timeout | null>(null)
+  const landingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
   const { getStockForCategory, loading: loadingUniverse, error: universeError, source: stockSource, universeCount } =
     useUniverseStocks()
 
@@ -86,6 +90,14 @@ function App() {
 
     return () => clearInterval(checkReset)
   }, [nextResetTime])
+
+  useEffect(() => {
+    return () => {
+      if (rollTimeoutRef.current) clearTimeout(rollTimeoutRef.current)
+      if (hopIntervalRef.current) clearInterval(hopIntervalRef.current)
+      if (landingTimeoutRef.current) clearTimeout(landingTimeoutRef.current)
+    }
+  }, [])
 
   useEffect(() => {
     if (universeError) {
@@ -142,30 +154,35 @@ function App() {
       return
     }
 
+    // clear any lingering timers from a previous roll to keep movement predictable
+    if (rollTimeoutRef.current) clearTimeout(rollTimeoutRef.current)
+    if (hopIntervalRef.current) clearInterval(hopIntervalRef.current)
+    if (landingTimeoutRef.current) clearTimeout(landingTimeoutRef.current)
+
     setPhase('rolling')
     const roll = Math.floor(Math.random() * 6) + 1
     setLastRoll(roll)
 
-    setTimeout(() => {
+    rollTimeoutRef.current = setTimeout(() => {
       setPhase('moving')
       const startPosition = gameState.position
       const tilesToHop: number[] = []
-      
+
       for (let i = 1; i <= roll; i++) {
         tilesToHop.push((startPosition + i) % BOARD_TILES.length)
       }
 
       let currentHop = 0
-      const hopInterval = setInterval(() => {
+      hopIntervalRef.current = setInterval(() => {
         if (currentHop < tilesToHop.length) {
           setHoppingTiles([tilesToHop[currentHop]])
           setGameState((prev) => ({ ...prev, position: tilesToHop[currentHop] }))
           currentHop++
         } else {
-          clearInterval(hopInterval)
+          if (hopIntervalRef.current) clearInterval(hopIntervalRef.current)
           setHoppingTiles([])
-          
-          setTimeout(() => {
+
+          landingTimeoutRef.current = setTimeout(() => {
             setPhase('landed')
             const newPosition = tilesToHop[tilesToHop.length - 1]
             handleTileLanding(newPosition)
