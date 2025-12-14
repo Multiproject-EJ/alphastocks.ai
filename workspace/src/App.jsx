@@ -1052,6 +1052,15 @@ const App = () => {
     setIsProToolsOpen(true);
   }, [focusDashboardWorkspace]);
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('proTools') === '1') {
+      openProToolsWorkspace();
+    }
+  }, [openProToolsWorkspace]);
+
   const handleProToolsToggle = useCallback(() => {
     setIsProToolsOpen((prev) => {
       const nextIsOpen = !prev;

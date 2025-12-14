@@ -27,11 +27,11 @@ Located at: `src/components/ProToolsOverlay.tsx`
 
 ### Integration in App.tsx
 
-The Pro Tools button is positioned in the bottom-right corner of the board game interface. Clicking it opens the ProToolsOverlay.
+The Pro Tools button is positioned in the bottom-right corner of the board game interface. Clicking it now opens the main Pro Tools workspace (`/?proTools=1`) in a new tab so players can switch between the game and the workspace. If the new window is blocked, the in-game `ProToolsOverlay` will open as a fallback.
 
 **Button Location:** Bottom-right corner (absolute positioning with `bottom-8 right-8`)
 **Icon:** Toolbox icon from @phosphor-icons/react
-**State Management:** Uses React's `useState` hook with `proToolsOpen` state
+**State Management:** Uses React's `useState` hook with `proToolsOpen` state (fallback only)
 
 ## Main Menu Items
 
