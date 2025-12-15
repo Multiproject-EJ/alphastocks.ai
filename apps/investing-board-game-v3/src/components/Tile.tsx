@@ -36,7 +36,7 @@ export function Tile({ tile, isActive, isHopping, isLanded, onClick, side }: Til
         'relative flex flex-col items-center justify-center rounded-lg cursor-pointer transition-all',
         'bg-black/70 backdrop-blur-xl flex-shrink-0 overflow-visible shadow-[inset_0_1px_0_rgba(255,255,255,0.08),_0_25px_45px_rgba(0,0,0,0.55)]',
         isCorner
-          ? 'w-[200px] h-[200px] border-4'
+          ? 'w-[140px] h-[140px] border-4'
           : isVertical
           ? isEvent
             ? 'w-[120px] h-[80px] border-l-8 border-y-2 border-r-2'

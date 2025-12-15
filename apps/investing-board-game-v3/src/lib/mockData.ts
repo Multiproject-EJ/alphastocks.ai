@@ -9,22 +9,25 @@ export const BOARD_TILES: Tile[] = [
   { id: 5, type: 'event', title: 'Quiz' },
   { id: 6, type: 'category', title: 'Dividends', category: 'dividends', colorBorder: 'oklch(0.65 0.20 200)' },
   { id: 7, type: 'corner', title: 'Free Parking' },
-  
+
   { id: 8, type: 'category', title: 'Growth', category: 'growth', colorBorder: 'oklch(0.70 0.18 25)' },
-  { id: 9, type: 'category', title: 'Growth', category: 'growth', colorBorder: 'oklch(0.70 0.18 25)' },
-  { id: 10, type: 'event', title: 'Quiz' },
-  { id: 11, type: 'corner', title: 'Court of Capital' },
-  
-  { id: 12, type: 'category', title: 'Value', category: 'value', colorBorder: 'oklch(0.75 0.15 85)' },
+  { id: 9, type: 'event', title: 'Wildcard' },
+  { id: 10, type: 'category', title: 'Growth', category: 'growth', colorBorder: 'oklch(0.70 0.18 25)' },
+  { id: 11, type: 'event', title: 'Quiz' },
+  { id: 12, type: 'corner', title: 'Court of Capital' },
+
   { id: 13, type: 'category', title: 'Value', category: 'value', colorBorder: 'oklch(0.75 0.15 85)' },
   { id: 14, type: 'category', title: 'Value', category: 'value', colorBorder: 'oklch(0.75 0.15 85)' },
-  { id: 15, type: 'event', title: 'Market Event' },
-  { id: 16, type: 'category', title: 'Value', category: 'value', colorBorder: 'oklch(0.75 0.15 85)' },
-  { id: 17, type: 'corner', title: 'Bias Sanctuary' },
-  
-  { id: 18, type: 'category', title: 'Moats', category: 'moats', colorBorder: 'oklch(0.55 0.22 15)' },
+  { id: 15, type: 'category', title: 'Value', category: 'value', colorBorder: 'oklch(0.75 0.15 85)' },
+  { id: 16, type: 'event', title: 'Market Event' },
+  { id: 17, type: 'category', title: 'Value', category: 'value', colorBorder: 'oklch(0.75 0.15 85)' },
+  { id: 18, type: 'corner', title: 'Bias Sanctuary' },
+
   { id: 19, type: 'category', title: 'Moats', category: 'moats', colorBorder: 'oklch(0.55 0.22 15)' },
-  { id: 20, type: 'event', title: 'Quiz' },
+  { id: 20, type: 'event', title: 'Wildcard' },
+  { id: 21, type: 'category', title: 'Moats', category: 'moats', colorBorder: 'oklch(0.55 0.22 15)' },
+  { id: 22, type: 'event', title: '?' },
+  { id: 23, type: 'event', title: 'Quiz' },
 ]
 
 export const MOCK_STOCKS: Record<string, Stock[]> = {
