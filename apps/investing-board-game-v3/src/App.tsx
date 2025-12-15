@@ -21,8 +21,6 @@ import {
 } from '@/lib/mockData'
 import { Info, Star, ChartLine, Toolbox } from '@phosphor-icons/react'
 import { useUniverseStocks } from '@/hooks/useUniverseStocks'
-import cityBackdrop from './assets/investor-game-city.svg'
-import logo from './assets/market-tycoon-logo.svg'
 
 type Phase = 'idle' | 'rolling' | 'moving' | 'landed'
 
@@ -328,14 +326,7 @@ function App() {
   const netWorthChange = ((gameState.netWorth - 100000) / 100000) * 100
 
   return (
-    <div
-      className="min-h-screen bg-background p-8"
-      style={{
-        backgroundImage: `linear-gradient(180deg, rgba(6, 10, 18, 0.88) 0%, rgba(6, 10, 18, 0.76) 40%, rgba(6, 10, 18, 0.72) 100%), url(${cityBackdrop})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-      }}
-    >
+    <div className="min-h-screen bg-background p-8">
       <Toaster position="top-center" />
 
       <div className="max-w-[1600px] mx-auto">
@@ -344,15 +335,12 @@ function App() {
           className="relative bg-primary rounded-2xl border-4 border-accent/30 shadow-[inset_0_0_60px_oklch(0.75_0.15_85_/_0.1),0_0_40px_oklch(0.15_0.04_250_/_0.5)] p-8 min-h-[900px]"
         >
           <header className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 text-center pointer-events-none">
-            <div className="flex flex-col items-center gap-3 mb-2">
-              <img
-                src={logo}
-                alt="Market Tycoon Investor Game logo"
-                className="w-52 sm:w-64 drop-shadow-[0_20px_40px_rgba(0,0,0,0.35)]"
-              />
-              <h1 className="text-4xl font-bold text-accent tracking-tight">Investor Game</h1>
-            </div>
-            <p className="text-muted-foreground mb-8">Dice-driven investing simulation powered by ValueBot</p>
+            <h1 className="text-4xl font-bold text-accent mb-2 tracking-tight">
+              Investing Board Game (Beta)
+            </h1>
+            <p className="text-muted-foreground mb-8">
+              Dice-driven investing simulation powered by ValueBot
+            </p>
             <div className="flex items-center justify-center gap-6 pointer-events-auto">
               <button
                 onClick={() => setHubModalOpen(true)}
