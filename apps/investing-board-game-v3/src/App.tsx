@@ -334,15 +334,15 @@ function App() {
       <Toaster position="top-center" />
 
       <div className="relative z-10 max-w-[1600px] mx-auto">
-        <div 
+        <div
           ref={boardRef}
-          className="relative bg-primary rounded-2xl border-4 border-accent/30 shadow-[inset_0_0_60px_oklch(0.75_0.15_85_/_0.1),0_0_40px_oklch(0.15_0.04_250_/_0.5)] p-8 min-h-[900px]"
+          className="relative bg-black/30 backdrop-blur-2xl rounded-2xl border-4 border-white/10 shadow-[inset_0_0_80px_rgba(255,255,255,0.04),_0_0_60px_rgba(0,0,0,0.55)] p-8 min-h-[900px]"
         >
           <header className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 text-center pointer-events-none">
             <img
               src="/board-game-v3/Logo.webp"
               alt="Investing Board Game logo"
-              className="mx-auto mb-4 h-28 w-auto max-w-[260px] drop-shadow-lg md:h-32"
+              className="mx-auto mb-4 h-56 w-auto max-w-[420px] drop-shadow-xl md:h-64"
             />
             <h1 className="text-4xl font-bold text-accent mb-2 tracking-tight">
               Investing Board Game (Beta)
@@ -353,7 +353,7 @@ function App() {
             <div className="flex items-center justify-center gap-6 pointer-events-auto">
               <button
                 onClick={() => setHubModalOpen(true)}
-                className="group bg-card/90 backdrop-blur-sm border-2 border-accent/30 hover:border-accent/60 rounded-xl p-4 shadow-lg hover:shadow-xl transition-all cursor-pointer min-w-[200px]"
+                className="group bg-black/75 backdrop-blur-xl border-2 border-white/10 hover:border-accent/60 rounded-xl p-4 shadow-lg hover:shadow-xl transition-all cursor-pointer min-w-[200px]"
               >
                 <div className="flex items-center gap-3 mb-2">
                   <div className="p-2 rounded-lg bg-accent/20 group-hover:bg-accent/30 transition-colors">
@@ -369,7 +369,7 @@ function App() {
               <WealthThrone netWorthChange={netWorthChange} holdingsCount={gameState.holdings.length} />
               <button
                 onClick={() => setPortfolioModalOpen(true)}
-                className="group bg-card/90 backdrop-blur-sm border-2 border-accent/30 hover:border-accent/60 rounded-xl p-4 shadow-lg hover:shadow-xl transition-all cursor-pointer min-w-[200px]"
+                className="group bg-black/75 backdrop-blur-xl border-2 border-white/10 hover:border-accent/60 rounded-xl p-4 shadow-lg hover:shadow-xl transition-all cursor-pointer min-w-[200px]"
               >
                 <div className="flex items-center gap-3 mb-2">
                   <div className="p-2 rounded-lg bg-accent/20 group-hover:bg-accent/30 transition-colors">

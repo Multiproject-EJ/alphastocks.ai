@@ -34,7 +34,7 @@ export function Tile({ tile, isActive, isHopping, isLanded, onClick, side }: Til
     <motion.div
       className={cn(
         'relative flex flex-col items-center justify-center rounded-lg cursor-pointer transition-all',
-        'bg-card/50 backdrop-blur-sm flex-shrink-0 overflow-visible',
+        'bg-black/70 backdrop-blur-xl flex-shrink-0 overflow-visible shadow-[inset_0_1px_0_rgba(255,255,255,0.08),_0_25px_45px_rgba(0,0,0,0.55)]',
         isCorner
           ? 'w-[200px] h-[200px] border-4'
           : isVertical
