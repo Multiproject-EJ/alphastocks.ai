@@ -8,7 +8,7 @@ export const BOARD_TILES: Tile[] = [
   { id: 4, type: 'category', title: 'Dividends', category: 'dividends', colorBorder: 'oklch(0.65 0.20 200)' },
   { id: 5, type: 'event', title: 'Quiz' },
   { id: 6, type: 'category', title: 'Dividends', category: 'dividends', colorBorder: 'oklch(0.65 0.20 200)' },
-  { id: 7, type: 'corner', title: 'Free Parking' },
+  { id: 7, type: 'corner', title: 'Casino' },
 
   { id: 8, type: 'category', title: 'Growth', category: 'growth', colorBorder: 'oklch(0.70 0.18 25)' },
   { id: 9, type: 'event', title: 'Wildcard' },

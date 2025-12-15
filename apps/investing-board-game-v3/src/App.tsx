@@ -19,7 +19,7 @@ import {
   getRandomBiasCaseStudy,
   THRIFTY_CHALLENGES,
 } from '@/lib/mockData'
-import { Info, Star, ChartLine, Toolbox } from '@phosphor-icons/react'
+import { Info, Star, ChartLine } from '@phosphor-icons/react'
 import { useUniverseStocks } from '@/hooks/useUniverseStocks'
 
 type Phase = 'idle' | 'rolling' | 'moving' | 'landed'
@@ -232,9 +232,9 @@ function App() {
         toast.success('Passed Start! Collected $20,000', {
           description: 'Keep building your portfolio',
         })
-      } else if (tile.title === 'Free Parking') {
-        toast.info('Free Parking', {
-          description: 'Feature coming soon',
+      } else if (tile.title === 'Casino') {
+        toast.info('Casino', {
+          description: 'Try your luck soon',
         })
       } else if (tile.title === 'Court of Capital') {
         toast.info('Court of Capital', {
@@ -400,11 +400,10 @@ function App() {
                 }
                 setProToolsOpen(true)
               }}
-              className="bg-accent/90 hover:bg-accent text-accent-foreground shadow-lg hover:shadow-xl transition-all backdrop-blur-sm rounded-full w-14 h-14 p-0"
-              size="icon"
+              className="bg-accent/90 hover:bg-accent text-accent-foreground shadow-lg hover:shadow-xl transition-all backdrop-blur-sm rounded-full h-14 px-6 text-base font-semibold"
               aria-label="Open Pro Tools"
             >
-              <Toolbox size={20} weight="bold" />
+              ProTools
             </Button>
           </div>
 
