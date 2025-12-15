@@ -336,7 +336,7 @@ function App() {
       <div className="relative z-10 max-w-[1600px] mx-auto">
         <div
           ref={boardRef}
-          className="relative bg-black/30 backdrop-blur-2xl rounded-2xl border-4 border-white/10 shadow-[inset_0_0_80px_rgba(255,255,255,0.04),_0_0_60px_rgba(0,0,0,0.55)] p-8 min-h-[900px]"
+          className="relative bg-gradient-to-br from-white/15 via-white/8 to-white/12 backdrop-blur-2xl rounded-2xl border border-white/25 shadow-[inset_0_0_70px_rgba(255,255,255,0.08),_0_20px_80px_rgba(0,0,0,0.35)] p-8 min-h-[900px]"
         >
           <header className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 text-center pointer-events-none">
             <img
@@ -344,12 +344,6 @@ function App() {
               alt="Investing Board Game logo"
               className="mx-auto mb-4 h-56 w-auto max-w-[420px] drop-shadow-xl md:h-64"
             />
-            <h1 className="text-4xl font-bold text-accent mb-2 tracking-tight">
-              Investing Board Game (Beta)
-            </h1>
-            <p className="text-muted-foreground mb-8">
-              Dice-driven investing simulation powered by ValueBot
-            </p>
             <div className="flex items-center justify-center gap-6 pointer-events-auto">
               <button
                 onClick={() => setHubModalOpen(true)}
