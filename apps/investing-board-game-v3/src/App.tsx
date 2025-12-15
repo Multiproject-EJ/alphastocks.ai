@@ -136,13 +136,25 @@ function App() {
       !biasSanctuaryModalOpen &&
       !showCentralStock
 
+    console.log('[DEBUG] Modal state check:', {
+      phase,
+      stockModalOpen,
+      eventModalOpen,
+      thriftyModalOpen,
+      biasSanctuaryModalOpen,
+      showCentralStock,
+      noActiveOverlays,
+    })
+
     if (phase === 'landed' && noActiveOverlays) {
+      console.log('[DEBUG] Phase transition: landed -> idle (no active overlays)')
       setPhase('idle')
     }
   }, [stockModalOpen, eventModalOpen, thriftyModalOpen, biasSanctuaryModalOpen, showCentralStock, phase])
 
   const handleRoll = () => {
     if (phase !== 'idle') {
+      console.log('[DEBUG] Cannot roll - phase is not idle:', { phase, currentPosition: gameState.position })
       toast.info('Finish your current action first', {
         description: 'Close any open cards or modals before rolling again.',
       })
@@ -150,6 +162,7 @@ function App() {
     }
 
     if (rollsRemaining <= 0) {
+      console.log('[DEBUG] No rolls remaining:', { rollsRemaining })
       toast.error('No rolls remaining', {
         description: 'Daily rolls refresh at midnight.',
       })
@@ -161,11 +174,13 @@ function App() {
     if (hopIntervalRef.current) clearInterval(hopIntervalRef.current)
     if (landingTimeoutRef.current) clearTimeout(landingTimeoutRef.current)
 
-    setPhase('rolling')
     const roll = Math.floor(Math.random() * 6) + 1
+    console.log('[DEBUG] Rolling dice:', { roll, currentPosition: gameState.position, newPosition: (gameState.position + roll) % BOARD_TILES.length })
+    setPhase('rolling')
     setLastRoll(roll)
 
     rollTimeoutRef.current = setTimeout(() => {
+      console.log('[DEBUG] Phase transition: rolling -> moving')
       setPhase('moving')
       const startPosition = gameState.position
       const tilesToHop: number[] = []
@@ -185,8 +200,9 @@ function App() {
           setHoppingTiles([])
 
           landingTimeoutRef.current = setTimeout(() => {
-            setPhase('landed')
             const newPosition = tilesToHop[tilesToHop.length - 1]
+            console.log('[DEBUG] Phase transition: moving -> landed', { newPosition, tile: BOARD_TILES[newPosition] })
+            setPhase('landed')
             handleTileLanding(newPosition)
             setRollsRemaining((prev) => prev - 1)
           }, 200)
@@ -199,8 +215,10 @@ function App() {
     setDiceResetKey((prev) => prev + 1)
 
     const tile = BOARD_TILES[position]
+    console.log('[DEBUG] handleTileLanding:', { position, tile })
 
     if (tile.type === 'category' && tile.category) {
+      console.log('[DEBUG] Category tile - showing stock card')
       const stock = getStockForCategory(tile.category)
       setCurrentStock(stock)
 
@@ -209,20 +227,37 @@ function App() {
       setTimeout(() => {
         const showThrifty = Math.random() > 0.6
         if (showThrifty) {
+          console.log('[DEBUG] Opening Thrifty Path modal')
           setThriftyModalOpen(true)
         } else {
+          console.log('[DEBUG] Opening Stock modal')
           setStockModalOpen(true)
         }
       }, 2000)
     } else if (tile.type === 'event') {
+      console.log('[DEBUG] Event tile:', tile.title)
       if (tile.title === 'Quiz') {
+        console.log('[DEBUG] Opening Thrifty Path modal for Quiz')
         setThriftyModalOpen(true)
-      } else {
+      } else if (tile.title === 'Market Event') {
+        console.log('[DEBUG] Opening Event modal')
         const event = getRandomMarketEvent()
         setCurrentEvent(event)
         setEventModalOpen(true)
+      } else {
+        // Fallback for event tiles without specific handlers (Wildcard, "?", etc.)
+        console.log('[DEBUG] Event tile without handler - showing generic message and returning to idle')
+        toast.info(tile.title, {
+          description: 'This feature is coming soon!',
+        })
+        // Transition back to idle after a short delay
+        setTimeout(() => {
+          console.log('[DEBUG] Phase transition: landed -> idle (event fallback)')
+          setPhase('idle')
+        }, 1000)
       }
     } else if (tile.type === 'corner') {
+      console.log('[DEBUG] Corner tile:', tile.title)
       if (tile.title === 'Start / ThriftyPath') {
         setGameState((prev) => ({
           ...prev,
@@ -232,20 +267,35 @@ function App() {
         toast.success('Passed Start! Collected $20,000', {
           description: 'Keep building your portfolio',
         })
+        // Transition back to idle after a short delay
+        setTimeout(() => {
+          console.log('[DEBUG] Phase transition: landed -> idle (Start corner)')
+          setPhase('idle')
+        }, 1000)
       } else if (tile.title === 'Casino') {
         toast.info('Casino', {
           description: 'Try your luck soon',
         })
+        // Transition back to idle after a short delay
+        setTimeout(() => {
+          console.log('[DEBUG] Phase transition: landed -> idle (Casino corner)')
+          setPhase('idle')
+        }, 1000)
       } else if (tile.title === 'Court of Capital') {
         toast.info('Court of Capital', {
           description: 'Feature coming soon',
         })
+        // Transition back to idle after a short delay
+        setTimeout(() => {
+          console.log('[DEBUG] Phase transition: landed -> idle (Court corner)')
+          setPhase('idle')
+        }, 1000)
       } else if (tile.title === 'Bias Sanctuary') {
+        console.log('[DEBUG] Opening Bias Sanctuary modal')
         const caseStudy = getRandomBiasCaseStudy()
         setCurrentCaseStudy(caseStudy)
         setBiasSanctuaryModalOpen(true)
       }
-      setTimeout(() => setPhase('idle'), 1000)
     }
   }
 
@@ -288,10 +338,14 @@ function App() {
       description: `Total cost: $${totalCost.toLocaleString()}`,
     })
 
+    console.log('[DEBUG] Stock purchased - closing modals and returning to idle')
     setStockModalOpen(false)
     setShowCentralStock(false)
     setCurrentStock(null)
-    setTimeout(() => setPhase('idle'), 500)
+    setTimeout(() => {
+      console.log('[DEBUG] Phase transition: landed -> idle (after stock purchase)')
+      setPhase('idle')
+    }, 500)
   }
 
   const handleChooseChallenge = (challenge: typeof THRIFTY_CHALLENGES[0]) => {
@@ -304,10 +358,13 @@ function App() {
       description: `Earned ${challenge.reward} stars! ⭐`,
     })
 
+    console.log('[DEBUG] Challenge chosen - checking if stock modal should open')
     setTimeout(() => {
       if (currentStock) {
+        console.log('[DEBUG] Opening stock modal after challenge')
         setStockModalOpen(true)
       } else {
+        console.log('[DEBUG] Phase transition: landed -> idle (after challenge, no stock)')
         setPhase('idle')
       }
     }, 500)
@@ -504,11 +561,16 @@ function App() {
       <StockModal
         open={stockModalOpen}
         onOpenChange={(open) => {
+          console.log('[DEBUG] Stock modal open change:', open)
           setStockModalOpen(open)
           if (!open) {
+            console.log('[DEBUG] Stock modal closed - cleaning up')
             setShowCentralStock(false)
             setCurrentStock(null)
-            setTimeout(() => setPhase('idle'), 300)
+            setTimeout(() => {
+              console.log('[DEBUG] Phase transition: landed -> idle (stock modal closed)')
+              setPhase('idle')
+            }, 300)
           }
         }}
         stock={currentStock}
@@ -519,9 +581,14 @@ function App() {
       <EventModal
         open={eventModalOpen}
         onOpenChange={(open) => {
+          console.log('[DEBUG] Event modal open change:', open)
           setEventModalOpen(open)
           if (!open) {
-            setTimeout(() => setPhase('idle'), 300)
+            console.log('[DEBUG] Event modal closed')
+            setTimeout(() => {
+              console.log('[DEBUG] Phase transition: landed -> idle (event modal closed)')
+              setPhase('idle')
+            }, 300)
           }
         }}
         eventText={currentEvent}
@@ -530,12 +597,20 @@ function App() {
       <ThriftyPathModal
         open={thriftyModalOpen}
         onOpenChange={(open) => {
+          console.log('[DEBUG] Thrifty modal open change:', open)
           setThriftyModalOpen(open)
           if (!open) {
+            console.log('[DEBUG] Thrifty modal closed - checking if stock modal should open')
             if (currentStock) {
-              setTimeout(() => setStockModalOpen(true), 300)
+              setTimeout(() => {
+                console.log('[DEBUG] Opening stock modal after Thrifty modal close')
+                setStockModalOpen(true)
+              }, 300)
             } else {
-              setTimeout(() => setPhase('idle'), 300)
+              setTimeout(() => {
+                console.log('[DEBUG] Phase transition: landed -> idle (thrifty modal closed, no stock)')
+                setPhase('idle')
+              }, 300)
             }
           }
         }}
@@ -558,10 +633,15 @@ function App() {
       <BiasSanctuaryModal
         open={biasSanctuaryModalOpen}
         onOpenChange={(open) => {
+          console.log('[DEBUG] Bias Sanctuary modal open change:', open)
           setBiasSanctuaryModalOpen(open)
           if (!open) {
+            console.log('[DEBUG] Bias Sanctuary modal closed')
             setCurrentCaseStudy(null)
-            setTimeout(() => setPhase('idle'), 300)
+            setTimeout(() => {
+              console.log('[DEBUG] Phase transition: landed -> idle (bias sanctuary closed)')
+              setPhase('idle')
+            }, 300)
           }
         }}
         caseStudy={currentCaseStudy}
