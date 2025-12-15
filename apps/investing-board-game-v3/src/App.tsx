@@ -532,8 +532,12 @@ function App() {
         open={thriftyModalOpen}
         onOpenChange={(open) => {
           setThriftyModalOpen(open)
-          if (!open && !currentStock) {
-            setTimeout(() => setPhase('idle'), 300)
+          if (!open) {
+            if (currentStock) {
+              setTimeout(() => setStockModalOpen(true), 300)
+            } else {
+              setTimeout(() => setPhase('idle'), 300)
+            }
           }
         }}
         challenges={THRIFTY_CHALLENGES}
