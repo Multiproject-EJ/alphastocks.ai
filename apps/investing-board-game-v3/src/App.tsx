@@ -438,8 +438,8 @@ function App() {
                 ))}
               </div>
 
-              <div className="absolute top-[200px] bottom-[200px] right-0 flex flex-col gap-0 pointer-events-auto">
-                {BOARD_TILES.slice(8, 11).map((tile) => (
+              <div className="absolute top-[140px] bottom-[140px] right-0 flex flex-col gap-0 pointer-events-auto">
+                {BOARD_TILES.slice(8, 12).map((tile) => (
                   <Tile
                     key={tile.id}
                     tile={tile}
@@ -457,7 +457,7 @@ function App() {
               </div>
 
               <div className="absolute top-0 left-0 right-0 flex flex-row-reverse gap-0 pointer-events-auto">
-                {BOARD_TILES.slice(11, 18).map((tile, index) => (
+                {BOARD_TILES.slice(12, 19).map((tile, index) => (
                   <Tile
                     key={tile.id}
                     tile={tile}
@@ -474,8 +474,8 @@ function App() {
                 ))}
               </div>
 
-              <div className="absolute top-[200px] bottom-[200px] left-0 flex flex-col flex-col-reverse gap-0 pointer-events-auto">
-                {BOARD_TILES.slice(18).map((tile) => (
+              <div className="absolute top-[140px] bottom-[140px] left-0 flex flex-col flex-col-reverse gap-0 pointer-events-auto">
+                {BOARD_TILES.slice(19).map((tile) => (
                   <Tile
                     key={tile.id}
                     tile={tile}
