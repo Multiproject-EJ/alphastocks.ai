@@ -326,14 +326,14 @@ function App() {
   const netWorthChange = ((gameState.netWorth - 100000) / 100000) * 100
 
   return (
-    <div className="relative min-h-screen bg-background p-8 overflow-hidden">
+    <div className="relative isolate min-h-screen bg-background p-8 overflow-hidden">
       <div
-        className="absolute inset-0 -z-10 bg-[url('/board-game-v3/BG.webp')] bg-cover bg-center opacity-35"
+        className="absolute inset-0 z-0 bg-[url('/board-game-v3/BG.webp')] bg-cover bg-center opacity-60 pointer-events-none"
         aria-hidden="true"
       />
       <Toaster position="top-center" />
 
-      <div className="max-w-[1600px] mx-auto">
+      <div className="relative z-10 max-w-[1600px] mx-auto">
         <div 
           ref={boardRef}
           className="relative bg-primary rounded-2xl border-4 border-accent/30 shadow-[inset_0_0_60px_oklch(0.75_0.15_85_/_0.1),0_0_40px_oklch(0.15_0.04_250_/_0.5)] p-8 min-h-[900px]"
@@ -342,7 +342,7 @@ function App() {
             <img
               src="/board-game-v3/Logo.webp"
               alt="Investing Board Game logo"
-              className="mx-auto mb-4 h-16 w-auto drop-shadow-lg md:h-20"
+              className="mx-auto mb-4 h-28 w-auto max-w-[260px] drop-shadow-lg md:h-32"
             />
             <h1 className="text-4xl font-bold text-accent mb-2 tracking-tight">
               Investing Board Game (Beta)
