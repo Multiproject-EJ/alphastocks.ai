@@ -13,16 +13,22 @@ interface DiceHUDProps {
   rollsRemaining: number
   nextResetTime: Date
   boardRef?: React.RefObject<HTMLDivElement | null>
+  resetPositionKey?: number
 }
 
-export function DiceHUD({ onRoll, lastRoll, phase, rollsRemaining, nextResetTime, boardRef }: DiceHUDProps) {
+export function DiceHUD({ onRoll, lastRoll, phase, rollsRemaining, nextResetTime, boardRef, resetPositionKey }: DiceHUDProps) {
   const [isDragging, setIsDragging] = useState(false)
   const [timeUntilReset, setTimeUntilReset] = useState('')
   const [dice1, setDice1] = useState(1)
   const [dice2, setDice2] = useState(1)
   const [isExpanded, setIsExpanded] = useState(false)
+  const [dicePosition, setDicePosition] = useState({ x: 0, y: 0 })
 
   const canRoll = phase === 'idle' && rollsRemaining > 0
+
+  useEffect(() => {
+    setDicePosition({ x: 0, y: 0 })
+  }, [resetPositionKey])
 
   useEffect(() => {
     if (lastRoll !== null) {
@@ -76,8 +82,15 @@ export function DiceHUD({ onRoll, lastRoll, phase, rollsRemaining, nextResetTime
       dragElastic={0}
       dragConstraints={boardRef}
       onDragStart={() => setIsDragging(true)}
-      onDragEnd={() => setIsDragging(false)}
-      className="absolute top-8 right-8 z-50"
+      onDragEnd={(_, info) => {
+        setIsDragging(false)
+        setDicePosition((prev) => ({
+          x: prev.x + info.offset.x,
+          y: prev.y + info.offset.y,
+        }))
+      }}
+      className="absolute left-1/2 z-50 -translate-x-1/2"
+      style={{ top: 'calc(50% - 220px)', x: dicePosition.x, y: dicePosition.y }}
       whileHover={{ scale: isDragging ? 1 : 1.02 }}
     >
       <AnimatePresence mode="wait" initial={false}>
@@ -164,7 +177,7 @@ export function DiceHUD({ onRoll, lastRoll, phase, rollsRemaining, nextResetTime
             key="compact"
             type="button"
             onClick={() => setIsExpanded(true)}
-            className="relative flex items-center justify-center w-24 h-24 rounded-full border-2 border-white/60 bg-card/80 backdrop-blur-md shadow-lg cursor-pointer"
+            className="relative flex items-center justify-center w-28 h-28 rounded-full border-4 border-white/70 bg-card/80 backdrop-blur-md shadow-xl cursor-pointer"
           >
             <div className="relative flex items-center justify-center w-full h-full">
               <motion.div

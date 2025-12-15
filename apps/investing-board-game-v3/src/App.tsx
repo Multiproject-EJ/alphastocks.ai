@@ -69,6 +69,8 @@ function App() {
   const [biasSanctuaryModalOpen, setBiasSanctuaryModalOpen] = useState(false)
   const [currentCaseStudy, setCurrentCaseStudy] = useState<BiasCaseStudy | null>(null)
 
+  const [diceResetKey, setDiceResetKey] = useState(0)
+
   const rollTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const hopIntervalRef = useRef<NodeJS.Timeout | null>(null)
   const landingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -194,6 +196,8 @@ function App() {
   }
 
   const handleTileLanding = (position: number) => {
+    setDiceResetKey((prev) => prev + 1)
+
     const tile = BOARD_TILES[position]
 
     if (tile.type === 'category' && tile.category) {
@@ -409,9 +413,10 @@ function App() {
             lastRoll={lastRoll}
             phase={phase}
             rollsRemaining={rollsRemaining}
-            nextResetTime={nextResetTime}
-            boardRef={boardRef}
-          />
+          nextResetTime={nextResetTime}
+          boardRef={boardRef}
+          resetPositionKey={diceResetKey}
+        />
 
           <div className="absolute inset-8 pointer-events-none">
             <div className="relative w-full h-full">
