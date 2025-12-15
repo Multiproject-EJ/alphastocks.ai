@@ -103,7 +103,7 @@ Animations should enhance the board game feeling with physics-based movements an
   
 - **Customizations**: 
   - Custom board grid layout with 26 tiles (reduced from 31) arranged in Monopoly-style square
-  - 4 corner tiles: Start/ThriftyPath, Free Parking, Court of Capital, Bias Sanctuary
+  - 4 corner tiles: Start/ThriftyPath, Casino, Court of Capital, Bias Sanctuary
   - Corners without full features display placeholder text
   - Corner tiles are larger (200x200px) than regular tiles (100x120px)
   - Category tiles feature prominent color-coded top borders matching their investment type
