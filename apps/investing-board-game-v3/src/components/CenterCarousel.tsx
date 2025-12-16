@@ -16,6 +16,68 @@ interface CenterCarouselProps {
   onPortfolioClick: () => void
 }
 
+interface PanelContentProps {
+  gameState: GameState
+  netWorthChange: number
+  onStarsClick: () => void
+  onPortfolioClick: () => void
+}
+
+function PanelContent({ gameState, netWorthChange, onStarsClick, onPortfolioClick }: PanelContentProps) {
+  return (
+    <div className="flex items-center justify-center gap-6">
+      <button
+        onClick={onStarsClick}
+        className="group bg-black/75 backdrop-blur-xl border-2 border-white/10 hover:border-accent/60 rounded-xl p-4 shadow-lg hover:shadow-xl transition-all cursor-pointer min-w-[200px]"
+      >
+        <div className="flex items-center gap-3 mb-2">
+          <div className="p-2 rounded-lg bg-accent/20 group-hover:bg-accent/30 transition-colors">
+            <Star size={20} className="text-accent" weight="fill" />
+          </div>
+          <div className="text-left flex-1">
+            <div className="text-xs text-muted-foreground uppercase tracking-wider">
+              Stars
+            </div>
+            <div className="text-2xl font-bold text-accent font-mono">
+              {gameState.stars}
+            </div>
+          </div>
+          <Info
+            size={16}
+            className="text-muted-foreground group-hover:text-accent transition-colors"
+          />
+        </div>
+      </button>
+      <WealthThrone
+        netWorthChange={netWorthChange}
+        holdingsCount={gameState.holdings.length}
+      />
+      <button
+        onClick={onPortfolioClick}
+        className="group bg-black/75 backdrop-blur-xl border-2 border-white/10 hover:border-accent/60 rounded-xl p-4 shadow-lg hover:shadow-xl transition-all cursor-pointer min-w-[200px]"
+      >
+        <div className="flex items-center gap-3 mb-2">
+          <div className="p-2 rounded-lg bg-accent/20 group-hover:bg-accent/30 transition-colors">
+            <ChartLine size={20} className="text-accent" weight="bold" />
+          </div>
+          <div className="text-left flex-1">
+            <div className="text-xs text-muted-foreground uppercase tracking-wider">
+              Portfolio
+            </div>
+            <div className="text-2xl font-bold text-accent font-mono">
+              ${(gameState.portfolioValue / 1000).toFixed(0)}k
+            </div>
+          </div>
+          <Info
+            size={16}
+            className="text-muted-foreground group-hover:text-accent transition-colors"
+          />
+        </div>
+      </button>
+    </div>
+  )
+}
+
 export function CenterCarousel({
   gameState,
   netWorthChange,
@@ -73,164 +135,32 @@ export function CenterCarousel({
         <CarouselContent>
           {/* Panel 1 - Stats */}
           <CarouselItem>
-            <div className="flex items-center justify-center gap-6">
-              <button
-                onClick={onStarsClick}
-                className="group bg-black/75 backdrop-blur-xl border-2 border-white/10 hover:border-accent/60 rounded-xl p-4 shadow-lg hover:shadow-xl transition-all cursor-pointer min-w-[200px]"
-              >
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2 rounded-lg bg-accent/20 group-hover:bg-accent/30 transition-colors">
-                    <Star size={20} className="text-accent" weight="fill" />
-                  </div>
-                  <div className="text-left flex-1">
-                    <div className="text-xs text-muted-foreground uppercase tracking-wider">
-                      Stars
-                    </div>
-                    <div className="text-2xl font-bold text-accent font-mono">
-                      {gameState.stars}
-                    </div>
-                  </div>
-                  <Info
-                    size={16}
-                    className="text-muted-foreground group-hover:text-accent transition-colors"
-                  />
-                </div>
-              </button>
-              <WealthThrone
-                netWorthChange={netWorthChange}
-                holdingsCount={gameState.holdings.length}
-              />
-              <button
-                onClick={onPortfolioClick}
-                className="group bg-black/75 backdrop-blur-xl border-2 border-white/10 hover:border-accent/60 rounded-xl p-4 shadow-lg hover:shadow-xl transition-all cursor-pointer min-w-[200px]"
-              >
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2 rounded-lg bg-accent/20 group-hover:bg-accent/30 transition-colors">
-                    <ChartLine size={20} className="text-accent" weight="bold" />
-                  </div>
-                  <div className="text-left flex-1">
-                    <div className="text-xs text-muted-foreground uppercase tracking-wider">
-                      Portfolio
-                    </div>
-                    <div className="text-2xl font-bold text-accent font-mono">
-                      ${(gameState.portfolioValue / 1000).toFixed(0)}k
-                    </div>
-                  </div>
-                  <Info
-                    size={16}
-                    className="text-muted-foreground group-hover:text-accent transition-colors"
-                  />
-                </div>
-              </button>
-            </div>
+            <PanelContent
+              gameState={gameState}
+              netWorthChange={netWorthChange}
+              onStarsClick={onStarsClick}
+              onPortfolioClick={onPortfolioClick}
+            />
           </CarouselItem>
 
           {/* Panel 2 - Placeholder for future content */}
           <CarouselItem>
-            <div className="flex items-center justify-center gap-6">
-              <button
-                onClick={onStarsClick}
-                className="group bg-black/75 backdrop-blur-xl border-2 border-white/10 hover:border-accent/60 rounded-xl p-4 shadow-lg hover:shadow-xl transition-all cursor-pointer min-w-[200px]"
-              >
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2 rounded-lg bg-accent/20 group-hover:bg-accent/30 transition-colors">
-                    <Star size={20} className="text-accent" weight="fill" />
-                  </div>
-                  <div className="text-left flex-1">
-                    <div className="text-xs text-muted-foreground uppercase tracking-wider">
-                      Stars
-                    </div>
-                    <div className="text-2xl font-bold text-accent font-mono">
-                      {gameState.stars}
-                    </div>
-                  </div>
-                  <Info
-                    size={16}
-                    className="text-muted-foreground group-hover:text-accent transition-colors"
-                  />
-                </div>
-              </button>
-              <WealthThrone
-                netWorthChange={netWorthChange}
-                holdingsCount={gameState.holdings.length}
-              />
-              <button
-                onClick={onPortfolioClick}
-                className="group bg-black/75 backdrop-blur-xl border-2 border-white/10 hover:border-accent/60 rounded-xl p-4 shadow-lg hover:shadow-xl transition-all cursor-pointer min-w-[200px]"
-              >
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2 rounded-lg bg-accent/20 group-hover:bg-accent/30 transition-colors">
-                    <ChartLine size={20} className="text-accent" weight="bold" />
-                  </div>
-                  <div className="text-left flex-1">
-                    <div className="text-xs text-muted-foreground uppercase tracking-wider">
-                      Portfolio
-                    </div>
-                    <div className="text-2xl font-bold text-accent font-mono">
-                      ${(gameState.portfolioValue / 1000).toFixed(0)}k
-                    </div>
-                  </div>
-                  <Info
-                    size={16}
-                    className="text-muted-foreground group-hover:text-accent transition-colors"
-                  />
-                </div>
-              </button>
-            </div>
+            <PanelContent
+              gameState={gameState}
+              netWorthChange={netWorthChange}
+              onStarsClick={onStarsClick}
+              onPortfolioClick={onPortfolioClick}
+            />
           </CarouselItem>
 
           {/* Panel 3 - Placeholder for future content */}
           <CarouselItem>
-            <div className="flex items-center justify-center gap-6">
-              <button
-                onClick={onStarsClick}
-                className="group bg-black/75 backdrop-blur-xl border-2 border-white/10 hover:border-accent/60 rounded-xl p-4 shadow-lg hover:shadow-xl transition-all cursor-pointer min-w-[200px]"
-              >
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2 rounded-lg bg-accent/20 group-hover:bg-accent/30 transition-colors">
-                    <Star size={20} className="text-accent" weight="fill" />
-                  </div>
-                  <div className="text-left flex-1">
-                    <div className="text-xs text-muted-foreground uppercase tracking-wider">
-                      Stars
-                    </div>
-                    <div className="text-2xl font-bold text-accent font-mono">
-                      {gameState.stars}
-                    </div>
-                  </div>
-                  <Info
-                    size={16}
-                    className="text-muted-foreground group-hover:text-accent transition-colors"
-                  />
-                </div>
-              </button>
-              <WealthThrone
-                netWorthChange={netWorthChange}
-                holdingsCount={gameState.holdings.length}
-              />
-              <button
-                onClick={onPortfolioClick}
-                className="group bg-black/75 backdrop-blur-xl border-2 border-white/10 hover:border-accent/60 rounded-xl p-4 shadow-lg hover:shadow-xl transition-all cursor-pointer min-w-[200px]"
-              >
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2 rounded-lg bg-accent/20 group-hover:bg-accent/30 transition-colors">
-                    <ChartLine size={20} className="text-accent" weight="bold" />
-                  </div>
-                  <div className="text-left flex-1">
-                    <div className="text-xs text-muted-foreground uppercase tracking-wider">
-                      Portfolio
-                    </div>
-                    <div className="text-2xl font-bold text-accent font-mono">
-                      ${(gameState.portfolioValue / 1000).toFixed(0)}k
-                    </div>
-                  </div>
-                  <Info
-                    size={16}
-                    className="text-muted-foreground group-hover:text-accent transition-colors"
-                  />
-                </div>
-              </button>
-            </div>
+            <PanelContent
+              gameState={gameState}
+              netWorthChange={netWorthChange}
+              onStarsClick={onStarsClick}
+              onPortfolioClick={onPortfolioClick}
+            />
           </CarouselItem>
 
           {/* Panel 4 - Logo */}
@@ -241,56 +171,12 @@ export function CenterCarousel({
                 alt="Investing Board Game logo"
                 className="mx-auto h-56 w-auto max-w-[420px] drop-shadow-xl md:h-64"
               />
-              <div className="flex items-center justify-center gap-6">
-                <button
-                  onClick={onStarsClick}
-                  className="group bg-black/75 backdrop-blur-xl border-2 border-white/10 hover:border-accent/60 rounded-xl p-4 shadow-lg hover:shadow-xl transition-all cursor-pointer min-w-[200px]"
-                >
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="p-2 rounded-lg bg-accent/20 group-hover:bg-accent/30 transition-colors">
-                      <Star size={20} className="text-accent" weight="fill" />
-                    </div>
-                    <div className="text-left flex-1">
-                      <div className="text-xs text-muted-foreground uppercase tracking-wider">
-                        Stars
-                      </div>
-                      <div className="text-2xl font-bold text-accent font-mono">
-                        {gameState.stars}
-                      </div>
-                    </div>
-                    <Info
-                      size={16}
-                      className="text-muted-foreground group-hover:text-accent transition-colors"
-                    />
-                  </div>
-                </button>
-                <WealthThrone
-                  netWorthChange={netWorthChange}
-                  holdingsCount={gameState.holdings.length}
-                />
-                <button
-                  onClick={onPortfolioClick}
-                  className="group bg-black/75 backdrop-blur-xl border-2 border-white/10 hover:border-accent/60 rounded-xl p-4 shadow-lg hover:shadow-xl transition-all cursor-pointer min-w-[200px]"
-                >
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="p-2 rounded-lg bg-accent/20 group-hover:bg-accent/30 transition-colors">
-                      <ChartLine size={20} className="text-accent" weight="bold" />
-                    </div>
-                    <div className="text-left flex-1">
-                      <div className="text-xs text-muted-foreground uppercase tracking-wider">
-                        Portfolio
-                      </div>
-                      <div className="text-2xl font-bold text-accent font-mono">
-                        ${(gameState.portfolioValue / 1000).toFixed(0)}k
-                      </div>
-                    </div>
-                    <Info
-                      size={16}
-                      className="text-muted-foreground group-hover:text-accent transition-colors"
-                    />
-                  </div>
-                </button>
-              </div>
+              <PanelContent
+                gameState={gameState}
+                netWorthChange={netWorthChange}
+                onStarsClick={onStarsClick}
+                onPortfolioClick={onPortfolioClick}
+              />
             </div>
           </CarouselItem>
         </CarouselContent>
