@@ -1,0 +1,24 @@
+import {
+  Dialog,
+  DialogContent,
+} from '@/components/ui/dialog'
+import { ScratchcardGame } from '@/components/ScratchcardGame'
+
+interface CasinoModalProps {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  onWin?: (amount: number) => void
+}
+
+export function CasinoModal({ open, onOpenChange, onWin }: CasinoModalProps) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="bg-transparent border-0 shadow-none max-w-md p-0">
+        <ScratchcardGame
+          onWin={onWin}
+          onClose={() => onOpenChange(false)}
+        />
+      </DialogContent>
+    </Dialog>
+  )
+}
