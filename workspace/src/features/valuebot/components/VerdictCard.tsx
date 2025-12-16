@@ -23,13 +23,14 @@ const VerdictCard: FunctionalComponent<VerdictCardProps> = ({
   valuationRanges
 }) => {
   const displayName = companyName || ticker;
-  const compositeScore = masterMeta?.composite_score ?? 0;
+  const compositeScore = masterMeta?.composite_score ?? null;
   const riskLabel = masterMeta?.risk_label || 'Unknown';
   const qualityLabel = masterMeta?.quality_label || 'Unknown';
   const timingLabel = masterMeta?.timing_label || 'Unknown';
 
   // Determine card color theme based on composite score
-  const getScoreGrade = (score: number): string => {
+  const getScoreGrade = (score: number | null): string => {
+    if (score === null) return 'average';
     if (score >= 9) return 'world-class';
     if (score >= 7) return 'strong';
     if (score >= 5) return 'average';
@@ -58,7 +59,7 @@ const VerdictCard: FunctionalComponent<VerdictCardProps> = ({
       <div className="verdict-card__score-container">
         <div className="verdict-card__score-label">Composite Score</div>
         <div className="verdict-card__score-value">
-          {compositeScore > 0 ? compositeScore.toFixed(1) : '—'}
+          {compositeScore !== null && compositeScore !== undefined ? compositeScore.toFixed(1) : '—'}
           <span className="verdict-card__score-max">/10</span>
         </div>
       </div>

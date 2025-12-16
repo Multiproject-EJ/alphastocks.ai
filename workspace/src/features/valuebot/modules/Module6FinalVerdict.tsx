@@ -249,12 +249,19 @@ ${MASTER_STOCK_ANALYSIS_INSTRUCTIONS}`;
     { label: 'Module 5 — Timing & Momentum (optional for timing signals)', complete: hasModule5Output }
   ];
 
+  // Regex pattern to match the Valuation Ranges table (Table D) in the markdown output
+  // Expected format:
+  // | Bear | Base | Bull |
+  // | --- | --- | --- |
+  // | $100-190/sh | $240-430/sh | $400-700+/sh |
+  const VALUATION_TABLE_PATTERN = /\|\s*Bear\s*\|\s*Base\s*\|\s*Bull\s*\|[^\n]*\n\|[^\n]+\n\|\s*([^|]+)\s*\|\s*([^|]+)\s*\|\s*([^|]+)\s*\|/i;
+
   // Parse valuation ranges from markdown output
   const parseValuationRanges = (markdown: string): { bear?: string; base?: string; bull?: string } | null => {
     if (!markdown) return null;
     
     // Look for the Valuation Ranges table (Table D)
-    const tableMatch = markdown.match(/\|\s*Bear\s*\|\s*Base\s*\|\s*Bull\s*\|[^\n]*\n\|[^\n]+\n\|\s*([^|]+)\s*\|\s*([^|]+)\s*\|\s*([^|]+)\s*\|/i);
+    const tableMatch = markdown.match(VALUATION_TABLE_PATTERN);
     
     if (tableMatch) {
       return {
