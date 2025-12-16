@@ -1724,3 +1724,171 @@ body[data-theme='dark'] {
     bottom: 1rem;
   }
 }
+
+/* ======================================
+   Verdict Card - Pokemon-style snapshot
+   ====================================== */
+
+.verdict-card {
+  max-width: 320px;
+  width: 100%;
+  background: linear-gradient(135deg, rgba(17, 24, 39, 0.95) 0%, rgba(31, 41, 55, 0.98) 100%);
+  border-radius: 18px;
+  padding: 1.5rem;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+  border: 2px solid rgba(148, 163, 184, 0.2);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.verdict-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899);
+  opacity: 0.6;
+}
+
+.verdict-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+}
+
+/* Card grade color themes */
+.verdict-card--world-class::before {
+  background: linear-gradient(90deg, #10b981, #34d399, #6ee7b7);
+  opacity: 0.9;
+}
+
+.verdict-card--strong::before {
+  background: linear-gradient(90deg, #3b82f6, #60a5fa, #93c5fd);
+  opacity: 0.8;
+}
+
+.verdict-card--average::before {
+  background: linear-gradient(90deg, #f59e0b, #fbbf24, #fcd34d);
+  opacity: 0.7;
+}
+
+.verdict-card--weak::before {
+  background: linear-gradient(90deg, #ef4444, #f87171, #fca5a5);
+  opacity: 0.7;
+}
+
+/* Header */
+.verdict-card__header {
+  margin-bottom: 1.25rem;
+}
+
+.verdict-card__ticker {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-primary, #e2e8f0);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+}
+
+.verdict-card__company-name {
+  font-size: 0.875rem;
+  color: var(--text-secondary, #94a3b8);
+  font-weight: 500;
+}
+
+/* Main Score */
+.verdict-card__score-container {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  padding: 1.25rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.verdict-card__score-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-secondary, #94a3b8);
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.verdict-card__score-value {
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--text-primary, #e2e8f0);
+  line-height: 1;
+  position: relative;
+}
+
+.verdict-card__score-max {
+  font-size: 1.25rem;
+  color: var(--text-secondary, #94a3b8);
+  margin-left: 0.25rem;
+}
+
+/* Metrics Grid */
+.verdict-card__metrics {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.verdict-card__metric {
+  background: rgba(0, 0, 0, 0.15);
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.verdict-card__metric-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary, #94a3b8);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.verdict-card__metric-value {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary, #e2e8f0);
+}
+
+/* Footer */
+.verdict-card__footer {
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: center;
+}
+
+.verdict-card__footer-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-secondary, #94a3b8);
+  margin-bottom: 0.35rem;
+  font-weight: 600;
+}
+
+.verdict-card__footer-value {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--accent, #3b82f6);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .verdict-card {
+    max-width: 100%;
+  }
+}
