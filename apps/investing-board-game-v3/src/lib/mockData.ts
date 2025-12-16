@@ -1,4 +1,4 @@
-import { Tile, Stock, ThriftyChallenge, BiasCaseStudy, TileCategory } from './types'
+import { Tile, Stock, ThriftyChallenge, BiasCaseStudy, TileCategory, AIPlayer } from './types'
 
 export const BOARD_TILES: Tile[] = [
   { id: 0, type: 'corner', title: 'Start / ThriftyPath' },
@@ -12,22 +12,25 @@ export const BOARD_TILES: Tile[] = [
 
   { id: 8, type: 'category', title: 'Growth', category: 'growth', colorBorder: 'oklch(0.70 0.18 25)' },
   { id: 9, type: 'event', title: 'Wildcard' },
-  { id: 10, type: 'category', title: 'Growth', category: 'growth', colorBorder: 'oklch(0.70 0.18 25)' },
-  { id: 11, type: 'event', title: 'Quiz' },
-  { id: 12, type: 'corner', title: 'Court of Capital' },
+  { id: 10, type: 'event', title: '?' },
+  { id: 11, type: 'category', title: 'Growth', category: 'growth', colorBorder: 'oklch(0.70 0.18 25)' },
+  { id: 12, type: 'event', title: 'Quiz' },
+  { id: 13, type: 'corner', title: 'Court of Capital' },
 
-  { id: 13, type: 'category', title: 'Value', category: 'value', colorBorder: 'oklch(0.75 0.15 85)' },
-  { id: 14, type: 'category', title: 'Value', category: 'value', colorBorder: 'oklch(0.75 0.15 85)' },
-  { id: 15, type: 'category', title: 'Value', category: 'value', colorBorder: 'oklch(0.75 0.15 85)' },
-  { id: 16, type: 'event', title: 'Market Event' },
+  { id: 14, type: 'event', title: '?' },
+  { id: 15, type: 'event', title: '?' },
+  { id: 16, type: 'category', title: 'Value', category: 'value', colorBorder: 'oklch(0.75 0.15 85)' },
   { id: 17, type: 'category', title: 'Value', category: 'value', colorBorder: 'oklch(0.75 0.15 85)' },
-  { id: 18, type: 'corner', title: 'Bias Sanctuary' },
+  { id: 18, type: 'category', title: 'Value', category: 'value', colorBorder: 'oklch(0.75 0.15 85)' },
+  { id: 19, type: 'event', title: 'Market Event' },
+  { id: 20, type: 'category', title: 'Value', category: 'value', colorBorder: 'oklch(0.75 0.15 85)' },
+  { id: 21, type: 'corner', title: 'Bias Sanctuary' },
 
-  { id: 19, type: 'category', title: 'Moats', category: 'moats', colorBorder: 'oklch(0.55 0.22 15)' },
-  { id: 20, type: 'event', title: 'Wildcard' },
-  { id: 21, type: 'category', title: 'Moats', category: 'moats', colorBorder: 'oklch(0.55 0.22 15)' },
-  { id: 22, type: 'event', title: '?' },
-  { id: 23, type: 'event', title: 'Quiz' },
+  { id: 22, type: 'category', title: 'Moats', category: 'moats', colorBorder: 'oklch(0.55 0.22 15)' },
+  { id: 23, type: 'event', title: 'Wildcard' },
+  { id: 24, type: 'category', title: 'Moats', category: 'moats', colorBorder: 'oklch(0.55 0.22 15)' },
+  { id: 25, type: 'event', title: '?' },
+  { id: 26, type: 'event', title: 'Quiz' },
 ]
 
 export const MOCK_STOCKS: Record<string, Stock[]> = {
@@ -236,3 +239,58 @@ export const BIAS_CASE_STUDIES: BiasCaseStudy[] = [
 export function getRandomBiasCaseStudy(): BiasCaseStudy {
   return BIAS_CASE_STUDIES[Math.floor(Math.random() * BIAS_CASE_STUDIES.length)]
 }
+
+export const AI_PLAYERS = [
+  {
+    id: 'ai-1',
+    name: 'Warren Bot',
+    avatar: '🤖',
+    gameState: {
+      cash: 95000,
+      position: 15,
+      netWorth: 125000,
+      portfolioValue: 30000,
+      stars: 12,
+      holdings: [],
+    },
+  },
+  {
+    id: 'ai-2',
+    name: 'Cathie AI',
+    avatar: '🦾',
+    gameState: {
+      cash: 88000,
+      position: 8,
+      netWorth: 142000,
+      portfolioValue: 54000,
+      stars: 18,
+      holdings: [],
+    },
+  },
+  {
+    id: 'ai-3',
+    name: 'Charlie Chip',
+    avatar: '🎯',
+    gameState: {
+      cash: 102000,
+      position: 22,
+      netWorth: 118000,
+      portfolioValue: 16000,
+      stars: 8,
+      holdings: [],
+    },
+  },
+  {
+    id: 'ai-4',
+    name: 'Ray Delta',
+    avatar: '📊',
+    gameState: {
+      cash: 91000,
+      position: 4,
+      netWorth: 135000,
+      portfolioValue: 44000,
+      stars: 15,
+      holdings: [],
+    },
+  },
+]

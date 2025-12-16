@@ -56,3 +56,10 @@ export interface BiasCaseStudy {
   context: string[]
   quiz: BiasQuizQuestion[]
 }
+
+export interface AIPlayer {
+  id: string
+  name: string
+  avatar: string
+  gameState: GameState
+}

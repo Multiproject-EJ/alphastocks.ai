@@ -13,6 +13,7 @@ import { ProToolsOverlay } from '@/components/ProToolsOverlay'
 import { BiasSanctuaryModal } from '@/components/BiasSanctuaryModal'
 import { CenterCarousel } from '@/components/CenterCarousel'
 import { CelebrationEffect } from '@/components/CelebrationEffect'
+import { CasinoModal } from '@/components/CasinoModal'
 import { GameState, Stock, BiasCaseStudy } from '@/lib/types'
 import {
   BOARD_TILES,
@@ -75,6 +76,8 @@ function App() {
 
   const [biasSanctuaryModalOpen, setBiasSanctuaryModalOpen] = useState(false)
   const [currentCaseStudy, setCurrentCaseStudy] = useState<BiasCaseStudy | null>(null)
+
+  const [casinoModalOpen, setCasinoModalOpen] = useState(false)
 
   const [diceResetKey, setDiceResetKey] = useState(0)
 
@@ -143,13 +146,14 @@ function App() {
       !eventModalOpen &&
       !thriftyModalOpen &&
       !biasSanctuaryModalOpen &&
+      !casinoModalOpen &&
       !showCentralStock
 
     if (phase === 'landed' && noActiveOverlays) {
       debugGame('Phase transition: landed -> idle (no active overlays)')
       setPhase('idle')
     }
-  }, [stockModalOpen, eventModalOpen, thriftyModalOpen, biasSanctuaryModalOpen, showCentralStock, phase])
+  }, [stockModalOpen, eventModalOpen, thriftyModalOpen, biasSanctuaryModalOpen, casinoModalOpen, showCentralStock, phase])
 
   const handleRoll = () => {
     if (phase !== 'idle') {
@@ -292,10 +296,9 @@ function App() {
         toast.info('🎰 Welcome to the Casino!', {
           description: 'Feeling lucky today?',
         })
-        // Transition back to idle after a short delay
+        debugGame('Opening Casino modal')
         setTimeout(() => {
-          debugGame('Phase transition: landed -> idle (Casino corner)')
-          setPhase('idle')
+          setCasinoModalOpen(true)
         }, 1000)
       } else if (tile.title === 'Court of Capital') {
         toast.info('Court of Capital', {
@@ -400,6 +403,14 @@ function App() {
     })
   }
 
+  const handleCasinoWin = (amount: number) => {
+    setGameState((prev) => ({
+      ...prev,
+      cash: prev.cash + amount,
+      netWorth: prev.netWorth + amount,
+    }))
+  }
+
   const netWorthChange = ((gameState.netWorth - 100000) / 100000) * 100
 
   return (
@@ -480,7 +491,7 @@ function App() {
               </div>
 
               <div className="absolute top-[140px] bottom-[140px] right-0 flex flex-col gap-0 pointer-events-auto">
-                {BOARD_TILES.slice(8, 12).map((tile) => (
+                {BOARD_TILES.slice(8, 14).map((tile) => (
                   <Tile
                     key={tile.id}
                     tile={tile}
@@ -498,7 +509,7 @@ function App() {
               </div>
 
               <div className="absolute top-0 left-0 right-0 flex flex-row-reverse gap-0 pointer-events-auto">
-                {BOARD_TILES.slice(12, 19).map((tile, index) => (
+                {BOARD_TILES.slice(14, 22).map((tile, index) => (
                   <Tile
                     key={tile.id}
                     tile={tile}
@@ -516,7 +527,7 @@ function App() {
               </div>
 
               <div className="absolute top-[140px] bottom-[140px] left-0 flex flex-col flex-col-reverse gap-0 pointer-events-auto">
-                {BOARD_TILES.slice(19).map((tile) => (
+                {BOARD_TILES.slice(22).map((tile) => (
                   <Tile
                     key={tile.id}
                     tile={tile}
@@ -631,6 +642,22 @@ function App() {
         }}
         caseStudy={currentCaseStudy}
         onComplete={handleBiasQuizComplete}
+      />
+
+      <CasinoModal
+        open={casinoModalOpen}
+        onOpenChange={(open) => {
+          debugGame('Casino modal open change:', open)
+          setCasinoModalOpen(open)
+          if (!open) {
+            debugGame('Casino modal closed')
+            setTimeout(() => {
+              debugGame('Phase transition: landed -> idle (casino modal closed)')
+              setPhase('idle')
+            }, 300)
+          }
+        }}
+        onWin={handleCasinoWin}
       />
     </div>
   )
