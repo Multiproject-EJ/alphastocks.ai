@@ -177,7 +177,7 @@ export function DiceHUD({ onRoll, lastRoll, phase, rollsRemaining, nextResetTime
             key="compact"
             type="button"
             onClick={() => setIsExpanded(true)}
-            className="relative flex items-center justify-center w-28 h-28 rounded-full border-4 border-white/70 bg-card/80 backdrop-blur-md shadow-xl cursor-pointer"
+            className="relative flex items-center justify-center w-28 h-28 rounded-full border-2 border-white/20 bg-card/80 backdrop-blur-md shadow-xl cursor-pointer"
           >
             <div className="relative flex items-center justify-center w-full h-full">
               <motion.div

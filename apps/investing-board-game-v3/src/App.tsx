@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { Toaster, toast } from 'sonner'
 import { Button } from '@/components/ui/button'
-import { WealthThrone } from '@/components/WealthThrone'
 import { Tile } from '@/components/Tile'
 import { DiceHUD } from '@/components/DiceHUD'
 import { HubModal } from '@/components/HubModal'
@@ -12,6 +11,7 @@ import { ThriftyPathModal } from '@/components/ThriftyPathModal'
 import { PortfolioModal } from '@/components/PortfolioModal'
 import { ProToolsOverlay } from '@/components/ProToolsOverlay'
 import { BiasSanctuaryModal } from '@/components/BiasSanctuaryModal'
+import { CenterCarousel } from '@/components/CenterCarousel'
 import { GameState, Stock, BiasCaseStudy } from '@/lib/types'
 import {
   BOARD_TILES,
@@ -19,7 +19,6 @@ import {
   getRandomBiasCaseStudy,
   THRIFTY_CHALLENGES,
 } from '@/lib/mockData'
-import { Info, Star, ChartLine } from '@phosphor-icons/react'
 import { useUniverseStocks } from '@/hooks/useUniverseStocks'
 
 type Phase = 'idle' | 'rolling' | 'moving' | 'landed'
@@ -398,45 +397,13 @@ function App() {
           ref={boardRef}
           className="relative bg-gradient-to-br from-white/15 via-white/8 to-white/12 backdrop-blur-2xl rounded-2xl border border-white/25 shadow-[inset_0_0_70px_rgba(255,255,255,0.08),_0_20px_80px_rgba(0,0,0,0.35)] p-8 min-h-[900px]"
         >
-          <header className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 text-center pointer-events-none">
-            <img
-              src="/board-game-v3/Logo.webp"
-              alt="Investing Board Game logo"
-              className="mx-auto mb-4 h-56 w-auto max-w-[420px] drop-shadow-xl md:h-64"
+          <header className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
+            <CenterCarousel
+              gameState={gameState}
+              netWorthChange={netWorthChange}
+              onStarsClick={() => setHubModalOpen(true)}
+              onPortfolioClick={() => setPortfolioModalOpen(true)}
             />
-            <div className="flex items-center justify-center gap-6 pointer-events-auto">
-              <button
-                onClick={() => setHubModalOpen(true)}
-                className="group bg-black/75 backdrop-blur-xl border-2 border-white/10 hover:border-accent/60 rounded-xl p-4 shadow-lg hover:shadow-xl transition-all cursor-pointer min-w-[200px]"
-              >
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2 rounded-lg bg-accent/20 group-hover:bg-accent/30 transition-colors">
-                    <Star size={20} className="text-accent" weight="fill" />
-                  </div>
-                  <div className="text-left flex-1">
-                    <div className="text-xs text-muted-foreground uppercase tracking-wider">Stars</div>
-                    <div className="text-2xl font-bold text-accent font-mono">{gameState.stars}</div>
-                  </div>
-                  <Info size={16} className="text-muted-foreground group-hover:text-accent transition-colors" />
-                </div>
-              </button>
-              <WealthThrone netWorthChange={netWorthChange} holdingsCount={gameState.holdings.length} />
-              <button
-                onClick={() => setPortfolioModalOpen(true)}
-                className="group bg-black/75 backdrop-blur-xl border-2 border-white/10 hover:border-accent/60 rounded-xl p-4 shadow-lg hover:shadow-xl transition-all cursor-pointer min-w-[200px]"
-              >
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2 rounded-lg bg-accent/20 group-hover:bg-accent/30 transition-colors">
-                    <ChartLine size={20} className="text-accent" weight="bold" />
-                  </div>
-                  <div className="text-left flex-1">
-                    <div className="text-xs text-muted-foreground uppercase tracking-wider">Portfolio</div>
-                    <div className="text-2xl font-bold text-accent font-mono">${(gameState.portfolioValue / 1000).toFixed(0)}k</div>
-                  </div>
-                  <Info size={16} className="text-muted-foreground group-hover:text-accent transition-colors" />
-                </div>
-              </button>
-            </div>
           </header>
 
           <CentralStockCard
