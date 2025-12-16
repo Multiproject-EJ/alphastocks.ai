@@ -6,6 +6,7 @@ import { renderPromptTemplate } from '../promptTemplateRenderer.ts';
 import { ValueBotContext, ValueBotModuleProps } from '../types.ts';
 import { useSaveDeepDiveToUniverse } from '../useSaveDeepDiveToUniverse.ts';
 import { useRunMasterMetaSummary } from '../useRunMasterMetaSummary.ts';
+import VerdictCard from '../components/VerdictCard.tsx';
 
 const Module6FinalVerdict: FunctionalComponent<ValueBotModuleProps> = ({ context, onUpdateContext }) => {
   const valueBot = useContext(ValueBotContext);
@@ -248,6 +249,28 @@ ${MASTER_STOCK_ANALYSIS_INSTRUCTIONS}`;
     { label: 'Module 5 — Timing & Momentum (optional for timing signals)', complete: hasModule5Output }
   ];
 
+  // Parse valuation ranges from markdown output
+  const parseValuationRanges = (markdown: string): { bear?: string; base?: string; bull?: string } | null => {
+    if (!markdown) return null;
+    
+    // Look for the Valuation Ranges table (Table D)
+    const tableMatch = markdown.match(/\|\s*Bear\s*\|\s*Base\s*\|\s*Bull\s*\|[^\n]*\n\|[^\n]+\n\|\s*([^|]+)\s*\|\s*([^|]+)\s*\|\s*([^|]+)\s*\|/i);
+    
+    if (tableMatch) {
+      return {
+        bear: tableMatch[1]?.trim(),
+        base: tableMatch[2]?.trim(),
+        bull: tableMatch[3]?.trim()
+      };
+    }
+    
+    return null;
+  };
+
+  const valuationRanges = useMemo(() => {
+    return parseValuationRanges(moduleOutput || module6Markdown || '');
+  }, [moduleOutput, module6Markdown]);
+
   return (
     <div className="detail-grid detail-grid--balanced">
       <div className="detail-card">
@@ -408,6 +431,24 @@ ${MASTER_STOCK_ANALYSIS_INSTRUCTIONS}`;
           </p>
         )}
       </div>
+
+      {/* Visual Verdict Card - Snapshot View */}
+      {masterMeta && hasTicker && (
+        <div className="detail-card">
+          <h4>Visual Snapshot Card</h4>
+          <p className="detail-meta">
+            A quick-glance visual summary of the analysis results, perfect for sharing or quick reference.
+          </p>
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem' }}>
+            <VerdictCard
+              ticker={tickerLabel}
+              companyName={companyNameLabel}
+              masterMeta={masterMeta}
+              valuationRanges={valuationRanges}
+            />
+          </div>
+        </div>
+      )}
 
       <div className="detail-card">
         <h4>Save deep-dive to Investing Universe</h4>
