@@ -12,6 +12,7 @@ import { PortfolioModal } from '@/components/PortfolioModal'
 import { ProToolsOverlay } from '@/components/ProToolsOverlay'
 import { BiasSanctuaryModal } from '@/components/BiasSanctuaryModal'
 import { CenterCarousel } from '@/components/CenterCarousel'
+import { CelebrationEffect } from '@/components/CelebrationEffect'
 import { GameState, Stock, BiasCaseStudy } from '@/lib/types'
 import {
   BOARD_TILES,
@@ -76,6 +77,8 @@ function App() {
   const [currentCaseStudy, setCurrentCaseStudy] = useState<BiasCaseStudy | null>(null)
 
   const [diceResetKey, setDiceResetKey] = useState(0)
+
+  const [showCelebration, setShowCelebration] = useState(false)
 
   const rollTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const hopIntervalRef = useRef<NodeJS.Timeout | null>(null)
@@ -185,6 +188,9 @@ function App() {
         tilesToHop.push((startPosition + i) % BOARD_TILES.length)
       }
 
+      // Check if player passes Start (position 0) - detect wrapping around the board
+      const passedStart = startPosition + roll > BOARD_TILES.length - 1 && tilesToHop[tilesToHop.length - 1] !== 0
+
       let currentHop = 0
       hopIntervalRef.current = setInterval(() => {
         if (currentHop < tilesToHop.length) {
@@ -201,7 +207,7 @@ function App() {
             const newPosition = tilesToHop[tilesToHop.length - 1]
             debugGame('Landing on tile:', { position: newPosition, tile: BOARD_TILES[newPosition] })
             setPhase('landed')
-            handleTileLanding(newPosition)
+            handleTileLanding(newPosition, passedStart)
             setRollsRemaining((prev) => prev - 1)
           }, 200)
         }
@@ -209,11 +215,22 @@ function App() {
     }, 600)
   }
 
-  const handleTileLanding = (position: number) => {
+  const handleTileLanding = (position: number, passedStart = false) => {
     setDiceResetKey((prev) => prev + 1)
 
     const tile = BOARD_TILES[position]
-    debugGame('handleTileLanding:', { position, tile })
+    debugGame('handleTileLanding:', { position, tile, passedStart })
+
+    // Handle passing Start (but not landing on it)
+    if (passedStart) {
+      setGameState((prev) => ({
+        ...prev,
+        stars: prev.stars + 200,
+      }))
+      toast.success('Passed Start! Collected 200 stars ⭐', {
+        description: 'Keep moving around the board',
+      })
+    }
 
     if (tile.type === 'category' && tile.category) {
       debugGame('Category tile - showing stock card')
@@ -271,8 +288,9 @@ function App() {
           setPhase('idle')
         }, 1000)
       } else if (tile.title === 'Casino') {
-        toast.info('Casino', {
-          description: 'Try your luck soon',
+        setShowCelebration(true)
+        toast.info('🎰 Welcome to the Casino!', {
+          description: 'Feeling lucky today?',
         })
         // Transition back to idle after a short delay
         setTimeout(() => {
@@ -391,6 +409,7 @@ function App() {
         aria-hidden="true"
       />
       <Toaster position="top-center" />
+      <CelebrationEffect show={showCelebration} onComplete={() => setShowCelebration(false)} />
 
       <div className="relative z-10 max-w-[1600px] mx-auto">
         <div
