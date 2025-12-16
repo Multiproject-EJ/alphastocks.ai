@@ -490,7 +490,7 @@ function App() {
                 ))}
               </div>
 
-              <div className="absolute top-[140px] bottom-[140px] right-0 flex flex-col gap-0 pointer-events-auto">
+              <div className="absolute top-[140px] bottom-[140px] right-0 flex flex-col-reverse gap-0 pointer-events-auto">
                 {BOARD_TILES.slice(8, 14).map((tile) => (
                   <Tile
                     key={tile.id}
@@ -526,7 +526,7 @@ function App() {
                 ))}
               </div>
 
-              <div className="absolute top-[140px] bottom-[140px] left-0 flex flex-col flex-col-reverse gap-0 pointer-events-auto">
+              <div className="absolute top-[140px] bottom-[140px] left-0 flex flex-col gap-0 pointer-events-auto">
                 {BOARD_TILES.slice(22).map((tile) => (
                   <Tile
                     key={tile.id}
