@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -9,6 +10,7 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Star } from '@phosphor-icons/react'
 import { ThriftyChallenge } from '@/lib/types'
+import { CelebrationEffect } from '@/components/CelebrationEffect'
 
 interface ThriftyPathModalProps {
   open: boolean
@@ -23,8 +25,20 @@ export function ThriftyPathModal({
   challenges,
   onChoose,
 }: ThriftyPathModalProps) {
+  const [showCelebration, setShowCelebration] = useState(false)
+
+  const handleChoose = (challenge: ThriftyChallenge) => {
+    setShowCelebration(true)
+    setTimeout(() => {
+      onChoose(challenge)
+      onOpenChange(false)
+      setShowCelebration(false)
+    }, 500)
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
+      <CelebrationEffect show={showCelebration} onComplete={() => setShowCelebration(false)} />
       <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto bg-card border-2 border-accent/50 shadow-[0_0_40px_oklch(0.75_0.15_85_/_0.3)]">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-accent">
@@ -52,10 +66,7 @@ export function ThriftyPathModal({
                     +{challenge.reward}
                   </div>
                   <Button
-                    onClick={() => {
-                      onChoose(challenge)
-                      onOpenChange(false)
-                    }}
+                    onClick={() => handleChoose(challenge)}
                     size="sm"
                     className="bg-accent hover:bg-accent/90 text-accent-foreground h-7 px-3 text-xs"
                   >

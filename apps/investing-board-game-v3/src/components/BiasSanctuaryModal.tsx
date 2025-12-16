@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/collapsible'
 import { Brain, CaretDown, CheckCircle, XCircle, Lightbulb } from '@phosphor-icons/react'
 import { BiasCaseStudy } from '@/lib/types'
+import { CelebrationEffect } from '@/components/CelebrationEffect'
 
 interface BiasSanctuaryModalProps {
   open: boolean
@@ -37,6 +38,7 @@ export function BiasSanctuaryModal({
   const [selectedAnswers, setSelectedAnswers] = useState<Record<string, number>>({})
   const [showExplanation, setShowExplanation] = useState<Record<string, boolean>>({})
   const [quizComplete, setQuizComplete] = useState(false)
+  const [showCelebration, setShowCelebration] = useState(false)
 
   if (!caseStudy) return null
 
@@ -56,6 +58,7 @@ export function BiasSanctuaryModal({
         (q) => selectedAnswers[q.id] === q.correctAnswer
       ).length
       setQuizComplete(true)
+      setShowCelebration(true)
       onComplete(correct, totalQuestions)
     } else {
       setCurrentQuestionIndex((prev) => prev + 1)
@@ -69,6 +72,7 @@ export function BiasSanctuaryModal({
     setSelectedAnswers({})
     setShowExplanation({})
     setQuizComplete(false)
+    setShowCelebration(false)
   }
 
   const toggleContext = (index: number) => {
@@ -92,6 +96,7 @@ export function BiasSanctuaryModal({
         }
       }}
     >
+      <CelebrationEffect show={showCelebration} onComplete={() => setShowCelebration(false)} />
       <DialogContent className="sm:max-w-[700px] max-h-[85vh] overflow-y-auto bg-card border-2 border-accent/50 shadow-[0_0_60px_oklch(0.75_0.15_85_/_0.4)]">
         <AnimatePresence mode="wait">
           {showCard ? (
