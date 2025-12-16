@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -26,13 +26,25 @@ export function ThriftyPathModal({
   onChoose,
 }: ThriftyPathModalProps) {
   const [showCelebration, setShowCelebration] = useState(false)
+  const [selectedChallenge, setSelectedChallenge] = useState<ThriftyChallenge | null>(null)
+  const timerRef = useRef<NodeJS.Timeout | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current)
+      }
+    }
+  }, [])
 
   const handleChoose = (challenge: ThriftyChallenge) => {
+    setSelectedChallenge(challenge)
     setShowCelebration(true)
-    setTimeout(() => {
+    timerRef.current = setTimeout(() => {
       onChoose(challenge)
       onOpenChange(false)
       setShowCelebration(false)
+      setSelectedChallenge(null)
     }, 500)
   }
 

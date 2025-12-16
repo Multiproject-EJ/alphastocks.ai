@@ -12,7 +12,8 @@ export function CelebrationEffect({ show, onComplete }: CelebrationEffectProps) 
   useEffect(() => {
     if (show) {
       const colors = ['#FFD700', '#FFA500', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DFE6E9']
-      const newParticles = Array.from({ length: 50 }, (_, i) => ({
+      // Reduced particle count for better performance
+      const newParticles = Array.from({ length: 30 }, (_, i) => ({
         id: i,
         x: Math.random() * 100 - 50,
         y: Math.random() * 100 - 50,
@@ -26,7 +27,10 @@ export function CelebrationEffect({ show, onComplete }: CelebrationEffectProps) 
         onComplete?.()
       }, 2000)
 
-      return () => clearTimeout(timer)
+      return () => {
+        clearTimeout(timer)
+        setParticles([])
+      }
     }
   }, [show, onComplete])
 

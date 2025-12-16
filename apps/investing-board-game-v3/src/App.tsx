@@ -188,8 +188,8 @@ function App() {
         tilesToHop.push((startPosition + i) % BOARD_TILES.length)
       }
 
-      // Check if player passes Start (position 0)
-      const passedStart = startPosition > 0 && tilesToHop.some(pos => pos === 0) && tilesToHop[tilesToHop.length - 1] !== 0
+      // Check if player passes Start (position 0) - detect wrapping around the board
+      const passedStart = startPosition + roll > BOARD_TILES.length - 1 && tilesToHop[tilesToHop.length - 1] !== 0
 
       let currentHop = 0
       hopIntervalRef.current = setInterval(() => {
