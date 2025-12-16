@@ -2064,6 +2064,11 @@ body[data-theme='dark'] {
 .analyse-button .spinner {
   display: inline-block;
   margin-right: 0.5rem;
+  width: 1em;
+  height: 1em;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
   animation: spin 1s linear infinite;
 }
 

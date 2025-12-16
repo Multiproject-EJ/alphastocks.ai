@@ -226,6 +226,13 @@ const UniverseBuilder = () => {
         </div>
       )}
 
+      {lastAnalysisResult && lastAnalysisResult.completed && (
+        <div className="universe-builder__result">
+          <strong>All Done!</strong>
+          <p>{lastAnalysisResult.message}</p>
+        </div>
+      )}
+
       {/* Progress Panel */}
       {status?.progress && (
         <div className="universe-progress">
@@ -284,7 +291,7 @@ const UniverseBuilder = () => {
         >
           {isAnalyzing ? (
             <>
-              <span className="spinner" aria-hidden="true">⏳</span>
+              <span className="spinner" aria-hidden="true"></span>
               Analyzing...
             </>
           ) : (
@@ -292,7 +299,7 @@ const UniverseBuilder = () => {
           )}
         </button>
         {status?.progress?.status === 'completed' && (
-          <p className="detail-meta">All exchanges have been analyzed!</p>
+          <p className="detail-meta">✅ All exchanges have been analyzed! The global stock catalog is complete.</p>
         )}
       </div>
 
