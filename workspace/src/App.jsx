@@ -20,6 +20,7 @@ import {
 import UniverseDeepDiveModal from './features/valuebot/UniverseDeepDiveModal.tsx';
 import useFetchDeepDivesFromUniverse from './features/valuebot/useFetchDeepDivesFromUniverse.ts';
 import { useAuth } from './context/AuthContext.jsx';
+import UniverseBuilder from './features/universe-builder/UniverseBuilder.jsx';
 
 const DEFAULT_FOCUS_LIST = [
   { id: 'focus-1', title: 'SPY breakout', caption: 'Checklist ready • 09:30', tag: { tone: 'tag-green', label: 'Today' } },
@@ -459,6 +460,7 @@ const baseNavigation = [
   { id: 'focuslist', icon: '🎯', title: 'Focus List', caption: 'Priority names', shortLabel: 'Focus' },
   { id: 'valuebot', icon: '🤖', title: 'ValueBot', caption: 'Valuation copilot', shortLabel: 'Bot' },
   { id: 'quadrant', icon: '🧭', title: 'Investing Universe', caption: '', shortLabel: 'Map' },
+  { id: 'universe-builder', icon: '🌐', title: 'Universe Builder', caption: 'Build global stock catalog', shortLabel: 'Universe' },
   { id: 'portfolio', icon: '💼', title: 'Portfolio', caption: 'Results & ledger', hasSubmenu: true, shortLabel: 'Book' }
 ];
 
@@ -726,6 +728,12 @@ const staticSections = {
         )
       }
     ]
+  },
+  'universe-builder': {
+    title: 'Global Stock Universe Builder',
+    meta: 'Systematically catalog every stock from every exchange worldwide. The foundation for ValueBot analysis.',
+    cards: [],
+    component: <UniverseBuilder />
   },
 };
 
