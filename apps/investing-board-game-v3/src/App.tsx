@@ -19,6 +19,8 @@ import { UserIndicator } from '@/components/UserIndicator'
 import { SoundControls } from '@/components/SoundControls'
 import { ChallengeTracker } from '@/components/ChallengeTracker'
 import { EventBanner } from '@/components/EventBanner'
+import { NetWorthGalleryModal } from '@/components/NetWorthGalleryModal'
+import { TierUpModal } from '@/components/TierUpModal'
 
 // Mobile-first components
 import { MobileGameLayout } from '@/components/MobileGameLayout'
@@ -55,6 +57,7 @@ import { useChallenges } from '@/hooks/useChallenges'
 import { useEvents } from '@/hooks/useEvents'
 import { useHaptics } from '@/hooks/useHaptics'
 import { useSwipeGesture } from '@/hooks/useSwipeGesture'
+import { useNetWorthTier } from '@/hooks/useNetWorthTier'
 
 type Phase = 'idle' | 'rolling' | 'moving' | 'landed'
 
@@ -145,6 +148,8 @@ function App() {
   const [challengesModalOpen, setChallengesModalOpen] = useState(false)
   const [eventCalendarOpen, setEventCalendarOpen] = useState(false)
 
+  const [netWorthGalleryOpen, setNetWorthGalleryOpen] = useState(false)
+
   // Mobile UI states
   const [activeSection, setActiveSection] = useState<'home' | 'challenges' | 'shop' | 'leaderboard' | 'settings'>('home')
   const [settingsOpen, setSettingsOpen] = useState(false)
@@ -166,6 +171,17 @@ function App() {
 
   // Haptic feedback hook
   const { roll: hapticRoll, success: hapticSuccess, light: hapticLight } = useHaptics()
+
+  // Net Worth Tier hook
+  const {
+    currentTier,
+    nextTier,
+    progress: tierProgress,
+    activeBenefits,
+    showTierUpModal,
+    setShowTierUpModal,
+    newTier
+  } = useNetWorthTier(gameState.netWorth)
 
   // Swipe gesture hook - for mobile navigation
   const containerRef = useRef<HTMLDivElement>(null)
@@ -831,7 +847,7 @@ function App() {
 
           {/* User Indicator - Top Left */}
           <div className="absolute top-4 left-4 z-40">
-            <UserIndicator saving={saving} lastSaved={lastSavedTime} />
+            <UserIndicator saving={saving} lastSaved={lastSavedTime} currentTier={currentTier} />
           </div>
 
           {/* Challenge Tracker - Below User Indicator */}
@@ -973,6 +989,7 @@ function App() {
         gameState={gameState}
         onOpenChallenges={() => setChallengesModalOpen(true)}
         onOpenEventCalendar={() => setEventCalendarOpen(true)}
+        onOpenNetWorthGallery={() => setNetWorthGalleryOpen(true)}
       />
 
       <StockModal
@@ -1118,6 +1135,22 @@ function App() {
           onOpenChange={setSettingsOpen}
         />
       </Suspense>
+
+      {/* Net Worth Gallery Modal */}
+      <NetWorthGalleryModal
+        open={netWorthGalleryOpen}
+        onOpenChange={setNetWorthGalleryOpen}
+        currentNetWorth={gameState.netWorth}
+      />
+
+      {/* Tier Up Celebration Modal */}
+      {newTier && (
+        <TierUpModal
+          open={showTierUpModal}
+          onOpenChange={setShowTierUpModal}
+          tier={newTier}
+        />
+      )}
 
       {/* Mobile Bottom Navigation */}
       <BottomNav

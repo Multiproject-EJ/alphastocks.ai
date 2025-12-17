@@ -9,13 +9,16 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { User, SignOut, ArrowSquareOut, CloudCheck, CloudSlash, Spinner } from '@phosphor-icons/react'
 import { useAuth } from '@/context/AuthContext'
+import { TierBadge } from '@/components/TierBadge'
+import { NetWorthTier } from '@/lib/netWorthTiers'
 
 interface UserIndicatorProps {
   saving?: boolean
   lastSaved?: Date | null
+  currentTier?: NetWorthTier
 }
 
-export function UserIndicator({ saving, lastSaved }: UserIndicatorProps) {
+export function UserIndicator({ saving, lastSaved, currentTier }: UserIndicatorProps) {
   const { user, isAuthenticated, loading, signOut } = useAuth()
   const [isOpen, setIsOpen] = useState(false)
 
@@ -70,7 +73,14 @@ export function UserIndicator({ saving, lastSaved }: UserIndicatorProps) {
     'Player'
 
   return (
-    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+    <div className="flex items-center gap-2">
+      {/* Tier Badge */}
+      {currentTier && (
+        <TierBadge tier={currentTier} size="sm" showName={false} />
+      )}
+      
+      {/* User Dropdown */}
+      <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
         <Button
           variant="outline"
@@ -137,5 +147,6 @@ export function UserIndicator({ saving, lastSaved }: UserIndicatorProps) {
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
+    </div>
   )
 }

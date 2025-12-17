@@ -88,6 +88,12 @@ export interface GameState {
     totalStarsEarned: number
     roll6Streak: number
   }
+  // Net Worth Tier fields
+  currentTier?: number // Track current tier number for easy access
+  tierUnlockHistory?: Array<{
+    tier: number
+    unlockedAt: Date
+  }>
 }
 
 export interface BiasQuizQuestion {
