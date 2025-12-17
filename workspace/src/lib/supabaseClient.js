@@ -13,7 +13,9 @@ export const supabase = (supabaseUrl && supabaseAnonKey)
       auth: {
         persistSession: true,
         autoRefreshToken: true,
-        detectSessionInUrl: true
+        detectSessionInUrl: true,
+        // Use a consistent storage key to share auth with board game
+        storageKey: 'supabase.auth.token'
       }
     })
   : {
@@ -25,5 +27,4 @@ export const supabase = (supabaseUrl && supabaseAnonKey)
         signOut: async () => ({ error: new Error('Supabase not configured') })
       }
     };
-
 
