@@ -44,6 +44,7 @@ export interface GameState {
   netWorth: number
   portfolioValue: number
   stars: number
+  coins: number // New: Third currency for micro-transactions
   holdings: Array<{
     stock: Stock
     shares: number
@@ -94,6 +95,27 @@ export interface GameState {
     tier: number
     unlockedAt: Date
   }>
+  // Thrift Path Status
+  thriftPath?: {
+    active: boolean
+    level: number
+    experience: number
+    streakDays: number
+    activatedAt: string | null
+    lastActivityDate: string | null
+    benefits: {
+      starMultiplier: number
+      crashProtection: number
+      recoveryBoost: number
+    }
+    stats: {
+      totalChallengesCompleted: number
+      perfectQuizzes: number
+      disciplinedChoices: number
+      impulsiveActions: number
+      longTermHoldings: number
+    }
+  }
 }
 
 export interface BiasQuizQuestion {

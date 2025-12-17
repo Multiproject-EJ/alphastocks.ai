@@ -12,6 +12,7 @@ interface BoardGameProfile {
   net_worth: number
   portfolio_value: number
   stars: number
+  coins: number
   holdings: GameState['holdings']
   inventory: GameState['inventory']
   active_effects: GameState['activeEffects']
@@ -29,6 +30,7 @@ interface BoardGameProfile {
   achievements: GameState['achievements']
   challenges?: GameState['challenges']
   stats: GameState['stats']
+  thrift_path?: GameState['thriftPath']
   created_at: string
   updated_at: string
 }
@@ -67,6 +69,7 @@ export function useGameSave(): UseGameSaveReturn {
       netWorth: Number(profile.net_worth),
       portfolioValue: Number(profile.portfolio_value),
       stars: profile.stars,
+      coins: profile.coins || 100,
       holdings: Array.isArray(profile.holdings) ? profile.holdings : [],
       inventory: Array.isArray(profile.inventory) ? profile.inventory : [],
       activeEffects: Array.isArray(profile.active_effects) ? profile.active_effects : [],
@@ -96,6 +99,7 @@ export function useGameSave(): UseGameSaveReturn {
         totalStarsEarned: 0,
         roll6Streak: 0,
       },
+      thriftPath: profile.thrift_path || undefined,
     }
   }, [])
 
@@ -166,6 +170,7 @@ export function useGameSave(): UseGameSaveReturn {
           net_worth: gameState.netWorth,
           portfolio_value: gameState.portfolioValue,
           stars: gameState.stars,
+          coins: gameState.coins || 100,
           holdings: gameState.holdings,
           inventory: gameState.inventory || [],
           active_effects: gameState.activeEffects || [],
@@ -197,6 +202,7 @@ export function useGameSave(): UseGameSaveReturn {
             totalStarsEarned: 0,
             roll6Streak: 0,
           },
+          thrift_path: gameState.thriftPath || undefined,
         }
 
         const { error: upsertError } = await supabaseClient

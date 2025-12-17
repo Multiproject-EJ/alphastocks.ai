@@ -21,6 +21,8 @@ import { ChallengeTracker } from '@/components/ChallengeTracker'
 import { EventBanner } from '@/components/EventBanner'
 import { NetWorthGalleryModal } from '@/components/NetWorthGalleryModal'
 import { TierUpModal } from '@/components/TierUpModal'
+import { ThriftPathStatus } from '@/components/ThriftPathStatus'
+import { ThriftPathAura } from '@/components/ThriftPathAura'
 
 // Mobile-first components
 import { MobileGameLayout } from '@/components/MobileGameLayout'
@@ -58,6 +60,10 @@ import { useEvents } from '@/hooks/useEvents'
 import { useHaptics } from '@/hooks/useHaptics'
 import { useSwipeGesture } from '@/hooks/useSwipeGesture'
 import { useNetWorthTier } from '@/hooks/useNetWorthTier'
+import { useCoins } from '@/hooks/useCoins'
+import { useThriftPath } from '@/hooks/useThriftPath'
+import { ThriftPathStatus as ThriftPathStatusType } from '@/lib/thriftPath'
+import { COIN_COSTS } from '@/lib/coins'
 
 type Phase = 'idle' | 'rolling' | 'moving' | 'landed'
 
@@ -81,6 +87,7 @@ function App() {
     netWorth: 100000,
     portfolioValue: 0,
     stars: 0,
+    coins: 100,
     holdings: [],
     inventory: [],
     activeEffects: [],
@@ -112,6 +119,22 @@ function App() {
       totalStarsEarned: 0,
       roll6Streak: 0,
     },
+    thriftPath: {
+      active: false,
+      level: 0,
+      experience: 0,
+      streakDays: 0,
+      activatedAt: null,
+      lastActivityDate: null,
+      benefits: { starMultiplier: 1, crashProtection: 0, recoveryBoost: 1 },
+      stats: {
+        totalChallengesCompleted: 0,
+        perfectQuizzes: 0,
+        disciplinedChoices: 0,
+        impulsiveActions: 0,
+        longTermHoldings: 0
+      }
+    }
   }
 
   const [gameState, setGameState] = useState<GameState>(defaultGameState)
@@ -183,6 +206,32 @@ function App() {
     newTier
   } = useNetWorthTier(gameState.netWorth)
 
+  // Coins and Thrift Path hooks
+  const {
+    coins,
+    setCoins,
+    addCoins,
+    spendCoins,
+    earnFromSource,
+    canAfford: canAffordCoins
+  } = useCoins(gameState.coins)
+
+  // Convert thriftPath from GameState format to ThriftPathStatus format
+  const initialThriftPathStatus: ThriftPathStatusType | undefined = gameState.thriftPath ? {
+    ...gameState.thriftPath,
+    activatedAt: gameState.thriftPath.activatedAt ? new Date(gameState.thriftPath.activatedAt) : null,
+    lastActivityDate: gameState.thriftPath.lastActivityDate ? new Date(gameState.thriftPath.lastActivityDate) : null
+  } : undefined
+
+  const {
+    thriftPathStatus,
+    setThriftPathStatus,
+    addThriftPathXP,
+    penalizeThriftPath,
+    updateStats,
+    checkDailyStreak
+  } = useThriftPath(initialThriftPathStatus)
+
   // Swipe gesture hook - for mobile navigation
   const containerRef = useRef<HTMLDivElement>(null)
   useSwipeGesture(containerRef, (direction) => {
@@ -241,6 +290,28 @@ function App() {
     const interval = setInterval(checkAndResetChallenges, 60000)
     return () => clearInterval(interval)
   }, [checkAndResetChallenges])
+
+  // Sync coins state to gameState
+  useEffect(() => {
+    setGameState(prev => ({ ...prev, coins }))
+  }, [coins])
+
+  // Sync thriftPath state to gameState
+  useEffect(() => {
+    setGameState(prev => ({
+      ...prev,
+      thriftPath: {
+        ...thriftPathStatus,
+        activatedAt: thriftPathStatus.activatedAt ? thriftPathStatus.activatedAt.toISOString() : null,
+        lastActivityDate: thriftPathStatus.lastActivityDate ? thriftPathStatus.lastActivityDate.toISOString() : null
+      }
+    }))
+  }, [thriftPathStatus])
+
+  // Check daily streak on component mount
+  useEffect(() => {
+    checkDailyStreak()
+  }, [checkDailyStreak])
 
   // Loading screen on initial mount
   useEffect(() => {
@@ -506,6 +577,9 @@ function App() {
     // Track challenge progress for rolling
     updateChallengeProgress('roll', roll)
     
+    // Earn coins for dice roll
+    earnFromSource('dice_roll')
+    
     setPhase('rolling')
     setLastRoll(roll)
     playSound('dice-roll')
@@ -548,6 +622,25 @@ function App() {
     }, 600)
   }
 
+  const handleReroll = () => {
+    if (!canAffordCoins(COIN_COSTS.reroll_dice)) {
+      return
+    }
+    
+    if (spendCoins(COIN_COSTS.reroll_dice, 'Reroll dice')) {
+      // Reroll the dice
+      handleRoll()
+    }
+  }
+
+  const handleSkipEvent = (): boolean => {
+    if (!canAffordCoins(COIN_COSTS.skip_event)) {
+      return false
+    }
+    
+    return spendCoins(COIN_COSTS.skip_event, 'Skip event')
+  }
+
   const handleTileLanding = (position: number, passedStart = false) => {
     setDiceResetKey((prev) => prev + 1)
     playSound('tile-land')
@@ -558,6 +651,9 @@ function App() {
     // Track challenge progress for landing on tile
     updateChallengeProgress('land_on_tile', { position, tileType: tile.type })
     
+    // Earn coins for landing on tile
+    earnFromSource('land_on_tile')
+    
     // Track corner landing
     const corners = [0, 6, 13, 19]
     if (corners.includes(position)) {
@@ -567,6 +663,7 @@ function App() {
     // Handle passing Start (but not landing on it)
     if (passedStart) {
       playSound('star-collect')
+      earnFromSource('pass_start') // Earn coins for passing start
       setGameState((prev) => ({
         ...prev,
         stars: prev.stars + 200,
@@ -738,6 +835,10 @@ function App() {
     // Track challenge progress for thrifty path
     updateChallengeProgress('complete_thrifty')
     
+    // Add Thrift Path XP for completing challenge
+    addThriftPathXP('complete_thrifty_challenge')
+    updateStats('totalChallengesCompleted')
+    
     // Apply double reward card if active
     const hasDoubleReward = hasPowerUp('double-reward-card')
     let starsToAward = challenge.reward
@@ -750,6 +851,11 @@ function App() {
     
     // Apply star multiplier upgrade if owned
     starsToAward = applyStarMultiplier(starsToAward)
+    
+    // Apply Thrift Path star multiplier if active
+    if (thriftPathStatus.active) {
+      starsToAward = Math.floor(starsToAward * thriftPathStatus.benefits.starMultiplier)
+    }
     
     setGameState((prev) => ({
       ...prev,
@@ -852,7 +958,13 @@ function App() {
 
           {/* User Indicator - Top Left */}
           <div className="absolute top-4 left-4 z-40">
-            <UserIndicator saving={saving} lastSaved={lastSavedTime} currentTier={currentTier} />
+            <UserIndicator 
+              saving={saving} 
+              lastSaved={lastSavedTime} 
+              currentTier={currentTier}
+              stars={gameState.stars}
+              coins={gameState.coins}
+            />
           </div>
 
           {/* Challenge Tracker - Below User Indicator */}
@@ -860,6 +972,19 @@ function App() {
             <ChallengeTracker
               dailyChallenges={dailyChallenges}
               onOpenModal={() => setChallengesModalOpen(true)}
+            />
+          </div>
+
+          {/* Thrift Path Status Widget - Below Challenge Tracker */}
+          <div className="absolute top-44 left-4 z-40">
+            <ThriftPathStatus
+              status={thriftPathStatus}
+              onClick={() => {
+                // Could open a detailed Thrift Path info modal in the future
+                toast.info('Thrift Path', {
+                  description: `Your disciplined choices earn XP and unlock benefits!`
+                })
+              }}
             />
           </div>
 
@@ -907,6 +1032,9 @@ function App() {
               nextResetTime={nextResetTime}
               boardRef={boardRef}
               resetPositionKey={diceResetKey}
+              coins={gameState.coins}
+              canAffordReroll={canAffordCoins(COIN_COSTS.reroll_dice)}
+              onReroll={handleReroll}
             />
           </div>
 
@@ -1036,6 +1164,9 @@ function App() {
           }
         }}
         eventText={currentEvent}
+        coins={gameState.coins}
+        canAffordSkip={canAffordCoins(COIN_COSTS.skip_event)}
+        onSkip={handleSkipEvent}
       />
 
       <ThriftyPathModal
@@ -1060,6 +1191,7 @@ function App() {
         }}
         challenges={THRIFTY_CHALLENGES}
         onChoose={handleChooseChallenge}
+        thriftPathStatus={thriftPathStatus}
       />
 
       <PortfolioModal
