@@ -23,13 +23,13 @@ export function AnimatedDice({ value, isRolling, isMoving, className = '' }: Ani
     <motion.div
       className={`relative ${className}`}
       animate={{
-        rotateX: isRolling ? [0, 360, 720, 1080] : 0,
-        rotateY: isRolling ? [0, 360, 720, 1080] : 0,
-        rotateZ: isRolling ? [0, 180, 360, 540] : 0,
-        scale: isRolling ? [1, 1.1, 0.9, 1] : 1,
+        rotateX: isRolling ? [0, 360, 720, 1080, 1440] : 0,
+        rotateY: isRolling ? [0, 360, 720, 1080, 1440] : 0,
+        rotateZ: isRolling ? [0, 180, 360, 540, 720] : 0,
+        scale: isRolling ? [1, 1.15, 0.95, 1.1, 1] : 1,
       }}
       transition={{
-        duration: isRolling ? 0.6 : 0.3,
+        duration: isRolling ? 0.8 : 0.3,
         ease: isRolling ? "easeInOut" : "easeOut",
       }}
       style={{ 
@@ -42,25 +42,32 @@ export function AnimatedDice({ value, isRolling, isMoving, className = '' }: Ani
         animate={{
           boxShadow: isRolling 
             ? [
-                '0 0 20px oklch(0.75 0.15 85 / 0.6), 0 0 40px oklch(0.75 0.15 85 / 0.4)',
-                '0 0 30px oklch(0.75 0.15 85 / 0.8), 0 0 60px oklch(0.75 0.15 85 / 0.6)',
-                '0 0 20px oklch(0.75 0.15 85 / 0.6), 0 0 40px oklch(0.75 0.15 85 / 0.4)',
+                '0 0 30px oklch(0.75 0.15 85 / 0.7), 0 0 60px oklch(0.75 0.15 85 / 0.5)',
+                '0 0 40px oklch(0.75 0.15 85 / 0.9), 0 0 80px oklch(0.75 0.15 85 / 0.7)',
+                '0 0 30px oklch(0.75 0.15 85 / 0.7), 0 0 60px oklch(0.75 0.15 85 / 0.5)',
               ]
             : isMoving
-            ? '0 0 15px oklch(0.75 0.15 85 / 0.5), 0 0 30px oklch(0.75 0.15 85 / 0.3)'
+            ? '0 0 20px oklch(0.75 0.15 85 / 0.6), 0 0 40px oklch(0.75 0.15 85 / 0.4)'
             : '0 4px 6px rgba(0, 0, 0, 0.3)',
-          scale: isRolling ? [1, 1.05, 1] : 1,
+          scale: isRolling ? [1, 1.1, 1.05, 1] : !isRolling && !isMoving ? [1, 1.15, 1] : 1,
+          y: !isRolling && !isMoving ? [0, -8, 0] : 0,
         }}
         transition={{
           boxShadow: {
-            duration: isRolling ? 0.6 : 0.3,
+            duration: isRolling ? 0.8 : 0.3,
             repeat: isRolling ? Infinity : 0,
             ease: "easeInOut",
           },
           scale: {
-            duration: isRolling ? 0.3 : 0,
+            duration: isRolling ? 0.4 : 0.3,
             repeat: isRolling ? Infinity : 0,
             ease: "easeInOut",
+            delay: !isRolling && !isMoving ? 0.8 : 0,
+          },
+          y: {
+            duration: 0.3,
+            ease: [0.34, 1.56, 0.64, 1], // Spring bounce
+            delay: !isRolling && !isMoving ? 0.8 : 0,
           },
         }}
       >
