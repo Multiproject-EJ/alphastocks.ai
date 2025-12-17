@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { Toaster, toast } from 'sonner'
 import { Button } from '@/components/ui/button'
+import { ShoppingBag } from '@phosphor-icons/react'
 import { Tile } from '@/components/Tile'
 import { DiceHUD } from '@/components/DiceHUD'
 import { HubModal } from '@/components/HubModal'
@@ -11,6 +12,7 @@ import { ThriftyPathModal } from '@/components/ThriftyPathModal'
 import { PortfolioModal } from '@/components/PortfolioModal'
 import { ProToolsOverlay } from '@/components/ProToolsOverlay'
 import { BiasSanctuaryModal } from '@/components/BiasSanctuaryModal'
+import { ShopModal } from '@/components/ShopModal'
 import { CenterCarousel } from '@/components/CenterCarousel'
 import { CelebrationEffect } from '@/components/CelebrationEffect'
 import { CasinoModal } from '@/components/CasinoModal'
@@ -33,6 +35,7 @@ import { useUniverseStocks } from '@/hooks/useUniverseStocks'
 import { useGameSave } from '@/hooks/useGameSave'
 import { useAuth } from '@/context/AuthContext'
 import { useSound } from '@/hooks/useSound'
+import { useShopInventory } from '@/hooks/useShopInventory'
 
 type Phase = 'idle' | 'rolling' | 'moving' | 'landed'
 
@@ -57,6 +60,11 @@ function App() {
     portfolioValue: 0,
     stars: 0,
     holdings: [],
+    inventory: [],
+    activeEffects: [],
+    equippedTheme: 'default',
+    equippedDiceSkin: 'default',
+    equippedTrail: undefined,
   }
 
   const [gameState, setGameState] = useState<GameState>(defaultGameState)
@@ -88,6 +96,8 @@ function App() {
 
   const [casinoModalOpen, setCasinoModalOpen] = useState(false)
 
+  const [shopModalOpen, setShopModalOpen] = useState(false)
+
   const [diceResetKey, setDiceResetKey] = useState(0)
 
   const [showCelebration, setShowCelebration] = useState(false)
@@ -101,6 +111,15 @@ function App() {
 
   // Sound effects hook
   const { play: playSound } = useSound()
+
+  // Shop inventory hook
+  const {
+    purchaseItem,
+    isPermanentOwned,
+    getItemQuantity,
+    canAfford,
+    equipCosmetic,
+  } = useShopInventory({ gameState, setGameState })
 
   // Authentication and game save hooks
   const { isAuthenticated, loading: authLoading } = useAuth()
@@ -133,13 +152,13 @@ function App() {
     const now = new Date()
     if (now >= savedRolls.resetAt) {
       // Rolls have expired, reset them
-      setRollsRemaining(DAILY_ROLL_LIMIT)
+      setRollsRemaining(getEffectiveDailyRollLimit())
       setNextResetTime(getNextMidnight())
     } else {
       setRollsRemaining(savedRolls.remaining)
       setNextResetTime(savedRolls.resetAt)
     }
-  }, [savedRolls, saveLoading, authLoading])
+  }, [savedRolls, saveLoading, authLoading, getEffectiveDailyRollLimit])
 
   // Auto-save game state when it changes (debounced)
   const debouncedSave = useCallback(() => {
@@ -180,16 +199,17 @@ function App() {
     const checkReset = setInterval(() => {
       const now = new Date()
       if (now >= nextResetTime) {
-        setRollsRemaining(DAILY_ROLL_LIMIT)
+        const effectiveLimit = getEffectiveDailyRollLimit()
+        setRollsRemaining(effectiveLimit)
         setNextResetTime(getNextMidnight())
         toast.info('Daily dice rolls refreshed!', {
-          description: `You have ${DAILY_ROLL_LIMIT} new rolls available`,
+          description: `You have ${effectiveLimit} new rolls available`,
         })
       }
     }, 1000)
 
     return () => clearInterval(checkReset)
-  }, [nextResetTime])
+  }, [nextResetTime, getEffectiveDailyRollLimit])
 
   useEffect(() => {
     return () => {
@@ -258,6 +278,42 @@ function App() {
       setPhase('idle')
     }
   }, [stockModalOpen, eventModalOpen, thriftyModalOpen, biasSanctuaryModalOpen, casinoModalOpen, showCentralStock, phase])
+
+  // Helper function to check if a power-up is active
+  const hasPowerUp = useCallback((itemId: string): boolean => {
+    return gameState.activeEffects.some(effect => effect.itemId === itemId && effect.activated)
+  }, [gameState.activeEffects])
+
+  // Helper function to consume a power-up effect
+  const consumePowerUp = useCallback((itemId: string) => {
+    setGameState(prev => ({
+      ...prev,
+      activeEffects: prev.activeEffects.filter(effect => effect.itemId !== itemId)
+    }))
+  }, [])
+
+  // Helper function to get effective daily roll limit (with upgrades)
+  const getEffectiveDailyRollLimit = useCallback((): number => {
+    const hasExtraRoll = isPermanentOwned('extra-daily-roll')
+    return hasExtraRoll ? DAILY_ROLL_LIMIT + 1 : DAILY_ROLL_LIMIT
+  }, [isPermanentOwned])
+
+  // Helper function to apply star multiplier
+  const applyStarMultiplier = useCallback((baseStars: number): number => {
+    const hasStarMultiplier = isPermanentOwned('star-multiplier')
+    return hasStarMultiplier ? Math.floor(baseStars * 1.5) : baseStars
+  }, [isPermanentOwned])
+
+  // Helper function to check extra dice roll power-up
+  useEffect(() => {
+    if (hasPowerUp('extra-dice-rolls')) {
+      setRollsRemaining(prev => prev + 3)
+      consumePowerUp('extra-dice-rolls')
+      toast.success('Extra Dice Rolls Activated!', {
+        description: '+3 rolls added',
+      })
+    }
+  }, [hasPowerUp, consumePowerUp])
 
   const handleRoll = () => {
     if (phase !== 'idle') {
@@ -369,9 +425,23 @@ function App() {
         setThriftyModalOpen(true)
       } else if (tile.title === 'Market Event') {
         debugGame('Opening Event modal')
-        const event = getRandomMarketEvent()
-        setCurrentEvent(event)
-        setEventModalOpen(true)
+        
+        // Check if Market Shield is active
+        if (hasPowerUp('market-shield')) {
+          consumePowerUp('market-shield')
+          toast.success('Market Shield Activated!', {
+            description: '🛡️ Protected from market event',
+          })
+          playSound('button-click')
+          setTimeout(() => {
+            debugGame('Phase transition: landed -> idle (market shield blocked event)')
+            setPhase('idle')
+          }, 1000)
+        } else {
+          const event = getRandomMarketEvent()
+          setCurrentEvent(event)
+          setEventModalOpen(true)
+        }
       } else {
         // Fallback for event tiles without specific handlers (Wildcard, "?", etc.)
         debugGame('Event tile without handler - showing generic message and returning to idle')
@@ -432,7 +502,10 @@ function App() {
 
     const baseShares = 10
     const shares = Math.floor(baseShares * multiplier)
-    const totalCost = currentStock.price * shares
+    let totalCost = currentStock.price * shares
+    
+    // Apply Portfolio Booster upgrade if owned (increases portfolio value by 10%)
+    const hasPortfolioBooster = isPermanentOwned('portfolio-booster')
 
     if (gameState.cash < totalCost) {
       playSound('error')
@@ -445,7 +518,9 @@ function App() {
     playSound('cash-register')
     setGameState((prev) => {
       const newCash = prev.cash - totalCost
-      const newPortfolioValue = prev.portfolioValue + totalCost
+      // Apply 10% boost to portfolio value if upgrade owned
+      const portfolioValueIncrease = hasPortfolioBooster ? totalCost * 1.1 : totalCost
+      const newPortfolioValue = prev.portfolioValue + portfolioValueIncrease
       const newNetWorth = newCash + newPortfolioValue
 
       return {
@@ -480,13 +555,27 @@ function App() {
 
   const handleChooseChallenge = (challenge: typeof THRIFTY_CHALLENGES[0]) => {
     playSound('celebration')
+    
+    // Apply double reward card if active
+    const hasDoubleReward = hasPowerUp('double-reward-card')
+    let starsToAward = challenge.reward
+    
+    if (hasDoubleReward) {
+      starsToAward *= 2
+      consumePowerUp('double-reward-card')
+      toast.info('Double Reward Card Applied! 2x Stars!', { duration: 2000 })
+    }
+    
+    // Apply star multiplier upgrade if owned
+    starsToAward = applyStarMultiplier(starsToAward)
+    
     setGameState((prev) => ({
       ...prev,
-      stars: prev.stars + challenge.reward,
+      stars: prev.stars + starsToAward,
     }))
 
     toast.success(`Challenge accepted: ${challenge.title}`, {
-      description: `Earned ${challenge.reward} stars! ⭐`,
+      description: `Earned ${starsToAward} stars! ⭐`,
     })
 
     debugGame('Challenge chosen - checking if stock modal should open')
@@ -503,7 +592,10 @@ function App() {
 
   const handleBiasQuizComplete = (correct: number, total: number) => {
     const percentage = (correct / total) * 100
-    const starsEarned = correct === total ? 5 : correct >= total / 2 ? 3 : 1
+    let starsEarned = correct === total ? 5 : correct >= total / 2 ? 3 : 1
+    
+    // Apply star multiplier upgrade if owned
+    starsEarned = applyStarMultiplier(starsEarned)
 
     playSound('celebration')
     setGameState((prev) => ({
@@ -564,6 +656,18 @@ function App() {
           {/* Sound Controls - Top Right */}
           <div className="absolute top-4 right-4 z-40">
             <SoundControls />
+          </div>
+
+          {/* Shop Button - Bottom Left */}
+          <div className="absolute bottom-8 left-8 z-40">
+            <Button
+              onClick={() => setShopModalOpen(true)}
+              className="bg-accent/90 hover:bg-accent text-accent-foreground shadow-lg hover:shadow-xl transition-all backdrop-blur-sm rounded-full h-14 px-6 text-base font-semibold flex items-center gap-2"
+              aria-label="Open Shop"
+            >
+              <ShoppingBag size={20} weight="bold" />
+              Shop
+            </Button>
           </div>
 
           {/* Pro Tools Button */}
@@ -687,6 +791,10 @@ function App() {
             debugGame('Stock modal closed - cleaning up')
             setShowCentralStock(false)
             setCurrentStock(null)
+            // Consume stock insight if it was active
+            if (hasPowerUp('stock-insight')) {
+              consumePowerUp('stock-insight')
+            }
             setTimeout(() => {
               debugGame('Phase transition: landed -> idle (stock modal closed)')
               setPhase('idle')
@@ -696,6 +804,7 @@ function App() {
         stock={currentStock}
         onBuy={handleBuyStock}
         cash={gameState.cash}
+        showInsights={hasPowerUp('stock-insight')}
       />
 
       <EventModal
@@ -782,6 +891,18 @@ function App() {
           }
         }}
         onWin={handleCasinoWin}
+        luckBoost={isPermanentOwned('casino-luck') ? 0.2 : 0}
+      />
+
+      <ShopModal
+        open={shopModalOpen}
+        onOpenChange={setShopModalOpen}
+        gameState={gameState}
+        onPurchase={purchaseItem}
+        isPermanentOwned={isPermanentOwned}
+        getItemQuantity={getItemQuantity}
+        canAfford={canAfford}
+        onEquipCosmetic={equipCosmetic}
       />
     </div>
   )

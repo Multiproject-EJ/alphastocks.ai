@@ -7,19 +7,21 @@ import { toast } from 'sonner'
 interface ScratchcardGameProps {
   onWin?: (amount: number) => void
   onClose: () => void
+  luckBoost?: number // Percentage boost to win chance (0-1)
 }
 
 const SYMBOLS = ['💎', '⭐', '🎰', '🍀', '💰', '🎲']
 const WIN_AMOUNT = 5000
 
-export function ScratchcardGame({ onWin, onClose }: ScratchcardGameProps) {
+export function ScratchcardGame({ onWin, onClose, luckBoost = 0 }: ScratchcardGameProps) {
   const [grid, setGrid] = useState<string[]>(() => {
     // Generate a random 3x3 grid
     const symbols = Array(9).fill(null).map(() => 
       SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)]
     )
-    // 30% chance to have a winning combination
-    if (Math.random() < 0.3) {
+    // Base 30% chance + luck boost to have a winning combination
+    const winChance = 0.3 + luckBoost
+    if (Math.random() < winChance) {
       const winningSymbol = SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)]
       const positions = [0, 1, 2, 3, 4, 5, 6, 7, 8]
       // Shuffle and pick 3 random positions
