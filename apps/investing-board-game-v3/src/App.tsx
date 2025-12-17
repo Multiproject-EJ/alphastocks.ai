@@ -15,6 +15,7 @@ import { CenterCarousel } from '@/components/CenterCarousel'
 import { CelebrationEffect } from '@/components/CelebrationEffect'
 import { CasinoModal } from '@/components/CasinoModal'
 import { UserIndicator } from '@/components/UserIndicator'
+import { SoundControls } from '@/components/SoundControls'
 import { GameState, Stock, BiasCaseStudy } from '@/lib/types'
 import {
   BOARD_TILES,
@@ -31,6 +32,7 @@ import {
 import { useUniverseStocks } from '@/hooks/useUniverseStocks'
 import { useGameSave } from '@/hooks/useGameSave'
 import { useAuth } from '@/context/AuthContext'
+import { useSound } from '@/hooks/useSound'
 
 type Phase = 'idle' | 'rolling' | 'moving' | 'landed'
 
@@ -96,6 +98,9 @@ function App() {
 
   const { getStockForCategory, loading: loadingUniverse, error: universeError, source: stockSource, universeCount } =
     useUniverseStocks()
+
+  // Sound effects hook
+  const { play: playSound } = useSound()
 
   // Authentication and game save hooks
   const { isAuthenticated, loading: authLoading } = useAuth()
@@ -194,6 +199,24 @@ function App() {
     }
   }, [])
 
+  // Fix dice responsiveness bug: Reset dice state when page becomes visible
+  // This handles the case when user navigates to ProTools and back
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        debugGame('Page visible - resetting dice state')
+        setPhase('idle')
+        // Clear any lingering timers
+        if (rollTimeoutRef.current) clearTimeout(rollTimeoutRef.current)
+        if (hopIntervalRef.current) clearInterval(hopIntervalRef.current)
+        if (landingTimeoutRef.current) clearTimeout(landingTimeoutRef.current)
+      }
+    }
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
+  }, [])
+
   useEffect(() => {
     if (universeError) {
       toast.error('Unable to load your Supabase universe', {
@@ -247,6 +270,7 @@ function App() {
 
     if (rollsRemaining <= 0) {
       debugGame('No rolls remaining:', { rollsRemaining })
+      playSound('error')
       toast.error('No rolls remaining', {
         description: 'Daily rolls refresh at midnight.',
       })
@@ -262,9 +286,11 @@ function App() {
     debugGame('Dice roll started:', { roll, currentPosition: gameState.position, targetPosition: (gameState.position + roll) % BOARD_TILES.length })
     setPhase('rolling')
     setLastRoll(roll)
+    playSound('dice-roll')
 
     rollTimeoutRef.current = setTimeout(() => {
       debugGame('Movement started')
+      playSound('dice-land')
       setPhase('moving')
       const startPosition = gameState.position
       const tilesToHop: number[] = []
@@ -302,12 +328,14 @@ function App() {
 
   const handleTileLanding = (position: number, passedStart = false) => {
     setDiceResetKey((prev) => prev + 1)
+    playSound('tile-land')
 
     const tile = BOARD_TILES[position]
     debugGame('handleTileLanding:', { position, tile, passedStart })
 
     // Handle passing Start (but not landing on it)
     if (passedStart) {
+      playSound('star-collect')
       setGameState((prev) => ({
         ...prev,
         stars: prev.stars + 200,
@@ -407,12 +435,14 @@ function App() {
     const totalCost = currentStock.price * shares
 
     if (gameState.cash < totalCost) {
+      playSound('error')
       toast.error('Insufficient funds', {
         description: `You need $${totalCost.toLocaleString()} but only have $${gameState.cash.toLocaleString()}`,
       })
       return
     }
 
+    playSound('cash-register')
     setGameState((prev) => {
       const newCash = prev.cash - totalCost
       const newPortfolioValue = prev.portfolioValue + totalCost
@@ -449,6 +479,7 @@ function App() {
   }
 
   const handleChooseChallenge = (challenge: typeof THRIFTY_CHALLENGES[0]) => {
+    playSound('celebration')
     setGameState((prev) => ({
       ...prev,
       stars: prev.stars + challenge.reward,
@@ -474,6 +505,7 @@ function App() {
     const percentage = (correct / total) * 100
     const starsEarned = correct === total ? 5 : correct >= total / 2 ? 3 : 1
 
+    playSound('celebration')
     setGameState((prev) => ({
       ...prev,
       stars: prev.stars + starsEarned,
@@ -485,6 +517,7 @@ function App() {
   }
 
   const handleCasinoWin = (amount: number) => {
+    playSound('level-up')
     setGameState((prev) => ({
       ...prev,
       cash: prev.cash + amount,
@@ -526,6 +559,11 @@ function App() {
           {/* User Indicator - Top Left */}
           <div className="absolute top-4 left-4 z-40">
             <UserIndicator saving={saving} lastSaved={lastSavedTime} />
+          </div>
+
+          {/* Sound Controls - Top Right */}
+          <div className="absolute top-4 right-4 z-40">
+            <SoundControls />
           </div>
 
           {/* Pro Tools Button */}

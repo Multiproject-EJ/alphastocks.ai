@@ -1,71 +1,133 @@
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { soundManager } from '@/lib/sounds'
 
 interface CelebrationEffectProps {
   show: boolean
   onComplete?: () => void
+  level?: 'small' | 'medium' | 'large'
 }
 
-export function CelebrationEffect({ show, onComplete }: CelebrationEffectProps) {
-  const [particles, setParticles] = useState<Array<{ id: number; x: number; y: number; color: string; rotation: number }>>([])
+export function CelebrationEffect({ show, onComplete, level = 'medium' }: CelebrationEffectProps) {
+  const [particles, setParticles] = useState<Array<{ 
+    id: number
+    x: number
+    y: number
+    color: string
+    rotation: number
+    shape: 'circle' | 'star' | 'coin'
+  }>>([])
+  const [shake, setShake] = useState(false)
+
+  // Particle count based on level
+  const particleCount = level === 'large' ? 100 : level === 'medium' ? 60 : 30
+  const duration = level === 'large' ? 4000 : level === 'medium' ? 3000 : 2000
 
   useEffect(() => {
     if (show) {
+      // Play sound for medium and large celebrations
+      if (level === 'medium' || level === 'large') {
+        soundManager.play('celebration')
+      }
+
+      // Screen shake for large celebrations
+      let shakeTimeout: NodeJS.Timeout | undefined
+      if (level === 'large') {
+        setShake(true)
+        shakeTimeout = setTimeout(() => setShake(false), 500)
+      }
+
       const colors = ['#FFD700', '#FFA500', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DFE6E9']
-      // Reduced particle count for better performance
-      const newParticles = Array.from({ length: 30 }, (_, i) => ({
+      const shapes: Array<'circle' | 'star' | 'coin'> = ['circle', 'star', 'coin']
+      
+      const newParticles = Array.from({ length: particleCount }, (_, i) => ({
         id: i,
         x: Math.random() * 100 - 50,
         y: Math.random() * 100 - 50,
         color: colors[Math.floor(Math.random() * colors.length)],
         rotation: Math.random() * 360,
+        shape: shapes[Math.floor(Math.random() * shapes.length)],
       }))
       setParticles(newParticles)
 
       const timer = setTimeout(() => {
         setParticles([])
         onComplete?.()
-      }, 2000)
+      }, duration)
 
       return () => {
         clearTimeout(timer)
+        if (shakeTimeout) clearTimeout(shakeTimeout)
         setParticles([])
       }
     }
-  }, [show, onComplete])
+  }, [show, onComplete, level, particleCount, duration])
 
   return (
     <AnimatePresence>
       {show && (
-        <div className="fixed inset-0 pointer-events-none z-[9999] flex items-center justify-center">
+        <motion.div 
+          className="fixed inset-0 pointer-events-none z-[9999] flex items-center justify-center"
+          animate={shake ? {
+            x: [0, -10, 10, -10, 10, 0],
+            y: [0, -5, 5, -5, 5, 0],
+          } : {}}
+          transition={{ duration: 0.5 }}
+        >
           {particles.map((particle) => (
             <motion.div
               key={particle.id}
               initial={{ scale: 0, x: 0, y: 0, opacity: 1, rotate: 0 }}
               animate={{
                 scale: [0, 1, 1, 0.8],
-                x: particle.x * 8,
-                y: particle.y * 8 + 200,
+                x: particle.x * 10,
+                y: particle.y * 10 + 250,
                 opacity: [1, 1, 0.8, 0],
-                rotate: particle.rotation * 3,
+                rotate: particle.rotation * 4,
               }}
               transition={{
-                duration: 2,
+                duration: duration / 1000,
                 ease: 'easeOut',
               }}
-              className="absolute w-3 h-3 rounded-full"
-              style={{ backgroundColor: particle.color }}
-            />
+              className="absolute"
+            >
+              {particle.shape === 'star' && (
+                <div 
+                  className="w-4 h-4"
+                  style={{ color: particle.color }}
+                  aria-hidden="true"
+                >
+                  ⭐
+                </div>
+              )}
+              {particle.shape === 'coin' && (
+                <div 
+                  className="w-4 h-4"
+                  style={{ color: particle.color }}
+                  aria-hidden="true"
+                >
+                  🪙
+                </div>
+              )}
+              {particle.shape === 'circle' && (
+                <div 
+                  className="w-3 h-3 rounded-full"
+                  style={{ backgroundColor: particle.color }}
+                  aria-hidden="true"
+                />
+              )}
+            </motion.div>
           ))}
           <motion.div
             initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: [0, 1.2, 1], opacity: [0, 1, 0] }}
-            transition={{ duration: 1.5, ease: 'easeOut' }}
-            className="text-6xl font-bold"
+            animate={{ scale: [0, 1.3, 1], opacity: [0, 1, 0] }}
+            transition={{ duration: duration / 1000, ease: 'easeOut' }}
+            className="text-7xl font-bold"
+            aria-label="Celebration"
           >
             🎉
           </motion.div>
-        </div>
+        </motion.div>
       )}
     </AnimatePresence>
   )
