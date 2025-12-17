@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, lazy, Suspense } from 'react'
 import { Toaster, toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { ShoppingBag } from '@phosphor-icons/react'
@@ -12,16 +12,27 @@ import { ThriftyPathModal } from '@/components/ThriftyPathModal'
 import { PortfolioModal } from '@/components/PortfolioModal'
 import { ProToolsOverlay } from '@/components/ProToolsOverlay'
 import { BiasSanctuaryModal } from '@/components/BiasSanctuaryModal'
-import { ShopModal } from '@/components/ShopModal'
 import { CenterCarousel } from '@/components/CenterCarousel'
 import { CelebrationEffect } from '@/components/CelebrationEffect'
 import { CasinoModal } from '@/components/CasinoModal'
 import { UserIndicator } from '@/components/UserIndicator'
 import { SoundControls } from '@/components/SoundControls'
 import { ChallengeTracker } from '@/components/ChallengeTracker'
-import { ChallengesModal } from '@/components/ChallengesModal'
 import { EventBanner } from '@/components/EventBanner'
-import { EventCalendar } from '@/components/EventCalendar'
+
+// Mobile-first components
+import { MobileGameLayout } from '@/components/MobileGameLayout'
+import { BottomNav } from '@/components/BottomNav'
+import { InstallPrompt } from '@/components/InstallPrompt'
+import { LoadingScreen } from '@/components/LoadingScreen'
+import { TutorialTooltip } from '@/components/TutorialTooltip'
+
+// Lazy load heavy modals for better performance
+const ShopModal = lazy(() => import('@/components/ShopModal'))
+const ChallengesModal = lazy(() => import('@/components/ChallengesModal'))
+const EventCalendar = lazy(() => import('@/components/EventCalendar'))
+const SettingsModal = lazy(() => import('@/components/SettingsModal'))
+
 import { GameState, Stock, BiasCaseStudy } from '@/lib/types'
 import {
   BOARD_TILES,
@@ -42,6 +53,8 @@ import { useSound } from '@/hooks/useSound'
 import { useShopInventory } from '@/hooks/useShopInventory'
 import { useChallenges } from '@/hooks/useChallenges'
 import { useEvents } from '@/hooks/useEvents'
+import { useHaptics } from '@/hooks/useHaptics'
+import { useSwipeGesture } from '@/hooks/useSwipeGesture'
 
 type Phase = 'idle' | 'rolling' | 'moving' | 'landed'
 
@@ -132,6 +145,11 @@ function App() {
   const [challengesModalOpen, setChallengesModalOpen] = useState(false)
   const [eventCalendarOpen, setEventCalendarOpen] = useState(false)
 
+  // Mobile UI states
+  const [activeSection, setActiveSection] = useState<'home' | 'challenges' | 'shop' | 'leaderboard' | 'settings'>('home')
+  const [settingsOpen, setSettingsOpen] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+
   const [diceResetKey, setDiceResetKey] = useState(0)
 
   const [showCelebration, setShowCelebration] = useState(false)
@@ -145,6 +163,22 @@ function App() {
 
   // Sound effects hook
   const { play: playSound } = useSound()
+
+  // Haptic feedback hook
+  const { roll: hapticRoll, success: hapticSuccess, light: hapticLight } = useHaptics()
+
+  // Swipe gesture hook - for mobile navigation
+  const containerRef = useRef<HTMLDivElement>(null)
+  useSwipeGesture(containerRef, (direction) => {
+    if (direction === 'up' && !shopModalOpen && !challengesModalOpen) {
+      setShopModalOpen(true)
+      hapticLight()
+    }
+    if (direction === 'down' && (shopModalOpen || challengesModalOpen)) {
+      setShopModalOpen(false)
+      setChallengesModalOpen(false)
+    }
+  })
 
   // Shop inventory hook
   const {
@@ -189,6 +223,38 @@ function App() {
     const interval = setInterval(checkAndResetChallenges, 60000)
     return () => clearInterval(interval)
   }, [checkAndResetChallenges])
+
+  // Loading screen on initial mount
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 2000)
+    return () => clearTimeout(timer)
+  }, [])
+
+  // Bottom navigation handler
+  const handleBottomNavigation = (section: 'challenges' | 'shop' | 'home' | 'leaderboard' | 'settings') => {
+    hapticLight()
+    setActiveSection(section)
+    
+    // Close all modals first
+    setShopModalOpen(false)
+    setChallengesModalOpen(false)
+    setPortfolioModalOpen(false)
+    setSettingsOpen(false)
+    
+    // Open corresponding modal based on section
+    if (section === 'challenges') {
+      setChallengesModalOpen(true)
+    } else if (section === 'shop') {
+      setShopModalOpen(true)
+    } else if (section === 'leaderboard') {
+      // Open leaderboard (will need to add LeaderboardModal integration)
+      toast.info('Leaderboard coming soon!')
+    } else if (section === 'settings') {
+      setSettingsOpen(true)
+    } else if (section === 'home') {
+      // Just close all modals - already done above
+    }
+  }
 
   // Authentication and game save hooks
   const { isAuthenticated, loading: authLoading } = useAuth()
@@ -409,6 +475,9 @@ function App() {
     if (rollTimeoutRef.current) clearTimeout(rollTimeoutRef.current)
     if (hopIntervalRef.current) clearInterval(hopIntervalRef.current)
     if (landingTimeoutRef.current) clearTimeout(landingTimeoutRef.current)
+
+    // Haptic feedback for rolling
+    hapticRoll()
 
     const roll = Math.floor(Math.random() * 6) + 1
     debugGame('Dice roll started:', { roll, currentPosition: gameState.position, targetPosition: (gameState.position + roll) % BOARD_TILES.length })
@@ -720,19 +789,25 @@ function App() {
   const netWorthChange = ((gameState.netWorth - 100000) / 100000) * 100
 
   return (
-    <div className="relative isolate min-h-screen bg-background p-8 overflow-hidden">
-      <div
-        className="absolute inset-0 z-0 bg-[url('/board-game-v3/BG.webp')] bg-cover bg-center opacity-60 pointer-events-none"
-        aria-hidden="true"
-      />
-      <Toaster position="top-center" />
-      <CelebrationEffect show={showCelebration} onComplete={() => setShowCelebration(false)} />
-      
-      {/* Event Banner - Shows active events at top */}
-      <EventBanner
-        events={activeEvents}
-        onOpenCalendar={() => setEventCalendarOpen(true)}
-      />
+    <MobileGameLayout showBottomNav={true}>
+      <div ref={containerRef} className="relative isolate min-h-screen bg-background p-8 overflow-hidden game-board">
+        <LoadingScreen show={isLoading} />
+        
+        <div
+          className="absolute inset-0 z-0 bg-[url('/board-game-v3/BG.webp')] bg-cover bg-center opacity-60 pointer-events-none"
+          aria-hidden="true"
+        />
+        <Toaster position="top-center" />
+        <CelebrationEffect show={showCelebration} onComplete={() => setShowCelebration(false)} />
+        
+        {/* Tutorial for first-time users */}
+        {!isLoading && <TutorialTooltip />}
+        
+        {/* Event Banner - Shows active events at top */}
+        <EventBanner
+          events={activeEvents}
+          onOpenCalendar={() => setEventCalendarOpen(true)}
+        />
 
       <div className="relative z-10 max-w-[1600px] mx-auto">
         <div
@@ -802,15 +877,17 @@ function App() {
             </Button>
           </div>
 
-          <DiceHUD
-            onRoll={handleRoll}
-            lastRoll={lastRoll}
-            phase={phase}
-            rollsRemaining={rollsRemaining}
-          nextResetTime={nextResetTime}
-          boardRef={boardRef}
-          resetPositionKey={diceResetKey}
-        />
+          <div data-tutorial="dice">
+            <DiceHUD
+              onRoll={handleRoll}
+              lastRoll={lastRoll}
+              phase={phase}
+              rollsRemaining={rollsRemaining}
+              nextResetTime={nextResetTime}
+              boardRef={boardRef}
+              resetPositionKey={diceResetKey}
+            />
+          </div>
 
           <div className="absolute inset-8 pointer-events-none">
             <div className="relative w-full h-full">
@@ -1010,31 +1087,52 @@ function App() {
         luckBoost={isPermanentOwned('casino-luck') ? 0.2 : 0}
       />
 
-      <ShopModal
-        open={shopModalOpen}
-        onOpenChange={setShopModalOpen}
-        gameState={gameState}
-        onPurchase={purchaseItem}
-        isPermanentOwned={isPermanentOwned}
-        getItemQuantity={getItemQuantity}
-        canAfford={canAfford}
-        onEquipCosmetic={equipCosmetic}
+      <Suspense fallback={<div className="flex items-center justify-center h-screen"><div className="text-muted-foreground">Loading...</div></div>}>
+        <ShopModal
+          open={shopModalOpen}
+          onOpenChange={setShopModalOpen}
+          gameState={gameState}
+          onPurchase={purchaseItem}
+          isPermanentOwned={isPermanentOwned}
+          getItemQuantity={getItemQuantity}
+          canAfford={canAfford}
+          onEquipCosmetic={equipCosmetic}
+        />
+
+        <ChallengesModal
+          open={challengesModalOpen}
+          onOpenChange={setChallengesModalOpen}
+          dailyChallenges={dailyChallenges}
+          weeklyChallenges={weeklyChallenges}
+        />
+
+        <EventCalendar
+          open={eventCalendarOpen}
+          onOpenChange={setEventCalendarOpen}
+          activeEvents={activeEvents}
+          upcomingEvents={upcomingEvents}
+        />
+        
+        <SettingsModal
+          open={settingsOpen}
+          onOpenChange={setSettingsOpen}
+        />
+      </Suspense>
+
+      {/* Mobile Bottom Navigation */}
+      <BottomNav
+        onNavigate={handleBottomNavigation}
+        activeSection={activeSection}
+        badges={{
+          challenges: dailyChallenges.filter(c => !completedToday.has(c.id)).length,
+          shop: 0, // Could add new shop items count here
+        }}
       />
 
-      <ChallengesModal
-        open={challengesModalOpen}
-        onOpenChange={setChallengesModalOpen}
-        dailyChallenges={dailyChallenges}
-        weeklyChallenges={weeklyChallenges}
-      />
-
-      <EventCalendar
-        open={eventCalendarOpen}
-        onOpenChange={setEventCalendarOpen}
-        activeEvents={activeEvents}
-        upcomingEvents={upcomingEvents}
-      />
+      {/* PWA Install Prompt */}
+      <InstallPrompt />
     </div>
+    </MobileGameLayout>
   )
 }
 

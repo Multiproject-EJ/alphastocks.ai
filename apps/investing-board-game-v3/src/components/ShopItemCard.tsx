@@ -4,6 +4,7 @@
  */
 
 import { motion } from 'framer-motion'
+import { memo } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -20,7 +21,7 @@ interface ShopItemCardProps {
   onEquip?: () => void
 }
 
-export function ShopItemCard({
+const ShopItemCardComponent = ({
   item,
   owned,
   quantity = 0,
@@ -28,7 +29,7 @@ export function ShopItemCard({
   onPurchase,
   isEquipped,
   onEquip,
-}: ShopItemCardProps) {
+}: ShopItemCardProps) => {
   const isDisabled = !canAfford || (owned && !item.stackable)
 
   return (
@@ -154,3 +155,5 @@ export function ShopItemCard({
     </motion.div>
   )
 }
+
+export const ShopItemCard = memo(ShopItemCardComponent)
