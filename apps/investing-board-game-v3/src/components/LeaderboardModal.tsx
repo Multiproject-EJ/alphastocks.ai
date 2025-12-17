@@ -1,16 +1,16 @@
 /**
  * LeaderboardModal Component
- * Display global, weekly, and seasonal leaderboards
+ * Display global, weekly, and seasonal leaderboards with virtual scrolling
  */
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef, memo } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { Button } from '@/components/ui/button'
 import { LeaderboardEntry } from '@/lib/types'
 import { ArrowUp, ArrowDown, Minus, Crown, Medal, Trophy } from '@phosphor-icons/react'
 import { motion } from 'framer-motion'
+import { useVirtualizer } from '@tanstack/react-virtual'
 
 interface LeaderboardModalProps {
   open: boolean
@@ -35,6 +35,7 @@ export function LeaderboardModal({
 }: LeaderboardModalProps) {
   const [activeTab, setActiveTab] = useState<'global' | 'weekly' | 'seasonal'>('global')
   const [sortBy, setSortBy] = useState<'net_worth' | 'level' | 'season_tier' | 'stars'>('net_worth')
+  const parentRef = useRef<HTMLDivElement>(null)
 
   // Fetch leaderboard when modal opens or tab changes
   useEffect(() => {
@@ -50,16 +51,16 @@ export function LeaderboardModal({
     return <span className="text-lg font-bold text-muted-foreground">#{rank}</span>
   }
 
-  const renderLeaderboardEntry = (entry: LeaderboardEntry, index: number) => {
+  const LeaderboardRow = memo(({ entry, index }: { entry: LeaderboardEntry; index: number }) => {
+  const LeaderboardRow = memo(({ entry, index }: { entry: LeaderboardEntry; index: number }) => {
     const isCurrentUser = entry.userId === currentUserId
     const rank = entry.rank || index + 1
 
     return (
       <motion.div
-        key={entry.userId}
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: index * 0.05 }}
+        transition={{ delay: Math.min(index * 0.05, 0.5) }}
         className={`
           flex items-center gap-4 p-4 rounded-lg border-2 transition-all
           ${isCurrentUser 
@@ -114,6 +115,55 @@ export function LeaderboardModal({
           </div>
         )}
       </motion.div>
+    )
+  })
+
+  const VirtualLeaderboard = ({ data }: { data: LeaderboardEntry[] }) => {
+    const rowVirtualizer = useVirtualizer({
+      count: data.length,
+      getScrollElement: () => parentRef.current,
+      estimateSize: () => 80, // Estimated row height
+      overscan: 5,
+    })
+
+    return (
+      <div
+        ref={parentRef}
+        className="h-full overflow-auto pr-4"
+        style={{ contain: 'strict' }}
+      >
+        <div
+          style={{
+            height: `${rowVirtualizer.getTotalSize()}px`,
+            width: '100%',
+            position: 'relative',
+          }}
+        >
+          {rowVirtualizer.getVirtualItems().map((virtualRow) => (
+            <div
+              key={virtualRow.key}
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: `${virtualRow.size}px`,
+                transform: `translateY(${virtualRow.start}px)`,
+              }}
+            >
+              <div className="pb-2">
+                <LeaderboardRow entry={data[virtualRow.index]} index={virtualRow.index} />
+              </div>
+            </div>
+          ))}
+        </div>
+        
+        {data.length === 0 && (
+          <div className="text-center py-12 text-muted-foreground">
+            No leaderboard data yet
+          </div>
+        )}
+      </div>
     )
   }
 
@@ -174,17 +224,7 @@ export function LeaderboardModal({
                 <div className="text-muted-foreground">Loading...</div>
               </div>
             ) : (
-              <ScrollArea className="h-full">
-                <div className="space-y-2 pr-4">
-                  {globalLeaderboard.map((entry, index) => renderLeaderboardEntry(entry, index))}
-                  
-                  {globalLeaderboard.length === 0 && (
-                    <div className="text-center py-12 text-muted-foreground">
-                      No leaderboard data yet
-                    </div>
-                  )}
-                </div>
-              </ScrollArea>
+              <VirtualLeaderboard data={globalLeaderboard} />
             )}
           </TabsContent>
 
@@ -194,17 +234,7 @@ export function LeaderboardModal({
                 <div className="text-muted-foreground">Loading...</div>
               </div>
             ) : (
-              <ScrollArea className="h-full">
-                <div className="space-y-2 pr-4">
-                  {weeklyLeaderboard.map((entry, index) => renderLeaderboardEntry(entry, index))}
-                  
-                  {weeklyLeaderboard.length === 0 && (
-                    <div className="text-center py-12 text-muted-foreground">
-                      No weekly data yet
-                    </div>
-                  )}
-                </div>
-              </ScrollArea>
+              <VirtualLeaderboard data={weeklyLeaderboard} />
             )}
           </TabsContent>
 
@@ -214,19 +244,7 @@ export function LeaderboardModal({
                 <div className="text-muted-foreground">Loading...</div>
               </div>
             ) : (
-              <ScrollArea className="h-full">
-                <div className="space-y-2 pr-4">
-                  {globalLeaderboard
-                    .filter(e => e.seasonTier > 0)
-                    .map((entry, index) => renderLeaderboardEntry(entry, index))}
-                  
-                  {globalLeaderboard.filter(e => e.seasonTier > 0).length === 0 && (
-                    <div className="text-center py-12 text-muted-foreground">
-                      No seasonal data yet
-                    </div>
-                  )}
-                </div>
-              </ScrollArea>
+              <VirtualLeaderboard data={globalLeaderboard.filter(e => e.seasonTier > 0)} />
             )}
           </TabsContent>
         </Tabs>

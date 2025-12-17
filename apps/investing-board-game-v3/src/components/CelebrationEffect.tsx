@@ -2,43 +2,94 @@ import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { soundManager } from '@/lib/sounds'
 
+type ParticleType = 'circle' | 'star' | 'coin' | 'confetti' | 'sparkle' | 'heart' | 'diamond'
+
 interface CelebrationEffectProps {
   show: boolean
   onComplete?: () => void
-  level?: 'small' | 'medium' | 'large'
+  level?: 'small' | 'medium' | 'large' | 'epic'
+  particleTypes?: ParticleType[]
+  screenShake?: boolean
+  soundEffect?: boolean
 }
 
-export function CelebrationEffect({ show, onComplete, level = 'medium' }: CelebrationEffectProps) {
+const PARTICLE_CONFIGS = {
+  small: {
+    count: 30,
+    duration: 2000,
+    spread: 60,
+    velocity: 300,
+    types: ['circle', 'star'] as ParticleType[],
+    colors: ['#FFD700', '#FFA500'],
+  },
+  medium: {
+    count: 60,
+    duration: 2500,
+    spread: 80,
+    velocity: 400,
+    types: ['circle', 'star', 'coin'] as ParticleType[],
+    colors: ['#FFD700', '#FFA500', '#FF6B6B', '#4ECDC4'],
+  },
+  large: {
+    count: 100,
+    duration: 3000,
+    spread: 100,
+    velocity: 500,
+    types: ['circle', 'star', 'coin', 'confetti'] as ParticleType[],
+    colors: ['#FFD700', '#FFA500', '#FF6B6B', '#4ECDC4', '#45B7D1'],
+    screenShake: true,
+  },
+  epic: {
+    count: 200,
+    duration: 4000,
+    spread: 120,
+    velocity: 600,
+    types: ['circle', 'star', 'coin', 'confetti', 'sparkle', 'diamond'] as ParticleType[],
+    colors: ['#FFD700', '#FFA500', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4'],
+    screenShake: true,
+    soundEffect: true,
+  },
+}
+
+export function CelebrationEffect({ 
+  show, 
+  onComplete, 
+  level = 'medium',
+  particleTypes,
+  screenShake,
+  soundEffect = true,
+}: CelebrationEffectProps) {
   const [particles, setParticles] = useState<Array<{ 
     id: number
     x: number
     y: number
     color: string
     rotation: number
-    shape: 'circle' | 'star' | 'coin'
+    shape: ParticleType
   }>>([])
   const [shake, setShake] = useState(false)
 
-  // Particle count based on level
-  const particleCount = level === 'large' ? 100 : level === 'medium' ? 60 : 30
-  const duration = level === 'large' ? 4000 : level === 'medium' ? 3000 : 2000
+  const config = PARTICLE_CONFIGS[level]
+  const particleCount = config.count
+  const duration = config.duration
+  const shouldShake = screenShake ?? config.screenShake ?? false
 
   useEffect(() => {
     if (show) {
-      // Play sound for medium and large celebrations
-      if (level === 'medium' || level === 'large') {
+      // Play sound if enabled
+      if (soundEffect && (level === 'medium' || level === 'large' || level === 'epic')) {
         soundManager.play('celebration')
       }
 
-      // Screen shake for large celebrations
+      // Screen shake for large/epic celebrations
       let shakeTimeout: NodeJS.Timeout | undefined
-      if (level === 'large') {
+      if (shouldShake) {
         setShake(true)
         shakeTimeout = setTimeout(() => setShake(false), 500)
       }
 
-      const colors = ['#FFD700', '#FFA500', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DFE6E9']
-      const shapes: Array<'circle' | 'star' | 'coin'> = ['circle', 'star', 'coin']
+      const colors = config.colors
+      const shapes = particleTypes || config.types
       
       const newParticles = Array.from({ length: particleCount }, (_, i) => ({
         id: i,
@@ -61,7 +112,7 @@ export function CelebrationEffect({ show, onComplete, level = 'medium' }: Celebr
         setParticles([])
       }
     }
-  }, [show, onComplete, level, particleCount, duration])
+  }, [show, onComplete, level, particleCount, duration, shouldShake, soundEffect, config, particleTypes])
 
   return (
     <AnimatePresence>
@@ -92,22 +143,10 @@ export function CelebrationEffect({ show, onComplete, level = 'medium' }: Celebr
               className="absolute"
             >
               {particle.shape === 'star' && (
-                <div 
-                  className="w-4 h-4"
-                  style={{ color: particle.color }}
-                  aria-hidden="true"
-                >
-                  ⭐
-                </div>
+                <div className="text-2xl" aria-hidden="true">⭐</div>
               )}
               {particle.shape === 'coin' && (
-                <div 
-                  className="w-4 h-4"
-                  style={{ color: particle.color }}
-                  aria-hidden="true"
-                >
-                  🪙
-                </div>
+                <div className="text-2xl" aria-hidden="true">💰</div>
               )}
               {particle.shape === 'circle' && (
                 <div 
@@ -115,6 +154,22 @@ export function CelebrationEffect({ show, onComplete, level = 'medium' }: Celebr
                   style={{ backgroundColor: particle.color }}
                   aria-hidden="true"
                 />
+              )}
+              {particle.shape === 'confetti' && (
+                <div 
+                  className="w-2 h-4 rounded-sm"
+                  style={{ backgroundColor: particle.color }}
+                  aria-hidden="true"
+                />
+              )}
+              {particle.shape === 'sparkle' && (
+                <div className="text-xl" aria-hidden="true">✨</div>
+              )}
+              {particle.shape === 'heart' && (
+                <div className="text-xl" aria-hidden="true">❤️</div>
+              )}
+              {particle.shape === 'diamond' && (
+                <div className="text-2xl" aria-hidden="true">💎</div>
               )}
             </motion.div>
           ))}
