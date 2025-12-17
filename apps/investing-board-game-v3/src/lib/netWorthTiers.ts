@@ -188,6 +188,8 @@ export const getTierProgress = (netWorth: number): number => {
 }
 
 // Helper: Calculate total benefits for current tier
+// Note: For each benefit type, we take the maximum value across all unlocked tiers
+// This means benefits don't stack - you get the best benefit from your highest unlocked tier
 export const getActiveBenefits = (netWorth: number): Map<string, number> => {
   const currentTier = getCurrentTier(netWorth)
   const benefits = new Map<string, number>()
@@ -199,6 +201,7 @@ export const getActiveBenefits = (netWorth: number): Map<string, number> => {
     for (const benefit of tier.benefits) {
       if (typeof benefit.value === 'number') {
         const existing = benefits.get(benefit.type) || 0
+        // Use max for all numeric benefits (percentages, multipliers, and absolute values like daily_rolls)
         benefits.set(benefit.type, Math.max(existing, benefit.value))
       }
     }

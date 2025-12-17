@@ -38,10 +38,13 @@ export function useShopInventory({
 
   /**
    * Calculate final price with tier discount
+   * Using Math.ceil to ensure prices are always whole numbers and round up
+   * to prevent exploiting fractional star costs
    */
   const getFinalPrice = useCallback(
     (basePrice: number): number => {
-      return Math.floor(basePrice * (1 - shopDiscount))
+      const discountedPrice = basePrice * (1 - shopDiscount)
+      return Math.ceil(discountedPrice)
     },
     [shopDiscount]
   )

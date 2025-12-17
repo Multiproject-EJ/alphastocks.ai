@@ -13,14 +13,15 @@ export const useNetWorthTier = (netWorth: number) => {
   const [showTierUpModal, setShowTierUpModal] = useState(false)
   const [newTier, setNewTier] = useState<NetWorthTier | null>(null)
   
-  const previousNetWorthRef = useRef(0)
+  const previousNetWorthRef = useRef(netWorth) // Initialize with current net worth to prevent false tier-up on first render
+  const isInitialMount = useRef(true)
   
   useEffect(() => {
     const newCurrentTier = getCurrentTier(netWorth)
     const previousTier = getCurrentTier(previousNetWorthRef.current)
     
-    // Check for tier up
-    if (newCurrentTier.tier > previousTier.tier) {
+    // Check for tier up (skip on initial mount to prevent false notifications)
+    if (!isInitialMount.current && newCurrentTier.tier > previousTier.tier) {
       setNewTier(newCurrentTier)
       setShowTierUpModal(true)
       
@@ -36,6 +37,7 @@ export const useNetWorthTier = (netWorth: number) => {
     
     setCurrentTier(newCurrentTier)
     previousNetWorthRef.current = netWorth
+    isInitialMount.current = false
   }, [netWorth])
   
   const nextTier = getNextTier(netWorth)
