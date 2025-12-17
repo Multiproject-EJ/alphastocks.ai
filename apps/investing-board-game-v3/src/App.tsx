@@ -65,6 +65,31 @@ function App() {
     equippedTheme: 'default',
     equippedDiceSkin: 'default',
     equippedTrail: undefined,
+    xp: 0,
+    level: 1,
+    seasonPoints: 0,
+    currentSeasonTier: 0,
+    hasPremiumPass: false,
+    claimedSeasonTiers: [],
+    achievements: {
+      unlocked: [],
+      progress: {},
+    },
+    stats: {
+      totalRolls: 0,
+      stocksPurchased: 0,
+      uniqueStocks: 0,
+      quizzesCompleted: 0,
+      perfectQuizzes: 0,
+      scratchcardsPlayed: 0,
+      scratchcardsWon: 0,
+      scratchcardWinStreak: 0,
+      tilesVisited: [],
+      consecutiveDays: 0,
+      lastLoginDate: null,
+      totalStarsEarned: 0,
+      roll6Streak: 0,
+    },
   }
 
   const [gameState, setGameState] = useState<GameState>(defaultGameState)

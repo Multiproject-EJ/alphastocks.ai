@@ -20,6 +20,14 @@ interface BoardGameProfile {
   equipped_trail: string | null
   rolls_remaining: number
   rolls_reset_at: string
+  xp: number
+  level: number
+  season_points: number
+  current_season_tier: number
+  has_premium_pass: boolean
+  claimed_season_tiers: number[]
+  achievements: GameState['achievements']
+  stats: GameState['stats']
   created_at: string
   updated_at: string
 }
@@ -64,6 +72,28 @@ export function useGameSave(): UseGameSaveReturn {
       equippedTheme: profile.equipped_theme || 'default',
       equippedDiceSkin: profile.equipped_dice_skin || 'default',
       equippedTrail: profile.equipped_trail || undefined,
+      xp: profile.xp || 0,
+      level: profile.level || 1,
+      seasonPoints: profile.season_points || 0,
+      currentSeasonTier: profile.current_season_tier || 0,
+      hasPremiumPass: profile.has_premium_pass || false,
+      claimedSeasonTiers: Array.isArray(profile.claimed_season_tiers) ? profile.claimed_season_tiers : [],
+      achievements: profile.achievements || { unlocked: [], progress: {} },
+      stats: profile.stats || {
+        totalRolls: 0,
+        stocksPurchased: 0,
+        uniqueStocks: 0,
+        quizzesCompleted: 0,
+        perfectQuizzes: 0,
+        scratchcardsPlayed: 0,
+        scratchcardsWon: 0,
+        scratchcardWinStreak: 0,
+        tilesVisited: [],
+        consecutiveDays: 0,
+        lastLoginDate: null,
+        totalStarsEarned: 0,
+        roll6Streak: 0,
+      },
     }
   }, [])
 
@@ -142,6 +172,28 @@ export function useGameSave(): UseGameSaveReturn {
           equipped_trail: gameState.equippedTrail || null,
           rolls_remaining: rollsRemaining,
           rolls_reset_at: nextResetTime.toISOString(),
+          xp: gameState.xp || 0,
+          level: gameState.level || 1,
+          season_points: gameState.seasonPoints || 0,
+          current_season_tier: gameState.currentSeasonTier || 0,
+          has_premium_pass: gameState.hasPremiumPass || false,
+          claimed_season_tiers: gameState.claimedSeasonTiers || [],
+          achievements: gameState.achievements || { unlocked: [], progress: {} },
+          stats: gameState.stats || {
+            totalRolls: 0,
+            stocksPurchased: 0,
+            uniqueStocks: 0,
+            quizzesCompleted: 0,
+            perfectQuizzes: 0,
+            scratchcardsPlayed: 0,
+            scratchcardsWon: 0,
+            scratchcardWinStreak: 0,
+            tilesVisited: [],
+            consecutiveDays: 0,
+            lastLoginDate: null,
+            totalStarsEarned: 0,
+            roll6Streak: 0,
+          },
         }
 
         const { error: upsertError } = await supabaseClient

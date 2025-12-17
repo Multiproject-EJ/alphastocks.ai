@@ -54,6 +54,32 @@ export interface GameState {
   equippedTheme?: string
   equippedDiceSkin?: string
   equippedTrail?: string
+  // Progression fields
+  xp: number
+  level: number
+  seasonPoints: number
+  currentSeasonTier: number
+  hasPremiumPass: boolean
+  claimedSeasonTiers: number[]
+  achievements: {
+    unlocked: string[] // achievement IDs
+    progress: Record<string, number> // metric tracking
+  }
+  stats: {
+    totalRolls: number
+    stocksPurchased: number
+    uniqueStocks: number
+    quizzesCompleted: number
+    perfectQuizzes: number
+    scratchcardsPlayed: number
+    scratchcardsWon: number
+    scratchcardWinStreak: number
+    tilesVisited: number[]
+    consecutiveDays: number
+    lastLoginDate: string | null
+    totalStarsEarned: number
+    roll6Streak: number
+  }
 }
 
 export interface BiasQuizQuestion {
@@ -79,4 +105,62 @@ export interface AIPlayer {
   name: string
   avatar: string
   gameState: GameState
+}
+
+// Progression system types
+export type RewardType = 'feature' | 'daily_rolls' | 'theme' | 'star_bonus' | 'dice_skin' | 'cash' | 'shop_discount' | 'badge' | 'stars'
+
+export interface LevelReward {
+  type: RewardType
+  value: string | number
+  description: string
+}
+
+export interface Season {
+  id: string
+  name: string
+  theme: string
+  startDate: Date
+  endDate: Date
+  isActive: boolean
+  tiers: SeasonTier[]
+}
+
+export interface SeasonTier {
+  tier: number
+  pointsRequired: number
+  freeReward: Reward
+  premiumReward: Reward
+}
+
+export interface Reward {
+  type: 'stars' | 'cash' | 'theme' | 'dice_skin' | 'badge'
+  value: string | number
+}
+
+export interface Achievement {
+  id: string
+  category: 'dice' | 'investing' | 'stars' | 'challenges' | 'quiz' | 'casino' | 'exploration' | 'time' | 'social' | 'hidden'
+  title: string
+  description: string
+  icon: string
+  reward: number
+  requirement: {
+    type: 'count' | 'threshold' | 'streak' | 'collection' | 'custom'
+    metric: string
+    target: number
+  }
+  isHidden: boolean
+  isSecret: boolean
+}
+
+export interface LeaderboardEntry {
+  userId: string
+  username: string
+  netWorth: number
+  level: number
+  seasonTier: number
+  totalStarsEarned: number
+  rank?: number
+  change?: 'up' | 'down' | 'same'
 }
