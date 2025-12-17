@@ -18,6 +18,10 @@ import { CelebrationEffect } from '@/components/CelebrationEffect'
 import { CasinoModal } from '@/components/CasinoModal'
 import { UserIndicator } from '@/components/UserIndicator'
 import { SoundControls } from '@/components/SoundControls'
+import { ChallengeTracker } from '@/components/ChallengeTracker'
+import { ChallengesModal } from '@/components/ChallengesModal'
+import { EventBanner } from '@/components/EventBanner'
+import { EventCalendar } from '@/components/EventCalendar'
 import { GameState, Stock, BiasCaseStudy } from '@/lib/types'
 import {
   BOARD_TILES,
@@ -36,6 +40,8 @@ import { useGameSave } from '@/hooks/useGameSave'
 import { useAuth } from '@/context/AuthContext'
 import { useSound } from '@/hooks/useSound'
 import { useShopInventory } from '@/hooks/useShopInventory'
+import { useChallenges } from '@/hooks/useChallenges'
+import { useEvents } from '@/hooks/useEvents'
 
 type Phase = 'idle' | 'rolling' | 'moving' | 'landed'
 
@@ -123,6 +129,9 @@ function App() {
 
   const [shopModalOpen, setShopModalOpen] = useState(false)
 
+  const [challengesModalOpen, setChallengesModalOpen] = useState(false)
+  const [eventCalendarOpen, setEventCalendarOpen] = useState(false)
+
   const [diceResetKey, setDiceResetKey] = useState(0)
 
   const [showCelebration, setShowCelebration] = useState(false)
@@ -145,6 +154,41 @@ function App() {
     canAfford,
     equipCosmetic,
   } = useShopInventory({ gameState, setGameState })
+
+  // Challenges and Events hooks
+  const {
+    dailyChallenges,
+    weeklyChallenges,
+    completedToday,
+    completedThisWeek,
+    updateChallengeProgress,
+    checkAndResetChallenges,
+  } = useChallenges({
+    gameState,
+    setGameState,
+    playSound,
+    addXP: undefined, // Will be set later after we get the function from XP hook if it exists
+    addSeasonPoints: undefined, // Will be set later
+  })
+
+  const {
+    activeEvents,
+    upcomingEvents,
+    getActiveMultipliers,
+    hasGuaranteedCasinoWin,
+    getRollsBonus,
+    getShopDiscount,
+    getCustomEffects,
+  } = useEvents({ playSound })
+
+  // Check for challenge resets on load and periodically
+  useEffect(() => {
+    checkAndResetChallenges()
+    
+    // Check every minute for resets
+    const interval = setInterval(checkAndResetChallenges, 60000)
+    return () => clearInterval(interval)
+  }, [checkAndResetChallenges])
 
   // Authentication and game save hooks
   const { isAuthenticated, loading: authLoading } = useAuth()
@@ -320,14 +364,17 @@ function App() {
   // Helper function to get effective daily roll limit (with upgrades)
   const getEffectiveDailyRollLimit = useCallback((): number => {
     const hasExtraRoll = isPermanentOwned('extra-daily-roll')
-    return hasExtraRoll ? DAILY_ROLL_LIMIT + 1 : DAILY_ROLL_LIMIT
-  }, [isPermanentOwned])
+    const eventBonus = getRollsBonus()
+    return (hasExtraRoll ? DAILY_ROLL_LIMIT + 1 : DAILY_ROLL_LIMIT) + eventBonus
+  }, [isPermanentOwned, getRollsBonus])
 
-  // Helper function to apply star multiplier
+  // Helper function to apply star multiplier (including event multipliers)
   const applyStarMultiplier = useCallback((baseStars: number): number => {
     const hasStarMultiplier = isPermanentOwned('star-multiplier')
-    return hasStarMultiplier ? Math.floor(baseStars * 1.5) : baseStars
-  }, [isPermanentOwned])
+    const shopMultiplier = hasStarMultiplier ? 1.5 : 1
+    const { starsMultiplier } = getActiveMultipliers()
+    return Math.floor(baseStars * shopMultiplier * starsMultiplier)
+  }, [isPermanentOwned, getActiveMultipliers])
 
   // Helper function to check extra dice roll power-up
   useEffect(() => {
@@ -365,6 +412,10 @@ function App() {
 
     const roll = Math.floor(Math.random() * 6) + 1
     debugGame('Dice roll started:', { roll, currentPosition: gameState.position, targetPosition: (gameState.position + roll) % BOARD_TILES.length })
+    
+    // Track challenge progress for rolling
+    updateChallengeProgress('roll', roll)
+    
     setPhase('rolling')
     setLastRoll(roll)
     playSound('dice-roll')
@@ -413,6 +464,15 @@ function App() {
 
     const tile = BOARD_TILES[position]
     debugGame('handleTileLanding:', { position, tile, passedStart })
+
+    // Track challenge progress for landing on tile
+    updateChallengeProgress('land_on_tile', { position, tileType: tile.type })
+    
+    // Track corner landing
+    const corners = [0, 6, 13, 19]
+    if (corners.includes(position)) {
+      updateChallengeProgress('land_on_corner', { position })
+    }
 
     // Handle passing Start (but not landing on it)
     if (passedStart) {
@@ -541,6 +601,10 @@ function App() {
     }
 
     playSound('cash-register')
+    
+    // Track challenge progress for buying stock
+    updateChallengeProgress('buy_stock', { ticker: currentStock.ticker, category: currentStock.category })
+    
     setGameState((prev) => {
       const newCash = prev.cash - totalCost
       // Apply 10% boost to portfolio value if upgrade owned
@@ -581,6 +645,9 @@ function App() {
   const handleChooseChallenge = (challenge: typeof THRIFTY_CHALLENGES[0]) => {
     playSound('celebration')
     
+    // Track challenge progress for thrifty path
+    updateChallengeProgress('complete_thrifty')
+    
     // Apply double reward card if active
     const hasDoubleReward = hasPowerUp('double-reward-card')
     let starsToAward = challenge.reward
@@ -617,7 +684,12 @@ function App() {
 
   const handleBiasQuizComplete = (correct: number, total: number) => {
     const percentage = (correct / total) * 100
-    let starsEarned = correct === total ? 5 : correct >= total / 2 ? 3 : 1
+    const isPerfect = correct === total
+    
+    // Track challenge progress for quiz completion
+    updateChallengeProgress('complete_quiz', { score: correct, total, isPerfect })
+    
+    let starsEarned = isPerfect ? 5 : correct >= total / 2 ? 3 : 1
     
     // Apply star multiplier upgrade if owned
     starsEarned = applyStarMultiplier(starsEarned)
@@ -634,6 +706,9 @@ function App() {
   }
 
   const handleCasinoWin = (amount: number) => {
+    // Track challenge progress for scratchcard win
+    updateChallengeProgress('win_scratchcard')
+    
     playSound('level-up')
     setGameState((prev) => ({
       ...prev,
@@ -652,6 +727,12 @@ function App() {
       />
       <Toaster position="top-center" />
       <CelebrationEffect show={showCelebration} onComplete={() => setShowCelebration(false)} />
+      
+      {/* Event Banner - Shows active events at top */}
+      <EventBanner
+        events={activeEvents}
+        onOpenCalendar={() => setEventCalendarOpen(true)}
+      />
 
       <div className="relative z-10 max-w-[1600px] mx-auto">
         <div
@@ -676,6 +757,14 @@ function App() {
           {/* User Indicator - Top Left */}
           <div className="absolute top-4 left-4 z-40">
             <UserIndicator saving={saving} lastSaved={lastSavedTime} />
+          </div>
+
+          {/* Challenge Tracker - Below User Indicator */}
+          <div className="absolute top-20 left-4 z-40">
+            <ChallengeTracker
+              dailyChallenges={dailyChallenges}
+              onOpenModal={() => setChallengesModalOpen(true)}
+            />
           </div>
 
           {/* Sound Controls - Top Right */}
@@ -928,6 +1017,20 @@ function App() {
         getItemQuantity={getItemQuantity}
         canAfford={canAfford}
         onEquipCosmetic={equipCosmetic}
+      />
+
+      <ChallengesModal
+        open={challengesModalOpen}
+        onOpenChange={setChallengesModalOpen}
+        dailyChallenges={dailyChallenges}
+        weeklyChallenges={weeklyChallenges}
+      />
+
+      <EventCalendar
+        open={eventCalendarOpen}
+        onOpenChange={setEventCalendarOpen}
+        activeEvents={activeEvents}
+        upcomingEvents={upcomingEvents}
       />
     </div>
   )
