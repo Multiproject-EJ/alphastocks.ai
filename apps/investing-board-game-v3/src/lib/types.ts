@@ -65,6 +65,14 @@ export interface GameState {
     unlocked: string[] // achievement IDs
     progress: Record<string, number> // metric tracking
   }
+  challenges?: {
+    daily: any[] // Challenge[]
+    weekly: any[] // Challenge[]
+    completedToday: number
+    completedThisWeek: number
+    lastDailyReset: string
+    lastWeeklyReset: string
+  }
   stats: {
     totalRolls: number
     stocksPurchased: number

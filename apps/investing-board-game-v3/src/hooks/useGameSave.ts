@@ -27,6 +27,7 @@ interface BoardGameProfile {
   has_premium_pass: boolean
   claimed_season_tiers: number[]
   achievements: GameState['achievements']
+  challenges?: GameState['challenges']
   stats: GameState['stats']
   created_at: string
   updated_at: string
@@ -79,6 +80,7 @@ export function useGameSave(): UseGameSaveReturn {
       hasPremiumPass: profile.has_premium_pass || false,
       claimedSeasonTiers: Array.isArray(profile.claimed_season_tiers) ? profile.claimed_season_tiers : [],
       achievements: profile.achievements || { unlocked: [], progress: {} },
+      challenges: profile.challenges || undefined,
       stats: profile.stats || {
         totalRolls: 0,
         stocksPurchased: 0,
@@ -179,6 +181,7 @@ export function useGameSave(): UseGameSaveReturn {
           has_premium_pass: gameState.hasPremiumPass || false,
           claimed_season_tiers: gameState.claimedSeasonTiers || [],
           achievements: gameState.achievements || { unlocked: [], progress: {} },
+          challenges: gameState.challenges || undefined,
           stats: gameState.stats || {
             totalRolls: 0,
             stocksPurchased: 0,
