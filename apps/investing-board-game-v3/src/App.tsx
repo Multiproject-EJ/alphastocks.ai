@@ -19,6 +19,8 @@ import { UserIndicator } from '@/components/UserIndicator'
 import { SoundControls } from '@/components/SoundControls'
 import { ChallengeTracker } from '@/components/ChallengeTracker'
 import { EventBanner } from '@/components/EventBanner'
+import { NetWorthGalleryModal } from '@/components/NetWorthGalleryModal'
+import { TierUpModal } from '@/components/TierUpModal'
 
 // Mobile-first components
 import { MobileGameLayout } from '@/components/MobileGameLayout'
@@ -55,6 +57,7 @@ import { useChallenges } from '@/hooks/useChallenges'
 import { useEvents } from '@/hooks/useEvents'
 import { useHaptics } from '@/hooks/useHaptics'
 import { useSwipeGesture } from '@/hooks/useSwipeGesture'
+import { useNetWorthTier } from '@/hooks/useNetWorthTier'
 
 type Phase = 'idle' | 'rolling' | 'moving' | 'landed'
 
@@ -145,6 +148,8 @@ function App() {
   const [challengesModalOpen, setChallengesModalOpen] = useState(false)
   const [eventCalendarOpen, setEventCalendarOpen] = useState(false)
 
+  const [netWorthGalleryOpen, setNetWorthGalleryOpen] = useState(false)
+
   // Mobile UI states
   const [activeSection, setActiveSection] = useState<'home' | 'challenges' | 'shop' | 'leaderboard' | 'settings'>('home')
   const [settingsOpen, setSettingsOpen] = useState(false)
@@ -167,6 +172,17 @@ function App() {
   // Haptic feedback hook
   const { roll: hapticRoll, success: hapticSuccess, light: hapticLight } = useHaptics()
 
+  // Net Worth Tier hook
+  const {
+    currentTier,
+    nextTier,
+    progress: tierProgress,
+    activeBenefits,
+    showTierUpModal,
+    setShowTierUpModal,
+    newTier
+  } = useNetWorthTier(gameState.netWorth)
+
   // Swipe gesture hook - for mobile navigation
   const containerRef = useRef<HTMLDivElement>(null)
   useSwipeGesture(containerRef, (direction) => {
@@ -187,7 +203,9 @@ function App() {
     getItemQuantity,
     canAfford,
     equipCosmetic,
-  } = useShopInventory({ gameState, setGameState })
+    getFinalPrice,
+    shopDiscount,
+  } = useShopInventory({ gameState, setGameState, tierBenefits: activeBenefits })
 
   // Challenges and Events hooks
   const {
@@ -427,20 +445,23 @@ function App() {
     }))
   }, [])
 
-  // Helper function to get effective daily roll limit (with upgrades)
+  // Helper function to get effective daily roll limit (with upgrades and tier bonuses)
   const getEffectiveDailyRollLimit = useCallback((): number => {
     const hasExtraRoll = isPermanentOwned('extra-daily-roll')
     const eventBonus = getRollsBonus()
-    return (hasExtraRoll ? DAILY_ROLL_LIMIT + 1 : DAILY_ROLL_LIMIT) + eventBonus
-  }, [isPermanentOwned, getRollsBonus])
+    const tierBonus = activeBenefits.get('daily_rolls') || 0
+    return (hasExtraRoll ? DAILY_ROLL_LIMIT + 1 : DAILY_ROLL_LIMIT) + eventBonus + tierBonus
+  }, [isPermanentOwned, getRollsBonus, activeBenefits])
 
-  // Helper function to apply star multiplier (including event multipliers)
+  // Helper function to apply star multiplier (including event multipliers and tier bonuses)
   const applyStarMultiplier = useCallback((baseStars: number): number => {
     const hasStarMultiplier = isPermanentOwned('star-multiplier')
     const shopMultiplier = hasStarMultiplier ? 1.5 : 1
     const { starsMultiplier } = getActiveMultipliers()
-    return Math.floor(baseStars * shopMultiplier * starsMultiplier)
-  }, [isPermanentOwned, getActiveMultipliers])
+    const tierStarBonus = activeBenefits.get('star_bonus') || 0
+    const tierMultiplier = 1 + tierStarBonus
+    return Math.floor(baseStars * shopMultiplier * starsMultiplier * tierMultiplier)
+  }, [isPermanentOwned, getActiveMultipliers, activeBenefits])
 
   // Helper function to check extra dice roll power-up
   useEffect(() => {
@@ -831,7 +852,7 @@ function App() {
 
           {/* User Indicator - Top Left */}
           <div className="absolute top-4 left-4 z-40">
-            <UserIndicator saving={saving} lastSaved={lastSavedTime} />
+            <UserIndicator saving={saving} lastSaved={lastSavedTime} currentTier={currentTier} />
           </div>
 
           {/* Challenge Tracker - Below User Indicator */}
@@ -973,6 +994,7 @@ function App() {
         gameState={gameState}
         onOpenChallenges={() => setChallengesModalOpen(true)}
         onOpenEventCalendar={() => setEventCalendarOpen(true)}
+        onOpenNetWorthGallery={() => setNetWorthGalleryOpen(true)}
       />
 
       <StockModal
@@ -1097,6 +1119,8 @@ function App() {
           getItemQuantity={getItemQuantity}
           canAfford={canAfford}
           onEquipCosmetic={equipCosmetic}
+          getFinalPrice={getFinalPrice}
+          shopDiscount={shopDiscount}
         />
 
         <ChallengesModal
@@ -1118,6 +1142,22 @@ function App() {
           onOpenChange={setSettingsOpen}
         />
       </Suspense>
+
+      {/* Net Worth Gallery Modal */}
+      <NetWorthGalleryModal
+        open={netWorthGalleryOpen}
+        onOpenChange={setNetWorthGalleryOpen}
+        currentNetWorth={gameState.netWorth}
+      />
+
+      {/* Tier Up Celebration Modal */}
+      {newTier && (
+        <TierUpModal
+          open={showTierUpModal}
+          onOpenChange={setShowTierUpModal}
+          tier={newTier}
+        />
+      )}
 
       {/* Mobile Bottom Navigation */}
       <BottomNav
