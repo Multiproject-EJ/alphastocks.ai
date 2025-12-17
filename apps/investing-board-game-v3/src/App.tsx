@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { Toaster, toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Tile } from '@/components/Tile'
@@ -14,6 +14,7 @@ import { BiasSanctuaryModal } from '@/components/BiasSanctuaryModal'
 import { CenterCarousel } from '@/components/CenterCarousel'
 import { CelebrationEffect } from '@/components/CelebrationEffect'
 import { CasinoModal } from '@/components/CasinoModal'
+import { UserIndicator } from '@/components/UserIndicator'
 import { GameState, Stock, BiasCaseStudy } from '@/lib/types'
 import {
   BOARD_TILES,
@@ -22,6 +23,8 @@ import {
   THRIFTY_CHALLENGES,
 } from '@/lib/mockData'
 import { useUniverseStocks } from '@/hooks/useUniverseStocks'
+import { useGameSave } from '@/hooks/useGameSave'
+import { useAuth } from '@/context/AuthContext'
 
 type Phase = 'idle' | 'rolling' | 'moving' | 'landed'
 
@@ -43,21 +46,27 @@ function getNextMidnight(): Date {
 function App() {
   const boardRef = useRef<HTMLDivElement>(null)
   const stockSourceAnnounced = useRef<'supabase' | 'mock' | null>(null)
+  const gameLoadedFromSave = useRef(false)
+  const lastSaveTimeRef = useRef<Date | null>(null)
 
-  const [gameState, setGameState] = useState<GameState>({
+  // Default initial game state
+  const defaultGameState: GameState = {
     cash: 100000,
     position: 0,
     netWorth: 100000,
     portfolioValue: 0,
     stars: 0,
     holdings: [],
-  })
+  }
+
+  const [gameState, setGameState] = useState<GameState>(defaultGameState)
 
   const [phase, setPhase] = useState<Phase>('idle')
   const [lastRoll, setLastRoll] = useState<number | null>(null)
   const [rollsRemaining, setRollsRemaining] = useState(DAILY_ROLL_LIMIT)
   const [nextResetTime, setNextResetTime] = useState(getNextMidnight())
   const [hoppingTiles, setHoppingTiles] = useState<number[]>([])
+  const [lastSavedTime, setLastSavedTime] = useState<Date | null>(null)
 
   const [stockModalOpen, setStockModalOpen] = useState(false)
   const [currentStock, setCurrentStock] = useState<Stock | null>(null)
@@ -89,6 +98,80 @@ function App() {
 
   const { getStockForCategory, loading: loadingUniverse, error: universeError, source: stockSource, universeCount } =
     useUniverseStocks()
+
+  // Authentication and game save hooks
+  const { isAuthenticated, loading: authLoading } = useAuth()
+  const {
+    loading: saveLoading,
+    saving,
+    savedGameState,
+    savedRolls,
+    saveGame,
+  } = useGameSave()
+
+  // Load saved game state when available
+  useEffect(() => {
+    if (saveLoading || authLoading || gameLoadedFromSave.current) return
+    
+    if (savedGameState && isAuthenticated) {
+      debugGame('Loading saved game state:', savedGameState)
+      setGameState(savedGameState)
+      gameLoadedFromSave.current = true
+      toast.success('Welcome back!', {
+        description: 'Your game progress has been restored.',
+      })
+    }
+  }, [savedGameState, saveLoading, authLoading, isAuthenticated])
+
+  // Load saved rolls when available
+  useEffect(() => {
+    if (saveLoading || authLoading || !savedRolls) return
+    
+    const now = new Date()
+    if (now >= savedRolls.resetAt) {
+      // Rolls have expired, reset them
+      setRollsRemaining(DAILY_ROLL_LIMIT)
+      setNextResetTime(getNextMidnight())
+    } else {
+      setRollsRemaining(savedRolls.remaining)
+      setNextResetTime(savedRolls.resetAt)
+    }
+  }, [savedRolls, saveLoading, authLoading])
+
+  // Auto-save game state when it changes (debounced)
+  const debouncedSave = useCallback(() => {
+    if (!isAuthenticated || phase !== 'idle') return
+    
+    // Debounce saves to avoid excessive API calls
+    const now = Date.now()
+    const lastSave = lastSaveTimeRef.current?.getTime() || 0
+    const timeSinceLastSave = now - lastSave
+    
+    // Only save if at least 2 seconds have passed since last save
+    if (timeSinceLastSave < 2000) {
+      debugGame('Skipping save - too soon since last save')
+      return
+    }
+    
+    debugGame('Auto-saving game state...')
+    lastSaveTimeRef.current = new Date()
+    setLastSavedTime(lastSaveTimeRef.current)
+    saveGame(gameState, rollsRemaining, nextResetTime)
+  }, [isAuthenticated, phase, gameState, rollsRemaining, nextResetTime, saveGame])
+
+  // Trigger auto-save when game state changes and player is idle
+  useEffect(() => {
+    if (!isAuthenticated || phase !== 'idle' || authLoading || saveLoading) return
+    
+    // Don't save if we just loaded the game
+    if (!gameLoadedFromSave.current && savedGameState) return
+    
+    const saveTimeout = setTimeout(() => {
+      debouncedSave()
+    }, 1000)
+
+    return () => clearTimeout(saveTimeout)
+  }, [gameState, phase, isAuthenticated, authLoading, saveLoading, savedGameState, debouncedSave])
 
   useEffect(() => {
     const checkReset = setInterval(() => {
@@ -441,6 +524,11 @@ function App() {
             isVisible={showCentralStock}
             onClose={() => setShowCentralStock(false)}
           />
+
+          {/* User Indicator - Top Left */}
+          <div className="absolute top-4 left-4 z-40">
+            <UserIndicator saving={saving} lastSaved={lastSavedTime} />
+          </div>
 
           {/* Pro Tools Button */}
           <div className="absolute bottom-8 right-8 z-40">
