@@ -151,13 +151,13 @@ function App() {
     const now = new Date()
     if (now >= savedRolls.resetAt) {
       // Rolls have expired, reset them
-      setRollsRemaining(DAILY_ROLL_LIMIT)
+      setRollsRemaining(getEffectiveDailyRollLimit())
       setNextResetTime(getNextMidnight())
     } else {
       setRollsRemaining(savedRolls.remaining)
       setNextResetTime(savedRolls.resetAt)
     }
-  }, [savedRolls, saveLoading, authLoading])
+  }, [savedRolls, saveLoading, authLoading, getEffectiveDailyRollLimit])
 
   // Auto-save game state when it changes (debounced)
   const debouncedSave = useCallback(() => {
@@ -198,16 +198,17 @@ function App() {
     const checkReset = setInterval(() => {
       const now = new Date()
       if (now >= nextResetTime) {
-        setRollsRemaining(DAILY_ROLL_LIMIT)
+        const effectiveLimit = getEffectiveDailyRollLimit()
+        setRollsRemaining(effectiveLimit)
         setNextResetTime(getNextMidnight())
         toast.info('Daily dice rolls refreshed!', {
-          description: `You have ${DAILY_ROLL_LIMIT} new rolls available`,
+          description: `You have ${effectiveLimit} new rolls available`,
         })
       }
     }, 1000)
 
     return () => clearInterval(checkReset)
-  }, [nextResetTime])
+  }, [nextResetTime, getEffectiveDailyRollLimit])
 
   useEffect(() => {
     return () => {
@@ -276,6 +277,42 @@ function App() {
       setPhase('idle')
     }
   }, [stockModalOpen, eventModalOpen, thriftyModalOpen, biasSanctuaryModalOpen, casinoModalOpen, showCentralStock, phase])
+
+  // Helper function to check if a power-up is active
+  const hasPowerUp = useCallback((itemId: string): boolean => {
+    return gameState.activeEffects.some(effect => effect.itemId === itemId && effect.activated)
+  }, [gameState.activeEffects])
+
+  // Helper function to consume a power-up effect
+  const consumePowerUp = useCallback((itemId: string) => {
+    setGameState(prev => ({
+      ...prev,
+      activeEffects: prev.activeEffects.filter(effect => effect.itemId !== itemId)
+    }))
+  }, [])
+
+  // Helper function to get effective daily roll limit (with upgrades)
+  const getEffectiveDailyRollLimit = useCallback((): number => {
+    const hasExtraRoll = isPermanentOwned('extra-daily-roll')
+    return hasExtraRoll ? DAILY_ROLL_LIMIT + 1 : DAILY_ROLL_LIMIT
+  }, [isPermanentOwned])
+
+  // Helper function to apply star multiplier
+  const applyStarMultiplier = useCallback((baseStars: number): number => {
+    const hasStarMultiplier = isPermanentOwned('star-multiplier')
+    return hasStarMultiplier ? Math.floor(baseStars * 1.5) : baseStars
+  }, [isPermanentOwned])
+
+  // Helper function to check extra dice roll power-up
+  useEffect(() => {
+    if (hasPowerUp('extra-dice-rolls')) {
+      setRollsRemaining(prev => prev + 3)
+      consumePowerUp('extra-dice-rolls')
+      toast.success('Extra Dice Rolls Activated!', {
+        description: '+3 rolls added',
+      })
+    }
+  }, [hasPowerUp, consumePowerUp])
 
   const handleRoll = () => {
     if (phase !== 'idle') {
@@ -450,7 +487,10 @@ function App() {
 
     const baseShares = 10
     const shares = Math.floor(baseShares * multiplier)
-    const totalCost = currentStock.price * shares
+    let totalCost = currentStock.price * shares
+    
+    // Apply Portfolio Booster upgrade if owned (increases portfolio value by 10%)
+    const hasPortfolioBooster = isPermanentOwned('portfolio-booster')
 
     if (gameState.cash < totalCost) {
       playSound('error')
@@ -463,7 +503,9 @@ function App() {
     playSound('cash-register')
     setGameState((prev) => {
       const newCash = prev.cash - totalCost
-      const newPortfolioValue = prev.portfolioValue + totalCost
+      // Apply 10% boost to portfolio value if upgrade owned
+      const portfolioValueIncrease = hasPortfolioBooster ? totalCost * 1.1 : totalCost
+      const newPortfolioValue = prev.portfolioValue + portfolioValueIncrease
       const newNetWorth = newCash + newPortfolioValue
 
       return {
@@ -498,13 +540,27 @@ function App() {
 
   const handleChooseChallenge = (challenge: typeof THRIFTY_CHALLENGES[0]) => {
     playSound('celebration')
+    
+    // Apply double reward card if active
+    const hasDoubleReward = hasPowerUp('double-reward-card')
+    let starsToAward = challenge.reward
+    
+    if (hasDoubleReward) {
+      starsToAward *= 2
+      consumePowerUp('double-reward-card')
+      toast.info('Double Reward Card Applied! 2x Stars!', { duration: 2000 })
+    }
+    
+    // Apply star multiplier upgrade if owned
+    starsToAward = applyStarMultiplier(starsToAward)
+    
     setGameState((prev) => ({
       ...prev,
-      stars: prev.stars + challenge.reward,
+      stars: prev.stars + starsToAward,
     }))
 
     toast.success(`Challenge accepted: ${challenge.title}`, {
-      description: `Earned ${challenge.reward} stars! ⭐`,
+      description: `Earned ${starsToAward} stars! ⭐`,
     })
 
     debugGame('Challenge chosen - checking if stock modal should open')
@@ -521,7 +577,10 @@ function App() {
 
   const handleBiasQuizComplete = (correct: number, total: number) => {
     const percentage = (correct / total) * 100
-    const starsEarned = correct === total ? 5 : correct >= total / 2 ? 3 : 1
+    let starsEarned = correct === total ? 5 : correct >= total / 2 ? 3 : 1
+    
+    // Apply star multiplier upgrade if owned
+    starsEarned = applyStarMultiplier(starsEarned)
 
     playSound('celebration')
     setGameState((prev) => ({
