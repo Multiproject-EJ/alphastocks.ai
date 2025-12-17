@@ -22,6 +22,12 @@ import {
   getRandomBiasCaseStudy,
   THRIFTY_CHALLENGES,
 } from '@/lib/mockData'
+import {
+  DAILY_ROLL_LIMIT,
+  AUTO_SAVE_DEBOUNCE_MS,
+  AUTO_SAVE_TIMEOUT_MS,
+  getNextMidnight,
+} from '@/lib/constants'
 import { useUniverseStocks } from '@/hooks/useUniverseStocks'
 import { useGameSave } from '@/hooks/useGameSave'
 import { useAuth } from '@/context/AuthContext'
@@ -33,14 +39,6 @@ const debugGame = (...args: unknown[]) => {
   if (typeof window !== 'undefined' && localStorage.getItem('DEBUG_GAME') === 'true') {
     console.log('[DEBUG]', ...args)
   }
-}
-
-const DAILY_ROLL_LIMIT = 10
-
-function getNextMidnight(): Date {
-  const tomorrow = new Date()
-  tomorrow.setHours(24, 0, 0, 0)
-  return tomorrow
 }
 
 function App() {
@@ -147,8 +145,8 @@ function App() {
     const lastSave = lastSaveTimeRef.current?.getTime() || 0
     const timeSinceLastSave = now - lastSave
     
-    // Only save if at least 2 seconds have passed since last save
-    if (timeSinceLastSave < 2000) {
+    // Only save if enough time has passed since last save
+    if (timeSinceLastSave < AUTO_SAVE_DEBOUNCE_MS) {
       debugGame('Skipping save - too soon since last save')
       return
     }
@@ -168,7 +166,7 @@ function App() {
     
     const saveTimeout = setTimeout(() => {
       debouncedSave()
-    }, 1000)
+    }, AUTO_SAVE_TIMEOUT_MS)
 
     return () => clearTimeout(saveTimeout)
   }, [gameState, phase, isAuthenticated, authLoading, saveLoading, savedGameState, debouncedSave])

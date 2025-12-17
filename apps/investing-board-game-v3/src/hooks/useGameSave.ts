@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect, useRef } from 'react'
 import { supabaseClient, hasSupabaseConfig } from '@/lib/supabaseClient'
 import { useAuth } from '@/context/AuthContext'
 import { GameState } from '@/lib/types'
+import { DAILY_ROLL_LIMIT, getNextMidnight } from '@/lib/constants'
 
 interface BoardGameProfile {
   id: string
@@ -28,8 +29,6 @@ interface UseGameSaveReturn {
   loadGame: () => Promise<void>
   clearError: () => void
 }
-
-const DAILY_ROLL_LIMIT = 10
 
 /**
  * Hook for saving and loading board game state to/from Supabase
@@ -93,10 +92,8 @@ export function useGameSave(): UseGameSaveReturn {
         const now = new Date()
         
         if (now >= resetAt) {
-          // Rolls have expired, reset them
-          const newResetAt = new Date()
-          newResetAt.setHours(24, 0, 0, 0)
-          setSavedRolls({ remaining: DAILY_ROLL_LIMIT, resetAt: newResetAt })
+          // Rolls have expired, reset them using the shared getNextMidnight function
+          setSavedRolls({ remaining: DAILY_ROLL_LIMIT, resetAt: getNextMidnight() })
         } else {
           setSavedRolls({ remaining: profile.rolls_remaining, resetAt })
         }
