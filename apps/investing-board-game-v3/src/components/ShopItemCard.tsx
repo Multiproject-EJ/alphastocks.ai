@@ -16,6 +16,8 @@ interface ShopItemCardProps {
   quantity?: number
   canAfford: boolean
   onPurchase: () => void
+  isEquipped?: boolean
+  onEquip?: () => void
 }
 
 export function ShopItemCard({
@@ -24,6 +26,8 @@ export function ShopItemCard({
   quantity = 0,
   canAfford,
   onPurchase,
+  isEquipped,
+  onEquip,
 }: ShopItemCardProps) {
   const isDisabled = !canAfford || (owned && !item.stackable)
 
@@ -49,7 +53,13 @@ export function ShopItemCard({
                 NEW
               </Badge>
             )}
-            {owned && item.isPermanent && (
+            {isEquipped && (
+              <Badge variant="default" className="bg-green-600 text-white flex items-center gap-1">
+                <Check size={12} weight="bold" />
+                EQUIPPED
+              </Badge>
+            )}
+            {owned && item.isPermanent && !isEquipped && (
               <Badge variant="secondary" className="flex items-center gap-1">
                 <Check size={12} weight="bold" />
                 OWNED
@@ -93,31 +103,51 @@ export function ShopItemCard({
               <span className="text-xl font-bold font-mono">{item.price}</span>
             </div>
 
-            <Button
-              onClick={onPurchase}
-              disabled={isDisabled}
-              className="w-full"
-              variant={owned && item.isPermanent ? 'secondary' : 'default'}
-            >
-              {owned && item.isPermanent ? (
-                <>
-                  <Check size={16} className="mr-2" weight="bold" />
-                  Owned
-                </>
-              ) : owned && item.stackable ? (
-                <>
-                  <ShoppingCart size={16} className="mr-2" weight="bold" />
-                  Buy More
-                </>
-              ) : !canAfford ? (
-                'Insufficient Stars'
-              ) : (
-                <>
-                  <ShoppingCart size={16} className="mr-2" weight="bold" />
-                  Purchase
-                </>
-              )}
-            </Button>
+            {owned && item.isPermanent && onEquip && (
+              <Button
+                onClick={onEquip}
+                disabled={isEquipped}
+                className="w-full"
+                variant={isEquipped ? 'default' : 'secondary'}
+              >
+                {isEquipped ? (
+                  <>
+                    <Check size={16} className="mr-2" weight="bold" />
+                    Equipped
+                  </>
+                ) : (
+                  'Equip'
+                )}
+              </Button>
+            )}
+            
+            {(!owned || !item.isPermanent || !onEquip) && (
+              <Button
+                onClick={onPurchase}
+                disabled={isDisabled}
+                className="w-full"
+                variant={owned && item.isPermanent ? 'secondary' : 'default'}
+              >
+                {owned && item.isPermanent ? (
+                  <>
+                    <Check size={16} className="mr-2" weight="bold" />
+                    Owned
+                  </>
+                ) : owned && item.stackable ? (
+                  <>
+                    <ShoppingCart size={16} className="mr-2" weight="bold" />
+                    Buy More
+                  </>
+                ) : !canAfford ? (
+                  'Insufficient Stars'
+                ) : (
+                  <>
+                    <ShoppingCart size={16} className="mr-2" weight="bold" />
+                    Purchase
+                  </>
+                )}
+              </Button>
+            )}
           </div>
         </div>
       </Card>

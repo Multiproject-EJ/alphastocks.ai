@@ -118,6 +118,7 @@ function App() {
     isPermanentOwned,
     getItemQuantity,
     canAfford,
+    equipCosmetic,
   } = useShopInventory({ gameState, setGameState })
 
   // Authentication and game save hooks
@@ -901,6 +902,7 @@ function App() {
         isPermanentOwned={isPermanentOwned}
         getItemQuantity={getItemQuantity}
         canAfford={canAfford}
+        onEquipCosmetic={equipCosmetic}
       />
     </div>
   )

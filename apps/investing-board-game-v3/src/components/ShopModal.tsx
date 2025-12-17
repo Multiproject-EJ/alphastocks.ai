@@ -51,6 +51,7 @@ interface ShopModalProps {
   isPermanentOwned: (itemId: string) => boolean
   getItemQuantity: (itemId: string) => number
   canAfford: (price: number) => boolean
+  onEquipCosmetic?: (itemId: string, type: 'theme' | 'diceSkin' | 'trail') => void
 }
 
 type SortOption = 'default' | 'price-low' | 'price-high' | 'newest'
@@ -63,6 +64,7 @@ export function ShopModal({
   isPermanentOwned,
   getItemQuantity,
   canAfford,
+  onEquipCosmetic,
 }: ShopModalProps) {
   const { play: playSound } = useSound()
   const [selectedCategory, setSelectedCategory] = useState<'powerup' | 'upgrade' | 'cosmetic' | 'currency'>('powerup')
@@ -122,6 +124,36 @@ export function ShopModal({
   const handleCancelPurchase = () => {
     playSound('button-click')
     setConfirmItem(null)
+  }
+
+  const handleEquipCosmetic = (itemId: string) => {
+    if (!onEquipCosmetic) return
+    
+    // Determine cosmetic type based on item ID
+    let type: 'theme' | 'diceSkin' | 'trail'
+    
+    if (itemId.startsWith('theme-')) {
+      type = 'theme'
+    } else if (itemId.startsWith('dice-')) {
+      type = 'diceSkin'
+    } else if (itemId.startsWith('trail-')) {
+      type = 'trail'
+    } else {
+      return
+    }
+    
+    onEquipCosmetic(itemId, type)
+  }
+
+  const isCosmeticEquipped = (itemId: string): boolean => {
+    if (itemId.startsWith('theme-')) {
+      return gameState.equippedTheme === itemId
+    } else if (itemId.startsWith('dice-')) {
+      return gameState.equippedDiceSkin === itemId
+    } else if (itemId.startsWith('trail-')) {
+      return gameState.equippedTrail === itemId
+    }
+    return false
   }
 
   return (
@@ -224,6 +256,8 @@ export function ShopModal({
                           quantity={getItemQuantity(item.id)}
                           canAfford={canAfford(item.price)}
                           onPurchase={() => handlePurchaseClick(item)}
+                          isEquipped={item.category === 'cosmetic' ? isCosmeticEquipped(item.id) : undefined}
+                          onEquip={item.category === 'cosmetic' && isPermanentOwned(item.id) ? () => handleEquipCosmetic(item.id) : undefined}
                         />
                       ))}
                     </div>
