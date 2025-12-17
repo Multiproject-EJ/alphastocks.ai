@@ -9,31 +9,12 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/board-game-v3/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/board-game-v3/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
+      "src": "/board-game-v3/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
       "purpose": "any maskable"
     }
   ],
   "categories": ["finance", "games", "education"],
-  "screenshots": [
-    {
-      "src": "/board-game-v3/screenshot-mobile.png",
-      "sizes": "750x1334",
-      "type": "image/png",
-      "form_factor": "narrow"
-    },
-    {
-      "src": "/board-game-v3/screenshot-desktop.png",
-      "sizes": "1920x1080",
-      "type": "image/png",
-      "form_factor": "wide"
-    }
-  ]
+  "screenshots": []
 }

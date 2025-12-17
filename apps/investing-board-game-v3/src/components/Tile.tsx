@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import { memo } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Tile as TileType } from '@/lib/types'
 import { cn } from '@/lib/utils'
@@ -12,7 +13,7 @@ interface TileProps {
   side?: 'top' | 'bottom' | 'left' | 'right'
 }
 
-export function Tile({ tile, isActive, isHopping, isLanded, onClick, side }: TileProps) {
+const TileComponent = ({ tile, isActive, isHopping, isLanded, onClick, side }: TileProps) => {
   const getTypeColor = () => {
     switch (tile.type) {
       case 'corner':
@@ -128,3 +129,5 @@ export function Tile({ tile, isActive, isHopping, isLanded, onClick, side }: Til
     </motion.div>
   )
 }
+
+export const Tile = memo(TileComponent)
