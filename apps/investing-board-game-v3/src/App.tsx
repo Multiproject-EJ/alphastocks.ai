@@ -203,7 +203,9 @@ function App() {
     getItemQuantity,
     canAfford,
     equipCosmetic,
-  } = useShopInventory({ gameState, setGameState })
+    getFinalPrice,
+    shopDiscount,
+  } = useShopInventory({ gameState, setGameState, tierBenefits: activeBenefits })
 
   // Challenges and Events hooks
   const {
@@ -443,20 +445,23 @@ function App() {
     }))
   }, [])
 
-  // Helper function to get effective daily roll limit (with upgrades)
+  // Helper function to get effective daily roll limit (with upgrades and tier bonuses)
   const getEffectiveDailyRollLimit = useCallback((): number => {
     const hasExtraRoll = isPermanentOwned('extra-daily-roll')
     const eventBonus = getRollsBonus()
-    return (hasExtraRoll ? DAILY_ROLL_LIMIT + 1 : DAILY_ROLL_LIMIT) + eventBonus
-  }, [isPermanentOwned, getRollsBonus])
+    const tierBonus = activeBenefits.get('daily_rolls') || 0
+    return (hasExtraRoll ? DAILY_ROLL_LIMIT + 1 : DAILY_ROLL_LIMIT) + eventBonus + tierBonus
+  }, [isPermanentOwned, getRollsBonus, activeBenefits])
 
-  // Helper function to apply star multiplier (including event multipliers)
+  // Helper function to apply star multiplier (including event multipliers and tier bonuses)
   const applyStarMultiplier = useCallback((baseStars: number): number => {
     const hasStarMultiplier = isPermanentOwned('star-multiplier')
     const shopMultiplier = hasStarMultiplier ? 1.5 : 1
     const { starsMultiplier } = getActiveMultipliers()
-    return Math.floor(baseStars * shopMultiplier * starsMultiplier)
-  }, [isPermanentOwned, getActiveMultipliers])
+    const tierStarBonus = activeBenefits.get('star_bonus') || 0
+    const tierMultiplier = 1 + tierStarBonus
+    return Math.floor(baseStars * shopMultiplier * starsMultiplier * tierMultiplier)
+  }, [isPermanentOwned, getActiveMultipliers, activeBenefits])
 
   // Helper function to check extra dice roll power-up
   useEffect(() => {
@@ -1114,6 +1119,8 @@ function App() {
           getItemQuantity={getItemQuantity}
           canAfford={canAfford}
           onEquipCosmetic={equipCosmetic}
+          getFinalPrice={getFinalPrice}
+          shopDiscount={shopDiscount}
         />
 
         <ChallengesModal

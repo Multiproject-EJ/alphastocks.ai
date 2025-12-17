@@ -19,6 +19,8 @@ interface ShopItemCardProps {
   onPurchase: () => void
   isEquipped?: boolean
   onEquip?: () => void
+  shopDiscount?: number
+  finalPrice?: number
 }
 
 const ShopItemCardComponent = ({
@@ -29,8 +31,12 @@ const ShopItemCardComponent = ({
   onPurchase,
   isEquipped,
   onEquip,
+  shopDiscount = 0,
+  finalPrice,
 }: ShopItemCardProps) => {
   const isDisabled = !canAfford || (owned && !item.stackable)
+  const displayPrice = finalPrice ?? item.price
+  const hasDiscount = shopDiscount > 0
 
   return (
     <motion.div
@@ -101,7 +107,15 @@ const ShopItemCardComponent = ({
           <div className="space-y-3 pt-2">
             <div className="flex items-center justify-center gap-2 text-accent">
               <Star size={20} weight="fill" />
-              <span className="text-xl font-bold font-mono">{item.price}</span>
+              {hasDiscount ? (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-mono text-muted-foreground line-through">{item.price}</span>
+                  <span className="text-xl font-bold font-mono">{displayPrice}</span>
+                  <Badge variant="secondary" className="text-xs">-{Math.round(shopDiscount * 100)}%</Badge>
+                </div>
+              ) : (
+                <span className="text-xl font-bold font-mono">{displayPrice}</span>
+              )}
             </div>
 
             {owned && item.isPermanent && onEquip && (

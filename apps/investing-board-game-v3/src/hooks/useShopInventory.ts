@@ -11,6 +11,7 @@ import { toast } from 'sonner'
 interface UseShopInventoryProps {
   gameState: GameState
   setGameState: React.Dispatch<React.SetStateAction<GameState>>
+  tierBenefits?: Map<string, number>
 }
 
 interface UseShopInventoryReturn {
@@ -21,13 +22,29 @@ interface UseShopInventoryReturn {
   isPermanentOwned: (itemId: string) => boolean
   equipCosmetic: (itemId: string, type: 'theme' | 'diceSkin' | 'trail') => void
   canAfford: (price: number) => boolean
+  getFinalPrice: (basePrice: number) => number
+  shopDiscount: number
 }
 
 export function useShopInventory({
   gameState,
   setGameState,
+  tierBenefits,
 }: UseShopInventoryProps): UseShopInventoryReturn {
   const { play: playSound } = useSound()
+
+  // Get shop discount from tier benefits
+  const shopDiscount = tierBenefits?.get('shop_discount') || 0
+
+  /**
+   * Calculate final price with tier discount
+   */
+  const getFinalPrice = useCallback(
+    (basePrice: number): number => {
+      return Math.floor(basePrice * (1 - shopDiscount))
+    },
+    [shopDiscount]
+  )
 
   /**
    * Check if player can afford an item
@@ -83,11 +100,13 @@ export function useShopInventory({
         return false
       }
 
+      const finalPrice = getFinalPrice(item.price)
+
       // Check if can afford
-      if (!canAfford(item.price)) {
+      if (!canAfford(finalPrice)) {
         playSound('error')
         toast.error('Insufficient stars', {
-          description: `You need ${item.price} stars but only have ${gameState.stars}`,
+          description: `You need ${finalPrice} stars but only have ${gameState.stars}`,
         })
         return false
       }
@@ -105,7 +124,7 @@ export function useShopInventory({
       playSound('cash-register')
 
       setGameState((prev) => {
-        const newStars = prev.stars - item.price
+        const newStars = prev.stars - finalPrice
         const now = new Date()
 
         // Update inventory
@@ -187,6 +206,7 @@ export function useShopInventory({
       isPermanentOwned,
       playSound,
       setGameState,
+      getFinalPrice,
     ]
   )
 
@@ -280,5 +300,7 @@ export function useShopInventory({
     isPermanentOwned,
     equipCosmetic,
     canAfford,
+    getFinalPrice,
+    shopDiscount,
   }
 }

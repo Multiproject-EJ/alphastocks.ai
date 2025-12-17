@@ -52,6 +52,8 @@ interface ShopModalProps {
   getItemQuantity: (itemId: string) => number
   canAfford: (price: number) => boolean
   onEquipCosmetic?: (itemId: string, type: 'theme' | 'diceSkin' | 'trail') => void
+  getFinalPrice?: (basePrice: number) => number
+  shopDiscount?: number
 }
 
 type SortOption = 'default' | 'price-low' | 'price-high' | 'newest'
@@ -65,6 +67,8 @@ export function ShopModal({
   getItemQuantity,
   canAfford,
   onEquipCosmetic,
+  getFinalPrice,
+  shopDiscount = 0,
 }: ShopModalProps) {
   const { play: playSound } = useSound()
   const [selectedCategory, setSelectedCategory] = useState<'powerup' | 'upgrade' | 'cosmetic' | 'currency'>('powerup')
@@ -254,10 +258,12 @@ export function ShopModal({
                           item={item}
                           owned={item.isPermanent ? isPermanentOwned(item.id) : getItemQuantity(item.id) > 0}
                           quantity={getItemQuantity(item.id)}
-                          canAfford={canAfford(item.price)}
+                          canAfford={canAfford(getFinalPrice ? getFinalPrice(item.price) : item.price)}
                           onPurchase={() => handlePurchaseClick(item)}
                           isEquipped={item.category === 'cosmetic' ? isCosmeticEquipped(item.id) : undefined}
                           onEquip={item.category === 'cosmetic' && isPermanentOwned(item.id) ? () => handleEquipCosmetic(item.id) : undefined}
+                          shopDiscount={shopDiscount}
+                          finalPrice={getFinalPrice ? getFinalPrice(item.price) : item.price}
                         />
                       ))}
                     </div>
