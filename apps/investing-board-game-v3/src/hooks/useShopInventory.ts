@@ -248,7 +248,7 @@ export function useShopInventory({
   const equipCosmetic = useCallback(
     (itemId: string, type: 'theme' | 'diceSkin' | 'trail') => {
       if (!isPermanentOwned(itemId)) {
-        toast.error('You don\'t own this cosmetic')
+        toast.error("You don't own this cosmetic")
         return
       }
 
