@@ -7,7 +7,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Coins, TrendUp, Trophy } from '@phosphor-icons/react'
+import { Coins, TrendUp, Trophy, Target, CalendarBlank } from '@phosphor-icons/react'
 import { GameState } from '@/lib/types'
 import { AI_PLAYERS } from '@/lib/mockData'
 
@@ -15,9 +15,11 @@ interface HubModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   gameState: GameState
+  onOpenChallenges?: () => void
+  onOpenEventCalendar?: () => void
 }
 
-export function HubModal({ open, onOpenChange, gameState }: HubModalProps) {
+export function HubModal({ open, onOpenChange, gameState, onOpenChallenges, onOpenEventCalendar }: HubModalProps) {
   // Combine human player with AI players for leaderboard
   const allPlayers = [
     {
@@ -89,6 +91,32 @@ export function HubModal({ open, onOpenChange, gameState }: HubModalProps) {
             </div>
 
             <Separator className="my-4" />
+
+            <div className="grid grid-cols-2 gap-2">
+              <Button 
+                variant="outline" 
+                className="w-full" 
+                onClick={() => {
+                  onOpenChange(false)
+                  onOpenChallenges?.()
+                }}
+              >
+                <Target size={16} className="mr-2" />
+                Challenges
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                className="w-full"
+                onClick={() => {
+                  onOpenChange(false)
+                  onOpenEventCalendar?.()
+                }}
+              >
+                <CalendarBlank size={16} className="mr-2" />
+                Events
+              </Button>
+            </div>
 
             <Button variant="outline" className="w-full" disabled>
               Support development (coming soon)

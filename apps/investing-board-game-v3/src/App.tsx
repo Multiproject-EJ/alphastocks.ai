@@ -894,6 +894,8 @@ function App() {
         open={hubModalOpen}
         onOpenChange={setHubModalOpen}
         gameState={gameState}
+        onOpenChallenges={() => setChallengesModalOpen(true)}
+        onOpenEventCalendar={() => setEventCalendarOpen(true)}
       />
 
       <StockModal
