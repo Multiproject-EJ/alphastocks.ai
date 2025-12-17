@@ -576,6 +576,9 @@ function App() {
     // Track challenge progress for rolling
     updateChallengeProgress('roll', roll)
     
+    // Earn coins for dice roll
+    earnFromSource('dice_roll')
+    
     setPhase('rolling')
     setLastRoll(roll)
     playSound('dice-roll')
@@ -628,6 +631,9 @@ function App() {
     // Track challenge progress for landing on tile
     updateChallengeProgress('land_on_tile', { position, tileType: tile.type })
     
+    // Earn coins for landing on tile
+    earnFromSource('land_on_tile')
+    
     // Track corner landing
     const corners = [0, 6, 13, 19]
     if (corners.includes(position)) {
@@ -637,6 +643,7 @@ function App() {
     // Handle passing Start (but not landing on it)
     if (passedStart) {
       playSound('star-collect')
+      earnFromSource('pass_start') // Earn coins for passing start
       setGameState((prev) => ({
         ...prev,
         stars: prev.stars + 200,
@@ -945,6 +952,19 @@ function App() {
             <ChallengeTracker
               dailyChallenges={dailyChallenges}
               onOpenModal={() => setChallengesModalOpen(true)}
+            />
+          </div>
+
+          {/* Thrift Path Status Widget - Below Challenge Tracker */}
+          <div className="absolute top-44 left-4 z-40">
+            <ThriftPathStatus
+              status={thriftPathStatus}
+              onClick={() => {
+                // Could open a detailed Thrift Path info modal in the future
+                toast.info('Thrift Path', {
+                  description: `Your disciplined choices earn XP and unlock benefits!`
+                })
+              }}
             />
           </div>
 
