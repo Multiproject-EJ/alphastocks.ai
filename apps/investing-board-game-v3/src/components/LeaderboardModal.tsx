@@ -51,8 +51,7 @@ export function LeaderboardModal({
     return <span className="text-lg font-bold text-muted-foreground">#{rank}</span>
   }
 
-  const LeaderboardRow = memo(({ entry, index }: { entry: LeaderboardEntry; index: number }) => {
-  const LeaderboardRow = memo(({ entry, index }: { entry: LeaderboardEntry; index: number }) => {
+  const LeaderboardRow = ({ entry, index }: { entry: LeaderboardEntry; index: number }) => {
     const isCurrentUser = entry.userId === currentUserId
     const rank = entry.rank || index + 1
 
@@ -116,7 +115,7 @@ export function LeaderboardModal({
         )}
       </motion.div>
     )
-  })
+  }
 
   const VirtualLeaderboard = ({ data }: { data: LeaderboardEntry[] }) => {
     const rowVirtualizer = useVirtualizer({
