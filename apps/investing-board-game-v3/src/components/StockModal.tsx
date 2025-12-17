@@ -16,9 +16,10 @@ interface StockModalProps {
   stock: Stock | null
   onBuy: (multiplier: number) => void
   cash: number
+  showInsights?: boolean
 }
 
-export function StockModal({ open, onOpenChange, stock, onBuy, cash }: StockModalProps) {
+export function StockModal({ open, onOpenChange, stock, onBuy, cash, showInsights = false }: StockModalProps) {
   if (!stock) return null
 
   const baseShares = 10
@@ -53,6 +54,40 @@ export function StockModal({ open, onOpenChange, stock, onBuy, cash }: StockModa
             <Coins size={16} className="text-accent" />
             Available Cash: <span className="font-mono text-foreground">${cash.toLocaleString()}</span>
           </div>
+
+          {showInsights && (
+            <div className="bg-accent/10 border-2 border-accent/30 rounded-lg p-4 space-y-2">
+              <div className="text-sm font-semibold text-accent flex items-center gap-2">
+                🔍 Stock Insights
+              </div>
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div>
+                  <div className="text-muted-foreground">P/E Ratio</div>
+                  <div className="font-mono text-foreground">
+                    {(Math.random() * 30 + 10).toFixed(1)}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-muted-foreground">Analyst Rating</div>
+                  <div className="font-mono text-foreground">
+                    {['Buy', 'Strong Buy', 'Hold'][Math.floor(Math.random() * 3)]}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-muted-foreground">Dividend Yield</div>
+                  <div className="font-mono text-foreground">
+                    {(Math.random() * 3).toFixed(2)}%
+                  </div>
+                </div>
+                <div>
+                  <div className="text-muted-foreground">Market Cap</div>
+                  <div className="font-mono text-foreground">
+                    ${(Math.random() * 100 + 10).toFixed(1)}B
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="grid grid-cols-3 gap-3 pt-4">
             <div className="space-y-2">

@@ -424,9 +424,23 @@ function App() {
         setThriftyModalOpen(true)
       } else if (tile.title === 'Market Event') {
         debugGame('Opening Event modal')
-        const event = getRandomMarketEvent()
-        setCurrentEvent(event)
-        setEventModalOpen(true)
+        
+        // Check if Market Shield is active
+        if (hasPowerUp('market-shield')) {
+          consumePowerUp('market-shield')
+          toast.success('Market Shield Activated!', {
+            description: '🛡️ Protected from market event',
+          })
+          playSound('button-click')
+          setTimeout(() => {
+            debugGame('Phase transition: landed -> idle (market shield blocked event)')
+            setPhase('idle')
+          }, 1000)
+        } else {
+          const event = getRandomMarketEvent()
+          setCurrentEvent(event)
+          setEventModalOpen(true)
+        }
       } else {
         // Fallback for event tiles without specific handlers (Wildcard, "?", etc.)
         debugGame('Event tile without handler - showing generic message and returning to idle')
@@ -776,6 +790,10 @@ function App() {
             debugGame('Stock modal closed - cleaning up')
             setShowCentralStock(false)
             setCurrentStock(null)
+            // Consume stock insight if it was active
+            if (hasPowerUp('stock-insight')) {
+              consumePowerUp('stock-insight')
+            }
             setTimeout(() => {
               debugGame('Phase transition: landed -> idle (stock modal closed)')
               setPhase('idle')
@@ -785,6 +803,7 @@ function App() {
         stock={currentStock}
         onBuy={handleBuyStock}
         cash={gameState.cash}
+        showInsights={hasPowerUp('stock-insight')}
       />
 
       <EventModal
@@ -871,6 +890,7 @@ function App() {
           }
         }}
         onWin={handleCasinoWin}
+        luckBoost={isPermanentOwned('casino-luck') ? 0.2 : 0}
       />
 
       <ShopModal
