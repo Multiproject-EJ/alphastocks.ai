@@ -63,6 +63,7 @@ import { useNetWorthTier } from '@/hooks/useNetWorthTier'
 import { useCoins } from '@/hooks/useCoins'
 import { useThriftPath } from '@/hooks/useThriftPath'
 import { ThriftPathStatus as ThriftPathStatusType } from '@/lib/thriftPath'
+import { COIN_COSTS } from '@/lib/coins'
 
 type Phase = 'idle' | 'rolling' | 'moving' | 'landed'
 
@@ -621,6 +622,25 @@ function App() {
     }, 600)
   }
 
+  const handleReroll = () => {
+    if (!canAffordCoins(COIN_COSTS.reroll_dice)) {
+      return
+    }
+    
+    if (spendCoins(COIN_COSTS.reroll_dice, 'Reroll dice')) {
+      // Reroll the dice
+      handleRoll()
+    }
+  }
+
+  const handleSkipEvent = (): boolean => {
+    if (!canAffordCoins(COIN_COSTS.skip_event)) {
+      return false
+    }
+    
+    return spendCoins(COIN_COSTS.skip_event, 'Skip event')
+  }
+
   const handleTileLanding = (position: number, passedStart = false) => {
     setDiceResetKey((prev) => prev + 1)
     playSound('tile-land')
@@ -1012,6 +1032,9 @@ function App() {
               nextResetTime={nextResetTime}
               boardRef={boardRef}
               resetPositionKey={diceResetKey}
+              coins={gameState.coins}
+              canAffordReroll={canAffordCoins(COIN_COSTS.reroll_dice)}
+              onReroll={handleReroll}
             />
           </div>
 
@@ -1141,6 +1164,9 @@ function App() {
           }
         }}
         eventText={currentEvent}
+        coins={gameState.coins}
+        canAffordSkip={canAffordCoins(COIN_COSTS.skip_event)}
+        onSkip={handleSkipEvent}
       />
 
       <ThriftyPathModal

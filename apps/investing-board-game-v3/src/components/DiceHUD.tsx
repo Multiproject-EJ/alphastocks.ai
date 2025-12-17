@@ -3,8 +3,9 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { DiceFive, Clock, X } from '@phosphor-icons/react'
+import { DiceFive, Clock, X, ArrowsClockwise } from '@phosphor-icons/react'
 import { AnimatedDice } from '@/components/AnimatedDice'
+import { COIN_COSTS } from '@/lib/coins'
 
 interface DiceHUDProps {
   onRoll: () => void
@@ -14,9 +15,24 @@ interface DiceHUDProps {
   nextResetTime: Date
   boardRef?: React.RefObject<HTMLDivElement | null>
   resetPositionKey?: number
+  // Coin-related props
+  coins?: number
+  canAffordReroll?: boolean
+  onReroll?: () => void
 }
 
-export function DiceHUD({ onRoll, lastRoll, phase, rollsRemaining, nextResetTime, boardRef, resetPositionKey }: DiceHUDProps) {
+export function DiceHUD({ 
+  onRoll, 
+  lastRoll, 
+  phase, 
+  rollsRemaining, 
+  nextResetTime, 
+  boardRef, 
+  resetPositionKey,
+  coins,
+  canAffordReroll,
+  onReroll
+}: DiceHUDProps) {
   const [isDragging, setIsDragging] = useState(false)
   const [timeUntilReset, setTimeUntilReset] = useState('')
   const [dice1, setDice1] = useState(1)
@@ -142,6 +158,20 @@ export function DiceHUD({ onRoll, lastRoll, phase, rollsRemaining, nextResetTime
                   <DiceFive size={20} weight="fill" />
                   ROLL {rollsRemaining > 0 && `(${rollsRemaining})`}
                 </Button>
+
+                {/* Reroll Button */}
+                {onReroll && coins !== undefined && (
+                  <Button
+                    onClick={onReroll}
+                    disabled={phase !== 'idle' || !canAffordReroll}
+                    variant="outline"
+                    size="sm"
+                    className="w-full gap-2"
+                  >
+                    <ArrowsClockwise size={16} />
+                    Reroll ({COIN_COSTS.reroll_dice} 🪙)
+                  </Button>
+                )}
 
                 {lastRoll !== null && (
                   <motion.div
