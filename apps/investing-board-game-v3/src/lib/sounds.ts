@@ -142,7 +142,7 @@ class SoundManager {
           // Single soft beep (token landing)
           oscillator.frequency.setValueAtTime(400, now)
           gainNode.gain.setValueAtTime(this.settings.volume * 0.3, now)
-          gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1)
+          gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.1)
           oscillator.start(now)
           oscillator.stop(now + 0.1)
           break
@@ -152,7 +152,7 @@ class SoundManager {
           oscillator.frequency.setValueAtTime(800, now)
           oscillator.frequency.exponentialRampToValueAtTime(1200, now + 0.1)
           gainNode.gain.setValueAtTime(this.settings.volume * 0.4, now)
-          gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.2)
+          gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.2)
           oscillator.start(now)
           oscillator.stop(now + 0.2)
           break
@@ -162,7 +162,7 @@ class SoundManager {
           oscillator.frequency.setValueAtTime(200, now)
           oscillator.frequency.exponentialRampToValueAtTime(150, now + 0.15)
           gainNode.gain.setValueAtTime(this.settings.volume * 0.5, now)
-          gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.15)
+          gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.15)
           oscillator.start(now)
           oscillator.stop(now + 0.15)
           break
@@ -176,7 +176,7 @@ class SoundManager {
           // Quick click sound
           oscillator.frequency.setValueAtTime(600, now)
           gainNode.gain.setValueAtTime(this.settings.volume * 0.2, now)
-          gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.05)
+          gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.05)
           oscillator.start(now)
           oscillator.stop(now + 0.05)
           break
@@ -186,7 +186,7 @@ class SoundManager {
           oscillator.frequency.setValueAtTime(400, now)
           oscillator.frequency.exponentialRampToValueAtTime(800, now + 0.3)
           gainNode.gain.setValueAtTime(this.settings.volume * 0.5, now)
-          gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.4)
+          gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.4)
           oscillator.start(now)
           oscillator.stop(now + 0.4)
           break
@@ -196,7 +196,7 @@ class SoundManager {
           oscillator.frequency.setValueAtTime(400, now)
           oscillator.frequency.exponentialRampToValueAtTime(200, now + 0.2)
           gainNode.gain.setValueAtTime(this.settings.volume * 0.3, now)
-          gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.2)
+          gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.2)
           oscillator.start(now)
           oscillator.stop(now + 0.2)
           break
@@ -222,7 +222,7 @@ class SoundManager {
       gainNode.gain.setValueAtTime(this.settings.volume * 0.25, time)
     }
 
-    gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + frequencies.length * duration)
+    gainNode.gain.exponentialRampToValueAtTime(0.001, startTime + frequencies.length * duration)
     oscillator.start(startTime)
     oscillator.stop(startTime + frequencies.length * duration)
   }
@@ -236,27 +236,25 @@ class SoundManager {
     oscillator.frequency.setValueAtTime(150, startTime)
     oscillator.frequency.exponentialRampToValueAtTime(100, startTime + 0.08)
     gainNode.gain.setValueAtTime(this.settings.volume * 0.4, startTime)
-    gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + 0.08)
+    gainNode.gain.exponentialRampToValueAtTime(0.001, startTime + 0.08)
 
     oscillator.start(startTime)
     oscillator.stop(startTime + 0.15)
 
-    // Second thud (slightly quieter)
-    setTimeout(() => {
-      if (!this.audioContext) return
-      const now = this.audioContext.currentTime
-      const osc2 = this.audioContext.createOscillator()
-      const gain2 = this.audioContext.createGain()
-      osc2.connect(gain2)
-      gain2.connect(this.audioContext.destination)
-      osc2.type = 'triangle'
-      osc2.frequency.setValueAtTime(140, now)
-      osc2.frequency.exponentialRampToValueAtTime(90, now + 0.06)
-      gain2.gain.setValueAtTime(this.settings.volume * 0.3, now)
-      gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.06)
-      osc2.start(now)
-      osc2.stop(now + 0.1)
-    }, 80)
+    // Second thud (slightly quieter) - scheduled using audio context time for precision
+    if (!this.audioContext) return
+    const secondThudStart = startTime + 0.08
+    const osc2 = this.audioContext.createOscillator()
+    const gain2 = this.audioContext.createGain()
+    osc2.connect(gain2)
+    gain2.connect(this.audioContext.destination)
+    osc2.type = 'triangle'
+    osc2.frequency.setValueAtTime(140, secondThudStart)
+    osc2.frequency.exponentialRampToValueAtTime(90, secondThudStart + 0.06)
+    gain2.gain.setValueAtTime(this.settings.volume * 0.3, secondThudStart)
+    gain2.gain.exponentialRampToValueAtTime(0.001, secondThudStart + 0.06)
+    osc2.start(secondThudStart)
+    osc2.stop(secondThudStart + 0.1)
   }
 
   /**
@@ -277,7 +275,7 @@ class SoundManager {
       const noteStart = startTime + i * duration
       osc.frequency.setValueAtTime(freq, noteStart)
       gain.gain.setValueAtTime(this.settings.volume * 0.4, noteStart)
-      gain.gain.exponentialRampToValueAtTime(0.01, noteStart + duration * 2)
+      gain.gain.exponentialRampToValueAtTime(0.001, noteStart + duration * 2)
       osc.start(noteStart)
       osc.stop(noteStart + duration * 2)
     })

@@ -31,9 +31,10 @@ export function CelebrationEffect({ show, onComplete, level = 'medium' }: Celebr
       }
 
       // Screen shake for large celebrations
+      let shakeTimeout: NodeJS.Timeout | undefined
       if (level === 'large') {
         setShake(true)
-        setTimeout(() => setShake(false), 500)
+        shakeTimeout = setTimeout(() => setShake(false), 500)
       }
 
       const colors = ['#FFD700', '#FFA500', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DFE6E9']
@@ -56,6 +57,7 @@ export function CelebrationEffect({ show, onComplete, level = 'medium' }: Celebr
 
       return () => {
         clearTimeout(timer)
+        if (shakeTimeout) clearTimeout(shakeTimeout)
         setParticles([])
       }
     }
@@ -93,6 +95,7 @@ export function CelebrationEffect({ show, onComplete, level = 'medium' }: Celebr
                 <div 
                   className="w-4 h-4"
                   style={{ color: particle.color }}
+                  aria-hidden="true"
                 >
                   ⭐
                 </div>
@@ -101,6 +104,7 @@ export function CelebrationEffect({ show, onComplete, level = 'medium' }: Celebr
                 <div 
                   className="w-4 h-4"
                   style={{ color: particle.color }}
+                  aria-hidden="true"
                 >
                   🪙
                 </div>
@@ -109,6 +113,7 @@ export function CelebrationEffect({ show, onComplete, level = 'medium' }: Celebr
                 <div 
                   className="w-3 h-3 rounded-full"
                   style={{ backgroundColor: particle.color }}
+                  aria-hidden="true"
                 />
               )}
             </motion.div>
@@ -118,6 +123,7 @@ export function CelebrationEffect({ show, onComplete, level = 'medium' }: Celebr
             animate={{ scale: [0, 1.3, 1], opacity: [0, 1, 0] }}
             transition={{ duration: duration / 1000, ease: 'easeOut' }}
             className="text-7xl font-bold"
+            aria-label="Celebration"
           >
             🎉
           </motion.div>

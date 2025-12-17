@@ -18,6 +18,10 @@ export function SoundControls() {
     setVolume(values[0])
   }
 
+  const handleToggleSlider = () => {
+    setShowSlider((prev) => !prev)
+  }
+
   return (
     <div className="relative">
       <div className="flex items-center gap-2">
@@ -31,6 +35,7 @@ export function SoundControls() {
               transition={{ duration: 0.2 }}
               className="overflow-hidden"
               onMouseLeave={() => setShowSlider(false)}
+              onBlur={() => setShowSlider(false)}
             >
               <div className="px-3 py-2 rounded-lg bg-card/90 backdrop-blur-md border border-border shadow-lg">
                 <Slider
@@ -52,6 +57,7 @@ export function SoundControls() {
           variant="ghost"
           onClick={toggleMute}
           onMouseEnter={() => setShowSlider(true)}
+          onFocus={() => setShowSlider(true)}
           className="rounded-full bg-card/80 backdrop-blur-sm border border-border hover:bg-card/90 transition-all shadow-md h-10 w-10"
           aria-label={muted ? 'Unmute sound' : 'Mute sound'}
         >
