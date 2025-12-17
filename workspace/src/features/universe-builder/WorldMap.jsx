@@ -95,6 +95,16 @@ const WorldMap = ({ exchanges = [], progress = {} }) => {
   const width = 700;
   const height = 350;
 
+  // Pre-compute a lookup map for country names/codes (case-insensitive)
+  const countryLookup = useMemo(() => {
+    const lookup = {};
+    EXCHANGE_COUNTRIES.forEach(([code, name]) => {
+      lookup[name.toLowerCase()] = code;
+      lookup[code.toLowerCase()] = code;
+    });
+    return lookup;
+  }, []);
+
   // Determine which countries have exchanges that are analyzed, in queue, or pending
   const countryStatus = useMemo(() => {
     const statusMap = {};
@@ -103,15 +113,10 @@ const WorldMap = ({ exchanges = [], progress = {} }) => {
       const country = exchange.country;
       if (!country) return;
 
-      // Find matching country code
-      const matchedCountry = EXCHANGE_COUNTRIES.find(
-        ([code, name]) => 
-          name.toLowerCase() === country.toLowerCase() ||
-          code.toLowerCase() === country.toLowerCase()
-      );
+      // Find matching country code using pre-computed lookup
+      const code = countryLookup[country.toLowerCase()];
 
-      if (matchedCountry) {
-        const [code] = matchedCountry;
+      if (code) {
         const isCompleted = exchange.last_analyzed_letter === 'Z';
         const isInProgress = progress.current_exchange_mic === exchange.mic_code;
         const isPriority = exchange.is_priority;
@@ -131,7 +136,7 @@ const WorldMap = ({ exchanges = [], progress = {} }) => {
     });
 
     return statusMap;
-  }, [exchanges, progress]);
+  }, [exchanges, progress, countryLookup]);
 
   // Get status color for a country
   const getStatusColor = (status) => {
@@ -326,6 +331,7 @@ const WorldMap = ({ exchanges = [], progress = {} }) => {
           <span className="world-map__stat-label">Currently Analyzing</span>
         </div>
         <div className="world-map__stat">
+          {/* Countries in our list that have no exchange data yet */}
           <span className="world-map__stat-value">
             {EXCHANGE_COUNTRIES.length - Object.keys(countryStatus).length}
           </span>
