@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { Toaster, toast } from 'sonner'
 import { Button } from '@/components/ui/button'
+import { ShoppingBag } from '@phosphor-icons/react'
 import { Tile } from '@/components/Tile'
 import { DiceHUD } from '@/components/DiceHUD'
 import { HubModal } from '@/components/HubModal'
@@ -11,6 +12,7 @@ import { ThriftyPathModal } from '@/components/ThriftyPathModal'
 import { PortfolioModal } from '@/components/PortfolioModal'
 import { ProToolsOverlay } from '@/components/ProToolsOverlay'
 import { BiasSanctuaryModal } from '@/components/BiasSanctuaryModal'
+import { ShopModal } from '@/components/ShopModal'
 import { CenterCarousel } from '@/components/CenterCarousel'
 import { CelebrationEffect } from '@/components/CelebrationEffect'
 import { CasinoModal } from '@/components/CasinoModal'
@@ -33,6 +35,7 @@ import { useUniverseStocks } from '@/hooks/useUniverseStocks'
 import { useGameSave } from '@/hooks/useGameSave'
 import { useAuth } from '@/context/AuthContext'
 import { useSound } from '@/hooks/useSound'
+import { useShopInventory } from '@/hooks/useShopInventory'
 
 type Phase = 'idle' | 'rolling' | 'moving' | 'landed'
 
@@ -57,6 +60,11 @@ function App() {
     portfolioValue: 0,
     stars: 0,
     holdings: [],
+    inventory: [],
+    activeEffects: [],
+    equippedTheme: 'default',
+    equippedDiceSkin: 'default',
+    equippedTrail: undefined,
   }
 
   const [gameState, setGameState] = useState<GameState>(defaultGameState)
@@ -88,6 +96,8 @@ function App() {
 
   const [casinoModalOpen, setCasinoModalOpen] = useState(false)
 
+  const [shopModalOpen, setShopModalOpen] = useState(false)
+
   const [diceResetKey, setDiceResetKey] = useState(0)
 
   const [showCelebration, setShowCelebration] = useState(false)
@@ -101,6 +111,14 @@ function App() {
 
   // Sound effects hook
   const { play: playSound } = useSound()
+
+  // Shop inventory hook
+  const {
+    purchaseItem,
+    isPermanentOwned,
+    getItemQuantity,
+    canAfford,
+  } = useShopInventory({ gameState, setGameState })
 
   // Authentication and game save hooks
   const { isAuthenticated, loading: authLoading } = useAuth()
@@ -566,6 +584,18 @@ function App() {
             <SoundControls />
           </div>
 
+          {/* Shop Button - Bottom Left */}
+          <div className="absolute bottom-8 left-8 z-40">
+            <Button
+              onClick={() => setShopModalOpen(true)}
+              className="bg-accent/90 hover:bg-accent text-accent-foreground shadow-lg hover:shadow-xl transition-all backdrop-blur-sm rounded-full h-14 px-6 text-base font-semibold flex items-center gap-2"
+              aria-label="Open Shop"
+            >
+              <ShoppingBag size={20} weight="bold" />
+              Shop
+            </Button>
+          </div>
+
           {/* Pro Tools Button */}
           <div className="absolute bottom-8 right-8 z-40">
             <Button
@@ -782,6 +812,16 @@ function App() {
           }
         }}
         onWin={handleCasinoWin}
+      />
+
+      <ShopModal
+        open={shopModalOpen}
+        onOpenChange={setShopModalOpen}
+        gameState={gameState}
+        onPurchase={purchaseItem}
+        isPermanentOwned={isPermanentOwned}
+        getItemQuantity={getItemQuantity}
+        canAfford={canAfford}
       />
     </div>
   )

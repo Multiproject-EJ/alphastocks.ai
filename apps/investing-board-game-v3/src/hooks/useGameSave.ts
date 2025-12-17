@@ -13,6 +13,11 @@ interface BoardGameProfile {
   portfolio_value: number
   stars: number
   holdings: GameState['holdings']
+  inventory: GameState['inventory']
+  active_effects: GameState['activeEffects']
+  equipped_theme: string
+  equipped_dice_skin: string
+  equipped_trail: string | null
   rolls_remaining: number
   rolls_reset_at: string
   created_at: string
@@ -54,6 +59,11 @@ export function useGameSave(): UseGameSaveReturn {
       portfolioValue: Number(profile.portfolio_value),
       stars: profile.stars,
       holdings: Array.isArray(profile.holdings) ? profile.holdings : [],
+      inventory: Array.isArray(profile.inventory) ? profile.inventory : [],
+      activeEffects: Array.isArray(profile.active_effects) ? profile.active_effects : [],
+      equippedTheme: profile.equipped_theme || 'default',
+      equippedDiceSkin: profile.equipped_dice_skin || 'default',
+      equippedTrail: profile.equipped_trail || undefined,
     }
   }, [])
 
@@ -125,6 +135,11 @@ export function useGameSave(): UseGameSaveReturn {
           portfolio_value: gameState.portfolioValue,
           stars: gameState.stars,
           holdings: gameState.holdings,
+          inventory: gameState.inventory || [],
+          active_effects: gameState.activeEffects || [],
+          equipped_theme: gameState.equippedTheme || 'default',
+          equipped_dice_skin: gameState.equippedDiceSkin || 'default',
+          equipped_trail: gameState.equippedTrail || null,
           rolls_remaining: rollsRemaining,
           rolls_reset_at: nextResetTime.toISOString(),
         }

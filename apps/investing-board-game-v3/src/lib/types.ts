@@ -26,6 +26,18 @@ export interface ThriftyChallenge {
   reward: number
 }
 
+export interface InventoryItem {
+  itemId: string
+  quantity: number // for stackable items
+  purchasedAt: Date
+}
+
+export interface ActiveEffect {
+  itemId: string
+  expiresAt?: Date // undefined for permanent effects
+  activated: boolean
+}
+
 export interface GameState {
   cash: number
   position: number
@@ -37,6 +49,11 @@ export interface GameState {
     shares: number
     totalCost: number
   }>
+  inventory: InventoryItem[]
+  activeEffects: ActiveEffect[]
+  equippedTheme?: string
+  equippedDiceSkin?: string
+  equippedTrail?: string
 }
 
 export interface BiasQuizQuestion {
