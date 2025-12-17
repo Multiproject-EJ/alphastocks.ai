@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState, useMemo } from 'preact/hooks';
+import WorldMap from './WorldMap.jsx';
 
 const API_ENDPOINT = '/api/universe-builder';
 
@@ -323,6 +324,14 @@ const UniverseBuilder = () => {
           <div className="pipeline-step__count">—</div>
         </div>
       </div>
+
+      {/* World Map Visualization */}
+      {status?.exchanges && (
+        <WorldMap 
+          exchanges={status.exchanges} 
+          progress={status.progress || {}}
+        />
+      )}
 
       {/* Exchanges Table */}
       <div className="universe-builder__section">
