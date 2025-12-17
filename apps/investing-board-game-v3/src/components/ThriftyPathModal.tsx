@@ -11,12 +11,14 @@ import { Card } from '@/components/ui/card'
 import { Star } from '@phosphor-icons/react'
 import { ThriftyChallenge } from '@/lib/types'
 import { CelebrationEffect } from '@/components/CelebrationEffect'
+import { ThriftPathStatus as ThriftPathStatusType } from '@/lib/thriftPath'
 
 interface ThriftyPathModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   challenges: ThriftyChallenge[]
   onChoose: (challenge: ThriftyChallenge) => void
+  thriftPathStatus?: ThriftPathStatusType
 }
 
 export function ThriftyPathModal({
@@ -24,6 +26,7 @@ export function ThriftyPathModal({
   onOpenChange,
   challenges,
   onChoose,
+  thriftPathStatus,
 }: ThriftyPathModalProps) {
   const [showCelebration, setShowCelebration] = useState(false)
   const [selectedChallenge, setSelectedChallenge] = useState<ThriftyChallenge | null>(null)
@@ -54,11 +57,22 @@ export function ThriftyPathModal({
       <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto bg-card border-2 border-accent/50 shadow-[0_0_40px_oklch(0.75_0.15_85_/_0.3)]">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-accent">
-            Thrifty Path Opportunity
+            🌿 Thrifty Path Opportunity
           </DialogTitle>
           <DialogDescription className="text-base text-foreground/80">
-            Choose 1 of 5 challenges to earn Stars ⭐
+            Complete challenges to earn Thrift Path XP and unlock persistent benefits!
           </DialogDescription>
+          
+          {thriftPathStatus?.active && (
+            <div className="mt-2 p-2 bg-green-500/10 rounded-lg border border-green-500/30">
+              <div className="text-sm text-green-400">
+                Level {thriftPathStatus.level} • {thriftPathStatus.experience} XP
+              </div>
+              <div className="text-xs text-muted-foreground">
+                Active benefits: +{((thriftPathStatus.benefits.starMultiplier - 1) * 100).toFixed(0)}% stars
+              </div>
+            </div>
+          )}
         </DialogHeader>
 
         <div className="grid gap-2.5 py-4">

@@ -7,18 +7,21 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { User, SignOut, ArrowSquareOut, CloudCheck, CloudSlash, Spinner } from '@phosphor-icons/react'
+import { User, SignOut, ArrowSquareOut, CloudCheck, CloudSlash, Spinner, Star } from '@phosphor-icons/react'
 import { useAuth } from '@/context/AuthContext'
 import { TierBadge } from '@/components/TierBadge'
 import { NetWorthTier } from '@/lib/netWorthTiers'
+import { formatCoins } from '@/lib/coins'
 
 interface UserIndicatorProps {
   saving?: boolean
   lastSaved?: Date | null
   currentTier?: NetWorthTier
+  stars?: number
+  coins?: number
 }
 
-export function UserIndicator({ saving, lastSaved, currentTier }: UserIndicatorProps) {
+export function UserIndicator({ saving, lastSaved, currentTier, stars, coins }: UserIndicatorProps) {
   const { user, isAuthenticated, loading, signOut } = useAuth()
   const [isOpen, setIsOpen] = useState(false)
 
@@ -77,6 +80,27 @@ export function UserIndicator({ saving, lastSaved, currentTier }: UserIndicatorP
       {/* Tier Badge */}
       {currentTier && (
         <TierBadge tier={currentTier} size="sm" showName={false} />
+      )}
+      
+      {/* Currency Display */}
+      {(stars !== undefined || coins !== undefined) && (
+        <div className="flex items-center gap-2">
+          {/* Stars */}
+          {stars !== undefined && (
+            <div className="flex items-center gap-1 px-2 py-1 bg-accent/20 rounded-lg">
+              <Star size={16} className="text-accent" weight="fill" />
+              <span className="text-sm font-semibold text-accent">{stars}</span>
+            </div>
+          )}
+          
+          {/* Coins */}
+          {coins !== undefined && (
+            <div className="flex items-center gap-1 px-2 py-1 bg-yellow-500/20 rounded-lg">
+              <span className="text-base">🪙</span>
+              <span className="text-sm font-semibold text-yellow-500">{formatCoins(coins)}</span>
+            </div>
+          )}
+        </div>
       )}
       
       {/* User Dropdown */}
