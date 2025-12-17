@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { Star, ChartLine, Info } from '@phosphor-icons/react'
+import { Star, ChartLine, Info, Trophy } from '@phosphor-icons/react'
 import { WealthThrone } from '@/components/WealthThrone'
 import {
   Carousel,
@@ -16,14 +16,14 @@ interface CenterCarouselProps {
   onPortfolioClick: () => void
 }
 
-interface PanelContentProps {
+interface StarsAndPortfolioPanelProps {
   gameState: GameState
-  netWorthChange: number
   onStarsClick: () => void
   onPortfolioClick: () => void
 }
 
-function PanelContent({ gameState, netWorthChange, onStarsClick, onPortfolioClick }: PanelContentProps) {
+// Panel 1: Stars and Portfolio only
+function StarsAndPortfolioPanel({ gameState, onStarsClick, onPortfolioClick }: StarsAndPortfolioPanelProps) {
   return (
     <div className="flex items-center justify-center gap-6">
       <button
@@ -48,10 +48,6 @@ function PanelContent({ gameState, netWorthChange, onStarsClick, onPortfolioClic
           />
         </div>
       </button>
-      <WealthThrone
-        netWorthChange={netWorthChange}
-        holdingsCount={gameState.holdings.length}
-      />
       <button
         onClick={onPortfolioClick}
         className="group bg-black/75 backdrop-blur-xl border-2 border-white/10 hover:border-accent/60 rounded-xl p-4 shadow-lg hover:shadow-xl transition-all cursor-pointer min-w-[200px]"
@@ -74,6 +70,25 @@ function PanelContent({ gameState, netWorthChange, onStarsClick, onPortfolioClic
           />
         </div>
       </button>
+    </div>
+  )
+}
+
+// Panel 3: Achievements section only
+function AchievementsPanel() {
+  return (
+    <div className="flex items-center justify-center">
+      <div className="bg-black/75 backdrop-blur-xl border-2 border-white/10 rounded-xl p-6 shadow-lg min-w-[300px]">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="p-2 rounded-lg bg-accent/20">
+            <Trophy size={24} className="text-accent" weight="fill" />
+          </div>
+          <h3 className="text-xl font-bold text-accent">Achievements</h3>
+        </div>
+        <div className="text-sm text-muted-foreground text-center">
+          Complete challenges to unlock achievements
+        </div>
+      </div>
     </div>
   )
 }
@@ -133,49 +148,37 @@ export function CenterCarousel({
         className="w-full max-w-[600px] mx-auto pointer-events-auto"
       >
         <CarouselContent>
-          {/* Panel 1 - Stats */}
+          {/* Panel 1 - Stars and Portfolio only */}
           <CarouselItem>
-            <PanelContent
+            <StarsAndPortfolioPanel
               gameState={gameState}
-              netWorthChange={netWorthChange}
               onStarsClick={onStarsClick}
               onPortfolioClick={onPortfolioClick}
             />
           </CarouselItem>
 
-          {/* Panel 2 - Placeholder for future content */}
+          {/* Panel 2 - Wealth Throne only */}
           <CarouselItem>
-            <PanelContent
-              gameState={gameState}
-              netWorthChange={netWorthChange}
-              onStarsClick={onStarsClick}
-              onPortfolioClick={onPortfolioClick}
-            />
+            <div className="flex items-center justify-center">
+              <WealthThrone
+                netWorthChange={netWorthChange}
+                holdingsCount={gameState.holdings.length}
+              />
+            </div>
           </CarouselItem>
 
-          {/* Panel 3 - Placeholder for future content */}
+          {/* Panel 3 - Achievements only */}
           <CarouselItem>
-            <PanelContent
-              gameState={gameState}
-              netWorthChange={netWorthChange}
-              onStarsClick={onStarsClick}
-              onPortfolioClick={onPortfolioClick}
-            />
+            <AchievementsPanel />
           </CarouselItem>
 
-          {/* Panel 4 - Logo */}
+          {/* Panel 4 - Logo only, centered */}
           <CarouselItem>
-            <div className="flex flex-col items-center justify-center gap-4">
+            <div className="flex items-center justify-center">
               <img
                 src="/board-game-v3/Logo.webp"
                 alt="Investing Board Game logo"
                 className="mx-auto h-56 w-auto max-w-[420px] drop-shadow-xl md:h-64"
-              />
-              <PanelContent
-                gameState={gameState}
-                netWorthChange={netWorthChange}
-                onStarsClick={onStarsClick}
-                onPortfolioClick={onPortfolioClick}
               />
             </div>
           </CarouselItem>
