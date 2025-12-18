@@ -2203,6 +2203,65 @@ body[data-theme='dark'] {
   color: var(--text-secondary, #b4c1d8);
 }
 
+/* Clickable stock count button in exchange table */
+.stocks-count-button {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(139, 92, 246, 0.2));
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.stocks-count-button:hover {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.4), rgba(139, 92, 246, 0.4));
+  border-color: rgba(59, 130, 246, 0.6);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+.stocks-count-button:active {
+  transform: translateY(0);
+}
+
+/* Filter badge in stocks section header */
+.filter-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: 0.75rem;
+  padding: 0.25rem 0.75rem;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(139, 92, 246, 0.2));
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-primary, #fff);
+}
+
+.filter-clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 50%;
+  color: var(--text-secondary, #b4c1d8);
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter-clear:hover {
+  background: rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+}
+
 @media (max-width: 768px) {
   .universe-builder__stats {
     grid-template-columns: 1fr;

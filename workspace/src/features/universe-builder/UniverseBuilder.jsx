@@ -14,6 +14,7 @@ const UniverseBuilder = () => {
   const [showStocks, setShowStocks] = useState(false);
   const [selectedRegion, setSelectedRegion] = useState('all');
   const [lastAnalysisResult, setLastAnalysisResult] = useState(null);
+  const [selectedExchange, setSelectedExchange] = useState(null); // Filter stocks by exchange
 
   // Fetch status
   const fetchStatus = useCallback(async () => {
@@ -103,18 +104,25 @@ const UniverseBuilder = () => {
   }, [fetchStatus]);
 
   // Fetch stocks
-  const fetchStocks = useCallback(async (page = 1) => {
+  const fetchStocks = useCallback(async (page = 1, exchangeMic = null) => {
     setError(null);
 
     try {
+      const requestBody = { 
+        action: 'get-stocks',
+        page,
+        per_page: 50
+      };
+      
+      // Add exchange filter if specified
+      if (exchangeMic) {
+        requestBody.exchange = exchangeMic;
+      }
+
       const response = await fetch(API_ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          action: 'get-stocks',
-          page,
-          per_page: 50
-        })
+        body: JSON.stringify(requestBody)
       });
 
       const data = await response.json();
@@ -137,12 +145,37 @@ const UniverseBuilder = () => {
     fetchStatus();
   }, [fetchStatus]);
 
-  // Load stocks when showing
+  // Load stocks when showing or when exchange filter changes
   useEffect(() => {
-    if (showStocks && stocks.length === 0) {
-      fetchStocks(1);
+    if (showStocks) {
+      fetchStocks(1, selectedExchange?.mic_code || null);
     }
-  }, [showStocks, stocks.length, fetchStocks]);
+  }, [showStocks, selectedExchange, fetchStocks]);
+
+  // Handle clicking on exchange stock count
+  const handleExchangeStockClick = useCallback((exchange) => {
+    if (exchange.total_stocks_found > 0) {
+      setSelectedExchange(exchange);
+      setShowStocks(true);
+      setStocks([]); // Clear stocks to force reload with new filter
+    }
+  }, []);
+
+  // Clear exchange filter and show all stocks
+  const clearExchangeFilter = useCallback(() => {
+    setSelectedExchange(null);
+    setStocks([]); // Clear to force reload
+  }, []);
+
+  // Toggle stocks visibility
+  const toggleStocksVisibility = useCallback(() => {
+    if (showStocks) {
+      setShowStocks(false);
+      setSelectedExchange(null);
+    } else {
+      setShowStocks(true);
+    }
+  }, [showStocks]);
 
   // Filter exchanges by region
   const filteredExchanges = useMemo(() => {
@@ -395,7 +428,20 @@ const UniverseBuilder = () => {
                       <span className="tag tag-green" style={{ marginLeft: '8px' }}>Complete</span>
                     )}
                   </td>
-                  <td>{exchange.total_stocks_found || 0}</td>
+                  <td>
+                    {exchange.total_stocks_found > 0 ? (
+                      <button
+                        type="button"
+                        className="stocks-count-button"
+                        onClick={() => handleExchangeStockClick(exchange)}
+                        title={`View ${exchange.total_stocks_found} stocks from ${exchange.name}`}
+                      >
+                        {exchange.total_stocks_found}
+                      </button>
+                    ) : (
+                      <span className="detail-meta">0</span>
+                    )}
+                  </td>
                   <td>{formatDate(exchange.last_analyzed_at)}</td>
                 </tr>
               ))}
@@ -407,14 +453,40 @@ const UniverseBuilder = () => {
       {/* Stocks Table (Collapsible) */}
       <div className="universe-builder__section">
         <div className="section-header">
-          <h3>Cataloged Stocks</h3>
-          <button 
-            type="button" 
-            className="btn-secondary"
-            onClick={() => setShowStocks(!showStocks)}
-          >
-            {showStocks ? 'Hide Stocks' : 'View Stocks'}
-          </button>
+          <h3>
+            Cataloged Stocks
+            {selectedExchange && (
+              <span className="filter-badge">
+                {selectedExchange.name} ({selectedExchange.mic_code})
+                <button 
+                  type="button"
+                  className="filter-clear"
+                  onClick={clearExchangeFilter}
+                  title="Clear filter and show all stocks"
+                >
+                  ✕
+                </button>
+              </span>
+            )}
+          </h3>
+          <div className="section-controls">
+            {selectedExchange && (
+              <button 
+                type="button" 
+                className="btn-secondary"
+                onClick={clearExchangeFilter}
+              >
+                Show All Stocks
+              </button>
+            )}
+            <button 
+              type="button" 
+              className="btn-secondary"
+              onClick={toggleStocksVisibility}
+            >
+              {showStocks ? 'Hide Stocks' : 'View All Stocks'}
+            </button>
+          </div>
         </div>
 
         {showStocks && (
@@ -460,7 +532,7 @@ const UniverseBuilder = () => {
                 <button
                   type="button"
                   className="btn-secondary"
-                  onClick={() => fetchStocks(stocksPage - 1)}
+                  onClick={() => fetchStocks(stocksPage - 1, selectedExchange?.mic_code || null)}
                   disabled={stocksPage <= 1}
                 >
                   Previous
@@ -471,7 +543,7 @@ const UniverseBuilder = () => {
                 <button
                   type="button"
                   className="btn-secondary"
-                  onClick={() => fetchStocks(stocksPage + 1)}
+                  onClick={() => fetchStocks(stocksPage + 1, selectedExchange?.mic_code || null)}
                   disabled={stocksPage >= stocksPagination.totalPages}
                 >
                   Next
