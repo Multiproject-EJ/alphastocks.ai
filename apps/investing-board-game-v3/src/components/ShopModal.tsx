@@ -315,3 +315,5 @@ export function ShopModal({
     </>
   )
 }
+
+export default ShopModal

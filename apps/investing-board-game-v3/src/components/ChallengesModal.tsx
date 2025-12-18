@@ -197,3 +197,5 @@ export function ChallengesModal({
     </Dialog>
   )
 }
+
+export default ChallengesModal
