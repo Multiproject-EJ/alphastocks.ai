@@ -107,6 +107,7 @@ The Bias Sanctuary feature has been successfully implemented as an educational c
 ### Animation Specifications
 
 #### Card Entrance Animation:
+{% raw %}
 ```typescript
 initial={{ scale: 0, rotate: 360, opacity: 0 }}
 animate={{ scale: 1, rotate: 0, opacity: 1 }}
@@ -118,20 +119,25 @@ transition={{
   duration: 0.8,
 }
 ```
+{% endraw %}
 
 #### Quiz Transition:
+{% raw %}
 ```typescript
 initial={{ x: 20, opacity: 0 }}
 animate={{ x: 0, opacity: 1 }}
 transition={{ duration: 0.3 }}
 ```
+{% endraw %}
 
 #### Explanation Reveal:
+{% raw %}
 ```typescript
 initial={{ opacity: 0, y: -10 }}
 animate={{ opacity: 1, y: 0 }}
 transition={{ duration: 0.3 }}
 ```
+{% endraw %}
 
 ## Testing Checklist
 
