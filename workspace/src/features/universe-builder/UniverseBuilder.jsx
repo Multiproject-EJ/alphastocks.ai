@@ -167,6 +167,16 @@ const UniverseBuilder = () => {
     setStocks([]); // Clear to force reload
   }, []);
 
+  // Toggle stocks visibility
+  const toggleStocksVisibility = useCallback(() => {
+    if (showStocks) {
+      setShowStocks(false);
+      setSelectedExchange(null);
+    } else {
+      setShowStocks(true);
+    }
+  }, [showStocks]);
+
   // Filter exchanges by region
   const filteredExchanges = useMemo(() => {
     if (!status?.exchanges) return [];
@@ -472,14 +482,7 @@ const UniverseBuilder = () => {
             <button 
               type="button" 
               className="btn-secondary"
-              onClick={() => {
-                if (showStocks) {
-                  setShowStocks(false);
-                  setSelectedExchange(null);
-                } else {
-                  setShowStocks(true);
-                }
-              }}
+              onClick={toggleStocksVisibility}
             >
               {showStocks ? 'Hide Stocks' : 'View All Stocks'}
             </button>
