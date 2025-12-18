@@ -31,6 +31,12 @@ interface BoardGameProfile {
   challenges?: GameState['challenges']
   stats: GameState['stats']
   thrift_path?: GameState['thriftPath']
+  // Energy regeneration fields
+  last_energy_check?: string
+  energy_rolls?: number
+  roll_history?: any[]
+  doubles_streak?: number
+  total_doubles?: number
   created_at: string
   updated_at: string
 }
@@ -100,6 +106,12 @@ export function useGameSave(): UseGameSaveReturn {
         roll6Streak: 0,
       },
       thriftPath: profile.thrift_path || undefined,
+      // Energy regeneration fields with defaults
+      lastEnergyCheck: profile.last_energy_check ? new Date(profile.last_energy_check) : new Date(),
+      energyRolls: profile.energy_rolls ?? 10,
+      rollHistory: Array.isArray(profile.roll_history) ? profile.roll_history : [],
+      doublesStreak: profile.doubles_streak ?? 0,
+      totalDoubles: profile.total_doubles ?? 0,
     }
   }, [])
 
@@ -203,6 +215,12 @@ export function useGameSave(): UseGameSaveReturn {
             roll6Streak: 0,
           },
           thrift_path: gameState.thriftPath || undefined,
+          // Energy regeneration fields
+          last_energy_check: gameState.lastEnergyCheck?.toISOString() || new Date().toISOString(),
+          energy_rolls: gameState.energyRolls ?? 10,
+          roll_history: gameState.rollHistory || [],
+          doubles_streak: gameState.doublesStreak ?? 0,
+          total_doubles: gameState.totalDoubles ?? 0,
         }
 
         const { error: upsertError } = await supabaseClient

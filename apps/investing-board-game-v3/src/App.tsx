@@ -49,7 +49,10 @@ import {
   AUTO_SAVE_DEBOUNCE_MS,
   AUTO_SAVE_TIMEOUT_MS,
   getNextMidnight,
+  ENERGY_MAX,
 } from '@/lib/constants'
+import { rollDice, DOUBLES_BONUS } from '@/lib/dice'
+import { calculateRegeneratedRolls } from '@/lib/energy'
 import { useUniverseStocks } from '@/hooks/useUniverseStocks'
 import { useGameSave } from '@/hooks/useGameSave'
 import { useAuth } from '@/context/AuthContext'
@@ -119,6 +122,12 @@ function App() {
       totalStarsEarned: 0,
       roll6Streak: 0,
     },
+    // Energy regeneration fields
+    lastEnergyCheck: new Date(),
+    energyRolls: 10,
+    rollHistory: [],
+    doublesStreak: 0,
+    totalDoubles: 0,
     thriftPath: {
       active: false,
       level: 0,
@@ -141,6 +150,8 @@ function App() {
 
   const [phase, setPhase] = useState<Phase>('idle')
   const [lastRoll, setLastRoll] = useState<number | null>(null)
+  const [dice1, setDice1] = useState(1)
+  const [dice2, setDice2] = useState(1)
   const [rollsRemaining, setRollsRemaining] = useState(DAILY_ROLL_LIMIT)
   const [nextResetTime, setNextResetTime] = useState(getNextMidnight())
   const [hoppingTiles, setHoppingTiles] = useState<number[]>([])
@@ -560,7 +571,51 @@ function App() {
     }
   }, [hasPowerUp, consumePowerUp])
 
-  const handleRoll = () => {
+  // Energy regeneration system
+  useEffect(() => {
+    const checkEnergyRegen = () => {
+      if (!gameState.lastEnergyCheck) {
+        // Initialize if not set
+        setGameState(prev => ({
+          ...prev,
+          lastEnergyCheck: new Date(),
+          energyRolls: prev.energyRolls ?? 10
+        }))
+        return
+      }
+      
+      const regenRolls = calculateRegeneratedRolls(gameState.lastEnergyCheck)
+      
+      if (regenRolls > 0) {
+        const currentEnergy = gameState.energyRolls ?? 10
+        const newEnergy = Math.min(currentEnergy + regenRolls, ENERGY_MAX)
+        
+        setGameState(prev => ({
+          ...prev,
+          energyRolls: newEnergy,
+          lastEnergyCheck: new Date()
+        }))
+        
+        setRollsRemaining(prev => Math.min(prev + regenRolls, ENERGY_MAX))
+        
+        debugGame('Energy regenerated:', { regenRolls, newEnergy })
+        
+        toast.info(`+${regenRolls} roll${regenRolls !== 1 ? 's' : ''} regenerated!`, {
+          description: `Energy: ${newEnergy}/${ENERGY_MAX}`
+        })
+      }
+    }
+    
+    // Check immediately on mount
+    checkEnergyRegen()
+    
+    // Check every minute
+    const interval = setInterval(checkEnergyRegen, 60000)
+    
+    return () => clearInterval(interval)
+  }, [gameState.lastEnergyCheck, gameState.energyRolls])
+
+  const handleRoll = (multiplier: number = 1) => {
     if (phase !== 'idle') {
       debugGame('Cannot roll - phase is not idle:', { phase, currentPosition: gameState.position })
       toast.info('Finish your current action first', {
@@ -569,11 +624,11 @@ function App() {
       return
     }
 
-    if (rollsRemaining <= 0) {
-      debugGame('No rolls remaining:', { rollsRemaining })
+    if (rollsRemaining < multiplier) {
+      debugGame('Not enough rolls:', { rollsRemaining, needed: multiplier })
       playSound('error')
-      toast.error('No rolls remaining', {
-        description: 'Daily rolls refresh at midnight.',
+      toast.error(`Need ${multiplier} rolls`, {
+        description: `You only have ${rollsRemaining} roll${rollsRemaining !== 1 ? 's' : ''} remaining.`,
       })
       return
     }
@@ -583,58 +638,132 @@ function App() {
     if (hopIntervalRef.current) clearInterval(hopIntervalRef.current)
     if (landingTimeoutRef.current) clearTimeout(landingTimeoutRef.current)
 
+    // Consume rolls upfront
+    setRollsRemaining((prev) => prev - multiplier)
+
     // Haptic feedback for rolling
     hapticRoll()
-
-    const roll = Math.floor(Math.random() * 6) + 1
-    debugGame('Dice roll started:', { roll, currentPosition: gameState.position, targetPosition: (gameState.position + roll) % BOARD_TILES.length })
-    
-    // Track challenge progress for rolling
-    updateChallengeProgress('roll', roll)
-    
-    // Earn coins for dice roll
-    earnFromSource('dice_roll')
     
     setPhase('rolling')
-    setLastRoll(roll)
     playSound('dice-roll')
 
-    rollTimeoutRef.current = setTimeout(() => {
-      debugGame('Movement started')
-      playSound('dice-land')
-      setPhase('moving')
-      const startPosition = gameState.position
-      const tilesToHop: number[] = []
+    let totalMovement = 0
+    let doublesCount = 0
+    const rollResults: typeof gameState.rollHistory = []
 
-      for (let i = 1; i <= roll; i++) {
-        tilesToHop.push((startPosition + i) % BOARD_TILES.length)
-      }
-
-      // Check if player passes Start (position 0) - detect wrapping around the board
-      const passedStart = startPosition + roll > BOARD_TILES.length - 1 && tilesToHop[tilesToHop.length - 1] !== 0
-
-      let currentHop = 0
-      hopIntervalRef.current = setInterval(() => {
-        if (currentHop < tilesToHop.length) {
-          // Capture position value before incrementing to avoid closure issues
-          const nextPosition = tilesToHop[currentHop]
-          setHoppingTiles([nextPosition])
-          setGameState((prev) => ({ ...prev, position: nextPosition }))
-          currentHop++
-        } else {
-          if (hopIntervalRef.current) clearInterval(hopIntervalRef.current)
-          setHoppingTiles([])
-
-          landingTimeoutRef.current = setTimeout(() => {
-            const newPosition = tilesToHop[tilesToHop.length - 1]
-            debugGame('Landing on tile:', { position: newPosition, tile: BOARD_TILES[newPosition] })
-            setPhase('landed')
-            handleTileLanding(newPosition, passedStart)
-            setRollsRemaining((prev) => prev - 1)
-          }, 200)
+    // Process all rolls with staggered animations
+    for (let i = 0; i < multiplier; i++) {
+      setTimeout(() => {
+        const diceResult = rollDice()
+        rollResults.push(diceResult)
+        
+        debugGame('Dice roll:', { 
+          rollNumber: i + 1, 
+          die1: diceResult.die1, 
+          die2: diceResult.die2, 
+          total: diceResult.total,
+          isDoubles: diceResult.isDoubles 
+        })
+        
+        // Update dice display
+        setDice1(diceResult.die1)
+        setDice2(diceResult.die2)
+        setLastRoll(diceResult.total)
+        
+        // Track totals
+        totalMovement += diceResult.total
+        if (diceResult.isDoubles) {
+          doublesCount++
         }
-      }, 200)
-    }, 600)
+        
+        // Track challenge progress for rolling
+        updateChallengeProgress('roll', diceResult.total)
+        
+        // Earn coins for dice roll
+        earnFromSource('dice_roll')
+        
+        // Only move on last roll
+        if (i === multiplier - 1) {
+          // Award doubles bonuses if any
+          if (doublesCount > 0) {
+            const totalStarsBonus = DOUBLES_BONUS.stars * doublesCount
+            const totalCoinsBonus = DOUBLES_BONUS.coins * doublesCount
+            const totalXpBonus = DOUBLES_BONUS.xp * doublesCount
+            
+            debugGame('Doubles bonus!', { 
+              doublesCount,
+              stars: totalStarsBonus,
+              coins: totalCoinsBonus,
+              xp: totalXpBonus
+            })
+            
+            // Award bonuses
+            setGameState(prev => ({
+              ...prev,
+              stars: prev.stars + totalStarsBonus,
+              xp: prev.xp + totalXpBonus,
+              totalDoubles: (prev.totalDoubles ?? 0) + doublesCount,
+              doublesStreak: (prev.doublesStreak ?? 0) + 1,
+              rollHistory: [...(prev.rollHistory || []).slice(-9), ...rollResults]
+            }))
+            
+            addCoins(totalCoinsBonus, 'Doubles bonus!')
+            
+            // Play celebration sound
+            playSound('achievement')
+            
+            // Show toast notification
+            toast.success(DOUBLES_BONUS.description, {
+              description: `+${totalStarsBonus} ⭐ +${totalCoinsBonus} 🪙 +${totalXpBonus} XP`,
+            })
+          } else {
+            // No doubles, reset streak
+            setGameState(prev => ({
+              ...prev,
+              doublesStreak: 0,
+              rollHistory: [...(prev.rollHistory || []).slice(-9), ...rollResults]
+            }))
+          }
+          
+          // Move player after brief delay
+          setTimeout(() => {
+            debugGame('Movement started', { totalMovement })
+            playSound('dice-land')
+            setPhase('moving')
+            const startPosition = gameState.position
+            const tilesToHop: number[] = []
+
+            for (let j = 1; j <= totalMovement; j++) {
+              tilesToHop.push((startPosition + j) % BOARD_TILES.length)
+            }
+
+            // Check if player passes Start (position 0) - detect wrapping around the board
+            const passedStart = startPosition + totalMovement > BOARD_TILES.length - 1 && tilesToHop[tilesToHop.length - 1] !== 0
+
+            let currentHop = 0
+            hopIntervalRef.current = setInterval(() => {
+              if (currentHop < tilesToHop.length) {
+                // Capture position value before incrementing to avoid closure issues
+                const nextPosition = tilesToHop[currentHop]
+                setHoppingTiles([nextPosition])
+                setGameState((prev) => ({ ...prev, position: nextPosition }))
+                currentHop++
+              } else {
+                if (hopIntervalRef.current) clearInterval(hopIntervalRef.current)
+                setHoppingTiles([])
+
+                landingTimeoutRef.current = setTimeout(() => {
+                  const newPosition = tilesToHop[tilesToHop.length - 1]
+                  debugGame('Landing on tile:', { position: newPosition, tile: BOARD_TILES[newPosition] })
+                  setPhase('landed')
+                  handleTileLanding(newPosition, passedStart)
+                }, 200)
+              }
+            }, 200)
+          }, 800)
+        }
+      }, i * 600) // Stagger animations
+    }
   }
 
   const handleReroll = () => {
@@ -1050,6 +1179,11 @@ function App() {
               coins={gameState.coins}
               canAffordReroll={canAffordCoins(COIN_COSTS.reroll_dice)}
               onReroll={handleReroll}
+              dice1={dice1}
+              dice2={dice2}
+              energyRolls={gameState.energyRolls ?? 10}
+              lastEnergyCheck={gameState.lastEnergyCheck}
+              rollHistory={gameState.rollHistory}
             />
           </div>
 

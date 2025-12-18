@@ -2,6 +2,14 @@ export type TileType = 'corner' | 'category' | 'event'
 
 export type TileCategory = 'turnarounds' | 'dividends' | 'growth' | 'moats' | 'value'
 
+export interface DiceRoll {
+  die1: number
+  die2: number
+  total: number
+  isDoubles: boolean
+  timestamp?: Date
+}
+
 export interface Tile {
   id: number
   type: TileType
@@ -89,6 +97,12 @@ export interface GameState {
     totalStarsEarned: number
     roll6Streak: number
   }
+  // Energy regeneration fields
+  lastEnergyCheck?: Date
+  energyRolls?: number
+  rollHistory?: DiceRoll[]
+  doublesStreak?: number
+  totalDoubles?: number
   // Net Worth Tier fields
   currentTier?: number // Track current tier number for easy access
   tierUnlockHistory?: Array<{
