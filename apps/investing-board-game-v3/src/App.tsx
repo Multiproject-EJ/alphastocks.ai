@@ -355,6 +355,37 @@ function App() {
     saveGame,
   } = useGameSave()
 
+  // Helper function to check if a power-up is active
+  const hasPowerUp = useCallback((itemId: string): boolean => {
+    return gameState.activeEffects.some(effect => effect.itemId === itemId && effect.activated)
+  }, [gameState.activeEffects])
+
+  // Helper function to consume a power-up effect
+  const consumePowerUp = useCallback((itemId: string) => {
+    setGameState(prev => ({
+      ...prev,
+      activeEffects: prev.activeEffects.filter(effect => effect.itemId !== itemId)
+    }))
+  }, [])
+
+  // Helper function to get effective daily roll limit (with upgrades and tier bonuses)
+  const getEffectiveDailyRollLimit = useCallback((): number => {
+    const hasExtraRoll = isPermanentOwned('extra-daily-roll')
+    const eventBonus = getRollsBonus()
+    const tierBonus = activeBenefits.get('daily_rolls') || 0
+    return (hasExtraRoll ? DAILY_ROLL_LIMIT + 1 : DAILY_ROLL_LIMIT) + eventBonus + tierBonus
+  }, [isPermanentOwned, getRollsBonus, activeBenefits])
+
+  // Helper function to apply star multiplier (including event multipliers and tier bonuses)
+  const applyStarMultiplier = useCallback((baseStars: number): number => {
+    const hasStarMultiplier = isPermanentOwned('star-multiplier')
+    const shopMultiplier = hasStarMultiplier ? 1.5 : 1
+    const { starsMultiplier } = getActiveMultipliers()
+    const tierStarBonus = activeBenefits.get('star_bonus') || 0
+    const tierMultiplier = 1 + tierStarBonus
+    return Math.floor(baseStars * shopMultiplier * starsMultiplier * tierMultiplier)
+  }, [isPermanentOwned, getActiveMultipliers, activeBenefits])
+
   // Load saved game state when available
   useEffect(() => {
     if (saveLoading || authLoading || gameLoadedFromSave.current) return
@@ -502,37 +533,6 @@ function App() {
       setPhase('idle')
     }
   }, [stockModalOpen, eventModalOpen, thriftyModalOpen, biasSanctuaryModalOpen, casinoModalOpen, showCentralStock, phase])
-
-  // Helper function to check if a power-up is active
-  const hasPowerUp = useCallback((itemId: string): boolean => {
-    return gameState.activeEffects.some(effect => effect.itemId === itemId && effect.activated)
-  }, [gameState.activeEffects])
-
-  // Helper function to consume a power-up effect
-  const consumePowerUp = useCallback((itemId: string) => {
-    setGameState(prev => ({
-      ...prev,
-      activeEffects: prev.activeEffects.filter(effect => effect.itemId !== itemId)
-    }))
-  }, [])
-
-  // Helper function to get effective daily roll limit (with upgrades and tier bonuses)
-  const getEffectiveDailyRollLimit = useCallback((): number => {
-    const hasExtraRoll = isPermanentOwned('extra-daily-roll')
-    const eventBonus = getRollsBonus()
-    const tierBonus = activeBenefits.get('daily_rolls') || 0
-    return (hasExtraRoll ? DAILY_ROLL_LIMIT + 1 : DAILY_ROLL_LIMIT) + eventBonus + tierBonus
-  }, [isPermanentOwned, getRollsBonus, activeBenefits])
-
-  // Helper function to apply star multiplier (including event multipliers and tier bonuses)
-  const applyStarMultiplier = useCallback((baseStars: number): number => {
-    const hasStarMultiplier = isPermanentOwned('star-multiplier')
-    const shopMultiplier = hasStarMultiplier ? 1.5 : 1
-    const { starsMultiplier } = getActiveMultipliers()
-    const tierStarBonus = activeBenefits.get('star_bonus') || 0
-    const tierMultiplier = 1 + tierStarBonus
-    return Math.floor(baseStars * shopMultiplier * starsMultiplier * tierMultiplier)
-  }, [isPermanentOwned, getActiveMultipliers, activeBenefits])
 
   // Helper function to check extra dice roll power-up
   useEffect(() => {
