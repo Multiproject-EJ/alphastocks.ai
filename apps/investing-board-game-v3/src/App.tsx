@@ -272,6 +272,21 @@ function App() {
     addSeasonPoints: undefined, // Will be set later
   })
 
+  // Debug logging for challenge state changes
+  useEffect(() => {
+    debugGame('Challenge state updated:', {
+      dailyChallenges: dailyChallenges?.map(c => ({ id: c.id, title: c.title, completed: c.completed })),
+      completedToday: {
+        value: completedToday,
+        type: typeof completedToday
+      },
+      completedThisWeek: {
+        value: completedThisWeek,
+        type: typeof completedThisWeek
+      }
+    })
+  }, [dailyChallenges, completedToday, completedThisWeek])
+
   const {
     activeEvents,
     upcomingEvents,
@@ -1296,7 +1311,7 @@ function App() {
         onNavigate={handleBottomNavigation}
         activeSection={activeSection}
         badges={{
-          challenges: dailyChallenges.filter(c => !completedToday.has(c.id)).length,
+          challenges: dailyChallenges?.filter(c => !c.completed).length || 0,
           shop: 0, // Could add new shop items count here
         }}
       />
