@@ -119,6 +119,12 @@ function App() {
       totalStarsEarned: 0,
       roll6Streak: 0,
     },
+    // Energy regeneration fields
+    lastEnergyCheck: new Date(),
+    energyRolls: 10,
+    rollHistory: [],
+    doublesStreak: 0,
+    totalDoubles: 0,
     thriftPath: {
       active: false,
       level: 0,
