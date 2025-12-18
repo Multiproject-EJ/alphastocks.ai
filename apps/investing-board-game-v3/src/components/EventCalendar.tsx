@@ -223,3 +223,5 @@ export function EventCalendar({
     </Dialog>
   )
 }
+
+export default EventCalendar

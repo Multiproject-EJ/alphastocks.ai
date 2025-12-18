@@ -197,3 +197,5 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
     </Dialog>
   )
 }
+
+export default SettingsModal
