@@ -4,6 +4,7 @@ interface AnimatedDiceProps {
   value: number
   isRolling: boolean
   isMoving: boolean
+  isDoubles?: boolean
   className?: string
 }
 
@@ -16,7 +17,7 @@ const diceFaces: Record<number, number[][]> = {
   6: [[0, 0], [0, 1], [0, 2], [2, 0], [2, 1], [2, 2]],
 }
 
-export function AnimatedDice({ value, isRolling, isMoving, className = '' }: AnimatedDiceProps) {
+export function AnimatedDice({ value, isRolling, isMoving, isDoubles = false, className = '' }: AnimatedDiceProps) {
   const dots = diceFaces[value] || diceFaces[1]
 
   return (
@@ -26,11 +27,16 @@ export function AnimatedDice({ value, isRolling, isMoving, className = '' }: Ani
         rotateX: isRolling ? [0, 360, 720, 1080, 1440] : 0,
         rotateY: isRolling ? [0, 360, 720, 1080, 1440] : 0,
         rotateZ: isRolling ? [0, 180, 360, 540, 720] : 0,
-        scale: isRolling ? [1, 1.15, 0.95, 1.1, 1] : 1,
+        scale: isRolling ? [1, 1.15, 0.95, 1.1, 1] : isDoubles ? [1, 1.1, 1] : 1,
       }}
       transition={{
         duration: isRolling ? 0.8 : 0.3,
         ease: isRolling ? "easeInOut" : "easeOut",
+        scale: {
+          duration: isDoubles ? 0.5 : 0.3,
+          repeat: isDoubles ? Infinity : 0,
+          repeatType: 'reverse'
+        }
       }}
       style={{ 
         transformStyle: 'preserve-3d',
@@ -38,9 +44,17 @@ export function AnimatedDice({ value, isRolling, isMoving, className = '' }: Ani
       }}
     >
       <motion.div
-        className="relative w-12 h-12 rounded-lg bg-card border-2 border-accent/30 shadow-lg"
+        className={`relative w-12 h-12 rounded-lg bg-card shadow-lg ${
+          isDoubles ? 'border-2 border-yellow-400' : 'border-2 border-accent/30'
+        }`}
         animate={{
-          boxShadow: isRolling 
+          boxShadow: isDoubles
+            ? [
+                '0 0 20px rgba(250, 204, 21, 0.8), 0 0 40px rgba(250, 204, 21, 0.6)',
+                '0 0 30px rgba(250, 204, 21, 1), 0 0 60px rgba(250, 204, 21, 0.8)',
+                '0 0 20px rgba(250, 204, 21, 0.8), 0 0 40px rgba(250, 204, 21, 0.6)',
+              ]
+            : isRolling 
             ? [
                 '0 0 30px oklch(0.75 0.15 85 / 0.7), 0 0 60px oklch(0.75 0.15 85 / 0.5)',
                 '0 0 40px oklch(0.75 0.15 85 / 0.9), 0 0 80px oklch(0.75 0.15 85 / 0.7)',
@@ -54,8 +68,8 @@ export function AnimatedDice({ value, isRolling, isMoving, className = '' }: Ani
         }}
         transition={{
           boxShadow: {
-            duration: isRolling ? 0.8 : 0.3,
-            repeat: isRolling ? Infinity : 0,
+            duration: isDoubles ? 1.2 : isRolling ? 0.8 : 0.3,
+            repeat: isDoubles || isRolling ? Infinity : 0,
             ease: "easeInOut",
           },
           scale: {
@@ -84,7 +98,7 @@ export function AnimatedDice({ value, isRolling, isMoving, className = '' }: Ani
               >
                 {hasDot && (
                   <motion.div
-                    className="w-2 h-2 rounded-full bg-accent"
+                    className={`w-2 h-2 rounded-full ${isDoubles ? 'bg-yellow-400' : 'bg-accent'}`}
                     animate={{
                       opacity: isRolling ? [1, 0.6, 1] : 1,
                       scale: isRolling ? [1, 0.8, 1] : 1,
