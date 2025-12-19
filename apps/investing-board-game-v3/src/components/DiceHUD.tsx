@@ -56,7 +56,7 @@ export function DiceHUD({
   const [dicePosition, setDicePosition] = useState({ x: 0, y: 0 })
   const [selectedMultiplier, setSelectedMultiplier] = useState(1)
   const [autoRollActive, setAutoRollActive] = useState(false)
-  const autoRollIntervalRef = useRef<NodeJS.Timeout | null>(null)
+  const autoRollTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const canRoll = phase === 'idle' && rollsRemaining > 0
   const isDoubles = dice1 === dice2 && lastRoll !== null
@@ -116,30 +116,53 @@ export function DiceHUD({
     onRoll(selectedMultiplier)
   }
 
+  // Effect that watches phase and triggers auto-roll when idle
+  useEffect(() => {
+    if (!autoRollActive) return
+    if (phase !== 'idle') return // Wait for user to finish modal interaction
+    if (rollsRemaining < selectedMultiplier) {
+      stopAutoRoll()
+      return
+    }
+    
+    // Clear any existing timeout
+    if (autoRollTimeoutRef.current) {
+      clearTimeout(autoRollTimeoutRef.current)
+    }
+    
+    // Schedule next roll after delay (gives user time to see result)
+    autoRollTimeoutRef.current = setTimeout(() => {
+      if (autoRollActive && phase === 'idle' && rollsRemaining >= selectedMultiplier) {
+        onRoll(selectedMultiplier)
+      }
+    }, 1500) // 1.5 second delay before next roll
+    
+    return () => {
+      if (autoRollTimeoutRef.current) {
+        clearTimeout(autoRollTimeoutRef.current)
+      }
+    }
+  }, [autoRollActive, phase, rollsRemaining, selectedMultiplier, onRoll])
+
   const startAutoRoll = () => {
     setAutoRollActive(true)
-    autoRollIntervalRef.current = setInterval(() => {
-      if (rollsRemaining < selectedMultiplier || phase !== 'idle') {
-        stopAutoRoll()
-        return
-      }
-      onRoll(selectedMultiplier)
-    }, 2500) // Roll every 2.5 seconds
+    // Immediately trigger first roll
+    onRoll(selectedMultiplier)
   }
 
   const stopAutoRoll = () => {
     setAutoRollActive(false)
-    if (autoRollIntervalRef.current) {
-      clearInterval(autoRollIntervalRef.current)
-      autoRollIntervalRef.current = null
+    if (autoRollTimeoutRef.current) {
+      clearTimeout(autoRollTimeoutRef.current)
+      autoRollTimeoutRef.current = null
     }
   }
 
   // Cleanup auto-roll on unmount
   useEffect(() => {
     return () => {
-      if (autoRollIntervalRef.current) {
-        clearInterval(autoRollIntervalRef.current)
+      if (autoRollTimeoutRef.current) {
+        clearTimeout(autoRollTimeoutRef.current)
       }
     }
   }, [])
@@ -263,13 +286,15 @@ export function DiceHUD({
                 {/* Auto-Roll Button */}
                 <Button
                   onClick={autoRollActive ? stopAutoRoll : startAutoRoll}
-                  disabled={phase !== 'idle' || rollsRemaining < selectedMultiplier}
+                  disabled={!autoRollActive && (phase !== 'idle' || rollsRemaining < selectedMultiplier)}
                   variant={autoRollActive ? 'destructive' : 'outline'}
                   size="sm"
                   className="w-full gap-2"
                 >
                   {autoRollActive ? <Stop size={16} weight="fill" /> : <Play size={16} weight="fill" />}
-                  {autoRollActive ? 'Stop Auto' : 'Auto Roll'}
+                  {autoRollActive 
+                    ? (phase !== 'idle' ? 'Waiting...' : 'Stop Auto') 
+                    : 'Auto Roll'}
                 </Button>
 
                 {/* Reroll Button */}
