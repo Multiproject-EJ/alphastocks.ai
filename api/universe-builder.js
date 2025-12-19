@@ -339,6 +339,19 @@ async function setPriority(supabase, micCode, isPriority) {
 }
 
 /**
+ * Escape special characters for Supabase ilike queries
+ * Escapes %, _, and \ which have special meaning in LIKE patterns
+ */
+function escapeSearchTerm(term) {
+  if (!term) return '';
+  // Escape backslash first, then % and _
+  return term
+    .replace(/\\/g, '\\\\')
+    .replace(/%/g, '\\%')
+    .replace(/_/g, '\\_');
+}
+
+/**
  * Get paginated list of stocks
  */
 async function getStocks(supabase, page = 1, perPage = 50, exchange = null, search = null) {
@@ -357,9 +370,10 @@ async function getStocks(supabase, page = 1, perPage = 50, exchange = null, sear
 
   // Add search filter if provided
   if (search && search.trim()) {
-    const searchTerm = search.trim().toLowerCase();
+    // Escape special LIKE characters to prevent SQL injection
+    const escapedSearch = escapeSearchTerm(search.trim().toLowerCase());
     // Use ilike for case-insensitive search on ticker and company_name
-    query = query.or(`ticker.ilike.%${searchTerm}%,company_name.ilike.%${searchTerm}%`);
+    query = query.or(`ticker.ilike.%${escapedSearch}%,company_name.ilike.%${escapedSearch}%`);
   }
 
   const { data, count, error } = await query;

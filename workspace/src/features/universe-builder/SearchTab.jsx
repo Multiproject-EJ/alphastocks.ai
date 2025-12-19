@@ -1,14 +1,16 @@
-import { useCallback, useEffect, useState } from 'preact/hooks';
+import { useCallback, useEffect, useState, useRef } from 'preact/hooks';
 
 const API_ENDPOINT = '/api/universe-builder';
 
 const SearchTab = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [stocks, setStocks] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [pagination, setPagination] = useState(null);
   const [page, setPage] = useState(1);
+  const isInitialMount = useRef(true);
 
   // Fetch stocks with search functionality
   const fetchStocks = useCallback(async (pageNum = 1, search = '') => {
@@ -54,14 +56,23 @@ const SearchTab = () => {
     fetchStocks(1, '');
   }, [fetchStocks]);
 
-  // Handle search input change with debounce
+  // Debounce search term changes
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      fetchStocks(1, searchTerm);
+      setDebouncedSearchTerm(searchTerm);
     }, 300);
 
     return () => clearTimeout(timeoutId);
-  }, [searchTerm, fetchStocks]);
+  }, [searchTerm]);
+
+  // Fetch when debounced search term changes (skip initial mount)
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+    fetchStocks(1, debouncedSearchTerm);
+  }, [debouncedSearchTerm, fetchStocks]);
 
   // Format date
   const formatDate = (dateString) => {
