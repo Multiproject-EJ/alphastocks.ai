@@ -423,7 +423,7 @@ function App() {
       debugGame('Loading saved game state:', savedGameState)
       setGameState(savedGameState)
       // Initialize rollsRemaining from energyRolls in savedGameState
-      setRollsRemaining(savedGameState.energyRolls ?? 10)
+      setRollsRemaining(savedGameState.energyRolls ?? DAILY_ROLL_LIMIT)
       gameLoadedFromSave.current = true
       toast.success('Welcome back!', {
         description: 'Your game progress has been restored.',
@@ -584,7 +584,7 @@ function App() {
       setRollsRemaining(prev => prev + 3)
       setGameState(prev => ({
         ...prev,
-        energyRolls: Math.min((prev.energyRolls ?? 10) + 3, ENERGY_MAX)
+        energyRolls: Math.min((prev.energyRolls ?? DAILY_ROLL_LIMIT) + 3, ENERGY_MAX)
       }))
       consumePowerUp('extra-dice-rolls')
       toast.success('Extra Dice Rolls Activated!', {
@@ -675,7 +675,7 @@ function App() {
     setRollsRemaining((prev) => prev - multiplier)
     setGameState(prev => ({
       ...prev,
-      energyRolls: Math.max(0, (prev.energyRolls ?? 10) - multiplier)
+      energyRolls: Math.max(0, (prev.energyRolls ?? DAILY_ROLL_LIMIT) - multiplier)
     }))
 
     // Haptic feedback for rolling
@@ -887,7 +887,7 @@ function App() {
       setRollsRemaining(prev => prev + pack.rolls)
       setGameState(prev => ({
         ...prev,
-        energyRolls: (prev.energyRolls ?? 10) + pack.rolls
+        energyRolls: (prev.energyRolls ?? DAILY_ROLL_LIMIT) + pack.rolls
       }))
       
       // Update stats
@@ -1290,7 +1290,7 @@ function App() {
               onReroll={handleReroll}
               dice1={dice1}
               dice2={dice2}
-              energyRolls={gameState.energyRolls ?? 10}
+              energyRolls={gameState.energyRolls ?? DAILY_ROLL_LIMIT}
               lastEnergyCheck={gameState.lastEnergyCheck}
               rollHistory={gameState.rollHistory}
             />
