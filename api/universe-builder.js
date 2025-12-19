@@ -75,10 +75,20 @@ async function getStatus(supabase) {
     throw new Error(`Failed to count stocks: ${countError.message}`);
   }
 
+  // Get investment universe count (analysed stocks)
+  const { count: investmentUniverseCount, error: universeCountError } = await supabase
+    .from('investment_universe')
+    .select('*', { count: 'exact', head: true });
+
+  if (universeCountError) {
+    console.warn('Failed to count investment universe:', universeCountError.message);
+  }
+
   return {
     progress: progress || {},
     exchanges: exchanges || [],
     totalStocks: totalStocks || 0,
+    investmentUniverseCount: investmentUniverseCount || 0,
     stats: {
       totalExchanges: exchanges?.length || 0,
       priorityExchanges: exchanges?.filter(e => e.is_priority).length || 0,
@@ -363,6 +373,136 @@ async function getStocks(supabase, page = 1, perPage = 50, exchange = null) {
 }
 
 /**
+ * Get stocks from universe that are not already in the batch queue
+ * Returns up to `limit` stocks that haven't been queued yet
+ */
+async function getUnqueuedStocks(supabase, limit = 3, userId = null) {
+  // Get tickers already in the queue (pending or running)
+  const { data: queuedTickers, error: queueError } = await supabase
+    .from('valuebot_analysis_queue')
+    .select('ticker')
+    .in('status', ['pending', 'running']);
+
+  if (queueError) {
+    throw new Error(`Failed to fetch queue: ${queueError.message}`);
+  }
+
+  // Get tickers already in the investment universe (already analysed)
+  const { data: analyzedTickers, error: analyzeError } = await supabase
+    .from('investment_universe')
+    .select('symbol');
+
+  if (analyzeError) {
+    throw new Error(`Failed to fetch investment universe: ${analyzeError.message}`);
+  }
+
+  // Combine both sets of tickers to exclude (normalized to uppercase)
+  const queuedSet = new Set((queuedTickers || []).map(t => t.ticker?.toUpperCase()).filter(Boolean));
+  const analyzedSet = new Set((analyzedTickers || []).map(t => t.symbol?.toUpperCase()).filter(Boolean));
+  const excludedTickers = [...new Set([...queuedSet, ...analyzedSet])];
+
+  // Get stocks from universe that are not in either list
+  // Use server-side filtering with NOT IN when we have excluded tickers
+  let query = supabase
+    .from('stocks_universe_builder')
+    .select('ticker, company_name, exchange_mic, country, sector, industry')
+    .order('added_at', { ascending: true });
+
+  // Apply NOT IN filter if we have tickers to exclude
+  if (excludedTickers.length > 0) {
+    // Supabase .not() with 'in' for efficient server-side filtering
+    query = query.not('ticker', 'in', `(${excludedTickers.join(',')})`);
+  }
+
+  query = query.limit(limit);
+
+  const { data: availableStocks, error: stocksError } = await query;
+
+  if (stocksError) {
+    throw new Error(`Failed to fetch stocks: ${stocksError.message}`);
+  }
+
+  return {
+    stocks: availableStocks || [],
+    totalAvailable: (availableStocks || []).length,
+    queuedCount: queuedSet.size,
+    analyzedCount: analyzedSet.size
+  };
+}
+
+/**
+ * Add stocks to the batch queue
+ */
+async function addStocksToQueue(supabase, stocks, userId = null, provider = 'openai', model = null) {
+  if (!stocks || stocks.length === 0) {
+    return { added: 0, skipped: 0, stocks: [] };
+  }
+
+  const tickers = stocks.map(s => s.ticker?.toUpperCase()).filter(Boolean);
+
+  // Check which tickers are already in queue
+  const { data: existingQueue } = await supabase
+    .from('valuebot_analysis_queue')
+    .select('ticker')
+    .in('ticker', tickers)
+    .in('status', ['pending', 'running']);
+
+  // Check which tickers are already in investment universe
+  const { data: existingUniverse } = await supabase
+    .from('investment_universe')
+    .select('symbol')
+    .in('symbol', tickers);
+
+  const alreadyQueuedSet = new Set((existingQueue || []).map(t => t.ticker?.toUpperCase()));
+  const alreadyAnalyzedSet = new Set((existingUniverse || []).map(t => t.symbol?.toUpperCase()));
+
+  const stocksToAdd = stocks.filter(s => {
+    const ticker = s.ticker?.toUpperCase();
+    return !alreadyQueuedSet.has(ticker) && !alreadyAnalyzedSet.has(ticker);
+  });
+
+  const skippedInQueue = stocks.filter(s => alreadyQueuedSet.has(s.ticker?.toUpperCase()));
+  const skippedInUniverse = stocks.filter(s => alreadyAnalyzedSet.has(s.ticker?.toUpperCase()));
+
+  if (stocksToAdd.length === 0) {
+    return {
+      added: 0,
+      skipped: stocks.length,
+      skippedInQueue: skippedInQueue.map(s => s.ticker),
+      skippedInUniverse: skippedInUniverse.map(s => s.ticker),
+      stocks: []
+    };
+  }
+
+  const queueEntries = stocksToAdd.map(stock => ({
+    ticker: (stock.ticker || '').toUpperCase(),
+    company_name: stock.company_name || stock.companyName || null,
+    provider: provider,
+    model: model || null,
+    status: 'pending',
+    user_id: userId || null,
+    source: 'universe_builder'
+  }));
+
+  const { data: inserted, error: insertError } = await supabase
+    .from('valuebot_analysis_queue')
+    .insert(queueEntries)
+    .select();
+
+  if (insertError) {
+    throw new Error(`Failed to add stocks to queue: ${insertError.message}`);
+  }
+
+  return {
+    added: inserted?.length || 0,
+    skipped: skippedInQueue.length + skippedInUniverse.length,
+    skippedInQueue: skippedInQueue.map(s => s.ticker),
+    skippedInUniverse: skippedInUniverse.map(s => s.ticker),
+    stocks: inserted || []
+  };
+}
+
+/**
  * Main handler
  */
 export default async function handler(req, res) {
@@ -424,10 +564,28 @@ export default async function handler(req, res) {
         });
       }
 
+      case 'get-unqueued-stocks': {
+        const { limit, user_id } = req.body || {};
+        const result = await getUnqueuedStocks(supabase, limit || 3, user_id);
+        return res.status(200).json({
+          ok: true,
+          ...result
+        });
+      }
+
+      case 'add-to-queue': {
+        const { stocks, user_id, provider, model } = req.body || {};
+        const result = await addStocksToQueue(supabase, stocks, user_id, provider, model);
+        return res.status(200).json({
+          ok: true,
+          ...result
+        });
+      }
+
       default:
         return res.status(400).json({
           ok: false,
-          error: 'Invalid action. Supported actions: status, analyze, set-priority, get-stocks'
+          error: 'Invalid action. Supported actions: status, analyze, set-priority, get-stocks, get-unqueued-stocks, add-to-queue'
         });
     }
   } catch (error) {

@@ -48,6 +48,8 @@ const BatchQueueTab: FunctionalComponent = () => {
   const [nextRunCountdown, setNextRunCountdown] = useState<string | null>(null);
   const [autoMaxJobs, setAutoMaxJobs] = useState<number | null>(null);
   const [secondsPerJobEstimate, setSecondsPerJobEstimate] = useState<number | null>(null);
+  const [isLoadingFromUniverse, setIsLoadingFromUniverse] = useState(false);
+  const [universeLoadResult, setUniverseLoadResult] = useState<{ success: boolean; message: string } | null>(null);
 
   const profileId = user?.id ?? null;
   const modelChoices = useMemo(() => getModelOptionsForProvider(newProvider), [newProvider]);
@@ -398,6 +400,81 @@ const BatchQueueTab: FunctionalComponent = () => {
     }
   }
 
+  async function handleLoadFromUniverse() {
+    try {
+      setIsLoadingFromUniverse(true);
+      setUniverseLoadResult(null);
+
+      // First, get unqueued stocks from the universe builder
+      const unqueuedResponse = await fetch('/api/universe-builder', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'get-unqueued-stocks', limit: 3 })
+      });
+
+      const unqueuedData = await unqueuedResponse.json();
+
+      if (!unqueuedResponse.ok || !unqueuedData.ok) {
+        throw new Error(unqueuedData.error || 'Failed to fetch unqueued stocks');
+      }
+
+      if (!unqueuedData.stocks || unqueuedData.stocks.length === 0) {
+        setUniverseLoadResult({
+          success: false,
+          message: 'No stocks available. All stocks are either already queued or analyzed.'
+        });
+        return;
+      }
+
+      // Add the stocks to the queue
+      const addResponse = await fetch('/api/universe-builder', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'add-to-queue',
+          stocks: unqueuedData.stocks,
+          provider: newProvider,
+          model: newModel || null
+        })
+      });
+
+      const addData = await addResponse.json();
+
+      if (!addResponse.ok || !addData.ok) {
+        throw new Error(addData.error || 'Failed to add stocks to queue');
+      }
+
+      const messages: string[] = [];
+      if (addData.added > 0) {
+        const tickerList = addData.stocks.map((s: any) => s.ticker).join(', ');
+        messages.push(`✅ Added ${addData.added} stock(s): ${tickerList}`);
+      }
+      if (addData.skippedInQueue?.length > 0) {
+        messages.push(`⚠️ Already in queue: ${addData.skippedInQueue.join(', ')}`);
+      }
+      if (addData.skippedInUniverse?.length > 0) {
+        messages.push(`ℹ️ Already analyzed: ${addData.skippedInUniverse.join(', ')}`);
+      }
+
+      setUniverseLoadResult({
+        success: addData.added > 0,
+        message: messages.join(' | ')
+      });
+
+      // Refresh the queue
+      await loadJobs();
+
+    } catch (err) {
+      console.error('[ValueBot] Load from universe error', err);
+      setUniverseLoadResult({
+        success: false,
+        message: `Failed: ${err instanceof Error ? err.message : String(err)}`
+      });
+    } finally {
+      setIsLoadingFromUniverse(false);
+    }
+  }
+
   const pendingOrFailedJobs = useMemo(() => {
     return queueJobs.filter((job) => {
       const status = (job.status as string) || 'pending';
@@ -624,6 +701,42 @@ const BatchQueueTab: FunctionalComponent = () => {
               </p>
             </div>
           </form>
+
+          {/* Load from Universe section */}
+          <div className="universe-load-section" style={{ marginTop: '24px', padding: '16px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+              <div>
+                <p className="eyebrow">🌐 Global Universe</p>
+                <p style={{ fontSize: '14px', fontWeight: 600 }}>Load stocks from Universe Builder</p>
+                <p className="detail-meta">
+                  Add 3 stocks from your global stock catalog that haven't been analyzed yet.
+                </p>
+              </div>
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={handleLoadFromUniverse}
+                disabled={isLoadingFromUniverse}
+              >
+                {isLoadingFromUniverse ? 'Loading…' : '📋 Load 3 from Universe'}
+              </button>
+            </div>
+            {universeLoadResult && (
+              <p
+                className="detail-meta"
+                style={{
+                  marginTop: '8px',
+                  padding: '8px 12px',
+                  borderRadius: '6px',
+                  background: universeLoadResult.success ? 'rgba(34, 197, 94, 0.1)' : 'rgba(245, 158, 11, 0.1)',
+                  border: `1px solid ${universeLoadResult.success ? 'rgba(34, 197, 94, 0.3)' : 'rgba(245, 158, 11, 0.3)'}`,
+                  color: universeLoadResult.success ? '#86efac' : '#fcd34d'
+                }}
+              >
+                {universeLoadResult.message}
+              </p>
+            )}
+          </div>
         </div>
       </section>
 

@@ -2119,6 +2119,58 @@ body[data-theme='dark'] {
   color: var(--text-secondary, #b4c1d8);
 }
 
+/* Queue Action Section */
+.universe-builder__queue-action {
+  margin: 1.5rem 0;
+}
+
+.queue-action-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.25rem 1.5rem;
+  background: linear-gradient(135deg, rgba(79, 70, 229, 0.1), rgba(99, 102, 241, 0.08));
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: 12px;
+  flex-wrap: wrap;
+}
+
+.queue-action-info h4 {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary, #e2e8f0);
+}
+
+.queue-action-info .detail-meta {
+  margin: 0;
+  max-width: 480px;
+}
+
+.queue-result {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+}
+
+.queue-result p {
+  margin: 0.25rem 0;
+}
+
+.queue-result--success {
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  color: #86efac;
+}
+
+.queue-result--warning {
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  color: #fcd34d;
+}
+
 .universe-builder__section {
   display: flex;
   flex-direction: column;

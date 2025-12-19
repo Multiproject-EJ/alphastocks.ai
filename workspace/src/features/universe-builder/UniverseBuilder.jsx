@@ -15,6 +15,8 @@ const UniverseBuilder = () => {
   const [selectedRegion, setSelectedRegion] = useState('all');
   const [lastAnalysisResult, setLastAnalysisResult] = useState(null);
   const [selectedExchange, setSelectedExchange] = useState(null); // Filter stocks by exchange
+  const [isAddingToQueue, setIsAddingToQueue] = useState(false);
+  const [queueResult, setQueueResult] = useState(null);
 
   // Fetch status
   const fetchStatus = useCallback(async () => {
@@ -139,6 +141,85 @@ const UniverseBuilder = () => {
       setError(err.message);
     }
   }, []);
+
+  // Add stocks from global universe to batch queue
+  const addStocksToQueue = useCallback(async (count = 3) => {
+    setIsAddingToQueue(true);
+    setError(null);
+    setQueueResult(null);
+
+    try {
+      // First, get unqueued stocks
+      const unqueuedResponse = await fetch(API_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'get-unqueued-stocks', limit: count })
+      });
+
+      const unqueuedData = await unqueuedResponse.json();
+
+      if (!unqueuedResponse.ok || !unqueuedData.ok) {
+        throw new Error(unqueuedData.error || 'Failed to fetch unqueued stocks');
+      }
+
+      if (!unqueuedData.stocks || unqueuedData.stocks.length === 0) {
+        setQueueResult({
+          success: false,
+          message: 'No stocks available to add. All stocks are either already queued or analyzed.'
+        });
+        return;
+      }
+
+      // Add the stocks to the queue
+      const addResponse = await fetch(API_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'add-to-queue',
+          stocks: unqueuedData.stocks,
+          provider: 'openai'
+        })
+      });
+
+      const addData = await addResponse.json();
+
+      if (!addResponse.ok || !addData.ok) {
+        throw new Error(addData.error || 'Failed to add stocks to queue');
+      }
+
+      const messages = [];
+      if (addData.added > 0) {
+        const tickerList = addData.stocks.map(s => s.ticker).join(', ');
+        messages.push(`✅ Added ${addData.added} stock(s) to batch queue: ${tickerList}`);
+      }
+      if (addData.skippedInQueue?.length > 0) {
+        messages.push(`⚠️ Already in queue: ${addData.skippedInQueue.join(', ')}`);
+      }
+      if (addData.skippedInUniverse?.length > 0) {
+        messages.push(`ℹ️ Already in investment universe: ${addData.skippedInUniverse.join(', ')}`);
+      }
+
+      setQueueResult({
+        success: addData.added > 0,
+        added: addData.added,
+        skipped: addData.skipped,
+        message: messages.join('\n')
+      });
+
+      // Refresh status to update counts
+      await fetchStatus();
+
+    } catch (err) {
+      console.error('Error adding stocks to queue:', err);
+      setError(err.message);
+      setQueueResult({
+        success: false,
+        message: `Failed to add stocks: ${err.message}`
+      });
+    } finally {
+      setIsAddingToQueue(false);
+    }
+  }, [fetchStatus]);
 
   // Initial load
   useEffect(() => {
@@ -354,8 +435,43 @@ const UniverseBuilder = () => {
         <div className="pipeline-step">
           <div className="pipeline-step__icon">🎯</div>
           <div className="pipeline-step__label">Investment Universe</div>
-          <div className="pipeline-step__count">—</div>
+          <div className="pipeline-step__count">{status?.investmentUniverseCount || 0}</div>
         </div>
+      </div>
+
+      {/* Add to Batch Queue Section */}
+      <div className="universe-builder__queue-action">
+        <div className="queue-action-card">
+          <div className="queue-action-info">
+            <h4>📤 Load Stocks to ValueBot Batch Queue</h4>
+            <p className="detail-meta">
+              Pick 3 stocks from your global catalog that haven't been analyzed yet and add them to the ValueBot batch queue. 
+              Once queued, go to ValueBot → Batch Queue and click "Run auto cycle now" to analyze them.
+            </p>
+          </div>
+          <button
+            type="button"
+            className="btn-primary"
+            onClick={() => addStocksToQueue(3)}
+            disabled={isAddingToQueue || !status?.totalStocks}
+          >
+            {isAddingToQueue ? (
+              <>
+                <span className="spinner" aria-hidden="true"></span>
+                Adding...
+              </>
+            ) : (
+              '📋 Load 3 Stocks to Batch Queue'
+            )}
+          </button>
+        </div>
+        {queueResult && (
+          <div className={`queue-result ${queueResult.success ? 'queue-result--success' : 'queue-result--warning'}`}>
+            {queueResult.message.split('\n').map((line, idx) => (
+              <p key={idx}>{line}</p>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* World Map Visualization */}
