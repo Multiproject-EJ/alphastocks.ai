@@ -67,7 +67,7 @@ import { useNetWorthTier } from '@/hooks/useNetWorthTier'
 import { useCoins } from '@/hooks/useCoins'
 import { useThriftPath } from '@/hooks/useThriftPath'
 import { ThriftPathStatus as ThriftPathStatusType } from '@/lib/thriftPath'
-import { COIN_COSTS } from '@/lib/coins'
+import { COIN_COSTS, COIN_EARNINGS } from '@/lib/coins'
 
 type Phase = 'idle' | 'rolling' | 'moving' | 'landed'
 
@@ -640,6 +640,7 @@ function App() {
       toast.error(`Need ${multiplier} rolls`, {
         description: `You only have ${rollsRemaining} roll${rollsRemaining !== 1 ? 's' : ''} remaining.`,
       })
+      setOutOfRollsModalOpen(true)
       return
     }
 
@@ -648,7 +649,7 @@ function App() {
     if (hopIntervalRef.current) clearInterval(hopIntervalRef.current)
     if (landingTimeoutRef.current) clearTimeout(landingTimeoutRef.current)
 
-    // Consume rolls upfront
+    // ✅ BUG FIX #1: Consume rolls IMMEDIATELY before processing
     setRollsRemaining((prev) => prev - multiplier)
 
     // Haptic feedback for rolling
@@ -657,8 +658,13 @@ function App() {
     setPhase('rolling')
     playSound('dice-roll')
 
+    // Initialize accumulators for the multiplier sequence
     let totalMovement = 0
+    let totalStarsEarned = 0
+    let totalCoinsEarned = 0
+    let totalXP = 0
     let doublesCount = 0
+    let passedStartCount = 0
     const rollResults: typeof gameState.rollHistory = []
 
     // Process all rolls with staggered animations
@@ -680,97 +686,142 @@ function App() {
         setDice2(diceResult.die2)
         setLastRoll(diceResult.total)
         
-        // Track totals
+        // Accumulate distance
         totalMovement += diceResult.total
+        
+        // Calculate base rewards for THIS individual roll (NOT multiplied yet)
+        const rollCoins = COIN_EARNINGS.dice_roll // Import from coins.ts
+        const rollStars = 0  // Base stars per roll (no base stars for rolling)
+        const rollXP = 0     // Base XP per roll (no base XP for rolling)
+        
+        totalCoinsEarned += rollCoins
+        totalStarsEarned += rollStars
+        totalXP += rollXP
+        
+        // Check for doubles
         if (diceResult.isDoubles) {
           doublesCount++
+          totalStarsEarned += DOUBLES_BONUS.stars
+          totalCoinsEarned += DOUBLES_BONUS.coins
+          totalXP += DOUBLES_BONUS.xp
         }
         
-        // Track challenge progress for rolling
-        updateChallengeProgress('roll', diceResult.total)
+        // Check if this roll would pass Start (position 0)
+        // Use accumulated totalMovement to track position efficiently
+        const positionBeforeThisRoll = (gameState.position + (totalMovement - diceResult.total)) % BOARD_TILES.length
+        const crossedStart = positionBeforeThisRoll + diceResult.total >= BOARD_TILES.length
         
-        // Earn coins for dice roll
-        earnFromSource('dice_roll')
+        if (crossedStart) {
+          passedStartCount++
+          totalCoinsEarned += COIN_EARNINGS.pass_start
+          totalStarsEarned += 200 // Pass Start star bonus
+        }
+        
+        // Track challenge progress for rolling (each individual roll)
+        updateChallengeProgress('roll', diceResult.total)
         
         // Only move on last roll
         if (i === multiplier - 1) {
-          // Award doubles bonuses if any
-          if (doublesCount > 0) {
-            const totalStarsBonus = DOUBLES_BONUS.stars * doublesCount
-            const totalCoinsBonus = DOUBLES_BONUS.coins * doublesCount
-            const totalXpBonus = DOUBLES_BONUS.xp * doublesCount
-            
-            debugGame('Doubles bonus!', { 
-              doublesCount,
-              stars: totalStarsBonus,
-              coins: totalCoinsBonus,
-              xp: totalXpBonus
-            })
-            
-            // Award bonuses
-            setGameState(prev => ({
-              ...prev,
-              stars: prev.stars + totalStarsBonus,
-              xp: prev.xp + totalXpBonus,
-              totalDoubles: (prev.totalDoubles ?? 0) + doublesCount,
-              doublesStreak: (prev.doublesStreak ?? 0) + 1,
-              rollHistory: [...(prev.rollHistory || []).slice(-9), ...rollResults]
-            }))
-            
-            addCoins(totalCoinsBonus, 'Doubles bonus!')
-            
-            // Play celebration sound
-            playSound('achievement')
-            
-            // Show toast notification
-            toast.success(DOUBLES_BONUS.description, {
-              description: `+${totalStarsBonus} ⭐ +${totalCoinsBonus} 🪙 +${totalXpBonus} XP`,
-            })
-          } else {
-            // No doubles, reset streak
-            setGameState(prev => ({
-              ...prev,
-              doublesStreak: 0,
-              rollHistory: [...(prev.rollHistory || []).slice(-9), ...rollResults]
-            }))
-          }
-          
-          // Move player after brief delay
           setTimeout(() => {
-            debugGame('Movement started', { totalMovement })
-            playSound('dice-land')
-            setPhase('moving')
-            const startPosition = gameState.position
-            const tilesToHop: number[] = []
-
-            for (let j = 1; j <= totalMovement; j++) {
-              tilesToHop.push((startPosition + j) % BOARD_TILES.length)
-            }
-
-            // Check if player passes Start (position 0) - detect wrapping around the board
-            const passedStart = startPosition + totalMovement > BOARD_TILES.length - 1 && tilesToHop[tilesToHop.length - 1] !== 0
-
-            let currentHop = 0
-            hopIntervalRef.current = setInterval(() => {
-              if (currentHop < tilesToHop.length) {
-                // Capture position value before incrementing to avoid closure issues
-                const nextPosition = tilesToHop[currentHop]
-                setHoppingTiles([nextPosition])
-                setGameState((prev) => ({ ...prev, position: nextPosition }))
-                currentHop++
-              } else {
-                if (hopIntervalRef.current) clearInterval(hopIntervalRef.current)
-                setHoppingTiles([])
-
-                landingTimeoutRef.current = setTimeout(() => {
-                  const newPosition = tilesToHop[tilesToHop.length - 1]
-                  debugGame('Landing on tile:', { position: newPosition, tile: BOARD_TILES[newPosition] })
-                  setPhase('landed')
-                  handleTileLanding(newPosition, passedStart)
-                }, 200)
+            debugGame('Final roll in sequence', { 
+              totalMovement, 
+              totalStarsEarned, 
+              totalCoinsEarned,
+              totalXP,
+              doublesCount,
+              passedStartCount,
+              multiplier 
+            })
+            
+            // ✅ BUG FIX #2: Apply multiplier to ALL accumulated rewards
+            const finalStars = totalStarsEarned * multiplier
+            const finalCoins = totalCoinsEarned * multiplier
+            const finalXP = totalXP * multiplier
+            
+            debugGame('Multiplied rewards', { 
+              finalStars, 
+              finalCoins, 
+              finalXP 
+            })
+            
+            // Award all rewards with multiplier applied
+            setGameState(prev => ({
+              ...prev,
+              stars: prev.stars + finalStars,
+              xp: prev.xp + finalXP,
+              totalDoubles: (prev.totalDoubles ?? 0) + doublesCount,
+              doublesStreak: doublesCount > 0 ? (prev.doublesStreak ?? 0) + 1 : 0,
+              rollHistory: [...(prev.rollHistory || []).slice(-9), ...rollResults],
+              stats: {
+                ...prev.stats,
+                totalRolls: prev.stats.totalRolls + rollResults.length // Count actual dice rolls performed
               }
-            }, 200)
-          }, 800)
+            }))
+            
+            // Award coins (already multiplied)
+            if (finalCoins > 0) {
+              addCoins(finalCoins, `${multiplier}x Roll Rewards`)
+            }
+            
+            // Play sound based on outcome
+            if (doublesCount > 0) {
+              playSound('achievement')
+            } else {
+              playSound('dice-land')
+            }
+            
+            // Show summary toast
+            const description = [
+              `Moved ${totalMovement} tiles`,
+              finalStars > 0 ? `+${finalStars} ⭐` : null,
+              finalCoins > 0 ? `+${finalCoins} 🪙` : null,
+              finalXP > 0 ? `+${finalXP} XP` : null,
+              doublesCount > 0 ? `${doublesCount} doubles!` : null,
+              passedStartCount > 0 ? `Passed Start ${passedStartCount}x` : null
+            ].filter(Boolean).join(' | ')
+            
+            toast.success(
+              multiplier > 1 ? `${multiplier}x Roll Complete!` : 'Roll Complete!',
+              { description }
+            )
+            
+            // Move player after brief delay
+            setTimeout(() => {
+              debugGame('Movement started', { totalMovement })
+              setPhase('moving')
+              const startPosition = gameState.position
+              const tilesToHop: number[] = []
+
+              for (let j = 1; j <= totalMovement; j++) {
+                tilesToHop.push((startPosition + j) % BOARD_TILES.length)
+              }
+
+              // Check if player passes Start (position 0) - detect wrapping around the board
+              const passedStart = startPosition + totalMovement > BOARD_TILES.length - 1 && tilesToHop[tilesToHop.length - 1] !== 0
+
+              let currentHop = 0
+              hopIntervalRef.current = setInterval(() => {
+                if (currentHop < tilesToHop.length) {
+                  // Capture position value before incrementing to avoid closure issues
+                  const nextPosition = tilesToHop[currentHop]
+                  setHoppingTiles([nextPosition])
+                  setGameState((prev) => ({ ...prev, position: nextPosition }))
+                  currentHop++
+                } else {
+                  if (hopIntervalRef.current) clearInterval(hopIntervalRef.current)
+                  setHoppingTiles([])
+
+                  landingTimeoutRef.current = setTimeout(() => {
+                    const newPosition = tilesToHop[tilesToHop.length - 1]
+                    debugGame('Landing on tile:', { position: newPosition, tile: BOARD_TILES[newPosition] })
+                    setPhase('landed')
+                    // Trigger landing event ONCE at final position only
+                    handleTileLanding(newPosition, passedStart)
+                  }, 200)
+                }
+              }, 200)
+            }, 500)
+          }, 800) // Dice roll animation duration
         }
       }, i * 600) // Stagger animations
     }
@@ -849,18 +900,9 @@ function App() {
       updateChallengeProgress('land_on_corner', { position })
     }
 
-    // Handle passing Start (but not landing on it)
-    if (passedStart) {
-      playSound('star-collect')
-      earnFromSource('pass_start') // Earn coins for passing start
-      setGameState((prev) => ({
-        ...prev,
-        stars: prev.stars + 200,
-      }))
-      toast.success('Passed Start! Collected 200 stars ⭐', {
-        description: 'Keep moving around the board',
-      })
-    }
+    // NOTE: Pass Start bonuses are now handled in handleRoll with multiplier applied
+    // This section is kept for backwards compatibility but won't trigger from normal rolls
+    // Only used if handleTileLanding is called directly (not from handleRoll)
 
     if (tile.type === 'category' && tile.category) {
       debugGame('Category tile - showing stock card')
