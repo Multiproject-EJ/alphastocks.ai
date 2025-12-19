@@ -339,9 +339,22 @@ async function setPriority(supabase, micCode, isPriority) {
 }
 
 /**
+ * Escape special characters for Supabase ilike queries
+ * Escapes %, _, and \ which have special meaning in LIKE patterns
+ */
+function escapeSearchTerm(term) {
+  if (!term) return '';
+  // Escape backslash first, then % and _
+  return term
+    .replace(/\\/g, '\\\\')
+    .replace(/%/g, '\\%')
+    .replace(/_/g, '\\_');
+}
+
+/**
  * Get paginated list of stocks
  */
-async function getStocks(supabase, page = 1, perPage = 50, exchange = null) {
+async function getStocks(supabase, page = 1, perPage = 50, exchange = null, search = null) {
   const from = (page - 1) * perPage;
   const to = from + perPage - 1;
 
@@ -353,6 +366,14 @@ async function getStocks(supabase, page = 1, perPage = 50, exchange = null) {
 
   if (exchange) {
     query = query.eq('exchange_mic', exchange);
+  }
+
+  // Add search filter if provided
+  if (search && search.trim()) {
+    // Escape special LIKE characters to prevent SQL injection
+    const escapedSearch = escapeSearchTerm(search.trim().toLowerCase());
+    // Use ilike for case-insensitive search on ticker and company_name
+    query = query.or(`ticker.ilike.%${escapedSearch}%,company_name.ilike.%${escapedSearch}%`);
   }
 
   const { data, count, error } = await query;
@@ -529,7 +550,7 @@ export default async function handler(req, res) {
 
   try {
     const supabase = getSupabaseClient();
-    const { action, mic_code, is_priority, page, per_page, exchange } = req.body || {};
+    const { action, mic_code, is_priority, page, per_page, exchange, search } = req.body || {};
 
     switch (action) {
       case 'status': {
@@ -557,7 +578,7 @@ export default async function handler(req, res) {
       }
 
       case 'get-stocks': {
-        const result = await getStocks(supabase, page, per_page, exchange);
+        const result = await getStocks(supabase, page, per_page, exchange, search);
         return res.status(200).json({
           ok: true,
           ...result
