@@ -1,5 +1,5 @@
 import type { MouseEvent } from 'react'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -9,6 +9,9 @@ import { COIN_COSTS } from '@/lib/coins'
 import { MULTIPLIERS } from '@/lib/constants'
 import { getTimeUntilNextRegen } from '@/lib/energy'
 import type { DiceRoll } from '@/lib/types'
+
+// Auto-roll delay after phase returns to idle (in milliseconds)
+const AUTO_ROLL_DELAY_MS = 1000
 
 interface DiceHUDProps {
   onRoll: (multiplier?: number) => void
@@ -56,7 +59,6 @@ export function DiceHUD({
   const [dicePosition, setDicePosition] = useState({ x: 0, y: 0 })
   const [selectedMultiplier, setSelectedMultiplier] = useState(1)
   const [autoRollActive, setAutoRollActive] = useState(false)
-  const autoRollIntervalRef = useRef<NodeJS.Timeout | null>(null)
 
   const canRoll = phase === 'idle' && rollsRemaining > 0
   const isDoubles = dice1 === dice2 && lastRoll !== null
@@ -118,31 +120,31 @@ export function DiceHUD({
 
   const startAutoRoll = () => {
     setAutoRollActive(true)
-    autoRollIntervalRef.current = setInterval(() => {
-      if (rollsRemaining < selectedMultiplier || phase !== 'idle') {
-        stopAutoRoll()
-        return
-      }
-      onRoll(selectedMultiplier)
-    }, 2500) // Roll every 2.5 seconds
   }
 
   const stopAutoRoll = () => {
     setAutoRollActive(false)
-    if (autoRollIntervalRef.current) {
-      clearInterval(autoRollIntervalRef.current)
-      autoRollIntervalRef.current = null
-    }
   }
 
-  // Cleanup auto-roll on unmount
+  // Effect-based auto-roll: watches for phase changes and auto-rolls when idle
   useEffect(() => {
-    return () => {
-      if (autoRollIntervalRef.current) {
-        clearInterval(autoRollIntervalRef.current)
-      }
+    if (autoRollActive && phase === 'idle' && rollsRemaining >= selectedMultiplier) {
+      // Small delay to let UI settle after modal closes
+      const timer = setTimeout(() => {
+        onRoll(selectedMultiplier)
+      }, AUTO_ROLL_DELAY_MS)
+      return () => clearTimeout(timer)
     }
-  }, [])
+    // Note: onRoll is included in deps as required by React hooks rules
+    // Parent component should memoize onRoll with useCallback for optimal performance
+  }, [autoRollActive, phase, rollsRemaining, selectedMultiplier, onRoll])
+
+  // Auto-stop when out of rolls
+  useEffect(() => {
+    if (autoRollActive && rollsRemaining < selectedMultiplier) {
+      setAutoRollActive(false)
+    }
+  }, [autoRollActive, rollsRemaining, selectedMultiplier])
 
   const availableMultipliers = MULTIPLIERS.filter(m => m <= 25) // Limit to 1, 5, 10, 25
 
@@ -261,16 +263,25 @@ export function DiceHUD({
                 </Button>
 
                 {/* Auto-Roll Button */}
-                <Button
-                  onClick={autoRollActive ? stopAutoRoll : startAutoRoll}
-                  disabled={phase !== 'idle' || rollsRemaining < selectedMultiplier}
-                  variant={autoRollActive ? 'destructive' : 'outline'}
-                  size="sm"
-                  className="w-full gap-2"
-                >
-                  {autoRollActive ? <Stop size={16} weight="fill" /> : <Play size={16} weight="fill" />}
-                  {autoRollActive ? 'Stop Auto' : 'Auto Roll'}
-                </Button>
+                <div className="space-y-1">
+                  <Button
+                    onClick={autoRollActive ? stopAutoRoll : startAutoRoll}
+                    disabled={!autoRollActive && (phase !== 'idle' || rollsRemaining < selectedMultiplier)}
+                    variant={autoRollActive ? 'destructive' : 'outline'}
+                    size="sm"
+                    className={`w-full gap-2 ${autoRollActive ? 'animate-pulse' : ''}`}
+                  >
+                    {autoRollActive ? <Stop size={16} weight="fill" /> : <Play size={16} weight="fill" />}
+                    {autoRollActive ? 'Stop Auto' : 'Auto Roll'}
+                  </Button>
+                  {autoRollActive && (
+                    <div className="text-xs text-center text-muted-foreground" role="status" aria-live="polite">
+                      {phase === 'idle' 
+                        ? <span aria-label="Auto-rolling">🔄 Auto-rolling...</span>
+                        : <span aria-label="Paused waiting for action">⏸️ Paused - Complete action</span>}
+                    </div>
+                  )}
+                </div>
 
                 {/* Reroll Button */}
                 {onReroll && coins !== undefined && (
