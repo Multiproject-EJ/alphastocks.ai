@@ -203,6 +203,10 @@ function App() {
   const [diceResetKey, setDiceResetKey] = useState(0)
 
   const [showCelebration, setShowCelebration] = useState(false)
+  
+  // Carousel panel tracking for hiding buttons on logo panel
+  const [currentCarouselPanel, setCurrentCarouselPanel] = useState(0)
+  const isLogoPanel = currentCarouselPanel === 3  // 4th panel (0-indexed)
 
   const rollTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const hopIntervalRef = useRef<NodeJS.Timeout | null>(null)
@@ -1184,6 +1188,15 @@ function App() {
 
   const netWorthChange = ((gameState.netWorth - 100000) / 100000) * 100
 
+  // Board center classes - fade background on logo panel
+  const boardCenterClasses = [
+    'relative bg-gradient-to-br from-white/15 via-white/8 to-white/12',
+    'backdrop-blur-2xl rounded-2xl border border-white/25',
+    'shadow-[inset_0_0_70px_rgba(255,255,255,0.08),_0_20px_80px_rgba(0,0,0,0.35)]',
+    'p-8 min-h-[900px] transition-all duration-700',
+    isLogoPanel ? 'bg-opacity-0 backdrop-blur-none' : ''
+  ].filter(Boolean).join(' ')
+
   return (
     <MobileGameLayout showBottomNav={true}>
       <div ref={containerRef} className="relative isolate min-h-screen bg-background p-8 overflow-hidden game-board">
@@ -1206,10 +1219,7 @@ function App() {
         />
 
       <div className="relative z-10 max-w-[1600px] mx-auto">
-        <div
-          ref={boardRef}
-          className={`${BOARD_CONTAINER_BASE_CLASSES} ${isLogoPanel ? 'opacity-0' : 'opacity-100'}`}
-        >
+        <div ref={boardRef} className={boardCenterClasses}>
           <CentralStockCard
             stock={currentStock}
             isVisible={showCentralStock}
@@ -1224,7 +1234,9 @@ function App() {
           {/* Center Section - Reorganized Layout */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 flex items-center gap-8">
             {/* Left Side - Shop, Challenges, ThriftPath */}
-            <div className={`flex flex-col gap-4 items-center transition-opacity duration-500 ${isLogoPanel ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+            <div className={`flex flex-col gap-4 items-center transition-opacity duration-500 ${
+              isLogoPanel ? 'opacity-0 pointer-events-none' : 'opacity-100'
+            }`}>
               <Button
                 onClick={() => setShopModalOpen(true)}
                 className="bg-accent/90 hover:bg-accent text-accent-foreground shadow-lg hover:shadow-xl transition-all backdrop-blur-sm rounded-full h-14 px-6 text-base font-semibold flex items-center gap-2"
@@ -1267,7 +1279,9 @@ function App() {
             </div>
 
             {/* Right Side - ProTools */}
-            <div className={`flex flex-col items-center transition-opacity duration-500 ${isLogoPanel ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+            <div className={`flex flex-col items-center transition-opacity duration-500 ${
+              isLogoPanel ? 'opacity-0 pointer-events-none' : 'opacity-100'
+            }`}>
               <Button
                 onClick={() => {
                   const proToolsUrl = 'https://www.alphastocks.ai/?proTools=1'
