@@ -396,32 +396,35 @@ async function getUnqueuedStocks(supabase, limit = 3, userId = null) {
     throw new Error(`Failed to fetch investment universe: ${analyzeError.message}`);
   }
 
-  // Combine both sets of tickers to exclude
+  // Combine both sets of tickers to exclude (normalized to uppercase)
   const queuedSet = new Set((queuedTickers || []).map(t => t.ticker?.toUpperCase()).filter(Boolean));
   const analyzedSet = new Set((analyzedTickers || []).map(t => t.symbol?.toUpperCase()).filter(Boolean));
-  const excludedTickers = [...queuedSet, ...analyzedSet];
+  const excludedTickers = [...new Set([...queuedSet, ...analyzedSet])];
 
   // Get stocks from universe that are not in either list
+  // Use server-side filtering with NOT IN when we have excluded tickers
   let query = supabase
     .from('stocks_universe_builder')
     .select('ticker, company_name, exchange_mic, country, sector, industry')
-    .order('added_at', { ascending: true })
-    .limit(limit + excludedTickers.length); // Fetch more to filter
+    .order('added_at', { ascending: true });
 
-  const { data: allStocks, error: stocksError } = await query;
+  // Apply NOT IN filter if we have tickers to exclude
+  if (excludedTickers.length > 0) {
+    // Supabase .not() with 'in' for efficient server-side filtering
+    query = query.not('ticker', 'in', `(${excludedTickers.join(',')})`);
+  }
+
+  query = query.limit(limit);
+
+  const { data: availableStocks, error: stocksError } = await query;
 
   if (stocksError) {
     throw new Error(`Failed to fetch stocks: ${stocksError.message}`);
   }
 
-  // Filter out excluded tickers client-side (since we can't use NOT IN efficiently)
-  const availableStocks = (allStocks || []).filter(
-    stock => !queuedSet.has(stock.ticker?.toUpperCase()) && !analyzedSet.has(stock.ticker?.toUpperCase())
-  ).slice(0, limit);
-
   return {
-    stocks: availableStocks,
-    totalAvailable: availableStocks.length,
+    stocks: availableStocks || [],
+    totalAvailable: (availableStocks || []).length,
     queuedCount: queuedSet.size,
     analyzedCount: analyzedSet.size
   };
@@ -472,7 +475,7 @@ async function addStocksToQueue(supabase, stocks, userId = null, provider = 'ope
   }
 
   const queueEntries = stocksToAdd.map(stock => ({
-    ticker: stock.ticker,
+    ticker: (stock.ticker || '').toUpperCase(),
     company_name: stock.company_name || stock.companyName || null,
     provider: provider,
     model: model || null,
