@@ -67,7 +67,7 @@ import { useNetWorthTier } from '@/hooks/useNetWorthTier'
 import { useCoins } from '@/hooks/useCoins'
 import { useThriftPath } from '@/hooks/useThriftPath'
 import { ThriftPathStatus as ThriftPathStatusType } from '@/lib/thriftPath'
-import { COIN_COSTS } from '@/lib/coins'
+import { COIN_COSTS, COIN_EARNINGS } from '@/lib/coins'
 
 type Phase = 'idle' | 'rolling' | 'moving' | 'landed'
 
@@ -690,7 +690,7 @@ function App() {
         totalMovement += diceResult.total
         
         // Calculate base rewards for THIS individual roll (NOT multiplied yet)
-        const rollCoins = 10 // Base coins per roll (from COIN_EARNINGS.dice_roll)
+        const rollCoins = COIN_EARNINGS.dice_roll // Import from coins.ts
         const rollStars = 0  // Base stars per roll (no base stars for rolling)
         const rollXP = 0     // Base XP per roll (no base XP for rolling)
         
@@ -707,17 +707,13 @@ function App() {
         }
         
         // Check if this roll would pass Start (position 0)
-        // Calculate position after each individual roll in the sequence
-        let runningPosition = gameState.position
-        for (let j = 0; j < i; j++) {
-          runningPosition = (runningPosition + rollResults[j].total) % BOARD_TILES.length
-        }
-        const newPosAfterThisRoll = (runningPosition + diceResult.total) % BOARD_TILES.length
-        const crossedStart = runningPosition + diceResult.total >= BOARD_TILES.length
+        // Use accumulated totalMovement to track position efficiently
+        const positionBeforeThisRoll = (gameState.position + (totalMovement - diceResult.total)) % BOARD_TILES.length
+        const crossedStart = positionBeforeThisRoll + diceResult.total >= BOARD_TILES.length
         
         if (crossedStart) {
           passedStartCount++
-          totalCoinsEarned += 25 // Pass Start coin bonus (from COIN_EARNINGS.pass_start)
+          totalCoinsEarned += COIN_EARNINGS.pass_start
           totalStarsEarned += 200 // Pass Start star bonus
         }
         
@@ -758,7 +754,7 @@ function App() {
               rollHistory: [...(prev.rollHistory || []).slice(-9), ...rollResults],
               stats: {
                 ...prev.stats,
-                totalRolls: prev.stats.totalRolls + multiplier // Count each individual roll
+                totalRolls: prev.stats.totalRolls + rollResults.length // Count actual dice rolls performed
               }
             }))
             
