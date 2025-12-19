@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback, lazy, Suspense } from 'react'
 import { Toaster, toast } from 'sonner'
 import { Button } from '@/components/ui/button'
-import { ShoppingBag } from '@phosphor-icons/react'
+import { ShoppingBag, Buildings } from '@phosphor-icons/react'
 import { Tile } from '@/components/Tile'
 import { DiceHUD } from '@/components/DiceHUD'
 import { HubModal } from '@/components/HubModal'
@@ -37,6 +37,7 @@ const ShopModal = lazy(() => import('@/components/ShopModal'))
 const ChallengesModal = lazy(() => import('@/components/ChallengesModal'))
 const EventCalendar = lazy(() => import('@/components/EventCalendar'))
 const SettingsModal = lazy(() => import('@/components/SettingsModal'))
+const CityBuilderModal = lazy(() => import('@/components/CityBuilderModal'))
 
 import { GameState, Stock, BiasCaseStudy } from '@/lib/types'
 import { RealMoneyRollsPack } from '@/components/OutOfRollsModal'
@@ -67,8 +68,10 @@ import { useSwipeGesture } from '@/hooks/useSwipeGesture'
 import { useNetWorthTier } from '@/hooks/useNetWorthTier'
 import { useCoins } from '@/hooks/useCoins'
 import { useThriftPath } from '@/hooks/useThriftPath'
+import { useCityBuilder } from '@/hooks/useCityBuilder'
 import { ThriftPathStatus as ThriftPathStatusType } from '@/lib/thriftPath'
 import { COIN_COSTS, COIN_EARNINGS } from '@/lib/coins'
+import { getInitialCityBuilderState, CITIES } from '@/lib/cityBuilder'
 
 type Phase = 'idle' | 'rolling' | 'moving' | 'landed'
 
@@ -192,6 +195,8 @@ function App() {
 
   const [outOfRollsModalOpen, setOutOfRollsModalOpen] = useState(false)
 
+  const [cityBuilderOpen, setCityBuilderOpen] = useState(false)
+
   // Mobile UI states
   const [activeSection, setActiveSection] = useState<'home' | 'challenges' | 'shop' | 'leaderboard' | 'settings'>('home')
   const [settingsOpen, setSettingsOpen] = useState(false)
@@ -254,6 +259,58 @@ function App() {
     updateStats,
     checkDailyStreak
   } = useThriftPath(initialThriftPathStatus)
+
+  // City Builder hook (Monopoly Go style)
+  const {
+    cityBuilderState,
+    setCityBuilderState,
+    currentCity,
+    currentCityProgress,
+    unlockedCities,
+    allCities,
+    upgradeBuilding,
+    unlockNextCity,
+    claimCityReward,
+    selectCity,
+    canUpgrade: canUpgradeBuilding,
+    timeUntilNextUpgrade,
+    totalBuildingsCompleted,
+    totalCitiesCompleted,
+    totalCitiesUnlocked,
+    nextCityToUnlock,
+    canUnlockNext,
+  } = useCityBuilder({
+    initialState: gameState.cityBuilder,
+    stars: gameState.stars,
+    onSpendStars: (amount, reason) => {
+      if (gameState.stars < amount) return false
+      setGameState(prev => ({ ...prev, stars: prev.stars - amount }))
+      return true
+    },
+    onEarnCoins: (amount, source) => {
+      addCoins(amount, source)
+    },
+    onEarnStars: (amount, source) => {
+      setGameState(prev => ({ ...prev, stars: prev.stars + amount }))
+      toast.success(`+${amount} ⭐`, { description: source })
+    },
+  })
+
+  // Sync cityBuilderState to gameState - use JSON comparison to prevent infinite loops
+  const cityBuilderStateJson = JSON.stringify(cityBuilderState)
+  useEffect(() => {
+    setGameState(prev => {
+      const prevCityBuilderJson = JSON.stringify(prev.cityBuilder)
+      // Only update if the state has actually changed
+      if (prevCityBuilderJson === cityBuilderStateJson) {
+        return prev
+      }
+      return {
+        ...prev,
+        cityBuilder: cityBuilderState,
+      }
+    })
+  }, [cityBuilderStateJson])
 
   // Swipe gesture hook - for mobile navigation
   const containerRef = useRef<HTMLDivElement>(null)
@@ -1205,7 +1262,7 @@ function App() {
 
           {/* Center Section - Reorganized Layout */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 flex items-center gap-8">
-            {/* Left Side - Shop, Challenges, ThriftPath */}
+            {/* Left Side - Shop, City Builder, Challenges, ThriftPath */}
             <div className={`flex flex-col gap-4 items-center transition-opacity duration-500 ${
               isLogoPanel ? 'opacity-0 pointer-events-none' : 'opacity-100'
             }`}>
@@ -1216,6 +1273,14 @@ function App() {
               >
                 <ShoppingBag size={20} weight="bold" />
                 Shop
+              </Button>
+              <Button
+                onClick={() => setCityBuilderOpen(true)}
+                className="bg-gradient-to-r from-emerald-500/90 to-teal-500/90 hover:from-emerald-500 hover:to-teal-500 text-white shadow-lg hover:shadow-xl transition-all backdrop-blur-sm rounded-full h-14 px-6 text-base font-semibold flex items-center gap-2"
+                aria-label="Open City Builder"
+              >
+                <Buildings size={20} weight="bold" />
+                Cities
               </Button>
               <ChallengeTracker
                 dailyChallenges={dailyChallenges}
@@ -1376,6 +1441,7 @@ function App() {
         onOpenChallenges={() => setChallengesModalOpen(true)}
         onOpenEventCalendar={() => setEventCalendarOpen(true)}
         onOpenNetWorthGallery={() => setNetWorthGalleryOpen(true)}
+        onOpenCityBuilder={() => setCityBuilderOpen(true)}
       />
 
       <StockModal
@@ -1525,6 +1591,26 @@ function App() {
         <SettingsModal
           open={settingsOpen}
           onOpenChange={setSettingsOpen}
+        />
+        
+        <CityBuilderModal
+          open={cityBuilderOpen}
+          onOpenChange={setCityBuilderOpen}
+          stars={gameState.stars}
+          currentCity={currentCity}
+          currentCityProgress={currentCityProgress}
+          allCities={allCities}
+          citiesProgress={cityBuilderState.cities}
+          canUpgrade={canUpgradeBuilding}
+          timeUntilNextUpgrade={timeUntilNextUpgrade}
+          onUpgradeBuilding={upgradeBuilding}
+          onUnlockNextCity={unlockNextCity}
+          onSelectCity={selectCity}
+          nextCityToUnlock={nextCityToUnlock}
+          canUnlockNext={canUnlockNext}
+          totalBuildingsCompleted={totalBuildingsCompleted}
+          totalCitiesCompleted={totalCitiesCompleted}
+          totalCitiesUnlocked={totalCitiesUnlocked}
         />
       </Suspense>
 
