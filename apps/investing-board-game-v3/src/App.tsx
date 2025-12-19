@@ -1180,6 +1180,15 @@ function App() {
 
   const netWorthChange = ((gameState.netWorth - 100000) / 100000) * 100
 
+  // Board center classes - fade background on logo panel
+  const boardCenterClasses = [
+    'relative bg-gradient-to-br from-white/15 via-white/8 to-white/12',
+    'backdrop-blur-2xl rounded-2xl border border-white/25',
+    'shadow-[inset_0_0_70px_rgba(255,255,255,0.08),_0_20px_80px_rgba(0,0,0,0.35)]',
+    'p-8 min-h-[900px] transition-all duration-700',
+    isLogoPanel ? 'bg-opacity-0 backdrop-blur-none' : ''
+  ].filter(Boolean).join(' ')
+
   return (
     <MobileGameLayout showBottomNav={true}>
       <div ref={containerRef} className="relative isolate min-h-screen bg-background p-8 overflow-hidden game-board">
@@ -1202,12 +1211,7 @@ function App() {
         />
 
       <div className="relative z-10 max-w-[1600px] mx-auto">
-        <div
-          ref={boardRef}
-          className={`relative bg-gradient-to-br from-white/15 via-white/8 to-white/12 backdrop-blur-2xl rounded-2xl border border-white/25 shadow-[inset_0_0_70px_rgba(255,255,255,0.08),_0_20px_80px_rgba(0,0,0,0.35)] p-8 min-h-[900px] transition-all duration-700 ${
-            isLogoPanel ? 'bg-opacity-0 backdrop-blur-none' : ''
-          }`}
-        >
+        <div ref={boardRef} className={boardCenterClasses}>
           <CentralStockCard
             stock={currentStock}
             isVisible={showCentralStock}
