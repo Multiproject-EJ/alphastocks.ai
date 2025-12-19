@@ -119,13 +119,22 @@ const TileComponent = ({ tile, isActive, isHopping, isLanded, onClick, side }: T
         {tile.type}
       </Badge>
 
-      <div className={cn(
-        'text-center px-3 font-semibold',
-        isCorner ? 'text-lg' : 'text-xs',
-        getTypeColor()
-      )}>
-        {tile.title}
-      </div>
+      {tile.title === 'Bias Sanctuary' ? (
+        <img
+          src={`${import.meta.env.BASE_URL}BiasSanctuary.webp`}
+          alt="Bias Sanctuary - Learn about cognitive biases in investing"
+          className="w-full h-full object-contain absolute inset-0 pt-4 px-1 pb-1"
+          loading="lazy"
+        />
+      ) : (
+        <div className={cn(
+          'text-center px-3 font-semibold',
+          isCorner ? 'text-lg' : 'text-xs',
+          getTypeColor()
+        )}>
+          {tile.title}
+        </div>
+      )}
     </motion.div>
   )
 }
