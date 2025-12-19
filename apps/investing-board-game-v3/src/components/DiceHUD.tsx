@@ -195,7 +195,7 @@ export function DiceHUD({
                     >
                       {rollsRemaining}
                     </motion.span>
-                    <span className="text-muted-foreground">/50</span>
+                    <span className="text-muted-foreground">/{rollsRemaining > 50 ? rollsRemaining : 50}</span>
                   </span>
                 </div>
               </div>

@@ -13,6 +13,7 @@ import { Badge } from '@/components/ui/badge'
 import { DiceFive, Clock, Coin } from '@phosphor-icons/react'
 import { RollsPack } from '@/lib/types'
 import { COIN_COSTS } from '@/lib/coins'
+import { ENERGY_CONFIG } from '@/lib/energy'
 
 export const ROLLS_PACKS: RollsPack[] = [
   {
@@ -143,7 +144,7 @@ export function OutOfRollsModal({
           </div>
 
           <p className="text-xs text-muted-foreground text-center">
-            💡 Rolls also regenerate 1 every 30 minutes
+            💡 Rolls also regenerate {ENERGY_CONFIG.REGEN_RATE} every {ENERGY_CONFIG.REGEN_INTERVAL_MINUTES} minutes
           </p>
         </div>
 
