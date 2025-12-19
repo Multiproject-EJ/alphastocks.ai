@@ -13,6 +13,26 @@ interface TileProps {
   side?: 'top' | 'bottom' | 'left' | 'right'
 }
 
+// Configuration for corner tiles that use images instead of text
+const CORNER_TILE_IMAGES: Record<string, { src: string; alt: string }> = {
+  'Bias Sanctuary': {
+    src: 'BiasSanctuary.webp',
+    alt: 'Bias Sanctuary - Learn about cognitive biases in investing',
+  },
+  'Court of Capital': {
+    src: 'Courtofcapital.webp',
+    alt: 'Court of Capital - Face financial challenges and legal decisions',
+  },
+  'Casino': {
+    src: 'Casinotile.webp',
+    alt: 'Casino - Test your luck with investment games',
+  },
+  'Start / ThriftyPath': {
+    src: 'Starttitle.webp',
+    alt: 'Start / ThriftyPath - Begin your investment journey',
+  },
+}
+
 const TileComponent = ({ tile, isActive, isHopping, isLanded, onClick, side }: TileProps) => {
   const getTypeColor = () => {
     switch (tile.type) {
@@ -119,10 +139,10 @@ const TileComponent = ({ tile, isActive, isHopping, isLanded, onClick, side }: T
         {tile.type}
       </Badge>
 
-      {tile.title === 'Bias Sanctuary' ? (
+      {CORNER_TILE_IMAGES[tile.title] ? (
         <img
-          src={`${import.meta.env.BASE_URL}BiasSanctuary.webp`}
-          alt="Bias Sanctuary - Learn about cognitive biases in investing"
+          src={`${import.meta.env.BASE_URL}${CORNER_TILE_IMAGES[tile.title].src}`}
+          alt={CORNER_TILE_IMAGES[tile.title].alt}
           className="w-full h-full object-contain absolute inset-0 pt-4 px-1 pb-1"
           loading="lazy"
         />
