@@ -38,7 +38,8 @@ const ChallengesModal = lazy(() => import('@/components/ChallengesModal'))
 const EventCalendar = lazy(() => import('@/components/EventCalendar'))
 const SettingsModal = lazy(() => import('@/components/SettingsModal'))
 
-import { GameState, Stock, BiasCaseStudy, RollsPack } from '@/lib/types'
+import { GameState, Stock, BiasCaseStudy } from '@/lib/types'
+import { RealMoneyRollsPack } from '@/components/OutOfRollsModal'
 import {
   BOARD_TILES,
   getRandomMarketEvent,
@@ -53,7 +54,7 @@ import {
   ENERGY_MAX,
 } from '@/lib/constants'
 import { rollDice, DOUBLES_BONUS } from '@/lib/dice'
-import { calculateRegeneratedRolls } from '@/lib/energy'
+import { getResetRollsAmount, ENERGY_CONFIG } from '@/lib/energy'
 import { useUniverseStocks } from '@/hooks/useUniverseStocks'
 import { useGameSave } from '@/hooks/useGameSave'
 import { useAuth } from '@/context/AuthContext'
@@ -203,10 +204,6 @@ function App() {
   const [diceResetKey, setDiceResetKey] = useState(0)
 
   const [showCelebration, setShowCelebration] = useState(false)
-  
-  // Carousel panel tracking for hiding buttons on logo panel
-  const [currentCarouselPanel, setCurrentCarouselPanel] = useState(0)
-  const isLogoPanel = currentCarouselPanel === 3  // 4th panel (0-indexed)
 
   const rollTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const hopIntervalRef = useRef<NodeJS.Timeout | null>(null)
@@ -605,12 +602,12 @@ function App() {
     }
   }, [hasPowerUp, consumePowerUp])
 
-  // Energy regeneration system
+  // Energy regeneration system - Reset 30 dice every 2 hours
   useEffect(() => {
     // Don't run during initial load or auth loading
     if (authLoading || saveLoading || !gameLoadedFromSave.current) return
     
-    const checkEnergyRegen = () => {
+    const checkEnergyReset = () => {
       if (!gameState.lastEnergyCheck) {
         // Initialize lastEnergyCheck only, don't reset rolls
         setGameState(prev => ({
@@ -620,11 +617,12 @@ function App() {
         return
       }
       
-      const regenRolls = calculateRegeneratedRolls(gameState.lastEnergyCheck)
+      // Check if 2 hours have passed since last reset
+      const resetAmount = getResetRollsAmount(gameState.lastEnergyCheck)
       
-      if (regenRolls > 0) {
-        const currentEnergy = gameState.energyRolls ?? rollsRemaining
-        const newEnergy = Math.min(currentEnergy + regenRolls, ENERGY_MAX)
+      if (resetAmount !== null) {
+        // Reset to 30 dice (capped at MAX_ROLLS)
+        const newEnergy = Math.min(resetAmount, ENERGY_MAX)
         
         setGameState(prev => ({
           ...prev,
@@ -632,21 +630,21 @@ function App() {
           lastEnergyCheck: new Date()
         }))
         
-        setRollsRemaining(prev => Math.min(prev + regenRolls, ENERGY_MAX))
+        setRollsRemaining(newEnergy)
         
-        debugGame('Energy regenerated:', { regenRolls, newEnergy })
+        debugGame('Dice reset!', { newEnergy })
         
-        toast.info(`+${regenRolls} roll${regenRolls !== 1 ? 's' : ''} regenerated!`, {
-          description: `Energy: ${newEnergy}/${ENERGY_MAX}`
+        toast.success(`🎲 Dice Reset!`, {
+          description: `You now have ${newEnergy} dice rolls! Resets every 2 hours.`
         })
       }
     }
     
     // Check immediately when ready
-    checkEnergyRegen()
+    checkEnergyReset()
     
     // Check every minute
-    const interval = setInterval(checkEnergyRegen, 60000)
+    const interval = setInterval(checkEnergyReset, 60000)
     
     return () => clearInterval(interval)
   }, [gameState.lastEnergyCheck, gameState.energyRolls, authLoading, saveLoading, rollsRemaining])
@@ -884,43 +882,17 @@ function App() {
     return spendCoins(COIN_COSTS.skip_event, 'Skip event')
   }
 
-  const handlePurchaseRolls = (pack: RollsPack) => {
-    if (!canAffordCoins(pack.cost)) {
-      toast.error('Insufficient coins!', {
-        description: `You need ${pack.cost} coins but only have ${gameState.coins}`
-      })
-      playSound('error')
-      return
-    }
+  const handlePurchaseRolls = (pack: RealMoneyRollsPack) => {
+    // This is a placeholder for real money purchases
+    // In production, this would integrate with Stripe or another payment provider
     
-    // Spend coins
-    if (spendCoins(pack.cost, `Purchase ${pack.rolls} rolls`)) {
-      // Grant rolls (can exceed 50 from purchases)
-      setRollsRemaining(prev => prev + pack.rolls)
-      setGameState(prev => ({
-        ...prev,
-        energyRolls: (prev.energyRolls ?? DAILY_ROLL_LIMIT) + pack.rolls
-      }))
-      
-      // Update stats
-      setGameState(prev => ({
-        ...prev,
-        stats: {
-          ...prev.stats,
-          rollsPurchased: (prev.stats.rollsPurchased || 0) + pack.rolls,
-          coinsSpentOnRolls: (prev.stats.coinsSpentOnRolls || 0) + pack.cost
-        }
-      }))
-      
-      // Success feedback
-      toast.success(`+${pack.rolls} Rolls!`, {
-        description: `Spent ${pack.cost} coins`
-      })
-      playSound('cash-register')
-      
-      // Close modal
-      setOutOfRollsModalOpen(false)
-    }
+    // For now, show a placeholder message
+    toast.info(`Purchase: ${pack.rolls} Dice Rolls for ${pack.priceKr} kr`, {
+      description: 'Payment integration coming soon! For now, enjoy the game with free resets every 2 hours.'
+    })
+    
+    // Close modal
+    setOutOfRollsModalOpen(false)
   }
 
   const handleTileLanding = (position: number, passedStart = false) => {
@@ -1576,9 +1548,8 @@ function App() {
       <OutOfRollsModal
         open={outOfRollsModalOpen}
         onOpenChange={setOutOfRollsModalOpen}
-        currentCoins={gameState.coins}
         onPurchase={handlePurchaseRolls}
-        nextResetTime={nextResetTime}
+        lastEnergyCheck={gameState.lastEnergyCheck}
       />
 
       {/* Mobile Bottom Navigation */}
