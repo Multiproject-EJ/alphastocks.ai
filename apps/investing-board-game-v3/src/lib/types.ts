@@ -132,6 +132,21 @@ export interface GameState {
       longTermHoldings: number
     }
   }
+  // City Builder State (Monopoly Go style)
+  cityBuilder?: {
+    currentCityIndex: number
+    cities: Array<{
+      cityId: string
+      buildingProgress: Record<string, number>
+      isUnlocked: boolean
+      isCompleted: boolean
+      unlockedAt?: string
+      completedAt?: string
+    }>
+    lastUpgradeDate: string | null
+    totalUpgrades: number
+    totalBuildingsCompleted: number
+  }
 }
 
 export interface BiasQuizQuestion {

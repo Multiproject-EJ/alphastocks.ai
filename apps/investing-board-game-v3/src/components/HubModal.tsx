@@ -7,7 +7,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Coins, TrendUp, Trophy, Target, CalendarBlank, Crown } from '@phosphor-icons/react'
+import { Coins, TrendUp, Trophy, Target, CalendarBlank, Crown, Buildings } from '@phosphor-icons/react'
 import { GameState } from '@/lib/types'
 import { AI_PLAYERS } from '@/lib/mockData'
 
@@ -18,9 +18,10 @@ interface HubModalProps {
   onOpenChallenges?: () => void
   onOpenEventCalendar?: () => void
   onOpenNetWorthGallery?: () => void
+  onOpenCityBuilder?: () => void
 }
 
-export function HubModal({ open, onOpenChange, gameState, onOpenChallenges, onOpenEventCalendar, onOpenNetWorthGallery }: HubModalProps) {
+export function HubModal({ open, onOpenChange, gameState, onOpenChallenges, onOpenEventCalendar, onOpenNetWorthGallery, onOpenCityBuilder }: HubModalProps) {
   // Combine human player with AI players for leaderboard
   const allPlayers = [
     {
@@ -120,7 +121,19 @@ export function HubModal({ open, onOpenChange, gameState, onOpenChallenges, onOp
               
               <Button 
                 variant="outline" 
-                className="w-full col-span-2"
+                className="w-full"
+                onClick={() => {
+                  onOpenChange(false)
+                  onOpenCityBuilder?.()
+                }}
+              >
+                <Buildings size={16} className="mr-2" />
+                City Builder
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                className="w-full"
                 onClick={() => {
                   onOpenChange(false)
                   onOpenNetWorthGallery?.()
