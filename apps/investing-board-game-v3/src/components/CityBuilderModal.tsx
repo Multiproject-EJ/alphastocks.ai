@@ -124,7 +124,7 @@ function BuildingCard({
         
         {/* Level indicators */}
         <div className="flex justify-between px-0.5">
-          {[1, 2, 3, 4, 5].map((lvl) => (
+          {Array.from({ length: MAX_BUILDING_LEVEL }, (_, i) => i + 1).map((lvl) => (
             <div
               key={lvl}
               className={`w-2 h-2 rounded-full transition-colors ${

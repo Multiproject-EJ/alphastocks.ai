@@ -173,6 +173,9 @@ export function useCityBuilder({
   }, [cityBuilderState, stars, onSpendStars, onEarnCoins])
   
   // Unlock next city
+  // Design Note: City unlocking is based on reaching a star THRESHOLD, not spending stars.
+  // This follows Monopoly Go's design where reaching milestones unlocks new content.
+  // Players keep their stars for use on building upgrades.
   const unlockNextCity = useCallback((): boolean => {
     const nextCity = getNextCityToUnlock(cityBuilderState)
     if (!nextCity) {
@@ -187,8 +190,8 @@ export function useCityBuilder({
       return false
     }
     
-    // Note: Unlocking a city doesn't cost stars, it's a requirement check
-    // The stars are NOT spent, just checked
+    // City unlocking is milestone-based: stars are checked but NOT spent
+    // This allows players to save stars for building upgrades
     
     setCityBuilderState(prev => {
       const nextCityIndex = prev.cities.findIndex(c => c.cityId === nextCity.id)

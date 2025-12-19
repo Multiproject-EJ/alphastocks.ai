@@ -296,13 +296,21 @@ function App() {
     },
   })
 
-  // Sync cityBuilderState to gameState
+  // Sync cityBuilderState to gameState - use JSON comparison to prevent infinite loops
+  const cityBuilderStateJson = JSON.stringify(cityBuilderState)
   useEffect(() => {
-    setGameState(prev => ({
-      ...prev,
-      cityBuilder: cityBuilderState,
-    }))
-  }, [cityBuilderState])
+    setGameState(prev => {
+      const prevCityBuilderJson = JSON.stringify(prev.cityBuilder)
+      // Only update if the state has actually changed
+      if (prevCityBuilderJson === cityBuilderStateJson) {
+        return prev
+      }
+      return {
+        ...prev,
+        cityBuilder: cityBuilderState,
+      }
+    })
+  }, [cityBuilderStateJson])
 
   // Swipe gesture hook - for mobile navigation
   const containerRef = useRef<HTMLDivElement>(null)
