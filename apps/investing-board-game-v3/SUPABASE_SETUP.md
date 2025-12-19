@@ -40,6 +40,24 @@ This creates a `board_game_profiles` table that stores:
 
 The patch includes Row Level Security policies so each user can only access their own game data.
 
+### Additional Columns (Required)
+Apply additional patches to add coins, energy, and thrift path tracking:
+
+```
+psql $DATABASE_URL -f supabase/patches/023_shop_inventory.sql
+psql $DATABASE_URL -f supabase/patches/024_progression_system.sql
+psql $DATABASE_URL -f supabase/patches/025_challenges_system.sql
+psql $DATABASE_URL -f supabase/patches/026_add_missing_game_columns.sql
+```
+
+Patch 026 adds:
+- Coins (third currency for micro-transactions)
+- Thrift Path status (disciplined investing rewards)
+- Energy rolls and regeneration tracking
+- Dice roll history and doubles tracking
+
+**Note:** If you see data not persisting after refresh, ensure patch 026 has been applied to your database.
+
 ## 3) Shared Authentication with ProTools
 
 The board game shares authentication with the ProTools workspace. When you sign in to ProTools, you are automatically signed in to the board game as well.
