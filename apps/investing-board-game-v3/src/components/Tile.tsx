@@ -126,6 +126,27 @@ const TileComponent = ({ tile, isActive, isHopping, isLanded, onClick, side }: T
           className="w-full h-full object-contain absolute inset-0 pt-4 px-1 pb-1"
           loading="lazy"
         />
+      ) : tile.title === 'Court of Capital' ? (
+        <img
+          src={`${import.meta.env.BASE_URL}Courtofcapital.webp`}
+          alt="Court of Capital"
+          className="w-full h-full object-contain absolute inset-0 pt-4 px-1 pb-1"
+          loading="lazy"
+        />
+      ) : tile.title === 'Casino' ? (
+        <img
+          src={`${import.meta.env.BASE_URL}Casinotile.webp`}
+          alt="Casino"
+          className="w-full h-full object-contain absolute inset-0 pt-4 px-1 pb-1"
+          loading="lazy"
+        />
+      ) : tile.title === 'Start / ThriftyPath' ? (
+        <img
+          src={`${import.meta.env.BASE_URL}Starttitle.webp`}
+          alt="Start / ThriftyPath"
+          className="w-full h-full object-contain absolute inset-0 pt-4 px-1 pb-1"
+          loading="lazy"
+        />
       ) : (
         <div className={cn(
           'text-center px-3 font-semibold',
