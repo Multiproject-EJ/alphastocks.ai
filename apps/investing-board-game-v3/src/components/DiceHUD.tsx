@@ -257,7 +257,7 @@ export function DiceHUD({
                   size="lg"
                 >
                   <DiceFive size={20} weight="fill" />
-                  ROLL {selectedMultiplier > 1 ? `${selectedMultiplier}x` : ''} ({rollsRemaining})
+                  ROLL {selectedMultiplier > 1 ? `(${selectedMultiplier})` : ''}
                 </Button>
 
                 {/* Auto-Roll Button */}
