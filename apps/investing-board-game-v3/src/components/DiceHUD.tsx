@@ -1,5 +1,5 @@
 import type { MouseEvent } from 'react'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -132,6 +132,8 @@ export function DiceHUD({
       }, 1000) // 1 second delay feels natural
       return () => clearTimeout(timer)
     }
+    // Note: onRoll is included in deps as required by React hooks rules
+    // Parent component should memoize onRoll with useCallback for optimal performance
   }, [autoRollActive, phase, rollsRemaining, selectedMultiplier, onRoll])
 
   // Auto-stop when out of rolls
@@ -270,7 +272,7 @@ export function DiceHUD({
                     {autoRollActive ? 'Stop Auto' : 'Auto Roll'}
                   </Button>
                   {autoRollActive && (
-                    <div className="text-xs text-center text-muted-foreground">
+                    <div className="text-xs text-center text-muted-foreground" role="status" aria-live="polite">
                       {phase === 'idle' 
                         ? '🔄 Auto-rolling...' 
                         : '⏸️ Paused - Complete action'}
