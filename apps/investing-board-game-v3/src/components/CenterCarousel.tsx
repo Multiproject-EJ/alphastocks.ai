@@ -14,6 +14,7 @@ interface CenterCarouselProps {
   netWorthChange: number
   onStarsClick: () => void
   onPortfolioClick: () => void
+  onPanelChange?: (panelIndex: number) => void
 }
 
 interface StarsAndPortfolioPanelProps {
@@ -98,6 +99,7 @@ export function CenterCarousel({
   netWorthChange,
   onStarsClick,
   onPortfolioClick,
+  onPanelChange,
 }: CenterCarouselProps) {
   const [api, setApi] = useState<CarouselApi>()
   const [current, setCurrent] = useState(0)
@@ -109,9 +111,11 @@ export function CenterCarousel({
     setCurrent(api.selectedScrollSnap())
 
     api.on('select', () => {
-      setCurrent(api.selectedScrollSnap())
+      const newPanel = api.selectedScrollSnap()
+      setCurrent(newPanel)
+      onPanelChange?.(newPanel)
     })
-  }, [api])
+  }, [api, onPanelChange])
 
   const scrollTo = useCallback(
     (index: number) => {
