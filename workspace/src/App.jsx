@@ -21,6 +21,7 @@ import UniverseDeepDiveModal from './features/valuebot/UniverseDeepDiveModal.tsx
 import useFetchDeepDivesFromUniverse from './features/valuebot/useFetchDeepDivesFromUniverse.ts';
 import { useAuth } from './context/AuthContext.jsx';
 import UniverseBuilder from './features/universe-builder/UniverseBuilder.jsx';
+import SearchTab from './features/universe-builder/SearchTab.jsx';
 
 const DEFAULT_FOCUS_LIST = [
   { id: 'focus-1', title: 'SPY breakout', caption: 'Checklist ready • 09:30', tag: { tone: 'tag-green', label: 'Today' } },
@@ -440,7 +441,8 @@ const sectionTabsById = {
   quadrant: ['Universe', 'Universe Quadrant', 'Add Stocks'],
   checkin: ['Tab 1', 'Trading Journal', 'Tab 3', 'Tab 4', 'Tab 5'],
   focuslist: ['Focus List'],
-  'boardgame-v3': []
+  'boardgame-v3': [],
+  'universe-builder': ['Global Ticker Database', 'Search']
 };
 
 const settingsNavItem = { id: 'settings', icon: '⚙️', shortLabel: 'Prefs' };
@@ -2291,6 +2293,45 @@ const App = () => {
     );
   };
 
+  const renderUniverseBuilderPanel = () => {
+    // Tab 1: Global Ticker Database - shows the main UniverseBuilder component
+    if (activeTab === 'Global Ticker Database') {
+      return (
+        <>
+          <h2>{section.title}</h2>
+          <p className="detail-meta">{section.meta}</p>
+          <div className="detail-component">
+            <UniverseBuilder />
+          </div>
+        </>
+      );
+    }
+
+    // Tab 2: Search - shows the SearchTab component
+    if (activeTab === 'Search') {
+      return (
+        <>
+          <h2>Search Stock Universe</h2>
+          <p className="detail-meta">Search and browse all cataloged stocks from the global stock universe database.</p>
+          <div className="detail-component">
+            <SearchTab />
+          </div>
+        </>
+      );
+    }
+
+    // Default fallback to first tab
+    return (
+      <>
+        <h2>{section.title}</h2>
+        <p className="detail-meta">{section.meta}</p>
+        <div className="detail-component">
+          <UniverseBuilder />
+        </div>
+      </>
+    );
+  };
+
   const renderCheckInJournalPanel = () => (
     <>
       <h2>Trading Journal</h2>
@@ -2382,6 +2423,10 @@ const App = () => {
 
     if (activeSection === 'checkin' && activeTab === 'Trading Journal') {
       return renderCheckInJournalPanel();
+    }
+
+    if (activeSection === 'universe-builder') {
+      return renderUniverseBuilderPanel();
     }
 
     if (!hasTabs) {
