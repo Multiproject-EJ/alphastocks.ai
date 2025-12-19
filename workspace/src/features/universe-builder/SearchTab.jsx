@@ -93,6 +93,7 @@ const SearchTab = () => {
             value={searchTerm}
             onInput={(e) => setSearchTerm(e.target.value)}
             aria-label="Search stocks"
+            aria-describedby="search-results-count"
           />
           {searchTerm && (
             <button
@@ -106,7 +107,7 @@ const SearchTab = () => {
           )}
         </div>
         {pagination && (
-          <div className="search-tab__count">
+          <div className="search-tab__count" id="search-results-count">
             {pagination.total.toLocaleString()} stocks found
           </div>
         )}
