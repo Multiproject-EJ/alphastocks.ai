@@ -10,6 +10,9 @@ import { MULTIPLIERS } from '@/lib/constants'
 import { getTimeUntilNextRegen } from '@/lib/energy'
 import type { DiceRoll } from '@/lib/types'
 
+// Auto-roll delay after phase returns to idle (in milliseconds)
+const AUTO_ROLL_DELAY_MS = 1000
+
 interface DiceHUDProps {
   onRoll: (multiplier?: number) => void
   lastRoll: number | null
@@ -129,7 +132,7 @@ export function DiceHUD({
       // Small delay to let UI settle after modal closes
       const timer = setTimeout(() => {
         onRoll(selectedMultiplier)
-      }, 1000) // 1 second delay feels natural
+      }, AUTO_ROLL_DELAY_MS)
       return () => clearTimeout(timer)
     }
     // Note: onRoll is included in deps as required by React hooks rules
@@ -274,8 +277,8 @@ export function DiceHUD({
                   {autoRollActive && (
                     <div className="text-xs text-center text-muted-foreground" role="status" aria-live="polite">
                       {phase === 'idle' 
-                        ? '🔄 Auto-rolling...' 
-                        : '⏸️ Paused - Complete action'}
+                        ? <span aria-label="Auto-rolling">🔄 Auto-rolling...</span>
+                        : <span aria-label="Paused waiting for action">⏸️ Paused - Complete action</span>}
                     </div>
                   )}
                 </div>
