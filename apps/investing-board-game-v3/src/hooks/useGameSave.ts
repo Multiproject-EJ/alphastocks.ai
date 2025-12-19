@@ -215,9 +215,9 @@ export function useGameSave(): UseGameSaveReturn {
             roll6Streak: 0,
           },
           thrift_path: gameState.thriftPath || undefined,
-          // Energy regeneration fields
+          // Energy regeneration fields - use rollsRemaining as the source of truth
           last_energy_check: gameState.lastEnergyCheck?.toISOString() || new Date().toISOString(),
-          energy_rolls: gameState.energyRolls ?? 10,
+          energy_rolls: rollsRemaining,
           roll_history: gameState.rollHistory || [],
           doubles_streak: gameState.doublesStreak ?? 0,
           total_doubles: gameState.totalDoubles ?? 0,

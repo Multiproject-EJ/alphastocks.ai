@@ -422,6 +422,8 @@ function App() {
     if (savedGameState && isAuthenticated) {
       debugGame('Loading saved game state:', savedGameState)
       setGameState(savedGameState)
+      // Initialize rollsRemaining from energyRolls in savedGameState
+      setRollsRemaining(savedGameState.energyRolls ?? DAILY_ROLL_LIMIT)
       gameLoadedFromSave.current = true
       toast.success('Welcome back!', {
         description: 'Your game progress has been restored.',
@@ -429,17 +431,26 @@ function App() {
     }
   }, [savedGameState, saveLoading, authLoading, isAuthenticated])
 
-  // Load saved rolls when available
+  // Load saved rolls when available (sync with energyRolls if already loaded)
   useEffect(() => {
-    if (saveLoading || authLoading || !savedRolls) return
+    if (saveLoading || authLoading || !savedRolls || gameLoadedFromSave.current) return
     
     const now = new Date()
     if (now >= savedRolls.resetAt) {
       // Rolls have expired, reset them
-      setRollsRemaining(getEffectiveDailyRollLimit())
+      const effectiveLimit = getEffectiveDailyRollLimit()
+      setRollsRemaining(effectiveLimit)
+      setGameState(prev => ({
+        ...prev,
+        energyRolls: effectiveLimit
+      }))
       setNextResetTime(getNextMidnight())
     } else {
       setRollsRemaining(savedRolls.remaining)
+      setGameState(prev => ({
+        ...prev,
+        energyRolls: savedRolls.remaining
+      }))
       setNextResetTime(savedRolls.resetAt)
     }
   }, [savedRolls, saveLoading, authLoading, getEffectiveDailyRollLimit])
@@ -485,6 +496,10 @@ function App() {
       if (now >= nextResetTime) {
         const effectiveLimit = getEffectiveDailyRollLimit()
         setRollsRemaining(effectiveLimit)
+        setGameState(prev => ({
+          ...prev,
+          energyRolls: effectiveLimit
+        }))
         setNextResetTime(getNextMidnight())
         toast.info('Daily dice rolls refreshed!', {
           description: `You have ${effectiveLimit} new rolls available`,
@@ -567,6 +582,10 @@ function App() {
   useEffect(() => {
     if (hasPowerUp('extra-dice-rolls')) {
       setRollsRemaining(prev => prev + 3)
+      setGameState(prev => ({
+        ...prev,
+        energyRolls: Math.min((prev.energyRolls ?? DAILY_ROLL_LIMIT) + 3, ENERGY_MAX)
+      }))
       consumePowerUp('extra-dice-rolls')
       toast.success('Extra Dice Rolls Activated!', {
         description: '+3 rolls added',
@@ -576,13 +595,15 @@ function App() {
 
   // Energy regeneration system
   useEffect(() => {
+    // Don't run during initial load or auth loading
+    if (authLoading || saveLoading || !gameLoadedFromSave.current) return
+    
     const checkEnergyRegen = () => {
       if (!gameState.lastEnergyCheck) {
-        // Initialize if not set
+        // Initialize lastEnergyCheck only, don't reset rolls
         setGameState(prev => ({
           ...prev,
-          lastEnergyCheck: new Date(),
-          energyRolls: prev.energyRolls ?? 10
+          lastEnergyCheck: new Date()
         }))
         return
       }
@@ -590,7 +611,7 @@ function App() {
       const regenRolls = calculateRegeneratedRolls(gameState.lastEnergyCheck)
       
       if (regenRolls > 0) {
-        const currentEnergy = gameState.energyRolls ?? 10
+        const currentEnergy = gameState.energyRolls ?? rollsRemaining
         const newEnergy = Math.min(currentEnergy + regenRolls, ENERGY_MAX)
         
         setGameState(prev => ({
@@ -609,14 +630,14 @@ function App() {
       }
     }
     
-    // Check immediately on mount
+    // Check immediately when ready
     checkEnergyRegen()
     
     // Check every minute
     const interval = setInterval(checkEnergyRegen, 60000)
     
     return () => clearInterval(interval)
-  }, [gameState.lastEnergyCheck, gameState.energyRolls])
+  }, [gameState.lastEnergyCheck, gameState.energyRolls, authLoading, saveLoading, rollsRemaining])
 
   const handleRoll = (multiplier: number = 1) => {
     if (phase !== 'idle') {
@@ -650,7 +671,12 @@ function App() {
     if (landingTimeoutRef.current) clearTimeout(landingTimeoutRef.current)
 
     // ✅ BUG FIX #1: Consume rolls IMMEDIATELY before processing
+    // Synchronize both rollsRemaining and gameState.energyRolls
     setRollsRemaining((prev) => prev - multiplier)
+    setGameState(prev => ({
+      ...prev,
+      energyRolls: Math.max(0, (prev.energyRolls ?? DAILY_ROLL_LIMIT) - multiplier)
+    }))
 
     // Haptic feedback for rolling
     hapticRoll()
@@ -859,6 +885,10 @@ function App() {
     if (spendCoins(pack.cost, `Purchase ${pack.rolls} rolls`)) {
       // Grant rolls (can exceed 50 from purchases)
       setRollsRemaining(prev => prev + pack.rolls)
+      setGameState(prev => ({
+        ...prev,
+        energyRolls: (prev.energyRolls ?? DAILY_ROLL_LIMIT) + pack.rolls
+      }))
       
       // Update stats
       setGameState(prev => ({
@@ -1260,7 +1290,7 @@ function App() {
               onReroll={handleReroll}
               dice1={dice1}
               dice2={dice2}
-              energyRolls={gameState.energyRolls ?? 10}
+              energyRolls={gameState.energyRolls ?? DAILY_ROLL_LIMIT}
               lastEnergyCheck={gameState.lastEnergyCheck}
               rollHistory={gameState.rollHistory}
             />
