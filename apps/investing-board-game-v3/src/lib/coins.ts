@@ -23,7 +23,11 @@ export const COIN_COSTS = {
   peek_next_tile: 75,
   extra_roll: 200,
   hint_quiz: 50,
-  fast_forward: 100
+  fast_forward: 100,
+  // Rolls purchase packs
+  rolls_small: 500,    // 10 rolls
+  rolls_medium: 1000,  // 25 rolls
+  rolls_large: 1500,   // 50 rolls
 } as const
 
 // Helper: Can afford?

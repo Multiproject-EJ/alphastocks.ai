@@ -96,6 +96,8 @@ export interface GameState {
     lastLoginDate: string | null
     totalStarsEarned: number
     roll6Streak: number
+    rollsPurchased?: number
+    coinsSpentOnRolls?: number
   }
   // Energy regeneration fields
   lastEnergyCheck?: Date
@@ -213,4 +215,11 @@ export interface LeaderboardEntry {
   totalStarsEarned: number
   rank?: number
   change?: 'up' | 'down' | 'same'
+}
+
+export interface RollsPack {
+  id: 'small' | 'medium' | 'large'
+  rolls: number
+  cost: number
+  badge?: string
 }
