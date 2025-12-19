@@ -30,8 +30,9 @@ export function calculateRegeneratedRolls(lastCheckTime: Date, currentRolls: num
   
   // If at least one 2-hour cycle has passed, reset to RESET_AMOUNT (30 dice)
   if (resetCycles >= 1) {
-    // Cap at MAX_ROLLS
-    return Math.min(ENERGY_CONFIG.RESET_AMOUNT - currentRolls + currentRolls, ENERGY_CONFIG.MAX_ROLLS) - currentRolls
+    // Calculate how many rolls to add to reach the reset amount (capped at MAX_ROLLS)
+    const targetRolls = Math.min(ENERGY_CONFIG.RESET_AMOUNT, ENERGY_CONFIG.MAX_ROLLS)
+    return Math.max(0, targetRolls - currentRolls)
   }
   
   return 0

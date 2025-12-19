@@ -12,6 +12,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { DiceFive, Clock, CurrencyCircleDollar, ShoppingCart } from '@phosphor-icons/react'
 import { ENERGY_CONFIG } from '@/lib/energy'
+import { toast } from 'sonner'
 
 // Real money purchase packs (prices in Norwegian Krone - kr)
 export interface RealMoneyRollsPack {
@@ -86,7 +87,9 @@ export function OutOfRollsModal({
       onPurchase(pack)
     } else {
       // Placeholder: In production, this would integrate with Stripe/payment provider
-      alert(`Purchase ${pack.rolls} dice rolls for ${pack.priceKr} kr - Payment integration coming soon!`)
+      toast.info(`Purchase: ${pack.rolls} dice rolls for ${pack.priceKr} kr`, {
+        description: 'Payment integration coming soon!'
+      })
     }
   }
 
