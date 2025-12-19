@@ -78,6 +78,10 @@ const debugGame = (...args: unknown[]) => {
   }
 }
 
+// Constants
+const LOGO_PANEL_INDEX = 3  // 4th panel (0-indexed)
+const BOARD_CONTAINER_BASE_CLASSES = "relative bg-gradient-to-br from-white/15 via-white/8 to-white/12 backdrop-blur-2xl rounded-2xl border border-white/25 shadow-[inset_0_0_70px_rgba(255,255,255,0.08),_0_20px_80px_rgba(0,0,0,0.35)] p-8 min-h-[900px] transition-opacity duration-700"
+
 function App() {
   const boardRef = useRef<HTMLDivElement>(null)
   const stockSourceAnnounced = useRef<'supabase' | 'mock' | null>(null)
@@ -194,7 +198,6 @@ function App() {
 
   // Carousel panel state
   const [currentCarouselPanel, setCurrentCarouselPanel] = useState(0)
-  const LOGO_PANEL_INDEX = 3  // 4th panel (0-indexed)
   const isLogoPanel = currentCarouselPanel === LOGO_PANEL_INDEX
 
   const [diceResetKey, setDiceResetKey] = useState(0)
@@ -1181,9 +1184,6 @@ function App() {
 
   const netWorthChange = ((gameState.netWorth - 100000) / 100000) * 100
 
-  // Board container classes - extracted for readability
-  const boardContainerBaseClasses = "relative bg-gradient-to-br from-white/15 via-white/8 to-white/12 backdrop-blur-2xl rounded-2xl border border-white/25 shadow-[inset_0_0_70px_rgba(255,255,255,0.08),_0_20px_80px_rgba(0,0,0,0.35)] p-8 min-h-[900px] transition-opacity duration-700"
-
   return (
     <MobileGameLayout showBottomNav={true}>
       <div ref={containerRef} className="relative isolate min-h-screen bg-background p-8 overflow-hidden game-board">
@@ -1208,7 +1208,7 @@ function App() {
       <div className="relative z-10 max-w-[1600px] mx-auto">
         <div
           ref={boardRef}
-          className={`${boardContainerBaseClasses} ${isLogoPanel ? 'opacity-0' : 'opacity-100'}`}
+          className={`${BOARD_CONTAINER_BASE_CLASSES} ${isLogoPanel ? 'opacity-0' : 'opacity-100'}`}
         >
           <CentralStockCard
             stock={currentStock}
