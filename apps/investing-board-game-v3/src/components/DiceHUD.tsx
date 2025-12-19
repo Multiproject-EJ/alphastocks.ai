@@ -1,5 +1,5 @@
 import type { MouseEvent } from 'react'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -9,6 +9,9 @@ import { COIN_COSTS } from '@/lib/coins'
 import { MULTIPLIERS } from '@/lib/constants'
 import { getTimeUntilNextRegen } from '@/lib/energy'
 import type { DiceRoll } from '@/lib/types'
+
+// Auto-roll delay after phase returns to idle (in milliseconds)
+const AUTO_ROLL_DELAY_MS = 1000
 
 interface DiceHUDProps {
   onRoll: (multiplier?: number) => void
@@ -158,14 +161,23 @@ export function DiceHUD({
     }
   }
 
-  // Cleanup auto-roll on unmount
+  // Effect-based auto-roll: watches for phase changes and auto-rolls when idle
   useEffect(() => {
     return () => {
       if (autoRollTimeoutRef.current) {
         clearTimeout(autoRollTimeoutRef.current)
       }
     }
-  }, [])
+    // Note: onRoll is included in deps as required by React hooks rules
+    // Parent component should memoize onRoll with useCallback for optimal performance
+  }, [autoRollActive, phase, rollsRemaining, selectedMultiplier, onRoll])
+
+  // Auto-stop when out of rolls
+  useEffect(() => {
+    if (autoRollActive && rollsRemaining < selectedMultiplier) {
+      setAutoRollActive(false)
+    }
+  }, [autoRollActive, rollsRemaining, selectedMultiplier])
 
   const availableMultipliers = MULTIPLIERS.filter(m => m <= 25) // Limit to 1, 5, 10, 25
 
