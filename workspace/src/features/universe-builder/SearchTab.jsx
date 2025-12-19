@@ -172,7 +172,7 @@ const SearchTab = () => {
           <button
             type="button"
             className="btn-secondary"
-            onClick={() => fetchStocks(page - 1, searchTerm)}
+            onClick={() => fetchStocks(page - 1, debouncedSearchTerm)}
             disabled={page <= 1 || isLoading}
           >
             Previous
@@ -183,7 +183,7 @@ const SearchTab = () => {
           <button
             type="button"
             className="btn-secondary"
-            onClick={() => fetchStocks(page + 1, searchTerm)}
+            onClick={() => fetchStocks(page + 1, debouncedSearchTerm)}
             disabled={page >= pagination.totalPages || isLoading}
           >
             Next
