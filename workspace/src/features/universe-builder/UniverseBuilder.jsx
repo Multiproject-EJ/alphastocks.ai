@@ -1,9 +1,12 @@
 import { useCallback, useEffect, useState, useMemo } from 'preact/hooks';
 import WorldMap from './WorldMap.jsx';
+import { useAuth } from '../../context/AuthContext.jsx';
 
 const API_ENDPOINT = '/api/universe-builder';
 
 const UniverseBuilder = () => {
+  const { user } = useAuth();
+  const profileId = user?.id ?? null;
   const [status, setStatus] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -177,7 +180,8 @@ const UniverseBuilder = () => {
         body: JSON.stringify({
           action: 'add-to-queue',
           stocks: unqueuedData.stocks,
-          provider: 'openai'
+          provider: 'openai',
+          user_id: profileId
         })
       });
 
@@ -219,7 +223,7 @@ const UniverseBuilder = () => {
     } finally {
       setIsAddingToQueue(false);
     }
-  }, [fetchStatus]);
+  }, [fetchStatus, profileId]);
 
   // Initial load
   useEffect(() => {

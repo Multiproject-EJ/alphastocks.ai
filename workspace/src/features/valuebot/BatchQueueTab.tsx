@@ -434,7 +434,8 @@ const BatchQueueTab: FunctionalComponent = () => {
           action: 'add-to-queue',
           stocks: unqueuedData.stocks,
           provider: newProvider,
-          model: newModel || null
+          model: newModel || null,
+          user_id: profileId
         })
       });
 
