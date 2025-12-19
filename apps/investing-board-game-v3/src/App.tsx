@@ -1172,86 +1172,78 @@ function App() {
           ref={boardRef}
           className="relative bg-gradient-to-br from-white/15 via-white/8 to-white/12 backdrop-blur-2xl rounded-2xl border border-white/25 shadow-[inset_0_0_70px_rgba(255,255,255,0.08),_0_20px_80px_rgba(0,0,0,0.35)] p-8 min-h-[900px]"
         >
-          <header className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
-            <CenterCarousel
-              gameState={gameState}
-              netWorthChange={netWorthChange}
-              onStarsClick={() => setHubModalOpen(true)}
-              onPortfolioClick={() => setPortfolioModalOpen(true)}
-            />
-          </header>
-
           <CentralStockCard
             stock={currentStock}
             isVisible={showCentralStock}
             onClose={() => setShowCentralStock(false)}
           />
 
-          {/* User Indicator - Top Left */}
-          <div className="absolute top-4 left-4 z-40">
-            <UserIndicator 
-              saving={saving} 
-              lastSaved={lastSavedTime} 
-              currentTier={currentTier}
-              stars={gameState.stars}
-              coins={gameState.coins}
-            />
-          </div>
-
-          {/* Challenge Tracker - Below User Indicator */}
-          <div className="absolute top-20 left-4 z-40">
-            <ChallengeTracker
-              dailyChallenges={dailyChallenges}
-              onOpenModal={() => setChallengesModalOpen(true)}
-            />
-          </div>
-
-          {/* Thrift Path Status Widget - Below Challenge Tracker */}
-          <div className="absolute top-44 left-4 z-40">
-            <ThriftPathStatus
-              status={thriftPathStatus}
-              onClick={() => {
-                // Could open a detailed Thrift Path info modal in the future
-                toast.info('Thrift Path', {
-                  description: `Your disciplined choices earn XP and unlock benefits!`
-                })
-              }}
-            />
-          </div>
-
           {/* Sound Controls - Top Right */}
           <div className="absolute top-4 right-4 z-40">
             <SoundControls />
           </div>
 
-          {/* Shop Button - Bottom Left */}
-          <div className="absolute bottom-8 left-8 z-40">
-            <Button
-              onClick={() => setShopModalOpen(true)}
-              className="bg-accent/90 hover:bg-accent text-accent-foreground shadow-lg hover:shadow-xl transition-all backdrop-blur-sm rounded-full h-14 px-6 text-base font-semibold flex items-center gap-2"
-              aria-label="Open Shop"
-            >
-              <ShoppingBag size={20} weight="bold" />
-              Shop
-            </Button>
-          </div>
+          {/* Center Section - Reorganized Layout */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 flex items-center gap-8">
+            {/* Left Side - Shop, Challenges, ThriftPath */}
+            <div className="flex flex-col gap-4 items-center">
+              <Button
+                onClick={() => setShopModalOpen(true)}
+                className="bg-accent/90 hover:bg-accent text-accent-foreground shadow-lg hover:shadow-xl transition-all backdrop-blur-sm rounded-full h-14 px-6 text-base font-semibold flex items-center gap-2"
+                aria-label="Open Shop"
+              >
+                <ShoppingBag size={20} weight="bold" />
+                Shop
+              </Button>
+              <ChallengeTracker
+                dailyChallenges={dailyChallenges}
+                onOpenModal={() => setChallengesModalOpen(true)}
+              />
+              <ThriftPathStatus
+                status={thriftPathStatus}
+                onClick={() => {
+                  // Could open a detailed Thrift Path info modal in the future
+                  toast.info('Thrift Path', {
+                    description: `Your disciplined choices earn XP and unlock benefits!`
+                  })
+                }}
+              />
+            </div>
 
-          {/* Pro Tools Button */}
-          <div className="absolute bottom-8 right-8 z-40">
-            <Button
-              onClick={() => {
-                const proToolsUrl = 'https://www.alphastocks.ai/?proTools=1'
-                if (typeof window !== 'undefined') {
-                  window.location.href = proToolsUrl
-                  return
-                }
-                setProToolsOpen(true)
-              }}
-              className="bg-accent/90 hover:bg-accent text-accent-foreground shadow-lg hover:shadow-xl transition-all backdrop-blur-sm rounded-full h-14 px-6 text-base font-semibold"
-              aria-label="Open Pro Tools"
-            >
-              ProTools
-            </Button>
+            {/* Center - Main Carousel with User Info on Top */}
+            <div className="flex flex-col items-center gap-4">
+              <UserIndicator 
+                saving={saving} 
+                lastSaved={lastSavedTime} 
+                currentTier={currentTier}
+                stars={gameState.stars}
+                coins={gameState.coins}
+              />
+              <CenterCarousel
+                gameState={gameState}
+                netWorthChange={netWorthChange}
+                onStarsClick={() => setHubModalOpen(true)}
+                onPortfolioClick={() => setPortfolioModalOpen(true)}
+              />
+            </div>
+
+            {/* Right Side - ProTools */}
+            <div className="flex flex-col items-center">
+              <Button
+                onClick={() => {
+                  const proToolsUrl = 'https://www.alphastocks.ai/?proTools=1'
+                  if (typeof window !== 'undefined') {
+                    window.location.href = proToolsUrl
+                    return
+                  }
+                  setProToolsOpen(true)
+                }}
+                className="bg-accent/90 hover:bg-accent text-accent-foreground shadow-lg hover:shadow-xl transition-all backdrop-blur-sm rounded-full h-14 px-6 text-base font-semibold"
+                aria-label="Open Pro Tools"
+              >
+                ProTools
+              </Button>
+            </div>
           </div>
 
           <div data-tutorial="dice">
