@@ -362,27 +362,19 @@ export function DiceHUD({
                     Phase: <span className="text-accent">{phase}</span>
                   </div>
                   
-                  {/* Energy Regen Timer */}
+                  {/* 2-Hour Reset Timer */}
                   {lastEnergyCheck && (
                     <div className="flex items-center gap-2 justify-center p-2 rounded bg-background/50">
                       <Clock size={14} className="text-green-400" />
                       <div className="flex flex-col">
-                        <div className="text-[10px] opacity-60">Next roll in</div>
+                        <div className="text-[10px] opacity-60">Next reset (30 dice) in</div>
                         <div className="font-mono text-green-400 text-xs">{energyRegenTime}</div>
                       </div>
                     </div>
                   )}
 
-                  <div className="flex items-center gap-2 justify-center p-2 rounded bg-background/50">
-                    <Clock size={14} className="text-accent" />
-                    <div className="flex flex-col">
-                      <div className="text-[10px] opacity-60">Daily reset in</div>
-                      <div className="font-mono text-accent text-xs">{timeUntilReset}</div>
-                    </div>
-                  </div>
-
                   <div className="text-[10px] opacity-60 text-center">
-                    Energy: {energyRolls}/50 • Drag me anywhere
+                    Dice: {energyRolls}/50 • Drag me anywhere
                   </div>
                 </div>
               </div>

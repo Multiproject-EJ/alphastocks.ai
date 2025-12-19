@@ -10,26 +10,27 @@ import {
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { DiceFive, Clock, Coin } from '@phosphor-icons/react'
-import { RollsPack } from '@/lib/types'
-import { COIN_COSTS } from '@/lib/coins'
+import { DiceFive, Clock, CurrencyCircleDollar, ShoppingCart } from '@phosphor-icons/react'
 import { ENERGY_CONFIG } from '@/lib/energy'
 
-export const ROLLS_PACKS: RollsPack[] = [
+// Real money purchase packs (prices in Norwegian Krone - kr)
+export interface RealMoneyRollsPack {
+  id: 'pack_50' | 'pack_350'
+  rolls: number
+  priceKr: number
+  badge?: string
+}
+
+export const REAL_MONEY_ROLLS_PACKS: RealMoneyRollsPack[] = [
   {
-    id: 'small',
-    rolls: 10,
-    cost: COIN_COSTS.rolls_small,
-  },
-  {
-    id: 'medium',
-    rolls: 25,
-    cost: COIN_COSTS.rolls_medium,
-  },
-  {
-    id: 'large',
+    id: 'pack_50',
     rolls: 50,
-    cost: COIN_COSTS.rolls_large,
+    priceKr: 25,
+  },
+  {
+    id: 'pack_350',
+    rolls: 350,
+    priceKr: 129,
     badge: 'BEST VALUE'
   }
 ]
@@ -37,25 +38,31 @@ export const ROLLS_PACKS: RollsPack[] = [
 interface OutOfRollsModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  currentCoins: number
-  onPurchase: (rollsPack: RollsPack) => void
-  nextResetTime: Date
+  onPurchase?: (pack: RealMoneyRollsPack) => void
+  nextResetTime?: Date
+  lastEnergyCheck?: Date
 }
 
 export function OutOfRollsModal({
   open,
   onOpenChange,
-  currentCoins,
   onPurchase,
   nextResetTime,
+  lastEnergyCheck,
 }: OutOfRollsModalProps) {
   const [timeUntilReset, setTimeUntilReset] = useState('')
 
-  // Update countdown timer
+  // Update countdown timer for next 2-hour reset
   useEffect(() => {
     const updateTimer = () => {
+      if (!lastEnergyCheck) {
+        setTimeUntilReset('--')
+        return
+      }
+
       const now = new Date()
-      const diff = nextResetTime.getTime() - now.getTime()
+      const nextReset = new Date(lastEnergyCheck.getTime() + ENERGY_CONFIG.REGEN_INTERVAL_MINUTES * 60 * 1000)
+      const diff = nextReset.getTime() - now.getTime()
 
       if (diff <= 0) {
         setTimeUntilReset('Soon!')
@@ -72,85 +79,105 @@ export function OutOfRollsModal({
     const interval = setInterval(updateTimer, 1000)
 
     return () => clearInterval(interval)
-  }, [nextResetTime])
+  }, [lastEnergyCheck])
+
+  const handlePurchaseClick = (pack: RealMoneyRollsPack) => {
+    if (onPurchase) {
+      onPurchase(pack)
+    } else {
+      // Placeholder: In production, this would integrate with Stripe/payment provider
+      alert(`Purchase ${pack.rolls} dice rolls for ${pack.priceKr} kr - Payment integration coming soon!`)
+    }
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] bg-card border-2 border-accent/50 shadow-[0_0_40px_oklch(0.6_0.2_280_/_0.3)]">
+      <DialogContent className="sm:max-w-[500px] bg-card border-2 border-accent/50 shadow-[0_0_40px_oklch(0.6_0.2_280_/_0.3)]">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-accent flex items-center gap-2">
             <DiceFive size={32} weight="fill" />
-            Out of Rolls!
+            Out of Dice Rolls!
           </DialogTitle>
           <DialogDescription className="text-base text-muted-foreground mt-2">
-            Get more rolls to keep playing
+            Get more dice rolls to continue your investment journey
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-3 py-4">
-          {ROLLS_PACKS.map((pack) => {
-            const canAfford = currentCoins >= pack.cost
-            const coinsPerRoll = Math.round(pack.cost / pack.rolls)
+        <div className="space-y-4 py-4">
+          {/* Real money purchase packs */}
+          {REAL_MONEY_ROLLS_PACKS.map((pack) => {
+            const pricePerRoll = (pack.priceKr / pack.rolls).toFixed(2)
 
             return (
               <Card
                 key={pack.id}
-                className={`relative cursor-pointer transition-all ${
-                  canAfford
-                    ? 'hover:border-accent hover:shadow-lg hover:shadow-accent/20'
-                    : 'opacity-60 cursor-not-allowed'
-                }`}
-                onClick={() => canAfford && onPurchase(pack)}
+                className="relative cursor-pointer transition-all hover:border-accent hover:shadow-lg hover:shadow-accent/20"
+                onClick={() => handlePurchaseClick(pack)}
               >
-                <CardContent className="p-4">
+                <CardContent className="p-5">
                   {pack.badge && (
-                    <Badge className="absolute -top-2 -right-2 bg-yellow-500 text-yellow-950 font-bold border-yellow-400">
+                    <Badge className="absolute -top-2 -right-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-white font-bold border-0 px-3 py-1 shadow-lg">
                       {pack.badge}
                     </Badge>
                   )}
 
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <DiceFive size={32} weight="fill" className="text-accent" />
+                    <div className="flex items-center gap-4">
+                      <div className="relative">
+                        <DiceFive size={48} weight="fill" className="text-accent" />
+                        <span className="absolute -bottom-1 -right-1 bg-accent text-accent-foreground text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center">
+                          +
+                        </span>
+                      </div>
                       <div>
-                        <div className="font-bold text-lg">+{pack.rolls} Rolls</div>
+                        <div className="font-bold text-xl text-foreground">+{pack.rolls} Dice Rolls</div>
                         <div className="text-sm text-muted-foreground">
-                          {coinsPerRoll} coins per roll
+                          Only {pricePerRoll} kr per roll
                         </div>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2">
-                      <Coin size={20} className="text-yellow-500" weight="fill" />
-                      <span className="font-bold text-lg">{pack.cost}</span>
+                    <div className="flex flex-col items-end gap-1">
+                      <div className="flex items-center gap-1">
+                        <CurrencyCircleDollar size={24} className="text-green-500" weight="fill" />
+                        <span className="font-bold text-2xl text-foreground">{pack.priceKr} kr</span>
+                      </div>
+                      <Button 
+                        size="sm" 
+                        className="bg-accent hover:bg-accent/90 text-accent-foreground gap-1"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handlePurchaseClick(pack)
+                        }}
+                      >
+                        <ShoppingCart size={16} weight="fill" />
+                        Buy Now
+                      </Button>
                     </div>
                   </div>
-
-                  {!canAfford && (
-                    <div className="mt-2 text-xs text-destructive font-medium">
-                      Insufficient coins (need {pack.cost - currentCoins} more)
-                    </div>
-                  )}
                 </CardContent>
               </Card>
             )
           })}
         </div>
 
-        <div className="mt-4 space-y-3">
-          <div className="text-sm text-muted-foreground flex items-center justify-center gap-2 bg-background/50 p-3 rounded-lg">
-            <Clock size={16} />
-            <span>Next free rolls in: <span className="font-mono font-bold text-accent">{timeUntilReset}</span></span>
+        <div className="mt-2 space-y-3">
+          <div className="text-sm text-muted-foreground flex items-center justify-center gap-2 bg-background/50 p-3 rounded-lg border border-border/50">
+            <Clock size={18} className="text-accent" />
+            <span>
+              Free reset in: <span className="font-mono font-bold text-accent">{timeUntilReset}</span>
+            </span>
           </div>
 
-          <p className="text-xs text-muted-foreground text-center">
-            💡 Rolls also regenerate {ENERGY_CONFIG.REGEN_RATE} every {ENERGY_CONFIG.REGEN_INTERVAL_MINUTES} minutes
+          <p className="text-sm text-muted-foreground text-center px-4">
+            💡 <strong>{ENERGY_CONFIG.RESET_AMOUNT} free dice rolls</strong> are reset every{' '}
+            <strong>{Math.round(ENERGY_CONFIG.REGEN_INTERVAL_MINUTES / 60)} hours</strong>
           </p>
         </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Close
+        <DialogFooter className="mt-4">
+          <Button variant="outline" onClick={() => onOpenChange(false)} className="w-full sm:w-auto">
+            Wait for Free Reset
           </Button>
         </DialogFooter>
       </DialogContent>
