@@ -23,6 +23,7 @@ import { NetWorthGalleryModal } from '@/components/NetWorthGalleryModal'
 import { TierUpModal } from '@/components/TierUpModal'
 import { ThriftPathStatus } from '@/components/ThriftPathStatus'
 import { ThriftPathAura } from '@/components/ThriftPathAura'
+import { OutOfRollsModal } from '@/components/OutOfRollsModal'
 
 // Mobile-first components
 import { MobileGameLayout } from '@/components/MobileGameLayout'
@@ -37,7 +38,7 @@ const ChallengesModal = lazy(() => import('@/components/ChallengesModal'))
 const EventCalendar = lazy(() => import('@/components/EventCalendar'))
 const SettingsModal = lazy(() => import('@/components/SettingsModal'))
 
-import { GameState, Stock, BiasCaseStudy } from '@/lib/types'
+import { GameState, Stock, BiasCaseStudy, RollsPack } from '@/lib/types'
 import {
   BOARD_TILES,
   getRandomMarketEvent,
@@ -183,6 +184,8 @@ function App() {
   const [eventCalendarOpen, setEventCalendarOpen] = useState(false)
 
   const [netWorthGalleryOpen, setNetWorthGalleryOpen] = useState(false)
+
+  const [outOfRollsModalOpen, setOutOfRollsModalOpen] = useState(false)
 
   // Mobile UI states
   const [activeSection, setActiveSection] = useState<'home' | 'challenges' | 'shop' | 'leaderboard' | 'settings'>('home')
@@ -624,6 +627,13 @@ function App() {
       return
     }
 
+    // NEW: Open purchase modal instead of error toast when out of rolls
+    if (rollsRemaining <= 0) {
+      setOutOfRollsModalOpen(true)
+      playSound('error')
+      return
+    }
+
     if (rollsRemaining < multiplier) {
       debugGame('Not enough rolls:', { rollsRemaining, needed: multiplier })
       playSound('error')
@@ -783,6 +793,41 @@ function App() {
     }
     
     return spendCoins(COIN_COSTS.skip_event, 'Skip event')
+  }
+
+  const handlePurchaseRolls = (pack: RollsPack) => {
+    if (!canAffordCoins(pack.cost)) {
+      toast.error('Insufficient coins!', {
+        description: `You need ${pack.cost} coins but only have ${gameState.coins}`
+      })
+      playSound('error')
+      return
+    }
+    
+    // Spend coins
+    if (spendCoins(pack.cost, `Purchase ${pack.rolls} rolls`)) {
+      // Grant rolls (can exceed 50 from purchases)
+      setRollsRemaining(prev => prev + pack.rolls)
+      
+      // Update stats
+      setGameState(prev => ({
+        ...prev,
+        stats: {
+          ...prev.stats,
+          rollsPurchased: (prev.stats.rollsPurchased || 0) + pack.rolls,
+          coinsSpentOnRolls: (prev.stats.coinsSpentOnRolls || 0) + pack.cost
+        }
+      }))
+      
+      // Success feedback
+      toast.success(`+${pack.rolls} Rolls!`, {
+        description: `Spent ${pack.cost} coins`
+      })
+      playSound('cash-register')
+      
+      // Close modal
+      setOutOfRollsModalOpen(false)
+    }
   }
 
   const handleTileLanding = (position: number, passedStart = false) => {
@@ -1439,6 +1484,15 @@ function App() {
           tier={newTier}
         />
       )}
+
+      {/* Out of Rolls Purchase Modal */}
+      <OutOfRollsModal
+        open={outOfRollsModalOpen}
+        onOpenChange={setOutOfRollsModalOpen}
+        currentCoins={gameState.coins}
+        onPurchase={handlePurchaseRolls}
+        nextResetTime={nextResetTime}
+      />
 
       {/* Mobile Bottom Navigation */}
       <BottomNav

@@ -174,7 +174,32 @@ export function DiceHUD({
             transition={{ duration: 0.15 }}
             className="cursor-move"
           >
-            <Card className="p-4 bg-card/90 backdrop-blur-md border-2 border-border shadow-xl">
+            <Card className="p-4 bg-card/90 backdrop-blur-md border-2 border-border shadow-xl relative">
+              {/* Roll Counter - Top Right */}
+              <div className="absolute top-2 right-2 bg-background/80 backdrop-blur-sm rounded-full px-3 py-1 border border-accent/30">
+                <div className="flex items-center gap-1.5">
+                  <DiceFive size={14} className="text-accent" />
+                  <span className="font-mono font-bold text-sm">
+                    <motion.span
+                      key={rollsRemaining}
+                      initial={{ scale: 1.5, color: 'rgb(var(--accent))' }}
+                      animate={{ scale: 1, color: 'currentColor' }}
+                      transition={{ duration: 0.3 }}
+                      className={
+                        rollsRemaining === 0
+                          ? 'text-destructive'
+                          : rollsRemaining <= 10
+                          ? 'text-orange-400'
+                          : 'text-accent'
+                      }
+                    >
+                      {rollsRemaining}
+                    </motion.span>
+                    <span className="text-muted-foreground">/50</span>
+                  </span>
+                </div>
+              </div>
+
               <div className="flex flex-col gap-3 min-w-[260px]">
                 <div className="flex items-start justify-between">
                   <h3 className="text-sm font-bold text-foreground font-mono uppercase tracking-wider">
@@ -333,6 +358,24 @@ export function DiceHUD({
             onClick={() => setIsExpanded(true)}
             className="relative flex items-center justify-center w-28 h-28 rounded-full border-2 border-white/20 bg-card/80 backdrop-blur-md shadow-xl cursor-pointer"
           >
+            {/* Roll Counter Badge - Compact Mode */}
+            <div className="absolute -top-1 -right-1 bg-background/90 backdrop-blur-sm rounded-full px-2 py-0.5 border border-accent/30 shadow-md">
+              <div className="flex items-center gap-1">
+                <DiceFive size={12} className="text-accent" />
+                <span 
+                  className={`font-mono font-bold text-xs ${
+                    rollsRemaining === 0
+                      ? 'text-destructive'
+                      : rollsRemaining <= 10
+                      ? 'text-orange-400'
+                      : 'text-accent'
+                  }`}
+                >
+                  {rollsRemaining}
+                </span>
+              </div>
+            </div>
+
             <div className="relative flex items-center justify-center w-full h-full">
               <motion.div
                 className="flex items-center justify-center gap-1"
