@@ -35,20 +35,26 @@ export function Board3DViewport({
   // Immersive mode: apply 3D perspective wrapper
   return (
     <div 
-      className="board-viewport-3d"
+      className="board-viewport-container"
       style={{
         position: 'relative',
         width: '100%',
         height: '100%',
+        overflow: 'hidden',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
         ...containerStyle,
       }}
     >
       <div 
-        className="board-3d-container"
+        className="board-3d-transform"
         style={{
-          position: 'relative',
-          width: '100%',
-          height: '100%',
+          width: '1200px',
+          height: '1200px',
+          transformOrigin: 'center center',
+          transformStyle: 'preserve-3d',
+          willChange: 'transform',
           ...boardStyle,
         }}
       >

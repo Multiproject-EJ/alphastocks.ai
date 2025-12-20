@@ -271,7 +271,7 @@ export function DevToolsOverlay({ phase = 'unknown' }: DevToolsOverlayProps) {
                           <span className="text-purple-300">Tilt:</span> {cameraState.rotateX.toFixed(1)}°
                         </div>
                         <div className="font-mono">
-                          <span className="text-purple-300">Zoom:</span>{' '}
+                          <span className="text-purple-300">Scale:</span>{' '}
                           <span className="text-cyan-400 font-bold">{cameraState.scale.toFixed(2)}x</span>
                         </div>
                         <div className="font-mono">
@@ -284,6 +284,26 @@ export function DevToolsOverlay({ phase = 'unknown' }: DevToolsOverlayProps) {
                           <span className="text-purple-300">Animating:</span>{' '}
                           <span className={cameraState.isAnimating ? 'text-yellow-400' : 'text-gray-500'}>
                             {cameraState.isAnimating ? '✓' : '✗'}
+                          </span>
+                        </div>
+                        <div className="font-mono">
+                          <span className="text-purple-300">Valid:</span>{' '}
+                          <span className={`font-bold ${
+                            !isNaN(cameraState.scale) &&
+                            cameraState.scale > 0 &&
+                            cameraState.scale < 10 &&
+                            Math.abs(cameraState.translateX) < 5000 &&
+                            Math.abs(cameraState.translateY) < 5000
+                              ? 'text-green-400'
+                              : 'text-red-400'
+                          }`}>
+                            {!isNaN(cameraState.scale) &&
+                            cameraState.scale > 0 &&
+                            cameraState.scale < 10 &&
+                            Math.abs(cameraState.translateX) < 5000 &&
+                            Math.abs(cameraState.translateY) < 5000
+                              ? '✓ Valid'
+                              : '✗ Invalid!'}
                           </span>
                         </div>
                       </>

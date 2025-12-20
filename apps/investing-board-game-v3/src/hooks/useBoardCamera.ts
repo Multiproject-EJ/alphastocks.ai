@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { calculateTilePositions, TilePosition } from '@/lib/tilePositions'
+import { eventBus } from '@/devtools/eventBus'
 
 export type CameraMode = 'classic' | 'immersive'
 
@@ -263,6 +264,48 @@ export function useBoardCamera(options: UseBoardCameraOptions) {
       }
     }
   }, [])
+  
+  // Emergency fallback: detect invalid camera state and reset
+  useEffect(() => {
+    if (
+      isNaN(camera.scale) ||
+      camera.scale === 0 ||
+      camera.scale > 10 ||
+      Math.abs(camera.translateX) > 5000 ||
+      Math.abs(camera.translateY) > 5000
+    ) {
+      console.error('❌ Camera state invalid, resetting to classic mode:', {
+        scale: camera.scale,
+        translateX: camera.translateX,
+        translateY: camera.translateY,
+      })
+      setMode('classic')
+      resetCamera()
+    }
+  }, [camera.scale, camera.translateX, camera.translateY, setMode, resetCamera])
+  
+  // Debug logging for camera state changes
+  useEffect(() => {
+    console.log('🎥 Camera state:', {
+      mode: camera.mode,
+      scale: camera.scale,
+      translateX: camera.translateX,
+      translateY: camera.translateY,
+      rotateX: camera.rotateX,
+      isMobile,
+      currentPosition,
+      isValid: (
+        !isNaN(camera.scale) &&
+        camera.scale > 0 &&
+        camera.scale < 10 &&
+        Math.abs(camera.translateX) < 5000 &&
+        Math.abs(camera.translateY) < 5000
+      ),
+    })
+    
+    // Publish camera state to DevTools
+    eventBus.setCameraState(camera)
+  }, [camera, isMobile, currentPosition])
   
   // Check for reduced motion preference
   const prefersReducedMotion = useMemo(() => {
