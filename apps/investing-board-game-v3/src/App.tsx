@@ -42,6 +42,11 @@ const EventCalendar = lazy(() => import('@/components/EventCalendar'))
 const SettingsModal = lazy(() => import('@/components/SettingsModal'))
 const CityBuilderModal = lazy(() => import('@/components/CityBuilderModal'))
 
+// DevTools components (only in dev mode)
+const TapTestOverlay = import.meta.env.DEV || import.meta.env.VITE_DEVTOOLS === '1' 
+  ? lazy(() => import('@/devtools/TapTestOverlay').then(m => ({ default: m.TapTestOverlay })))
+  : null
+
 // DevTools event logging (only loads in dev mode)
 let logEvent: ((type: string, payload?: Record<string, unknown> | string) => void) | undefined
 if (import.meta.env.DEV || import.meta.env.VITE_DEVTOOLS === '1') {
@@ -1842,6 +1847,13 @@ function App() {
 
       {/* PWA Install Prompt */}
       <InstallPrompt />
+      
+      {/* DevTools: Tap Test Overlay (dev mode only) */}
+      {TapTestOverlay && (
+        <Suspense fallback={null}>
+          <TapTestOverlay />
+        </Suspense>
+      )}
     </div>
     </MobileGameLayout>
   )
