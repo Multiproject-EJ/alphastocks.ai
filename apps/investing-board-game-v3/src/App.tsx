@@ -1287,15 +1287,15 @@ function App() {
             height: isMobile ? 'calc(100vh - 180px)' : 'auto',
             position: isMobile ? 'relative' : 'static',
           }}
-          onTouchStart={isMobile ? (e) => handleTouchStart(e.nativeEvent as TouchEvent) : undefined}
-          onTouchMove={isMobile ? (e) => handleTouchMove(e.nativeEvent as TouchEvent) : undefined}
+          onTouchStart={isMobile ? handleTouchStart : undefined}
+          onTouchMove={isMobile ? handleTouchMove : undefined}
           onTouchEnd={isMobile ? handleTouchEnd : undefined}
         >
           <div 
             ref={boardRef} 
             className={boardCenterClasses}
             style={isMobile ? {
-              transform: `scale(${zoom.scale}) translate(${zoom.translateX}px, ${zoom.translateY}px)`,
+              transform: `translate(${zoom.translateX}px, ${zoom.translateY}px) scale(${zoom.scale})`,
               transformOrigin: 'center center',
               transition: isPanning ? 'none' : 'transform 0.3s ease-out',
               willChange: 'transform',

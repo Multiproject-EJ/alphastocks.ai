@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
+import type { TouchEvent as ReactTouchEvent } from 'react'
 
 interface BoardZoomState {
   scale: number
@@ -86,8 +87,8 @@ export function useBoardZoom({
     }))
   }, [isMobile, autoFollow, getTilePosition, zoom.scale])
 
-  // Handle pinch zoom
-  const handleTouchStart = useCallback((e: TouchEvent) => {
+  // Handle pinch zoom - works with React SyntheticEvent
+  const handleTouchStart = useCallback((e: ReactTouchEvent<HTMLDivElement>) => {
     if (e.touches.length === 2) {
       const distance = Math.hypot(
         e.touches[0].clientX - e.touches[1].clientX,
@@ -105,7 +106,7 @@ export function useBoardZoom({
     }
   }, [])
 
-  const handleTouchMove = useCallback((e: TouchEvent) => {
+  const handleTouchMove = useCallback((e: ReactTouchEvent<HTMLDivElement>) => {
     e.preventDefault()
 
     if (e.touches.length === 2 && lastTouchDistance.current !== null) {
