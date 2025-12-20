@@ -76,6 +76,7 @@ import { useChallenges } from '@/hooks/useChallenges'
 import { useEvents } from '@/hooks/useEvents'
 import { useHaptics } from '@/hooks/useHaptics'
 import { useSwipeGesture } from '@/hooks/useSwipeGesture'
+import { useGestureArbitration } from '@/hooks/useGestureArbitration'
 import { useNetWorthTier } from '@/hooks/useNetWorthTier'
 import { useCoins } from '@/hooks/useCoins'
 import { useThriftPath } from '@/hooks/useThriftPath'
@@ -379,8 +380,49 @@ function App() {
     })
   }, [cityBuilderStateJson])
 
-  // Swipe gesture hook - for mobile navigation
+  // Gesture arbitration hook - Priority: pinch > swipe > pan > tap
+  // This replaces the simple swipe gesture hook with a more sophisticated system
   const containerRef = useRef<HTMLDivElement>(null)
+  const boardContainerRef = useRef<HTMLDivElement>(null)
+  
+  // Use gesture arbitration for the main game board area
+  useGestureArbitration(boardContainerRef, {
+    enabled: isMobile,
+    onPinch: (scale, centerX, centerY) => {
+      // Pinch zoom on board (highest priority)
+      if (camera.mode === 'classic') {
+        // In classic mode, pinch zoom should adjust the zoom level
+        // This would integrate with the existing zoom system
+        debugGame('Pinch detected:', { scale, centerX, centerY })
+      }
+    },
+    onSwipe: (direction, velocity) => {
+      // Swipes for navigation (second priority)
+      if (direction === 'up' && !shopModalOpen && !challengesModalOpen) {
+        setShopModalOpen(true)
+        hapticLight()
+      }
+      if (direction === 'down' && (shopModalOpen || challengesModalOpen)) {
+        setShopModalOpen(false)
+        setChallengesModalOpen(false)
+      }
+      debugGame('Swipe detected:', { direction, velocity })
+    },
+    onPan: (deltaX, deltaY) => {
+      // Panning the board (third priority)
+      if (camera.mode === 'classic' && !isPanning) {
+        // Pan gesture would be handled by the existing touch handlers
+        debugGame('Pan detected:', { deltaX, deltaY })
+      }
+    },
+    onTap: (x, y) => {
+      // Tap interactions (lowest priority)
+      debugGame('Tap detected:', { x, y })
+    },
+  })
+  
+  // Fallback: Keep the old swipe gesture for the main container
+  // This handles swipes outside the board area
   useSwipeGesture(containerRef, (direction) => {
     if (direction === 'up' && !shopModalOpen && !challengesModalOpen) {
       setShopModalOpen(true)
@@ -1344,7 +1386,7 @@ function App() {
           onOpenCalendar={() => setEventCalendarOpen(true)}
         />
 
-      <div className="relative z-10 max-w-[1600px] mx-auto">
+      <div className="relative z-10 max-w-[1600px] mx-auto" ref={boardContainerRef}>
         {/* Board wrapper with 3D camera or classic zoom support */}
         <Board3DViewport
           camera={camera}
