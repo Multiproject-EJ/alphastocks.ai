@@ -91,11 +91,14 @@ import { useBoardZoom } from '@/hooks/useBoardZoom'
 import { useBoardCamera } from '@/hooks/useBoardCamera'
 import { useSafeArea } from '@/hooks/useSafeArea'
 import { useOverlayManager } from '@/hooks/useOverlayManager'
+import { useUIMode } from '@/hooks/useUIMode'
 import { ThriftPathStatus as ThriftPathStatusType } from '@/lib/thriftPath'
 import { COIN_COSTS, COIN_EARNINGS } from '@/lib/coins'
 import { getInitialCityBuilderState, CITIES } from '@/lib/cityBuilder'
+import type { UIMode, GamePhase } from '@/lib/uiModeStateMachine'
 
-type Phase = 'idle' | 'rolling' | 'moving' | 'landed'
+// Alias for backward compatibility
+type Phase = GamePhase
 
 // Debug helper function - logs only when DEBUG_GAME is enabled in localStorage
 const debugGame = (...args: unknown[]) => {
@@ -190,6 +193,15 @@ function App() {
 
   // Overlay manager for coordinated modal display
   const { show: showOverlay, wasRecentlyShown, getCurrentOverlay } = useOverlayManager()
+
+  // UI Mode management - centralizes "what view/mode are we in?"
+  const { 
+    mode: uiMode, 
+    transitionTo: transitionUIMode,
+    setPhase: setUIPhase,
+    setCanTransition,
+    phase: uiPhase,
+  } = useUIMode()
 
   // Keep state for data that modals need (but not open/closed state)
   const [currentStock, setCurrentStock] = useState<Stock | null>(null)
@@ -523,71 +535,100 @@ function App() {
     hapticLight()
     setActiveSection(section)
     
-    // Note: closeAll is not exposed yet, so we'll just open the new overlay
-    // The overlay manager will coordinate displays
-    
-    // Open corresponding modal based on section
-    if (section === 'challenges') {
-      logEvent?.('modal_opened', { modal: 'challenges' })
-      showOverlay({
-        id: 'challenges',
-        component: lazy(() => import('@/components/ChallengesModal')),
-        props: {
-          dailyChallenges,
-          weeklyChallenges,
-        },
-        priority: 'normal',
-        onClose: () => {
-          logEvent?.('modal_closed', { modal: 'challenges' })
-        }
-      })
-    } else if (section === 'shop') {
-      logEvent?.('modal_opened', { modal: 'shop' })
-      showOverlay({
-        id: 'shop',
-        component: lazy(() => import('@/components/ShopModal')),
-        props: {
-          gameState,
-          onPurchase: purchaseItem,
-          isPermanentOwned,
-          getItemQuantity,
-          canAfford,
-          onEquipCosmetic: equipCosmetic,
-          getFinalPrice,
-          shopDiscount,
-        },
-        priority: 'normal',
-        onClose: () => {
-          logEvent?.('modal_closed', { modal: 'shop' })
-        }
-      })
-    } else if (section === 'leaderboard') {
-      // Open leaderboard
-      showOverlay({
-        id: 'leaderboard',
-        component: lazy(() => import('@/components/LeaderboardModal')),
-        props: {
-          currentPlayer: {
-            netWorth: gameState.netWorth,
-            level: gameState.level,
-          }
-        },
-        priority: 'normal',
-      })
-    } else if (section === 'settings') {
-      logEvent?.('modal_opened', { modal: 'settings' })
-      showOverlay({
-        id: 'settings',
-        component: lazy(() => import('@/components/SettingsModal')),
-        props: {},
-        priority: 'normal',
-        onClose: () => {
-          logEvent?.('modal_closed', { modal: 'settings' })
-        }
-      })
-    } else if (section === 'home') {
-      // Just close all modals - overlay manager will handle this
+    // Map section to UI mode
+    const modeMap: Record<typeof section, UIMode> = {
+      'home': 'board',
+      'challenges': 'challenges',
+      'shop': 'shop',
+      'leaderboard': 'leaderboard',
+      'settings': 'settings',
     }
+    
+    const targetMode = modeMap[section]
+    
+    // Transition to the target mode
+    transitionUIMode(targetMode).then(success => {
+      if (!success) {
+        console.error(`Failed to transition to ${targetMode} mode`)
+        return
+      }
+      
+      // Note: closeAll is not exposed yet, so we'll just open the new overlay
+      // The overlay manager will coordinate displays
+      
+      // Open corresponding modal based on section
+      if (section === 'challenges') {
+        logEvent?.('modal_opened', { modal: 'challenges' })
+        showOverlay({
+          id: 'challenges',
+          component: lazy(() => import('@/components/ChallengesModal')),
+          props: {
+            dailyChallenges,
+            weeklyChallenges,
+          },
+          priority: 'normal',
+          onClose: () => {
+            logEvent?.('modal_closed', { modal: 'challenges' })
+            // Return to board mode when closing
+            transitionUIMode('board')
+          }
+        })
+      } else if (section === 'shop') {
+        logEvent?.('modal_opened', { modal: 'shop' })
+        showOverlay({
+          id: 'shop',
+          component: lazy(() => import('@/components/ShopModal')),
+          props: {
+            gameState,
+            onPurchase: purchaseItem,
+            isPermanentOwned,
+            getItemQuantity,
+            canAfford,
+            onEquipCosmetic: equipCosmetic,
+            getFinalPrice,
+            shopDiscount,
+          },
+          priority: 'normal',
+          onClose: () => {
+            logEvent?.('modal_closed', { modal: 'shop' })
+            // Return to board mode when closing
+            transitionUIMode('board')
+          }
+        })
+      } else if (section === 'leaderboard') {
+        // Open leaderboard
+        showOverlay({
+          id: 'leaderboard',
+          component: lazy(() => import('@/components/LeaderboardModal')),
+          props: {
+            currentPlayer: {
+              netWorth: gameState.netWorth,
+              level: gameState.level,
+            }
+          },
+          priority: 'normal',
+          onClose: () => {
+            // Return to board mode when closing
+            transitionUIMode('board')
+          }
+        })
+      } else if (section === 'settings') {
+        logEvent?.('modal_opened', { modal: 'settings' })
+        showOverlay({
+          id: 'settings',
+          component: lazy(() => import('@/components/SettingsModal')),
+          props: {},
+          priority: 'normal',
+          onClose: () => {
+            logEvent?.('modal_closed', { modal: 'settings' })
+            // Return to board mode when closing
+            transitionUIMode('board')
+          }
+        })
+      } else if (section === 'home') {
+        // Just close all modals - overlay manager will handle this
+      }
+    })
   }
 
   // Authentication and game save hooks
@@ -789,6 +830,13 @@ function App() {
     }
   }, [getCurrentOverlay, showCentralStock, phase])
 
+  // Sync local phase state with UI mode context
+  useEffect(() => {
+    if (uiMode === 'board') {
+      setUIPhase(phase)
+    }
+  }, [phase, uiMode, setUIPhase])
+
   // Helper function to check extra dice roll power-up
   useEffect(() => {
     if (hasPowerUp('extra-dice-rolls')) {
@@ -920,6 +968,9 @@ function App() {
 
     // Haptic feedback for rolling
     hapticRoll()
+    
+    // Block UI mode transitions during dice roll
+    setCanTransition(false)
     
     setPhase('rolling')
     playSound('dice-roll')
@@ -1091,6 +1142,8 @@ function App() {
                     debugGame('Landing on tile:', { position: newPosition, tile: BOARD_TILES[newPosition] })
                     logEvent?.('move_ended', { newPosition, totalMovement })
                     setPhase('landed')
+                    // Re-enable UI mode transitions after landing
+                    setCanTransition(true)
                     // Trigger landing event ONCE at final position only
                     handleTileLanding(newPosition, passedStart)
                   }, 200)
