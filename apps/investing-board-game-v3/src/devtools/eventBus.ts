@@ -10,10 +10,21 @@ export interface GameEvent {
   payload?: string
 }
 
+export interface ZoomState {
+  scale: number
+  limits: {
+    minScale: number
+    maxScale: number
+    initialScale: number
+  }
+}
+
 class EventBus {
   private events: GameEvent[] = []
   private maxEvents = 20
   private listeners: Set<() => void> = new Set()
+  private zoomState: ZoomState | null = null
+  private zoomListeners: Set<() => void> = new Set()
 
   logEvent(type: string, payload?: Record<string, unknown> | string) {
     let payloadString: string | undefined
@@ -60,6 +71,20 @@ class EventBus {
     this.listeners.add(listener)
     return () => this.listeners.delete(listener)
   }
+
+  setZoomState(zoomState: ZoomState) {
+    this.zoomState = zoomState
+    this.zoomListeners.forEach(listener => listener())
+  }
+
+  getZoomState(): ZoomState | null {
+    return this.zoomState
+  }
+
+  subscribeToZoom(listener: () => void) {
+    this.zoomListeners.add(listener)
+    return () => this.zoomListeners.delete(listener)
+  }
 }
 
 // Singleton instance
@@ -69,3 +94,6 @@ export const eventBus = new EventBus()
 export function logEvent(type: string, payload?: Record<string, unknown> | string) {
   eventBus.logEvent(type, payload)
 }
+
+// Export types
+export type { GameEvent, ZoomState }

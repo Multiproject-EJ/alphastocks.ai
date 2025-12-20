@@ -32,6 +32,7 @@ import { BottomNav } from '@/components/BottomNav'
 import { InstallPrompt } from '@/components/InstallPrompt'
 import { LoadingScreen } from '@/components/LoadingScreen'
 import { TutorialTooltip } from '@/components/TutorialTooltip'
+import { BoardViewport } from '@/components/BoardViewport'
 
 // Lazy load heavy modals for better performance
 const ShopModal = lazy(() => import('@/components/ShopModal'))
@@ -79,6 +80,7 @@ import { useCoins } from '@/hooks/useCoins'
 import { useThriftPath } from '@/hooks/useThriftPath'
 import { useCityBuilder } from '@/hooks/useCityBuilder'
 import { useBoardZoom } from '@/hooks/useBoardZoom'
+import { useSafeArea } from '@/hooks/useSafeArea'
 import { ThriftPathStatus as ThriftPathStatusType } from '@/lib/thriftPath'
 import { COIN_COSTS, COIN_EARNINGS } from '@/lib/coins'
 import { getInitialCityBuilderState, CITIES } from '@/lib/cityBuilder'
@@ -223,14 +225,19 @@ function App() {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
+  // Safe area insets
+  const safeArea = useSafeArea()
+
   // Board zoom hook for mobile
   const {
     zoom,
+    zoomLimits,
     isPanning,
     autoFollow,
     zoomIn,
     zoomOut,
     resetZoom,
+    fitToScreen,
     toggleAutoFollow,
     centerOnPosition,
     handleTouchStart,
@@ -240,6 +247,7 @@ function App() {
     isMobile,
     currentPosition: gameState.position,
     boardSize: { width: 1200, height: 1200 },
+    safeArea,
   })
 
   // Carousel panel state
@@ -1302,31 +1310,19 @@ function App() {
 
       <div className="relative z-10 max-w-[1600px] mx-auto">
         {/* Board wrapper with zoom support for mobile */}
-        <div 
-          className={`${isMobile ? 'overflow-hidden touch-none' : ''}`}
-          style={{ 
-            height: isMobile ? 'calc(100vh - 200px)' : 'auto',
-            position: isMobile ? 'relative' : 'static',
-          }}
-          onTouchStart={isMobile ? handleTouchStart : undefined}
-          onTouchMove={isMobile ? handleTouchMove : undefined}
-          onTouchEnd={isMobile ? handleTouchEnd : undefined}
+        <BoardViewport
+          boardSize={{ width: 1200, height: 1200 }}
+          isMobile={isMobile}
+          currentPosition={gameState.position}
+          safeArea={safeArea}
+          zoom={zoom}
+          isPanning={isPanning}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          boardRef={boardRef}
+          boardClassName={boardCenterClasses}
         >
-          <div 
-            ref={boardRef} 
-            className={boardCenterClasses}
-            style={isMobile ? {
-              width: '1200px',
-              height: '1200px',
-              transform: `translate(calc(-50% + ${zoom.translateX}px), calc(-50% + ${zoom.translateY}px)) scale(${zoom.scale})`,
-              transformOrigin: 'center center',
-              transition: isPanning ? 'none' : 'transform 0.3s ease-out',
-              willChange: 'transform',
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-            } : undefined}
-          >
           <CentralStockCard
             stock={currentStock}
             isVisible={showCentralStock}
@@ -1512,18 +1508,18 @@ function App() {
               </div>
             </div>
           </div>
-        </div>
+        </BoardViewport>
         
         {/* Board Zoom Controls for mobile */}
         <BoardZoomControls
           onZoomIn={zoomIn}
           onZoomOut={zoomOut}
           onReset={resetZoom}
+          onFitToScreen={fitToScreen}
           autoFollow={autoFollow}
           onToggleAutoFollow={toggleAutoFollow}
           isMobile={isMobile}
         />
-      </div>
       </div>
 
       <HubModal
