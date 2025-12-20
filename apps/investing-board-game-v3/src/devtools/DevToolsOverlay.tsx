@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { eventBus, GameEvent, ZoomState, CameraState } from './eventBus'
 import { useOverlayManager } from '@/hooks/useOverlayManager'
+import { isCameraStateValid } from '@/hooks/useBoardCamera'
 
 // Board configuration constant - should match the board size used in App.tsx
 const BOARD_SIZE = 1200

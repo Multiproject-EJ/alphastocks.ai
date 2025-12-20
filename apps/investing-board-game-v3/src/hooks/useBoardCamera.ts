@@ -28,12 +28,59 @@ export interface UseBoardCameraOptions {
 
 const STORAGE_KEY = 'alphastocks_camera_mode'
 
-// Default immersive camera settings
+// Default scale values
+const MOBILE_DEFAULT_SCALE = 0.4
+const DESKTOP_DEFAULT_SCALE = 1.0
+
+// Shared validation function to check if camera state is valid
+export const isCameraStateValid = (state: {
+  scale: number
+  translateX: number
+  translateY: number
+}): boolean => {
+  return (
+    !isNaN(state.scale) &&
+    state.scale > 0 &&
+    state.scale <= 10 &&
+    !isNaN(state.translateX) &&
+    !isNaN(state.translateY) &&
+    Math.abs(state.translateX) <= 2000 &&
+    Math.abs(state.translateY) <= 2000
+  )
+}
+
+// Validation functions to prevent invalid camera states
+const validateScale = (s: number, isMobile: boolean): number => {
+  if (isNaN(s) || s === 0 || s > 10) {
+    console.warn('⚠️ Invalid scale detected, using default:', s)
+    return isMobile ? MOBILE_DEFAULT_SCALE : DESKTOP_DEFAULT_SCALE
+  }
+  return Math.max(0.2, Math.min(3, s))
+}
+
+const validateTranslate = (t: number): number => {
+  if (isNaN(t)) {
+    console.warn('⚠️ Invalid translate detected (NaN), using 0')
+    return 0
+  }
+  // Clamp to safe range
+  return Math.max(-2000, Math.min(2000, t))
+}
+
+const validateRotate = (r: number): number => {
+  if (isNaN(r) || Math.abs(r) > 360) {
+    console.warn('⚠️ Invalid rotation detected, using 0:', r)
+    return 0
+  }
+  return r
+}
+
+// Default immersive camera settings (updated for better mobile visibility)
 const IMMERSIVE_DEFAULTS = {
   perspective: 1000,
-  rotateX: 22, // 22 degree tilt
+  rotateX: 20, // 20 degree tilt for immersive view
   rotateZ: 0,
-  scale: 2.5,
+  scale: MOBILE_DEFAULT_SCALE, // Reasonable zoom for mobile
 }
 
 // Classic mode settings (flat bird's-eye view)
@@ -41,7 +88,7 @@ const CLASSIC_DEFAULTS = {
   perspective: 1000,
   rotateX: 0,
   rotateZ: 0,
-  scale: 1,
+  scale: DESKTOP_DEFAULT_SCALE,
 }
 
 export function useBoardCamera(options: UseBoardCameraOptions) {
@@ -144,8 +191,8 @@ export function useBoardCamera(options: UseBoardCameraOptions) {
     
     setCamera(prev => ({
       ...prev,
-      translateX: translation.x,
-      translateY: translation.y,
+      translateX: validateTranslate(translation.x),
+      translateY: validateTranslate(translation.y),
       targetTile: tileId,
       isAnimating: animate,
     }))
@@ -315,6 +362,7 @@ export function useBoardCamera(options: UseBoardCameraOptions) {
   }, [])
   
   // Generate CSS styles for board container
+  // Note: Transform is applied by Board3DViewport, this just provides transition/animation
   const boardStyle = useMemo((): React.CSSProperties => {
     if (!isMobile || camera.mode === 'classic') {
       return {}
@@ -335,20 +383,18 @@ export function useBoardCamera(options: UseBoardCameraOptions) {
       transition: `transform ${duration} ${easing}`,
       willChange: camera.isAnimating ? 'transform' : 'auto',
     }
-  }, [camera, isMobile, prefersReducedMotion])
+  }, [camera.isAnimating, isMobile, camera.mode, prefersReducedMotion])
   
   // Generate CSS styles for viewport container
+  // Note: Perspective is applied by Board3DViewport, this is for any additional container styles
   const containerStyle = useMemo((): React.CSSProperties => {
     if (!isMobile || camera.mode === 'classic') {
       return {}
     }
     
-    return {
-      perspective: `${camera.perspective}px`,
-      perspectiveOrigin: 'center center',
-      overflow: 'hidden',
-    }
-  }, [camera, isMobile])
+    // Board3DViewport handles perspective, overflow, etc. Return empty for now
+    return {}
+  }, [camera.mode, isMobile])
   
   return {
     camera,
