@@ -35,11 +35,11 @@ export function MobileGameLayout({ children, showBottomNav = true }: MobileGameL
       className={`
         min-h-screen w-full
         ${isMobile ? 'mobile-layout' : 'desktop-layout'}
-        ${isMobile && showBottomNav ? 'pb-16' : ''}
+        ${isMobile && showBottomNav ? 'pb-20' : ''}
         ${orientation === 'landscape' ? 'orientation-landscape' : 'orientation-portrait'}
       `}
       style={{
-        paddingBottom: isMobile && showBottomNav ? 'calc(4rem + env(safe-area-inset-bottom))' : undefined,
+        paddingBottom: isMobile && showBottomNav ? 'calc(5rem + env(safe-area-inset-bottom))' : undefined,
       }}
     >
       {children}
