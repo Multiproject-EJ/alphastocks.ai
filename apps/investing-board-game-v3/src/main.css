@@ -240,7 +240,9 @@
 /* Mobile-specific styles for board game */
 @media (max-width: 1023px) {
   .game-board {
-    padding: 1rem !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    min-height: 100vh;
   }
 
   /* Hide desktop-only elements on mobile */
@@ -248,22 +250,18 @@
     display: none !important;
   }
 
-  /* Adjust board size for mobile zoom */
-  .mobile-layout .game-board > div {
-    max-width: 100% !important;
-  }
-
   /* Scale down center carousel and controls on mobile */
   .mobile-layout .game-board [class*="absolute top-1/2"] {
-    transform: scale(0.7) translate(-50%, -50%) !important;
-    transform-origin: left top;
+    transform: scale(0.5) translate(-100%, -100%) !important;
+    transform-origin: center center;
   }
 
-  /* Hide some elements on very small screens */
+  /* Hide side panels on small mobile screens to reduce clutter */
   @media (max-width: 640px) {
     .mobile-layout .game-board [class*="flex-col gap-4 items-center"]:first-of-type,
     .mobile-layout .game-board [class*="flex-col items-center"]:last-of-type {
-      display: none !important;
+      opacity: 0;
+      pointer-events: none;
     }
   }
 }
