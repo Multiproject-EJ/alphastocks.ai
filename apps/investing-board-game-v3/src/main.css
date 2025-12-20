@@ -229,6 +229,29 @@
     white-space: nowrap;
     border-width: 0;
   }
+
+  /* Mobile board zoom container */
+  .mobile-board-container {
+    touch-action: none;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Mobile-specific styles for board game */
+@media (max-width: 1023px) {
+  .game-board {
+    padding: 1rem !important;
+  }
+
+  /* Hide desktop-only elements on mobile */
+  .desktop-only {
+    display: none !important;
+  }
+
+  /* Adjust board size for mobile zoom */
+  .mobile-layout .game-board > div {
+    max-width: 100% !important;
+  }
 }
 
 /* Accessibility - High Contrast Mode */

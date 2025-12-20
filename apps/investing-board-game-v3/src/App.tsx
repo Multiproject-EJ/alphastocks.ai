@@ -24,6 +24,7 @@ import { TierUpModal } from '@/components/TierUpModal'
 import { ThriftPathStatus } from '@/components/ThriftPathStatus'
 import { ThriftPathAura } from '@/components/ThriftPathAura'
 import { OutOfRollsModal } from '@/components/OutOfRollsModal'
+import { BoardZoomControls } from '@/components/BoardZoomControls'
 
 // Mobile-first components
 import { MobileGameLayout } from '@/components/MobileGameLayout'
@@ -69,6 +70,7 @@ import { useNetWorthTier } from '@/hooks/useNetWorthTier'
 import { useCoins } from '@/hooks/useCoins'
 import { useThriftPath } from '@/hooks/useThriftPath'
 import { useCityBuilder } from '@/hooks/useCityBuilder'
+import { useBoardZoom } from '@/hooks/useBoardZoom'
 import { ThriftPathStatus as ThriftPathStatusType } from '@/lib/thriftPath'
 import { COIN_COSTS, COIN_EARNINGS } from '@/lib/coins'
 import { getInitialCityBuilderState, CITIES } from '@/lib/cityBuilder'
@@ -201,6 +203,36 @@ function App() {
   const [activeSection, setActiveSection] = useState<'home' | 'challenges' | 'shop' | 'leaderboard' | 'settings'>('home')
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [isMobile, setIsMobile] = useState(false)
+
+  // Check for mobile device
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024)
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
+  // Board zoom hook for mobile
+  const {
+    zoom,
+    isPanning,
+    autoFollow,
+    zoomIn,
+    zoomOut,
+    resetZoom,
+    toggleAutoFollow,
+    centerOnPosition,
+    handleTouchStart,
+    handleTouchMove,
+    handleTouchEnd,
+  } = useBoardZoom({
+    isMobile,
+    currentPosition: gameState.position,
+    boardSize: { width: 1200, height: 1200 },
+  })
 
   // Carousel panel state
   const [currentCarouselPanel, setCurrentCarouselPanel] = useState(0)
@@ -1248,7 +1280,27 @@ function App() {
         />
 
       <div className="relative z-10 max-w-[1600px] mx-auto">
-        <div ref={boardRef} className={boardCenterClasses}>
+        {/* Board wrapper with zoom support for mobile */}
+        <div 
+          className={`${isMobile ? 'overflow-hidden touch-none' : ''}`}
+          style={{ 
+            height: isMobile ? 'calc(100vh - 180px)' : 'auto',
+            position: isMobile ? 'relative' : 'static',
+          }}
+          onTouchStart={isMobile ? (e) => handleTouchStart(e.nativeEvent as TouchEvent) : undefined}
+          onTouchMove={isMobile ? (e) => handleTouchMove(e.nativeEvent as TouchEvent) : undefined}
+          onTouchEnd={isMobile ? handleTouchEnd : undefined}
+        >
+          <div 
+            ref={boardRef} 
+            className={boardCenterClasses}
+            style={isMobile ? {
+              transform: `scale(${zoom.scale}) translate(${zoom.translateX}px, ${zoom.translateY}px)`,
+              transformOrigin: 'center center',
+              transition: isPanning ? 'none' : 'transform 0.3s ease-out',
+              willChange: 'transform',
+            } : undefined}
+          >
           <CentralStockCard
             stock={currentStock}
             isVisible={showCentralStock}
@@ -1336,25 +1388,28 @@ function App() {
             </div>
           </div>
 
-          <div data-tutorial="dice">
-            <DiceHUD
-              onRoll={handleRoll}
-              lastRoll={lastRoll}
-              phase={phase}
-              rollsRemaining={rollsRemaining}
-              nextResetTime={nextResetTime}
-              boardRef={boardRef}
-              resetPositionKey={diceResetKey}
-              coins={gameState.coins}
-              canAffordReroll={canAffordCoins(COIN_COSTS.reroll_dice)}
-              onReroll={handleReroll}
-              dice1={dice1}
-              dice2={dice2}
-              energyRolls={gameState.energyRolls ?? DAILY_ROLL_LIMIT}
-              lastEnergyCheck={gameState.lastEnergyCheck}
-              rollHistory={gameState.rollHistory}
-            />
-          </div>
+          {/* Hide DiceHUD on mobile - shown in BottomNav instead */}
+          {!isMobile && (
+            <div data-tutorial="dice">
+              <DiceHUD
+                onRoll={handleRoll}
+                lastRoll={lastRoll}
+                phase={phase}
+                rollsRemaining={rollsRemaining}
+                nextResetTime={nextResetTime}
+                boardRef={boardRef}
+                resetPositionKey={diceResetKey}
+                coins={gameState.coins}
+                canAffordReroll={canAffordCoins(COIN_COSTS.reroll_dice)}
+                onReroll={handleReroll}
+                dice1={dice1}
+                dice2={dice2}
+                energyRolls={gameState.energyRolls ?? DAILY_ROLL_LIMIT}
+                lastEnergyCheck={gameState.lastEnergyCheck}
+                rollHistory={gameState.rollHistory}
+              />
+            </div>
+          )}
 
           <div className="absolute inset-8 pointer-events-none">
             <div className="relative w-full h-full">
@@ -1432,6 +1487,17 @@ function App() {
             </div>
           </div>
         </div>
+        
+        {/* Board Zoom Controls for mobile */}
+        <BoardZoomControls
+          onZoomIn={zoomIn}
+          onZoomOut={zoomOut}
+          onReset={resetZoom}
+          autoFollow={autoFollow}
+          onToggleAutoFollow={toggleAutoFollow}
+          isMobile={isMobile}
+        />
+      </div>
       </div>
 
       <HubModal
@@ -1646,6 +1712,13 @@ function App() {
           challenges: dailyChallenges?.filter(c => !c.completed).length || 0,
           shop: 0, // Could add new shop items count here
         }}
+        dice1={dice1}
+        dice2={dice2}
+        isRolling={phase === 'rolling'}
+        rollsRemaining={rollsRemaining}
+        onRoll={() => handleRoll(1)}
+        canRoll={phase === 'idle' && rollsRemaining > 0}
+        showDice={isMobile}
       />
 
       {/* PWA Install Prompt */}
