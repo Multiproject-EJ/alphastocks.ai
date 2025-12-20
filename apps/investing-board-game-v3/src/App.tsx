@@ -34,6 +34,7 @@ import { InstallPrompt } from '@/components/InstallPrompt'
 import { LoadingScreen } from '@/components/LoadingScreen'
 import { TutorialTooltip } from '@/components/TutorialTooltip'
 import { BoardViewport } from '@/components/BoardViewport'
+import { OverlayRenderer } from '@/components/OverlayRenderer'
 
 // Lazy load heavy modals for better performance
 const ShopModal = lazy(() => import('@/components/ShopModal'))
@@ -89,6 +90,7 @@ import { useCityBuilder } from '@/hooks/useCityBuilder'
 import { useBoardZoom } from '@/hooks/useBoardZoom'
 import { useBoardCamera } from '@/hooks/useBoardCamera'
 import { useSafeArea } from '@/hooks/useSafeArea'
+import { useOverlayManager } from '@/hooks/useOverlayManager'
 import { ThriftPathStatus as ThriftPathStatusType } from '@/lib/thriftPath'
 import { COIN_COSTS, COIN_EARNINGS } from '@/lib/coins'
 import { getInitialCityBuilderState, CITIES } from '@/lib/cityBuilder'
@@ -186,40 +188,17 @@ function App() {
   const [hoppingTiles, setHoppingTiles] = useState<number[]>([])
   const [lastSavedTime, setLastSavedTime] = useState<Date | null>(null)
 
-  const [stockModalOpen, setStockModalOpen] = useState(false)
+  // Overlay manager for coordinated modal display
+  const { show: showOverlay, wasRecentlyShown } = useOverlayManager()
+
+  // Keep state for data that modals need (but not open/closed state)
   const [currentStock, setCurrentStock] = useState<Stock | null>(null)
   const [showCentralStock, setShowCentralStock] = useState(false)
-
-  const [eventModalOpen, setEventModalOpen] = useState(false)
   const [currentEvent, setCurrentEvent] = useState('')
-
-  const [thriftyModalOpen, setThriftyModalOpen] = useState(false)
-
-  const [portfolioModalOpen, setPortfolioModalOpen] = useState(false)
-
-  const [hubModalOpen, setHubModalOpen] = useState(false)
-
-  const [proToolsOpen, setProToolsOpen] = useState(false)
-
-  const [biasSanctuaryModalOpen, setBiasSanctuaryModalOpen] = useState(false)
   const [currentCaseStudy, setCurrentCaseStudy] = useState<BiasCaseStudy | null>(null)
-
-  const [casinoModalOpen, setCasinoModalOpen] = useState(false)
-
-  const [shopModalOpen, setShopModalOpen] = useState(false)
-
-  const [challengesModalOpen, setChallengesModalOpen] = useState(false)
-  const [eventCalendarOpen, setEventCalendarOpen] = useState(false)
-
-  const [netWorthGalleryOpen, setNetWorthGalleryOpen] = useState(false)
-
-  const [outOfRollsModalOpen, setOutOfRollsModalOpen] = useState(false)
-
-  const [cityBuilderOpen, setCityBuilderOpen] = useState(false)
 
   // Mobile UI states
   const [activeSection, setActiveSection] = useState<'home' | 'challenges' | 'shop' | 'leaderboard' | 'settings'>('home')
-  const [settingsOpen, setSettingsOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [isMobile, setIsMobile] = useState(false)
 
@@ -403,14 +382,8 @@ function App() {
     },
     onSwipe: (direction, velocity) => {
       // Swipes for navigation (second priority)
-      if (direction === 'up' && !shopModalOpen && !challengesModalOpen) {
-        setShopModalOpen(true)
-        hapticLight()
-      }
-      if (direction === 'down' && (shopModalOpen || challengesModalOpen)) {
-        setShopModalOpen(false)
-        setChallengesModalOpen(false)
-      }
+      // Note: Shop and challenges are now managed by overlay manager
+      // These swipe gestures may need to be redesigned
       debugGame('Swipe detected:', { direction, velocity })
     },
     onPan: (deltaX, deltaY) => {
@@ -428,15 +401,11 @@ function App() {
   
   // Fallback: Keep the old swipe gesture for the main container
   // This handles swipes outside the board area
+  // Note: Disabled for now since modals are managed by overlay manager
   useSwipeGesture(containerRef, (direction) => {
-    if (direction === 'up' && !shopModalOpen && !challengesModalOpen) {
-      setShopModalOpen(true)
-      hapticLight()
-    }
-    if (direction === 'down' && (shopModalOpen || challengesModalOpen)) {
-      setShopModalOpen(false)
-      setChallengesModalOpen(false)
-    }
+    // Swipe gestures for showing/hiding modals disabled
+    // These will need to be redesigned with overlay manager
+    debugGame('Swipe detected (main container):', { direction })
   })
 
   // Shop inventory hook
@@ -522,6 +491,24 @@ function App() {
     checkDailyStreak()
   }, [checkDailyStreak])
 
+  // Handle tier up modal via overlay manager
+  useEffect(() => {
+    if (showTierUpModal && newTier) {
+      showOverlay({
+        id: 'tierUp',
+        component: TierUpModal,
+        props: {
+          tier: newTier,
+        },
+        priority: 'critical', // Tier up is important!
+        autoClose: 4000,
+        onClose: () => {
+          setShowTierUpModal(false)
+        }
+      })
+    }
+  }, [showTierUpModal, newTier, showOverlay, setShowTierUpModal])
+
   // Loading screen on initial mount
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 2000)
@@ -533,27 +520,70 @@ function App() {
     hapticLight()
     setActiveSection(section)
     
-    // Close all modals first
-    setShopModalOpen(false)
-    setChallengesModalOpen(false)
-    setPortfolioModalOpen(false)
-    setSettingsOpen(false)
+    // Note: closeAll is not exposed yet, so we'll just open the new overlay
+    // The overlay manager will coordinate displays
     
     // Open corresponding modal based on section
     if (section === 'challenges') {
       logEvent?.('modal_opened', { modal: 'challenges' })
-      setChallengesModalOpen(true)
+      showOverlay({
+        id: 'challenges',
+        component: lazy(() => import('@/components/ChallengesModal')),
+        props: {
+          dailyChallenges,
+          weeklyChallenges,
+        },
+        priority: 'normal',
+        onClose: () => {
+          logEvent?.('modal_closed', { modal: 'challenges' })
+        }
+      })
     } else if (section === 'shop') {
       logEvent?.('modal_opened', { modal: 'shop' })
-      setShopModalOpen(true)
+      showOverlay({
+        id: 'shop',
+        component: lazy(() => import('@/components/ShopModal')),
+        props: {
+          gameState,
+          onPurchase: purchaseItem,
+          isPermanentOwned,
+          getItemQuantity,
+          canAfford,
+          onEquipCosmetic: equipCosmetic,
+          getFinalPrice,
+          shopDiscount,
+        },
+        priority: 'normal',
+        onClose: () => {
+          logEvent?.('modal_closed', { modal: 'shop' })
+        }
+      })
     } else if (section === 'leaderboard') {
-      // Open leaderboard (will need to add LeaderboardModal integration)
-      toast.info('Leaderboard coming soon!')
+      // Open leaderboard
+      showOverlay({
+        id: 'leaderboard',
+        component: lazy(() => import('@/components/LeaderboardModal')),
+        props: {
+          currentPlayer: {
+            netWorth: gameState.netWorth,
+            level: gameState.level,
+          }
+        },
+        priority: 'normal',
+      })
     } else if (section === 'settings') {
       logEvent?.('modal_opened', { modal: 'settings' })
-      setSettingsOpen(true)
+      showOverlay({
+        id: 'settings',
+        component: lazy(() => import('@/components/SettingsModal')),
+        props: {},
+        priority: 'normal',
+        onClose: () => {
+          logEvent?.('modal_closed', { modal: 'settings' })
+        }
+      })
     } else if (section === 'home') {
-      // Just close all modals - already done above
+      // Just close all modals - overlay manager will handle this
     }
   }
 
@@ -843,7 +873,15 @@ function App() {
 
     // NEW: Open purchase modal instead of error toast when out of rolls
     if (rollsRemaining <= 0) {
-      setOutOfRollsModalOpen(true)
+      showOverlay({
+        id: 'outOfRolls',
+        component: OutOfRollsModal,
+        props: {
+          onPurchase: handlePurchaseRolls,
+          lastEnergyCheck: gameState.lastEnergyCheck,
+        },
+        priority: 'high',
+      })
       playSound('error')
       return
     }
@@ -854,7 +892,15 @@ function App() {
       toast.error(`Need ${multiplier} rolls`, {
         description: `You only have ${rollsRemaining} roll${rollsRemaining !== 1 ? 's' : ''} remaining.`,
       })
-      setOutOfRollsModalOpen(true)
+      showOverlay({
+        id: 'outOfRolls',
+        component: OutOfRollsModal,
+        props: {
+          onPurchase: handlePurchaseRolls,
+          lastEnergyCheck: gameState.lastEnergyCheck,
+        },
+        priority: 'high',
+      })
       return
     }
 
@@ -1087,8 +1133,7 @@ function App() {
       description: 'Payment integration coming soon! For now, enjoy the game with free resets every 2 hours.'
     })
     
-    // Close modal
-    setOutOfRollsModalOpen(false)
+    // Modal will close automatically via overlay manager's onOpenChange
   }
 
   const handleTileLanding = (position: number, passedStart = false) => {
@@ -1129,18 +1174,104 @@ function App() {
         if (showThrifty) {
           debugGame('Opening Thrifty Path modal')
           logEvent?.('modal_opened', { modal: 'thrifty_path' })
-          setThriftyModalOpen(true)
+          showOverlay({
+            id: 'thriftyPath',
+            component: ThriftyPathModal,
+            props: {
+              challenges: THRIFTY_CHALLENGES,
+              onChoose: handleChooseChallenge,
+              thriftPathStatus,
+            },
+            priority: 'normal',
+            onClose: () => {
+              debugGame('Thrifty modal closed - checking if stock modal should open')
+              if (currentStock) {
+                setTimeout(() => {
+                  debugGame('Opening stock modal after Thrifty modal close')
+                  showOverlay({
+                    id: 'stock',
+                    component: StockModal,
+                    props: {
+                      stock: currentStock,
+                      onBuy: handleBuyStock,
+                      cash: gameState.cash,
+                      showInsights: hasPowerUp('stock-insight'),
+                    },
+                    priority: 'normal',
+                    onClose: () => {
+                      logEvent?.('modal_closed', { modal: 'stock' })
+                      debugGame('Stock modal closed - cleaning up')
+                      setShowCentralStock(false)
+                      setCurrentStock(null)
+                      // Consume stock insight if it was active
+                      if (hasPowerUp('stock-insight')) {
+                        consumePowerUp('stock-insight')
+                      }
+                      setTimeout(() => {
+                        debugGame('Phase transition: landed -> idle (stock modal closed)')
+                        setPhase('idle')
+                      }, 300)
+                    }
+                  })
+                }, 300)
+              } else {
+                setTimeout(() => {
+                  debugGame('Phase transition: landed -> idle (thrifty modal closed, no stock)')
+                  setPhase('idle')
+                }, 300)
+              }
+            }
+          })
         } else {
           debugGame('Opening Stock modal')
           logEvent?.('modal_opened', { modal: 'stock' })
-          setStockModalOpen(true)
+          showOverlay({
+            id: 'stock',
+            component: StockModal,
+            props: {
+              stock: currentStock,
+              onBuy: handleBuyStock,
+              cash: gameState.cash,
+              showInsights: hasPowerUp('stock-insight'),
+            },
+            priority: 'normal',
+            onClose: () => {
+              logEvent?.('modal_closed', { modal: 'stock' })
+              debugGame('Stock modal closed - cleaning up')
+              setShowCentralStock(false)
+              setCurrentStock(null)
+              // Consume stock insight if it was active
+              if (hasPowerUp('stock-insight')) {
+                consumePowerUp('stock-insight')
+              }
+              setTimeout(() => {
+                debugGame('Phase transition: landed -> idle (stock modal closed)')
+                setPhase('idle')
+              }, 300)
+            }
+          })
         }
       }, 2000)
     } else if (tile.type === 'event') {
       debugGame('Event tile:', tile.title)
       if (tile.title === 'Quiz') {
         debugGame('Opening Thrifty Path modal for Quiz')
-        setThriftyModalOpen(true)
+        showOverlay({
+          id: 'thriftyPath',
+          component: ThriftyPathModal,
+          props: {
+            challenges: THRIFTY_CHALLENGES,
+            onChoose: handleChooseChallenge,
+            thriftPathStatus,
+          },
+          priority: 'normal',
+          onClose: () => {
+            setTimeout(() => {
+              debugGame('Phase transition: landed -> idle (thrifty modal closed)')
+              setPhase('idle')
+            }, 300)
+          }
+        })
       } else if (tile.title === 'Market Event') {
         debugGame('Opening Event modal')
         
@@ -1158,7 +1289,24 @@ function App() {
         } else {
           const event = getRandomMarketEvent()
           setCurrentEvent(event)
-          setEventModalOpen(true)
+          showOverlay({
+            id: 'event',
+            component: EventModal,
+            props: {
+              eventText: event,
+              coins: gameState.coins,
+              canAffordSkip: canAffordCoins(COIN_COSTS.skip_event),
+              onSkip: handleSkipEvent,
+            },
+            priority: 'normal',
+            onClose: () => {
+              debugGame('Event modal closed')
+              setTimeout(() => {
+                debugGame('Phase transition: landed -> idle (event modal closed)')
+                setPhase('idle')
+              }, 300)
+            }
+          })
         }
       } else {
         // Fallback for event tiles without specific handlers (Wildcard, "?", etc.)
@@ -1195,7 +1343,22 @@ function App() {
         })
         debugGame('Opening Casino modal')
         setTimeout(() => {
-          setCasinoModalOpen(true)
+          showOverlay({
+            id: 'casino',
+            component: CasinoModal,
+            props: {
+              onWin: handleCasinoWin,
+              luckBoost: isPermanentOwned('casino-luck') ? 0.2 : 0,
+            },
+            priority: 'normal',
+            onClose: () => {
+              debugGame('Casino modal closed')
+              setTimeout(() => {
+                debugGame('Phase transition: landed -> idle (casino modal closed)')
+                setPhase('idle')
+              }, 300)
+            }
+          })
         }, 1000)
       } else if (tile.title === 'Court of Capital') {
         toast.info('Court of Capital', {
@@ -1210,7 +1373,23 @@ function App() {
         debugGame('Opening Bias Sanctuary modal')
         const caseStudy = getRandomBiasCaseStudy()
         setCurrentCaseStudy(caseStudy)
-        setBiasSanctuaryModalOpen(true)
+        showOverlay({
+          id: 'biasSanctuary',
+          component: BiasSanctuaryModal,
+          props: {
+            caseStudy,
+            onComplete: handleBiasQuizComplete,
+          },
+          priority: 'normal',
+          onClose: () => {
+            debugGame('Bias Sanctuary modal closed')
+            setCurrentCaseStudy(null)
+            setTimeout(() => {
+              debugGame('Phase transition: landed -> idle (bias sanctuary closed)')
+              setPhase('idle')
+            }, 300)
+          }
+        })
       }
     }
   }
@@ -1266,7 +1445,7 @@ function App() {
     })
 
     debugGame('Stock purchased - closing modals and returning to idle')
-    setStockModalOpen(false)
+    // Modal will close automatically via overlay manager's onOpenChange
     setShowCentralStock(false)
     setCurrentStock(null)
     setTimeout(() => {
@@ -1430,7 +1609,23 @@ function App() {
               isLogoPanel ? 'opacity-0 pointer-events-none' : 'opacity-100'
             }`}>
               <Button
-                onClick={() => setShopModalOpen(true)}
+                onClick={() => {
+                  showOverlay({
+                    id: 'shop',
+                    component: lazy(() => import('@/components/ShopModal')),
+                    props: {
+                      gameState,
+                      onPurchase: purchaseItem,
+                      isPermanentOwned,
+                      getItemQuantity,
+                      canAfford,
+                      onEquipCosmetic: equipCosmetic,
+                      getFinalPrice,
+                      shopDiscount,
+                    },
+                    priority: 'normal',
+                  })
+                }}
                 className="bg-accent/90 hover:bg-accent text-accent-foreground shadow-lg hover:shadow-xl transition-all backdrop-blur-sm rounded-full h-14 px-6 text-base font-semibold flex items-center gap-2"
                 aria-label="Open Shop"
               >
@@ -1438,7 +1633,30 @@ function App() {
                 Shop
               </Button>
               <Button
-                onClick={() => setCityBuilderOpen(true)}
+                onClick={() => {
+                  showOverlay({
+                    id: 'cityBuilder',
+                    component: lazy(() => import('@/components/CityBuilderModal')),
+                    props: {
+                      stars: gameState.stars,
+                      currentCity,
+                      currentCityProgress,
+                      allCities,
+                      citiesProgress: cityBuilderState.cities,
+                      canUpgrade: canUpgradeBuilding,
+                      timeUntilNextUpgrade,
+                      onUpgradeBuilding: upgradeBuilding,
+                      onUnlockNextCity: unlockNextCity,
+                      onSelectCity: selectCity,
+                      nextCityToUnlock,
+                      canUnlockNext,
+                      totalBuildingsCompleted,
+                      totalCitiesCompleted,
+                      totalCitiesUnlocked,
+                    },
+                    priority: 'normal',
+                  })
+                }}
                 className="bg-gradient-to-r from-emerald-500/90 to-teal-500/90 hover:from-emerald-500 hover:to-teal-500 text-white shadow-lg hover:shadow-xl transition-all backdrop-blur-sm rounded-full h-14 px-6 text-base font-semibold flex items-center gap-2"
                 aria-label="Open City Builder"
               >
@@ -1447,7 +1665,17 @@ function App() {
               </Button>
               <ChallengeTracker
                 dailyChallenges={dailyChallenges}
-                onOpenModal={() => setChallengesModalOpen(true)}
+                onOpenModal={() => {
+                  showOverlay({
+                    id: 'challenges',
+                    component: lazy(() => import('@/components/ChallengesModal')),
+                    props: {
+                      dailyChallenges,
+                      weeklyChallenges,
+                    },
+                    priority: 'normal',
+                  })
+                }}
               />
               <ThriftPathStatus
                 status={thriftPathStatus}
@@ -1472,8 +1700,82 @@ function App() {
               <CenterCarousel
                 gameState={gameState}
                 netWorthChange={netWorthChange}
-                onStarsClick={() => setHubModalOpen(true)}
-                onPortfolioClick={() => setPortfolioModalOpen(true)}
+                onStarsClick={() => {
+                  showOverlay({
+                    id: 'hub',
+                    component: HubModal,
+                    props: {
+                      gameState,
+                      onOpenChallenges: () => {
+                        showOverlay({
+                          id: 'challenges',
+                          component: lazy(() => import('@/components/ChallengesModal')),
+                          props: {
+                            dailyChallenges,
+                            weeklyChallenges,
+                          },
+                          priority: 'normal',
+                        })
+                      },
+                      onOpenEventCalendar: () => {
+                        showOverlay({
+                          id: 'eventCalendar',
+                          component: lazy(() => import('@/components/EventCalendar')),
+                          props: {
+                            activeEvents,
+                            upcomingEvents,
+                          },
+                          priority: 'normal',
+                        })
+                      },
+                      onOpenNetWorthGallery: () => {
+                        showOverlay({
+                          id: 'netWorthGallery',
+                          component: NetWorthGalleryModal,
+                          props: {
+                            currentNetWorth: gameState.netWorth,
+                          },
+                          priority: 'normal',
+                        })
+                      },
+                      onOpenCityBuilder: () => {
+                        showOverlay({
+                          id: 'cityBuilder',
+                          component: lazy(() => import('@/components/CityBuilderModal')),
+                          props: {
+                            stars: gameState.stars,
+                            currentCity,
+                            currentCityProgress,
+                            allCities,
+                            citiesProgress: cityBuilderState.cities,
+                            canUpgrade: canUpgradeBuilding,
+                            timeUntilNextUpgrade,
+                            onUpgradeBuilding: upgradeBuilding,
+                            onUnlockNextCity: unlockNextCity,
+                            onSelectCity: selectCity,
+                            nextCityToUnlock,
+                            canUnlockNext,
+                            totalBuildingsCompleted,
+                            totalCitiesCompleted,
+                            totalCitiesUnlocked,
+                          },
+                          priority: 'normal',
+                        })
+                      },
+                    },
+                    priority: 'normal',
+                  })
+                }}
+                onPortfolioClick={() => {
+                  showOverlay({
+                    id: 'portfolio',
+                    component: PortfolioModal,
+                    props: {
+                      gameState,
+                    },
+                    priority: 'normal',
+                  })
+                }}
                 onPanelChange={setCurrentCarouselPanel}
               />
             </div>
@@ -1614,218 +1916,14 @@ function App() {
         />
       </div>
 
-      <HubModal
-        open={hubModalOpen}
-        onOpenChange={setHubModalOpen}
-        gameState={gameState}
-        onOpenChallenges={() => setChallengesModalOpen(true)}
-        onOpenEventCalendar={() => setEventCalendarOpen(true)}
-        onOpenNetWorthGallery={() => setNetWorthGalleryOpen(true)}
-        onOpenCityBuilder={() => setCityBuilderOpen(true)}
-      />
+      {/* Centralized Overlay Renderer - handles all modals */}
+      <OverlayRenderer />
 
-      <StockModal
-        open={stockModalOpen}
-        onOpenChange={(open) => {
-          debugGame('Stock modal open change:', open)
-          setStockModalOpen(open)
-          if (!open) {
-            logEvent?.('modal_closed', { modal: 'stock' })
-            debugGame('Stock modal closed - cleaning up')
-            setShowCentralStock(false)
-            setCurrentStock(null)
-            // Consume stock insight if it was active
-            if (hasPowerUp('stock-insight')) {
-              consumePowerUp('stock-insight')
-            }
-            setTimeout(() => {
-              debugGame('Phase transition: landed -> idle (stock modal closed)')
-              setPhase('idle')
-            }, 300)
-          }
-        }}
-        stock={currentStock}
-        onBuy={handleBuyStock}
-        cash={gameState.cash}
-        showInsights={hasPowerUp('stock-insight')}
-      />
-
-      <EventModal
-        open={eventModalOpen}
-        onOpenChange={(open) => {
-          debugGame('Event modal open change:', open)
-          setEventModalOpen(open)
-          if (!open) {
-            debugGame('Event modal closed')
-            setTimeout(() => {
-              debugGame('Phase transition: landed -> idle (event modal closed)')
-              setPhase('idle')
-            }, 300)
-          }
-        }}
-        eventText={currentEvent}
-        coins={gameState.coins}
-        canAffordSkip={canAffordCoins(COIN_COSTS.skip_event)}
-        onSkip={handleSkipEvent}
-      />
-
-      <ThriftyPathModal
-        open={thriftyModalOpen}
-        onOpenChange={(open) => {
-          debugGame('Thrifty modal open change:', open)
-          setThriftyModalOpen(open)
-          if (!open) {
-            debugGame('Thrifty modal closed - checking if stock modal should open')
-            if (currentStock) {
-              setTimeout(() => {
-                debugGame('Opening stock modal after Thrifty modal close')
-                setStockModalOpen(true)
-              }, 300)
-            } else {
-              setTimeout(() => {
-                debugGame('Phase transition: landed -> idle (thrifty modal closed, no stock)')
-                setPhase('idle')
-              }, 300)
-            }
-          }
-        }}
-        challenges={THRIFTY_CHALLENGES}
-        onChoose={handleChooseChallenge}
-        thriftPathStatus={thriftPathStatus}
-      />
-
-      <PortfolioModal
-        open={portfolioModalOpen}
-        onOpenChange={setPortfolioModalOpen}
-        gameState={gameState}
-      />
-
+      {/* ProToolsOverlay - kept separate as it's not a standard modal */}
       <ProToolsOverlay
         open={proToolsOpen}
         onOpenChange={setProToolsOpen}
         gameState={gameState}
-      />
-
-      <BiasSanctuaryModal
-        open={biasSanctuaryModalOpen}
-        onOpenChange={(open) => {
-          debugGame('Bias Sanctuary modal open change:', open)
-          setBiasSanctuaryModalOpen(open)
-          if (!open) {
-            debugGame('Bias Sanctuary modal closed')
-            setCurrentCaseStudy(null)
-            setTimeout(() => {
-              debugGame('Phase transition: landed -> idle (bias sanctuary closed)')
-              setPhase('idle')
-            }, 300)
-          }
-        }}
-        caseStudy={currentCaseStudy}
-        onComplete={handleBiasQuizComplete}
-      />
-
-      <CasinoModal
-        open={casinoModalOpen}
-        onOpenChange={(open) => {
-          debugGame('Casino modal open change:', open)
-          setCasinoModalOpen(open)
-          if (!open) {
-            debugGame('Casino modal closed')
-            setTimeout(() => {
-              debugGame('Phase transition: landed -> idle (casino modal closed)')
-              setPhase('idle')
-            }, 300)
-          }
-        }}
-        onWin={handleCasinoWin}
-        luckBoost={isPermanentOwned('casino-luck') ? 0.2 : 0}
-      />
-
-      <Suspense fallback={<div className="flex items-center justify-center h-screen"><div className="text-muted-foreground">Loading...</div></div>}>
-        <ShopModal
-          open={shopModalOpen}
-          onOpenChange={(open) => {
-            setShopModalOpen(open)
-            if (!open) logEvent?.('modal_closed', { modal: 'shop' })
-          }}
-          gameState={gameState}
-          onPurchase={purchaseItem}
-          isPermanentOwned={isPermanentOwned}
-          getItemQuantity={getItemQuantity}
-          canAfford={canAfford}
-          onEquipCosmetic={equipCosmetic}
-          getFinalPrice={getFinalPrice}
-          shopDiscount={shopDiscount}
-        />
-
-        <ChallengesModal
-          open={challengesModalOpen}
-          onOpenChange={(open) => {
-            setChallengesModalOpen(open)
-            if (!open) logEvent?.('modal_closed', { modal: 'challenges' })
-          }}
-          dailyChallenges={dailyChallenges}
-          weeklyChallenges={weeklyChallenges}
-        />
-
-        <EventCalendar
-          open={eventCalendarOpen}
-          onOpenChange={setEventCalendarOpen}
-          activeEvents={activeEvents}
-          upcomingEvents={upcomingEvents}
-        />
-        
-        <SettingsModal
-          open={settingsOpen}
-          onOpenChange={(open) => {
-            setSettingsOpen(open)
-            if (!open) logEvent?.('modal_closed', { modal: 'settings' })
-          }}
-        />
-        
-        <CityBuilderModal
-          open={cityBuilderOpen}
-          onOpenChange={setCityBuilderOpen}
-          stars={gameState.stars}
-          currentCity={currentCity}
-          currentCityProgress={currentCityProgress}
-          allCities={allCities}
-          citiesProgress={cityBuilderState.cities}
-          canUpgrade={canUpgradeBuilding}
-          timeUntilNextUpgrade={timeUntilNextUpgrade}
-          onUpgradeBuilding={upgradeBuilding}
-          onUnlockNextCity={unlockNextCity}
-          onSelectCity={selectCity}
-          nextCityToUnlock={nextCityToUnlock}
-          canUnlockNext={canUnlockNext}
-          totalBuildingsCompleted={totalBuildingsCompleted}
-          totalCitiesCompleted={totalCitiesCompleted}
-          totalCitiesUnlocked={totalCitiesUnlocked}
-        />
-      </Suspense>
-
-      {/* Net Worth Gallery Modal */}
-      <NetWorthGalleryModal
-        open={netWorthGalleryOpen}
-        onOpenChange={setNetWorthGalleryOpen}
-        currentNetWorth={gameState.netWorth}
-      />
-
-      {/* Tier Up Celebration Modal */}
-      {newTier && (
-        <TierUpModal
-          open={showTierUpModal}
-          onOpenChange={setShowTierUpModal}
-          tier={newTier}
-        />
-      )}
-
-      {/* Out of Rolls Purchase Modal */}
-      <OutOfRollsModal
-        open={outOfRollsModalOpen}
-        onOpenChange={setOutOfRollsModalOpen}
-        onPurchase={handlePurchaseRolls}
-        lastEnergyCheck={gameState.lastEnergyCheck}
       />
 
       {/* Mobile Bottom Navigation */}

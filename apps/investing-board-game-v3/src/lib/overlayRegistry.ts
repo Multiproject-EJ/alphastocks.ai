@@ -17,7 +17,6 @@ import { NetWorthGalleryModal } from '@/components/NetWorthGalleryModal'
 import { TierUpModal } from '@/components/TierUpModal'
 import { OutOfRollsModal } from '@/components/OutOfRollsModal'
 import { LevelUpModal } from '@/components/LevelUpModal'
-import { LeaderboardModal } from '@/components/LeaderboardModal'
 import { AchievementNotification } from '@/components/AchievementNotification'
 
 // Lazy-loaded modals for better performance
@@ -26,6 +25,7 @@ const ChallengesModal = lazy(() => import('@/components/ChallengesModal'))
 const EventCalendar = lazy(() => import('@/components/EventCalendar'))
 const SettingsModal = lazy(() => import('@/components/SettingsModal'))
 const CityBuilderModal = lazy(() => import('@/components/CityBuilderModal'))
+const LeaderboardModal = lazy(() => import('@/components/LeaderboardModal'))
 
 export const OVERLAY_REGISTRY = {
   'stock': StockModal,
