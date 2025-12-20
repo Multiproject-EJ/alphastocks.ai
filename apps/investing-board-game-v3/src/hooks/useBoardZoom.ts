@@ -31,7 +31,7 @@ export function useBoardZoom({
   })
 
   const [isPanning, setIsPanning] = useState(false)
-  const [autoFollow, setAutoFollow] = useState(true)
+  const [autoFollow, setAutoFollow] = useState(false) // Disabled by default to prevent infinite loop
   const lastPanPosition = useRef({ x: 0, y: 0 })
   const lastTouchDistance = useRef<number | null>(null)
 
@@ -68,7 +68,7 @@ export function useBoardZoom({
   }, [boardSize])
 
   // Center view on current position
-  const centerOnPosition = useCallback((position: number) => {
+  const centerOnPosition = useCallback((position: number, currentScale: number) => {
     if (!isMobile || !autoFollow) return
 
     const tilePos = getTilePosition(position)
@@ -77,15 +77,15 @@ export function useBoardZoom({
     const viewportWidth = window.innerWidth
     const viewportHeight = window.innerHeight - 160 // Account for bottom nav
     
-    const targetX = viewportWidth / 2 - tilePos.x * zoom.scale
-    const targetY = viewportHeight / 2 - tilePos.y * zoom.scale
+    const targetX = viewportWidth / 2 - tilePos.x * currentScale
+    const targetY = viewportHeight / 2 - tilePos.y * currentScale
 
     setZoom(prev => ({
       ...prev,
       translateX: targetX,
       translateY: targetY,
     }))
-  }, [isMobile, autoFollow, getTilePosition, zoom.scale])
+  }, [isMobile, autoFollow, getTilePosition])
 
   // Handle pinch zoom - works with React SyntheticEvent
   const handleTouchStart = useCallback((e: ReactTouchEvent<HTMLDivElement>) => {
@@ -176,12 +176,12 @@ export function useBoardZoom({
     setAutoFollow(prev => !prev)
   }, [])
 
-  // Auto-center when position changes
+  // Auto-center when position changes (only when autoFollow is enabled by user)
   useEffect(() => {
-    if (autoFollow && isMobile) {
-      centerOnPosition(currentPosition)
+    if (autoFollow && isMobile && currentPosition !== undefined) {
+      centerOnPosition(currentPosition, zoom.scale)
     }
-  }, [currentPosition, autoFollow, isMobile, centerOnPosition])
+  }, [currentPosition, autoFollow, isMobile]) // Removed centerOnPosition and zoom.scale to prevent loop
 
   return {
     zoom,
