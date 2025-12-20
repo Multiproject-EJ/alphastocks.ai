@@ -50,8 +50,6 @@ export function Board3DViewport({
       <div 
         className="board-3d-transform"
         style={{
-          width: '1200px',
-          height: '1200px',
           transformOrigin: 'center center',
           transformStyle: 'preserve-3d',
           willChange: 'transform',
