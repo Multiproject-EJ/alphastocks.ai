@@ -255,57 +255,59 @@ export function DevToolsOverlay({ phase = 'unknown' }: DevToolsOverlayProps) {
                 )}
                 
                 {/* Camera State (3D mode) */}
-                {cameraState && (
-                  <>
-                    <div className="font-mono mt-2 pt-2 border-t border-purple-500/30">
-                      <span className="text-purple-300 font-bold">📸 Camera Debug:</span>
-                    </div>
-                    <div className="font-mono">
-                      <span className="text-purple-300">Mode:</span>{' '}
-                      <span className={`font-bold ${
-                        cameraState.mode === 'immersive' ? 'text-cyan-400' : 'text-gray-400'
-                      }`}>
-                        {cameraState.mode.toUpperCase()}
-                      </span>
-                    </div>
-                    <div className="font-mono">
-                      <span className="text-purple-300">Scale:</span>{' '}
-                      <span className="text-cyan-400 font-bold">{cameraState.scale?.toFixed(2) || 'N/A'}</span>
-                    </div>
-                    <div className="font-mono">
-                      <span className="text-purple-300">Position:</span> ({cameraState.translateX?.toFixed(0) || 0}, {cameraState.translateY?.toFixed(0) || 0})
-                    </div>
-                    <div className="font-mono">
-                      <span className="text-purple-300">Tilt:</span> {cameraState.rotateX?.toFixed(1) || 0}°
-                    </div>
-                    <div className="font-mono">
-                      <span className="text-purple-300">Target Tile:</span> {cameraState.targetTile}
-                    </div>
-                    <div className="font-mono">
-                      <span className="text-purple-300">Animating:</span>{' '}
-                      <span className={cameraState.isAnimating ? 'text-yellow-400' : 'text-gray-500'}>
-                        {cameraState.isAnimating ? '✓' : '✗'}
-                      </span>
-                    </div>
-                    <div className="font-mono">
-                      <span className="text-purple-300">Validity:</span>{' '}
-                      <span style={{ 
-                        color: cameraState.scale > 0.1 && cameraState.scale < 5 && 
-                               !isNaN(cameraState.scale) && 
-                               Math.abs(cameraState.translateX) < 2000 && 
-                               Math.abs(cameraState.translateY) < 2000 
-                               ? 'green' : 'red',
-                        fontWeight: 'bold' 
-                      }}>
-                        {cameraState.scale > 0.1 && cameraState.scale < 5 && 
-                         !isNaN(cameraState.scale) &&
-                         Math.abs(cameraState.translateX) < 2000 && 
-                         Math.abs(cameraState.translateY) < 2000 
-                         ? '✓ Valid' : '✗ INVALID STATE'}
-                      </span>
-                    </div>
-                  </>
-                )}
+                {cameraState && (() => {
+                  // Extract validation logic to avoid duplication
+                  const isCameraValid = 
+                    cameraState.scale > 0.1 && 
+                    cameraState.scale < 5 && 
+                    !isNaN(cameraState.scale) && 
+                    Math.abs(cameraState.translateX) < 2000 && 
+                    Math.abs(cameraState.translateY) < 2000
+                  
+                  return (
+                    <>
+                      <div className="font-mono mt-2 pt-2 border-t border-purple-500/30">
+                        <span className="text-purple-300 font-bold">📸 Camera Debug:</span>
+                      </div>
+                      <div className="font-mono">
+                        <span className="text-purple-300">Mode:</span>{' '}
+                        <span className={`font-bold ${
+                          cameraState.mode === 'immersive' ? 'text-cyan-400' : 'text-gray-400'
+                        }`}>
+                          {cameraState.mode.toUpperCase()}
+                        </span>
+                      </div>
+                      <div className="font-mono">
+                        <span className="text-purple-300">Scale:</span>{' '}
+                        <span className="text-cyan-400 font-bold">{cameraState.scale?.toFixed(2) || 'N/A'}</span>
+                      </div>
+                      <div className="font-mono">
+                        <span className="text-purple-300">Position:</span> ({cameraState.translateX?.toFixed(0) || 0}, {cameraState.translateY?.toFixed(0) || 0})
+                      </div>
+                      <div className="font-mono">
+                        <span className="text-purple-300">Tilt:</span> {cameraState.rotateX?.toFixed(1) || 0}°
+                      </div>
+                      <div className="font-mono">
+                        <span className="text-purple-300">Target Tile:</span> {cameraState.targetTile}
+                      </div>
+                      <div className="font-mono">
+                        <span className="text-purple-300">Animating:</span>{' '}
+                        <span className={cameraState.isAnimating ? 'text-yellow-400' : 'text-gray-500'}>
+                          {cameraState.isAnimating ? '✓' : '✗'}
+                        </span>
+                      </div>
+                      <div className="font-mono">
+                        <span className="text-purple-300">Validity:</span>{' '}
+                        <span style={{ 
+                          color: isCameraValid ? 'green' : 'red',
+                          fontWeight: 'bold' 
+                        }}>
+                          {isCameraValid ? '✓ Valid' : '✗ INVALID STATE'}
+                        </span>
+                      </div>
+                    </>
+                  )
+                })()}
               </div>
 
               {/* Events section */}

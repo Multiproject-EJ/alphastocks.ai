@@ -31,6 +31,23 @@ const STORAGE_KEY = 'alphastocks_camera_mode'
 const MOBILE_DEFAULT_SCALE = 0.4
 const DESKTOP_DEFAULT_SCALE = 1.0
 
+// Shared validation function to check if camera state is valid
+export const isCameraStateValid = (state: {
+  scale: number
+  translateX: number
+  translateY: number
+}): boolean => {
+  return (
+    !isNaN(state.scale) &&
+    state.scale > 0 &&
+    state.scale <= 10 &&
+    !isNaN(state.translateX) &&
+    !isNaN(state.translateY) &&
+    Math.abs(state.translateX) <= 2000 &&
+    Math.abs(state.translateY) <= 2000
+  )
+}
+
 // Validation functions to prevent invalid camera states
 const validateScale = (s: number, isMobile: boolean): number => {
   if (isNaN(s) || s === 0 || s > 10) {
@@ -41,10 +58,11 @@ const validateScale = (s: number, isMobile: boolean): number => {
 }
 
 const validateTranslate = (t: number): number => {
-  if (isNaN(t) || Math.abs(t) > 5000) {
-    console.warn('⚠️ Invalid translate detected, using 0:', t)
+  if (isNaN(t)) {
+    console.warn('⚠️ Invalid translate detected (NaN), using 0')
     return 0
   }
+  // Clamp to safe range
   return Math.max(-2000, Math.min(2000, t))
 }
 
@@ -295,16 +313,7 @@ export function useBoardCamera(options: UseBoardCameraOptions) {
   
   // Emergency fallback: auto-recover from broken state
   useEffect(() => {
-    const isInvalid = 
-      isNaN(camera.scale) ||
-      camera.scale === 0 ||
-      camera.scale > 10 ||
-      Math.abs(camera.translateX) > 5000 ||
-      Math.abs(camera.translateY) > 5000 ||
-      isNaN(camera.translateX) ||
-      isNaN(camera.translateY)
-      
-    if (isInvalid) {
+    if (!isCameraStateValid(camera)) {
       console.error('🚨 Camera in invalid state, forcing reset:', {
         scale: camera.scale,
         translateX: camera.translateX,
@@ -318,7 +327,7 @@ export function useBoardCamera(options: UseBoardCameraOptions) {
         translateY: 0,
       }))
     }
-  }, [camera.scale, camera.translateX, camera.translateY, camera.mode])
+  }, [camera])
   
   // Debug logging for camera state changes (development only)
   useEffect(() => {
@@ -350,6 +359,7 @@ export function useBoardCamera(options: UseBoardCameraOptions) {
   }, [])
   
   // Generate CSS styles for board container
+  // Note: Perspective is applied by Board3DViewport container, not in transform
   const boardStyle = useMemo((): React.CSSProperties => {
     if (!isMobile || camera.mode === 'classic') {
       return {}
@@ -360,7 +370,6 @@ export function useBoardCamera(options: UseBoardCameraOptions) {
     
     return {
       transform: `
-        perspective(${camera.perspective}px)
         rotateX(${camera.rotateX}deg)
         rotateZ(${camera.rotateZ}deg)
         scale(${camera.scale})

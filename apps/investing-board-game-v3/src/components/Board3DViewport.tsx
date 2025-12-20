@@ -1,5 +1,9 @@
 import { ReactNode } from 'react'
-import { CameraState } from '@/hooks/useBoardCamera'
+import { CameraState, isCameraStateValid } from '@/hooks/useBoardCamera'
+
+// Board dimensions (must match the board size used in App.tsx)
+const BOARD_WIDTH = 1200
+const BOARD_HEIGHT = 1200
 
 interface Board3DViewportProps {
   children: ReactNode
@@ -39,16 +43,8 @@ export function Board3DViewport({
   const safeRotateX = camera?.rotateX || 0
   const safePerspective = camera?.perspective || 1000
   
-  // Check for invalid values
-  const isInvalid = 
-    isNaN(safeScale) ||
-    isNaN(safeTransX) ||
-    isNaN(safeTransY) ||
-    isNaN(safeRotateX) ||
-    safeScale === 0
-  
-  // If invalid, fall back to no transforms
-  if (isInvalid) {
+  // Use shared validation function
+  if (!isCameraStateValid({ scale: safeScale, translateX: safeTransX, translateY: safeTransY })) {
     console.error('❌ Board3DViewport: Invalid camera values detected', {
       scale: camera?.scale,
       translateX: camera?.translateX,
@@ -81,8 +77,8 @@ export function Board3DViewport({
           transform: `rotateX(${safeRotateX}deg) scale(${safeScale}) translate(${safeTransX}px, ${safeTransY}px)`,
           transformStyle: 'preserve-3d',
           transformOrigin: 'center center',
-          width: '1200px',
-          height: '1200px',
+          width: `${BOARD_WIDTH}px`,
+          height: `${BOARD_HEIGHT}px`,
           willChange: 'transform',
           ...boardStyle,
         }}
