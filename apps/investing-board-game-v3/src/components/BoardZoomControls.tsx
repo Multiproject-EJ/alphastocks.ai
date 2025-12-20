@@ -26,6 +26,10 @@ export function BoardZoomControls({
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       className="fixed right-4 top-1/2 -translate-y-1/2 z-40 flex flex-col gap-2"
+      style={{
+        right: 'calc(1rem + var(--safe-area-right))',
+        bottom: 'calc(6rem + var(--safe-area-bottom))',
+      }}
     >
       {/* Zoom In */}
       <Button

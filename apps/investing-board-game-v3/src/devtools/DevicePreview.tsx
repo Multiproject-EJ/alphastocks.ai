@@ -12,10 +12,10 @@ export function DevicePreview({ children }: DevicePreviewProps) {
 
   // Apply safe area CSS custom properties
   const applySafeArea = (preset: DevicePreset) => {
-    document.documentElement.style.setProperty('--safe-area-inset-top', `${preset.safeArea.top}px`)
-    document.documentElement.style.setProperty('--safe-area-inset-right', `${preset.safeArea.right}px`)
-    document.documentElement.style.setProperty('--safe-area-inset-bottom', `${preset.safeArea.bottom}px`)
-    document.documentElement.style.setProperty('--safe-area-inset-left', `${preset.safeArea.left}px`)
+    document.documentElement.style.setProperty('--safe-area-top', `${preset.safeArea.top}px`)
+    document.documentElement.style.setProperty('--safe-area-right', `${preset.safeArea.right}px`)
+    document.documentElement.style.setProperty('--safe-area-bottom', `${preset.safeArea.bottom}px`)
+    document.documentElement.style.setProperty('--safe-area-left', `${preset.safeArea.left}px`)
   }
 
   const handlePresetSelect = (preset: DevicePreset) => {
@@ -26,10 +26,10 @@ export function DevicePreview({ children }: DevicePreviewProps) {
   const handleReset = () => {
     setSelectedPreset(null)
     // Reset safe area to 0 or remove properties
-    document.documentElement.style.removeProperty('--safe-area-inset-top')
-    document.documentElement.style.removeProperty('--safe-area-inset-right')
-    document.documentElement.style.removeProperty('--safe-area-inset-bottom')
-    document.documentElement.style.removeProperty('--safe-area-inset-left')
+    document.documentElement.style.removeProperty('--safe-area-top')
+    document.documentElement.style.removeProperty('--safe-area-right')
+    document.documentElement.style.removeProperty('--safe-area-bottom')
+    document.documentElement.style.removeProperty('--safe-area-left')
   }
 
   return (

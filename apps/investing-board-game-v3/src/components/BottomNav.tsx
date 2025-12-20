@@ -55,8 +55,8 @@ export function BottomNav({
   }
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 lg:hidden bg-card/80 backdrop-blur-md border-t-2 border-accent/30 pb-safe">
-      <div className="flex items-center justify-between h-20 px-2">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 lg:hidden bg-card/80 backdrop-blur-md border-t-2 border-accent/30 safe-bottom">
+      <div className="flex items-center justify-between min-h-20 h-20 px-2">
         {/* Left tabs */}
         <div className="flex items-center flex-1">
           {leftTabs.map((tab) => (

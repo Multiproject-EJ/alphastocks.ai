@@ -37,10 +37,12 @@ export function MobileGameLayout({ children, showBottomNav = true }: MobileGameL
         ${isMobile ? 'mobile-layout' : 'desktop-layout'}
         ${isMobile && showBottomNav ? 'pb-20' : ''}
         ${orientation === 'landscape' ? 'orientation-landscape' : 'orientation-portrait'}
+        safe-top safe-x
       `}
       style={{
-        paddingBottom: isMobile && showBottomNav ? 'calc(5rem + env(safe-area-inset-bottom))' : undefined,
+        paddingBottom: isMobile && showBottomNav ? 'calc(5rem + var(--safe-area-bottom))' : undefined,
       }}
+      data-safe-area-enabled="true"
     >
       {children}
     </div>
