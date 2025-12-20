@@ -25,67 +25,68 @@ export function useBoardZoom({
   boardSize = { width: 1000, height: 1000 },
 }: UseBoardZoomOptions = {}) {
   const [zoom, setZoom] = useState<BoardZoomState>({
-    scale: isMobile ? 1.5 : defaultScale,
+    scale: isMobile ? 2.0 : defaultScale,
     translateX: 0,
     translateY: 0,
   })
 
   const [isPanning, setIsPanning] = useState(false)
-  const [autoFollow, setAutoFollow] = useState(false) // Disabled by default to prevent infinite loop
+  const [autoFollow, setAutoFollow] = useState(isMobile) // Enable by default on mobile
   const lastPanPosition = useRef({ x: 0, y: 0 })
   const lastTouchDistance = useRef<number | null>(null)
 
   // Calculate position of a tile on the board (approximate)
   const getTilePosition = useCallback((position: number) => {
-    // Board has 28 tiles arranged in a square
-    // Bottom: 0-7, Right: 8-12, Top: 13-21, Left: 22-27
+    // Board has 28 tiles arranged in a square (1200x1200)
+    // Bottom: 0-7 (8 tiles), Right: 8-12 (5 tiles), Top: 13-21 (9 tiles), Left: 22-27 (6 tiles)
     const tileSize = 140 // Approximate tile size
-    const cornerSize = 140
-    const edgeCount = 8 // tiles per edge (excluding corners)
+    const padding = 32 // Board padding (p-8 = 2rem = 32px)
     
     let x = 0
     let y = 0
 
-    if (position <= 7) {
-      // Bottom edge
-      x = position * (boardSize.width / edgeCount)
-      y = boardSize.height
-    } else if (position <= 12) {
-      // Right edge
-      x = boardSize.width
-      y = boardSize.height - (position - 7) * (boardSize.height / 6)
-    } else if (position <= 21) {
-      // Top edge
-      x = boardSize.width - (position - 13) * (boardSize.width / edgeCount)
-      y = 0
-    } else {
-      // Left edge
-      x = 0
-      y = (position - 22) * (boardSize.height / 6)
+    if (position >= 0 && position <= 7) {
+      // Bottom edge (0-7): left to right
+      x = padding + position * tileSize
+      y = boardSize.height - padding - tileSize
+    } else if (position >= 8 && position <= 12) {
+      // Right edge (8-12): bottom to top
+      x = boardSize.width - padding - tileSize
+      y = boardSize.height - padding - tileSize - (position - 7) * tileSize
+    } else if (position >= 13 && position <= 21) {
+      // Top edge (13-21): right to left
+      x = boardSize.width - padding - tileSize - (position - 13) * tileSize
+      y = padding
+    } else if (position >= 22 && position <= 27) {
+      // Left edge (22-27): top to bottom
+      x = padding
+      y = padding + (position - 22) * tileSize
     }
 
     return { x, y }
   }, [boardSize])
 
   // Center view on current position
-  const centerOnPosition = useCallback((position: number, currentScale: number) => {
-    if (!isMobile || !autoFollow) return
+  const centerOnPosition = useCallback((position: number, currentScale?: number) => {
+    if (!isMobile) return
 
     const tilePos = getTilePosition(position)
+    const scale = currentScale ?? zoom.scale
     
     // Calculate translation to center the tile
     const viewportWidth = window.innerWidth
-    const viewportHeight = window.innerHeight - 160 // Account for bottom nav
+    const viewportHeight = window.innerHeight - 180 // Account for bottom nav + padding
     
-    const targetX = viewportWidth / 2 - tilePos.x * currentScale
-    const targetY = viewportHeight / 2 - tilePos.y * currentScale
+    const targetX = viewportWidth / 2 - tilePos.x * scale
+    const targetY = viewportHeight / 2 - tilePos.y * scale
 
     setZoom(prev => ({
       ...prev,
+      scale,
       translateX: targetX,
       translateY: targetY,
     }))
-  }, [isMobile, autoFollow, getTilePosition])
+  }, [isMobile, getTilePosition, zoom.scale])
 
   // Handle pinch zoom - works with React SyntheticEvent
   const handleTouchStart = useCallback((e: ReactTouchEvent<HTMLDivElement>) => {
@@ -165,7 +166,7 @@ export function useBoardZoom({
 
   const resetZoom = useCallback(() => {
     setZoom({
-      scale: isMobile ? 1.5 : defaultScale,
+      scale: isMobile ? 2.0 : defaultScale,
       translateX: 0,
       translateY: 0,
     })
@@ -176,12 +177,12 @@ export function useBoardZoom({
     setAutoFollow(prev => !prev)
   }, [])
 
-  // Auto-center when position changes (only when autoFollow is enabled by user)
+  // Auto-center when position changes (only when autoFollow is enabled)
   useEffect(() => {
     if (autoFollow && isMobile && currentPosition !== undefined) {
-      centerOnPosition(currentPosition, zoom.scale)
+      centerOnPosition(currentPosition)
     }
-  }, [currentPosition, autoFollow, isMobile]) // Removed centerOnPosition and zoom.scale to prevent loop
+  }, [currentPosition, autoFollow, isMobile, centerOnPosition])
 
   return {
     zoom,
