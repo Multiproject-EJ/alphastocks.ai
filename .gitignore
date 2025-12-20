@@ -2,3 +2,8 @@ node_modules/
 dist/
 .env
 public/board-game-v3/
+
+# DevTools artifacts
+apps/investing-board-game-v3/artifacts/
+apps/investing-board-game-v3/playwright-report/
+apps/investing-board-game-v3/test-results/
