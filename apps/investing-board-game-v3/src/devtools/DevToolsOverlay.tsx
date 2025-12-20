@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { eventBus, GameEvent, ZoomState, CameraState } from './eventBus'
 import { useOverlayManager } from '@/hooks/useOverlayManager'
+import { useUIMode } from '@/hooks/useUIMode'
 import { isCameraStateValid } from '@/hooks/useBoardCamera'
 
 // Board configuration constant - should match the board size used in App.tsx
@@ -22,6 +23,9 @@ export function DevToolsOverlay({ phase = 'unknown' }: DevToolsOverlayProps) {
   
   // Get overlay manager state
   const { getCurrentOverlay, getStackSize, getQueueSize, getStack, getQueue } = useOverlayManager()
+  
+  // Get UI mode state
+  const { mode: uiMode, phase: uiPhase, previousMode, modeData } = useUIMode()
 
   // Subscribe to events
   useEffect(() => {
@@ -200,6 +204,34 @@ export function DevToolsOverlay({ phase = 'unknown' }: DevToolsOverlayProps) {
                     {phase}
                   </span>
                 </div>
+                <div className="font-mono mt-2 pt-2 border-t border-purple-500/30">
+                  <span className="text-purple-300 font-bold">🎮 UI Mode:</span>
+                </div>
+                <div className="font-mono">
+                  <span className="text-purple-300">Current:</span>{' '}
+                  <span className="text-green-400 font-bold">{uiMode}</span>
+                </div>
+                <div className="font-mono">
+                  <span className="text-purple-300">Phase:</span>{' '}
+                  <span className={`font-bold ${
+                    uiPhase === 'rolling' ? 'text-yellow-400' :
+                    uiPhase === 'moving' ? 'text-blue-400' :
+                    uiPhase === 'landed' ? 'text-green-400' :
+                    'text-gray-400'
+                  }`}>
+                    {uiPhase}
+                  </span>
+                </div>
+                <div className="font-mono">
+                  <span className="text-purple-300">Previous:</span>{' '}
+                  <span className="text-gray-400">{previousMode || 'none'}</span>
+                </div>
+                {Object.keys(modeData || {}).length > 0 && (
+                  <div className="font-mono">
+                    <span className="text-purple-300">Mode Data:</span>{' '}
+                    <span className="text-cyan-400">{JSON.stringify(modeData)}</span>
+                  </div>
+                )}
                 <div className="font-mono mt-2 pt-2 border-t border-purple-500/30">
                   <span className="text-purple-300 font-bold">Overlay Manager:</span>
                 </div>

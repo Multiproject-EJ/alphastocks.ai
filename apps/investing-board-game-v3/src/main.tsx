@@ -6,6 +6,7 @@ import App from './App.tsx'
 import { ErrorFallback } from './ErrorFallback.tsx'
 import { AuthProvider } from './context/AuthContext.tsx'
 import { OverlayProvider } from './context/OverlayContext.tsx'
+import { UIModeProvider } from './context/UIModeContext.tsx'
 
 import "./main.css"
 import "./styles/theme.css"
@@ -52,11 +53,13 @@ function renderApp() {
   const AppContent = (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
       <AuthProvider>
-        <OverlayProvider>
-          <App />
-          {/* DevToolsOverlay needs access to OverlayProvider */}
-          {DevToolsOverlay && <DevToolsOverlay />}
-        </OverlayProvider>
+        <UIModeProvider>
+          <OverlayProvider>
+            <App />
+            {/* DevToolsOverlay needs access to OverlayProvider and UIModeProvider */}
+            {DevToolsOverlay && <DevToolsOverlay />}
+          </OverlayProvider>
+        </UIModeProvider>
       </AuthProvider>
     </ErrorBoundary>
   )
