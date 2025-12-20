@@ -369,7 +369,7 @@ export function useBoardCamera(options: UseBoardCameraOptions) {
   }, [])
   
   // Generate CSS styles for board container
-  // Note: Perspective is applied by Board3DViewport container, not in transform
+  // Note: Transform is applied by Board3DViewport, this just provides transition/animation
   const boardStyle = useMemo((): React.CSSProperties => {
     if (!isMobile || camera.mode === 'classic') {
       return {}
@@ -378,39 +378,22 @@ export function useBoardCamera(options: UseBoardCameraOptions) {
     const duration = prefersReducedMotion || !camera.isAnimating ? '0s' : '0.5s'
     const easing = 'cubic-bezier(0.34, 1.56, 0.64, 1)' // Spring-like easing
     
-    // Apply validation to ensure consistent values (Board3DViewport also validates)
-    const safeRotateX = validateRotate(camera.rotateX)
-    const safeRotateZ = validateRotate(camera.rotateZ)
-    const safeScale = validateScale(camera.scale, isMobile)
-    const safeTransX = validateTranslate(camera.translateX)
-    const safeTransY = validateTranslate(camera.translateY)
-    
     return {
-      transform: `
-        rotateX(${safeRotateX}deg)
-        rotateZ(${safeRotateZ}deg)
-        scale(${safeScale})
-        translate(${safeTransX}px, ${safeTransY}px)
-      `.replace(/\s+/g, ' ').trim(),
-      transformStyle: 'preserve-3d',
-      transformOrigin: 'center center',
       transition: `transform ${duration} ${easing}`,
       willChange: camera.isAnimating ? 'transform' : 'auto',
     }
-  }, [camera, isMobile, prefersReducedMotion])
+  }, [camera.isAnimating, isMobile, camera.mode, prefersReducedMotion])
   
   // Generate CSS styles for viewport container
+  // Note: Perspective is applied by Board3DViewport, this is for any additional container styles
   const containerStyle = useMemo((): React.CSSProperties => {
     if (!isMobile || camera.mode === 'classic') {
       return {}
     }
     
-    return {
-      perspective: `${camera.perspective}px`,
-      perspectiveOrigin: 'center center',
-      overflow: 'hidden',
-    }
-  }, [camera, isMobile])
+    // Board3DViewport handles perspective, overflow, etc. Return empty for now
+    return {}
+  }, [camera.mode, isMobile])
   
   return {
     camera,
