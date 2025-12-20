@@ -1,16 +1,16 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { eventBus, GameEvent, ZoomState, CameraState } from './eventBus'
+import { useOverlayManager } from '@/hooks/useOverlayManager'
 
 // Board configuration constant - should match the board size used in App.tsx
 const BOARD_SIZE = 1200
 
 interface DevToolsOverlayProps {
   phase?: string
-  overlayStack?: { name: string }[]
 }
 
-export function DevToolsOverlay({ phase = 'unknown', overlayStack = [] }: DevToolsOverlayProps) {
+export function DevToolsOverlay({ phase = 'unknown' }: DevToolsOverlayProps) {
   const [isCollapsed, setIsCollapsed] = useState(true)
   const [events, setEvents] = useState<GameEvent[]>([])
   const [viewport, setViewport] = useState({ width: 0, height: 0 })
@@ -18,6 +18,9 @@ export function DevToolsOverlay({ phase = 'unknown', overlayStack = [] }: DevToo
   const [safeArea, setSafeArea] = useState({ top: 0, right: 0, bottom: 0, left: 0 })
   const [zoomState, setZoomState] = useState<ZoomState | null>(null)
   const [cameraState, setCameraState] = useState<CameraState | null>(null)
+  
+  // Get overlay manager state
+  const { getCurrentOverlay, getStackSize, getQueueSize, getStack, getQueue } = useOverlayManager()
 
   // Subscribe to events
   useEffect(() => {
@@ -107,7 +110,9 @@ export function DevToolsOverlay({ phase = 'unknown', overlayStack = [] }: DevToo
     return Math.round(visibleArea)
   }
 
-  const topOverlay = overlayStack.length > 0 ? overlayStack[overlayStack.length - 1]?.name : 'none'
+  const currentOverlay = getCurrentOverlay()
+  const overlayStack = getStack()
+  const overlayQueue = getQueue()
 
   return (
     <>
@@ -194,6 +199,60 @@ export function DevToolsOverlay({ phase = 'unknown', overlayStack = [] }: DevToo
                     {phase}
                   </span>
                 </div>
+                <div className="font-mono mt-2 pt-2 border-t border-purple-500/30">
+                  <span className="text-purple-300 font-bold">Overlay Manager:</span>
+                </div>
+                <div className="font-mono">
+                  <span className="text-purple-300">Current:</span>{' '}
+                  <span className="text-cyan-400">{currentOverlay?.id || 'none'}</span>
+                </div>
+                <div className="font-mono">
+                  <span className="text-purple-300">Stack Size:</span> {getStackSize()}
+                </div>
+                <div className="font-mono">
+                  <span className="text-purple-300">Queue Size:</span> {getQueueSize()}
+                </div>
+                {overlayStack.length > 0 && (
+                  <div className="mt-1 pl-2 border-l-2 border-purple-500/30 space-y-0.5">
+                    {overlayStack.map((overlay, idx) => (
+                      <div key={overlay.id} className="font-mono text-[9px]">
+                        <span className="text-gray-400">#{idx + 1}</span>{' '}
+                        <span className="text-cyan-400">{overlay.id}</span>{' '}
+                        <span className={`text-xs ${
+                          overlay.priority === 'critical' ? 'text-red-400' :
+                          overlay.priority === 'high' ? 'text-orange-400' :
+                          overlay.priority === 'normal' ? 'text-yellow-400' :
+                          'text-gray-400'
+                        }`}>
+                          [{overlay.priority}]
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {overlayQueue.length > 0 && (
+                  <>
+                    <div className="font-mono mt-1">
+                      <span className="text-purple-300">Queued:</span>
+                    </div>
+                    <div className="mt-1 pl-2 border-l-2 border-yellow-500/30 space-y-0.5">
+                      {overlayQueue.map((overlay, idx) => (
+                        <div key={overlay.id} className="font-mono text-[9px]">
+                          <span className="text-gray-400">Q{idx + 1}</span>{' '}
+                          <span className="text-yellow-400">{overlay.id}</span>{' '}
+                          <span className={`text-xs ${
+                            overlay.priority === 'critical' ? 'text-red-400' :
+                            overlay.priority === 'high' ? 'text-orange-400' :
+                            overlay.priority === 'normal' ? 'text-yellow-400' :
+                            'text-gray-400'
+                          }`}>
+                            [{overlay.priority}]
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
                 <div className="font-mono">
                   <span className="text-purple-300">Overlay Stack:</span> {overlayStack.length}
                 </div>
