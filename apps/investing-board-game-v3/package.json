@@ -9,7 +9,8 @@
         "build": "tsc -b --noCheck && vite build",
         "lint": "eslint .",
         "optimize": "vite optimize",
-        "preview": "vite preview"
+        "preview": "vite preview",
+        "e2e:screenshots": "playwright test e2e/screenshots.spec.ts"
     },
     "dependencies": {
         "@github/spark": ">=0.43.1 <1",
@@ -78,6 +79,7 @@
     },
     "devDependencies": {
         "@eslint/js": "^9.21.0",
+        "@playwright/test": "^1.49.1",
         "@tailwindcss/postcss": "^4.1.8",
         "@types/react": "^19.0.10",
         "@types/react-dom": "^19.0.4",

@@ -10,10 +10,62 @@ import "./main.css"
 import "./styles/theme.css"
 import "./index.css"
 
-createRoot(document.getElementById('root')!).render(
-  <ErrorBoundary FallbackComponent={ErrorFallback}>
-    <AuthProvider>
-      <App />
-    </AuthProvider>
-   </ErrorBoundary>
-)
+// Conditionally import devtools
+let DevicePreview: any = null
+let DevToolsOverlay: any = null
+
+// Check if devtools should be enabled
+const isDevToolsEnabled = () => {
+  // Check environment variable (Vite)
+  if (import.meta.env.VITE_DEVTOOLS === '1') return true
+  
+  // Check dev mode
+  if (import.meta.env.DEV) return true
+  
+  // Check query param
+  if (typeof window !== 'undefined') {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('devtools') === '1') return true
+  }
+  
+  return false
+}
+
+// Dynamically import devtools in dev mode
+if (isDevToolsEnabled()) {
+  import('./devtools/index.ts').then((module) => {
+    DevicePreview = module.DevicePreview
+    DevToolsOverlay = module.DevToolsOverlay
+    
+    // Re-render with devtools if they're loaded after initial render
+    if (DevicePreview && DevToolsOverlay) {
+      const root = document.getElementById('root')
+      if (root && root.childNodes.length > 0) {
+        // Already rendered, need to re-render with devtools
+        renderApp()
+      }
+    }
+  })
+}
+
+function renderApp() {
+  const AppContent = (
+    <ErrorBoundary FallbackComponent={ErrorFallback}>
+      <AuthProvider>
+        <App />
+      </AuthProvider>
+    </ErrorBoundary>
+  )
+
+  // Wrap with devtools if enabled and loaded
+  const content = (DevicePreview && DevToolsOverlay) ? (
+    <DevicePreview>
+      {AppContent}
+      <DevToolsOverlay />
+    </DevicePreview>
+  ) : AppContent
+
+  createRoot(document.getElementById('root')!).render(content)
+}
+
+renderApp()

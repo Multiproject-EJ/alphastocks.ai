@@ -1,6 +1,14 @@
 import { motion } from 'framer-motion'
 import { CompactDice } from '@/components/CompactDice'
 
+// DevTools event logging (only loads in dev mode)
+let logEvent: ((type: string, payload?: Record<string, unknown> | string) => void) | undefined
+if (import.meta.env.DEV || import.meta.env.VITE_DEVTOOLS === '1') {
+  import('@/devtools/eventBus').then(module => {
+    logEvent = module.logEvent
+  })
+}
+
 interface BottomNavProps {
   onNavigate: (section: 'challenges' | 'shop' | 'home' | 'leaderboard' | 'settings') => void
   activeSection: string
@@ -41,6 +49,11 @@ export function BottomNav({
     { id: 'settings', label: 'Settings', icon: '⚙️' },
   ]
 
+  const handleNavigate = (section: string) => {
+    logEvent?.('nav_switch', { section, from: activeSection })
+    onNavigate(section as any)
+  }
+
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 lg:hidden bg-card/80 backdrop-blur-md border-t-2 border-accent/30 pb-safe">
       <div className="flex items-center justify-between h-20 px-2">
@@ -49,7 +62,7 @@ export function BottomNav({
           {leftTabs.map((tab) => (
             <button
               key={tab.id}
-              onClick={() => onNavigate(tab.id as any)}
+              onClick={() => handleNavigate(tab.id)}
               className={`
                 relative flex flex-col items-center justify-center flex-1 h-full
                 transition-colors duration-200
@@ -103,7 +116,7 @@ export function BottomNav({
           {rightTabs.map((tab) => (
             <button
               key={tab.id}
-              onClick={() => onNavigate(tab.id as any)}
+              onClick={() => handleNavigate(tab.id)}
               className={`
                 relative flex flex-col items-center justify-center flex-1 h-full
                 transition-colors duration-200

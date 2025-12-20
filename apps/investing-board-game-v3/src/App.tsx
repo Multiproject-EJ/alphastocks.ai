@@ -40,6 +40,14 @@ const EventCalendar = lazy(() => import('@/components/EventCalendar'))
 const SettingsModal = lazy(() => import('@/components/SettingsModal'))
 const CityBuilderModal = lazy(() => import('@/components/CityBuilderModal'))
 
+// DevTools event logging (only loads in dev mode)
+let logEvent: ((type: string, payload?: Record<string, unknown> | string) => void) | undefined
+if (import.meta.env.DEV || import.meta.env.VITE_DEVTOOLS === '1') {
+  import('@/devtools/eventBus').then(module => {
+    logEvent = module.logEvent
+  })
+}
+
 import { GameState, Stock, BiasCaseStudy } from '@/lib/types'
 import { RealMoneyRollsPack } from '@/components/OutOfRollsModal'
 import {
@@ -459,13 +467,16 @@ function App() {
     
     // Open corresponding modal based on section
     if (section === 'challenges') {
+      logEvent?.('modal_opened', { modal: 'challenges' })
       setChallengesModalOpen(true)
     } else if (section === 'shop') {
+      logEvent?.('modal_opened', { modal: 'shop' })
       setShopModalOpen(true)
     } else if (section === 'leaderboard') {
       // Open leaderboard (will need to add LeaderboardModal integration)
       toast.info('Leaderboard coming soon!')
     } else if (section === 'settings') {
+      logEvent?.('modal_opened', { modal: 'settings' })
       setSettingsOpen(true)
     } else if (section === 'home') {
       // Just close all modals - already done above
@@ -777,6 +788,9 @@ function App() {
       energyRolls: Math.max(0, (prev.energyRolls ?? DAILY_ROLL_LIMIT) - multiplier)
     }))
 
+    // DevTools: Log roll event
+    logEvent?.('roll_pressed', { multiplier, rollsRemaining })
+
     // Haptic feedback for rolling
     hapticRoll()
     
@@ -913,6 +927,7 @@ function App() {
             // Move player after brief delay
             setTimeout(() => {
               debugGame('Movement started', { totalMovement })
+              logEvent?.('move_started', { totalMovement, startPosition })
               setPhase('moving')
               const startPosition = gameState.position
               const tilesToHop: number[] = []
@@ -939,6 +954,7 @@ function App() {
                   landingTimeoutRef.current = setTimeout(() => {
                     const newPosition = tilesToHop[tilesToHop.length - 1]
                     debugGame('Landing on tile:', { position: newPosition, tile: BOARD_TILES[newPosition] })
+                    logEvent?.('move_ended', { newPosition, totalMovement })
                     setPhase('landed')
                     // Trigger landing event ONCE at final position only
                     handleTileLanding(newPosition, passedStart)
@@ -991,6 +1007,9 @@ function App() {
     const tile = BOARD_TILES[position]
     debugGame('handleTileLanding:', { position, tile, passedStart })
 
+    // DevTools: Log tile landed event
+    logEvent?.('tile_landed', { position, tileType: tile.type, passedStart })
+
     // Track challenge progress for landing on tile
     updateChallengeProgress('land_on_tile', { position, tileType: tile.type })
     
@@ -1018,9 +1037,11 @@ function App() {
         const showThrifty = Math.random() > 0.6
         if (showThrifty) {
           debugGame('Opening Thrifty Path modal')
+          logEvent?.('modal_opened', { modal: 'thrifty_path' })
           setThriftyModalOpen(true)
         } else {
           debugGame('Opening Stock modal')
+          logEvent?.('modal_opened', { modal: 'stock' })
           setStockModalOpen(true)
         }
       }, 2000)
