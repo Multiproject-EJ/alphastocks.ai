@@ -16,21 +16,24 @@ class EventBus {
   private listeners: Set<() => void> = new Set()
 
   logEvent(type: string, payload?: Record<string, unknown> | string) {
+    let payloadString: string | undefined
+    
+    if (typeof payload === 'string') {
+      payloadString = payload.slice(0, 100)
+    } else if (payload) {
+      try {
+        const jsonStr = JSON.stringify(payload)
+        payloadString = jsonStr.length > 100 ? jsonStr.slice(0, 100) + '...' : jsonStr
+      } catch (error) {
+        payloadString = '[Circular or non-serializable]'
+      }
+    }
+
     const event: GameEvent = {
       id: `${Date.now()}-${Math.random()}`,
       timestamp: new Date(),
       type,
-      payload: typeof payload === 'string' 
-        ? payload 
-        : payload 
-          ? (() => {
-              try {
-                return JSON.stringify(payload, null, 0).slice(0, 100) // Limit payload length
-              } catch (error) {
-                return '[Circular or non-serializable]'
-              }
-            })()
-          : undefined
+      payload: payloadString
     }
 
     this.events.unshift(event) // Add to beginning

@@ -109,7 +109,7 @@ export function DevicePreview({ children }: DevicePreviewProps) {
             style={{
               width: `${selectedPreset.width}px`,
               height: `${selectedPreset.height}px`,
-              transform: `scale(${selectedPreset.dpr / (window.devicePixelRatio || 1)})`,
+              transform: `scale(${(selectedPreset.dpr || 1) / Math.max(window.devicePixelRatio || 1, 1)})`,
               transformOrigin: 'center center',
             }}
           >

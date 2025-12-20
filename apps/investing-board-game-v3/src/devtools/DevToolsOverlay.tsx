@@ -108,7 +108,7 @@ export function DevToolsOverlay({ phase = 'unknown', overlayStack = [] }: DevToo
                   <span className="text-purple-300">Viewport:</span> {viewport.width}×{viewport.height}
                 </div>
                 <div className="font-mono">
-                  <span className="text-purple-300">DPR:</span> {dpr.toFixed(2)}
+                  <span className="text-purple-300">DPR:</span> {(dpr || 1).toFixed(2)}
                 </div>
                 <div className="font-mono">
                   <span className="text-purple-300">Safe Area:</span> T:{safeArea.top} R:{safeArea.right} B:{safeArea.bottom} L:{safeArea.left}
