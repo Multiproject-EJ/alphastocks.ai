@@ -17,6 +17,18 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
   const [hapticsEnabled, setHapticsEnabled] = useState(true)
   const [reducedMotion, setReducedMotion] = useState(false)
   const [autoSave, setAutoSave] = useState(true)
+  const [cameraMode, setCameraMode] = useState<'classic' | 'immersive'>('classic')
+  const [isMobile, setIsMobile] = useState(false)
+  
+  // Check for mobile device
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   // Load settings from localStorage
   useEffect(() => {
@@ -25,12 +37,19 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
     const savedHapticsEnabled = localStorage.getItem('hapticsEnabled')
     const savedReducedMotion = localStorage.getItem('reducedMotion')
     const savedAutoSave = localStorage.getItem('autoSave')
+    const savedCameraMode = localStorage.getItem('alphastocks_camera_mode')
 
     if (savedSoundEnabled !== null) setSoundEnabled(savedSoundEnabled === 'true')
     if (savedSoundVolume !== null) setSoundVolume(parseInt(savedSoundVolume))
     if (savedHapticsEnabled !== null) setHapticsEnabled(savedHapticsEnabled === 'true')
     if (savedReducedMotion !== null) setReducedMotion(savedReducedMotion === 'true')
     if (savedAutoSave !== null) setAutoSave(savedAutoSave === 'true')
+    if (savedCameraMode === 'classic' || savedCameraMode === 'immersive') {
+      setCameraMode(savedCameraMode)
+    } else {
+      // Default based on screen size
+      setCameraMode(window.innerWidth < 768 ? 'immersive' : 'classic')
+    }
   }, [])
 
   // Save settings to localStorage
@@ -58,6 +77,14 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
   const handleAutoSaveChange = (value: boolean) => {
     setAutoSave(value)
     localStorage.setItem('autoSave', value.toString())
+  }
+  
+  const handleCameraModeChange = (value: boolean) => {
+    const newMode = value ? 'immersive' : 'classic'
+    setCameraMode(newMode)
+    localStorage.setItem('alphastocks_camera_mode', newMode)
+    // Reload to apply camera changes
+    window.location.reload()
   }
 
   const handleResetTutorial = () => {
@@ -159,6 +186,23 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                 onCheckedChange={handleAutoSaveChange}
               />
             </div>
+            
+            {/* Camera Mode - Only show on mobile */}
+            {isMobile && (
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <Label htmlFor="camera-mode">Immersive Camera</Label>
+                  <p className="text-xs text-muted-foreground">
+                    3D follow-cam for phones (recommended)
+                  </p>
+                </div>
+                <Switch
+                  id="camera-mode"
+                  checked={cameraMode === 'immersive'}
+                  onCheckedChange={handleCameraModeChange}
+                />
+              </div>
+            )}
           </div>
 
           <Separator />

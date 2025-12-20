@@ -19,12 +19,26 @@ export interface ZoomState {
   }
 }
 
+export interface CameraState {
+  mode: 'classic' | 'immersive'
+  perspective: number
+  rotateX: number
+  rotateZ: number
+  scale: number
+  translateX: number
+  translateY: number
+  isAnimating: boolean
+  targetTile: number
+}
+
 class EventBus {
   private events: GameEvent[] = []
   private maxEvents = 20
   private listeners: Set<() => void> = new Set()
   private zoomState: ZoomState | null = null
   private zoomListeners: Set<() => void> = new Set()
+  private cameraState: CameraState | null = null
+  private cameraListeners: Set<() => void> = new Set()
 
   logEvent(type: string, payload?: Record<string, unknown> | string) {
     let payloadString: string | undefined
@@ -85,6 +99,20 @@ class EventBus {
     this.zoomListeners.add(listener)
     return () => this.zoomListeners.delete(listener)
   }
+  
+  setCameraState(cameraState: CameraState) {
+    this.cameraState = cameraState
+    this.cameraListeners.forEach(listener => listener())
+  }
+  
+  getCameraState(): CameraState | null {
+    return this.cameraState
+  }
+  
+  subscribeToCamera(listener: () => void) {
+    this.cameraListeners.add(listener)
+    return () => this.cameraListeners.delete(listener)
+  }
 }
 
 // Singleton instance
@@ -96,4 +124,4 @@ export function logEvent(type: string, payload?: Record<string, unknown> | strin
 }
 
 // Export types
-export type { GameEvent, ZoomState }
+export type { GameEvent, ZoomState, CameraState }

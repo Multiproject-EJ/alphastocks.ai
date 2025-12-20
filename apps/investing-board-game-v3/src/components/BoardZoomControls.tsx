@@ -1,15 +1,17 @@
 import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
-import { Plus, Minus, ArrowsOut, NavigationArrow, FrameCorners } from '@phosphor-icons/react'
+import { Plus, Minus, ArrowsOut, NavigationArrow, FrameCorners, MapTrifold } from '@phosphor-icons/react'
 
 interface BoardZoomControlsProps {
   onZoomIn: () => void
   onZoomOut: () => void
   onReset: () => void
   onFitToScreen?: () => void
+  onViewFullBoard?: () => void
   autoFollow: boolean
   onToggleAutoFollow: () => void
   isMobile: boolean
+  cameraMode?: 'classic' | 'immersive'
 }
 
 export function BoardZoomControls({
@@ -17,11 +19,16 @@ export function BoardZoomControls({
   onZoomOut,
   onReset,
   onFitToScreen,
+  onViewFullBoard,
   autoFollow,
   onToggleAutoFollow,
   isMobile,
+  cameraMode = 'classic',
 }: BoardZoomControlsProps) {
   if (!isMobile) return null
+  
+  // Show different controls based on camera mode
+  const isImmersiveMode = cameraMode === 'immersive'
 
   return (
     <motion.div
@@ -32,66 +39,89 @@ export function BoardZoomControls({
         right: 'calc(1rem + var(--safe-area-right))',
       }}
     >
-      {/* Zoom In */}
-      <Button
-        size="icon"
-        variant="default"
-        onClick={onZoomIn}
-        className="rounded-full w-11 h-11 bg-card/90 backdrop-blur-md border-2 border-accent/30 shadow-lg hover:bg-accent/90 active:scale-95 transition-transform"
-        aria-label="Zoom in"
-      >
-        <Plus size={20} weight="bold" />
-      </Button>
-
-      {/* Zoom Out */}
-      <Button
-        size="icon"
-        variant="default"
-        onClick={onZoomOut}
-        className="rounded-full w-11 h-11 bg-card/90 backdrop-blur-md border-2 border-accent/30 shadow-lg hover:bg-accent/90 active:scale-95 transition-transform"
-        aria-label="Zoom out"
-      >
-        <Minus size={20} weight="bold" />
-      </Button>
-
-      {/* Fit to Screen */}
-      {onFitToScreen && (
+      {/* View Full Board - Only in immersive mode */}
+      {isImmersiveMode && onViewFullBoard && (
         <Button
           size="icon"
           variant="default"
-          onClick={onFitToScreen}
+          onClick={onViewFullBoard}
           className="rounded-full w-11 h-11 bg-card/90 backdrop-blur-md border-2 border-accent/30 shadow-lg hover:bg-accent/90 active:scale-95 transition-transform"
-          aria-label="Fit to screen"
+          aria-label="View full board"
+          title="View full board (3 seconds)"
         >
-          <FrameCorners size={20} weight="bold" />
+          <MapTrifold size={20} weight="bold" />
         </Button>
       )}
+      
+      {/* Classic mode controls */}
+      {!isImmersiveMode && (
+        <>
+          {/* Zoom In */}
+          <Button
+            size="icon"
+            variant="default"
+            onClick={onZoomIn}
+            className="rounded-full w-11 h-11 bg-card/90 backdrop-blur-md border-2 border-accent/30 shadow-lg hover:bg-accent/90 active:scale-95 transition-transform"
+            aria-label="Zoom in"
+          >
+            <Plus size={20} weight="bold" />
+          </Button>
 
-      {/* Reset Zoom */}
-      <Button
-        size="icon"
-        variant="default"
-        onClick={onReset}
-        className="rounded-full w-11 h-11 bg-card/90 backdrop-blur-md border-2 border-accent/30 shadow-lg hover:bg-accent/90 active:scale-95 transition-transform"
-        aria-label="Reset zoom"
-      >
-        <ArrowsOut size={20} weight="bold" />
-      </Button>
+          {/* Zoom Out */}
+          <Button
+            size="icon"
+            variant="default"
+            onClick={onZoomOut}
+            className="rounded-full w-11 h-11 bg-card/90 backdrop-blur-md border-2 border-accent/30 shadow-lg hover:bg-accent/90 active:scale-95 transition-transform"
+            aria-label="Zoom out"
+          >
+            <Minus size={20} weight="bold" />
+          </Button>
 
-      {/* Toggle Auto-Follow */}
-      <Button
-        size="icon"
-        variant={autoFollow ? 'default' : 'outline'}
-        onClick={onToggleAutoFollow}
-        className={`rounded-full w-11 h-11 backdrop-blur-md border-2 shadow-lg active:scale-95 transition-transform ${
-          autoFollow
-            ? 'bg-accent border-accent text-accent-foreground'
-            : 'bg-card/90 border-accent/30 hover:bg-accent/90'
-        }`}
-        aria-label={autoFollow ? 'Disable auto-follow' : 'Enable auto-follow'}
-      >
-        <NavigationArrow size={20} weight="bold" />
-      </Button>
+          {/* Fit to Screen */}
+          {onFitToScreen && (
+            <Button
+              size="icon"
+              variant="default"
+              onClick={onFitToScreen}
+              className="rounded-full w-11 h-11 bg-card/90 backdrop-blur-md border-2 border-accent/30 shadow-lg hover:bg-accent/90 active:scale-95 transition-transform"
+              aria-label="Fit to screen"
+            >
+              <FrameCorners size={20} weight="bold" />
+            </Button>
+          )}
+        </>
+      )}
+
+      {/* Reset Zoom - Classic mode only */}
+      {!isImmersiveMode && (
+        <>
+          <Button
+            size="icon"
+            variant="default"
+            onClick={onReset}
+            className="rounded-full w-11 h-11 bg-card/90 backdrop-blur-md border-2 border-accent/30 shadow-lg hover:bg-accent/90 active:scale-95 transition-transform"
+            aria-label="Reset zoom"
+          >
+            <ArrowsOut size={20} weight="bold" />
+          </Button>
+
+          {/* Toggle Auto-Follow */}
+          <Button
+            size="icon"
+            variant={autoFollow ? 'default' : 'outline'}
+            onClick={onToggleAutoFollow}
+            className={`rounded-full w-11 h-11 backdrop-blur-md border-2 shadow-lg active:scale-95 transition-transform ${
+              autoFollow
+                ? 'bg-accent border-accent text-accent-foreground'
+                : 'bg-card/90 border-accent/30 hover:bg-accent/90'
+            }`}
+            aria-label={autoFollow ? 'Disable auto-follow' : 'Enable auto-follow'}
+          >
+            <NavigationArrow size={20} weight="bold" />
+          </Button>
+        </>
+      )}
     </motion.div>
   )
 }

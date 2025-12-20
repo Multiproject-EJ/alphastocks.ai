@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { eventBus, GameEvent, ZoomState } from './eventBus'
+import { eventBus, GameEvent, ZoomState, CameraState } from './eventBus'
 
 // Board configuration constant - should match the board size used in App.tsx
 const BOARD_SIZE = 1200
@@ -17,6 +17,7 @@ export function DevToolsOverlay({ phase = 'unknown', overlayStack = [] }: DevToo
   const [dpr, setDpr] = useState(1)
   const [safeArea, setSafeArea] = useState({ top: 0, right: 0, bottom: 0, left: 0 })
   const [zoomState, setZoomState] = useState<ZoomState | null>(null)
+  const [cameraState, setCameraState] = useState<CameraState | null>(null)
 
   // Subscribe to events
   useEffect(() => {
@@ -33,6 +34,15 @@ export function DevToolsOverlay({ phase = 'unknown', overlayStack = [] }: DevToo
       setZoomState(eventBus.getZoomState())
     })
     setZoomState(eventBus.getZoomState())
+    return unsubscribe
+  }, [])
+  
+  // Subscribe to camera state updates
+  useEffect(() => {
+    const unsubscribe = eventBus.subscribeToCamera(() => {
+      setCameraState(eventBus.getCameraState())
+    })
+    setCameraState(eventBus.getCameraState())
     return unsubscribe
   }, [])
 
@@ -190,6 +200,43 @@ export function DevToolsOverlay({ phase = 'unknown', overlayStack = [] }: DevToo
                 <div className="font-mono">
                   <span className="text-purple-300">Top Overlay:</span> {topOverlay}
                 </div>
+                
+                {/* Camera State (3D mode) */}
+                {cameraState && (
+                  <>
+                    <div className="font-mono mt-2 pt-2 border-t border-purple-500/30">
+                      <span className="text-purple-300 font-bold">Camera Mode:</span>{' '}
+                      <span className={`font-bold ${
+                        cameraState.mode === 'immersive' ? 'text-cyan-400' : 'text-gray-400'
+                      }`}>
+                        {cameraState.mode.toUpperCase()}
+                      </span>
+                    </div>
+                    {cameraState.mode === 'immersive' && (
+                      <>
+                        <div className="font-mono">
+                          <span className="text-purple-300">Tilt:</span> {cameraState.rotateX.toFixed(1)}°
+                        </div>
+                        <div className="font-mono">
+                          <span className="text-purple-300">Zoom:</span>{' '}
+                          <span className="text-cyan-400 font-bold">{cameraState.scale.toFixed(2)}x</span>
+                        </div>
+                        <div className="font-mono">
+                          <span className="text-purple-300">Position:</span> X:{cameraState.translateX.toFixed(0)} Y:{cameraState.translateY.toFixed(0)}
+                        </div>
+                        <div className="font-mono">
+                          <span className="text-purple-300">Target Tile:</span> {cameraState.targetTile}
+                        </div>
+                        <div className="font-mono">
+                          <span className="text-purple-300">Animating:</span>{' '}
+                          <span className={cameraState.isAnimating ? 'text-yellow-400' : 'text-gray-500'}>
+                            {cameraState.isAnimating ? '✓' : '✗'}
+                          </span>
+                        </div>
+                      </>
+                    )}
+                  </>
+                )}
               </div>
 
               {/* Events section */}
