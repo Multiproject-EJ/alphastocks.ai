@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { eventBus, GameEvent } from './eventBus'
+import { eventBus, GameEvent, ZoomState } from './eventBus'
+
+// Board configuration constant - should match the board size used in App.tsx
+const BOARD_SIZE = 1200
 
 interface DevToolsOverlayProps {
   phase?: string
@@ -13,6 +16,7 @@ export function DevToolsOverlay({ phase = 'unknown', overlayStack = [] }: DevToo
   const [viewport, setViewport] = useState({ width: 0, height: 0 })
   const [dpr, setDpr] = useState(1)
   const [safeArea, setSafeArea] = useState({ top: 0, right: 0, bottom: 0, left: 0 })
+  const [zoomState, setZoomState] = useState<ZoomState | null>(null)
 
   // Subscribe to events
   useEffect(() => {
@@ -20,6 +24,15 @@ export function DevToolsOverlay({ phase = 'unknown', overlayStack = [] }: DevToo
       setEvents(eventBus.getEvents())
     })
     setEvents(eventBus.getEvents())
+    return unsubscribe
+  }, [])
+
+  // Subscribe to zoom state updates
+  useEffect(() => {
+    const unsubscribe = eventBus.subscribeToZoom(() => {
+      setZoomState(eventBus.getZoomState())
+    })
+    setZoomState(eventBus.getZoomState())
     return unsubscribe
   }, [])
 
@@ -67,6 +80,21 @@ export function DevToolsOverlay({ phase = 'unknown', overlayStack = [] }: DevToo
     const seconds = date.getSeconds().toString().padStart(2, '0')
     const ms = date.getMilliseconds().toString().padStart(3, '0')
     return `${hours}:${minutes}:${seconds}.${ms}`
+  }
+
+  // Calculate board visible area percentage
+  const calculateVisibleArea = () => {
+    if (!zoomState) return 100
+    
+    const scaledSize = BOARD_SIZE * zoomState.scale
+    const availableWidth = viewport.width - safeArea.left - safeArea.right
+    const availableHeight = viewport.height - safeArea.top - safeArea.bottom - 180
+    
+    const visibleWidth = Math.min(scaledSize, availableWidth)
+    const visibleHeight = Math.min(scaledSize, availableHeight)
+    const visibleArea = (visibleWidth * visibleHeight) / (BOARD_SIZE * BOARD_SIZE) * 100
+    
+    return Math.round(visibleArea)
   }
 
   const topOverlay = overlayStack.length > 0 ? overlayStack[overlayStack.length - 1]?.name : 'none'
@@ -118,6 +146,33 @@ export function DevToolsOverlay({ phase = 'unknown', overlayStack = [] }: DevToo
                 <div className="font-mono">
                   <span className="text-purple-300">Safe Area:</span> T:{safeArea.top} R:{safeArea.right} B:{safeArea.bottom} L:{safeArea.left}
                 </div>
+                <div className="font-mono">
+                  <span className="text-purple-300">Available:</span> {viewport.width - safeArea.left - safeArea.right}×{viewport.height - safeArea.top - safeArea.bottom - 180}
+                </div>
+                {zoomState && (
+                  <>
+                    <div className="font-mono">
+                      <span className="text-purple-300">Zoom Scale:</span>{' '}
+                      <span className="text-green-400 font-bold">{zoomState.scale.toFixed(2)}x</span>
+                    </div>
+                    <div className="font-mono">
+                      <span className="text-purple-300">Zoom Limits:</span> {zoomState.limits.minScale.toFixed(2)} - {zoomState.limits.maxScale.toFixed(2)}
+                    </div>
+                    <div className="font-mono">
+                      <span className="text-purple-300">Initial Scale:</span> {zoomState.limits.initialScale.toFixed(2)}
+                    </div>
+                    <div className="font-mono">
+                      <span className="text-purple-300">Visible Area:</span>{' '}
+                      <span className={`font-bold ${
+                        calculateVisibleArea() > 80 ? 'text-green-400' :
+                        calculateVisibleArea() > 50 ? 'text-yellow-400' :
+                        'text-red-400'
+                      }`}>
+                        {calculateVisibleArea()}%
+                      </span>
+                    </div>
+                  </>
+                )}
                 <div className="font-mono">
                   <span className="text-purple-300">Phase:</span>{' '}
                   <span className={`font-bold ${

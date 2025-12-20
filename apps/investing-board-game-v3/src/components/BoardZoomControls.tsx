@@ -1,11 +1,12 @@
 import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
-import { Plus, Minus, ArrowsOut, NavigationArrow } from '@phosphor-icons/react'
+import { Plus, Minus, ArrowsOut, NavigationArrow, FrameCorners } from '@phosphor-icons/react'
 
 interface BoardZoomControlsProps {
   onZoomIn: () => void
   onZoomOut: () => void
   onReset: () => void
+  onFitToScreen?: () => void
   autoFollow: boolean
   onToggleAutoFollow: () => void
   isMobile: boolean
@@ -15,6 +16,7 @@ export function BoardZoomControls({
   onZoomIn,
   onZoomOut,
   onReset,
+  onFitToScreen,
   autoFollow,
   onToggleAutoFollow,
   isMobile,
@@ -35,7 +37,7 @@ export function BoardZoomControls({
         size="icon"
         variant="default"
         onClick={onZoomIn}
-        className="rounded-full w-12 h-12 bg-card/90 backdrop-blur-md border-2 border-accent/30 shadow-lg hover:bg-accent/90"
+        className="rounded-full w-11 h-11 bg-card/90 backdrop-blur-md border-2 border-accent/30 shadow-lg hover:bg-accent/90 active:scale-95 transition-transform"
         aria-label="Zoom in"
       >
         <Plus size={20} weight="bold" />
@@ -46,18 +48,31 @@ export function BoardZoomControls({
         size="icon"
         variant="default"
         onClick={onZoomOut}
-        className="rounded-full w-12 h-12 bg-card/90 backdrop-blur-md border-2 border-accent/30 shadow-lg hover:bg-accent/90"
+        className="rounded-full w-11 h-11 bg-card/90 backdrop-blur-md border-2 border-accent/30 shadow-lg hover:bg-accent/90 active:scale-95 transition-transform"
         aria-label="Zoom out"
       >
         <Minus size={20} weight="bold" />
       </Button>
+
+      {/* Fit to Screen */}
+      {onFitToScreen && (
+        <Button
+          size="icon"
+          variant="default"
+          onClick={onFitToScreen}
+          className="rounded-full w-11 h-11 bg-card/90 backdrop-blur-md border-2 border-accent/30 shadow-lg hover:bg-accent/90 active:scale-95 transition-transform"
+          aria-label="Fit to screen"
+        >
+          <FrameCorners size={20} weight="bold" />
+        </Button>
+      )}
 
       {/* Reset Zoom */}
       <Button
         size="icon"
         variant="default"
         onClick={onReset}
-        className="rounded-full w-12 h-12 bg-card/90 backdrop-blur-md border-2 border-accent/30 shadow-lg hover:bg-accent/90"
+        className="rounded-full w-11 h-11 bg-card/90 backdrop-blur-md border-2 border-accent/30 shadow-lg hover:bg-accent/90 active:scale-95 transition-transform"
         aria-label="Reset zoom"
       >
         <ArrowsOut size={20} weight="bold" />
@@ -68,7 +83,7 @@ export function BoardZoomControls({
         size="icon"
         variant={autoFollow ? 'default' : 'outline'}
         onClick={onToggleAutoFollow}
-        className={`rounded-full w-12 h-12 backdrop-blur-md border-2 shadow-lg ${
+        className={`rounded-full w-11 h-11 backdrop-blur-md border-2 shadow-lg active:scale-95 transition-transform ${
           autoFollow
             ? 'bg-accent border-accent text-accent-foreground'
             : 'bg-card/90 border-accent/30 hover:bg-accent/90'
