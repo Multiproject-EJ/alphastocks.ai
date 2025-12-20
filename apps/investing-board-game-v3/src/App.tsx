@@ -1282,10 +1282,9 @@ function App() {
       <div className="relative z-10 max-w-[1600px] mx-auto">
         {/* Board wrapper with zoom support for mobile */}
         <div 
-          className={`${isMobile ? 'overflow-hidden touch-none relative' : ''}`}
+          className={`${isMobile ? 'overflow-hidden touch-none' : ''}`}
           style={{ 
             height: isMobile ? 'calc(100vh - 200px)' : 'auto',
-            width: isMobile ? '100vw' : 'auto',
             position: isMobile ? 'relative' : 'static',
           }}
           onTouchStart={isMobile ? handleTouchStart : undefined}
@@ -1298,15 +1297,13 @@ function App() {
             style={isMobile ? {
               width: '1200px',
               height: '1200px',
-              transform: `translate(${zoom.translateX}px, ${zoom.translateY}px) scale(${zoom.scale})`,
+              transform: `translate(calc(-50% + ${zoom.translateX}px), calc(-50% + ${zoom.translateY}px)) scale(${zoom.scale})`,
               transformOrigin: 'center center',
               transition: isPanning ? 'none' : 'transform 0.3s ease-out',
               willChange: 'transform',
               position: 'absolute',
               top: '50%',
               left: '50%',
-              marginLeft: '-600px',
-              marginTop: '-600px',
             } : undefined}
           >
           <CentralStockCard

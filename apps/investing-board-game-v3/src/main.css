@@ -241,24 +241,13 @@
 @media (max-width: 1023px) {
   .game-board {
     padding: 0 !important;
-    overflow: hidden;
+    overflow: visible !important;
+    min-height: 100vh;
   }
 
   /* Hide desktop-only elements on mobile */
   .desktop-only {
     display: none !important;
-  }
-
-  /* Mobile board container needs proper sizing */
-  .mobile-layout .game-board > div {
-    max-width: 100% !important;
-  }
-
-  /* Board content wrapper - ensure proper containment */
-  .mobile-layout .game-board > div > div {
-    width: 1200px;
-    height: 1200px;
-    max-width: none !important;
   }
 
   /* Scale down center carousel and controls on mobile */

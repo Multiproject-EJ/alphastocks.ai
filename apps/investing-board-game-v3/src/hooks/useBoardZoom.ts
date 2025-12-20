@@ -24,14 +24,22 @@ export function useBoardZoom({
   currentPosition = 0,
   boardSize = { width: 1000, height: 1000 },
 }: UseBoardZoomOptions = {}) {
+  // Determine initial scale based on actual window size
+  const getInitialScale = () => {
+    if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+      return 2.0
+    }
+    return defaultScale
+  }
+
   const [zoom, setZoom] = useState<BoardZoomState>({
-    scale: isMobile ? 2.0 : defaultScale,
+    scale: getInitialScale(),
     translateX: 0,
     translateY: 0,
   })
 
   const [isPanning, setIsPanning] = useState(false)
-  const [autoFollow, setAutoFollow] = useState(isMobile) // Enable by default on mobile
+  const [autoFollow, setAutoFollow] = useState(typeof window !== 'undefined' && window.innerWidth < 1024) // Enable by default on mobile
   const lastPanPosition = useRef({ x: 0, y: 0 })
   const lastTouchDistance = useRef<number | null>(null)
 
@@ -71,7 +79,9 @@ export function useBoardZoom({
     if (!isMobile) return
 
     const tilePos = getTilePosition(position)
-    const scale = currentScale ?? zoom.scale
+    
+    // Use currentScale parameter or default to 2.0 for mobile
+    const scale = currentScale ?? (typeof window !== 'undefined' && window.innerWidth < 1024 ? 2.0 : 1.0)
     
     // Calculate translation to center the tile
     const viewportWidth = window.innerWidth
@@ -86,7 +96,7 @@ export function useBoardZoom({
       translateX: targetX,
       translateY: targetY,
     }))
-  }, [isMobile, getTilePosition, zoom.scale])
+  }, [isMobile, getTilePosition])
 
   // Handle pinch zoom - works with React SyntheticEvent
   const handleTouchStart = useCallback((e: ReactTouchEvent<HTMLDivElement>) => {
@@ -165,13 +175,14 @@ export function useBoardZoom({
   }, [minScale])
 
   const resetZoom = useCallback(() => {
+    const initialScale = typeof window !== 'undefined' && window.innerWidth < 1024 ? 2.0 : defaultScale
     setZoom({
-      scale: isMobile ? 2.0 : defaultScale,
+      scale: initialScale,
       translateX: 0,
       translateY: 0,
     })
     setAutoFollow(true)
-  }, [isMobile, defaultScale])
+  }, [defaultScale])
 
   const toggleAutoFollow = useCallback(() => {
     setAutoFollow(prev => !prev)
