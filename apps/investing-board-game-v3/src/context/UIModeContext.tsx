@@ -76,13 +76,17 @@ export function UIModeProvider({
     }
   }, [state.mode])
 
-  // Restore last mode on mount
+  // Restore last mode on mount (only once, safely)
   useEffect(() => {
     try {
-      const lastMode = localStorage.getItem('lastUIMode') as UIMode
-      if (lastMode && lastMode !== initialMode) {
-        // Don't await - fire and forget
-        transitionTo(lastMode).catch(console.error)
+      const lastMode = localStorage.getItem('lastUIMode')
+      // Validate that it's a valid UIMode
+      const validModes: UIMode[] = ['board', 'cityBuilder', 'gallery', 'portfolio', 'hub', 'shop', 'casino', 'biasSanctuary', 'challenges', 'leaderboard', 'settings']
+      if (lastMode && validModes.includes(lastMode as UIMode) && lastMode !== initialMode) {
+        // Schedule transition for next tick to ensure transitionTo is defined
+        setTimeout(() => {
+          transitionTo(lastMode as UIMode).catch(console.error)
+        }, 0)
       }
     } catch (e) {
       // Ignore localStorage errors

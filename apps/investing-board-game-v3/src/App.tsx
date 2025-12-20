@@ -95,9 +95,10 @@ import { useUIMode } from '@/hooks/useUIMode'
 import { ThriftPathStatus as ThriftPathStatusType } from '@/lib/thriftPath'
 import { COIN_COSTS, COIN_EARNINGS } from '@/lib/coins'
 import { getInitialCityBuilderState, CITIES } from '@/lib/cityBuilder'
-import type { UIMode } from '@/lib/uiModeStateMachine'
+import type { UIMode, GamePhase } from '@/lib/uiModeStateMachine'
 
-type Phase = 'idle' | 'rolling' | 'moving' | 'landed'
+// Alias for backward compatibility
+type Phase = GamePhase
 
 // Debug helper function - logs only when DEBUG_GAME is enabled in localStorage
 const debugGame = (...args: unknown[]) => {
