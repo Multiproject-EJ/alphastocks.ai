@@ -44,7 +44,7 @@ export function EventBanner({ events, onOpenCalendar }: EventBannerProps) {
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: -100, opacity: 0 }}
         transition={{ type: 'spring', damping: 20 }}
-        className="fixed top-0 left-0 right-0 z-50 flex justify-center p-4"
+        className="fixed top-0 left-0 right-0 z-50 flex justify-center p-4 safe-top"
       >
         <motion.div
           animate={{

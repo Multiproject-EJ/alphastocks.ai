@@ -36,10 +36,15 @@ export function DevToolsOverlay({ phase = 'unknown', overlayStack = [] }: DevToo
     const updateSafeArea = () => {
       // Try to get real safe area insets from CSS env variables
       const computedStyle = getComputedStyle(document.documentElement)
-      const top = parseInt(computedStyle.getPropertyValue('--safe-area-inset-top') || '0')
-      const right = parseInt(computedStyle.getPropertyValue('--safe-area-inset-right') || '0')
-      const bottom = parseInt(computedStyle.getPropertyValue('--safe-area-inset-bottom') || '0')
-      const left = parseInt(computedStyle.getPropertyValue('--safe-area-inset-left') || '0')
+      const parsePx = (value: string): number => {
+        const parsed = parseFloat(value)
+        return isNaN(parsed) ? 0 : parsed
+      }
+      
+      const top = parsePx(computedStyle.getPropertyValue('--safe-area-top'))
+      const right = parsePx(computedStyle.getPropertyValue('--safe-area-right'))
+      const bottom = parsePx(computedStyle.getPropertyValue('--safe-area-bottom'))
+      const left = parsePx(computedStyle.getPropertyValue('--safe-area-left'))
       
       setSafeArea({ top, right, bottom, left })
     }
