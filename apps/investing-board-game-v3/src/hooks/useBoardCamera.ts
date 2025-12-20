@@ -27,12 +27,37 @@ export interface UseBoardCameraOptions {
 
 const STORAGE_KEY = 'alphastocks_camera_mode'
 
-// Default immersive camera settings
+// Validation functions to prevent invalid camera states
+const validateScale = (s: number, isMobile: boolean): number => {
+  if (isNaN(s) || s === 0 || s > 10) {
+    console.warn('⚠️ Invalid scale detected, using default:', s)
+    return isMobile ? 0.4 : 1.0
+  }
+  return Math.max(0.2, Math.min(3, s))
+}
+
+const validateTranslate = (t: number): number => {
+  if (isNaN(t) || Math.abs(t) > 5000) {
+    console.warn('⚠️ Invalid translate detected, using 0:', t)
+    return 0
+  }
+  return Math.max(-2000, Math.min(2000, t))
+}
+
+const validateRotate = (r: number): number => {
+  if (isNaN(r) || Math.abs(r) > 360) {
+    console.warn('⚠️ Invalid rotation detected, using 0:', r)
+    return 0
+  }
+  return r
+}
+
+// Default immersive camera settings (updated for better mobile visibility)
 const IMMERSIVE_DEFAULTS = {
   perspective: 1000,
-  rotateX: 22, // 22 degree tilt
+  rotateX: 20, // 20 degree tilt for immersive view
   rotateZ: 0,
-  scale: 2.5,
+  scale: 0.4, // Reasonable zoom for mobile (was 2.5, too zoomed in)
 }
 
 // Classic mode settings (flat bird's-eye view)
@@ -143,8 +168,8 @@ export function useBoardCamera(options: UseBoardCameraOptions) {
     
     setCamera(prev => ({
       ...prev,
-      translateX: translation.x,
-      translateY: translation.y,
+      translateX: validateTranslate(translation.x),
+      translateY: validateTranslate(translation.y),
       targetTile: tileId,
       isAnimating: animate,
     }))
@@ -263,6 +288,52 @@ export function useBoardCamera(options: UseBoardCameraOptions) {
       }
     }
   }, [])
+  
+  // Emergency fallback: auto-recover from broken state
+  useEffect(() => {
+    const isInvalid = 
+      isNaN(camera.scale) ||
+      camera.scale === 0 ||
+      camera.scale > 10 ||
+      Math.abs(camera.translateX) > 5000 ||
+      Math.abs(camera.translateY) > 5000 ||
+      isNaN(camera.translateX) ||
+      isNaN(camera.translateY)
+      
+    if (isInvalid) {
+      console.error('🚨 Camera in invalid state, forcing reset:', {
+        scale: camera.scale,
+        translateX: camera.translateX,
+        translateY: camera.translateY,
+      })
+      const defaults = camera.mode === 'immersive' ? IMMERSIVE_DEFAULTS : CLASSIC_DEFAULTS
+      setCamera(prev => ({
+        ...prev,
+        ...defaults,
+        translateX: 0,
+        translateY: 0,
+      }))
+    }
+  }, [camera.scale, camera.translateX, camera.translateY, camera.mode])
+  
+  // Debug logging for camera state changes
+  useEffect(() => {
+    console.log('🎥 Camera State:', {
+      mode: camera.mode,
+      scale: camera.scale,
+      translateX: camera.translateX,
+      translateY: camera.translateY,
+      rotateX: camera.rotateX,
+      isValid: !isNaN(camera.scale) && camera.scale > 0 && camera.scale < 10,
+      isMobile,
+      currentPosition,
+    })
+    
+    // Alert if invalid
+    if (isNaN(camera.scale) || camera.scale === 0) {
+      console.error('❌ Invalid camera scale detected!', camera.scale)
+    }
+  }, [camera.mode, camera.scale, camera.translateX, camera.translateY, camera.rotateX, isMobile, currentPosition])
   
   // Check for reduced motion preference
   const prefersReducedMotion = useMemo(() => {
