@@ -217,6 +217,46 @@ h1, h2, h3, h4, h5, h6 {
   margin-top: 8px;
 }
 
+/* Prevent text selection on touch */
+.no-select {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* Improve touch scrolling */
+.touch-scroll {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* Extend tap area without changing visual size */
+.tap-extend {
+  position: relative;
+}
+
+.tap-extend::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 44px;
+  height: 44px;
+  transform: translate(-50%, -50%);
+  /* Invisible but captures taps */
+}
+
+/* Touch target size variants */
+.touch-target-lg {
+  min-width: 48px;
+  min-height: 48px;
+}
+
+.touch-target-xl {
+  min-width: 56px;
+  min-height: 56px;
+}
+
 /* 3D Board Viewport Styles */
 .board-viewport-container {
   position: relative;
