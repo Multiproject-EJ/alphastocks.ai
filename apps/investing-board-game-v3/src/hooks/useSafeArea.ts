@@ -22,11 +22,16 @@ export function useSafeArea(): SafeAreaInsets {
   useEffect(() => {
     const updateSafeAreas = () => {
       const style = getComputedStyle(document.documentElement)
+      const parsePx = (value: string): number => {
+        const parsed = parseFloat(value)
+        return isNaN(parsed) ? 0 : parsed
+      }
+      
       setSafeAreas({
-        top: parseInt(style.getPropertyValue('--safe-area-top')) || 0,
-        right: parseInt(style.getPropertyValue('--safe-area-right')) || 0,
-        bottom: parseInt(style.getPropertyValue('--safe-area-bottom')) || 0,
-        left: parseInt(style.getPropertyValue('--safe-area-left')) || 0,
+        top: parsePx(style.getPropertyValue('--safe-area-top')),
+        right: parsePx(style.getPropertyValue('--safe-area-right')),
+        bottom: parsePx(style.getPropertyValue('--safe-area-bottom')),
+        left: parsePx(style.getPropertyValue('--safe-area-left')),
       })
     }
     
