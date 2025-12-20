@@ -25,6 +25,7 @@ import { ThriftPathStatus } from '@/components/ThriftPathStatus'
 import { ThriftPathAura } from '@/components/ThriftPathAura'
 import { OutOfRollsModal } from '@/components/OutOfRollsModal'
 import { BoardZoomControls } from '@/components/BoardZoomControls'
+import { Board3DViewport } from '@/components/Board3DViewport'
 
 // Mobile-first components
 import { MobileGameLayout } from '@/components/MobileGameLayout'
@@ -80,6 +81,7 @@ import { useCoins } from '@/hooks/useCoins'
 import { useThriftPath } from '@/hooks/useThriftPath'
 import { useCityBuilder } from '@/hooks/useCityBuilder'
 import { useBoardZoom } from '@/hooks/useBoardZoom'
+import { useBoardCamera } from '@/hooks/useBoardCamera'
 import { useSafeArea } from '@/hooks/useSafeArea'
 import { ThriftPathStatus as ThriftPathStatusType } from '@/lib/thriftPath'
 import { COIN_COSTS, COIN_EARNINGS } from '@/lib/coins'
@@ -228,7 +230,7 @@ function App() {
   // Safe area insets
   const safeArea = useSafeArea()
 
-  // Board zoom hook for mobile
+  // Board zoom hook for mobile (classic mode)
   const {
     zoom,
     zoomLimits,
@@ -248,6 +250,23 @@ function App() {
     currentPosition: gameState.position,
     boardSize: { width: 1200, height: 1200 },
     safeArea,
+  })
+  
+  // 3D Camera system for immersive mode (mobile only)
+  const {
+    camera,
+    setMode: setCameraMode,
+    centerOnTile,
+    animateAlongPath,
+    zoomOutTemporarily,
+    resetCamera,
+    boardStyle: camera3DStyle,
+    containerStyle: camera3DContainerStyle,
+    tilePositions,
+  } = useBoardCamera({
+    isMobile,
+    currentPosition: gameState.position,
+    boardSize: { width: 1200, height: 1200 },
   })
 
   // Carousel panel state
@@ -709,6 +728,15 @@ function App() {
       })
     }
   }, [hasPowerUp, consumePowerUp])
+  
+  // Update camera state in DevTools
+  useEffect(() => {
+    if (import.meta.env.DEV || import.meta.env.VITE_DEVTOOLS === '1') {
+      import('@/devtools/eventBus').then(module => {
+        module.eventBus.setCameraState(camera)
+      })
+    }
+  }, [camera])
 
   // Energy regeneration system - Reset 30 dice every 2 hours
   useEffect(() => {
@@ -946,6 +974,14 @@ function App() {
 
               // Check if player passes Start (position 0) - detect wrapping around the board
               const passedStart = startPosition + totalMovement > BOARD_TILES.length - 1 && tilesToHop[tilesToHop.length - 1] !== 0
+              
+              // Animate camera in immersive mode (mobile only)
+              if (isMobile && camera.mode === 'immersive') {
+                // Start camera animation along the path
+                animateAlongPath(tilesToHop, () => {
+                  debugGame('Camera animation completed')
+                })
+              }
 
               let currentHop = 0
               hopIntervalRef.current = setInterval(() => {
@@ -1309,20 +1345,26 @@ function App() {
         />
 
       <div className="relative z-10 max-w-[1600px] mx-auto">
-        {/* Board wrapper with zoom support for mobile */}
-        <BoardViewport
-          boardSize={{ width: 1200, height: 1200 }}
+        {/* Board wrapper with 3D camera or classic zoom support */}
+        <Board3DViewport
+          camera={camera}
           isMobile={isMobile}
-          currentPosition={gameState.position}
-          safeArea={safeArea}
-          zoom={zoom}
-          isPanning={isPanning}
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-          boardRef={boardRef}
-          boardClassName={boardCenterClasses}
+          boardStyle={camera3DStyle}
+          containerStyle={camera3DContainerStyle}
         >
+          <BoardViewport
+            boardSize={{ width: 1200, height: 1200 }}
+            isMobile={isMobile && camera.mode === 'classic'}
+            currentPosition={gameState.position}
+            safeArea={safeArea}
+            zoom={zoom}
+            isPanning={isPanning}
+            onTouchStart={camera.mode === 'classic' ? handleTouchStart : undefined}
+            onTouchMove={camera.mode === 'classic' ? handleTouchMove : undefined}
+            onTouchEnd={camera.mode === 'classic' ? handleTouchEnd : undefined}
+            boardRef={boardRef}
+            boardClassName={boardCenterClasses}
+          >
           <CentralStockCard
             stock={currentStock}
             isVisible={showCentralStock}
@@ -1509,6 +1551,7 @@ function App() {
             </div>
           </div>
         </BoardViewport>
+        </Board3DViewport>
         
         {/* Board Zoom Controls for mobile */}
         <BoardZoomControls
@@ -1516,9 +1559,11 @@ function App() {
           onZoomOut={zoomOut}
           onReset={resetZoom}
           onFitToScreen={fitToScreen}
+          onViewFullBoard={zoomOutTemporarily}
           autoFollow={autoFollow}
           onToggleAutoFollow={toggleAutoFollow}
           isMobile={isMobile}
+          cameraMode={camera.mode}
         />
       </div>
 
