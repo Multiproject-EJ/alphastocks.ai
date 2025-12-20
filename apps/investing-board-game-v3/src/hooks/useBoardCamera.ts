@@ -325,7 +325,6 @@ export function useBoardCamera(options: UseBoardCameraOptions) {
     
     return {
       transform: `
-        perspective(${camera.perspective}px)
         rotateX(${camera.rotateX}deg)
         rotateZ(${camera.rotateZ}deg)
         scale(${camera.scale})
