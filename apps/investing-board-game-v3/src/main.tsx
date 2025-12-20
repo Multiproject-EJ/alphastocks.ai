@@ -5,6 +5,7 @@ import "@github/spark/spark"
 import App from './App.tsx'
 import { ErrorFallback } from './ErrorFallback.tsx'
 import { AuthProvider } from './context/AuthContext.tsx'
+import { OverlayProvider } from './context/OverlayContext.tsx'
 
 import "./main.css"
 import "./styles/theme.css"
@@ -51,7 +52,9 @@ function renderApp() {
   const AppContent = (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
       <AuthProvider>
-        <App />
+        <OverlayProvider>
+          <App />
+        </OverlayProvider>
       </AuthProvider>
     </ErrorBoundary>
   )
