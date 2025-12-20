@@ -13,8 +13,8 @@ interface TileProps {
   side?: 'top' | 'bottom' | 'left' | 'right'
 }
 
-// Configuration for corner tiles that use images instead of text
-const CORNER_TILE_IMAGES: Record<string, { src: string; alt: string }> = {
+// Configuration for corner tiles and event tiles that use images instead of text
+const TILE_IMAGES: Record<string, { src: string; alt: string }> = {
   'Bias Sanctuary': {
     src: 'BiasSanctuary.webp',
     alt: 'Bias Sanctuary - Learn about cognitive biases in investing',
@@ -30,6 +30,10 @@ const CORNER_TILE_IMAGES: Record<string, { src: string; alt: string }> = {
   'Start / ThriftyPath': {
     src: 'Starttitle.webp',
     alt: 'Start / ThriftyPath - Begin your investment journey',
+  },
+  'Wildcard': {
+    src: 'Wildcard.webp',
+    alt: 'Wildcard - A surprise event awaits',
   },
 }
 
@@ -139,10 +143,10 @@ const TileComponent = ({ tile, isActive, isHopping, isLanded, onClick, side }: T
         {tile.type}
       </Badge>
 
-      {CORNER_TILE_IMAGES[tile.title] ? (
+      {TILE_IMAGES[tile.title] ? (
         <img
-          src={`${import.meta.env.BASE_URL}${CORNER_TILE_IMAGES[tile.title].src}`}
-          alt={CORNER_TILE_IMAGES[tile.title].alt}
+          src={`${import.meta.env.BASE_URL}${TILE_IMAGES[tile.title].src}`}
+          alt={TILE_IMAGES[tile.title].alt}
           className="w-full h-full object-contain absolute inset-0 pt-4 px-1 pb-1"
           loading="lazy"
         />
