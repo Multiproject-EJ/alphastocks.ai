@@ -1565,10 +1565,6 @@ function App() {
           isMobile={isMobile}
           cameraMode={camera.mode}
         />
-          autoFollow={autoFollow}
-          onToggleAutoFollow={toggleAutoFollow}
-          isMobile={isMobile}
-        />
       </div>
 
       <HubModal
