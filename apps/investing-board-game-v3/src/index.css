@@ -216,3 +216,26 @@ h1, h2, h3, h4, h5, h6 {
 .touch-spacing-vertical > * + * {
   margin-top: 8px;
 }
+
+/* Board 3D Viewport - Safety rules for visibility */
+.board-viewport-container {
+  position: relative !important;
+  width: 100% !important;
+  height: 100% !important;
+  overflow: hidden !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.board-3d-transform {
+  transform-origin: center center !important;
+  will-change: transform !important;
+}
+
+/* Force visibility of board children */
+.board-3d-transform > * {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
