@@ -4,7 +4,7 @@ export type OverlayPriority = 'critical' | 'high' | 'normal' | 'low'
 
 export interface OverlayConfig {
   id: string
-  component: React.ComponentType<any>
+  component: React.ComponentType<{ open: boolean; onOpenChange: (open: boolean) => void; [key: string]: any }>
   props?: Record<string, any>
   priority: OverlayPriority
   dismissible?: boolean  // can user close it?
@@ -79,18 +79,8 @@ export function OverlayProvider({ children }: OverlayProviderProps) {
     }
   }, [])
   
-  // Set up auto-close timer
-  const setupAutoCloseTimer = useCallback((config: OverlayConfig) => {
-    if (config.autoClose) {
-      const timer = setTimeout(() => {
-        close(config.id)
-      }, config.autoClose)
-      autoCloseTimersRef.current.set(config.id, timer)
-    }
-  }, [])
-  
   // Process queue - show next overlay if stack is empty or priority allows
-  const processQueue = useCallback((currentState: OverlayManagerState) => {
+  const processQueue = useCallback((currentState: OverlayManagerState): OverlayManagerState => {
     if (currentState.queue.length === 0) return currentState
     
     // Sort queue by priority (higher priority first)
@@ -124,6 +114,51 @@ export function OverlayProvider({ children }: OverlayProviderProps) {
     // Otherwise, keep current state (queue waits)
     return currentState
   }, [])
+  
+  // Close specific overlay
+  const close = useCallback((id: string) => {
+    clearAutoCloseTimer(id)
+    
+    setState(prevState => {
+      // Find and remove from stack
+      const overlayInStack = prevState.stack.find(o => o.id === id)
+      if (overlayInStack) {
+        // Call onClose callback if exists
+        overlayInStack.onClose?.()
+        
+        const newStack = prevState.stack.filter(o => o.id !== id)
+        const newState = {
+          ...prevState,
+          stack: newStack,
+        }
+        
+        // Process queue to show next overlay
+        return processQueue(newState)
+      }
+      
+      // Remove from queue if it's there
+      const overlayInQueue = prevState.queue.find(o => o.id === id)
+      if (overlayInQueue) {
+        overlayInQueue.onClose?.()
+        return {
+          ...prevState,
+          queue: prevState.queue.filter(o => o.id !== id),
+        }
+      }
+      
+      return prevState
+    })
+  }, [clearAutoCloseTimer, processQueue])
+  
+  // Set up auto-close timer (defined after close)
+  const setupAutoCloseTimer = useCallback((config: OverlayConfig) => {
+    if (config.autoClose) {
+      const timer = setTimeout(() => {
+        close(config.id)
+      }, config.autoClose)
+      autoCloseTimersRef.current.set(config.id, timer)
+    }
+  }, [close])
   
   // Show an overlay
   const show = useCallback((config: Omit<OverlayConfig, 'id'> & { id?: string }) => {
@@ -188,41 +223,6 @@ export function OverlayProvider({ children }: OverlayProviderProps) {
     
     return overlayId
   }, [generateId, processQueue, setupAutoCloseTimer])
-  
-  // Close specific overlay
-  const close = useCallback((id: string) => {
-    clearAutoCloseTimer(id)
-    
-    setState(prevState => {
-      // Find and remove from stack
-      const overlayInStack = prevState.stack.find(o => o.id === id)
-      if (overlayInStack) {
-        // Call onClose callback if exists
-        overlayInStack.onClose?.()
-        
-        const newStack = prevState.stack.filter(o => o.id !== id)
-        const newState = {
-          ...prevState,
-          stack: newStack,
-        }
-        
-        // Process queue to show next overlay
-        return processQueue(newState)
-      }
-      
-      // Remove from queue if it's there
-      const overlayInQueue = prevState.queue.find(o => o.id === id)
-      if (overlayInQueue) {
-        overlayInQueue.onClose?.()
-        return {
-          ...prevState,
-          queue: prevState.queue.filter(o => o.id !== id),
-        }
-      }
-      
-      return prevState
-    })
-  }, [clearAutoCloseTimer, processQueue])
   
   // Close current (top of stack)
   const closeCurrent = useCallback(() => {

@@ -253,12 +253,6 @@ export function DevToolsOverlay({ phase = 'unknown' }: DevToolsOverlayProps) {
                     </div>
                   </>
                 )}
-                <div className="font-mono">
-                  <span className="text-purple-300">Overlay Stack:</span> {overlayStack.length}
-                </div>
-                <div className="font-mono">
-                  <span className="text-purple-300">Top Overlay:</span> {topOverlay}
-                </div>
                 
                 {/* Camera State (3D mode) */}
                 {cameraState && (
