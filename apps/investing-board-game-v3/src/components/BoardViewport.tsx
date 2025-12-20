@@ -58,10 +58,18 @@ export function BoardViewport({
 
   const viewportHeight = getViewportHeight()
 
-  // Desktop: no special viewport handling
+  // Desktop: no special viewport handling  
   if (!isMobile) {
     return (
-      <div ref={boardRef} className={boardClassName}>
+      <div 
+        ref={boardRef} 
+        className={boardClassName}
+        style={{
+          width: `${boardSize.width}px`,
+          height: `${boardSize.height}px`,
+          position: 'relative',
+        }}
+      >
         {children}
       </div>
     )

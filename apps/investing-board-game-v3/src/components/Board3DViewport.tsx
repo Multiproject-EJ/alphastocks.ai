@@ -66,19 +66,14 @@ export function Board3DViewport({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        perspective: `${safePerspective}px`,
-        perspectiveOrigin: 'center center',
         ...containerStyle,
       }}
     >
       <div 
         className="board-3d-transform"
         style={{
-          transform: `rotateX(${safeRotateX}deg) scale(${safeScale}) translate(${safeTransX}px, ${safeTransY}px)`,
-          transformStyle: 'preserve-3d',
           transformOrigin: 'center center',
-          width: `${BOARD_WIDTH}px`,
-          height: `${BOARD_HEIGHT}px`,
+          transformStyle: 'preserve-3d',
           willChange: 'transform',
           ...boardStyle,
         }}

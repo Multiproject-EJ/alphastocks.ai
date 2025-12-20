@@ -217,23 +217,23 @@ h1, h2, h3, h4, h5, h6 {
   margin-top: 8px;
 }
 
-/* Board 3D Viewport - Safety rules for visibility */
+/* 3D Board Viewport Styles */
 .board-viewport-container {
-  position: relative !important;
-  width: 100% !important;
-  height: 100% !important;
-  overflow: hidden !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .board-3d-transform {
-  transform-origin: center center !important;
-  will-change: transform !important;
+  transform-origin: center center;
+  will-change: transform;
 }
 
-/* Force visibility of board children */
+/* Ensure board content is always visible */
 .board-3d-transform > * {
   display: block !important;
   visibility: visible !important;

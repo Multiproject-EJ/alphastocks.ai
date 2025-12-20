@@ -54,16 +54,17 @@ function renderApp() {
       <AuthProvider>
         <OverlayProvider>
           <App />
+          {/* DevToolsOverlay needs access to OverlayProvider */}
+          {DevToolsOverlay && <DevToolsOverlay />}
         </OverlayProvider>
       </AuthProvider>
     </ErrorBoundary>
   )
 
-  // Wrap with devtools if enabled and loaded
-  const content = (DevicePreview && DevToolsOverlay) ? (
+  // Wrap with device preview if enabled and loaded
+  const content = DevicePreview ? (
     <DevicePreview>
       {AppContent}
-      <DevToolsOverlay />
     </DevicePreview>
   ) : AppContent
 

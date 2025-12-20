@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { calculateTilePositions, TilePosition } from '@/lib/tilePositions'
+import { eventBus } from '@/devtools/eventBus'
 
 export type CameraMode = 'classic' | 'immersive'
 
@@ -311,55 +312,47 @@ export function useBoardCamera(options: UseBoardCameraOptions) {
     }
   }, [])
   
-  // Emergency fallback: auto-recover from broken state
+  // Emergency fallback: detect invalid camera state and reset
   useEffect(() => {
-    if (!isCameraStateValid(camera)) {
-      console.error('🚨 Camera in invalid state, forcing reset:', {
+    if (
+      isNaN(camera.scale) ||
+      camera.scale === 0 ||
+      camera.scale > 10 ||
+      Math.abs(camera.translateX) > 5000 ||
+      Math.abs(camera.translateY) > 5000
+    ) {
+      console.error('❌ Camera state invalid, resetting to classic mode:', {
         scale: camera.scale,
         translateX: camera.translateX,
         translateY: camera.translateY,
       })
-      const defaults = camera.mode === 'immersive' ? IMMERSIVE_DEFAULTS : CLASSIC_DEFAULTS
-      setCamera(prev => ({
-        ...prev,
-        ...defaults,
-        translateX: 0,
-        translateY: 0,
-      }))
+      setMode('classic')
+      resetCamera()
     }
-  }, [camera])
+  }, [camera.scale, camera.translateX, camera.translateY, setMode, resetCamera])
   
-  // Debug logging for camera state changes (development only)
+  // Debug logging for camera state changes
   useEffect(() => {
-    // Only log in development mode to avoid performance impact in production
-    if (import.meta.env.DEV) {
-      const isValid = isCameraStateValid({
-        scale: camera.scale,
-        translateX: camera.translateX,
-        translateY: camera.translateY,
-      })
-      
-      console.log('🎥 Camera State:', {
-        mode: camera.mode,
-        scale: camera.scale,
-        translateX: camera.translateX,
-        translateY: camera.translateY,
-        rotateX: camera.rotateX,
-        isValid,
-        isMobile,
-        currentPosition,
-      })
-      
-      // Alert if invalid
-      if (!isValid) {
-        console.error('❌ Invalid camera state detected!', {
-          scale: camera.scale,
-          translateX: camera.translateX,
-          translateY: camera.translateY,
-        })
-      }
-    }
-  }, [camera.mode, camera.scale, camera.translateX, camera.translateY, camera.rotateX, isMobile, currentPosition])
+    console.log('🎥 Camera state:', {
+      mode: camera.mode,
+      scale: camera.scale,
+      translateX: camera.translateX,
+      translateY: camera.translateY,
+      rotateX: camera.rotateX,
+      isMobile,
+      currentPosition,
+      isValid: (
+        !isNaN(camera.scale) &&
+        camera.scale > 0 &&
+        camera.scale < 10 &&
+        Math.abs(camera.translateX) < 5000 &&
+        Math.abs(camera.translateY) < 5000
+      ),
+    })
+    
+    // Publish camera state to DevTools
+    eventBus.setCameraState(camera)
+  }, [camera, isMobile, currentPosition])
   
   // Check for reduced motion preference
   const prefersReducedMotion = useMemo(() => {
@@ -379,6 +372,14 @@ export function useBoardCamera(options: UseBoardCameraOptions) {
     const easing = 'cubic-bezier(0.34, 1.56, 0.64, 1)' // Spring-like easing
     
     return {
+      transform: `
+        rotateX(${camera.rotateX}deg)
+        rotateZ(${camera.rotateZ}deg)
+        scale(${camera.scale})
+        translate(${camera.translateX}px, ${camera.translateY}px)
+      `.replace(/\s+/g, ' ').trim(),
+      transformStyle: 'preserve-3d',
+      transformOrigin: 'center center',
       transition: `transform ${duration} ${easing}`,
       willChange: camera.isAnimating ? 'transform' : 'auto',
     }

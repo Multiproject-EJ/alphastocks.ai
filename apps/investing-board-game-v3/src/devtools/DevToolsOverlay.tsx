@@ -256,58 +256,61 @@ export function DevToolsOverlay({ phase = 'unknown' }: DevToolsOverlayProps) {
                 )}
                 
                 {/* Camera State (3D mode) */}
-                {cameraState && (() => {
-                  // Use shared validation function for consistency
-                  const isCameraValid = isCameraStateValid({
-                    scale: cameraState.scale,
-                    translateX: cameraState.translateX,
-                    translateY: cameraState.translateY,
-                  })
-                  
-                  return (
-                    <>
-                      <div className="font-mono mt-2 pt-2 border-t border-purple-500/30">
-                        <span className="text-purple-300 font-bold">📸 Camera Debug:</span>
-                      </div>
-                      <div className="font-mono">
-                        <span className="text-purple-300">Mode:</span>{' '}
-                        <span className={`font-bold ${
-                          cameraState.mode === 'immersive' ? 'text-cyan-400' : 'text-gray-400'
-                        }`}>
-                          {cameraState.mode.toUpperCase()}
-                        </span>
-                      </div>
-                      <div className="font-mono">
-                        <span className="text-purple-300">Scale:</span>{' '}
-                        <span className="text-cyan-400 font-bold">{cameraState.scale?.toFixed(2) || 'N/A'}</span>
-                      </div>
-                      <div className="font-mono">
-                        <span className="text-purple-300">Position:</span> ({cameraState.translateX?.toFixed(0) || 0}, {cameraState.translateY?.toFixed(0) || 0})
-                      </div>
-                      <div className="font-mono">
-                        <span className="text-purple-300">Tilt:</span> {cameraState.rotateX?.toFixed(1) || 0}°
-                      </div>
-                      <div className="font-mono">
-                        <span className="text-purple-300">Target Tile:</span> {cameraState.targetTile}
-                      </div>
-                      <div className="font-mono">
-                        <span className="text-purple-300">Animating:</span>{' '}
-                        <span className={cameraState.isAnimating ? 'text-yellow-400' : 'text-gray-500'}>
-                          {cameraState.isAnimating ? '✓' : '✗'}
-                        </span>
-                      </div>
-                      <div className="font-mono">
-                        <span className="text-purple-300">Validity:</span>{' '}
-                        <span style={{ 
-                          color: isCameraValid ? 'green' : 'red',
-                          fontWeight: 'bold' 
-                        }}>
-                          {isCameraValid ? '✓ Valid' : '✗ INVALID STATE'}
-                        </span>
-                      </div>
-                    </>
-                  )
-                })()}
+                {cameraState && (
+                  <>
+                    <div className="font-mono mt-2 pt-2 border-t border-purple-500/30">
+                      <span className="text-purple-300 font-bold">Camera Mode:</span>{' '}
+                      <span className={`font-bold ${
+                        cameraState.mode === 'immersive' ? 'text-cyan-400' : 'text-gray-400'
+                      }`}>
+                        {cameraState.mode.toUpperCase()}
+                      </span>
+                    </div>
+                    {cameraState.mode === 'immersive' && (
+                      <>
+                        <div className="font-mono">
+                          <span className="text-purple-300">Tilt:</span> {cameraState.rotateX.toFixed(1)}°
+                        </div>
+                        <div className="font-mono">
+                          <span className="text-purple-300">Scale:</span>{' '}
+                          <span className="text-cyan-400 font-bold">{cameraState.scale.toFixed(2)}x</span>
+                        </div>
+                        <div className="font-mono">
+                          <span className="text-purple-300">Position:</span> X:{cameraState.translateX.toFixed(0)} Y:{cameraState.translateY.toFixed(0)}
+                        </div>
+                        <div className="font-mono">
+                          <span className="text-purple-300">Target Tile:</span> {cameraState.targetTile}
+                        </div>
+                        <div className="font-mono">
+                          <span className="text-purple-300">Animating:</span>{' '}
+                          <span className={cameraState.isAnimating ? 'text-yellow-400' : 'text-gray-500'}>
+                            {cameraState.isAnimating ? '✓' : '✗'}
+                          </span>
+                        </div>
+                        <div className="font-mono">
+                          <span className="text-purple-300">Valid:</span>{' '}
+                          <span className={`font-bold ${
+                            !isNaN(cameraState.scale) &&
+                            cameraState.scale > 0 &&
+                            cameraState.scale < 10 &&
+                            Math.abs(cameraState.translateX) < 5000 &&
+                            Math.abs(cameraState.translateY) < 5000
+                              ? 'text-green-400'
+                              : 'text-red-400'
+                          }`}>
+                            {!isNaN(cameraState.scale) &&
+                            cameraState.scale > 0 &&
+                            cameraState.scale < 10 &&
+                            Math.abs(cameraState.translateX) < 5000 &&
+                            Math.abs(cameraState.translateY) < 5000
+                              ? '✓ Valid'
+                              : '✗ Invalid!'}
+                          </span>
+                        </div>
+                      </>
+                    )}
+                  </>
+                )}
               </div>
 
               {/* Events section */}
