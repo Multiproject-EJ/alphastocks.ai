@@ -78,7 +78,7 @@ export function Board3DViewport({
       <div 
         className="board-3d-transform"
         style={{
-          transform: `perspective(${safePerspective}px) rotateX(${safeRotateX}deg) scale(${safeScale}) translate(${safeTransX}px, ${safeTransY}px)`,
+          transform: `rotateX(${safeRotateX}deg) scale(${safeScale}) translate(${safeTransX}px, ${safeTransY}px)`,
           transformStyle: 'preserve-3d',
           transformOrigin: 'center center',
           width: '1200px',

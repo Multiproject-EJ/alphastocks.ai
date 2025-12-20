@@ -27,11 +27,15 @@ export interface UseBoardCameraOptions {
 
 const STORAGE_KEY = 'alphastocks_camera_mode'
 
+// Default scale values
+const MOBILE_DEFAULT_SCALE = 0.4
+const DESKTOP_DEFAULT_SCALE = 1.0
+
 // Validation functions to prevent invalid camera states
 const validateScale = (s: number, isMobile: boolean): number => {
   if (isNaN(s) || s === 0 || s > 10) {
     console.warn('⚠️ Invalid scale detected, using default:', s)
-    return isMobile ? 0.4 : 1.0
+    return isMobile ? MOBILE_DEFAULT_SCALE : DESKTOP_DEFAULT_SCALE
   }
   return Math.max(0.2, Math.min(3, s))
 }
@@ -57,7 +61,7 @@ const IMMERSIVE_DEFAULTS = {
   perspective: 1000,
   rotateX: 20, // 20 degree tilt for immersive view
   rotateZ: 0,
-  scale: 0.4, // Reasonable zoom for mobile (was 2.5, too zoomed in)
+  scale: MOBILE_DEFAULT_SCALE, // Reasonable zoom for mobile
 }
 
 // Classic mode settings (flat bird's-eye view)
@@ -65,7 +69,7 @@ const CLASSIC_DEFAULTS = {
   perspective: 1000,
   rotateX: 0,
   rotateZ: 0,
-  scale: 1,
+  scale: DESKTOP_DEFAULT_SCALE,
 }
 
 export function useBoardCamera(options: UseBoardCameraOptions) {
@@ -316,22 +320,25 @@ export function useBoardCamera(options: UseBoardCameraOptions) {
     }
   }, [camera.scale, camera.translateX, camera.translateY, camera.mode])
   
-  // Debug logging for camera state changes
+  // Debug logging for camera state changes (development only)
   useEffect(() => {
-    console.log('🎥 Camera State:', {
-      mode: camera.mode,
-      scale: camera.scale,
-      translateX: camera.translateX,
-      translateY: camera.translateY,
-      rotateX: camera.rotateX,
-      isValid: !isNaN(camera.scale) && camera.scale > 0 && camera.scale < 10,
-      isMobile,
-      currentPosition,
-    })
-    
-    // Alert if invalid
-    if (isNaN(camera.scale) || camera.scale === 0) {
-      console.error('❌ Invalid camera scale detected!', camera.scale)
+    // Only log in development mode to avoid performance impact in production
+    if (import.meta.env.DEV) {
+      console.log('🎥 Camera State:', {
+        mode: camera.mode,
+        scale: camera.scale,
+        translateX: camera.translateX,
+        translateY: camera.translateY,
+        rotateX: camera.rotateX,
+        isValid: !isNaN(camera.scale) && camera.scale > 0 && camera.scale < 10,
+        isMobile,
+        currentPosition,
+      })
+      
+      // Alert if invalid
+      if (isNaN(camera.scale) || camera.scale === 0) {
+        console.error('❌ Invalid camera scale detected!', camera.scale)
+      }
     }
   }, [camera.mode, camera.scale, camera.translateX, camera.translateY, camera.rotateX, isMobile, currentPosition])
   
