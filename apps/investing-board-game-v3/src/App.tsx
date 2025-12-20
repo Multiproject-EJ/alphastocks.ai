@@ -1542,6 +1542,7 @@ function App() {
           debugGame('Stock modal open change:', open)
           setStockModalOpen(open)
           if (!open) {
+            logEvent?.('modal_closed', { modal: 'stock' })
             debugGame('Stock modal closed - cleaning up')
             setShowCentralStock(false)
             setCurrentStock(null)
@@ -1655,7 +1656,10 @@ function App() {
       <Suspense fallback={<div className="flex items-center justify-center h-screen"><div className="text-muted-foreground">Loading...</div></div>}>
         <ShopModal
           open={shopModalOpen}
-          onOpenChange={setShopModalOpen}
+          onOpenChange={(open) => {
+            setShopModalOpen(open)
+            if (!open) logEvent?.('modal_closed', { modal: 'shop' })
+          }}
           gameState={gameState}
           onPurchase={purchaseItem}
           isPermanentOwned={isPermanentOwned}
@@ -1668,7 +1672,10 @@ function App() {
 
         <ChallengesModal
           open={challengesModalOpen}
-          onOpenChange={setChallengesModalOpen}
+          onOpenChange={(open) => {
+            setChallengesModalOpen(open)
+            if (!open) logEvent?.('modal_closed', { modal: 'challenges' })
+          }}
           dailyChallenges={dailyChallenges}
           weeklyChallenges={weeklyChallenges}
         />
@@ -1682,7 +1689,10 @@ function App() {
         
         <SettingsModal
           open={settingsOpen}
-          onOpenChange={setSettingsOpen}
+          onOpenChange={(open) => {
+            setSettingsOpen(open)
+            if (!open) logEvent?.('modal_closed', { modal: 'settings' })
+          }}
         />
         
         <CityBuilderModal
