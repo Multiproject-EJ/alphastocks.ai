@@ -333,20 +333,30 @@ export function useBoardCamera(options: UseBoardCameraOptions) {
   useEffect(() => {
     // Only log in development mode to avoid performance impact in production
     if (import.meta.env.DEV) {
+      const isValid = isCameraStateValid({
+        scale: camera.scale,
+        translateX: camera.translateX,
+        translateY: camera.translateY,
+      })
+      
       console.log('🎥 Camera State:', {
         mode: camera.mode,
         scale: camera.scale,
         translateX: camera.translateX,
         translateY: camera.translateY,
         rotateX: camera.rotateX,
-        isValid: !isNaN(camera.scale) && camera.scale > 0 && camera.scale < 10,
+        isValid,
         isMobile,
         currentPosition,
       })
       
       // Alert if invalid
-      if (isNaN(camera.scale) || camera.scale === 0) {
-        console.error('❌ Invalid camera scale detected!', camera.scale)
+      if (!isValid) {
+        console.error('❌ Invalid camera state detected!', {
+          scale: camera.scale,
+          translateX: camera.translateX,
+          translateY: camera.translateY,
+        })
       }
     }
   }, [camera.mode, camera.scale, camera.translateX, camera.translateY, camera.rotateX, isMobile, currentPosition])
@@ -368,12 +378,19 @@ export function useBoardCamera(options: UseBoardCameraOptions) {
     const duration = prefersReducedMotion || !camera.isAnimating ? '0s' : '0.5s'
     const easing = 'cubic-bezier(0.34, 1.56, 0.64, 1)' // Spring-like easing
     
+    // Apply validation to ensure consistent values (Board3DViewport also validates)
+    const safeRotateX = validateRotate(camera.rotateX)
+    const safeRotateZ = validateRotate(camera.rotateZ)
+    const safeScale = validateScale(camera.scale, isMobile)
+    const safeTransX = validateTranslate(camera.translateX)
+    const safeTransY = validateTranslate(camera.translateY)
+    
     return {
       transform: `
-        rotateX(${camera.rotateX}deg)
-        rotateZ(${camera.rotateZ}deg)
-        scale(${camera.scale})
-        translate(${camera.translateX}px, ${camera.translateY}px)
+        rotateX(${safeRotateX}deg)
+        rotateZ(${safeRotateZ}deg)
+        scale(${safeScale})
+        translate(${safeTransX}px, ${safeTransY}px)
       `.replace(/\s+/g, ' ').trim(),
       transformStyle: 'preserve-3d',
       transformOrigin: 'center center',

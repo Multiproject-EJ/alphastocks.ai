@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { eventBus, GameEvent, ZoomState, CameraState } from './eventBus'
 import { useOverlayManager } from '@/hooks/useOverlayManager'
+import { isCameraStateValid } from '@/hooks/useBoardCamera'
 
 // Board configuration constant - should match the board size used in App.tsx
 const BOARD_SIZE = 1200
@@ -256,13 +257,12 @@ export function DevToolsOverlay({ phase = 'unknown' }: DevToolsOverlayProps) {
                 
                 {/* Camera State (3D mode) */}
                 {cameraState && (() => {
-                  // Extract validation logic to avoid duplication
-                  const isCameraValid = 
-                    cameraState.scale > 0.1 && 
-                    cameraState.scale < 5 && 
-                    !isNaN(cameraState.scale) && 
-                    Math.abs(cameraState.translateX) < 2000 && 
-                    Math.abs(cameraState.translateY) < 2000
+                  // Use shared validation function for consistency
+                  const isCameraValid = isCameraStateValid({
+                    scale: cameraState.scale,
+                    translateX: cameraState.translateX,
+                    translateY: cameraState.translateY,
+                  })
                   
                   return (
                     <>
