@@ -90,7 +90,7 @@ export function BoardViewport({
         style={{
           width: `${boardSize.width}px`,
           height: `${boardSize.height}px`,
-          transform: `translate(calc(-50% + ${zoom.translateX}px), calc(-50% + ${zoom.translateY}px)) scale(${zoom.scale})`,
+          transform: `translate(${-boardSize.width / 2 + zoom.translateX}px, ${-boardSize.height / 2 + zoom.translateY}px) scale(${zoom.scale})`,
           transformOrigin: 'center center',
           transition: isPanning ? 'none' : 'transform 0.3s ease-out',
           willChange: 'transform',

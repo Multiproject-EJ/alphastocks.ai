@@ -2,6 +2,9 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { eventBus, GameEvent, ZoomState } from './eventBus'
 
+// Board configuration constant - should match the board size used in App.tsx
+const BOARD_SIZE = 1200
+
 interface DevToolsOverlayProps {
   phase?: string
   overlayStack?: { name: string }[]
@@ -83,14 +86,13 @@ export function DevToolsOverlay({ phase = 'unknown', overlayStack = [] }: DevToo
   const calculateVisibleArea = () => {
     if (!zoomState) return 100
     
-    const boardSize = 1200 // Fixed board size
-    const scaledSize = boardSize * zoomState.scale
+    const scaledSize = BOARD_SIZE * zoomState.scale
     const availableWidth = viewport.width - safeArea.left - safeArea.right
     const availableHeight = viewport.height - safeArea.top - safeArea.bottom - 180
     
     const visibleWidth = Math.min(scaledSize, availableWidth)
     const visibleHeight = Math.min(scaledSize, availableHeight)
-    const visibleArea = (visibleWidth * visibleHeight) / (boardSize * boardSize) * 100
+    const visibleArea = (visibleWidth * visibleHeight) / (BOARD_SIZE * BOARD_SIZE) * 100
     
     return Math.round(visibleArea)
   }

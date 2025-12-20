@@ -1,14 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
 import type { TouchEvent as ReactTouchEvent } from 'react'
 
-// DevTools support - conditionally import
-let eventBus: any = null
-if (import.meta.env.DEV || import.meta.env.VITE_DEVTOOLS === '1') {
-  import('@/devtools/eventBus').then(module => {
-    eventBus = module.eventBus
-  })
-}
-
 interface BoardZoomState {
   scale: number
   translateX: number
@@ -221,15 +213,18 @@ export function useBoardZoom({
     const scaledBoardHeight = boardSize.height * scale
     
     // Allow board to be panned, but keep at least 20% visible
+    // This prevents users from completely losing the board
     const minVisiblePercentage = 0.2
     const maxOffsetX = (scaledBoardWidth * (1 - minVisiblePercentage)) / 2
     const maxOffsetY = (scaledBoardHeight * (1 - minVisiblePercentage)) / 2
     
-    // Center position in viewport
+    // Center position in viewport (where board center should be at translate 0,0)
     const centerX = viewportWidth / 2
     const centerY = viewportHeight / 2
     
-    // Calculate bounds
+    // Calculate translation bounds
+    // When translateX is too negative, board moves left (off-screen to the right)
+    // When translateX is too positive, board moves right (off-screen to the left)
     const minTranslateX = centerX - scaledBoardWidth / 2 - maxOffsetX
     const maxTranslateX = centerX + scaledBoardWidth / 2 + maxOffsetX - viewportWidth
     const minTranslateY = centerY - scaledBoardHeight / 2 - maxOffsetY
@@ -361,11 +356,16 @@ export function useBoardZoom({
 
   // Update DevTools with zoom state
   useEffect(() => {
-    if (eventBus && isMobile) {
-      eventBus.setZoomState({
-        scale: zoom.scale,
-        limits: zoomLimits,
-      })
+    if (isMobile) {
+      // Dynamically import and update eventBus only when needed
+      if (import.meta.env.DEV || import.meta.env.VITE_DEVTOOLS === '1') {
+        import('@/devtools/eventBus').then(module => {
+          module.eventBus.setZoomState({
+            scale: zoom.scale,
+            limits: zoomLimits,
+          })
+        })
+      }
     }
   }, [zoom.scale, zoomLimits, isMobile])
 
