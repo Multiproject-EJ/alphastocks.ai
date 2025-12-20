@@ -189,8 +189,10 @@ export function useBoardZoom({
   }, [])
 
   // Auto-center when position changes (only when autoFollow is enabled)
+  const previousPosition = useRef<number | undefined>(undefined)
   useEffect(() => {
-    if (autoFollow && isMobile && currentPosition !== undefined) {
+    if (autoFollow && isMobile && currentPosition !== undefined && currentPosition !== previousPosition.current) {
+      previousPosition.current = currentPosition
       centerOnPosition(currentPosition)
     }
   }, [currentPosition, autoFollow, isMobile, centerOnPosition])
