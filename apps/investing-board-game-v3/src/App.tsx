@@ -926,10 +926,10 @@ function App() {
             
             // Move player after brief delay
             setTimeout(() => {
+              const startPosition = gameState.position
               debugGame('Movement started', { totalMovement })
               logEvent?.('move_started', { totalMovement, startPosition })
               setPhase('moving')
-              const startPosition = gameState.position
               const tilesToHop: number[] = []
 
               for (let j = 1; j <= totalMovement; j++) {

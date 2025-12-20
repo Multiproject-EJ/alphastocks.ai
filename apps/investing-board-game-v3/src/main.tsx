@@ -31,6 +31,9 @@ const isDevToolsEnabled = () => {
   return false
 }
 
+// Store the React root
+const root = createRoot(document.getElementById('root')!)
+
 // Dynamically import devtools in dev mode
 if (isDevToolsEnabled()) {
   import('./devtools/index.ts').then((module) => {
@@ -39,11 +42,7 @@ if (isDevToolsEnabled()) {
     
     // Re-render with devtools if they're loaded after initial render
     if (DevicePreview && DevToolsOverlay) {
-      const root = document.getElementById('root')
-      if (root && root.childNodes.length > 0) {
-        // Already rendered, need to re-render with devtools
-        renderApp()
-      }
+      renderApp()
     }
   })
 }
@@ -65,7 +64,7 @@ function renderApp() {
     </DevicePreview>
   ) : AppContent
 
-  createRoot(document.getElementById('root')!).render(content)
+  root.render(content)
 }
 
 renderApp()

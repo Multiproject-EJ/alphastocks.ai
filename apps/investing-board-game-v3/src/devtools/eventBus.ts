@@ -23,7 +23,13 @@ class EventBus {
       payload: typeof payload === 'string' 
         ? payload 
         : payload 
-          ? JSON.stringify(payload, null, 0).slice(0, 100) // Limit payload length
+          ? (() => {
+              try {
+                return JSON.stringify(payload, null, 0).slice(0, 100) // Limit payload length
+              } catch (error) {
+                return '[Circular or non-serializable]'
+              }
+            })()
           : undefined
     }
 
