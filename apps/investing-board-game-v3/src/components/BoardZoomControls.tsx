@@ -45,7 +45,7 @@ export function BoardZoomControls({
           size="icon"
           variant="default"
           onClick={onViewFullBoard}
-          className="rounded-full w-11 h-11 bg-card/90 backdrop-blur-md border-2 border-accent/30 shadow-lg hover:bg-accent/90 active:scale-95 transition-transform"
+          className="rounded-full w-11 h-11 min-touch bg-card/90 backdrop-blur-md border-2 border-accent/30 shadow-lg hover:bg-accent/90 active:scale-95 transition-transform touch-feedback"
           aria-label="View full board"
           title="View full board (3 seconds)"
         >
@@ -61,7 +61,7 @@ export function BoardZoomControls({
             size="icon"
             variant="default"
             onClick={onZoomIn}
-            className="rounded-full w-11 h-11 bg-card/90 backdrop-blur-md border-2 border-accent/30 shadow-lg hover:bg-accent/90 active:scale-95 transition-transform"
+            className="rounded-full w-11 h-11 min-touch bg-card/90 backdrop-blur-md border-2 border-accent/30 shadow-lg hover:bg-accent/90 active:scale-95 transition-transform touch-feedback"
             aria-label="Zoom in"
           >
             <Plus size={20} weight="bold" />
@@ -72,7 +72,7 @@ export function BoardZoomControls({
             size="icon"
             variant="default"
             onClick={onZoomOut}
-            className="rounded-full w-11 h-11 bg-card/90 backdrop-blur-md border-2 border-accent/30 shadow-lg hover:bg-accent/90 active:scale-95 transition-transform"
+            className="rounded-full w-11 h-11 min-touch bg-card/90 backdrop-blur-md border-2 border-accent/30 shadow-lg hover:bg-accent/90 active:scale-95 transition-transform touch-feedback"
             aria-label="Zoom out"
           >
             <Minus size={20} weight="bold" />
@@ -84,7 +84,7 @@ export function BoardZoomControls({
               size="icon"
               variant="default"
               onClick={onFitToScreen}
-              className="rounded-full w-11 h-11 bg-card/90 backdrop-blur-md border-2 border-accent/30 shadow-lg hover:bg-accent/90 active:scale-95 transition-transform"
+              className="rounded-full w-11 h-11 min-touch bg-card/90 backdrop-blur-md border-2 border-accent/30 shadow-lg hover:bg-accent/90 active:scale-95 transition-transform touch-feedback"
               aria-label="Fit to screen"
             >
               <FrameCorners size={20} weight="bold" />
@@ -100,7 +100,7 @@ export function BoardZoomControls({
             size="icon"
             variant="default"
             onClick={onReset}
-            className="rounded-full w-11 h-11 bg-card/90 backdrop-blur-md border-2 border-accent/30 shadow-lg hover:bg-accent/90 active:scale-95 transition-transform"
+            className="rounded-full w-11 h-11 min-touch bg-card/90 backdrop-blur-md border-2 border-accent/30 shadow-lg hover:bg-accent/90 active:scale-95 transition-transform touch-feedback"
             aria-label="Reset zoom"
           >
             <ArrowsOut size={20} weight="bold" />
@@ -111,7 +111,7 @@ export function BoardZoomControls({
             size="icon"
             variant={autoFollow ? 'default' : 'outline'}
             onClick={onToggleAutoFollow}
-            className={`rounded-full w-11 h-11 backdrop-blur-md border-2 shadow-lg active:scale-95 transition-transform ${
+            className={`rounded-full w-11 h-11 min-touch backdrop-blur-md border-2 shadow-lg active:scale-95 transition-transform touch-feedback ${
               autoFollow
                 ? 'bg-accent border-accent text-accent-foreground'
                 : 'bg-card/90 border-accent/30 hover:bg-accent/90'

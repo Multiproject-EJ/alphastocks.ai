@@ -58,7 +58,7 @@ const TileComponent = ({ tile, isActive, isHopping, isLanded, onClick, side }: T
   return (
     <motion.div
       className={cn(
-        'relative flex flex-col items-center justify-center rounded-lg cursor-pointer transition-all',
+        'relative flex flex-col items-center justify-center rounded-lg cursor-pointer transition-all touch-target touch-feedback',
         'bg-black/70 backdrop-blur-xl flex-shrink-0 overflow-visible shadow-[inset_0_1px_0_rgba(255,255,255,0.08),_0_25px_45px_rgba(0,0,0,0.55)]',
         isCorner
           ? 'w-[140px] h-[140px] border-4'
