@@ -189,13 +189,16 @@ function App() {
   const [lastSavedTime, setLastSavedTime] = useState<Date | null>(null)
 
   // Overlay manager for coordinated modal display
-  const { show: showOverlay, wasRecentlyShown } = useOverlayManager()
+  const { show: showOverlay, wasRecentlyShown, getCurrentOverlay } = useOverlayManager()
 
   // Keep state for data that modals need (but not open/closed state)
   const [currentStock, setCurrentStock] = useState<Stock | null>(null)
   const [showCentralStock, setShowCentralStock] = useState(false)
   const [currentEvent, setCurrentEvent] = useState('')
   const [currentCaseStudy, setCurrentCaseStudy] = useState<BiasCaseStudy | null>(null)
+
+  // ProTools overlay state (separate from overlay manager)
+  const [proToolsOpen, setProToolsOpen] = useState(false)
 
   // Mobile UI states
   const [activeSection, setActiveSection] = useState<'home' | 'challenges' | 'shop' | 'leaderboard' | 'settings'>('home')
@@ -777,19 +780,14 @@ function App() {
   }, [loadingUniverse, stockSource, universeCount, universeError])
 
   useEffect(() => {
-    const noActiveOverlays =
-      !stockModalOpen &&
-      !eventModalOpen &&
-      !thriftyModalOpen &&
-      !biasSanctuaryModalOpen &&
-      !casinoModalOpen &&
-      !showCentralStock
+    // Check if there are no active overlays
+    const hasActiveOverlay = getCurrentOverlay() !== null || showCentralStock
 
-    if (phase === 'landed' && noActiveOverlays) {
+    if (phase === 'landed' && !hasActiveOverlay) {
       debugGame('Phase transition: landed -> idle (no active overlays)')
       setPhase('idle')
     }
-  }, [stockModalOpen, eventModalOpen, thriftyModalOpen, biasSanctuaryModalOpen, casinoModalOpen, showCentralStock, phase])
+  }, [getCurrentOverlay, showCentralStock, phase])
 
   // Helper function to check extra dice roll power-up
   useEffect(() => {
