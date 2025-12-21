@@ -357,6 +357,35 @@ h1, h2, h3, h4, h5, h6 {
   padding-bottom: env(safe-area-inset-bottom);
 }
 
+/* CRITICAL: Ensure board is always visible on mobile */
+/* Using !important as a last resort to override any conflicting styles */
+/* that might be preventing board visibility on mobile devices */
+.board-area {
+  z-index: 10 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: block !important;
+}
+
+.board-3d-container {
+  z-index: 10;
+  opacity: 1;
+  visibility: visible;
+  overflow: visible !important;  /* Don't clip board content - critical for mobile */
+}
+
+.board-3d-transform {
+  opacity: 1 !important;
+  visibility: visible !important;
+  backface-visibility: visible !important;
+}
+
+.board-content {
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: block !important;
+}
+
 /* GPU-accelerated animations */
 .gpu-accelerated {
   transform: translateZ(0);

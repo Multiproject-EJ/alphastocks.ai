@@ -29,27 +29,48 @@ export function PhoneLayout({
   const showDiceButton = mode === 'board';
 
   return (
-    <div className="h-[100dvh] w-full flex flex-col overflow-hidden">
-      {/* Compact HUD at top */}
-      <CompactHUD {...gameState} />
+    <div className="h-[100dvh] w-full flex flex-col overflow-hidden relative">
+      {/* City background - z-index 0 */}
+      <div 
+        className="absolute inset-0 z-0 bg-[url('/board-game-v3/BG.webp')] bg-cover bg-center opacity-60 pointer-events-none"
+        aria-hidden="true"
+      />
       
-      {/* Main content area */}
-      <main className="flex-1 overflow-hidden pt-12 pb-14">
+      {/* Compact HUD at top - z-index 30 */}
+      <div className="relative z-30">
+        <CompactHUD {...gameState} />
+      </div>
+      
+      {/* BOARD AREA - z-index 10, CRITICAL: Above background, below HUD/nav */}
+      <main 
+        className="flex-1 relative board-area"
+        style={{
+          zIndex: 10,
+          overflow: 'visible', // Don't clip the board
+          display: 'block',
+          opacity: 1,
+          visibility: 'visible',
+        }}
+      >
         {children}
       </main>
       
-      {/* Floating dice button (only on board) */}
+      {/* Floating dice button (only on board) - z-index 40 */}
       {showDiceButton && (
-        <FloatingDiceButton
-          onClick={onRollDice}
-          isRolling={isRolling}
-          rollsRemaining={gameState.rolls}
-          disabled={gameState.rolls <= 0}
-        />
+        <div className="relative z-40">
+          <FloatingDiceButton
+            onClick={onRollDice}
+            isRolling={isRolling}
+            rollsRemaining={gameState.rolls}
+            disabled={gameState.rolls <= 0}
+          />
+        </div>
       )}
       
-      {/* Bottom navigation */}
-      <PhoneBottomNav />
+      {/* Bottom navigation - z-index 50 */}
+      <div className="relative z-50">
+        <PhoneBottomNav />
+      </div>
     </div>
   );
 }

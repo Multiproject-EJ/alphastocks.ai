@@ -122,12 +122,15 @@ export function Board3DViewport({
         left: 0,
         right: 0,
         bottom: 0,
-        overflow: 'hidden',
+        overflow: 'visible',  // Changed from 'hidden' to 'visible' to prevent clipping
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         perspective: `${safePerspective}px`,
         perspectiveOrigin: '50% 60%',  // Look slightly down at board
+        zIndex: 10,  // Ensure above background
+        opacity: 1,
+        visibility: 'visible',
         ...containerStyle,
       }}
     >
@@ -145,6 +148,9 @@ export function Board3DViewport({
           transformOrigin: 'center center',
           transition: 'transform 0.5s ease-out',  // Smooth camera movement
           willChange: camera.isAnimating ? 'transform' : 'auto',
+          backfaceVisibility: 'visible',  // Ensure board face is visible
+          opacity: 1,
+          visibility: 'visible',
           ...boardStyle,
         }}
       >
