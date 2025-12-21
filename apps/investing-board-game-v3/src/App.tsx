@@ -2007,15 +2007,21 @@ function App() {
           shopDiscount,
         }}
         cityBuilderProps={{
-          gameState: {
-            cash: gameState.cash,
-            coins: gameState.coins,
-            cityLevel: cityLevel,
-          },
-          buildings: cityBuildings,
-          onUpgrade: handleBuildingUpgrade,
-          canAfford: canAffordCoins,
-          onClose: () => transitionUIMode('board'),
+          stars: gameState.stars,
+          currentCity: currentCity,
+          currentCityProgress: currentCityProgress,
+          allCities: allCities,
+          citiesProgress: cityBuilderState.cities,
+          canUpgrade: canUpgradeBuilding,
+          timeUntilNextUpgrade: timeUntilNextUpgrade,
+          onUpgradeBuilding: upgradeBuilding,
+          onUnlockNextCity: unlockNextCity,
+          onSelectCity: selectCity,
+          nextCityToUnlock: nextCityToUnlock,
+          canUnlockNext: canUnlockNext,
+          totalBuildingsCompleted: totalBuildingsCompleted,
+          totalCitiesCompleted: totalCitiesCompleted,
+          totalCitiesUnlocked: totalCitiesUnlocked,
         }}
         leaderboardProps={{
           currentPlayer: {
