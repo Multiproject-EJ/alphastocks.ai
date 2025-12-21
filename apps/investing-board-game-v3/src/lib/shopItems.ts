@@ -3,6 +3,23 @@
  * Defines all purchasable items: power-ups, upgrades, cosmetics, and currency packs
  */
 
+export type ShopCategory = 'dice' | 'powerups' | 'cosmetics';
+
+export interface ShopItemData {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  price: number; // in cash, not stars
+  category: ShopCategory;
+  effect: {
+    type: 'dice' | 'multiplier' | 'shield' | 'move' | 'cosmetic';
+    value: number | string;
+    duration?: number;  // Number of rolls/uses
+  };
+}
+
+// Legacy interface for backwards compatibility
 export interface ShopItem {
   id: string
   name: string
@@ -292,4 +309,130 @@ export function getShopItemsByCategory(
   category: ShopItem['category']
 ): ShopItem[] {
   return ALL_SHOP_ITEMS.filter((item) => item.category === category)
+}
+
+// NEW: Shop items for mobile shop
+export const SHOP_ITEMS: ShopItemData[] = [
+  // Dice Packs
+  {
+    id: 'dice-5',
+    name: '+5 Dice',
+    description: 'Small dice pack',
+    icon: '🎲',
+    price: 500,
+    category: 'dice',
+    effect: { type: 'dice', value: 5 },
+  },
+  {
+    id: 'dice-10',
+    name: '+10 Dice',
+    description: 'Medium dice pack',
+    icon: '🎲',
+    price: 900,
+    category: 'dice',
+    effect: { type: 'dice', value: 10 },
+  },
+  {
+    id: 'dice-30',
+    name: '+30 Dice',
+    description: 'Large dice pack',
+    icon: '🎲',
+    price: 2000,
+    category: 'dice',
+    effect: { type: 'dice', value: 30 },
+  },
+  {
+    id: 'dice-100',
+    name: '+100 Dice',
+    description: 'Mega dice pack',
+    icon: '🎲',
+    price: 5000,
+    category: 'dice',
+    effect: { type: 'dice', value: 100 },
+  },
+
+  // Power-ups
+  {
+    id: 'multiplier-2x',
+    name: '2x Earnings',
+    description: 'Double cash for 3 rolls',
+    icon: '📈',
+    price: 2000,
+    category: 'powerups',
+    effect: { type: 'multiplier', value: 2, duration: 3 },
+  },
+  {
+    id: 'shield',
+    name: 'Shield',
+    description: 'Block 1 penalty',
+    icon: '🛡️',
+    price: 3000,
+    category: 'powerups',
+    effect: { type: 'shield', value: 1, duration: 1 },
+  },
+  {
+    id: 'jump-3',
+    name: 'Jump +3',
+    description: 'Move forward 3 spaces',
+    icon: '🚀',
+    price: 1500,
+    category: 'powerups',
+    effect: { type: 'move', value: 3 },
+  },
+  {
+    id: 'double-roll',
+    name: 'Double Roll',
+    description: 'Roll 2 dice, pick higher',
+    icon: '🎰',
+    price: 2500,
+    category: 'powerups',
+    effect: { type: 'multiplier', value: 'double-roll', duration: 1 },
+  },
+
+  // Cosmetics
+  {
+    id: 'skin-gold',
+    name: 'Gold Player',
+    description: 'Shiny gold piece',
+    icon: '👑',
+    price: 5000,
+    category: 'cosmetics',
+    effect: { type: 'cosmetic', value: 'player-gold' },
+  },
+  {
+    id: 'dice-rainbow',
+    name: 'Rainbow Dice',
+    description: 'Colorful dice skin',
+    icon: '🌈',
+    price: 3000,
+    category: 'cosmetics',
+    effect: { type: 'cosmetic', value: 'dice-rainbow' },
+  },
+  {
+    id: 'theme-night',
+    name: 'Night Theme',
+    description: 'Dark board theme',
+    icon: '🌙',
+    price: 4000,
+    category: 'cosmetics',
+    effect: { type: 'cosmetic', value: 'theme-night' },
+  },
+  {
+    id: 'theme-gold',
+    name: 'Gold Theme',
+    description: 'Luxurious board',
+    icon: '✨',
+    price: 6000,
+    category: 'cosmetics',
+    effect: { type: 'cosmetic', value: 'theme-gold' },
+  },
+];
+
+// Helper to apply shop item effects
+export function applyShopItem(itemId: string, gameState: any): any {
+  const item = SHOP_ITEMS.find(i => i.id === itemId);
+  if (!item) return gameState;
+  
+  // This is a stub - actual application logic should be in App.tsx
+  return gameState;
 }
