@@ -297,7 +297,7 @@ function App() {
   const { play: playSound } = useSound()
 
   // Haptic feedback hook
-  const { roll: hapticRoll, success: hapticSuccess, light: hapticLight } = useHaptics()
+  const { lightTap, heavyTap, success: hapticSuccess } = useHaptics()
 
   // Net Worth Tier hook
   const {
@@ -541,7 +541,7 @@ function App() {
 
   // Bottom navigation handler
   const handleBottomNavigation = (section: 'challenges' | 'shop' | 'home' | 'leaderboard' | 'settings') => {
-    hapticLight()
+    lightTap()
     setActiveSection(section)
     
     // Map section to UI mode
@@ -976,7 +976,7 @@ function App() {
     logEvent?.('roll_pressed', { multiplier, rollsRemaining })
 
     // Haptic feedback for rolling
-    hapticRoll()
+    heavyTap()  // Strong haptic on roll
     
     // Block UI mode transitions during dice roll
     setCanTransition(false)
@@ -1202,6 +1202,9 @@ function App() {
 
     const tile = BOARD_TILES[position]
     debugGame('handleTileLanding:', { position, tile, passedStart })
+
+    // Haptic feedback on tile landing
+    lightTap()
 
     // DevTools: Log tile landed event
     logEvent?.('tile_landed', { position, tileType: tile.type, passedStart })
@@ -1473,6 +1476,7 @@ function App() {
     }
 
     playSound('cash-register')
+    hapticSuccess()  // Success haptic on purchase
     
     // Track challenge progress for buying stock
     updateChallengeProgress('buy_stock', { ticker: currentStock.ticker, category: currentStock.category })

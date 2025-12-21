@@ -4,6 +4,7 @@ import { eventBus, GameEvent, ZoomState, CameraState } from './eventBus'
 import { useOverlayManager } from '@/hooks/useOverlayManager'
 import { useUIMode } from '@/hooks/useUIMode'
 import { isCameraStateValid } from '@/hooks/useBoardCamera'
+import { PerformanceMonitor } from './PerformanceMonitor'
 
 // Board configuration constant - should match the board size used in App.tsx
 const BOARD_SIZE = 1200
@@ -280,30 +281,25 @@ export function DevToolsOverlay({ phase = 'unknown' }: DevToolsOverlayProps) {
                   </div>
                 )}
                 {overlayQueue.length > 0 && (
-                  <>
-                    <div className="font-mono mt-1">
-                      <span className="text-purple-300">Queued:</span>
-                    </div>
-                    <div className="mt-1 pl-2 border-l-2 border-yellow-500/30 space-y-0.5">
-                      {overlayQueue.map((overlay, idx) => (
-                        <div key={overlay.id} className="font-mono text-[9px]">
-                          <span className="text-gray-400">Q{idx + 1}</span>{' '}
-                          <span className="text-yellow-400">{overlay.id}</span>{' '}
-                          <span className={`text-xs ${
-                            overlay.priority === 'critical' ? 'text-red-400' :
-                            overlay.priority === 'high' ? 'text-orange-400' :
-                            overlay.priority === 'normal' ? 'text-yellow-400' :
-                            'text-gray-400'
-                          }`}>
-                            [{overlay.priority}]
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </>
+                  <div className="mt-1 pl-2 border-l-2 border-purple-500/30 space-y-0.5">
+                    <div className="font-mono text-[9px] text-gray-400">Queued:</div>
+                    {overlayQueue.map((overlay, idx) => (
+                      <div key={overlay.id} className="font-mono text-[9px]">
+                        <span className="text-gray-400">#{idx + 1}</span>{' '}
+                        <span className="text-cyan-400">{overlay.id}</span>
+                      </div>
+                    ))}
+                  </div>
                 )}
+              </div>
+
+              {/* Performance Monitor */}
+              <div className="p-3 border-b border-purple-500/30">
+                <PerformanceMonitor />
+              </div>
                 
-                {/* Camera State (3D mode) */}
+              {/* Camera State (3D mode) */}
+              <div className="p-3 space-y-1.5 border-b border-purple-500/30">
                 {cameraState && (
                   <>
                     <div className="font-mono mt-2 pt-2 border-t border-purple-500/30">
