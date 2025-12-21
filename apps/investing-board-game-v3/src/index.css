@@ -475,3 +475,49 @@ h1, h2, h3, h4, h5, h6 {
 .board-content {
   contain: strict;
 }
+
+/* ===== MOBILE 3D BOARD - CRITICAL ===== */
+
+/* Container must have perspective */
+.mobile-board-3d-container {
+  perspective: 600px !important;
+  perspective-origin: 50% 60% !important;
+  transform-style: preserve-3d !important;
+}
+
+/* Transform layer */
+.mobile-board-3d-transform {
+  transform-style: preserve-3d !important;
+  backface-visibility: hidden !important;
+}
+
+/* Ensure board tiles are visible */
+.mobile-board-3d-container,
+.mobile-board-3d-transform,
+.mobile-board-3d-transform * {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Phone layout z-index stack */
+.phone-layout {
+  isolation: isolate; /* Create stacking context */
+}
+
+/* Board area positioning */
+.phone-layout .board-area {
+  position: absolute !important;
+  z-index: 10 !important;
+  overflow: visible !important;
+}
+
+/* Prevent any overflow clipping of 3D content */
+.phone-layout,
+.phone-layout > * {
+  overflow: visible;
+}
+
+/* GPU acceleration for smooth animations */
+.mobile-board-3d-transform {
+  will-change: transform;
+}
