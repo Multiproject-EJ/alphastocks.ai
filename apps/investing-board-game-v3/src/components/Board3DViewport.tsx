@@ -5,6 +5,12 @@ import { CameraState, isCameraStateValid } from '@/hooks/useBoardCamera'
 const BOARD_WIDTH = 1200
 const BOARD_HEIGHT = 1200
 
+// Tile layout constants
+const TOTAL_TILES = 40 // Standard Monopoly-style board
+const TILES_PER_SIDE = 10 // Tiles per side
+const CORNER_ADJUSTMENT = 2 // Account for corner tiles in calculation
+const Y_OFFSET_FOR_TILT = 100 // Y-offset to improve view in tilted mode
+
 interface Board3DViewportProps {
   children: ReactNode
   camera: CameraState
@@ -18,11 +24,10 @@ interface Board3DViewportProps {
 // Helper to calculate tile positions on the board
 function calculateTilePositions(boardSize: number) {
   const positions: Record<number, { x: number; y: number }> = {};
-  const tilesPerSide = 10;  // Standard Monopoly-style board
-  const tileSize = boardSize / (tilesPerSide + 2);  // Account for corners
+  const tileSize = boardSize / (TILES_PER_SIDE + CORNER_ADJUSTMENT);
   
   // Calculate position for each tile (0-39 for standard Monopoly-style)
-  for (let i = 0; i < 40; i++) {
+  for (let i = 0; i < TOTAL_TILES; i++) {
     const side = Math.floor(i / 10);
     const posOnSide = i % 10;
     
@@ -86,7 +91,7 @@ export function Board3DViewport({
     rotateX: camera.rotateX || 28,                 // Tilt angle (25-35 degrees works well)
     scale: camera.scale || 2.5,                    // Zoom in significantly (show ~6-8 tiles)
     translateX: camera.translateX || -playerTilePos.x,  // Center on player X
-    translateY: camera.translateY || (-playerTilePos.y + 100),  // Center on player Y (offset for tilt)
+    translateY: camera.translateY || (-playerTilePos.y + Y_OFFSET_FOR_TILT),  // Center on player Y (offset for tilt)
   };
   
   // Safety checks for camera values to prevent invalid transforms

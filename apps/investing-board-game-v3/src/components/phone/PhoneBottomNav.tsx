@@ -49,10 +49,6 @@ export function PhoneBottomNav() {
               key={item.id}
               type="button"
               onClick={() => handleNavClick(item.id)}
-              onTouchEnd={(e) => {
-                e.preventDefault();  // Prevent double-firing
-                handleNavClick(item.id);
-              }}
               className={cn(
                 'flex-1 flex flex-col items-center justify-center',
                 'min-h-[56px] min-w-[56px]',
