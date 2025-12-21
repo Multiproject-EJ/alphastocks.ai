@@ -2172,6 +2172,7 @@ function App() {
   if (isPhone) {
     return (
       <PhoneLayout
+        currentPosition={gameState.position}
         gameState={{
           cash: gameState.cash,
           netWorth: gameState.netWorth,
