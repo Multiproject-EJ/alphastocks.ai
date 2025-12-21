@@ -169,6 +169,22 @@ export function DevToolsOverlay({ phase = 'unknown' }: DevToolsOverlayProps) {
                 <div className="font-mono">
                   <span className="text-purple-300">Available:</span> {viewport.width - safeArea.left - safeArea.right}×{viewport.height - safeArea.top - safeArea.bottom - 180}
                 </div>
+                <div className="font-mono mt-2 pt-2 border-t border-purple-500/30">
+                  <span className="text-purple-300 font-bold">📐 Layout:</span>
+                </div>
+                <div className="font-mono">
+                  <span className="text-purple-300">Mode:</span>{' '}
+                  <span className="text-green-400 font-bold">
+                    {viewport.width < 768 ? 'phone' : viewport.width < 1024 ? 'tablet' : 'desktop'}
+                  </span>
+                </div>
+                <div className="font-mono">
+                  <span className="text-purple-300">Size:</span> {viewport.width}×{viewport.height}
+                </div>
+                <div className="font-mono">
+                  <span className="text-purple-300">Orientation:</span>{' '}
+                  {viewport.width > viewport.height ? 'Landscape' : 'Portrait'}
+                </div>
                 {zoomState && (
                   <>
                     <div className="font-mono">
