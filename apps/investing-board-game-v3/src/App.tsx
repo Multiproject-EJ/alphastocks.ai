@@ -99,6 +99,7 @@ import { useLayoutMode } from '@/hooks/useLayoutMode'
 import { ThriftPathStatus as ThriftPathStatusType } from '@/lib/thriftPath'
 import { COIN_COSTS, COIN_EARNINGS } from '@/lib/coins'
 import { getInitialCityBuilderState, CITIES } from '@/lib/cityBuilder'
+import { calculateXPForLevel } from '@/lib/progression'
 import type { UIMode, GamePhase } from '@/lib/uiModeStateMachine'
 
 // Alias for backward compatibility
@@ -1610,11 +1611,6 @@ function App() {
   // Calculate XP for next level for phone HUD
   const xpForNextLevel = gameState.level < 100 
     ? (() => {
-        // Import progression functions inline
-        const calculateXPForLevel = (level: number): number => {
-          if (level <= 1) return 0
-          return Math.floor(Math.pow(level, 2.5) * 40)
-        }
         const currentLevelXP = calculateXPForLevel(gameState.level)
         const nextLevelXP = calculateXPForLevel(gameState.level + 1)
         return nextLevelXP - currentLevelXP

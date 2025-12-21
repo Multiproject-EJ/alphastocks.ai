@@ -1,5 +1,6 @@
 import { useUIMode } from '@/hooks/useUIMode';
 import { cn } from '@/lib/utils';
+import type { UIMode } from '@/lib/uiModeStateMachine';
 import { 
   Gamepad2, 
   Building2, 
@@ -8,7 +9,7 @@ import {
   Trophy 
 } from 'lucide-react';
 
-const NAV_ITEMS = [
+const NAV_ITEMS: ReadonlyArray<{ id: UIMode; icon: typeof Gamepad2; label: string }> = [
   { id: 'board', icon: Gamepad2, label: 'Play' },
   { id: 'cityBuilder', icon: Building2, label: 'Build' },
   { id: 'gallery', icon: Image, label: 'Gallery' },
@@ -33,7 +34,7 @@ export function PhoneBottomNav() {
           return (
             <button
               key={item.id}
-              onClick={() => transitionTo(item.id as any)}
+              onClick={() => transitionTo(item.id)}
               className={cn(
                 'flex-1 flex flex-col items-center justify-center',
                 'min-h-[56px]',

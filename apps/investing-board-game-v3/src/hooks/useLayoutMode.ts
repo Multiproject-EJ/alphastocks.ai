@@ -3,11 +3,11 @@ import { getLayoutMode, LayoutMode } from '@/lib/breakpoints';
 
 export function useLayoutMode() {
   const [layoutMode, setLayoutMode] = useState<LayoutMode>(() => 
-    getLayoutMode(window.innerWidth)
+    typeof window !== 'undefined' ? getLayoutMode(window.innerWidth) : 'desktop'
   );
   const [dimensions, setDimensions] = useState({
-    width: window.innerWidth,
-    height: window.innerHeight,
+    width: typeof window !== 'undefined' ? window.innerWidth : 1024,
+    height: typeof window !== 'undefined' ? window.innerHeight : 768,
   });
 
   useEffect(() => {
