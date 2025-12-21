@@ -77,10 +77,10 @@ const validateRotate = (r: number): number => {
 
 // Default immersive camera settings (updated for better mobile visibility)
 const IMMERSIVE_DEFAULTS = {
-  perspective: 1000,
-  rotateX: 20, // 20 degree tilt for immersive view
+  perspective: 800,
+  rotateX: 28, // 28 degree tilt for immersive view (Monopoly GO style)
   rotateZ: 0,
-  scale: MOBILE_DEFAULT_SCALE, // Reasonable zoom for mobile
+  scale: 2.5, // Significant zoom to show ~6-8 tiles
 }
 
 // Classic mode settings (flat bird's-eye view)

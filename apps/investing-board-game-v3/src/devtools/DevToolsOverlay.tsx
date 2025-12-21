@@ -307,7 +307,7 @@ export function DevToolsOverlay({ phase = 'unknown' }: DevToolsOverlayProps) {
                 {cameraState && (
                   <>
                     <div className="font-mono mt-2 pt-2 border-t border-purple-500/30">
-                      <span className="text-purple-300 font-bold">Camera Mode:</span>{' '}
+                      <span className="text-purple-300 font-bold">📸 3D Camera:</span>{' '}
                       <span className={`font-bold ${
                         cameraState.mode === 'immersive' ? 'text-cyan-400' : 'text-gray-400'
                       }`}>
@@ -317,22 +317,32 @@ export function DevToolsOverlay({ phase = 'unknown' }: DevToolsOverlayProps) {
                     {cameraState.mode === 'immersive' && (
                       <>
                         <div className="font-mono">
-                          <span className="text-purple-300">Tilt:</span> {cameraState.rotateX.toFixed(1)}°
+                          <span className="text-purple-300">Tilt (rotateX):</span>{' '}
+                          <span className="text-cyan-400 font-bold">{cameraState.rotateX.toFixed(1)}°</span>
                         </div>
                         <div className="font-mono">
-                          <span className="text-purple-300">Scale:</span>{' '}
+                          <span className="text-purple-300">Zoom (scale):</span>{' '}
                           <span className="text-cyan-400 font-bold">{cameraState.scale.toFixed(2)}x</span>
                         </div>
                         <div className="font-mono">
-                          <span className="text-purple-300">Position:</span> X:{cameraState.translateX.toFixed(0)} Y:{cameraState.translateY.toFixed(0)}
+                          <span className="text-purple-300">Position:</span> ({cameraState.translateX.toFixed(0)}, {cameraState.translateY.toFixed(0)})
                         </div>
                         <div className="font-mono">
-                          <span className="text-purple-300">Target Tile:</span> {cameraState.targetTile}
+                          <span className="text-purple-300">Player Tile:</span>{' '}
+                          <span className="text-yellow-400 font-bold">{cameraState.targetTile}</span>
                         </div>
                         <div className="font-mono">
                           <span className="text-purple-300">Animating:</span>{' '}
                           <span className={cameraState.isAnimating ? 'text-yellow-400' : 'text-gray-500'}>
                             {cameraState.isAnimating ? '✓' : '✗'}
+                          </span>
+                        </div>
+                        <div className="font-mono">
+                          <span className="text-purple-300">3D Tilt Status:</span>{' '}
+                          <span className={`font-bold ${
+                            cameraState.rotateX > 0 ? 'text-green-400' : 'text-red-400'
+                          }`}>
+                            {cameraState.rotateX > 0 ? '✓ ACTIVE' : '✗ NOT TILTED'}
                           </span>
                         </div>
                         <div className="font-mono">
