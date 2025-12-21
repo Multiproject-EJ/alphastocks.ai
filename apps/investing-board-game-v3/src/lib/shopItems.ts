@@ -311,7 +311,7 @@ export function getShopItemsByCategory(
   return ALL_SHOP_ITEMS.filter((item) => item.category === category)
 }
 
-// NEW: Shop items for mobile shop
+// Mobile shop items (uses cash instead of stars)
 export const SHOP_ITEMS: ShopItemData[] = [
   // Dice Packs
   {
@@ -427,12 +427,3 @@ export const SHOP_ITEMS: ShopItemData[] = [
     effect: { type: 'cosmetic', value: 'theme-gold' },
   },
 ];
-
-// Helper to apply shop item effects
-export function applyShopItem(itemId: string, gameState: any): any {
-  const item = SHOP_ITEMS.find(i => i.id === itemId);
-  if (!item) return gameState;
-  
-  // This is a stub - actual application logic should be in App.tsx
-  return gameState;
-}

@@ -11,8 +11,7 @@ export function usePurchase() {
     setError(null);
 
     try {
-      // Simulate quick purchase (no artificial delays!)
-      // In production, this would call your API
+      // Brief delay to show purchase animation (200ms)
       await new Promise(resolve => setTimeout(resolve, 200));
 
       // SUCCESS - no daily limits, no waiting!

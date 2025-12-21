@@ -10,14 +10,14 @@ interface ShopItemProps {
 }
 
 export function ShopItem({ item, canAfford, onBuy, isPurchasing }: ShopItemProps) {
-  const { success, error } = useHaptics();
+  const { error } = useHaptics();
 
   const handleClick = () => {
     if (!canAfford) {
       error();  // Haptic feedback for can't afford
       return;
     }
-    success();  // Haptic feedback for purchase
+    // Success haptic will be triggered by the purchase hook after successful purchase
     onBuy();
   };
 
