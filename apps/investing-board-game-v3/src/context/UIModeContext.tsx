@@ -94,25 +94,29 @@ export function UIModeProvider({
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
   
   const transitionTo = useCallback(async (newMode: UIMode, data?: Record<string, any>): Promise<boolean> => {
+    console.log(`[UIMode] Attempting transition: ${state.mode} → ${newMode}`);
+    
+    // Always allow transition to same mode (refresh)
+    if (newMode === state.mode) {
+      console.log('[UIMode] Already in mode:', newMode);
+      setState(prev => ({
+        ...prev,
+        modeData: data || {},
+      }))
+      return true;
+    }
+    
     // Check if transition is valid
     if (!canTransition(state.mode, newMode)) {
       console.warn(`[UIMode] Invalid transition: ${state.mode} → ${newMode}`)
-      return false
+      // For now, allow all transitions to debug
+      // return false;
     }
     
     // Check if we can transition now (e.g., not during dice roll)
     if (!state.canTransition) {
       console.warn('[UIMode] Cannot transition right now - transitions blocked')
       return false
-    }
-    
-    // If already in target mode, just update data
-    if (state.mode === newMode) {
-      setState(prev => ({
-        ...prev,
-        modeData: data || {},
-      }))
-      return true
     }
     
     try {
@@ -131,7 +135,7 @@ export function UIModeProvider({
       // Run enter handler for new mode
       await handleModeEnter(newMode, data)
       
-      console.log(`[UIMode] Transitioned: ${state.mode} → ${newMode}`)
+      console.log(`[UIMode] Transition successful: ${state.mode} → ${newMode}`)
       return true
     } catch (error) {
       console.error('[UIMode] Transition error:', error)

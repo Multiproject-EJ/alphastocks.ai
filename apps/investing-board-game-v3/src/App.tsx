@@ -1645,6 +1645,8 @@ function App() {
           isMobile={isMobile}
           boardStyle={camera3DStyle}
           containerStyle={camera3DContainerStyle}
+          playerPosition={gameState.position}
+          boardSize={1200}
         >
           <BoardViewport
             boardSize={{ width: 1200, height: 1200 }}

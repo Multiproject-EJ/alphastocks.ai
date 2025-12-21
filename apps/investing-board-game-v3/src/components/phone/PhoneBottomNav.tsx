@@ -20,9 +20,22 @@ const NAV_ITEMS: ReadonlyArray<{ id: UIMode; icon: typeof Gamepad2; label: strin
 export function PhoneBottomNav() {
   const { mode, transitionTo } = useUIMode();
 
+  const handleNavClick = async (targetMode: UIMode) => {
+    console.log('Nav clicked:', targetMode);  // Debug log
+    
+    try {
+      const success = await transitionTo(targetMode);
+      if (!success) {
+        console.error('Failed to transition to:', targetMode);
+      }
+    } catch (error) {
+      console.error('Transition error:', error);
+    }
+  };
+
   return (
     <nav className={cn(
-      'fixed bottom-0 left-0 right-0 z-40',
+      'fixed bottom-0 left-0 right-0 z-50',
       'bg-background/95 backdrop-blur-sm border-t',
       'safe-bottom',
     )}>
@@ -34,13 +47,24 @@ export function PhoneBottomNav() {
           return (
             <button
               key={item.id}
-              onClick={() => transitionTo(item.id)}
+              type="button"
+              onClick={() => handleNavClick(item.id)}
+              onTouchEnd={(e) => {
+                e.preventDefault();  // Prevent double-firing
+                handleNavClick(item.id);
+              }}
               className={cn(
                 'flex-1 flex flex-col items-center justify-center',
-                'min-h-[56px]',
+                'min-h-[56px] min-w-[56px]',
+                'touch-target touch-feedback',
+                'cursor-pointer',  // Ensure it looks clickable
                 'transition-colors',
                 isActive ? 'text-primary' : 'text-muted-foreground',
               )}
+              style={{ 
+                WebkitTapHighlightColor: 'transparent',
+                touchAction: 'manipulation',  // Optimize for touch
+              }}
             >
               <Icon className={cn(
                 'w-6 h-6 mb-0.5',

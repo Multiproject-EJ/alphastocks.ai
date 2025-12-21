@@ -256,9 +256,49 @@ h1, h2, h3, h4, h5, h6 {
   justify-content: center;
 }
 
+/* 3D Board Container */
+.board-3d-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  /* Ensure perspective works */
+  transform-style: preserve-3d;
+}
+
 .board-3d-transform {
-  transform-origin: center center;
+  transform-style: preserve-3d;
   will-change: transform;
+  backface-visibility: hidden;
+  transform-origin: center center;
+}
+
+/* Smooth camera transitions */
+.board-3d-transform {
+  transition: transform 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+/* Ensure board is above background */
+.board-area {
+  z-index: 10;
+  touch-action: none;  /* Prevent browser gestures */
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Board content */
+.board-content {
+  position: relative;
+  transform-style: preserve-3d;
+}
+
+/* Tile styling for 3D */
+.tile {
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
 }
 
 /* Ensure board content is always visible */
