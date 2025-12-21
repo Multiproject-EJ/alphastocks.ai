@@ -1630,13 +1630,19 @@ function App() {
 
   // Main content that will be wrapped by layout
   const mainContent = (
-    <div ref={containerRef} className="relative isolate min-h-screen bg-background p-8 overflow-hidden game-board">
+    <div 
+      ref={containerRef} 
+      className={`relative isolate game-board ${isPhone ? 'h-full w-full p-0' : 'min-h-screen bg-background p-8 overflow-hidden'}`}
+    >
       <LoadingScreen show={isLoading} />
         
-        <div
-          className="absolute inset-0 z-0 bg-[url('/board-game-v3/BG.webp')] bg-cover bg-center opacity-60 pointer-events-none"
-          aria-hidden="true"
-        />
+        {/* Background - only show if not in phone layout (phone layout has its own) */}
+        {!isPhone && (
+          <div
+            className="absolute inset-0 z-0 bg-[url('/board-game-v3/BG.webp')] bg-cover bg-center opacity-60 pointer-events-none"
+            aria-hidden="true"
+          />
+        )}
         <Toaster position="top-center" />
         <CelebrationEffect show={showCelebration} onComplete={() => setShowCelebration(false)} />
         
@@ -1644,10 +1650,12 @@ function App() {
         {!isLoading && <TutorialTooltip />}
         
         {/* Event Banner - Shows active events at top */}
-        <EventBanner
-          events={activeEvents}
-          onOpenCalendar={() => setEventCalendarOpen(true)}
-        />
+        {!isPhone && (
+          <EventBanner
+            events={activeEvents}
+            onOpenCalendar={() => setEventCalendarOpen(true)}
+          />
+        )}
 
       <div className="relative z-10 max-w-[1600px] mx-auto" ref={boardContainerRef}>
         {/* Board wrapper with 3D camera or classic zoom support */}
@@ -2090,6 +2098,14 @@ function App() {
 
   // Render with appropriate layout based on screen size
   if (isPhone) {
+    // Debug logging for phone layout
+    debugGame('Rendering phone layout:', { 
+      isPhone, 
+      mode: uiMode, 
+      position: gameState.position,
+      tilesCount: BOARD_TILES.length 
+    })
+    
     return (
       <PhoneLayout
         gameState={{
