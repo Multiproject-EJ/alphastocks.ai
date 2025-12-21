@@ -35,6 +35,7 @@ import { LoadingScreen } from '@/components/LoadingScreen'
 import { TutorialTooltip } from '@/components/TutorialTooltip'
 import { BoardViewport } from '@/components/BoardViewport'
 import { OverlayRenderer } from '@/components/OverlayRenderer'
+import { UIModeOverlayBridge } from '@/components/UIModeOverlayBridge'
 
 // Phone-optimized layout components
 import { PhoneLayout } from '@/components/phone/PhoneLayout'
@@ -1988,6 +1989,50 @@ function App() {
 
       {/* Centralized Overlay Renderer - handles all modals */}
       <OverlayRenderer />
+
+      {/* UIMode to Overlay Bridge - Opens overlays based on UI mode */}
+      <UIModeOverlayBridge
+        shopProps={{
+          gameState,
+          onPurchase: purchaseItem,
+          isPermanentOwned,
+          getItemQuantity,
+          canAfford,
+          onEquipCosmetic: equipCosmetic,
+          getFinalPrice,
+          shopDiscount,
+        }}
+        cityBuilderProps={{
+          gameState: {
+            cash: gameState.cash,
+            coins: gameState.coins,
+            cityLevel: cityLevel,
+          },
+          buildings: cityBuildings,
+          onUpgrade: handleBuildingUpgrade,
+          canAfford: canAffordCoins,
+          onClose: () => transitionUIMode('board'),
+        }}
+        leaderboardProps={{
+          currentPlayer: {
+            netWorth: gameState.netWorth,
+            level: gameState.level,
+          },
+        }}
+        challengesProps={{
+          challenges: dailyChallenges || [],
+          onClaimReward: (challengeId) => {
+            logEvent?.('challenge_reward_claimed', { challengeId })
+          },
+        }}
+        portfolioProps={{
+          portfolio: gameState.portfolio,
+          totalInvested: gameState.totalInvested,
+          onViewStock: (symbol) => {
+            logEvent?.('stock_viewed_from_portfolio', { symbol })
+          },
+        }}
+      />
 
       {/* ProToolsOverlay - kept separate as it's not a standard modal */}
       <ProToolsOverlay
