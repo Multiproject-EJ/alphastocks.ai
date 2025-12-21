@@ -541,7 +541,7 @@ function App() {
 
   // Bottom navigation handler
   const handleBottomNavigation = (section: 'challenges' | 'shop' | 'home' | 'leaderboard' | 'settings') => {
-    hapticLight()
+    lightTap()
     setActiveSection(section)
     
     // Map section to UI mode

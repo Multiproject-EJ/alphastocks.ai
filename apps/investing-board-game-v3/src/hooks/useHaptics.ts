@@ -38,5 +38,11 @@ export function useHaptics() {
     success: useCallback(() => haptic('success'), [haptic]),
     warning: useCallback(() => haptic('warning'), [haptic]),
     error: useCallback(() => haptic('error'), [haptic]),
+    // Legacy methods for backward compatibility
+    light: useCallback(() => haptic('light'), [haptic]),
+    medium: useCallback(() => haptic('medium'), [haptic]),
+    heavy: useCallback(() => haptic('heavy'), [haptic]),
+    roll: useCallback(() => haptic('heavy'), [haptic]), // Use heavy for roll
+    celebration: useCallback(() => haptic('success'), [haptic]), // Use success for celebration
   };
 }
