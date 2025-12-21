@@ -358,6 +358,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* CRITICAL: Ensure board is always visible on mobile */
+/* Using !important as a last resort to override any conflicting styles */
+/* that might be preventing board visibility on mobile devices */
 .board-area {
   z-index: 10 !important;
   opacity: 1 !important;
@@ -369,7 +371,7 @@ h1, h2, h3, h4, h5, h6 {
   z-index: 10;
   opacity: 1;
   visibility: visible;
-  overflow: visible !important;  /* Don't clip board content */
+  overflow: visible !important;  /* Don't clip board content - critical for mobile */
 }
 
 .board-3d-transform {

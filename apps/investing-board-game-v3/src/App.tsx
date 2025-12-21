@@ -2098,14 +2098,6 @@ function App() {
 
   // Render with appropriate layout based on screen size
   if (isPhone) {
-    // Debug logging for phone layout
-    debugGame('Rendering phone layout:', { 
-      isPhone, 
-      mode: uiMode, 
-      position: gameState.position,
-      tilesCount: BOARD_TILES.length 
-    })
-    
     return (
       <PhoneLayout
         gameState={{

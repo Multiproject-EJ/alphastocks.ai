@@ -80,17 +80,6 @@ export function Board3DViewport({
   const tilePositions = useMemo(() => calculateTilePositions(boardSize), [boardSize]);
   const playerTilePos = tilePositions[playerPosition] || { x: 0, y: 0 };
   
-  // Debug logging (only in dev mode)
-  if (typeof window !== 'undefined' && localStorage.getItem('DEBUG_GAME') === 'true') {
-    console.log('[Board3DViewport]', {
-      isMobile,
-      cameraMode: camera.mode,
-      playerPosition,
-      playerTilePos,
-      camera,
-    })
-  }
-  
   // Desktop or classic mode: render without 3D transforms
   if (!isMobile || camera.mode === 'classic') {
     return <>{children}</>
