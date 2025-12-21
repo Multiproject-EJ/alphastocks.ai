@@ -68,7 +68,7 @@ export function BottomNav({
                 transition-colors duration-200
                 ${activeSection === tab.id ? 'text-accent' : 'text-muted-foreground'}
                 hover:text-accent
-                touch-target touch-feedback
+                touch-target touch-feedback no-select
               `}
               aria-label={tab.label}
             >
@@ -122,7 +122,7 @@ export function BottomNav({
                 transition-colors duration-200
                 ${activeSection === tab.id ? 'text-accent' : 'text-muted-foreground'}
                 hover:text-accent
-                touch-target touch-feedback
+                touch-target touch-feedback no-select
               `}
               aria-label={tab.label}
             >
