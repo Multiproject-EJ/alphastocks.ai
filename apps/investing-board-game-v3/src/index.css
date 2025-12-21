@@ -226,7 +226,6 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Improve touch scrolling */
 .touch-scroll {
-  -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
 }
 
@@ -243,7 +242,7 @@ h1, h2, h3, h4, h5, h6 {
   width: 44px;
   height: 44px;
   transform: translate(-50%, -50%);
-  /* Invisible but captures taps */
+  /* Ensures minimum 44x44px hit area for parent element */
 }
 
 /* Touch target size variants */
