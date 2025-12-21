@@ -8,9 +8,10 @@ interface CompactHUDProps {
   xp: number;
   xpToNext: number;
   rolls: number;
+  cityLevel?: number; // Optional city level for backward compatibility
 }
 
-export function CompactHUD({ cash, netWorth, level, xp, xpToNext, rolls }: CompactHUDProps) {
+export function CompactHUD({ cash, netWorth, level, xp, xpToNext, rolls, cityLevel = 1 }: CompactHUDProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (

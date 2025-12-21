@@ -13,6 +13,7 @@ interface PhoneLayoutProps {
     xp: number;
     xpToNext: number;
     rolls: number;
+    cityLevel?: number; // Optional city level for backward compatibility
   };
   onRollDice: () => void;
   isRolling: boolean;
