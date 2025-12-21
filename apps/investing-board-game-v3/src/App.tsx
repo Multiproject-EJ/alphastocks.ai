@@ -68,6 +68,7 @@ import {
   getRandomBiasCaseStudy,
   THRIFTY_CHALLENGES,
 } from '@/lib/mockData'
+import { SHOP_ITEMS } from '@/lib/shopItems'
 import {
   DAILY_ROLL_LIMIT,
   AUTO_SAVE_DEBOUNCE_MS,
@@ -443,6 +444,76 @@ function App() {
     getFinalPrice,
     shopDiscount,
   } = useShopInventory({ gameState, setGameState, tierBenefits: activeBenefits })
+
+  // Mobile shop purchase handler (uses cash instead of stars)
+  const handleMobileShopPurchase = useCallback((itemId: string) => {
+    const item = SHOP_ITEMS.find(i => i.id === itemId)
+    if (!item) return false
+
+    // Check if can afford with cash
+    if (gameState.cash < item.price) {
+      toast.error('Not enough cash', {
+        description: `You need $${item.price.toLocaleString()} but only have $${gameState.cash.toLocaleString()}`,
+      })
+      return false
+    }
+
+    // Deduct cash and apply effect
+    setGameState((prev) => {
+      const newState = {
+        ...prev,
+        cash: prev.cash - item.price,
+      }
+
+      // Apply item effect based on type
+      switch (item.effect.type) {
+        case 'dice':
+          // Add dice rolls - this is done via setRollsRemaining
+          toast.success('Dice purchased!', {
+            description: `+${item.effect.value} dice rolls added`,
+          })
+          break
+        
+        case 'multiplier':
+          // Add multiplier buff (would need to be implemented in game logic)
+          toast.success('Power-up purchased!', {
+            description: item.name + ' activated',
+          })
+          break
+        
+        case 'shield':
+          // Add shield (would need to be implemented in game logic)
+          toast.success('Shield purchased!', {
+            description: 'Protection activated',
+          })
+          break
+        
+        case 'move':
+          // Add immediate move (would need to be implemented in game logic)
+          toast.success('Jump purchased!', {
+            description: `Move forward ${item.effect.value} spaces`,
+          })
+          break
+        
+        case 'cosmetic':
+          // Apply cosmetic (would need to be implemented in game logic)
+          toast.success('Cosmetic purchased!', {
+            description: item.name + ' unlocked',
+          })
+          break
+      }
+
+      return newState
+    })
+
+    // Handle dice rolls separately as it's in a different state
+    if (item.effect.type === 'dice') {
+      setRollsRemaining(prev => prev + (item.effect.value as number))
+    }
+
+    playSound('cash-register')
+    return true
+  }, [gameState.cash, setGameState, setRollsRemaining, playSound])
 
   // Challenges and Events hooks
   const {
@@ -2013,6 +2084,7 @@ function App() {
         shopProps={{
           gameState,
           onPurchase: purchaseItem,
+          onMobilePurchase: handleMobileShopPurchase,
           isPermanentOwned,
           getItemQuantity,
           canAfford,

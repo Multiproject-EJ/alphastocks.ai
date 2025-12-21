@@ -40,14 +40,18 @@ import {
   UPGRADES,
   COSMETICS,
   CURRENCY_PACKS,
+  SHOP_ITEMS,
 } from '@/lib/shopItems'
 import { useSound } from '@/hooks/useSound'
+import { useIsMobile } from '@/hooks/use-mobile'
+import { MobileShop } from '@/components/shop/MobileShop'
 
 interface ShopModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   gameState: GameState
   onPurchase: (itemId: string) => void
+  onMobilePurchase?: (itemId: string) => boolean
   isPermanentOwned: (itemId: string) => boolean
   getItemQuantity: (itemId: string) => number
   canAfford: (price: number) => boolean
@@ -63,6 +67,7 @@ export function ShopModal({
   onOpenChange,
   gameState,
   onPurchase,
+  onMobilePurchase,
   isPermanentOwned,
   getItemQuantity,
   canAfford,
@@ -71,9 +76,31 @@ export function ShopModal({
   shopDiscount = 0,
 }: ShopModalProps) {
   const { play: playSound } = useSound()
+  const isMobile = useIsMobile()
   const [selectedCategory, setSelectedCategory] = useState<'powerup' | 'upgrade' | 'cosmetic' | 'currency'>('powerup')
   const [sortBy, setSortBy] = useState<SortOption>('default')
   const [confirmItem, setConfirmItem] = useState<ShopItem | null>(null)
+
+  // Handle mobile shop purchase (uses cash instead of stars)
+  const handleMobilePurchase = (itemId: string, cost: number) => {
+    if (onMobilePurchase) {
+      onMobilePurchase(itemId)
+    }
+  }
+
+  // Show mobile shop on mobile devices
+  if (isMobile) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="sm:max-w-[100vw] max-w-[100vw] h-[100vh] overflow-hidden bg-background p-0 gap-0 border-0">
+          <MobileShop 
+            cash={gameState.cash}
+            onPurchase={handleMobilePurchase}
+          />
+        </DialogContent>
+      </Dialog>
+    )
+  }
 
   // Get items for current category
   const categoryItems = useMemo(() => {
