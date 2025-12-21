@@ -267,3 +267,52 @@ h1, h2, h3, h4, h5, h6 {
   visibility: visible !important;
   opacity: 1 !important;
 }
+
+/* Phone layout utilities */
+@media (max-width: 767px) {
+  /* Reduce font sizes on phones */
+  .phone-text-sm {
+    font-size: 0.75rem;
+  }
+  
+  /* Hide desktop-only elements */
+  .desktop-only {
+    display: none !important;
+  }
+  
+  /* Optimize spacing */
+  .phone-compact {
+    padding: 0.5rem;
+    gap: 0.5rem;
+  }
+  
+  /* Full-bleed on phones */
+  .phone-full-bleed {
+    margin-left: -1rem;
+    margin-right: -1rem;
+    width: calc(100% + 2rem);
+  }
+}
+
+@media (min-width: 768px) {
+  /* Hide phone-only elements on larger screens */
+  .phone-only {
+    display: none !important;
+  }
+}
+
+/* Dynamic viewport height for mobile browsers */
+/* Using 100vh as fallback for older browsers, 100dvh for modern mobile browsers */
+.h-screen-dynamic {
+  height: 100vh;
+  height: 100dvh;
+}
+
+/* Board area optimization */
+.phone-board-area {
+  /* Account for HUD and bottom nav */
+  height: calc(100dvh - 48px - 56px);
+  /* Add safe areas */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}

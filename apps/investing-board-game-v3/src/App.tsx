@@ -36,6 +36,9 @@ import { TutorialTooltip } from '@/components/TutorialTooltip'
 import { BoardViewport } from '@/components/BoardViewport'
 import { OverlayRenderer } from '@/components/OverlayRenderer'
 
+// Phone-optimized layout components
+import { PhoneLayout } from '@/components/phone/PhoneLayout'
+
 // Lazy load heavy modals for better performance
 const ShopModal = lazy(() => import('@/components/ShopModal'))
 const ChallengesModal = lazy(() => import('@/components/ChallengesModal'))
@@ -92,9 +95,11 @@ import { useBoardCamera } from '@/hooks/useBoardCamera'
 import { useSafeArea } from '@/hooks/useSafeArea'
 import { useOverlayManager } from '@/hooks/useOverlayManager'
 import { useUIMode } from '@/hooks/useUIMode'
+import { useLayoutMode } from '@/hooks/useLayoutMode'
 import { ThriftPathStatus as ThriftPathStatusType } from '@/lib/thriftPath'
 import { COIN_COSTS, COIN_EARNINGS } from '@/lib/coins'
 import { getInitialCityBuilderState, CITIES } from '@/lib/cityBuilder'
+import { calculateXPForLevel } from '@/lib/progression'
 import type { UIMode, GamePhase } from '@/lib/uiModeStateMachine'
 
 // Alias for backward compatibility
@@ -202,6 +207,9 @@ function App() {
     setCanTransition,
     phase: uiPhase,
   } = useUIMode()
+
+  // Layout mode detection for responsive design
+  const { isPhone, isTablet, isDesktop } = useLayoutMode()
 
   // Keep state for data that modals need (but not open/closed state)
   const [currentStock, setCurrentStock] = useState<Stock | null>(null)
@@ -1600,10 +1608,19 @@ function App() {
     isLogoPanel ? 'bg-opacity-0 backdrop-blur-none' : ''
   ].filter(Boolean).join(' ')
 
-  return (
-    <MobileGameLayout showBottomNav={true}>
-      <div ref={containerRef} className="relative isolate min-h-screen bg-background p-8 overflow-hidden game-board">
-        <LoadingScreen show={isLoading} />
+  // Calculate XP for next level for phone HUD
+  const xpForNextLevel = gameState.level < 100 
+    ? (() => {
+        const currentLevelXP = calculateXPForLevel(gameState.level)
+        const nextLevelXP = calculateXPForLevel(gameState.level + 1)
+        return nextLevelXP - currentLevelXP
+      })()
+    : 1000
+
+  // Main content that will be wrapped by layout
+  const mainContent = (
+    <div ref={containerRef} className="relative isolate min-h-screen bg-background p-8 overflow-hidden game-board">
+      <LoadingScreen show={isLoading} />
         
         <div
           className="absolute inset-0 z-0 bg-[url('/board-game-v3/BG.webp')] bg-cover bg-center opacity-60 pointer-events-none"
@@ -1977,22 +1994,24 @@ function App() {
         gameState={gameState}
       />
 
-      {/* Mobile Bottom Navigation */}
-      <BottomNav
-        onNavigate={handleBottomNavigation}
-        activeSection={activeSection}
-        badges={{
-          challenges: dailyChallenges?.filter(c => !c.completed).length || 0,
-          shop: 0, // Could add new shop items count here
-        }}
-        dice1={dice1}
-        dice2={dice2}
-        isRolling={phase === 'rolling'}
-        rollsRemaining={rollsRemaining}
-        onRoll={() => handleRoll(1)}
-        canRoll={phase === 'idle' && rollsRemaining > 0}
-        showDice={isMobile}
-      />
+      {/* Mobile Bottom Navigation - Only show on non-phone devices */}
+      {!isPhone && (
+        <BottomNav
+          onNavigate={handleBottomNavigation}
+          activeSection={activeSection}
+          badges={{
+            challenges: dailyChallenges?.filter(c => !c.completed).length || 0,
+            shop: 0, // Could add new shop items count here
+          }}
+          dice1={dice1}
+          dice2={dice2}
+          isRolling={phase === 'rolling'}
+          rollsRemaining={rollsRemaining}
+          onRoll={() => handleRoll(1)}
+          canRoll={phase === 'idle' && rollsRemaining > 0}
+          showDice={isMobile}
+        />
+      )}
 
       {/* PWA Install Prompt */}
       <InstallPrompt />
@@ -2004,6 +2023,32 @@ function App() {
         </Suspense>
       )}
     </div>
+  )
+
+  // Render with appropriate layout based on screen size
+  if (isPhone) {
+    return (
+      <PhoneLayout
+        gameState={{
+          cash: gameState.cash,
+          netWorth: gameState.netWorth,
+          level: gameState.level,
+          xp: gameState.xp,
+          xpToNext: xpForNextLevel,
+          rolls: rollsRemaining,
+        }}
+        onRollDice={() => handleRoll(1)}
+        isRolling={phase === 'rolling'}
+      >
+        {mainContent}
+      </PhoneLayout>
+    )
+  }
+
+  // Desktop/Tablet layout with existing MobileGameLayout wrapper
+  return (
+    <MobileGameLayout showBottomNav={!isPhone}>
+      {mainContent}
     </MobileGameLayout>
   )
 }
