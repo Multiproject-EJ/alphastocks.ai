@@ -1732,7 +1732,7 @@ function App() {
         {/* Board wrapper with 3D camera or classic zoom support */}
         <Board3DViewport
           camera={camera}
-          isMobile={isMobile}
+          isMobile={isMobile && !isPhone}
           boardStyle={camera3DStyle}
           containerStyle={camera3DContainerStyle}
           playerPosition={gameState.position}
