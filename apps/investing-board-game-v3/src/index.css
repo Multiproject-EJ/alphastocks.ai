@@ -245,17 +245,6 @@ h1, h2, h3, h4, h5, h6 {
   /* Ensures minimum 44x44px hit area for parent element */
 }
 
-/* Touch target size variants */
-.touch-target-lg {
-  min-width: 48px;
-  min-height: 48px;
-}
-
-.touch-target-xl {
-  min-width: 56px;
-  min-height: 56px;
-}
-
 /* 3D Board Viewport Styles */
 .board-viewport-container {
   position: relative;
