@@ -6,6 +6,10 @@ import { MobileBoard3D } from './MobileBoard3D';
 import { BoardDebugOverlay } from './BoardDebugOverlay';
 import { useUIMode } from '@/hooks/useUIMode';
 
+// Layout constants for consistent sizing
+const COMPACT_HUD_HEIGHT = 48;  // pixels
+const BOTTOM_NAV_HEIGHT = 56;   // pixels
+
 interface PhoneLayoutProps {
   children: ReactNode;
   currentPosition: number;
@@ -52,10 +56,10 @@ export function PhoneLayout({
         <div 
           className="absolute board-area"
           style={{
-            top: '48px',      // Below HUD
+            top: `${COMPACT_HUD_HEIGHT}px`,      // Below HUD
             left: 0,
             right: 0,
-            bottom: '56px',   // Above nav
+            bottom: `${BOTTOM_NAV_HEIGHT}px`,    // Above nav
             zIndex: 10,
             overflow: 'visible',
           }}

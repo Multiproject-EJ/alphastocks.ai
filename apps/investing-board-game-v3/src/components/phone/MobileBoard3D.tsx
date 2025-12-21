@@ -11,7 +11,7 @@ interface MobileBoard3DProps {
  * Mobile 3D Board - Monopoly GO Style
  * 
  * Creates a tilted, zoomed-in view of the board that:
- * - Tilts the board 25-30 degrees on X axis
+ * - Tilts the board 28 degrees on X axis
  * - Zooms in so only 6-8 tiles are visible
  * - Centers on the player's current position
  * - Smoothly animates when player moves
@@ -20,7 +20,7 @@ export function MobileBoard3D({
   children,
   currentPosition,
   totalTiles = 40,
-  boardSize = 1000,
+  boardSize = 1200, // Match default board size used throughout app
 }: MobileBoard3DProps) {
   // Calculate where player is on the board
   const playerOffset = useMemo(() => {
