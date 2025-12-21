@@ -11,10 +11,10 @@ export function usePurchase() {
     setError(null);
 
     try {
-      // Brief delay to show purchase animation (200ms)
+      // Brief delay (200ms) to show purchase animation and provide visual feedback
       await new Promise(resolve => setTimeout(resolve, 200));
 
-      // SUCCESS - no daily limits, no waiting!
+      // Purchase successful - unlimited purchases allowed (only limited by player's cash)
       hapticSuccess();
       setIsPurchasing(null);
       return true;
