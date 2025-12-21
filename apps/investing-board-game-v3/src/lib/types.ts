@@ -147,6 +147,8 @@ export interface GameState {
     totalUpgrades: number
     totalBuildingsCompleted: number
   }
+  // City Level (current city index for backward compatibility)
+  cityLevel?: number
 }
 
 export interface BiasQuizQuestion {

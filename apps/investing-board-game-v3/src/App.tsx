@@ -183,7 +183,8 @@ function App() {
         impulsiveActions: 0,
         longTermHoldings: 0
       }
-    }
+    },
+    cityLevel: 1, // City level for backward compatibility (defaults to first city)
   }
 
   const [gameState, setGameState] = useState<GameState>(defaultGameState)
@@ -687,7 +688,12 @@ function App() {
     
     if (savedGameState && isAuthenticated) {
       debugGame('Loading saved game state:', savedGameState)
-      setGameState(savedGameState)
+      // Ensure cityLevel has a default value when loading saved state
+      const loadedState = {
+        ...savedGameState,
+        cityLevel: savedGameState.cityLevel ?? 1, // Default to 1 if not present
+      }
+      setGameState(loadedState)
       // Initialize rollsRemaining from energyRolls in savedGameState
       setRollsRemaining(savedGameState.energyRolls ?? DAILY_ROLL_LIMIT)
       gameLoadedFromSave.current = true
@@ -2093,6 +2099,7 @@ function App() {
           xp: gameState.xp,
           xpToNext: xpForNextLevel,
           rolls: rollsRemaining,
+          cityLevel: gameState.cityLevel ?? 1, // Defensive fallback to 1
         }}
         onRollDice={() => handleRoll(1)}
         isRolling={phase === 'rolling'}
