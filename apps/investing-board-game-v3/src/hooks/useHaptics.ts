@@ -1,42 +1,42 @@
 import { useCallback } from 'react'
 
-export const useHaptics = () => {
-  const isSupported = typeof navigator !== 'undefined' && 'vibrate' in navigator
-  
-  const vibrate = useCallback((pattern: number | number[]) => {
-    if (!isSupported) return
+type HapticType = 'light' | 'medium' | 'heavy' | 'success' | 'warning' | 'error';
+
+export function useHaptics() {
+  const isSupported = typeof navigator !== 'undefined' && 'vibrate' in navigator;
+
+  const haptic = useCallback((type: HapticType = 'light') => {
+    if (!isSupported) return;
     
     // Check user preference (can be disabled in settings)
-    const hapticsEnabled = localStorage.getItem('hapticsEnabled') !== 'false'
-    if (!hapticsEnabled) return
-    
+    const hapticsEnabled = localStorage.getItem('hapticsEnabled') !== 'false';
+    if (!hapticsEnabled) return;
+
+    const patterns: Record<HapticType, number | number[]> = {
+      light: 10,
+      medium: 25,
+      heavy: 50,
+      success: [10, 50, 10],
+      warning: [25, 50, 25],
+      error: [50, 100, 50, 100, 50],
+    };
+
     try {
-      navigator.vibrate(pattern)
+      navigator.vibrate(patterns[type]);
     } catch (e) {
-      console.error('Haptic feedback failed:', e)
+      // Vibration not supported or blocked
     }
-  }, [isSupported])
-  
-  // Predefined patterns
-  const light = useCallback(() => vibrate(10), [vibrate])
-  const medium = useCallback(() => vibrate(20), [vibrate])
-  const heavy = useCallback(() => vibrate(30), [vibrate])
-  const success = useCallback(() => vibrate([10, 50, 10]), [vibrate])
-  const error = useCallback(() => vibrate([50, 100, 50]), [vibrate])
-  const roll = useCallback(() => vibrate([5, 10, 15, 20]), [vibrate])
-  const celebration = useCallback(() => vibrate([10, 50, 10, 50, 10]), [vibrate])
-  const doubleClick = useCallback(() => vibrate([5, 30, 5]), [vibrate])
-  
+  }, [isSupported]);
+
   return {
+    haptic,
     isSupported,
-    vibrate,
-    light,
-    medium,
-    heavy,
-    success,
-    error,
-    roll,
-    celebration,
-    doubleClick,
-  }
+    // Convenience methods
+    lightTap: useCallback(() => haptic('light'), [haptic]),
+    mediumTap: useCallback(() => haptic('medium'), [haptic]),
+    heavyTap: useCallback(() => haptic('heavy'), [haptic]),
+    success: useCallback(() => haptic('success'), [haptic]),
+    warning: useCallback(() => haptic('warning'), [haptic]),
+    error: useCallback(() => haptic('error'), [haptic]),
+  };
 }

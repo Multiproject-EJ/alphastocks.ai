@@ -1,8 +1,9 @@
 import { motion } from 'framer-motion'
-import { memo } from 'react'
+import { memo, useCallback, useMemo } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Tile as TileType } from '@/lib/types'
 import { cn } from '@/lib/utils'
+import { useHaptics } from '@/hooks/useHaptics'
 
 interface TileProps {
   tile: TileType
@@ -38,6 +39,13 @@ const TILE_IMAGES: Record<string, { src: string; alt: string }> = {
 }
 
 const TileComponent = ({ tile, isActive, isHopping, isLanded, onClick, side }: TileProps) => {
+  const { lightTap } = useHaptics();
+
+  const handleClick = useCallback(() => {
+    lightTap();  // Haptic feedback
+    onClick();
+  }, [onClick, lightTap]);
+
   const getTypeColor = () => {
     switch (tile.type) {
       case 'corner':
@@ -54,6 +62,18 @@ const TileComponent = ({ tile, isActive, isHopping, isLanded, onClick, side }: T
   const isCorner = tile.type === 'corner'
   const isEvent = tile.type === 'event'
   const isVertical = side === 'left' || side === 'right'
+
+  // Memoize style calculations for better performance
+  const borderStyles = useMemo(() => ({
+    borderTopColor: isVertical 
+      ? (isCorner ? (isActive ? 'oklch(0.75 0.15 85)' : 'oklch(0.30 0.02 250)') : 'oklch(0.30 0.02 250)')
+      : (tile.colorBorder || (isActive ? 'oklch(0.75 0.15 85)' : 'oklch(0.30 0.02 250)')),
+    borderLeftColor: isVertical
+      ? (tile.colorBorder || (isActive ? 'oklch(0.75 0.15 85)' : 'oklch(0.30 0.02 250)'))
+      : (isCorner ? (isActive ? 'oklch(0.75 0.15 85)' : 'oklch(0.30 0.02 250)') : 'oklch(0.30 0.02 250)'),
+    borderRightColor: isCorner ? (isActive ? 'oklch(0.75 0.15 85)' : 'oklch(0.30 0.02 250)') : 'oklch(0.30 0.02 250)',
+    borderBottomColor: isCorner ? (isActive ? 'oklch(0.75 0.15 85)' : 'oklch(0.30 0.02 250)') : 'oklch(0.30 0.02 250)',
+  }), [isVertical, isCorner, isActive, tile.colorBorder]);
 
   return (
     <motion.div
@@ -76,16 +96,9 @@ const TileComponent = ({ tile, isActive, isHopping, isLanded, onClick, side }: T
       style={{
         flexGrow: isCorner ? 0 : 1,
         flexBasis: isCorner ? 'auto' : isVertical ? '0' : '0',
-        borderTopColor: isVertical 
-          ? (isCorner ? (isActive ? 'oklch(0.75 0.15 85)' : 'oklch(0.30 0.02 250)') : 'oklch(0.30 0.02 250)')
-          : (tile.colorBorder || (isActive ? 'oklch(0.75 0.15 85)' : 'oklch(0.30 0.02 250)')),
-        borderLeftColor: isVertical
-          ? (tile.colorBorder || (isActive ? 'oklch(0.75 0.15 85)' : 'oklch(0.30 0.02 250)'))
-          : (isCorner ? (isActive ? 'oklch(0.75 0.15 85)' : 'oklch(0.30 0.02 250)') : 'oklch(0.30 0.02 250)'),
-        borderRightColor: isCorner ? (isActive ? 'oklch(0.75 0.15 85)' : 'oklch(0.30 0.02 250)') : 'oklch(0.30 0.02 250)',
-        borderBottomColor: isCorner ? (isActive ? 'oklch(0.75 0.15 85)' : 'oklch(0.30 0.02 250)') : 'oklch(0.30 0.02 250)',
+        ...borderStyles,
       }}
-      onClick={onClick}
+      onClick={handleClick}
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
       animate={{
@@ -163,4 +176,15 @@ const TileComponent = ({ tile, isActive, isHopping, isLanded, onClick, side }: T
   )
 }
 
-export const Tile = memo(TileComponent)
+export const Tile = memo(TileComponent, (prevProps, nextProps) => {
+  // Custom comparison - only re-render if these change
+  return (
+    prevProps.tile.id === nextProps.tile.id &&
+    prevProps.isActive === nextProps.isActive &&
+    prevProps.isHopping === nextProps.isHopping &&
+    prevProps.isLanded === nextProps.isLanded &&
+    prevProps.tile.title === nextProps.tile.title &&
+    prevProps.tile.type === nextProps.tile.type &&
+    prevProps.side === nextProps.side
+  );
+});
