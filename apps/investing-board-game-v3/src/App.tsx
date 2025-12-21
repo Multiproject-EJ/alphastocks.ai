@@ -468,8 +468,7 @@ function App() {
       // Apply item effect based on type
       switch (item.effect.type) {
         case 'dice':
-          // Add dice rolls
-          newState.rolls = (prev.rolls || 0) + (item.effect.value as number)
+          // Add dice rolls - this is done via setRollsRemaining
           toast.success('Dice purchased!', {
             description: `+${item.effect.value} dice rolls added`,
           })
@@ -507,9 +506,14 @@ function App() {
       return newState
     })
 
+    // Handle dice rolls separately as it's in a different state
+    if (item.effect.type === 'dice') {
+      setRollsRemaining(prev => prev + (item.effect.value as number))
+    }
+
     playSound('cash-register')
     return true
-  }, [gameState.cash, setGameState, playSound])
+  }, [gameState.cash, setGameState, setRollsRemaining, playSound])
 
   // Challenges and Events hooks
   const {
