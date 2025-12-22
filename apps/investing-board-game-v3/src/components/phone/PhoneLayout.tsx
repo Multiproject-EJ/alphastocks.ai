@@ -40,7 +40,7 @@ export function PhoneLayout({
   const camera = {
     perspective: 600,
     rotateX: 28,
-    scale: 2.2,
+    scale: 0.65,
   };
 
   return (
