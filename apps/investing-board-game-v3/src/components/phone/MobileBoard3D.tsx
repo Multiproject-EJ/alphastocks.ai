@@ -10,9 +10,9 @@ interface MobileBoard3DProps {
 /**
  * Mobile 3D Board - Monopoly GO Style
  * 
- * Creates a tilted, zoomed-in view of the board that:
+ * Creates a tilted, optimally zoomed view of the board that:
  * - Tilts the board 28 degrees on X axis
- * - Zooms in so only 6-8 tiles are visible
+ * - Shows 6-8 tiles at once for optimal visibility
  * - Centers on the player's current position
  * - Smoothly animates when player moves
  */
@@ -59,7 +59,7 @@ export function MobileBoard3D({
   const camera = {
     perspective: 600,      // Lower = more dramatic 3D effect
     rotateX: 28,           // Tilt angle in degrees
-    scale: 2.2,            // Zoom level (2-3 shows ~6-8 tiles)
+    scale: 0.65,           // Zoom level (0.65 shows ~6-8 tiles)
     translateZ: 0,         // Move towards/away from camera
   };
 
