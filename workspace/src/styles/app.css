@@ -4047,7 +4047,8 @@ button:focus-visible {
   .tag {
     max-width: 100%;
     white-space: normal;
-    word-break: break-all; /* Break "openai/gpt-4o-mini" type strings */
+    overflow-wrap: break-word; /* Break at word boundaries when possible */
+    word-break: normal; /* Only break within words as last resort */
   }
 
   /* Detail metadata lists */
@@ -4115,23 +4116,22 @@ button:focus-visible {
      ======================================== */
 
   /* Modals must fit viewport */
-  .modal,
-  .modal-card,
-  .modal-backdrop > * {
-    max-width: calc(100vw - 2rem) !important; /* Account for margins */
+  .modal-backdrop .modal,
+  .modal-backdrop .modal-card {
+    max-width: calc(100vw - 2rem);
     width: calc(100vw - 2rem);
     margin: 1rem;
   }
 
   /* Completed jobs modal */
   .fixed.inset-0 > div {
-    max-width: calc(100vw - 2rem) !important;
+    max-width: calc(100vw - 2rem);
     width: calc(100vw - 2rem);
   }
 
   /* Pro overlay panel */
-  .pro-overlay__panel {
-    max-width: 100vw !important;
+  .pro-overlay .pro-overlay__panel {
+    max-width: 100vw;
     width: 100vw;
     margin: 0;
     border-radius: 0;
@@ -4174,8 +4174,10 @@ button:focus-visible {
     width: 100%;
   }
 
-  /* Button groups */
-  .detail-meta[style*="display: flex"] {
+  /* Button groups wrap properly */
+  .pill-list,
+  .form-actions,
+  .button-group {
     flex-wrap: wrap;
     max-width: 100%;
   }
