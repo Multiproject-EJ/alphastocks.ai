@@ -374,21 +374,32 @@ function App() {
     },
   })
 
-  // Sync cityBuilderState to gameState - use JSON comparison to prevent infinite loops
-  const cityBuilderStateJson = JSON.stringify(cityBuilderState)
+  // Sync cityBuilderState to gameState - use ref to prevent infinite loops
+  const lastSyncedCityBuilderRef = useRef<string>('')
   useEffect(() => {
+    const cityBuilderStateJson = JSON.stringify(cityBuilderState)
+    
+    // Skip if we've already synced this exact state
+    if (lastSyncedCityBuilderRef.current === cityBuilderStateJson) {
+      return
+    }
+    
     setGameState(prev => {
       const prevCityBuilderJson = JSON.stringify(prev.cityBuilder)
       // Only update if the state has actually changed
       if (prevCityBuilderJson === cityBuilderStateJson) {
         return prev
       }
+      
+      // Mark this state as synced
+      lastSyncedCityBuilderRef.current = cityBuilderStateJson
+      
       return {
         ...prev,
         cityBuilder: cityBuilderState,
       }
     })
-  }, [cityBuilderStateJson])
+  }, [cityBuilderState])
 
   // Gesture arbitration hook - Priority: pinch > swipe > pan > tap
   // This replaces the simple swipe gesture hook with a more sophisticated system
