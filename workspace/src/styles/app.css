@@ -26,6 +26,9 @@
   --boardgame-throne-base-bg: #050608;
   --boardgame-throne-base-border: #222;
   --boardgame-throne-base-shadow: 0 0 50px rgba(0, 0, 0, 0.9);
+
+  /* Mobile Navigation */
+  --mobile-bottom-nav-height: 70px;
 }
 
 html,
@@ -2832,7 +2835,7 @@ body[data-theme='dark'] {
   /* Adjust workspace for mobile */
   .pro-overlay__content .workspace {
     padding: 1rem 0.75rem;
-    padding-bottom: calc(70px + env(safe-area-inset-bottom, 0.5rem)); /* Space for bottom nav */
+    padding-bottom: calc(var(--mobile-bottom-nav-height) + env(safe-area-inset-bottom, 0.5rem)); /* Space for bottom nav */
   }
 
   /* Reduce panel padding on mobile */

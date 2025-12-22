@@ -815,7 +815,7 @@ const App = () => {
   const isSupabaseMode = dataService?.mode === 'supabase';
   const themeCopy = theme === 'dark' ? 'Switch to light' : 'Switch to dark';
   
-  // Define primary mobile nav items (5 most important)
+  // Mobile bottom navigation: Primary items (5 most important)
   const mobilePrimaryNavItems = [
     { id: 'dashboard', icon: '🏠', label: 'Home' },
     { id: 'focuslist', icon: '🎯', label: 'Focus' },
@@ -824,12 +824,13 @@ const App = () => {
     { id: 'more', icon: '⋯', label: 'More' }
   ];
   
-  // Define overflow nav items (rest of navigation)
+  // Mobile bottom navigation: Overflow items (shown in drawer)
   const mobileOverflowNavItems = mainNavigation.filter(
     item => !['dashboard', 'focuslist', 'valuebot', 'portfolio'].includes(item.id)
   );
   
-  // Old mobile nav (for sidebar, still used in current implementation)
+  // Legacy mobile sidebar navigation (used when isMobileView is true but in sidebar layout)
+  // TODO: This can be removed once bottom navigation is fully tested and adopted
   const mobilePrimaryNav = [
     { id: 'boardgame-v3', icon: '🎮', label: 'Investment Game' },
     { id: 'dashboard', icon: '🏠', label: 'Morning Sales' },
@@ -2859,11 +2860,18 @@ const App = () => {
                         overflowItem => overflowItem.id === activeSection
                       );
 
+                      const classNames = ['mobile-nav-item'];
+                      if (isActive) classNames.push('active');
+                      if (isMoreBtn) {
+                        classNames.push('mobile-nav-more-btn');
+                        if (hasOverflowActive) classNames.push('has-overflow');
+                      }
+
                       return (
                         <button
                           key={item.id}
                           type="button"
-                          className={`mobile-nav-item${isActive ? ' active' : ''}${isMoreBtn && hasOverflowActive ? ' mobile-nav-more-btn has-overflow' : isMoreBtn ? ' mobile-nav-more-btn' : ''}`}
+                          className={classNames.join(' ')}
                           onClick={() => handleMobileNavSelection(item.id)}
                           aria-label={item.label}
                           aria-current={isActive ? 'page' : undefined}
