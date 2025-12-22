@@ -1008,10 +1008,11 @@ function App() {
     const checkEnergyReset = () => {
       const currentCheck = lastEnergyCheckRef.current
       if (!currentCheck) {
-        lastEnergyCheckRef.current = new Date()
+        const now = new Date()
+        lastEnergyCheckRef.current = now
         setGameState(prev => ({
           ...prev,
-          lastEnergyCheck: lastEnergyCheckRef.current
+          lastEnergyCheck: now
         }))
         return
       }
