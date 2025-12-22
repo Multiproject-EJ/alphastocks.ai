@@ -10,7 +10,13 @@ export function useBoardPan() {
   const [isPanning, setIsPanning] = useState(false);
   const startPos = useRef<PanState>({ x: 0, y: 0 });
   const startPan = useRef<PanState>({ x: 0, y: 0 });
+  const panOffsetRef = useRef<PanState>({ x: 0, y: 0 });
   const snapBackTimer = useRef<NodeJS.Timeout | null>(null);
+
+  // Keep ref in sync with state
+  useEffect(() => {
+    panOffsetRef.current = panOffset;
+  }, [panOffset]);
 
   // Cleanup timeout on unmount
   useEffect(() => {
@@ -24,13 +30,7 @@ export function useBoardPan() {
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     const touch = e.touches[0];
     startPos.current = { x: touch.clientX, y: touch.clientY };
-    
-    // Use functional update to read current panOffset without adding it to deps
-    setPanOffset(current => {
-      startPan.current = { ...current };
-      return current;  // Return same value - no state change
-    });
-    
+    startPan.current = { ...panOffsetRef.current };
     setIsPanning(true);
     
     // Clear any pending snap-back
