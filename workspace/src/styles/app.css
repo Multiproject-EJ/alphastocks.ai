@@ -2693,16 +2693,33 @@ body[data-theme='dark'] {
   line-height: 1.4;
 }
 
-/* Improved list spacing */
-ul, ol {
+/* Improved list spacing - content areas only */
+.detail-meta ul,
+.detail-meta ol,
+.ai-raw-response ul,
+.ai-raw-response ol,
+.dev-notes ul,
+.dev-notes ol,
+.modal-body ul,
+.modal-body ol,
+.chat-example ul,
+.chat-example ol {
   line-height: 1.6;
 }
 
-li {
+.detail-meta li,
+.ai-raw-response li,
+.dev-notes li,
+.modal-body li,
+.chat-example li {
   margin-bottom: 0.5rem;
 }
 
-li:last-child {
+.detail-meta li:last-child,
+.ai-raw-response li:last-child,
+.dev-notes li:last-child,
+.modal-body li:last-child,
+.chat-example li:last-child {
   margin-bottom: 0;
 }
 
@@ -2773,10 +2790,12 @@ code {
   .card-subtle,
   .field-hint {
     font-size: 0.875rem; /* 14px */
-    line-height: 1.5;
   }
 
   /* Form inputs - prevent iOS zoom */
+  /* !important is necessary here to override any component-specific font-size
+     and prevent iOS Safari from auto-zooming when inputs are focused.
+     iOS zooms on inputs with font-size < 16px, which creates poor UX. */
   input,
   textarea,
   select {
@@ -2811,15 +2830,6 @@ code {
   .ai-raw-response {
     font-size: 0.9375rem; /* 15px */
     line-height: 1.7;
-  }
-
-  /* Eyebrow/label text */
-  .eyebrow {
-    font-size: 0.75rem; /* 12px */
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    font-weight: 600;
-    line-height: 1.4;
   }
 
   /* Pills/tags */
