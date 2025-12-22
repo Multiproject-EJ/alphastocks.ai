@@ -810,7 +810,10 @@ const App = () => {
   const [deepDiveModalTicker, setDeepDiveModalTicker] = useState(null);
   const [deepDiveModalCompany, setDeepDiveModalCompany] = useState(null);
   const [tabsScrollState, setTabsScrollState] = useState({ atStart: true, atEnd: false });
+  const [tabsScrollStateModules, setTabsScrollStateModules] = useState({ atStart: true, atEnd: false });
   const tabsRef = useRef(null);
+  const tabsRefModules = useRef(null);
+  const SCROLL_EDGE_THRESHOLD = 5; // Threshold in pixels for detecting scroll edges
   const runtimeConfig = useMemo(() => getRuntimeConfig(), []);
   const dataService = useMemo(() => getDataService(), [runtimeConfig.mode]);
   const { user, signOut } = useAuth();
@@ -1541,25 +1544,48 @@ const App = () => {
   // Detect scroll position for fade indicators
   useEffect(() => {
     const tabsElement = tabsRef.current;
-    if (!tabsElement || !isMobileView) return;
+    const tabsElementModules = tabsRefModules.current;
+    if (!isMobileView) return;
 
-    const updateScrollState = () => {
-      const { scrollLeft, scrollWidth, clientWidth } = tabsElement;
-      const atStart = scrollLeft <= 5; // Small threshold for rounding errors
-      const atEnd = scrollLeft + clientWidth >= scrollWidth - 5;
-
-      setTabsScrollState({ atStart, atEnd });
+    const updateScrollState = (element, setState) => {
+      if (!element) return;
+      const { scrollLeft, scrollWidth, clientWidth } = element;
+      const atStart = scrollLeft <= SCROLL_EDGE_THRESHOLD;
+      const atEnd = scrollLeft + clientWidth >= scrollWidth - SCROLL_EDGE_THRESHOLD;
+      setState({ atStart, atEnd });
     };
 
-    updateScrollState();
-    tabsElement.addEventListener('scroll', updateScrollState);
-    window.addEventListener('resize', updateScrollState);
+    const handleScroll = () => {
+      updateScrollState(tabsElement, setTabsScrollState);
+      updateScrollState(tabsElementModules, setTabsScrollStateModules);
+    };
+
+    const handleResize = () => {
+      updateScrollState(tabsElement, setTabsScrollState);
+      updateScrollState(tabsElementModules, setTabsScrollStateModules);
+    };
+
+    // Initial update
+    handleScroll();
+
+    if (tabsElement) {
+      tabsElement.addEventListener('scroll', handleScroll);
+    }
+    if (tabsElementModules) {
+      tabsElementModules.addEventListener('scroll', handleScroll);
+    }
+    window.addEventListener('resize', handleResize);
 
     return () => {
-      tabsElement.removeEventListener('scroll', updateScrollState);
-      window.removeEventListener('resize', updateScrollState);
+      if (tabsElement) {
+        tabsElement.removeEventListener('scroll', handleScroll);
+      }
+      if (tabsElementModules) {
+        tabsElementModules.removeEventListener('scroll', handleScroll);
+      }
+      window.removeEventListener('resize', handleResize);
     };
-  }, [isMobileView, activeSection, hasTabs]);
+  }, [isMobileView, activeSection, hasTabs, SCROLL_EDGE_THRESHOLD]);
 
   useEffect(() => {
     const syncMorningNewsWindow = () => {
@@ -2571,6 +2597,12 @@ const App = () => {
       if (tabsScrollState.atEnd) wrapperClasses.push('at-end');
     }
 
+    const wrapperClassesModules = ['app-tabs-wrapper'];
+    if (isMobileView) {
+      if (tabsScrollStateModules.atStart) wrapperClassesModules.push('at-start');
+      if (tabsScrollStateModules.atEnd) wrapperClassesModules.push('at-end');
+    }
+
     if (activeSection === 'valuebot') {
       return (
         <div className="valuebot-tab-groups" role="presentation">
@@ -2584,11 +2616,12 @@ const App = () => {
               {valueBotPrimaryTabLabels.map(renderTabButton)}
             </div>
           </div>
-          <div className={wrapperClasses.join(' ')}>
+          <div className={wrapperClassesModules.join(' ')}>
             <div 
               className="app-tabs valuebot-tab-row valuebot-tab-row--modules" 
               role="tablist" 
               aria-label="ValueBot modules"
+              ref={tabsRefModules}
             >
               {valueBotModuleTabLabels.map(renderTabButton)}
             </div>
