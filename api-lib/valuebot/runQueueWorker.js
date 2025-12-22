@@ -5,6 +5,7 @@ const DEFAULT_BATCH_SIZE = 1;
 export const DEFAULT_CRON_MAX_JOBS = 5;
 export const SECONDS_PER_JOB_ESTIMATE = 70;
 const MAX_WORKER_MS = 250_000;
+const MAX_ATTEMPTS = 3;
 
 export const QUEUE_STATUS = {
   PENDING: 'pending',
@@ -121,6 +122,7 @@ export async function runQueueWorker({ supabase: providedSupabase, maxJobs, runS
   const jobsToProcess = jobs || [];
 
   // Immediately claim these jobs atomically to prevent race conditions
+  const successfullyClaimed = [];
   if (jobsToProcess.length > 0) {
     const jobIds = jobsToProcess.map(j => j.id);
     const now = new Date().toISOString();
@@ -146,11 +148,12 @@ export async function runQueueWorker({ supabase: providedSupabase, maxJobs, runS
       } else {
         // Update the job object with new attempts count
         job.attempts = attempts;
+        successfullyClaimed.push(job);
       }
     }
   }
 
-  for (const job of jobsToProcess) {
+  for (const job of successfullyClaimed) {
     const { ticker, companyName } = normalizeJobIdentifiers(job);
     const jobSummary = {
       id: job.id,
@@ -161,8 +164,6 @@ export async function runQueueWorker({ supabase: providedSupabase, maxJobs, runS
       last_run: job.last_run ?? job.last_run_at ?? null,
       error: job.error ?? job.last_error ?? null
     };
-
-    const MAX_ATTEMPTS = 3;
 
     // Skip if too many attempts
     if ((job.attempts || 0) >= MAX_ATTEMPTS) {
