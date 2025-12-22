@@ -124,7 +124,6 @@ export async function runQueueWorker({ supabase: providedSupabase, maxJobs, runS
   // Immediately claim these jobs atomically to prevent race conditions
   const successfullyClaimed = [];
   if (jobsToProcess.length > 0) {
-    const jobIds = jobsToProcess.map(j => j.id);
     const now = new Date().toISOString();
     
     // Build individual updates for each job to increment attempts
