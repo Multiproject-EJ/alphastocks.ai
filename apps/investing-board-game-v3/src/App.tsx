@@ -100,7 +100,7 @@ import { useUIMode } from '@/hooks/useUIMode'
 import { useLayoutMode } from '@/hooks/useLayoutMode'
 import { ThriftPathStatus as ThriftPathStatusType } from '@/lib/thriftPath'
 import { COIN_COSTS, COIN_EARNINGS } from '@/lib/coins'
-import { getInitialCityBuilderState, CITIES } from '@/lib/cityBuilder'
+import { getInitialCityBuilderState, CITIES, CityBuilderState } from '@/lib/cityBuilder'
 import { calculateXPForLevel } from '@/lib/progression'
 import type { UIMode, GamePhase } from '@/lib/uiModeStateMachine'
 
@@ -375,30 +375,31 @@ function App() {
   })
 
   // Sync cityBuilderState to gameState - use ref to prevent infinite loops
-  const lastSyncedCityBuilderRef = useRef<string>('')
+  const lastSyncedCityBuilderRef = useRef<CityBuilderState | null>(null)
   useEffect(() => {
-    const cityBuilderStateJson = JSON.stringify(cityBuilderState)
-    
-    // Skip if we've already synced this exact state
-    if (lastSyncedCityBuilderRef.current === cityBuilderStateJson) {
+    // Skip if we've already synced this exact state reference
+    if (lastSyncedCityBuilderRef.current === cityBuilderState) {
       return
     }
     
     setGameState(prev => {
+      // Compare stringified versions to detect actual changes
       const prevCityBuilderJson = JSON.stringify(prev.cityBuilder)
+      const newCityBuilderJson = JSON.stringify(cityBuilderState)
+      
       // Only update if the state has actually changed
-      if (prevCityBuilderJson === cityBuilderStateJson) {
+      if (prevCityBuilderJson === newCityBuilderJson) {
         return prev
       }
-      
-      // Mark this state as synced
-      lastSyncedCityBuilderRef.current = cityBuilderStateJson
       
       return {
         ...prev,
         cityBuilder: cityBuilderState,
       }
     })
+    
+    // Mark this state as synced AFTER the setState completes
+    lastSyncedCityBuilderRef.current = cityBuilderState
   }, [cityBuilderState])
 
   // Gesture arbitration hook - Priority: pinch > swipe > pan > tap
