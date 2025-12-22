@@ -125,18 +125,28 @@ export async function runQueueWorker({ supabase: providedSupabase, maxJobs, runS
     const jobIds = jobsToProcess.map(j => j.id);
     const now = new Date().toISOString();
     
-    const { error: claimError } = await supabase
-      .from('valuebot_analysis_queue')
-      .update({ 
-        status: QUEUE_STATUS.RUNNING,
-        started_at: now,
-        updated_at: now
-      })
-      .in('id', jobIds)
-      .or(['status.is.null', `status.eq.${QUEUE_STATUS.PENDING}`].join(','));
-    
-    if (claimError) {
-      console.error('[ValueBot Worker] Failed to claim jobs atomically', claimError);
+    // Build individual updates for each job to increment attempts
+    for (const job of jobsToProcess) {
+      const attempts = (job.attempts || 0) + 1;
+      const { error: claimError } = await supabase
+        .from('valuebot_analysis_queue')
+        .update({ 
+          status: QUEUE_STATUS.RUNNING,
+          started_at: now,
+          updated_at: now,
+          last_run: now,
+          last_run_at: now,
+          attempts
+        })
+        .eq('id', job.id)
+        .or(['status.is.null', `status.eq.${QUEUE_STATUS.PENDING}`].join(','));
+      
+      if (claimError) {
+        console.error('[ValueBot Worker] Failed to claim job atomically', { id: job.id, error: claimError });
+      } else {
+        // Update the job object with new attempts count
+        job.attempts = attempts;
+      }
     }
   }
 
@@ -179,9 +189,9 @@ export async function runQueueWorker({ supabase: providedSupabase, maxJobs, runS
       continue;
     }
 
-    const runningState = await markJobStatus(supabase, job, QUEUE_STATUS.RUNNING);
-    jobSummary.status = runningState.status;
-    jobSummary.attempts = runningState.attempts ?? jobSummary.attempts;
+    // Job is already marked as RUNNING by the atomic claim above
+    jobSummary.status = QUEUE_STATUS.RUNNING;
+    jobSummary.attempts = job.attempts ?? jobSummary.attempts;
     jobSummary.last_run = new Date().toISOString();
 
     try {
