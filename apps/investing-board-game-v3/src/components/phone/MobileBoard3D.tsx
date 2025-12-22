@@ -10,7 +10,7 @@ interface MobileBoard3DProps {
 /**
  * Mobile 3D Board - Monopoly GO Style
  * 
- * Creates a tilted, zoomed view of the board that:
+ * Creates a tilted, optimally zoomed view of the board that:
  * - Tilts the board 28 degrees on X axis
  * - Shows 6-8 tiles at once for optimal visibility
  * - Centers on the player's current position
