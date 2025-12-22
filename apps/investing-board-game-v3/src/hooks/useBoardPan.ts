@@ -24,7 +24,13 @@ export function useBoardPan() {
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     const touch = e.touches[0];
     startPos.current = { x: touch.clientX, y: touch.clientY };
-    startPan.current = { ...panOffset };
+    
+    // Use functional update to read current panOffset without adding it to deps
+    setPanOffset(current => {
+      startPan.current = { ...current };
+      return current;  // Return same value - no state change
+    });
+    
     setIsPanning(true);
     
     // Clear any pending snap-back
@@ -32,7 +38,7 @@ export function useBoardPan() {
       clearTimeout(snapBackTimer.current);
       snapBackTimer.current = null;
     }
-  }, [panOffset]);
+  }, []);
 
   const handleTouchMove = useCallback((e: React.TouchEvent) => {
     if (!isPanning) return;
