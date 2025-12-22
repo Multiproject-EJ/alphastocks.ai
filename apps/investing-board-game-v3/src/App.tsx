@@ -382,8 +382,10 @@ function App() {
       return
     }
     
+    let shouldUpdate = false
+    
     setGameState(prev => {
-      // Compare stringified versions to detect actual changes
+      // Compare stringified versions only if needed to detect actual changes
       const prevCityBuilderJson = JSON.stringify(prev.cityBuilder)
       const newCityBuilderJson = JSON.stringify(cityBuilderState)
       
@@ -392,14 +394,18 @@ function App() {
         return prev
       }
       
+      shouldUpdate = true
+      
       return {
         ...prev,
         cityBuilder: cityBuilderState,
       }
     })
     
-    // Mark this state as synced AFTER the setState completes
-    lastSyncedCityBuilderRef.current = cityBuilderState
+    // Only mark as synced if we actually updated the state
+    if (shouldUpdate) {
+      lastSyncedCityBuilderRef.current = cityBuilderState
+    }
   }, [cityBuilderState])
 
   // Gesture arbitration hook - Priority: pinch > swipe > pan > tap
