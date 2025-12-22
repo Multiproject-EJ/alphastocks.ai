@@ -28,17 +28,6 @@ import { getSupabaseAdminClient } from '../api-lib/supabaseAdmin.js';
 import { runDeepDiveForConfig } from '../api-lib/valuebot/runDeepDiveForConfig.js';
 
 // ============================================================================
-// Helper Functions
-// ============================================================================
-
-function jsonResponse(status, payload) {
-  return new Response(JSON.stringify(payload), {
-    status,
-    headers: { 'Content-Type': 'application/json' }
-  });
-}
-
-// ============================================================================
 // Action: provider-config
 // ============================================================================
 
@@ -271,9 +260,7 @@ export async function runValuebotBatchOnce({ maxJobs = 1, trigger = 'manual', su
 
 async function handleBatch(req, res) {
   if (req.method !== 'POST') {
-    const response = jsonResponse(405, { ok: false, error: 'Method not allowed' });
-    res.status(response.status).setHeader('Content-Type', 'application/json');
-    return res.end(await response.text());
+    return res.status(405).json({ ok: false, error: 'Method not allowed' });
   }
 
   const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
