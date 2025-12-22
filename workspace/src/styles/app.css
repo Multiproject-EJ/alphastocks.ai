@@ -3090,7 +3090,7 @@ body[data-theme='dark'] {
   /* Preserve existing desktop grid layouts */
   .app-panels {
     display: grid;
-    grid-template-columns: 1fr 1fr; /* Or existing layout */
+    grid-template-columns: 1fr 1fr;
     gap: 1.5rem;
   }
 
@@ -3183,13 +3183,6 @@ body[data-theme='dark'] {
      MOBILE: Component-Specific Layouts
      ======================================== */
   
-  /* BatchQueueTab: Force form fields to stack */
-  .valuebot-batch-section .detail-grid {
-    display: flex !important;
-    flex-direction: column;
-    gap: 1rem;
-  }
-
   /* BatchQueueTab: Horizontal scroll for tables */
   .valuebot-batch-queue-table {
     overflow-x: auto;
@@ -3215,13 +3208,6 @@ body[data-theme='dark'] {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
-  }
-
-  /* AIAnalysis: Results grid stacks */
-  .ai-results .detail-grid {
-    display: flex !important;
-    flex-direction: column;
-    gap: 1rem;
   }
 
   /* Module pipeline progress readable spacing */
