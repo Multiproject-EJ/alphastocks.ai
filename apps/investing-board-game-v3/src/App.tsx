@@ -198,6 +198,9 @@ function App() {
   const [nextResetTime, setNextResetTime] = useState(getNextMidnight())
   const [hoppingTiles, setHoppingTiles] = useState<number[]>([])
   const [lastSavedTime, setLastSavedTime] = useState<Date | null>(null)
+  
+  // Auto-roll state for Monopoly GO style continuous rolling
+  const [isAutoRolling, setIsAutoRolling] = useState(false)
 
   // Overlay manager for coordinated modal display
   const { show: showOverlay, wasRecentlyShown, getCurrentOverlay } = useOverlayManager()
@@ -1011,6 +1014,29 @@ function App() {
     
     return () => clearInterval(interval)
   }, [gameState.lastEnergyCheck, gameState.energyRolls, authLoading, saveLoading, rollsRemaining])
+
+  // Auto-roll effect - Monopoly GO style
+  useEffect(() => {
+    if (!isAutoRolling) return;
+    
+    const interval = setInterval(() => {
+      // Only roll if we have rolls remaining, not currently rolling, and no modal is open
+      const hasActiveOverlay = getCurrentOverlay() !== null || showCentralStock;
+      
+      if (rollsRemaining > 0 && phase === 'idle' && !hasActiveOverlay) {
+        handleRoll();
+      } else if (rollsRemaining === 0) {
+        setIsAutoRolling(false);  // Stop when out of dice
+      }
+    }, 3000);  // Roll every 3 seconds
+    
+    return () => clearInterval(interval);
+  }, [isAutoRolling, rollsRemaining, phase, getCurrentOverlay, showCentralStock]);
+
+  const toggleAutoRoll = useCallback(() => {
+    setIsAutoRolling(prev => !prev);
+    if (navigator.vibrate) navigator.vibrate(100);
+  }, []);
 
   const handleRoll = (multiplier: number = 1) => {
     if (phase !== 'idle') {
@@ -2202,6 +2228,8 @@ function App() {
         }}
         onRollDice={() => handleRoll(1)}
         isRolling={phase === 'rolling'}
+        isAutoRolling={isAutoRolling}
+        onToggleAutoRoll={toggleAutoRoll}
       >
         {mainContent}
       </PhoneLayout>
