@@ -792,6 +792,7 @@ const App = () => {
   const [isProToolsOpen, setIsProToolsOpen] = useState(false);
   const [isMobileView, setIsMobileView] = useState(false);
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+  const [isMobileNavDrawerOpen, setIsMobileNavDrawerOpen] = useState(false);
   const [alertSettings, setAlertSettings] = useState(() => createInitialAlertState());
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [universeRows, setUniverseRows] = useState(DEFAULT_UNIVERSE_ROWS);
@@ -813,6 +814,23 @@ const App = () => {
   const { user, signOut } = useAuth();
   const isSupabaseMode = dataService?.mode === 'supabase';
   const themeCopy = theme === 'dark' ? 'Switch to light' : 'Switch to dark';
+  
+  // Mobile bottom navigation: Primary items (5 most important)
+  const mobilePrimaryNavItems = [
+    { id: 'dashboard', icon: '🏠', label: 'Home' },
+    { id: 'focuslist', icon: '🎯', label: 'Focus' },
+    { id: 'valuebot', icon: '🤖', label: 'Bot' },
+    { id: 'portfolio', icon: '💼', label: 'Portfolio' },
+    { id: 'more', icon: '⋯', label: 'More' }
+  ];
+  
+  // Mobile bottom navigation: Overflow items (shown in drawer)
+  const mobileOverflowNavItems = mainNavigation.filter(
+    item => !['dashboard', 'focuslist', 'valuebot', 'portfolio'].includes(item.id)
+  );
+  
+  // Legacy mobile sidebar navigation (used when isMobileView is true but in sidebar layout)
+  // TODO: This can be removed once bottom navigation is fully tested and adopted
   const mobilePrimaryNav = [
     { id: 'boardgame-v3', icon: '🎮', label: 'Investment Game' },
     { id: 'dashboard', icon: '🏠', label: 'Morning Sales' },
@@ -1066,7 +1084,22 @@ const App = () => {
   const handleMenuSelection = (sectionId) => {
     setActiveSection(sectionId);
     setIsMobileNavOpen(false);
+    setIsMobileNavDrawerOpen(false);
   };
+
+  // Handler for mobile nav item selection
+  const handleMobileNavSelection = useCallback((itemId) => {
+    if (itemId === 'more') {
+      setIsMobileNavDrawerOpen(true);
+    } else {
+      handleMenuSelection(itemId);
+    }
+  }, []);
+
+  // Handler to close mobile drawer
+  const closeMobileNavDrawer = useCallback(() => {
+    setIsMobileNavDrawerOpen(false);
+  }, []);
 
   const handleValueBotContextUpdate = useCallback((updates) => {
     setValueBotContext((prev) => ({
@@ -1439,6 +1472,7 @@ const App = () => {
   useEffect(() => {
     if (!isMobileView) {
       setIsMobileNavOpen(false);
+      setIsMobileNavDrawerOpen(false);
     }
   }, [isMobileView]);
 
@@ -2814,6 +2848,80 @@ const App = () => {
                   </div>
                 </div>
               </section>
+
+              {/* Mobile Bottom Navigation (visible only on mobile) */}
+              {isMobileView && (
+                <>
+                  <nav className="mobile-bottom-nav" aria-label="Mobile primary navigation">
+                    {mobilePrimaryNavItems.map((item) => {
+                      const isActive = item.id !== 'more' && activeSection === item.id;
+                      const isMoreBtn = item.id === 'more';
+                      const hasOverflowActive = isMoreBtn && mobileOverflowNavItems.some(
+                        overflowItem => overflowItem.id === activeSection
+                      );
+
+                      const classNames = ['mobile-nav-item'];
+                      if (isActive) classNames.push('active');
+                      if (isMoreBtn) {
+                        classNames.push('mobile-nav-more-btn');
+                        if (hasOverflowActive) classNames.push('has-overflow');
+                      }
+
+                      return (
+                        <button
+                          key={item.id}
+                          type="button"
+                          className={classNames.join(' ')}
+                          onClick={() => handleMobileNavSelection(item.id)}
+                          aria-label={item.label}
+                          aria-current={isActive ? 'page' : undefined}
+                        >
+                          <span className="item-icon" aria-hidden="true">
+                            {item.icon}
+                          </span>
+                          <span className="item-label">{item.label}</span>
+                        </button>
+                      );
+                    })}
+                  </nav>
+
+                  {/* Mobile Navigation Drawer */}
+                  <div
+                    className={`mobile-nav-drawer-backdrop${isMobileNavDrawerOpen ? ' visible' : ''}`}
+                    onClick={closeMobileNavDrawer}
+                    aria-hidden="true"
+                  />
+                  <div
+                    className={`mobile-nav-drawer${isMobileNavDrawerOpen ? ' open' : ''}`}
+                    role="dialog"
+                    aria-modal="true"
+                    aria-label="More navigation options"
+                  >
+                    <div className="mobile-nav-drawer-handle" aria-hidden="true" />
+                    <div className="mobile-nav-drawer-content">
+                      <h3 style={{ margin: '0 0 1rem', fontSize: '1.25rem', fontWeight: 600 }}>
+                        More Options
+                      </h3>
+                      {mobileOverflowNavItems.map((item) => {
+                        const isActive = activeSection === item.id;
+                        return (
+                          <button
+                            key={item.id}
+                            type="button"
+                            className={`mobile-nav-drawer-item${isActive ? ' active' : ''}`}
+                            onClick={() => handleMobileNavSelection(item.id)}
+                          >
+                            <span className="item-icon" aria-hidden="true">
+                              {item.icon}
+                            </span>
+                            <span>{item.title || item.label}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </>
+              )}
 
                 {deepDiveModalTicker && (
                   <UniverseDeepDiveModal
