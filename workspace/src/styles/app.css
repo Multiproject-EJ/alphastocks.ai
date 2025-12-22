@@ -3972,15 +3972,17 @@ button:focus-visible {
     overflow-x: hidden;
   }
 
-  /* Ensure all containers respect viewport */
-  * {
+  /* Ensure main containers respect viewport */
+  .workspace,
+  .pro-overlay__content,
+  .app-shell,
+  .modal,
+  .modal-card,
+  .valuebot-panel,
+  .detail-card,
+  .account-card {
     max-width: 100%;
     box-sizing: border-box;
-  }
-
-  /* Override any min-width that could cause overflow */
-  *[style*="min-width"] {
-    min-width: auto !important;
   }
 
   /* ========================================
@@ -4037,7 +4039,6 @@ button:focus-visible {
   div {
     word-wrap: break-word;
     overflow-wrap: break-word;
-    word-break: break-word; /* Aggressive wrapping for long strings */
     hyphens: auto;
   }
 
@@ -4186,21 +4187,18 @@ button:focus-visible {
   /* Code blocks scroll, don't overflow */
   .code-block,
   .ai-raw-response,
-  pre,
-  code {
+  pre {
     max-width: 100%;
     overflow-x: auto;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    white-space: pre-wrap; /* Wrap where possible */
-    word-break: break-all; /* Break long strings */
+    white-space: pre; /* Maintain code formatting */
   }
 
-  /* Inline code */
+  /* Inline code - allow breaking if needed */
   code {
     max-width: 100%;
-    display: inline-block;
-    word-break: break-all;
+    overflow-wrap: break-word;
   }
 }
 
