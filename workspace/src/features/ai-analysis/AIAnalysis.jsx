@@ -26,7 +26,7 @@ function validateTicker(ticker) {
  */
 async function fetchProviderConfig() {
   try {
-    const response = await fetch('/api/provider-config');
+    const response = await fetch('/api/valuebot?action=provider-config');
     if (response.ok) {
       return await response.json();
     }
