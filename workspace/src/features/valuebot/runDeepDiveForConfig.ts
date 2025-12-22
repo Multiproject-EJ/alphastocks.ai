@@ -443,7 +443,7 @@ async function runScoreSummary({
   }
 
   try {
-    const response = await fetch(buildApiUrl('/api/master-meta-summary'), {
+    const response = await fetch(buildApiUrl('/api/valuebot?action=meta-summary'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

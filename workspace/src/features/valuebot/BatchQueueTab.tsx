@@ -112,7 +112,7 @@ const BatchQueueTab: FunctionalComponent = () => {
 
   const fetchAutoSettings = useCallback(async () => {
     try {
-      const response = await fetch('/api/valuebot-auto-settings');
+      const response = await fetch('/api/valuebot?action=settings');
       if (!response.ok) {
         throw new Error(`Failed to load auto queue setting (${response.status})`);
       }
@@ -202,7 +202,7 @@ const BatchQueueTab: FunctionalComponent = () => {
       setIsSavingAutoToggle(true);
 
       try {
-        const response = await fetch('/api/valuebot-auto-settings', {
+        const response = await fetch('/api/valuebot?action=settings', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ autoQueueEnabled: nextValue })
@@ -280,7 +280,7 @@ const BatchQueueTab: FunctionalComponent = () => {
       setIsClearingCompleted(true);
       setClearCompletedError(null);
 
-      const response = await fetch('/api/valuebot-batch-worker?action=clear_completed', {
+      const response = await fetch('/api/valuebot?action=batch', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -320,7 +320,7 @@ const BatchQueueTab: FunctionalComponent = () => {
     let wasSuccessful = false;
 
     try {
-      const response = await fetch('/api/valuebot-batch-worker', {
+      const response = await fetch('/api/valuebot?action=batch', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({})
@@ -363,7 +363,7 @@ const BatchQueueTab: FunctionalComponent = () => {
       setIsAutoRunLoading(true);
       setAutoRunStatus({ state: 'running' });
 
-      const response = await fetch('/api/valuebot-cron-worker?source=ui', {
+      const response = await fetch('/api/valuebot?action=cron&source=ui', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -579,7 +579,7 @@ const BatchQueueTab: FunctionalComponent = () => {
           <div className="modal valuebot-batch-explainer-modal">
             <h4>ValueBot automation — batch queue explainer</h4>
             <p className="detail-meta">
-              Manage the background queue powering /api/valuebot-batch-worker. Add tickers, monitor progress, and requeue jobs without disrupting your live ValueBot workspace.
+              Manage the background queue powering /api/valuebot. Add tickers, monitor progress, and requeue jobs without disrupting your live ValueBot workspace.
             </p>
             <ul className="detail-list">
               <li>Scope queue entries to your account; only your rows are shown.</li>
@@ -775,7 +775,7 @@ const BatchQueueTab: FunctionalComponent = () => {
           </div>
 
           <p className="detail-meta">
-            Jobs are processed by the /api/valuebot-batch-worker in small batches. Use “Manual (1 job)” to trigger a manual run.
+            Jobs are processed by the /api/valuebot in small batches. Use “Manual (1 job)” to trigger a manual run.
           </p>
 
           <div

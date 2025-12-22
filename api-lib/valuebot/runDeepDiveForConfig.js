@@ -8,7 +8,7 @@ import { runAddOnEngineForTicker } from './addons/module7AddOnEngine.js';
 import { resolveIdentifiersFromModule0 } from './identifierUtils.js';
 
 const stockAnalysisUrl = buildApiUrl('/api/stock-analysis');
-const masterMetaSummaryUrl = buildApiUrl('/api/master-meta-summary');
+const masterMetaSummaryUrl = buildApiUrl('/api/valuebot?action=meta-summary');
 
 function getDefaultModelForProvider(provider) {
   switch (provider) {

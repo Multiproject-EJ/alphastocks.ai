@@ -2,9 +2,21 @@
 
 This guide shows how to test the unified AI stock analysis API with each provider.
 
-## Endpoint
+## Endpoints
 
+### Stock Analysis
 `POST /api/stock-analysis`
+
+### ValueBot (Consolidated)
+`/api/valuebot` - Consolidated endpoint for ValueBot-related operations
+
+Actions (via query param `?action=` or body field `action`):
+- `provider-config` - Get AI provider availability
+- `meta-summary` - Generate MASTER meta summary
+- `settings` - Get/set auto queue settings
+- `batch` - Process batch queue jobs
+- `cron` - Cron worker for scheduled runs
+- `run-deep-dive` - Execute deep dive for a configuration
 
 ## Request Format
 
@@ -199,6 +211,81 @@ OPENROUTER_API_KEY=sk-or-...your-key-here...
 ```
 
 **Important:** These API keys should NEVER be prefixed with `VITE_` as they must remain server-side only.
+
+## ValueBot API Examples
+
+### Provider Config
+
+```bash
+curl https://your-domain.vercel.app/api/valuebot?action=provider-config
+```
+
+### Meta Summary
+
+```bash
+curl -X POST https://your-domain.vercel.app/api/valuebot?action=meta-summary \
+  -H "Content-Type: application/json" \
+  -d '{
+    "ticker": "AAPL",
+    "companyName": "Apple Inc.",
+    "module6Markdown": "...your module 6 content..."
+  }'
+```
+
+### Auto Queue Settings (GET)
+
+```bash
+curl https://your-domain.vercel.app/api/valuebot?action=settings
+```
+
+### Auto Queue Settings (POST)
+
+```bash
+curl -X POST https://your-domain.vercel.app/api/valuebot?action=settings \
+  -H "Content-Type: application/json" \
+  -d '{
+    "autoQueueEnabled": true
+  }'
+```
+
+### Process Batch Queue
+
+```bash
+curl -X POST https://your-domain.vercel.app/api/valuebot?action=batch \
+  -H "Content-Type: application/json" \
+  -d '{
+    "maxJobs": 3
+  }'
+```
+
+### Clear Completed Jobs
+
+```bash
+curl -X POST https://your-domain.vercel.app/api/valuebot?action=batch \
+  -H "Content-Type: application/json" \
+  -d '{
+    "action": "clear_completed"
+  }'
+```
+
+### Cron Worker (Manual Trigger)
+
+```bash
+curl -X POST https://your-domain.vercel.app/api/valuebot?action=cron&source=ui
+```
+
+### Run Deep Dive
+
+```bash
+curl -X POST https://your-domain.vercel.app/api/valuebot?action=run-deep-dive \
+  -H "Content-Type: application/json" \
+  -d '{
+    "ticker": "AAPL",
+    "companyName": "Apple Inc.",
+    "provider": "openai",
+    "model": "gpt-4o-mini"
+  }'
+```
 
 ## Error Handling
 
