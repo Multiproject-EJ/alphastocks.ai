@@ -1,14 +1,13 @@
 import { ReactNode } from 'react';
 import { CompactHUD } from './CompactHUD';
 import { PhoneBottomNav } from './PhoneBottomNav';
-import { FloatingDiceButton } from './FloatingDiceButton';
 import { MobileBoard3D } from './MobileBoard3D';
 import { BoardDebugOverlay } from './BoardDebugOverlay';
 import { useUIMode } from '@/hooks/useUIMode';
 
 // Layout constants for consistent sizing
 const COMPACT_HUD_HEIGHT = 48;  // pixels
-const BOTTOM_NAV_HEIGHT = 56;   // pixels
+const BOTTOM_NAV_HEIGHT = 70;   // pixels (updated to match new nav height)
 
 interface PhoneLayoutProps {
   children: ReactNode;
@@ -24,6 +23,8 @@ interface PhoneLayoutProps {
   };
   onRollDice: () => void;
   isRolling: boolean;
+  isAutoRolling?: boolean;
+  onToggleAutoRoll?: () => void;
 }
 
 export function PhoneLayout({ 
@@ -31,16 +32,18 @@ export function PhoneLayout({
   currentPosition,
   gameState, 
   onRollDice, 
-  isRolling 
+  isRolling,
+  isAutoRolling = false,
+  onToggleAutoRoll = () => {},
 }: PhoneLayoutProps) {
   const { mode } = useUIMode();
-  const showDiceButton = mode === 'board';
   const showDebug = import.meta.env.DEV;
   
   const camera = {
-    perspective: 600,
-    rotateX: 28,
-    scale: 0.65,
+    perspective: 800,
+    rotateX: 55,
+    rotateZ: 45,
+    scale: 0.55,
   };
 
   return (
@@ -79,21 +82,15 @@ export function PhoneLayout({
         <CompactHUD {...gameState} />
       </div>
       
-      {/* Layer 40: Floating Dice */}
-      {showDiceButton && (
-        <div className="relative z-40">
-          <FloatingDiceButton
-            onClick={onRollDice}
-            isRolling={isRolling}
-            rollsRemaining={gameState.rolls}
-            disabled={gameState.rolls <= 0}
-          />
-        </div>
-      )}
-      
-      {/* Layer 50: Bottom Nav */}
+      {/* Layer 50: Bottom Nav with Dice */}
       <div className="relative z-50">
-        <PhoneBottomNav />
+        <PhoneBottomNav
+          onRollDice={onRollDice}
+          rollsRemaining={gameState.rolls}
+          isRolling={isRolling}
+          isAutoRolling={isAutoRolling}
+          onToggleAutoRoll={onToggleAutoRoll}
+        />
       </div>
 
       {/* Debug Overlay */}

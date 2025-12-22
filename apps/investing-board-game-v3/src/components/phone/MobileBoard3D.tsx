@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { useBoardPan } from '@/hooks/useBoardPan';
 
 interface MobileBoard3DProps {
   children: React.ReactNode;
@@ -10,11 +11,13 @@ interface MobileBoard3DProps {
 /**
  * Mobile 3D Board - Monopoly GO Style
  * 
- * Creates a tilted, optimally zoomed view of the board that:
- * - Tilts the board 28 degrees on X axis
+ * Creates a tilted, diamond-shaped (45° rotated) view of the board that:
+ * - Rotates the board 45 degrees for diamond layout
+ * - Tilts the board 55 degrees on X axis
  * - Shows 6-8 tiles at once for optimal visibility
  * - Centers on the player's current position
  * - Smoothly animates when player moves
+ * - Supports touch pan gestures
  */
 export function MobileBoard3D({
   children,
@@ -22,46 +25,51 @@ export function MobileBoard3D({
   totalTiles = 40,
   boardSize = 1200, // Match default board size used throughout app
 }: MobileBoard3DProps) {
-  // Calculate where player is on the board
+  // Touch pan gesture hook
+  const { panOffset, handlers } = useBoardPan();
+
+  // Calculate where player is on the board - FIXED calculation
   const playerOffset = useMemo(() => {
-    // Board is a square with tiles around the perimeter
-    // Calculate X/Y offset to center on player's tile
-    const tilesPerSide = Math.floor(totalTiles / 4);
-    const side = Math.floor(currentPosition / tilesPerSide);
-    const posOnSide = currentPosition % tilesPerSide;
+    const tilesPerSide = 10;
     const tileSize = boardSize / (tilesPerSide + 1);
     
+    // Calculate which side of the board (0=bottom, 1=left, 2=top, 3=right)
+    const side = Math.floor(currentPosition / tilesPerSide);
+    const posOnSide = currentPosition % tilesPerSide;
+    
     let x = 0, y = 0;
+    const halfBoard = boardSize / 2;
     
     switch (side) {
-      case 0: // Bottom edge (GO side) - right to left
-        x = boardSize / 2 - (tilesPerSide - posOnSide) * tileSize;
-        y = boardSize / 2 - tileSize / 2;
+      case 0: // Bottom edge - moving right
+        x = -halfBoard + (posOnSide + 1) * tileSize;
+        y = halfBoard - tileSize / 2;
         break;
-      case 1: // Left edge - bottom to top
-        x = -boardSize / 2 + tileSize / 2;
-        y = boardSize / 2 - (posOnSide + 1) * tileSize;
+      case 1: // Right edge - moving up
+        x = halfBoard - tileSize / 2;
+        y = halfBoard - (posOnSide + 1) * tileSize;
         break;
-      case 2: // Top edge - left to right
-        x = -boardSize / 2 + (posOnSide + 1) * tileSize;
-        y = -boardSize / 2 + tileSize / 2;
+      case 2: // Top edge - moving left
+        x = halfBoard - (posOnSide + 1) * tileSize;
+        y = -halfBoard + tileSize / 2;
         break;
-      case 3: // Right edge - top to bottom
-        x = boardSize / 2 - tileSize / 2;
-        y = -boardSize / 2 + (posOnSide + 1) * tileSize;
+      case 3: // Left edge - moving down
+        x = -halfBoard + tileSize / 2;
+        y = -halfBoard + (posOnSide + 1) * tileSize;
         break;
     }
     
+    // Negate to move board opposite direction (centers player)
     return { x: -x, y: -y };
-  }, [currentPosition, totalTiles, boardSize]);
+  }, [currentPosition, boardSize]);
 
-  // 3D Camera settings for mobile
-  const camera = {
-    perspective: 600,      // Lower = more dramatic 3D effect
-    rotateX: 28,           // Tilt angle in degrees
-    scale: 0.65,           // Zoom level (0.65 shows ~6-8 tiles)
-    translateZ: 0,         // Move towards/away from camera
-  };
+  // Static camera settings - NO useState to avoid infinite loop!
+  const camera = useMemo(() => ({
+    perspective: 800,
+    rotateX: 55,        // Tilt forward
+    rotateZ: 45,        // Diamond rotation!
+    scale: 0.55,        // Zoom to show ~6-8 tiles
+  }), []); // Empty deps = never recalculates
 
   return (
     <div 
@@ -78,10 +86,11 @@ export function MobileBoard3D({
         overflow: 'hidden',
         // Critical: Perspective on the CONTAINER
         perspective: `${camera.perspective}px`,
-        perspectiveOrigin: '50% 60%',
+        perspectiveOrigin: '50% 50%',
         // Ensure it's above background
         zIndex: 10,
       }}
+      {...handlers}
     >
       {/* Board wrapper - applies the 3D transform */}
       <div
@@ -90,16 +99,17 @@ export function MobileBoard3D({
           width: `${boardSize}px`,
           height: `${boardSize}px`,
           position: 'relative',
-          // The magic 3D transform
+          // The magic 3D transform with diamond rotation
           transform: `
             rotateX(${camera.rotateX}deg)
+            rotateZ(${camera.rotateZ}deg)
             scale(${camera.scale})
-            translate3d(${playerOffset.x}px, ${playerOffset.y}px, ${camera.translateZ}px)
+            translate3d(${playerOffset.x + panOffset.x}px, ${playerOffset.y + panOffset.y}px, 0)
           `,
           transformStyle: 'preserve-3d',
           transformOrigin: 'center center',
           // Smooth animation when moving
-          transition: 'transform 0.6s cubic-bezier(0.25, 0.1, 0.25, 1)',
+          transition: 'transform 0.6s ease-out',
           // Prevent flicker
           backfaceVisibility: 'hidden',
           willChange: 'transform',
