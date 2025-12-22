@@ -176,7 +176,7 @@ export const useSaveDeepDiveToUniverse = () => {
           last_model: modelSnapshot
         };
 
-        const resolvedCompanyName = companyName || tickerSymbol || null;
+        const resolvedCompanyName = (payload?.company_name as string) || tickerSymbol || null;
         if (resolvedCompanyName) {
           universePayload.name = resolvedCompanyName;
         }
