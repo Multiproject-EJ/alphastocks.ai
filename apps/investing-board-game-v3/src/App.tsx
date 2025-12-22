@@ -123,6 +123,10 @@ function App() {
   const stockSourceAnnounced = useRef<'supabase' | 'mock' | null>(null)
   const gameLoadedFromSave = useRef(false)
   const lastSaveTimeRef = useRef<Date | null>(null)
+  const lastSyncedCoinsRef = useRef<number>(0)
+  const lastSyncedThriftPathRef = useRef<string | null>(null)
+  const lastEnergyCheckRef = useRef<Date | null>(null)
+  const processedPowerUpsRef = useRef<Set<string>>(new Set())
 
   // Default initial game state
   const defaultGameState: GameState = {
@@ -588,17 +592,28 @@ function App() {
 
   // Sync coins state to gameState
   useEffect(() => {
-    setGameState(prev => ({ ...prev, coins }))
+    // Only sync if coins actually changed from external source
+    if (coins !== lastSyncedCoinsRef.current) {
+      lastSyncedCoinsRef.current = coins
+      setGameState(prev => {
+        if (prev.coins === coins) return prev  // No change needed
+        return { ...prev, coins }
+      })
+    }
   }, [coins])
 
   // Sync thriftPath state to gameState
   useEffect(() => {
+    const serialized = JSON.stringify(thriftPathStatus)
+    if (serialized === lastSyncedThriftPathRef.current) return
+    lastSyncedThriftPathRef.current = serialized
+    
     setGameState(prev => ({
       ...prev,
       thriftPath: {
         ...thriftPathStatus,
-        activatedAt: thriftPathStatus.activatedAt ? thriftPathStatus.activatedAt.toISOString() : null,
-        lastActivityDate: thriftPathStatus.lastActivityDate ? thriftPathStatus.lastActivityDate.toISOString() : null
+        activatedAt: thriftPathStatus.activatedAt?.toISOString() ?? null,
+        lastActivityDate: thriftPathStatus.lastActivityDate?.toISOString() ?? null
       }
     }))
   }, [thriftPathStatus])
@@ -788,6 +803,10 @@ function App() {
       setGameState(loadedState)
       // Initialize rollsRemaining from energyRolls in savedGameState
       setRollsRemaining(savedGameState.energyRolls ?? DAILY_ROLL_LIMIT)
+      // Initialize energy check ref
+      lastEnergyCheckRef.current = savedGameState.lastEnergyCheck ? new Date(savedGameState.lastEnergyCheck) : new Date()
+      // Initialize coins ref
+      lastSyncedCoinsRef.current = savedGameState.coins ?? 100
       gameLoadedFromSave.current = true
       toast.success('Welcome back!', {
         description: 'Your game progress has been restored.',
@@ -946,18 +965,31 @@ function App() {
 
   // Helper function to check extra dice roll power-up
   useEffect(() => {
-    if (hasPowerUp('extra-dice-rolls')) {
+    // Check if we have the power-up and haven't processed it yet
+    const hasPowerUpActive = gameState.activeEffects.some(
+      effect => effect.itemId === 'extra-dice-rolls' && effect.activated
+    )
+    
+    if (hasPowerUpActive && !processedPowerUpsRef.current.has('extra-dice-rolls')) {
+      processedPowerUpsRef.current.add('extra-dice-rolls')
+      
       setRollsRemaining(prev => prev + 3)
       setGameState(prev => ({
         ...prev,
-        energyRolls: Math.min((prev.energyRolls ?? DAILY_ROLL_LIMIT) + 3, ENERGY_MAX)
+        energyRolls: Math.min((prev.energyRolls ?? DAILY_ROLL_LIMIT) + 3, ENERGY_MAX),
+        activeEffects: prev.activeEffects.filter(effect => effect.itemId !== 'extra-dice-rolls')
       }))
-      consumePowerUp('extra-dice-rolls')
+      
       toast.success('Extra Dice Rolls Activated!', {
         description: '+3 rolls added',
       })
     }
-  }, [hasPowerUp, consumePowerUp])
+    
+    // Clean up processed power-ups when they're no longer in activeEffects
+    if (!hasPowerUpActive) {
+      processedPowerUpsRef.current.delete('extra-dice-rolls')
+    }
+  }, [gameState.activeEffects])  // Only depend on activeEffects, not callbacks
   
   // Update camera state in DevTools
   useEffect(() => {
@@ -974,26 +1006,29 @@ function App() {
     if (authLoading || saveLoading || !gameLoadedFromSave.current) return
     
     const checkEnergyReset = () => {
-      if (!gameState.lastEnergyCheck) {
-        // Initialize lastEnergyCheck only, don't reset rolls
+      const currentCheck = lastEnergyCheckRef.current
+      if (!currentCheck) {
+        lastEnergyCheckRef.current = new Date()
         setGameState(prev => ({
           ...prev,
-          lastEnergyCheck: new Date()
+          lastEnergyCheck: lastEnergyCheckRef.current
         }))
         return
       }
       
       // Check if 2 hours have passed since last reset
-      const resetAmount = getResetRollsAmount(gameState.lastEnergyCheck)
+      const resetAmount = getResetRollsAmount(currentCheck)
       
       if (resetAmount !== null) {
         // Reset to 30 dice (capped at MAX_ROLLS)
         const newEnergy = Math.min(resetAmount, ENERGY_MAX)
+        const now = new Date()
+        lastEnergyCheckRef.current = now
         
         setGameState(prev => ({
           ...prev,
           energyRolls: newEnergy,
-          lastEnergyCheck: new Date()
+          lastEnergyCheck: now
         }))
         
         setRollsRemaining(newEnergy)
@@ -1013,7 +1048,7 @@ function App() {
     const interval = setInterval(checkEnergyReset, 60000)
     
     return () => clearInterval(interval)
-  }, [gameState.lastEnergyCheck, gameState.energyRolls, authLoading, saveLoading, rollsRemaining])
+  }, [authLoading, saveLoading])  // Remove gameState dependencies!
 
   // Auto-roll effect - Monopoly GO style
   useEffect(() => {
