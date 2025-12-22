@@ -2863,3 +2863,198 @@ body[data-theme='dark'] {
     display: none !important;
   }
 }
+
+/* ========================================
+   RESPONSIVE TAB SYSTEM
+   ======================================== */
+
+/* Mobile Tab System (< 768px) */
+@media (max-width: 767px) {
+  /* Horizontal scrollable container */
+  .app-tabs {
+    display: flex;
+    flex-wrap: nowrap; /* Prevent wrapping */
+    overflow-x: auto;
+    overflow-y: hidden;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    padding: 0.5rem 1rem;
+    
+    /* Smooth scrolling */
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    
+    /* Hide scrollbar but keep functionality */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .app-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Scroll fade indicators */
+  .app-tabs-wrapper {
+    position: relative;
+  }
+
+  .app-tabs-wrapper::before,
+  .app-tabs-wrapper::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 20px;
+    pointer-events: none;
+    z-index: 1;
+    transition: opacity 0.3s ease;
+  }
+
+  .app-tabs-wrapper::before {
+    left: 0;
+    background: linear-gradient(90deg, #0b1020 0%, transparent 100%);
+  }
+
+  .app-tabs-wrapper::after {
+    right: 0;
+    background: linear-gradient(270deg, #0b1020 0%, transparent 100%);
+  }
+
+  /* Hide fade when at scroll edges */
+  .app-tabs-wrapper.at-start::before {
+    opacity: 0;
+  }
+
+  .app-tabs-wrapper.at-end::after {
+    opacity: 0;
+  }
+
+  /* Tab button styles */
+  .tab {
+    position: relative;
+    flex-shrink: 0; /* Prevent tabs from shrinking */
+    min-width: auto;
+    padding: 0.65rem 1rem;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.875rem;
+    font-weight: 500;
+    white-space: nowrap; /* Prevent text wrapping */
+    cursor: pointer;
+    transition: all 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+    
+    /* Minimum touch target */
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .tab:active {
+    transform: scale(0.96);
+  }
+
+  .tab.active {
+    background: rgba(99, 102, 241, 0.15);
+    border-color: rgba(99, 102, 241, 0.4);
+    color: #fff;
+    box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.2);
+  }
+
+  /* Show short labels on mobile, hide full labels */
+  .tab__label-short {
+    display: inline;
+  }
+
+  .tab__label-full {
+    display: none;
+  }
+
+  /* ValueBot tab groups - stack vertically on mobile */
+  .valuebot-tab-groups {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .valuebot-tab-row {
+    margin-bottom: 0 !important;
+  }
+
+  /* Reduce padding for ValueBot tabs */
+  .valuebot-tab {
+    padding: 0.55rem 0.85rem;
+    font-size: 0.8rem;
+  }
+}
+
+/* Tablet: Slightly larger tabs but still scrollable */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .app-tabs {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    scrollbar-width: thin;
+  }
+
+  .tab {
+    flex-shrink: 0;
+    min-width: 100px;
+  }
+
+  /* Show short labels on tablet */
+  .tab__label-short {
+    display: inline;
+  }
+
+  .tab__label-full {
+    display: none;
+  }
+}
+
+/* Desktop: Keep existing multi-row wrapping layout */
+@media (min-width: 1024px) {
+  .app-tabs {
+    display: flex;
+    flex-wrap: wrap; /* Allow wrapping on desktop */
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .tab {
+    /* Desktop styles unchanged */
+    position: relative;
+    padding: 0.55rem 0.95rem;
+    border-radius: var(--radius-sm, 0.55rem);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .tab:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+
+  .tab.active {
+    background: rgba(99, 102, 241, 0.12);
+    border-color: rgba(99, 102, 241, 0.35);
+    color: #fff;
+  }
+
+  /* Show full labels on desktop */
+  .tab__label-short {
+    display: none;
+  }
+
+  .tab__label-full {
+    display: inline;
+  }
+}

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'preact/hooks';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { getRuntimeConfig } from './config/runtimeConfig.js';
 import { getDataService } from './data/dataService.js';
 import { formatDateLabel, formatPercent, formatUsd } from './features/dashboard/dashboardUtils.js';
@@ -809,6 +809,11 @@ const App = () => {
   const [selectedUniverseRowId, setSelectedUniverseRowId] = useState(null);
   const [deepDiveModalTicker, setDeepDiveModalTicker] = useState(null);
   const [deepDiveModalCompany, setDeepDiveModalCompany] = useState(null);
+  const [tabsScrollState, setTabsScrollState] = useState({ atStart: true, atEnd: false });
+  const [tabsScrollStateModules, setTabsScrollStateModules] = useState({ atStart: true, atEnd: false });
+  const tabsRef = useRef(null);
+  const tabsRefModules = useRef(null);
+  const SCROLL_EDGE_THRESHOLD = 5; // Threshold in pixels for detecting scroll edges
   const runtimeConfig = useMemo(() => getRuntimeConfig(), []);
   const dataService = useMemo(() => getDataService(), [runtimeConfig.mode]);
   const { user, signOut } = useAuth();
@@ -1535,6 +1540,52 @@ const App = () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, [isProToolsOpen]);
+
+  // Detect scroll position for fade indicators
+  useEffect(() => {
+    const tabsElement = tabsRef.current;
+    const tabsElementModules = tabsRefModules.current;
+    if (!isMobileView) return;
+
+    const updateScrollState = (element, setState) => {
+      if (!element) return;
+      const { scrollLeft, scrollWidth, clientWidth } = element;
+      const atStart = scrollLeft <= SCROLL_EDGE_THRESHOLD;
+      const atEnd = scrollLeft + clientWidth >= scrollWidth - SCROLL_EDGE_THRESHOLD;
+      setState({ atStart, atEnd });
+    };
+
+    const handleScroll = () => {
+      updateScrollState(tabsElement, setTabsScrollState);
+      updateScrollState(tabsElementModules, setTabsScrollStateModules);
+    };
+
+    const handleResize = () => {
+      updateScrollState(tabsElement, setTabsScrollState);
+      updateScrollState(tabsElementModules, setTabsScrollStateModules);
+    };
+
+    // Initial update
+    handleScroll();
+
+    if (tabsElement) {
+      tabsElement.addEventListener('scroll', handleScroll);
+    }
+    if (tabsElementModules) {
+      tabsElementModules.addEventListener('scroll', handleScroll);
+    }
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      if (tabsElement) {
+        tabsElement.removeEventListener('scroll', handleScroll);
+      }
+      if (tabsElementModules) {
+        tabsElementModules.removeEventListener('scroll', handleScroll);
+      }
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [isMobileView, activeSection, hasTabs, SCROLL_EDGE_THRESHOLD]);
 
   useEffect(() => {
     const syncMorningNewsWindow = () => {
@@ -2482,6 +2533,23 @@ const App = () => {
     );
   };
 
+  const getShortLabel = (tab) => {
+    // Map long tab names to shorter mobile-friendly versions
+    const shortLabels = {
+      'Morning Edition': 'Morning',
+      'Analytics': 'Stats',
+      'ValueBot': 'Bot',
+      'Batch Queue': 'Queue',
+      'QuickTake': 'Quick',
+      'Trading Journal': 'Journal',
+      'Global Ticker Database': 'Database',
+      'Universe Quadrant': 'Quadrant',
+      'Add Stocks': 'Add'
+    };
+    
+    return shortLabels[tab] || tab;
+  };
+
   const renderTabButton = (tab) => {
     const valueBotTabConfig =
       activeSection === 'valuebot'
@@ -2490,6 +2558,7 @@ const App = () => {
 
     const displayLabel = valueBotTabConfig?.label ?? tab;
     const fullLabel = valueBotTabConfig?.fullLabel ?? valueBotTabConfig?.title ?? tab;
+    const shortLabel = getShortLabel(displayLabel);
 
     const tabClasses = ['tab'];
     if (activeTab === tab) tabClasses.push('active');
@@ -2513,12 +2582,8 @@ const App = () => {
         type="button"
         aria-label={fullLabel}
       >
-        <span className="tab__label-short">{displayLabel}</span>
-        {fullLabel && fullLabel !== displayLabel ? (
-          <span className="tab__label-full" role="tooltip">
-            {fullLabel}
-          </span>
-        ) : null}
+        <span className="tab__label-short">{shortLabel}</span>
+        <span className="tab__label-full">{displayLabel}</span>
       </button>
     );
   };
@@ -2526,22 +2591,50 @@ const App = () => {
   const renderTabs = () => {
     if (!hasTabs) return null;
 
+    const wrapperClasses = ['app-tabs-wrapper'];
+    if (isMobileView) {
+      if (tabsScrollState.atStart) wrapperClasses.push('at-start');
+      if (tabsScrollState.atEnd) wrapperClasses.push('at-end');
+    }
+
+    const wrapperClassesModules = ['app-tabs-wrapper'];
+    if (isMobileView) {
+      if (tabsScrollStateModules.atStart) wrapperClassesModules.push('at-start');
+      if (tabsScrollStateModules.atEnd) wrapperClassesModules.push('at-end');
+    }
+
     if (activeSection === 'valuebot') {
       return (
         <div className="valuebot-tab-groups" role="presentation">
-          <div className="app-tabs valuebot-tab-row" role="tablist" aria-label="ValueBot quick actions">
-            {valueBotPrimaryTabLabels.map(renderTabButton)}
+          <div className={wrapperClasses.join(' ')}>
+            <div 
+              className="app-tabs valuebot-tab-row" 
+              role="tablist" 
+              aria-label="ValueBot quick actions"
+              ref={tabsRef}
+            >
+              {valueBotPrimaryTabLabels.map(renderTabButton)}
+            </div>
           </div>
-          <div className="app-tabs valuebot-tab-row valuebot-tab-row--modules" role="tablist" aria-label="ValueBot modules">
-            {valueBotModuleTabLabels.map(renderTabButton)}
+          <div className={wrapperClassesModules.join(' ')}>
+            <div 
+              className="app-tabs valuebot-tab-row valuebot-tab-row--modules" 
+              role="tablist" 
+              aria-label="ValueBot modules"
+              ref={tabsRefModules}
+            >
+              {valueBotModuleTabLabels.map(renderTabButton)}
+            </div>
           </div>
         </div>
       );
     }
 
     return (
-      <div className="app-tabs" role="tablist">
-        {tabsForSection.map(renderTabButton)}
+      <div className={wrapperClasses.join(' ')}>
+        <div className="app-tabs" role="tablist" ref={tabsRef}>
+          {tabsForSection.map(renderTabButton)}
+        </div>
       </div>
     );
   };
