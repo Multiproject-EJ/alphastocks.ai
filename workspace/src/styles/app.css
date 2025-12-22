@@ -2694,8 +2694,6 @@ body[data-theme='dark'] {
 }
 
 /* Improved list spacing - content areas only */
-.detail-meta ul,
-.detail-meta ol,
 .ai-raw-response ul,
 .ai-raw-response ol,
 .dev-notes ul,
@@ -2707,7 +2705,6 @@ body[data-theme='dark'] {
   line-height: 1.6;
 }
 
-.detail-meta li,
 .ai-raw-response li,
 .dev-notes li,
 .modal-body li,
@@ -2715,7 +2712,6 @@ body[data-theme='dark'] {
   margin-bottom: 0.5rem;
 }
 
-.detail-meta li:last-child,
 .ai-raw-response li:last-child,
 .dev-notes li:last-child,
 .modal-body li:last-child,
@@ -2930,18 +2926,6 @@ code {
   .valuebot-header {
     gap: 1.25rem;
     margin-bottom: 1.5rem;
-  }
-
-  /* Pipeline progress list */
-  .detail-meta ul {
-    gap: 0.5rem; /* Space between items */
-    margin-top: 0.75rem;
-    margin-bottom: 0.75rem;
-  }
-
-  .detail-meta ul li {
-    margin-bottom: 0.625rem;
-    line-height: 1.6;
   }
 
   /* ========================================
