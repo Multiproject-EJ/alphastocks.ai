@@ -1,4 +1,4 @@
-import { useRef, useState, useCallback } from 'react';
+import { useRef, useState, useCallback, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 
 interface DiceButtonProps {
@@ -18,11 +18,23 @@ export function DiceButton({
 }: DiceButtonProps) {
   const longPressTimer = useRef<NodeJS.Timeout | null>(null);
   const [isPressed, setIsPressed] = useState(false);
+  const wasLongPress = useRef(false);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (longPressTimer.current) {
+        clearTimeout(longPressTimer.current);
+      }
+    };
+  }, []);
 
   const handleTouchStart = useCallback(() => {
     setIsPressed(true);
+    wasLongPress.current = false;
     longPressTimer.current = setTimeout(() => {
       // Long press detected - toggle auto-roll
+      wasLongPress.current = true;
       onLongPress();
       // Haptic feedback
       if (navigator.vibrate) navigator.vibrate([50, 50, 50]);
@@ -33,11 +45,15 @@ export function DiceButton({
     setIsPressed(false);
     if (longPressTimer.current) {
       clearTimeout(longPressTimer.current);
-      // Short press - normal roll
-      if (!isAutoRolling) {
-        onClick();
-      }
+      longPressTimer.current = null;
     }
+    
+    // Only trigger onClick if it was a short press (not a long press)
+    if (!wasLongPress.current && !isAutoRolling) {
+      onClick();
+    }
+    
+    wasLongPress.current = false;
   }, [onClick, isAutoRolling]);
 
   return (

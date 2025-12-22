@@ -1024,13 +1024,17 @@ function App() {
       const hasActiveOverlay = getCurrentOverlay() !== null || showCentralStock;
       
       if (rollsRemaining > 0 && phase === 'idle' && !hasActiveOverlay) {
-        handleRoll();
+        // Call handleRoll with default multiplier
+        handleRoll(1);
       } else if (rollsRemaining === 0) {
         setIsAutoRolling(false);  // Stop when out of dice
       }
     }, 3000);  // Roll every 3 seconds
     
     return () => clearInterval(interval);
+    // Note: handleRoll is intentionally not in deps to avoid re-creating interval
+    // The function uses current state via closures which is acceptable here
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAutoRolling, rollsRemaining, phase, getCurrentOverlay, showCentralStock]);
 
   const toggleAutoRoll = useCallback(() => {
