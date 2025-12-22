@@ -373,7 +373,7 @@ async function handleCron(req, res) {
         const { count, error: countError } = await supabase
           .from('valuebot_analysis_queue')
           .select('*', { count: 'exact', head: true })
-          .or(['status.is.null', 'status.eq.pending', 'status.eq.running'].join(','));
+          .or(['status.is.null', 'status.eq.pending'].join(','));
 
         if (countError) {
           console.error('[ValueBot Cron Worker] Failed to count pending jobs', countError);

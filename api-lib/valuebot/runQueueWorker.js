@@ -5,6 +5,7 @@ const DEFAULT_BATCH_SIZE = 1;
 export const DEFAULT_CRON_MAX_JOBS = 5;
 export const SECONDS_PER_JOB_ESTIMATE = 70;
 const MAX_WORKER_MS = 250_000;
+const MAX_ATTEMPTS = 3;
 
 export const QUEUE_STATUS = {
   PENDING: 'pending',
@@ -109,7 +110,7 @@ export async function runQueueWorker({ supabase: providedSupabase, maxJobs, runS
   const { data: jobs, error: fetchError } = await supabase
     .from('valuebot_analysis_queue')
     .select('*')
-    .or(['status.is.null', `status.eq.${QUEUE_STATUS.PENDING}`, `status.eq.${QUEUE_STATUS.RUNNING}`].join(','))
+    .or(['status.is.null', `status.eq.${QUEUE_STATUS.PENDING}`].join(','))
     .order('created_at', { ascending: true })
     .limit(batchSize);
 
@@ -120,7 +121,38 @@ export async function runQueueWorker({ supabase: providedSupabase, maxJobs, runS
 
   const jobsToProcess = jobs || [];
 
-  for (const job of jobsToProcess) {
+  // Immediately claim these jobs atomically to prevent race conditions
+  const successfullyClaimed = [];
+  if (jobsToProcess.length > 0) {
+    const now = new Date().toISOString();
+    
+    // Build individual updates for each job to increment attempts
+    for (const job of jobsToProcess) {
+      const attempts = (job.attempts || 0) + 1;
+      const { error: claimError } = await supabase
+        .from('valuebot_analysis_queue')
+        .update({ 
+          status: QUEUE_STATUS.RUNNING,
+          started_at: now,
+          updated_at: now,
+          last_run: now,
+          last_run_at: now,
+          attempts
+        })
+        .eq('id', job.id)
+        .or(['status.is.null', `status.eq.${QUEUE_STATUS.PENDING}`].join(','));
+      
+      if (claimError) {
+        console.error('[ValueBot Worker] Failed to claim job atomically', { id: job.id, error: claimError });
+      } else {
+        // Update the job object with new attempts count
+        job.attempts = attempts;
+        successfullyClaimed.push(job);
+      }
+    }
+  }
+
+  for (const job of successfullyClaimed) {
     const { ticker, companyName } = normalizeJobIdentifiers(job);
     const jobSummary = {
       id: job.id,
@@ -131,6 +163,19 @@ export async function runQueueWorker({ supabase: providedSupabase, maxJobs, runS
       last_run: job.last_run ?? job.last_run_at ?? null,
       error: job.error ?? job.last_error ?? null
     };
+
+    // Skip if too many attempts
+    if ((job.attempts || 0) >= MAX_ATTEMPTS) {
+      const errorMessage = `Max attempts (${MAX_ATTEMPTS}) exceeded`;
+      console.error('[ValueBot Worker] Job failed - max attempts exceeded', { id: job.id, attempts: job.attempts });
+      await markJobStatus(supabase, job, QUEUE_STATUS.FAILED, { errorSnippet: errorMessage });
+      jobErrors.push({ id: job.id, error: errorMessage });
+      failedCount++;
+      jobSummary.status = QUEUE_STATUS.FAILED;
+      jobSummary.error = errorMessage;
+      jobSummaries.push(jobSummary);
+      continue;
+    }
 
     if (!ticker && !companyName) {
       const errorMessage = 'Missing ticker and company name';
@@ -144,9 +189,9 @@ export async function runQueueWorker({ supabase: providedSupabase, maxJobs, runS
       continue;
     }
 
-    const runningState = await markJobStatus(supabase, job, QUEUE_STATUS.RUNNING);
-    jobSummary.status = runningState.status;
-    jobSummary.attempts = runningState.attempts ?? jobSummary.attempts;
+    // Job is already marked as RUNNING by the atomic claim above
+    jobSummary.status = QUEUE_STATUS.RUNNING;
+    jobSummary.attempts = job.attempts ?? jobSummary.attempts;
     jobSummary.last_run = new Date().toISOString();
 
     try {
@@ -202,7 +247,7 @@ export async function runQueueWorker({ supabase: providedSupabase, maxJobs, runS
   const { count: remainingPending, error: remainingError } = await supabase
     .from('valuebot_analysis_queue')
     .select('*', { count: 'exact', head: true })
-    .or(['status.is.null', `status.eq.${QUEUE_STATUS.PENDING}`, `status.eq.${QUEUE_STATUS.RUNNING}`].join(','));
+    .or(['status.is.null', `status.eq.${QUEUE_STATUS.PENDING}`].join(','));
 
   const { count: completedCount, error: completedError } = await supabase
     .from('valuebot_analysis_queue')
