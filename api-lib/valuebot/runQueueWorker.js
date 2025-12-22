@@ -109,7 +109,7 @@ export async function runQueueWorker({ supabase: providedSupabase, maxJobs, runS
   const { data: jobs, error: fetchError } = await supabase
     .from('valuebot_analysis_queue')
     .select('*')
-    .or(['status.is.null', `status.eq.${QUEUE_STATUS.PENDING}`, `status.eq.${QUEUE_STATUS.RUNNING}`].join(','))
+    .or(['status.is.null', `status.eq.${QUEUE_STATUS.PENDING}`].join(','))
     .order('created_at', { ascending: true })
     .limit(batchSize);
 
@@ -119,6 +119,26 @@ export async function runQueueWorker({ supabase: providedSupabase, maxJobs, runS
   }
 
   const jobsToProcess = jobs || [];
+
+  // Immediately claim these jobs atomically to prevent race conditions
+  if (jobsToProcess.length > 0) {
+    const jobIds = jobsToProcess.map(j => j.id);
+    const now = new Date().toISOString();
+    
+    const { error: claimError } = await supabase
+      .from('valuebot_analysis_queue')
+      .update({ 
+        status: QUEUE_STATUS.RUNNING,
+        started_at: now,
+        updated_at: now
+      })
+      .in('id', jobIds)
+      .or(['status.is.null', `status.eq.${QUEUE_STATUS.PENDING}`].join(','));
+    
+    if (claimError) {
+      console.error('[ValueBot Worker] Failed to claim jobs atomically', claimError);
+    }
+  }
 
   for (const job of jobsToProcess) {
     const { ticker, companyName } = normalizeJobIdentifiers(job);
@@ -131,6 +151,21 @@ export async function runQueueWorker({ supabase: providedSupabase, maxJobs, runS
       last_run: job.last_run ?? job.last_run_at ?? null,
       error: job.error ?? job.last_error ?? null
     };
+
+    const MAX_ATTEMPTS = 3;
+
+    // Skip if too many attempts
+    if ((job.attempts || 0) >= MAX_ATTEMPTS) {
+      const errorMessage = `Max attempts (${MAX_ATTEMPTS}) exceeded`;
+      console.error('[ValueBot Worker] Job failed - max attempts exceeded', { id: job.id, attempts: job.attempts });
+      await markJobStatus(supabase, job, QUEUE_STATUS.FAILED, { errorSnippet: errorMessage });
+      jobErrors.push({ id: job.id, error: errorMessage });
+      failedCount++;
+      jobSummary.status = QUEUE_STATUS.FAILED;
+      jobSummary.error = errorMessage;
+      jobSummaries.push(jobSummary);
+      continue;
+    }
 
     if (!ticker && !companyName) {
       const errorMessage = 'Missing ticker and company name';
@@ -202,7 +237,7 @@ export async function runQueueWorker({ supabase: providedSupabase, maxJobs, runS
   const { count: remainingPending, error: remainingError } = await supabase
     .from('valuebot_analysis_queue')
     .select('*', { count: 'exact', head: true })
-    .or(['status.is.null', `status.eq.${QUEUE_STATUS.PENDING}`, `status.eq.${QUEUE_STATUS.RUNNING}`].join(','));
+    .or(['status.is.null', `status.eq.${QUEUE_STATUS.PENDING}`].join(','));
 
   const { count: completedCount, error: completedError } = await supabase
     .from('valuebot_analysis_queue')
