@@ -39,7 +39,7 @@ export function useRunMasterMetaSummary() {
       setError(null);
 
       try {
-        const response = await fetch('/api/master-meta-summary', {
+        const response = await fetch('/api/valuebot?action=meta-summary', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'

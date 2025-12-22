@@ -81,14 +81,14 @@ Legend: ☐ not started • 🕒 in progress • ☑ done
 - 2025-11-05: Added `supabase/patches/002_valuebot_deep_dives.sql` documenting the `valuebot_deep_dives` table that stores full ValueBot deep-dive outputs (Modules 0–6) for each ticker.
 - 2025-11-08: Added `supabase/patches/003_investment_universe_deep_dive_metadata.sql` to capture the latest ValueBot deep-dive metadata (risk, quality, timing, composite score, and timestamp) on each `investment_universe` row.
 - 2025-11-09: Added `supabase/patches/004_investment_universe_last_model.sql` to capture the AI model string used for the latest MASTER deep dive on each `investment_universe` row.
-- 2025-11-10: Added `supabase/patches/004_valuebot_analysis_queue.sql` to manage queued ValueBot deep dives processed by the `/api/valuebot-batch-worker` cron endpoint. The queue holds ticker, provider/model, optional timeframe/question, status/attempt metadata, and scheduling fields for the background worker.
+- 2025-11-10: Added `supabase/patches/004_valuebot_analysis_queue.sql` to manage queued ValueBot deep dives processed by the `/api/valuebot` (batch action) cron endpoint. The queue holds ticker, provider/model, optional timeframe/question, status/attempt metadata, and scheduling fields for the background worker.
 - 2025-11-14: Added `supabase/patches/011_valuebot_auto_settings_last_run.sql` so `valuebot_settings.last_auto_run_at` records when the auto queue runner last executed.
 
 ### ValueBot batch worker (background deep dives)
 - The `valuebot_analysis_queue` table stores pending deep-dive requests (ticker, provider/model, timeframe/question, status, attempts, and errors).
   - `ticker` (text, nullable) – optional primary lookup; jobs may be created with ticker, company_name, or both.
-- `/api/valuebot-batch-worker` processes pending rows in small batches (default 3; override with `?maxJobs=5`, capped at 10) by running the full ValueBot deep-dive pipeline and saving outputs to `valuebot_deep_dives` while refreshing `investment_universe` metadata.
-- Intended for scheduled triggers (e.g., external schedulers hitting `/api/valuebot-batch-worker?maxJobs=3` every few minutes) or manual HTTP debugging; no front-end UI enqueues jobs yet.
+- `/api/valuebot?action=batch` processes pending rows in small batches (default 3; override with `maxJobs` in POST body, capped at 10) by running the full ValueBot deep-dive pipeline and saving outputs to `valuebot_deep_dives` while refreshing `investment_universe` metadata.
+- Intended for scheduled triggers (e.g., external schedulers hitting `/api/valuebot?action=cron` every few minutes) or manual HTTP debugging; the front-end Batch Queue UI enqueues jobs and monitors progress.
 - The cron worker updates `valuebot_settings.last_auto_run_at` after each attempt, and the Batch Queue UI surfaces the last auto run plus an approximate “next run” countdown based on a 5-minute interval.
 - While auto-queue is ON and jobs remain pending/running, the Batch Queue view auto-refreshes queue + settings to keep status current.
 - The auto runner caps each cycle using `VALUEBOT_CRON_MAX_JOBS` (default 5). Each full deep dive can take ~70 seconds, so limiting auto runs to roughly 3–4 jobs keeps execution under GitHub Actions’ ~300-second window. The Batch Queue UI displays the current max-jobs setting and a rough time estimate per auto run.

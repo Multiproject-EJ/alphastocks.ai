@@ -2,7 +2,7 @@
 
 ## Current Deep-Dive Flow (Modules 0–6)
 - Server worker entrypoint: `api-lib/valuebot/runDeepDiveForConfig.js` (front-end mirror in `workspace/src/features/valuebot/runDeepDiveForConfig.ts`).
-- The worker chains Module 0–6 prompts via `/api/stock-analysis`, then derives score labels with `/api/master-meta-summary`.
+- The worker chains Module 0–6 prompts via `/api/stock-analysis`, then derives score labels with `/api/valuebot?action=meta-summary`.
 - Deep-dive outputs are saved to `valuebot_deep_dives`; `investment_universe` is upserted with the latest risk/quality/timing labels, composite score, and model snapshot.
 - Queue orchestration: `api-lib/valuebot/runQueueWorker.js` loads `valuebot_analysis_queue` rows and runs `runDeepDiveForConfigServer` per job.
 
