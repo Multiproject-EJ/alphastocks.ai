@@ -100,7 +100,7 @@ import { useUIMode } from '@/hooks/useUIMode'
 import { useLayoutMode } from '@/hooks/useLayoutMode'
 import { ThriftPathStatus as ThriftPathStatusType } from '@/lib/thriftPath'
 import { COIN_COSTS, COIN_EARNINGS } from '@/lib/coins'
-import { getInitialCityBuilderState, CITIES } from '@/lib/cityBuilder'
+import { getInitialCityBuilderState, CITIES, CityBuilderState } from '@/lib/cityBuilder'
 import { calculateXPForLevel } from '@/lib/progression'
 import type { UIMode, GamePhase } from '@/lib/uiModeStateMachine'
 
@@ -374,21 +374,39 @@ function App() {
     },
   })
 
-  // Sync cityBuilderState to gameState - use JSON comparison to prevent infinite loops
-  const cityBuilderStateJson = JSON.stringify(cityBuilderState)
+  // Sync cityBuilderState to gameState - use ref to prevent infinite loops
+  const lastSyncedCityBuilderRef = useRef<CityBuilderState | null>(null)
   useEffect(() => {
+    // Skip if we've already synced this exact state reference
+    if (lastSyncedCityBuilderRef.current === cityBuilderState) {
+      return
+    }
+    
+    let shouldUpdate = false
+    
     setGameState(prev => {
+      // Compare stringified versions only if needed to detect actual changes
       const prevCityBuilderJson = JSON.stringify(prev.cityBuilder)
+      const newCityBuilderJson = JSON.stringify(cityBuilderState)
+      
       // Only update if the state has actually changed
-      if (prevCityBuilderJson === cityBuilderStateJson) {
+      if (prevCityBuilderJson === newCityBuilderJson) {
         return prev
       }
+      
+      shouldUpdate = true
+      
       return {
         ...prev,
         cityBuilder: cityBuilderState,
       }
     })
-  }, [cityBuilderStateJson])
+    
+    // Only mark as synced if we actually updated the state
+    if (shouldUpdate) {
+      lastSyncedCityBuilderRef.current = cityBuilderState
+    }
+  }, [cityBuilderState])
 
   // Gesture arbitration hook - Priority: pinch > swipe > pan > tap
   // This replaces the simple swipe gesture hook with a more sophisticated system
