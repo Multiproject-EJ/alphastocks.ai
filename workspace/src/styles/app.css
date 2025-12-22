@@ -3057,4 +3057,184 @@ body[data-theme='dark'] {
   .tab__label-full {
     display: inline;
   }
+
+  /* ========================================
+     DESKTOP: Force ValueBot tab visibility
+     ======================================== */
+  
+  /* Ensure both ValueBot tab rows are always visible */
+  .valuebot-tab-groups {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .valuebot-tab-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  /* CRITICAL: Force module tabs (Batch, 0.Data, etc.) to display on desktop */
+  .valuebot-tab-row--modules {
+    display: flex !important; /* Override any hidden state */
+    padding-top: 0.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  /* ========================================
+     DESKTOP: Preserve Multi-Column Layouts
+     ======================================== */
+  
+  /* Preserve existing desktop grid layouts */
+  .app-panels {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Or existing layout */
+    gap: 1.5rem;
+  }
+
+  .detail-grid--balanced {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+
+  /* Batch queue layout unchanged */
+  .valuebot-batch-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+}
+
+/* ========================================
+   MOBILE: Content Layout Optimization
+   ======================================== */
+@media (max-width: 767px) {
+  /* Stack all workspace panels vertically */
+  .app-panels {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  /* ValueBot content panels - full width, touch-friendly */
+  .valuebot-content-panel,
+  .detail-card,
+  .valuebot-batch-layout {
+    width: 100%;
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  /* Force grid layouts to stack vertically */
+  .detail-grid,
+  .detail-grid--balanced {
+    display: flex !important;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  /* Form layouts stack vertically */
+  .form-grid,
+  .form-field,
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  /* Full-width inputs and selects */
+  .field input,
+  .field select,
+  .field textarea,
+  .form-field input,
+  .form-field select,
+  .form-field textarea {
+    width: 100%;
+  }
+
+  /* Touch-friendly buttons (minimum 44px) */
+  .btn-primary,
+  .btn-secondary,
+  .btn-tertiary {
+    min-height: 44px;
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  /* Readable font sizes */
+  .detail-meta,
+  .ai-raw-response,
+  .field-hint {
+    font-size: 0.85rem;
+    line-height: 1.5;
+  }
+
+  /* Long text wraps properly */
+  .ai-raw-response,
+  .ai-summary {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+
+  /* ========================================
+     MOBILE: Component-Specific Layouts
+     ======================================== */
+  
+  /* BatchQueueTab: Force form fields to stack */
+  .valuebot-batch-section .detail-grid {
+    display: flex !important;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  /* BatchQueueTab: Horizontal scroll for tables */
+  .valuebot-batch-queue-table {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 8px;
+  }
+
+  .valuebot-batch-queue-table table {
+    min-width: 800px; /* Force horizontal scroll for wide table */
+  }
+
+  /* BatchQueueTab: Responsive modals */
+  .modal,
+  .valuebot-batch-explainer-modal {
+    max-width: 95vw !important;
+    margin: 1rem;
+    padding: 1rem;
+  }
+
+  /* Button groups wrap or scroll */
+  .pill-list,
+  .form-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  /* AIAnalysis: Results grid stacks */
+  .ai-results .detail-grid {
+    display: flex !important;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  /* Module pipeline progress readable spacing */
+  .detail-meta ul {
+    padding-left: 1rem;
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+
+  /* Detail card headers stack on mobile */
+  .detail-card__header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
 }
