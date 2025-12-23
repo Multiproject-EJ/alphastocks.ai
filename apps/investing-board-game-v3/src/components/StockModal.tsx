@@ -9,6 +9,7 @@ import { useResponsiveDialogClass } from '@/hooks/useResponsiveDialogClass'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Stock } from '@/lib/types'
+import { getScoreColor, getScoreBgColor, getRiskLabel } from '@/lib/stockScores'
 import { Coins, TrendUp, ShieldCheck, Speedometer, Target } from '@phosphor-icons/react'
 
 interface StockModalProps {
@@ -18,41 +19,6 @@ interface StockModalProps {
   onBuy: (multiplier: number) => void
   cash: number
   showInsights?: boolean
-}
-
-// Helper function to get color based on score
-const getScoreColor = (score: number, isRisk: boolean = false): string => {
-  if (isRisk) {
-    // For risk: lower is better (green), higher is worse (red)
-    if (score <= 4) return 'text-green-500'
-    if (score <= 7) return 'text-yellow-500'
-    return 'text-red-500'
-  } else {
-    // For other scores: higher is better
-    if (score >= 8) return 'text-green-500'
-    if (score >= 6) return 'text-yellow-500'
-    return 'text-red-500'
-  }
-}
-
-// Helper function to get background color for score badge
-const getScoreBgColor = (score: number, isRisk: boolean = false): string => {
-  if (isRisk) {
-    if (score <= 4) return 'bg-green-500/20 border-green-500/50'
-    if (score <= 7) return 'bg-yellow-500/20 border-yellow-500/50'
-    return 'bg-red-500/20 border-red-500/50'
-  } else {
-    if (score >= 8) return 'bg-green-500/20 border-green-500/50'
-    if (score >= 6) return 'bg-yellow-500/20 border-yellow-500/50'
-    return 'bg-red-500/20 border-red-500/50'
-  }
-}
-
-// Helper function to get risk label
-const getRiskLabel = (score: number): string => {
-  if (score <= 4) return 'Low'
-  if (score <= 7) return 'Medium'
-  return 'High'
 }
 
 export function StockModal({ open, onOpenChange, stock, onBuy, cash, showInsights = false }: StockModalProps) {
