@@ -305,6 +305,17 @@ function App() {
   const rollTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const hopIntervalRef = useRef<NodeJS.Timeout | null>(null)
   const landingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const previewCardTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const stockModalTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  // Helper function to clear all timeout/interval refs
+  const clearAllTimers = () => {
+    if (rollTimeoutRef.current) clearTimeout(rollTimeoutRef.current)
+    if (hopIntervalRef.current) clearInterval(hopIntervalRef.current)
+    if (landingTimeoutRef.current) clearTimeout(landingTimeoutRef.current)
+    if (previewCardTimeoutRef.current) clearTimeout(previewCardTimeoutRef.current)
+    if (stockModalTimeoutRef.current) clearTimeout(stockModalTimeoutRef.current)
+  }
 
   const { getStockForCategory, loading: loadingUniverse, error: universeError, source: stockSource, universeCount } =
     useUniverseStocks()
@@ -924,9 +935,7 @@ function App() {
 
   useEffect(() => {
     return () => {
-      if (rollTimeoutRef.current) clearTimeout(rollTimeoutRef.current)
-      if (hopIntervalRef.current) clearInterval(hopIntervalRef.current)
-      if (landingTimeoutRef.current) clearTimeout(landingTimeoutRef.current)
+      clearAllTimers()
     }
   }, [])
 
@@ -938,9 +947,7 @@ function App() {
         debugGame('Page visible - resetting dice state')
         setPhase('idle')
         // Clear any lingering timers
-        if (rollTimeoutRef.current) clearTimeout(rollTimeoutRef.current)
-        if (hopIntervalRef.current) clearInterval(hopIntervalRef.current)
-        if (landingTimeoutRef.current) clearTimeout(landingTimeoutRef.current)
+        clearAllTimers()
       }
     }
     
@@ -1150,9 +1157,7 @@ function App() {
     }
 
     // clear any lingering timers from a previous roll to keep movement predictable
-    if (rollTimeoutRef.current) clearTimeout(rollTimeoutRef.current)
-    if (hopIntervalRef.current) clearInterval(hopIntervalRef.current)
-    if (landingTimeoutRef.current) clearTimeout(landingTimeoutRef.current)
+    clearAllTimers()
 
     // ✅ BUG FIX #1: Consume rolls IMMEDIATELY before processing
     // Synchronize both rollsRemaining and gameState.energyRolls
@@ -1420,9 +1425,20 @@ function App() {
       const stock = getStockForCategory(tile.category)
       setCurrentStock(stock)
 
+      // Show preview card
       setShowCentralStock(true)
 
-      setTimeout(() => {
+      // Clear any existing timeouts
+      if (previewCardTimeoutRef.current) clearTimeout(previewCardTimeoutRef.current)
+      if (stockModalTimeoutRef.current) clearTimeout(stockModalTimeoutRef.current)
+
+      // Hide preview card after 1.5 seconds
+      previewCardTimeoutRef.current = setTimeout(() => {
+        setShowCentralStock(false)
+      }, 1500)
+
+      // Open purchase modal after preview disappears (2 seconds total delay)
+      stockModalTimeoutRef.current = setTimeout(() => {
         debugGame('Opening Stock modal')
         logEvent?.('modal_opened', { modal: 'stock' })
         showOverlay({
@@ -1438,7 +1454,6 @@ function App() {
           onClose: () => {
             logEvent?.('modal_closed', { modal: 'stock' })
             debugGame('Stock modal closed - cleaning up')
-            setShowCentralStock(false)
             setCurrentStock(null)
             // Consume stock insight if it was active
             if (hasPowerUp('stock-insight')) {
