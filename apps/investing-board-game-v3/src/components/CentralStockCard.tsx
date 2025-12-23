@@ -12,7 +12,7 @@ import {
   formatRelativeTime,
   getWarningFlags
 } from '@/lib/stockScores'
-import { TrendUp, Briefcase, X, Target, ShieldCheck, Speedometer, Sparkle, Clock } from '@phosphor-icons/react'
+import { TrendUp, Briefcase, X, ShieldCheck, Speedometer, Sparkle, Clock } from '@phosphor-icons/react'
 
 interface CentralStockCardProps {
   stock: Stock | null
@@ -37,7 +37,7 @@ export function CentralStockCard({ stock, isVisible, onClose }: CentralStockCard
             }}
             className="pointer-events-auto"
           >
-            <Card className="w-[400px] p-6 bg-card/95 backdrop-blur-md border-4 border-accent/50 shadow-[0_0_60px_oklch(0.75_0.15_85_/_0.4)]">
+            <Card className="w-[400px] p-6 bg-card/95 backdrop-blur-md border-4 border-accent/50 shadow-[0_0_60px_oklch(0.75_0.15_85_/_0.4)] relative">
               {onClose && (
                 <div className="flex justify-end mb-2">
                   <Button
@@ -51,9 +51,40 @@ export function CentralStockCard({ stock, isVisible, onClose }: CentralStockCard
                   </Button>
                 </div>
               )}
+              
+              {/* Hero Score - Top Right */}
+              {stock.scores && (
+                <div className="absolute top-6 right-6 flex flex-col items-center">
+                  <div className={`text-6xl font-bold font-mono ${getScoreColor(stock.scores.composite)}`}>
+                    {stock.scores.composite.toFixed(1)}
+                  </div>
+                  <div className="text-xs text-muted-foreground uppercase tracking-wide">
+                    Overall Score
+                  </div>
+                  <div className="text-[10px] text-muted-foreground">
+                    out of 10
+                  </div>
+                </div>
+              )}
+              
               <div className="flex items-center gap-3 mb-4">
-                <div className="p-3 rounded-lg bg-accent/20">
-                  <Briefcase size={28} className="text-accent" weight="fill" />
+                {/* Image Placeholder */}
+                <div className="relative w-16 h-16 rounded-lg bg-gradient-to-br from-accent/20 to-accent/10 border-2 border-accent/30 overflow-hidden flex-shrink-0">
+                  {stock.image_url ? (
+                    <img 
+                      src={stock.image_url} 
+                      alt={stock.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none'
+                      }}
+                    />
+                  ) : null}
+                  {!stock.image_url && (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <Briefcase size={32} className="text-accent/50" weight="fill" />
+                    </div>
+                  )}
                 </div>
                 <div className="flex-1">
                   <h3 className="text-2xl font-bold text-accent mb-1">Company / Tile</h3>
@@ -84,16 +115,9 @@ export function CentralStockCard({ stock, isVisible, onClose }: CentralStockCard
                   </div>
                 </div>
 
-                {/* Quick Scores Preview */}
+                {/* Quick Scores Preview - 3 Column Grid (Quality, Risk, Timing) */}
                 {stock.scores && (
-                  <div className="grid grid-cols-4 gap-2">
-                    <div className="text-center p-2 rounded bg-accent/10 border border-accent/20">
-                      <Target size={14} className={`${getScoreColor(stock.scores.composite)} mx-auto mb-1`} weight="bold" />
-                      <div className={`text-sm font-bold ${getScoreColor(stock.scores.composite)}`}>
-                        {stock.scores.composite.toFixed(1)}
-                      </div>
-                      <div className="text-[10px] text-muted-foreground">Score</div>
-                    </div>
+                  <div className="grid grid-cols-3 gap-2">
                     <div className="text-center p-2 rounded bg-accent/10 border border-accent/20">
                       <ShieldCheck size={14} className={`${getScoreColor(stock.scores.quality)} mx-auto mb-1`} weight="bold" />
                       <div className={`text-sm font-bold ${getScoreColor(stock.scores.quality)}`}>

@@ -17,6 +17,7 @@ type UniverseRow = {
   addon_flags: Record<string, boolean> | null
   last_addon_run_at: string | null
   created_at: string | null
+  image_url: string | null
 }
 
 const CATEGORY_ORDER: TileCategory[] = ['turnarounds', 'dividends', 'growth', 'moats', 'value']
@@ -48,6 +49,7 @@ function mapUniverseRowToStock(row: UniverseRow, index: number): Stock {
     ai_model: row.last_model,
     analyzed_at: row.last_deep_dive_at,
     addon_flags: row.addon_flags,
+    image_url: row.image_url,
   }
 }
 
@@ -92,7 +94,8 @@ export function useUniverseStocks() {
           last_deep_dive_at,
           addon_flags,
           last_addon_run_at,
-          created_at
+          created_at,
+          image_url
         `)
         .order('created_at', { ascending: false })
         .limit(200)
