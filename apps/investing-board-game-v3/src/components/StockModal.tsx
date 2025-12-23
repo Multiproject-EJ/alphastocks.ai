@@ -29,7 +29,7 @@ export function StockModal({ open, onOpenChange, stock, onBuy, cash, showInsight
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] bg-card border-2 border-accent/50 shadow-[0_0_40px_oklch(0.75_0.15_85_/_0.3)]">
+      <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-[500px] bg-card border-2 border-accent/50 shadow-[0_0_40px_oklch(0.75_0.15_85_/_0.3)]">
         <DialogHeader>
           <div className="flex items-center gap-2 mb-2">
             <Badge variant="outline" className="text-xs font-mono uppercase bg-accent/20 text-accent border-accent/50">

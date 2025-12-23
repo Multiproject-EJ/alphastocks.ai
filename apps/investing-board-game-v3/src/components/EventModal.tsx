@@ -21,7 +21,7 @@ interface EventModalProps {
 export function EventModal({ open, onOpenChange, eventText, coins, canAffordSkip, onSkip }: EventModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] bg-card border-2 border-purple-500/50 shadow-[0_0_40px_oklch(0.6_0.2_280_/_0.3)]">
+      <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-[500px] bg-card border-2 border-purple-500/50 shadow-[0_0_40px_oklch(0.6_0.2_280_/_0.3)]">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-purple-400">Market Event</DialogTitle>
           <DialogDescription className="text-base text-foreground/80 mt-4 leading-relaxed">

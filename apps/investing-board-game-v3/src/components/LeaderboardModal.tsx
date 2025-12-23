@@ -168,7 +168,7 @@ export function LeaderboardModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl h-[80vh] bg-card border-2 border-accent/30 shadow-2xl">
+      <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-2xl h-[80vh] bg-card border-2 border-accent/30 shadow-2xl">
         <DialogHeader>
           <DialogTitle className="text-3xl font-bold text-accent flex items-center gap-3">
             <Trophy className="text-yellow-400" size={32} weight="fill" />

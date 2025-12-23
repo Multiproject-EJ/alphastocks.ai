@@ -39,7 +39,7 @@ export function AchievementNotification({ open, onOpenChange, achievement }: Ach
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
-        className="max-w-xl bg-gradient-to-br from-amber-900/95 via-orange-900/95 to-red-900/95 border-4 border-amber-400 shadow-2xl"
+        className="max-w-[calc(100vw-2rem)] sm:max-w-xl bg-gradient-to-br from-amber-900/95 via-orange-900/95 to-red-900/95 border-4 border-amber-400 shadow-2xl"
         hideClose
       >
         {/* Confetti celebration effect */}

@@ -82,7 +82,7 @@ export function ScratchcardGame({ onWin, onClose, luckBoost = 0 }: ScratchcardGa
   }
 
   return (
-    <Card className="bg-gradient-to-br from-purple-900/20 to-pink-900/20 border-2 border-purple-500/50 shadow-2xl">
+    <Card className="w-full max-w-full bg-gradient-to-br from-purple-900/20 to-pink-900/20 border-2 border-purple-500/50 shadow-2xl">
       <CardHeader>
         <CardTitle className="text-2xl font-bold text-center flex items-center justify-center gap-2">
           <Sparkle size={24} className="text-yellow-400" />
@@ -94,14 +94,14 @@ export function ScratchcardGame({ onWin, onClose, luckBoost = 0 }: ScratchcardGa
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="grid grid-cols-3 gap-3 max-w-xs mx-auto">
+        <div className="grid grid-cols-3 gap-2 sm:gap-3 max-w-xs mx-auto">
           {grid.map((symbol, index) => (
             <button
               key={index}
               onClick={() => handleReveal(index)}
               disabled={revealed[index] || gameOver}
               className={`
-                aspect-square rounded-lg text-4xl font-bold
+                aspect-square rounded-lg text-3xl sm:text-4xl font-bold
                 transition-all duration-300 transform
                 ${revealed[index] 
                   ? 'bg-gradient-to-br from-white/20 to-white/10 border-2 border-white/30 scale-100' 

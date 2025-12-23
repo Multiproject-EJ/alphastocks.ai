@@ -521,3 +521,25 @@ h1, h2, h3, h4, h5, h6 {
 .mobile-board-3d-transform {
   will-change: transform;
 }
+
+/* Toast/Sonner responsive styling for mobile */
+[data-sonner-toaster] {
+  /* Ensure toasts container respects viewport width */
+  max-width: calc(100vw - 2rem) !important;
+}
+
+[data-sonner-toast] {
+  /* Ensure individual toasts don't exceed viewport */
+  max-width: calc(100vw - 2rem) !important;
+  /* Ensure proper spacing from edges on mobile */
+  margin-left: 1rem;
+  margin-right: 1rem;
+}
+
+@media (max-width: 640px) {
+  [data-sonner-toast] {
+    /* On small screens, make toasts more compact */
+    padding: 0.75rem !important;
+    font-size: 0.875rem !important;
+  }
+}

@@ -97,7 +97,7 @@ export function BiasSanctuaryModal({
       }}
     >
       <CelebrationEffect show={showCelebration} onComplete={() => setShowCelebration(false)} />
-      <DialogContent className="sm:max-w-[700px] max-h-[85vh] overflow-y-auto bg-card border-2 border-accent/50 shadow-[0_0_60px_oklch(0.75_0.15_85_/_0.4)]">
+      <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-[700px] max-h-[85vh] overflow-y-auto bg-card border-2 border-accent/50 shadow-[0_0_60px_oklch(0.75_0.15_85_/_0.4)]">
         <AnimatePresence mode="wait">
           {showCard ? (
             <motion.div
