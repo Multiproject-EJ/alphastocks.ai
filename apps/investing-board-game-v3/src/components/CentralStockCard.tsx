@@ -1,9 +1,18 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import { Stock } from '@/lib/types'
-import { getScoreColor, getRiskLabelShort } from '@/lib/stockScores'
-import { TrendUp, Briefcase, X, Target, ShieldCheck, Speedometer } from '@phosphor-icons/react'
+import { 
+  getScoreColor, 
+  getRiskLabelShort,
+  getRiskLabelColor,
+  getQualityLabelColor,
+  getTimingLabelColor,
+  formatRelativeTime,
+  getWarningFlags
+} from '@/lib/stockScores'
+import { TrendUp, Briefcase, X, Target, ShieldCheck, Speedometer, Sparkle, Clock } from '@phosphor-icons/react'
 
 interface CentralStockCardProps {
   stock: Stock | null
@@ -106,6 +115,59 @@ export function CentralStockCard({ stock, isVisible, onClose }: CentralStockCard
                       </div>
                       <div className="text-[10px] text-muted-foreground">Timing</div>
                     </div>
+                  </div>
+                )}
+
+                {/* NEW: Label Badges */}
+                {(stock.risk_label || stock.quality_label || stock.timing_label) && (
+                  <div className="flex flex-wrap gap-2">
+                    {stock.risk_label && (
+                      <Badge className={`text-xs px-2 py-1 border ${getRiskLabelColor(stock.risk_label)}`}>
+                        🛡️ {stock.risk_label}
+                      </Badge>
+                    )}
+                    {stock.quality_label && (
+                      <Badge className={`text-xs px-2 py-1 border ${getQualityLabelColor(stock.quality_label)}`}>
+                        ⭐ {stock.quality_label}
+                      </Badge>
+                    )}
+                    {stock.timing_label && (
+                      <Badge className={`text-xs px-2 py-1 border ${getTimingLabelColor(stock.timing_label)}`}>
+                        ⏰ {stock.timing_label}
+                      </Badge>
+                    )}
+                  </div>
+                )}
+
+                {/* NEW: Warning Flags */}
+                {stock.addon_flags && getWarningFlags(stock.addon_flags).length > 0 && (
+                  <div className="space-y-2">
+                    {getWarningFlags(stock.addon_flags).map((warning, index) => (
+                      <div
+                        key={index}
+                        className={`flex items-center gap-2 p-2 rounded-lg border text-xs ${warning.color}`}
+                      >
+                        <span className="text-base">{warning.icon}</span>
+                        <span className="font-semibold">{warning.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* NEW: AI Metadata Footer */}
+                {(stock.ai_model || stock.analyzed_at) && (
+                  <div className="flex items-center gap-2 pt-2 border-t border-accent/20 text-xs text-muted-foreground">
+                    <Sparkle size={14} className="text-accent" weight="fill" />
+                    <span>
+                      {stock.ai_model && <span className="font-medium">Analyzed by {stock.ai_model}</span>}
+                      {stock.ai_model && stock.analyzed_at && <span className="mx-1">•</span>}
+                      {stock.analyzed_at && (
+                        <span className="flex items-center gap-1 inline-flex">
+                          <Clock size={12} weight="bold" />
+                          {formatRelativeTime(stock.analyzed_at)}
+                        </span>
+                      )}
+                    </span>
                   </div>
                 )}
 

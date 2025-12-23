@@ -9,6 +9,14 @@ type UniverseRow = {
   name: string | null
   addon_summary: string | null
   last_composite_score: number | null
+  last_risk_label: string | null
+  last_quality_label: string | null
+  last_timing_label: string | null
+  last_model: string | null
+  last_deep_dive_at: string | null
+  addon_flags: any | null
+  last_addon_run_at: string | null
+  created_at: string | null
 }
 
 const CATEGORY_ORDER: TileCategory[] = ['turnarounds', 'dividends', 'growth', 'moats', 'value']
@@ -34,6 +42,12 @@ function mapUniverseRowToStock(row: UniverseRow, index: number): Stock {
     category: deriveCategory(row.symbol, index),
     price: normalizePrice(row.last_composite_score),
     description: row.addon_summary?.trim() || 'Saved from your investment universe.',
+    risk_label: row.last_risk_label,
+    quality_label: row.last_quality_label,
+    timing_label: row.last_timing_label,
+    ai_model: row.last_model,
+    analyzed_at: row.last_deep_dive_at,
+    addon_flags: row.addon_flags,
   }
 }
 
@@ -65,7 +79,21 @@ export function useUniverseStocks() {
       setLoading(true)
       const { data, error: queryError } = await supabaseClient
         .from('investment_universe')
-        .select('id, symbol, name, addon_summary, last_composite_score')
+        .select(`
+          id, 
+          symbol, 
+          name, 
+          addon_summary,
+          last_composite_score,
+          last_risk_label,
+          last_quality_label,
+          last_timing_label,
+          last_model,
+          last_deep_dive_at,
+          addon_flags,
+          last_addon_run_at,
+          created_at
+        `)
         .order('created_at', { ascending: false })
         .limit(200)
 
