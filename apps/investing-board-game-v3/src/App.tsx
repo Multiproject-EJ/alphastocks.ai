@@ -305,6 +305,8 @@ function App() {
   const rollTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const hopIntervalRef = useRef<NodeJS.Timeout | null>(null)
   const landingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const previewCardTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const stockModalTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const { getStockForCategory, loading: loadingUniverse, error: universeError, source: stockSource, universeCount } =
     useUniverseStocks()
@@ -927,6 +929,8 @@ function App() {
       if (rollTimeoutRef.current) clearTimeout(rollTimeoutRef.current)
       if (hopIntervalRef.current) clearInterval(hopIntervalRef.current)
       if (landingTimeoutRef.current) clearTimeout(landingTimeoutRef.current)
+      if (previewCardTimeoutRef.current) clearTimeout(previewCardTimeoutRef.current)
+      if (stockModalTimeoutRef.current) clearTimeout(stockModalTimeoutRef.current)
     }
   }, [])
 
@@ -941,6 +945,8 @@ function App() {
         if (rollTimeoutRef.current) clearTimeout(rollTimeoutRef.current)
         if (hopIntervalRef.current) clearInterval(hopIntervalRef.current)
         if (landingTimeoutRef.current) clearTimeout(landingTimeoutRef.current)
+        if (previewCardTimeoutRef.current) clearTimeout(previewCardTimeoutRef.current)
+        if (stockModalTimeoutRef.current) clearTimeout(stockModalTimeoutRef.current)
       }
     }
     
@@ -1153,6 +1159,8 @@ function App() {
     if (rollTimeoutRef.current) clearTimeout(rollTimeoutRef.current)
     if (hopIntervalRef.current) clearInterval(hopIntervalRef.current)
     if (landingTimeoutRef.current) clearTimeout(landingTimeoutRef.current)
+    if (previewCardTimeoutRef.current) clearTimeout(previewCardTimeoutRef.current)
+    if (stockModalTimeoutRef.current) clearTimeout(stockModalTimeoutRef.current)
 
     // ✅ BUG FIX #1: Consume rolls IMMEDIATELY before processing
     // Synchronize both rollsRemaining and gameState.energyRolls
@@ -1423,13 +1431,17 @@ function App() {
       // Show preview card
       setShowCentralStock(true)
 
+      // Clear any existing timeouts
+      if (previewCardTimeoutRef.current) clearTimeout(previewCardTimeoutRef.current)
+      if (stockModalTimeoutRef.current) clearTimeout(stockModalTimeoutRef.current)
+
       // Hide preview card after 1.5 seconds
-      setTimeout(() => {
+      previewCardTimeoutRef.current = setTimeout(() => {
         setShowCentralStock(false)
       }, 1500)
 
       // Open purchase modal after preview disappears (2 seconds total delay)
-      setTimeout(() => {
+      stockModalTimeoutRef.current = setTimeout(() => {
         debugGame('Opening Stock modal')
         logEvent?.('modal_opened', { modal: 'stock' })
         showOverlay({
