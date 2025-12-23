@@ -31,6 +31,19 @@ export interface Stock {
     risk: number // Risk score 0-10
     timing: number // Timing score 0-10
   }
+  // NEW FIELDS - Rich metadata from investment_universe
+  risk_label?: string | null
+  quality_label?: string | null
+  timing_label?: string | null
+  ai_model?: string | null
+  analyzed_at?: string | null
+  addon_flags?: {
+    high_debt?: boolean
+    liquidity_warning?: boolean
+    dividend_risk?: boolean
+    fraud_risk?: boolean
+    [key: string]: boolean | undefined
+  } | null
 }
 
 export interface ThriftyChallenge {
