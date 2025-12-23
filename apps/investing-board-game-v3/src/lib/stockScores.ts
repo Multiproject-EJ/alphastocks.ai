@@ -2,6 +2,38 @@
  * Utility functions for stock score display and color coding
  */
 
+// Score thresholds
+const SCORE_GOOD_THRESHOLD = 8
+const SCORE_MODERATE_THRESHOLD = 6
+const RISK_LOW_THRESHOLD = 4
+const RISK_MODERATE_THRESHOLD = 7
+
+// Color classes
+const COLOR_GREEN = 'text-green-500'
+const COLOR_YELLOW = 'text-yellow-500'
+const COLOR_RED = 'text-red-500'
+const BG_GREEN = 'bg-green-500/20 border-green-500/50'
+const BG_YELLOW = 'bg-yellow-500/20 border-yellow-500/50'
+const BG_RED = 'bg-red-500/20 border-red-500/50'
+
+/**
+ * Determine score category based on thresholds
+ * @param score - Score value (0-10)
+ * @param isRisk - If true, inverse logic is used (lower is better)
+ * @returns Category: 'good', 'moderate', or 'poor'
+ */
+function getScoreCategory(score: number, isRisk: boolean = false): 'good' | 'moderate' | 'poor' {
+  if (isRisk) {
+    if (score <= RISK_LOW_THRESHOLD) return 'good'
+    if (score <= RISK_MODERATE_THRESHOLD) return 'moderate'
+    return 'poor'
+  } else {
+    if (score >= SCORE_GOOD_THRESHOLD) return 'good'
+    if (score >= SCORE_MODERATE_THRESHOLD) return 'moderate'
+    return 'poor'
+  }
+}
+
 /**
  * Get color class based on score value
  * @param score - Score value (0-10)
@@ -9,16 +41,11 @@
  * @returns Tailwind color class
  */
 export function getScoreColor(score: number, isRisk: boolean = false): string {
-  if (isRisk) {
-    // For risk: lower is better (green), higher is worse (red)
-    if (score <= 4) return 'text-green-500'
-    if (score <= 7) return 'text-yellow-500'
-    return 'text-red-500'
-  } else {
-    // For other scores: higher is better
-    if (score >= 8) return 'text-green-500'
-    if (score >= 6) return 'text-yellow-500'
-    return 'text-red-500'
+  const category = getScoreCategory(score, isRisk)
+  switch (category) {
+    case 'good': return COLOR_GREEN
+    case 'moderate': return COLOR_YELLOW
+    case 'poor': return COLOR_RED
   }
 }
 
@@ -29,14 +56,11 @@ export function getScoreColor(score: number, isRisk: boolean = false): string {
  * @returns Tailwind background and border color classes
  */
 export function getScoreBgColor(score: number, isRisk: boolean = false): string {
-  if (isRisk) {
-    if (score <= 4) return 'bg-green-500/20 border-green-500/50'
-    if (score <= 7) return 'bg-yellow-500/20 border-yellow-500/50'
-    return 'bg-red-500/20 border-red-500/50'
-  } else {
-    if (score >= 8) return 'bg-green-500/20 border-green-500/50'
-    if (score >= 6) return 'bg-yellow-500/20 border-yellow-500/50'
-    return 'bg-red-500/20 border-red-500/50'
+  const category = getScoreCategory(score, isRisk)
+  switch (category) {
+    case 'good': return BG_GREEN
+    case 'moderate': return BG_YELLOW
+    case 'poor': return BG_RED
   }
 }
 
@@ -46,9 +70,12 @@ export function getScoreBgColor(score: number, isRisk: boolean = false): string 
  * @returns Risk level label
  */
 export function getRiskLabel(score: number): string {
-  if (score <= 4) return 'Low'
-  if (score <= 7) return 'Medium'
-  return 'High'
+  const category = getScoreCategory(score, true)
+  switch (category) {
+    case 'good': return 'Low'
+    case 'moderate': return 'Medium'
+    case 'poor': return 'High'
+  }
 }
 
 /**
@@ -57,7 +84,6 @@ export function getRiskLabel(score: number): string {
  * @returns Short risk level label
  */
 export function getRiskLabelShort(score: number): string {
-  if (score <= 4) return 'Low'
-  if (score <= 7) return 'Med'
-  return 'High'
+  const label = getRiskLabel(score)
+  return label === 'Medium' ? 'Med' : label
 }
