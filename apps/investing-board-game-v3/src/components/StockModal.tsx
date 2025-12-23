@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -32,6 +33,7 @@ interface StockModalProps {
 
 export function StockModal({ open, onOpenChange, stock, onBuy, cash, showInsights = false }: StockModalProps) {
   const dialogClass = useResponsiveDialogClass('small')
+  const [imageError, setImageError] = useState(false)
   
   if (!stock) return null
 
@@ -62,17 +64,14 @@ export function StockModal({ open, onOpenChange, stock, onBuy, cash, showInsight
           <div className="flex items-center gap-3 mb-2">
             {/* Image Placeholder */}
             <div className="relative w-16 h-16 rounded-lg bg-gradient-to-br from-accent/20 to-accent/10 border-2 border-accent/30 overflow-hidden flex-shrink-0">
-              {stock.image_url ? (
+              {stock.image_url && !imageError ? (
                 <img 
                   src={stock.image_url} 
                   alt={stock.name}
                   className="w-full h-full object-cover"
-                  onError={(e) => {
-                    e.currentTarget.style.display = 'none'
-                  }}
+                  onError={() => setImageError(true)}
                 />
-              ) : null}
-              {!stock.image_url && (
+              ) : (
                 <div className="w-full h-full flex items-center justify-center text-xs text-muted-foreground">
                   LOGO
                 </div>

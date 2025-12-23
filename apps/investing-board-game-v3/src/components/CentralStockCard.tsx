@@ -1,4 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion'
+import { useState } from 'react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -21,6 +22,8 @@ interface CentralStockCardProps {
 }
 
 export function CentralStockCard({ stock, isVisible, onClose }: CentralStockCardProps) {
+  const [imageError, setImageError] = useState(false)
+  
   return (
     <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30">
       <AnimatePresence>
@@ -70,17 +73,14 @@ export function CentralStockCard({ stock, isVisible, onClose }: CentralStockCard
               <div className="flex items-center gap-3 mb-4">
                 {/* Image Placeholder */}
                 <div className="relative w-16 h-16 rounded-lg bg-gradient-to-br from-accent/20 to-accent/10 border-2 border-accent/30 overflow-hidden flex-shrink-0">
-                  {stock.image_url ? (
+                  {stock.image_url && !imageError ? (
                     <img 
                       src={stock.image_url} 
                       alt={stock.name}
                       className="w-full h-full object-cover"
-                      onError={(e) => {
-                        e.currentTarget.style.display = 'none'
-                      }}
+                      onError={() => setImageError(true)}
                     />
-                  ) : null}
-                  {!stock.image_url && (
+                  ) : (
                     <div className="w-full h-full flex items-center justify-center">
                       <Briefcase size={32} className="text-accent/50" weight="fill" />
                     </div>
