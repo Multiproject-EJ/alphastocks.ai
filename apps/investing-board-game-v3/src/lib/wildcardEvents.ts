@@ -1,5 +1,8 @@
 import { WildcardEvent } from './types'
 
+// Special constant for percentage-based penalties
+export const CASH_PERCENTAGE_PENALTY = -0.1 // Represents 10% loss
+
 export const WILDCARD_EVENTS: WildcardEvent[] = [
   // Cash Reward Events
   {
@@ -101,7 +104,7 @@ export const WILDCARD_EVENTS: WildcardEvent[] = [
     title: 'Market Correction',
     description: 'A market downturn reduces your portfolio by 10%.',
     type: 'penalty',
-    effect: { cash: -0.1 }, // Special: -10% will be calculated
+    effect: { cash: CASH_PERCENTAGE_PENALTY }, // Special: -10% will be calculated in handler
     icon: '📉'
   },
   {

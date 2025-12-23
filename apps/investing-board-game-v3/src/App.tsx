@@ -69,7 +69,7 @@ import {
   getRandomBiasCaseStudy,
   THRIFTY_CHALLENGES,
 } from '@/lib/mockData'
-import { getRandomWildcardEvent } from '@/lib/wildcardEvents'
+import { getRandomWildcardEvent, CASH_PERCENTAGE_PENALTY } from '@/lib/wildcardEvents'
 import { SHOP_ITEMS } from '@/lib/shopItems'
 import {
   DAILY_ROLL_LIMIT,
@@ -1765,9 +1765,9 @@ function App() {
       
       // Apply cash effect
       if (event.effect.cash !== undefined) {
-        if (event.effect.cash === -0.1) {
-          // Special case: 10% penalty
-          const penalty = Math.floor(prev.cash * 0.1)
+        if (event.effect.cash === CASH_PERCENTAGE_PENALTY) {
+          // Special case: percentage-based penalty (10% of current cash)
+          const penalty = Math.floor(prev.cash * Math.abs(CASH_PERCENTAGE_PENALTY))
           newCash = prev.cash - penalty
           toast.error(`${event.title}`, {
             description: `Lost $${penalty.toLocaleString()} (10% of cash)`,
