@@ -44,7 +44,7 @@ export function StockModal({ open, onOpenChange, stock, onBuy, cash, showInsight
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={`${dialogClass} bg-card border-2 border-accent/50 shadow-[0_0_40px_oklch(0.75_0.15_85_/_0.3)] flex flex-col max-h-[85dvh] !top-[50%] !-translate-y-[50%] my-auto relative`}>
+      <DialogContent className={`${dialogClass} bg-card border-2 border-accent/50 shadow-[0_0_40px_oklch(0.75_0.15_85_/_0.3)] flex flex-col max-h-[80vh] !top-[50%] !-translate-y-[50%] my-auto relative`}>
         <DialogHeader className="flex-shrink-0">
           {/* Hero Score - Top Right */}
           {stock.scores && (
