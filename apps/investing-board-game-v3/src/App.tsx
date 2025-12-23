@@ -1535,16 +1535,11 @@ function App() {
     } else if (tile.type === 'corner') {
       debugGame('Corner tile:', tile.title)
       if (tile.title === 'Start / ThriftyPath') {
-        // Only award bonus if player explicitly lands on Start (not when passing)
-        // The pass start bonus is handled in handleRoll
-        if (position === 0 && !passedStart) {
-          setGameState((prev) => ({
-            ...prev,
-            cash: prev.cash + 20000,
-            netWorth: prev.netWorth + 20000,
-          }))
-          toast.success('Landed on Start! Collected $20,000', {
-            description: 'Keep building your portfolio',
+        // Pass start bonuses are now handled in handleRoll with multipliers applied
+        // No need to award bonus here - just show a message if landing on Start
+        if (position === 0) {
+          toast.info('You\'re on Start!', {
+            description: 'Great place to plan your next move',
           })
         }
         // Immediately transition back to idle (no modal to show)
