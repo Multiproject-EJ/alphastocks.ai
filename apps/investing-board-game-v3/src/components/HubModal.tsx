@@ -38,7 +38,7 @@ export function HubModal({ open, onOpenChange, gameState, onOpenChallenges, onOp
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-card border-2 border-accent/30 shadow-2xl max-w-md">
+      <DialogContent className="bg-card border-2 border-accent/30 shadow-2xl max-w-[calc(100vw-2rem)] sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-accent">
             Investing Board Game – Hub

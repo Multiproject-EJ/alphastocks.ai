@@ -30,7 +30,7 @@ export function TierUpModal({ open, onOpenChange, tier }: TierUpModalProps) {
   
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg bg-gradient-to-b from-card to-background border-2 border-accent/50 shadow-2xl">
+      <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-lg bg-gradient-to-b from-card to-background border-2 border-accent/50 shadow-2xl">
         <CelebrationEffect 
           show={open} 
           level={tier.particleEffect && ['small', 'medium', 'large', 'epic'].includes(tier.particleEffect) 

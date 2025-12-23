@@ -22,7 +22,7 @@ export function NetWorthGalleryModal({ open, onOpenChange, currentNetWorth }: Ne
   
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden bg-card/95 backdrop-blur-xl">
+      <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-2xl max-h-[80vh] overflow-hidden bg-card/95 backdrop-blur-xl">
         <DialogHeader>
           <DialogTitle className="text-3xl font-bold text-accent flex items-center gap-3">
             <span className="text-4xl">{currentTier.icon}</span>

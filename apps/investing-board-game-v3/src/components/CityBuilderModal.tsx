@@ -276,7 +276,7 @@ export function CityBuilderModal({
   
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[95vw] max-w-[95vw] h-[90vh] overflow-hidden bg-card border-2 border-accent/50 shadow-[0_0_60px_oklch(0.75_0.15_85_/_0.4)] p-0">
+      <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-[95vw] h-[90vh] overflow-hidden bg-card border-2 border-accent/50 shadow-[0_0_60px_oklch(0.75_0.15_85_/_0.4)] p-0">
         <div className="flex flex-col h-full">
           {/* Header */}
           <DialogHeader className="px-6 pt-6 pb-4 border-b border-border">

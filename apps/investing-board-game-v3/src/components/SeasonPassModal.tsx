@@ -71,7 +71,7 @@ export function SeasonPassModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-6xl h-[85vh] bg-card border-2 border-accent/30 shadow-2xl">
+      <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-6xl h-[85vh] bg-card border-2 border-accent/30 shadow-2xl">
         <DialogHeader>
           <div className="space-y-2">
             <DialogTitle className="text-3xl font-bold text-accent">

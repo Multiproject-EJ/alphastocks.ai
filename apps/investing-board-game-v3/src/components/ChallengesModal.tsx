@@ -130,7 +130,7 @@ export function ChallengesModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] bg-card border-2 border-accent/30 shadow-2xl">
+      <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-2xl max-h-[90vh] bg-card border-2 border-accent/30 shadow-2xl">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-accent flex items-center gap-2">
             <span>🎯</span>
