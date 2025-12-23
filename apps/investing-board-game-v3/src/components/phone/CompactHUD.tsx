@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronDown, ChevronUp, Bell, BellOff } from 'lucide-react';
+import { ChevronDown, ChevronUp, Bell, BellOff, Star } from 'lucide-react';
 import { useNotificationPreferences } from '@/hooks/useNotificationPreferences';
 
 interface CompactHUDProps {
@@ -9,10 +9,11 @@ interface CompactHUDProps {
   xp: number;
   xpToNext: number;
   rolls: number;
+  stars?: number; // Add stars to the HUD
   cityLevel?: number; // Optional city level for backward compatibility
 }
 
-export function CompactHUD({ cash, netWorth, level, xp, xpToNext, rolls, cityLevel = 1 }: CompactHUDProps) {
+export function CompactHUD({ cash, netWorth, level, xp, xpToNext, rolls, stars = 0, cityLevel = 1 }: CompactHUDProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const { enabled: notificationsEnabled, toggleNotifications } = useNotificationPreferences();
 
@@ -29,6 +30,11 @@ export function CompactHUD({ cash, netWorth, level, xp, xpToNext, rolls, cityLev
           <span className="text-xs text-muted-foreground">
             Lv.{level}
           </span>
+          {/* Stars display */}
+          <div className="flex items-center gap-1">
+            <Star size={14} className="text-yellow-500 fill-yellow-500" />
+            <span className="text-sm font-medium">{stars}</span>
+          </div>
         </div>
         
         <div className="flex items-center gap-3">
