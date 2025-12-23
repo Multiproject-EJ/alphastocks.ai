@@ -44,6 +44,7 @@ export interface Stock {
     fraud_risk?: boolean
     [key: string]: boolean | undefined
   } | null
+  image_url?: string | null // Company logo/image URL
 }
 
 export interface ThriftyChallenge {

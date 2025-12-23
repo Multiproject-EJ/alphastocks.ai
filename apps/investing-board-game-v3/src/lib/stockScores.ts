@@ -179,7 +179,7 @@ export function formatRelativeTime(timestamp: string | null | undefined): string
  * @param flags - addon_flags object from database
  * @returns Array of warning flag objects with icon, label, and color
  */
-export function getWarningFlags(flags: Record<string, boolean> | null | undefined): Array<{ icon: string; label: string; color: string }> {
+export function getWarningFlags(flags: Record<string, boolean | undefined> | null | undefined): Array<{ icon: string; label: string; color: string }> {
   if (!flags || typeof flags !== 'object') return []
   
   const warnings: Array<{ icon: string; label: string; color: string }> = []

@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -19,7 +20,7 @@ import {
   formatRelativeTime,
   getWarningFlags
 } from '@/lib/stockScores'
-import { Coins, TrendUp, ShieldCheck, Speedometer, Target, Sparkle, Clock, CheckCircle, WarningCircle } from '@phosphor-icons/react'
+import { Coins, TrendUp, ShieldCheck, Speedometer, Sparkle, Clock, CheckCircle, WarningCircle } from '@phosphor-icons/react'
 
 interface StockModalProps {
   open: boolean
@@ -32,6 +33,7 @@ interface StockModalProps {
 
 export function StockModal({ open, onOpenChange, stock, onBuy, cash, showInsights = false }: StockModalProps) {
   const dialogClass = useResponsiveDialogClass('small')
+  const [imageError, setImageError] = useState(false)
   
   if (!stock) return null
 
@@ -42,18 +44,51 @@ export function StockModal({ open, onOpenChange, stock, onBuy, cash, showInsight
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={`${dialogClass} bg-card border-2 border-accent/50 shadow-[0_0_40px_oklch(0.75_0.15_85_/_0.3)] max-h-[90vh] overflow-y-auto`}>
+      <DialogContent className={`${dialogClass} bg-card border-2 border-accent/50 shadow-[0_0_40px_oklch(0.75_0.15_85_/_0.3)] max-h-[90vh] overflow-y-auto relative`}>
         <DialogHeader>
-          <div className="flex items-center gap-2 mb-2">
-            <Badge variant="outline" className="text-xs font-mono uppercase bg-accent/20 text-accent border-accent/50">
-              {stock.category}
-            </Badge>
-            {/* NEW: Label Badges in Header */}
-            {stock.risk_label && (
-              <Badge className={`text-xs px-2 py-1 border ${getRiskLabelColor(stock.risk_label)}`}>
-                {stock.risk_label}
+          {/* Hero Score - Top Right */}
+          {stock.scores && (
+            <div className="absolute top-4 right-4 flex flex-col items-center">
+              <div className={`text-5xl font-bold font-mono ${getScoreColor(stock.scores.composite)}`}>
+                {stock.scores.composite.toFixed(1)}
+              </div>
+              <div className="text-xs text-muted-foreground uppercase tracking-wide">
+                Overall
+              </div>
+              <div className="text-[10px] text-muted-foreground">
+                / 10
+              </div>
+            </div>
+          )}
+          
+          <div className="flex items-center gap-3 mb-2">
+            {/* Image Placeholder */}
+            <div className="relative w-16 h-16 rounded-lg bg-gradient-to-br from-accent/20 to-accent/10 border-2 border-accent/30 overflow-hidden flex-shrink-0">
+              {stock.image_url && !imageError ? (
+                <img 
+                  src={stock.image_url} 
+                  alt={stock.name}
+                  className="w-full h-full object-cover"
+                  onError={() => setImageError(true)}
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-xs text-muted-foreground">
+                  LOGO
+                </div>
+              )}
+            </div>
+            
+            <div className="flex-1 pr-24">
+              <Badge variant="outline" className="text-xs font-mono uppercase bg-accent/20 text-accent border-accent/50 mb-2">
+                {stock.category}
               </Badge>
-            )}
+              {/* NEW: Label Badges in Header */}
+              {stock.risk_label && (
+                <Badge className={`text-xs px-2 py-1 border ml-2 ${getRiskLabelColor(stock.risk_label)}`}>
+                  {stock.risk_label}
+                </Badge>
+              )}
+            </div>
           </div>
           <DialogTitle className="text-2xl font-bold text-accent">{stock.name}</DialogTitle>
           <DialogDescription className="text-base text-foreground/80 mt-2">
@@ -81,19 +116,7 @@ export function StockModal({ open, onOpenChange, stock, onBuy, cash, showInsight
                 📊 Stock Analysis Scores
               </div>
               
-              <div className="grid grid-cols-2 gap-3">
-                {/* Composite Score */}
-                <div className={`rounded-lg p-3 border ${getScoreBgColor(stock.scores.composite)}`}>
-                  <div className="flex items-center gap-2 mb-1">
-                    <Target size={16} className={getScoreColor(stock.scores.composite)} weight="bold" />
-                    <div className="text-xs text-muted-foreground font-semibold">Composite</div>
-                  </div>
-                  <div className={`text-2xl font-bold font-mono ${getScoreColor(stock.scores.composite)}`}>
-                    {stock.scores.composite.toFixed(1)}
-                  </div>
-                  <div className="text-xs text-muted-foreground mt-1">Overall Rating</div>
-                </div>
-
+              <div className="grid grid-cols-3 gap-3">
                 {/* Quality Score */}
                 <div className={`rounded-lg p-3 border ${getScoreBgColor(stock.scores.quality)}`}>
                   <div className="flex items-center gap-2 mb-1">
