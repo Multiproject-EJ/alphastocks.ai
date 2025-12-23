@@ -98,6 +98,7 @@ import { useSafeArea } from '@/hooks/useSafeArea'
 import { useOverlayManager } from '@/hooks/useOverlayManager'
 import { useUIMode } from '@/hooks/useUIMode'
 import { useLayoutMode } from '@/hooks/useLayoutMode'
+import { useNotificationPreferences } from '@/hooks/useNotificationPreferences'
 import { ThriftPathStatus as ThriftPathStatusType } from '@/lib/thriftPath'
 import { COIN_COSTS, COIN_EARNINGS } from '@/lib/coins'
 import { getInitialCityBuilderState, CITIES, CityBuilderState } from '@/lib/cityBuilder'
@@ -220,6 +221,9 @@ function App() {
 
   // Layout mode detection for responsive design
   const { isPhone, isTablet, isDesktop } = useLayoutMode()
+
+  // Notification preferences for phone layout
+  const { enabled: notificationsEnabled } = useNotificationPreferences()
 
   // Keep state for data that modals need (but not open/closed state)
   const [currentStock, setCurrentStock] = useState<Stock | null>(null)
@@ -757,6 +761,28 @@ function App() {
     savedRolls,
     saveGame,
   } = useGameSave()
+
+  // Conditional toast wrapper - only shows toasts if notifications are enabled on phone
+  const showToast = useCallback((
+    type: 'success' | 'error' | 'info',
+    message: string,
+    options?: Parameters<typeof toast.success>[1]
+  ) => {
+    // On phone, respect notification preferences
+    if (isPhone && !notificationsEnabled) {
+      return;
+    }
+    
+    // Show the toast
+    switch (type) {
+      case 'success':
+        return toast.success(message, options);
+      case 'error':
+        return toast.error(message, options);
+      case 'info':
+        return toast.info(message, options);
+    }
+  }, [isPhone, notificationsEnabled]);
 
   // Helper function to check if a power-up is active
   const hasPowerUp = useCallback((itemId: string): boolean => {
@@ -1798,7 +1824,20 @@ function App() {
             aria-hidden="true"
           />
         )}
-        <Toaster position="top-center" />
+        
+        {/* Toaster - positioned outside transformed containers with high z-index for phone */}
+        <Toaster 
+          position="top-center"
+          style={{
+            // For phone layout, ensure toasts appear above everything and not affected by transforms
+            ...(isPhone ? { 
+              zIndex: 9999,
+              position: 'fixed',
+              top: '60px', // Below CompactHUD
+            } : {})
+          }}
+        />
+        
         <CelebrationEffect show={showCelebration} onComplete={() => setShowCelebration(false)} />
         
         {/* Tutorial for first-time users */}

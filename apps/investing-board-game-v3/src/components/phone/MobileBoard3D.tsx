@@ -41,9 +41,15 @@ export function MobileBoard3D({
     const halfBoard = boardSize / 2;
     
     switch (side) {
-      case 0: // Bottom edge - moving right
-        x = -halfBoard + (posOnSide + 1) * tileSize;
-        y = halfBoard - tileSize / 2;
+      case 0: // Bottom edge - moving right (position 0 is Start corner at bottom-left)
+        if (posOnSide === 0) {
+          // Position 0: Start corner (bottom-left)
+          x = -halfBoard + tileSize / 2;
+          y = halfBoard - tileSize / 2;
+        } else {
+          x = -halfBoard + (posOnSide + 1) * tileSize;
+          y = halfBoard - tileSize / 2;
+        }
         break;
       case 1: // Right edge - moving up
         x = halfBoard - tileSize / 2;
@@ -68,7 +74,7 @@ export function MobileBoard3D({
     perspective: 800,
     rotateX: 55,        // Tilt forward
     rotateZ: 45,        // Diamond rotation!
-    scale: 0.55,        // Zoom to show ~6-8 tiles
+    scale: 0.62,        // Zoom to show ~6-8 tiles (increased for better visibility on small screens)
   }), []); // Empty deps = never recalculates
 
   return (
