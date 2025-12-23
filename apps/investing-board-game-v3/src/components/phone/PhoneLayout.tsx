@@ -92,6 +92,20 @@ export function PhoneLayout({
           onToggleAutoRoll={onToggleAutoRoll}
         />
       </div>
+      
+      {/* Layer 100: Modal and Toast Portal - OUTSIDE board transform */}
+      {/* This div serves as a container for portals that need to escape the 3D transform */}
+      {/* Radix UI portals will automatically render to document.body, but we ensure high z-index */}
+      <div 
+        id="phone-portal-root"
+        className="fixed inset-0 pointer-events-none z-[9000]"
+        style={{
+          // Ensure this layer is not affected by any parent transforms
+          transform: 'none',
+        }}
+      >
+        {/* Portal content will be injected here by Radix UI and Sonner */}
+      </div>
 
       {/* Debug Overlay */}
       <BoardDebugOverlay 
