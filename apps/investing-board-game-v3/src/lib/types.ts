@@ -34,6 +34,19 @@ export interface ThriftyChallenge {
   reward: number
 }
 
+export interface WildcardEvent {
+  id: string
+  title: string
+  description: string
+  type: 'cash' | 'stars' | 'teleport' | 'penalty' | 'mixed'
+  effect: {
+    cash?: number // positive or negative
+    stars?: number // positive or negative
+    teleportTo?: number // tile ID
+  }
+  icon: string // emoji
+}
+
 export interface InventoryItem {
   itemId: string
   quantity: number // for stackable items

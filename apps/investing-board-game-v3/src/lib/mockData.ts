@@ -12,7 +12,7 @@ export const BOARD_TILES: Tile[] = [
 
   { id: 8, type: 'category', title: 'Growth', category: 'growth', colorBorder: 'oklch(0.70 0.18 25)' },
   { id: 9, type: 'event', title: 'Wildcard' },
-  { id: 10, type: 'event', title: '?' },
+  { id: 10, type: 'event', title: 'Thrift Path' },
   { id: 11, type: 'category', title: 'Growth', category: 'growth', colorBorder: 'oklch(0.70 0.18 25)' },
   { id: 12, type: 'event', title: 'Quiz' },
   { id: 13, type: 'corner', title: 'Court of Capital' },

@@ -9,6 +9,7 @@ import { lazy } from 'react'
 import { StockModal } from '@/components/StockModal'
 import { EventModal } from '@/components/EventModal'
 import { ThriftyPathModal } from '@/components/ThriftyPathModal'
+import { WildcardEventModal } from '@/components/WildcardEventModal'
 import { PortfolioModal } from '@/components/PortfolioModal'
 import { HubModal } from '@/components/HubModal'
 import { BiasSanctuaryModal } from '@/components/BiasSanctuaryModal'
@@ -31,6 +32,7 @@ export const OVERLAY_REGISTRY = {
   'stock': StockModal,
   'event': EventModal,
   'thriftyPath': ThriftyPathModal,
+  'wildcardEvent': WildcardEventModal,
   'portfolio': PortfolioModal,
   'hub': HubModal,
   'biasSanctuary': BiasSanctuaryModal,
