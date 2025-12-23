@@ -5,6 +5,7 @@
 
 import { useEffect, useState, useRef, memo } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { useResponsiveDialogClass } from '@/hooks/useResponsiveDialogClass'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { LeaderboardEntry } from '@/lib/types'
@@ -33,6 +34,7 @@ export function LeaderboardModal({
   fetchLeaderboard,
   currentUserId,
 }: LeaderboardModalProps) {
+  const dialogClass = useResponsiveDialogClass('large')
   const [activeTab, setActiveTab] = useState<'global' | 'weekly' | 'seasonal'>('global')
   const [sortBy, setSortBy] = useState<'net_worth' | 'level' | 'season_tier' | 'stars'>('net_worth')
   const parentRef = useRef<HTMLDivElement>(null)
@@ -168,7 +170,7 @@ export function LeaderboardModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-2xl h-[80vh] bg-card border-2 border-accent/30 shadow-2xl">
+      <DialogContent className={`${dialogClass} h-[80vh] bg-card border-2 border-accent/30 shadow-2xl`}>
         <DialogHeader>
           <DialogTitle className="text-3xl font-bold text-accent flex items-center gap-3">
             <Trophy className="text-yellow-400" size={32} weight="fill" />

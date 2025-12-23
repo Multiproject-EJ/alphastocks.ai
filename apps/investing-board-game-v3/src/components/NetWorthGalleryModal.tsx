@@ -5,6 +5,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { useResponsiveDialogClass } from '@/hooks/useResponsiveDialogClass'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { NET_WORTH_TIERS } from '@/lib/netWorthTiers'
 import { useNetWorthTier } from '@/hooks/useNetWorthTier'
@@ -17,12 +18,13 @@ interface NetWorthGalleryModalProps {
 }
 
 export function NetWorthGalleryModal({ open, onOpenChange, currentNetWorth }: NetWorthGalleryModalProps) {
+  const dialogClass = useResponsiveDialogClass('large')
   const { currentTier, nextTier, progress } = useNetWorthTier(currentNetWorth)
   const [expandedTier, setExpandedTier] = useState<number | null>(currentTier.tier)
   
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-2xl max-h-[80vh] overflow-hidden bg-card/95 backdrop-blur-xl">
+      <DialogContent className={`${dialogClass} max-h-[80vh] overflow-hidden bg-card/95 backdrop-blur-xl`}>
         <DialogHeader>
           <DialogTitle className="text-3xl font-bold text-accent flex items-center gap-3">
             <span className="text-4xl">{currentTier.icon}</span>

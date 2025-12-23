@@ -6,6 +6,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { useResponsiveDialogClass } from '@/hooks/useResponsiveDialogClass'
 import { Button } from '@/components/ui/button'
 import { WildcardEvent } from '@/lib/types'
 import { CASH_PERCENTAGE_PENALTY } from '@/lib/wildcardEvents'
@@ -36,6 +37,7 @@ export function WildcardEventModal({
   event,
   onContinue,
 }: WildcardEventModalProps) {
+  const dialogClass = useResponsiveDialogClass('small')
   const [showCelebration, setShowCelebration] = useState(false)
 
   const handleContinue = () => {
@@ -80,7 +82,7 @@ export function WildcardEventModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <CelebrationEffect show={showCelebration} onComplete={() => setShowCelebration(false)} />
-      <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-[500px] bg-card border-2 border-accent/50 shadow-[0_0_40px_oklch(0.75_0.15_85_/_0.3)]">
+      <DialogContent className={`${dialogClass} bg-card border-2 border-accent/50 shadow-[0_0_40px_oklch(0.75_0.15_85_/_0.3)]`}>
         <DialogHeader>
           <DialogTitle className="text-xl sm:text-2xl font-bold text-accent flex items-center gap-2">
             <span className="text-3xl sm:text-4xl">{event.icon}</span>

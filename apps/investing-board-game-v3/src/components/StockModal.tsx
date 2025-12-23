@@ -5,6 +5,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { useResponsiveDialogClass } from '@/hooks/useResponsiveDialogClass'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Stock } from '@/lib/types'
@@ -20,6 +21,8 @@ interface StockModalProps {
 }
 
 export function StockModal({ open, onOpenChange, stock, onBuy, cash, showInsights = false }: StockModalProps) {
+  const dialogClass = useResponsiveDialogClass('small')
+  
   if (!stock) return null
 
   const baseShares = 10
@@ -29,7 +32,7 @@ export function StockModal({ open, onOpenChange, stock, onBuy, cash, showInsight
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-[500px] bg-card border-2 border-accent/50 shadow-[0_0_40px_oklch(0.75_0.15_85_/_0.3)]">
+      <DialogContent className={`${dialogClass} bg-card border-2 border-accent/50 shadow-[0_0_40px_oklch(0.75_0.15_85_/_0.3)]`}>
         <DialogHeader>
           <div className="flex items-center gap-2 mb-2">
             <Badge variant="outline" className="text-xs font-mono uppercase bg-accent/20 text-accent border-accent/50">

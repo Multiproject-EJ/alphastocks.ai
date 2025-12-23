@@ -1429,7 +1429,7 @@ function App() {
           id: 'stock',
           component: StockModal,
           props: {
-            stock: currentStock,
+            stock: stock,
             onBuy: handleBuyStock,
             cash: gameState.cash,
             showInsights: hasPowerUp('stock-insight'),

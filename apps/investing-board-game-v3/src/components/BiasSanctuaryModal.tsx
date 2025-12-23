@@ -7,6 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { useResponsiveDialogClass } from '@/hooks/useResponsiveDialogClass'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
@@ -32,6 +33,7 @@ export function BiasSanctuaryModal({
   caseStudy,
   onComplete,
 }: BiasSanctuaryModalProps) {
+  const dialogClass = useResponsiveDialogClass('large')
   const [showCard, setShowCard] = useState(true)
   const [contextExpanded, setContextExpanded] = useState<number[]>([])
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
@@ -97,7 +99,7 @@ export function BiasSanctuaryModal({
       }}
     >
       <CelebrationEffect show={showCelebration} onComplete={() => setShowCelebration(false)} />
-      <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-[700px] max-h-[85vh] overflow-y-auto bg-card border-2 border-accent/50 shadow-[0_0_60px_oklch(0.75_0.15_85_/_0.4)]">
+      <DialogContent className={`${dialogClass} max-h-[85vh] overflow-y-auto bg-card border-2 border-accent/50 shadow-[0_0_60px_oklch(0.75_0.15_85_/_0.4)]`}>
         <AnimatePresence mode="wait">
           {showCard ? (
             <motion.div
