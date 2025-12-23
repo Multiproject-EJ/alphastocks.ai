@@ -44,8 +44,8 @@ export function StockModal({ open, onOpenChange, stock, onBuy, cash, showInsight
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={`${dialogClass} bg-card border-2 border-accent/50 shadow-[0_0_40px_oklch(0.75_0.15_85_/_0.3)] max-h-[90vh] overflow-y-auto relative`}>
-        <DialogHeader>
+      <DialogContent className={`${dialogClass} bg-card border-2 border-accent/50 shadow-[0_0_40px_oklch(0.75_0.15_85_/_0.3)] flex flex-col max-h-[85vh] relative`}>
+        <DialogHeader className="flex-shrink-0">
           {/* Hero Score - Top Right */}
           {stock.scores && (
             <div className="absolute top-4 right-4 flex flex-col items-center">
@@ -96,7 +96,8 @@ export function StockModal({ open, onOpenChange, stock, onBuy, cash, showInsight
           </DialogDescription>
         </DialogHeader>
 
-        <div className="py-4 space-y-4">
+        <div className="flex-1 overflow-y-auto min-h-0">
+          <div className="py-4 space-y-4">
           <div className="flex items-baseline gap-2">
             <div className="text-sm text-muted-foreground">Current Price:</div>
             <div className="text-2xl font-bold font-mono text-foreground">
@@ -338,6 +339,7 @@ export function StockModal({ open, onOpenChange, stock, onBuy, cash, showInsight
           >
             Pass
           </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
