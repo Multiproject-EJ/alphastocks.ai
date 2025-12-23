@@ -35,34 +35,174 @@ export const BOARD_TILES: Tile[] = [
 
 export const MOCK_STOCKS: Record<string, Stock[]> = {
   turnarounds: [
-    { name: 'Intel Corporation', ticker: 'INTC', category: 'turnarounds', price: 42.50, description: 'Semiconductor manufacturer rebuilding market position' },
-    { name: 'Ford Motor Company', ticker: 'F', category: 'turnarounds', price: 12.80, description: 'Legacy automaker pivoting to electric vehicles' },
-    { name: 'Nokia Corporation', ticker: 'NOK', category: 'turnarounds', price: 4.25, description: 'Telecom equipment provider restructuring operations' },
-    { name: 'Boeing Company', ticker: 'BA', category: 'turnarounds', price: 185.40, description: 'Aerospace giant recovering from production challenges' },
+    { 
+      name: 'Intel Corporation', 
+      ticker: 'INTC', 
+      category: 'turnarounds', 
+      price: 42.50, 
+      description: 'Semiconductor manufacturer rebuilding market position',
+      scores: { composite: 6.2, quality: 7.0, risk: 7.5, timing: 5.5 }
+    },
+    { 
+      name: 'Ford Motor Company', 
+      ticker: 'F', 
+      category: 'turnarounds', 
+      price: 12.80, 
+      description: 'Legacy automaker pivoting to electric vehicles',
+      scores: { composite: 5.8, quality: 6.5, risk: 8.0, timing: 6.0 }
+    },
+    { 
+      name: 'Nokia Corporation', 
+      ticker: 'NOK', 
+      category: 'turnarounds', 
+      price: 4.25, 
+      description: 'Telecom equipment provider restructuring operations',
+      scores: { composite: 5.5, quality: 6.0, risk: 8.5, timing: 5.0 }
+    },
+    { 
+      name: 'Boeing Company', 
+      ticker: 'BA', 
+      category: 'turnarounds', 
+      price: 185.40, 
+      description: 'Aerospace giant recovering from production challenges',
+      scores: { composite: 6.0, quality: 7.5, risk: 7.0, timing: 5.8 }
+    },
   ],
   dividends: [
-    { name: 'Coca-Cola Company', ticker: 'KO', category: 'dividends', price: 62.40, description: 'Global beverage leader with consistent dividend growth' },
-    { name: 'Realty Income Corp', ticker: 'O', category: 'dividends', price: 58.20, description: 'Monthly dividend REIT with retail properties' },
-    { name: 'AT&T Inc', ticker: 'T', category: 'dividends', price: 18.75, description: 'Telecom provider with high dividend yield' },
-    { name: 'Verizon Communications', ticker: 'VZ', category: 'dividends', price: 40.30, description: 'Wireless carrier with stable dividend payments' },
+    { 
+      name: 'Coca-Cola Company', 
+      ticker: 'KO', 
+      category: 'dividends', 
+      price: 62.40, 
+      description: 'Global beverage leader with consistent dividend growth',
+      scores: { composite: 7.8, quality: 8.5, risk: 3.5, timing: 7.0 }
+    },
+    { 
+      name: 'Realty Income Corp', 
+      ticker: 'O', 
+      category: 'dividends', 
+      price: 58.20, 
+      description: 'Monthly dividend REIT with retail properties',
+      scores: { composite: 7.5, quality: 8.0, risk: 5.0, timing: 7.2 }
+    },
+    { 
+      name: 'AT&T Inc', 
+      ticker: 'T', 
+      category: 'dividends', 
+      price: 18.75, 
+      description: 'Telecom provider with high dividend yield',
+      scores: { composite: 6.5, quality: 6.8, risk: 6.0, timing: 6.5 }
+    },
+    { 
+      name: 'Verizon Communications', 
+      ticker: 'VZ', 
+      category: 'dividends', 
+      price: 40.30, 
+      description: 'Wireless carrier with stable dividend payments',
+      scores: { composite: 7.0, quality: 7.5, risk: 4.5, timing: 6.8 }
+    },
   ],
   growth: [
-    { name: 'NVIDIA Corporation', ticker: 'NVDA', category: 'growth', price: 875.30, description: 'AI chip leader with explosive revenue growth' },
-    { name: 'MongoDB Inc', ticker: 'MDB', category: 'growth', price: 385.60, description: 'Database platform expanding in cloud infrastructure' },
-    { name: 'Tesla Inc', ticker: 'TSLA', category: 'growth', price: 248.50, description: 'Electric vehicle and energy company scaling globally' },
-    { name: 'Shopify Inc', ticker: 'SHOP', category: 'growth', price: 78.90, description: 'E-commerce platform with rapid merchant adoption' },
+    { 
+      name: 'NVIDIA Corporation', 
+      ticker: 'NVDA', 
+      category: 'growth', 
+      price: 875.30, 
+      description: 'AI chip leader with explosive revenue growth',
+      scores: { composite: 9.2, quality: 9.5, risk: 6.5, timing: 8.8 }
+    },
+    { 
+      name: 'MongoDB Inc', 
+      ticker: 'MDB', 
+      category: 'growth', 
+      price: 385.60, 
+      description: 'Database platform expanding in cloud infrastructure',
+      scores: { composite: 7.8, quality: 8.0, risk: 7.0, timing: 7.5 }
+    },
+    { 
+      name: 'Tesla Inc', 
+      ticker: 'TSLA', 
+      category: 'growth', 
+      price: 248.50, 
+      description: 'Electric vehicle and energy company scaling globally',
+      scores: { composite: 7.5, quality: 7.8, risk: 8.5, timing: 7.0 }
+    },
+    { 
+      name: 'Shopify Inc', 
+      ticker: 'SHOP', 
+      category: 'growth', 
+      price: 78.90, 
+      description: 'E-commerce platform with rapid merchant adoption',
+      scores: { composite: 7.2, quality: 7.5, risk: 7.5, timing: 7.0 }
+    },
   ],
   moats: [
-    { name: 'Visa Inc', ticker: 'V', category: 'moats', price: 285.90, description: 'Payment network with unassailable competitive advantages' },
-    { name: 'Adobe Inc', ticker: 'ADBE', category: 'moats', price: 565.40, description: 'Creative software monopoly with high switching costs' },
-    { name: 'Mastercard Inc', ticker: 'MA', category: 'moats', price: 475.20, description: 'Global payment processor with network effects' },
-    { name: 'Alphabet Inc', ticker: 'GOOGL', category: 'moats', price: 142.80, description: 'Search engine dominance with data moat' },
+    { 
+      name: 'Visa Inc', 
+      ticker: 'V', 
+      category: 'moats', 
+      price: 285.90, 
+      description: 'Payment network with unassailable competitive advantages',
+      scores: { composite: 9.0, quality: 9.5, risk: 3.0, timing: 8.5 }
+    },
+    { 
+      name: 'Adobe Inc', 
+      ticker: 'ADBE', 
+      category: 'moats', 
+      price: 565.40, 
+      description: 'Creative software monopoly with high switching costs',
+      scores: { composite: 8.5, quality: 9.0, risk: 4.0, timing: 8.0 }
+    },
+    { 
+      name: 'Mastercard Inc', 
+      ticker: 'MA', 
+      category: 'moats', 
+      price: 475.20, 
+      description: 'Global payment processor with network effects',
+      scores: { composite: 8.8, quality: 9.2, risk: 3.5, timing: 8.3 }
+    },
+    { 
+      name: 'Alphabet Inc', 
+      ticker: 'GOOGL', 
+      category: 'moats', 
+      price: 142.80, 
+      description: 'Search engine dominance with data moat',
+      scores: { composite: 8.7, quality: 9.0, risk: 4.5, timing: 8.0 }
+    },
   ],
   value: [
-    { name: 'Berkshire Hathaway', ticker: 'BRK.B', category: 'value', price: 425.80, description: 'Conglomerate trading below intrinsic value' },
-    { name: 'Bank of America', ticker: 'BAC', category: 'value', price: 38.90, description: 'Major bank with strong fundamentals, low P/E ratio' },
-    { name: 'Citigroup Inc', ticker: 'C', category: 'value', price: 62.15, description: 'Banking giant undervalued relative to book value' },
-    { name: 'Pfizer Inc', ticker: 'PFE', category: 'value', price: 27.30, description: 'Pharmaceutical company with strong cash flow, low valuation' },
+    { 
+      name: 'Berkshire Hathaway', 
+      ticker: 'BRK.B', 
+      category: 'value', 
+      price: 425.80, 
+      description: 'Conglomerate trading below intrinsic value',
+      scores: { composite: 8.5, quality: 9.0, risk: 4.0, timing: 7.5 }
+    },
+    { 
+      name: 'Bank of America', 
+      ticker: 'BAC', 
+      category: 'value', 
+      price: 38.90, 
+      description: 'Major bank with strong fundamentals, low P/E ratio',
+      scores: { composite: 7.2, quality: 7.5, risk: 5.5, timing: 7.0 }
+    },
+    { 
+      name: 'Citigroup Inc', 
+      ticker: 'C', 
+      category: 'value', 
+      price: 62.15, 
+      description: 'Banking giant undervalued relative to book value',
+      scores: { composite: 6.8, quality: 7.0, risk: 6.0, timing: 6.8 }
+    },
+    { 
+      name: 'Pfizer Inc', 
+      ticker: 'PFE', 
+      category: 'value', 
+      price: 27.30, 
+      description: 'Pharmaceutical company with strong cash flow, low valuation',
+      scores: { composite: 7.0, quality: 7.8, risk: 5.0, timing: 6.5 }
+    },
   ],
 }
 

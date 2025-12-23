@@ -9,7 +9,7 @@ import { useResponsiveDialogClass } from '@/hooks/useResponsiveDialogClass'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Stock } from '@/lib/types'
-import { Coins } from '@phosphor-icons/react'
+import { Coins, TrendUp, ShieldCheck, Speedometer, Target } from '@phosphor-icons/react'
 
 interface StockModalProps {
   open: boolean
@@ -18,6 +18,41 @@ interface StockModalProps {
   onBuy: (multiplier: number) => void
   cash: number
   showInsights?: boolean
+}
+
+// Helper function to get color based on score
+const getScoreColor = (score: number, isRisk: boolean = false): string => {
+  if (isRisk) {
+    // For risk: lower is better (green), higher is worse (red)
+    if (score <= 4) return 'text-green-500'
+    if (score <= 7) return 'text-yellow-500'
+    return 'text-red-500'
+  } else {
+    // For other scores: higher is better
+    if (score >= 8) return 'text-green-500'
+    if (score >= 6) return 'text-yellow-500'
+    return 'text-red-500'
+  }
+}
+
+// Helper function to get background color for score badge
+const getScoreBgColor = (score: number, isRisk: boolean = false): string => {
+  if (isRisk) {
+    if (score <= 4) return 'bg-green-500/20 border-green-500/50'
+    if (score <= 7) return 'bg-yellow-500/20 border-yellow-500/50'
+    return 'bg-red-500/20 border-red-500/50'
+  } else {
+    if (score >= 8) return 'bg-green-500/20 border-green-500/50'
+    if (score >= 6) return 'bg-yellow-500/20 border-yellow-500/50'
+    return 'bg-red-500/20 border-red-500/50'
+  }
+}
+
+// Helper function to get risk label
+const getRiskLabel = (score: number): string => {
+  if (score <= 4) return 'Low'
+  if (score <= 7) return 'Medium'
+  return 'High'
 }
 
 export function StockModal({ open, onOpenChange, stock, onBuy, cash, showInsights = false }: StockModalProps) {
@@ -32,7 +67,7 @@ export function StockModal({ open, onOpenChange, stock, onBuy, cash, showInsight
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={`${dialogClass} bg-card border-2 border-accent/50 shadow-[0_0_40px_oklch(0.75_0.15_85_/_0.3)]`}>
+      <DialogContent className={`${dialogClass} bg-card border-2 border-accent/50 shadow-[0_0_40px_oklch(0.75_0.15_85_/_0.3)] max-h-[90vh] overflow-y-auto`}>
         <DialogHeader>
           <div className="flex items-center gap-2 mb-2">
             <Badge variant="outline" className="text-xs font-mono uppercase bg-accent/20 text-accent border-accent/50">
@@ -57,6 +92,65 @@ export function StockModal({ open, onOpenChange, stock, onBuy, cash, showInsight
             <Coins size={16} className="text-accent" />
             Available Cash: <span className="font-mono text-foreground">${cash.toLocaleString()}</span>
           </div>
+
+          {/* Universe Scores Section */}
+          {stock.scores && (
+            <div className="bg-accent/10 border-2 border-accent/30 rounded-lg p-4 space-y-3">
+              <div className="text-sm font-semibold text-accent flex items-center gap-2 mb-3">
+                📊 Stock Analysis Scores
+              </div>
+              
+              <div className="grid grid-cols-2 gap-3">
+                {/* Composite Score */}
+                <div className={`rounded-lg p-3 border ${getScoreBgColor(stock.scores.composite)}`}>
+                  <div className="flex items-center gap-2 mb-1">
+                    <Target size={16} className={getScoreColor(stock.scores.composite)} weight="bold" />
+                    <div className="text-xs text-muted-foreground font-semibold">Composite</div>
+                  </div>
+                  <div className={`text-2xl font-bold font-mono ${getScoreColor(stock.scores.composite)}`}>
+                    {stock.scores.composite.toFixed(1)}
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-1">Overall Rating</div>
+                </div>
+
+                {/* Quality Score */}
+                <div className={`rounded-lg p-3 border ${getScoreBgColor(stock.scores.quality)}`}>
+                  <div className="flex items-center gap-2 mb-1">
+                    <ShieldCheck size={16} className={getScoreColor(stock.scores.quality)} weight="bold" />
+                    <div className="text-xs text-muted-foreground font-semibold">Quality</div>
+                  </div>
+                  <div className={`text-2xl font-bold font-mono ${getScoreColor(stock.scores.quality)}`}>
+                    {stock.scores.quality.toFixed(1)}
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-1">Business Quality</div>
+                </div>
+
+                {/* Risk Score */}
+                <div className={`rounded-lg p-3 border ${getScoreBgColor(stock.scores.risk, true)}`}>
+                  <div className="flex items-center gap-2 mb-1">
+                    <TrendUp size={16} className={getScoreColor(stock.scores.risk, true)} weight="bold" />
+                    <div className="text-xs text-muted-foreground font-semibold">Risk</div>
+                  </div>
+                  <div className={`text-2xl font-bold font-mono ${getScoreColor(stock.scores.risk, true)}`}>
+                    {getRiskLabel(stock.scores.risk)}
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-1">Risk Level ({stock.scores.risk.toFixed(1)})</div>
+                </div>
+
+                {/* Timing Score */}
+                <div className={`rounded-lg p-3 border ${getScoreBgColor(stock.scores.timing)}`}>
+                  <div className="flex items-center gap-2 mb-1">
+                    <Speedometer size={16} className={getScoreColor(stock.scores.timing)} weight="bold" />
+                    <div className="text-xs text-muted-foreground font-semibold">Timing</div>
+                  </div>
+                  <div className={`text-2xl font-bold font-mono ${getScoreColor(stock.scores.timing)}`}>
+                    {stock.scores.timing.toFixed(1)}
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-1">Market Timing</div>
+                </div>
+              </div>
+            </div>
+          )}
 
           {showInsights && (
             <div className="bg-accent/10 border-2 border-accent/30 rounded-lg p-4 space-y-2">
