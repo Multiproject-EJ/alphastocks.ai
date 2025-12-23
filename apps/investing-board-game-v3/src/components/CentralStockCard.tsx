@@ -1,4 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion'
+import { useState } from 'react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Stock } from '@/lib/types'
@@ -11,6 +12,8 @@ interface CentralStockCardProps {
 }
 
 export function CentralStockCard({ stock, isVisible, onClose }: CentralStockCardProps) {
+  const [imageError, setImageError] = useState(false)
+  
   return (
     <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30">
       <AnimatePresence>
@@ -44,8 +47,17 @@ export function CentralStockCard({ stock, isVisible, onClose }: CentralStockCard
               
               {/* Header with logo placeholder and name */}
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-accent/20 to-accent/10 border-2 border-accent/30 flex items-center justify-center">
-                  <Briefcase size={32} className="text-accent/50" weight="fill" />
+                <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-accent/20 to-accent/10 border-2 border-accent/30 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                  {stock.image_url && !imageError ? (
+                    <img 
+                      src={stock.image_url} 
+                      alt={stock.name}
+                      className="w-full h-full object-cover"
+                      onError={() => setImageError(true)}
+                    />
+                  ) : (
+                    <Briefcase size={32} className="text-accent/50" weight="fill" />
+                  )}
                 </div>
                 <div className="flex-1">
                   <h3 className="text-2xl font-bold text-accent mb-1">{stock.name}</h3>
