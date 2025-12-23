@@ -1420,8 +1420,15 @@ function App() {
       const stock = getStockForCategory(tile.category)
       setCurrentStock(stock)
 
+      // Show preview card
       setShowCentralStock(true)
 
+      // Hide preview card after 1.5 seconds
+      setTimeout(() => {
+        setShowCentralStock(false)
+      }, 1500)
+
+      // Open purchase modal after preview disappears (2 seconds total delay)
       setTimeout(() => {
         debugGame('Opening Stock modal')
         logEvent?.('modal_opened', { modal: 'stock' })
@@ -1438,7 +1445,6 @@ function App() {
           onClose: () => {
             logEvent?.('modal_closed', { modal: 'stock' })
             debugGame('Stock modal closed - cleaning up')
-            setShowCentralStock(false)
             setCurrentStock(null)
             // Consume stock insight if it was active
             if (hasPowerUp('stock-insight')) {
