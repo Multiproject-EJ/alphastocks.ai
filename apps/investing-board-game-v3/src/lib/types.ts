@@ -25,6 +25,12 @@ export interface Stock {
   category: TileCategory
   price: number
   description: string
+  scores?: {
+    composite: number // Overall rating 0-10
+    quality: number // Quality score 0-10
+    risk: number // Risk score 0-10
+    timing: number // Timing score 0-10
+  }
 }
 
 export interface ThriftyChallenge {

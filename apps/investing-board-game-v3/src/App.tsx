@@ -1497,10 +1497,9 @@ function App() {
             description: '🛡️ Protected from market event',
           })
           playSound('button-click')
-          setTimeout(() => {
-            debugGame('Phase transition: landed -> idle (market shield blocked event)')
-            setPhase('idle')
-          }, 1000)
+          // Immediately transition back to idle (no modal to show)
+          debugGame('Phase transition: landed -> idle (market shield blocked event)')
+          setPhase('idle')
         } else {
           const event = getRandomMarketEvent()
           setCurrentEvent(event)
@@ -1529,28 +1528,23 @@ function App() {
         toast.info(tile.title, {
           description: 'This feature is coming soon!',
         })
-        // Transition back to idle after a short delay
-        setTimeout(() => {
-          debugGame('Phase transition: landed -> idle (event fallback)')
-          setPhase('idle')
-        }, 1000)
+        // Immediately transition back to idle (no modal to show)
+        debugGame('Phase transition: landed -> idle (event fallback)')
+        setPhase('idle')
       }
     } else if (tile.type === 'corner') {
       debugGame('Corner tile:', tile.title)
       if (tile.title === 'Start / ThriftyPath') {
-        setGameState((prev) => ({
-          ...prev,
-          cash: prev.cash + 20000,
-          netWorth: prev.netWorth + 20000,
-        }))
-        toast.success('Passed Start! Collected $20,000', {
-          description: 'Keep building your portfolio',
-        })
-        // Transition back to idle after a short delay
-        setTimeout(() => {
-          debugGame('Phase transition: landed -> idle (Start corner)')
-          setPhase('idle')
-        }, 1000)
+        // Pass start bonuses are now handled in handleRoll with multipliers applied
+        // No need to award bonus here - just show a message if landing on Start
+        if (position === 0) {
+          toast.info('You\'re on Start!', {
+            description: 'Great place to plan your next move',
+          })
+        }
+        // Immediately transition back to idle (no modal to show)
+        debugGame('Phase transition: landed -> idle (Start corner)')
+        setPhase('idle')
       } else if (tile.title === 'Casino') {
         setShowCelebration(true)
         toast.info('🎰 Welcome to the Casino!', {
@@ -1579,11 +1573,9 @@ function App() {
         toast.info('Court of Capital', {
           description: 'Feature coming soon',
         })
-        // Transition back to idle after a short delay
-        setTimeout(() => {
-          debugGame('Phase transition: landed -> idle (Court corner)')
-          setPhase('idle')
-        }, 1000)
+        // Immediately transition back to idle (no modal to show)
+        debugGame('Phase transition: landed -> idle (Court corner)')
+        setPhase('idle')
       } else if (tile.title === 'Bias Sanctuary') {
         debugGame('Opening Bias Sanctuary modal')
         const caseStudy = getRandomBiasCaseStudy()

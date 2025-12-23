@@ -2,7 +2,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Stock } from '@/lib/types'
-import { TrendUp, Briefcase, X } from '@phosphor-icons/react'
+import { getScoreColor, getRiskLabelShort } from '@/lib/stockScores'
+import { TrendUp, Briefcase, X, Target, ShieldCheck, Speedometer } from '@phosphor-icons/react'
 
 interface CentralStockCardProps {
   stock: Stock | null
@@ -73,6 +74,40 @@ export function CentralStockCard({ stock, isVisible, onClose }: CentralStockCard
                     </div>
                   </div>
                 </div>
+
+                {/* Quick Scores Preview */}
+                {stock.scores && (
+                  <div className="grid grid-cols-4 gap-2">
+                    <div className="text-center p-2 rounded bg-accent/10 border border-accent/20">
+                      <Target size={14} className={`${getScoreColor(stock.scores.composite)} mx-auto mb-1`} weight="bold" />
+                      <div className={`text-sm font-bold ${getScoreColor(stock.scores.composite)}`}>
+                        {stock.scores.composite.toFixed(1)}
+                      </div>
+                      <div className="text-[10px] text-muted-foreground">Score</div>
+                    </div>
+                    <div className="text-center p-2 rounded bg-accent/10 border border-accent/20">
+                      <ShieldCheck size={14} className={`${getScoreColor(stock.scores.quality)} mx-auto mb-1`} weight="bold" />
+                      <div className={`text-sm font-bold ${getScoreColor(stock.scores.quality)}`}>
+                        {stock.scores.quality.toFixed(1)}
+                      </div>
+                      <div className="text-[10px] text-muted-foreground">Quality</div>
+                    </div>
+                    <div className="text-center p-2 rounded bg-accent/10 border border-accent/20">
+                      <TrendUp size={14} className={`${getScoreColor(stock.scores.risk, true)} mx-auto mb-1`} weight="bold" />
+                      <div className={`text-sm font-bold ${getScoreColor(stock.scores.risk, true)}`}>
+                        {getRiskLabelShort(stock.scores.risk)}
+                      </div>
+                      <div className="text-[10px] text-muted-foreground">Risk</div>
+                    </div>
+                    <div className="text-center p-2 rounded bg-accent/10 border border-accent/20">
+                      <Speedometer size={14} className={`${getScoreColor(stock.scores.timing)} mx-auto mb-1`} weight="bold" />
+                      <div className={`text-sm font-bold ${getScoreColor(stock.scores.timing)}`}>
+                        {stock.scores.timing.toFixed(1)}
+                      </div>
+                      <div className="text-[10px] text-muted-foreground">Timing</div>
+                    </div>
+                  </div>
+                )}
 
                 <p className="text-xs text-center text-muted-foreground italic">
                   This card appears when you land on category tiles
