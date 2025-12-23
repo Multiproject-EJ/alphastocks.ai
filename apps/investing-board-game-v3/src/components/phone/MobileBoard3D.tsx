@@ -22,51 +22,51 @@ interface MobileBoard3DProps {
 export function MobileBoard3D({
   children,
   currentPosition,
-  totalTiles = 40,
+  totalTiles = 27, // Updated to match actual board layout
   boardSize = 1200, // Match default board size used throughout app
 }: MobileBoard3DProps) {
   // Touch pan gesture hook
   const { panOffset, handlers } = useBoardPan();
 
-  // Calculate where player is on the board - FIXED calculation
+  // Calculate where player is on the board - FIXED calculation for 27-tile board
   const playerOffset = useMemo(() => {
-    const tilesPerSide = 10;
-    const tileSize = boardSize / (tilesPerSide + 1);
+    // Board layout: 27 tiles arranged as:
+    // Bottom: 0-7 (8 tiles)
+    // Right: 8-12 (5 tiles)
+    // Top: 13-21 (9 tiles)
+    // Left: 22-26 (5 tiles)
     
-    // Calculate which side of the board (0=bottom, 1=left, 2=top, 3=right)
-    const side = Math.floor(currentPosition / tilesPerSide);
-    const posOnSide = currentPosition % tilesPerSide;
-    
-    let x = 0, y = 0;
+    const totalTiles = 27;
+    const tileSize = boardSize / 10; // Approximate tile size
     const halfBoard = boardSize / 2;
     
-    switch (side) {
-      case 0: // Bottom edge - moving right (position 0 is Start corner at bottom-left)
-        if (posOnSide === 0) {
-          // Position 0: Start corner (bottom-left)
-          x = -halfBoard + tileSize / 2;
-          y = halfBoard - tileSize / 2;
-        } else {
-          x = -halfBoard + (posOnSide + 1) * tileSize;
-          y = halfBoard - tileSize / 2;
-        }
-        break;
-      case 1: // Right edge - moving up
-        x = halfBoard - tileSize / 2;
-        y = halfBoard - (posOnSide + 1) * tileSize;
-        break;
-      case 2: // Top edge - moving left
-        x = halfBoard - (posOnSide + 1) * tileSize;
-        y = -halfBoard + tileSize / 2;
-        break;
-      case 3: // Left edge - moving down
-        x = -halfBoard + tileSize / 2;
-        y = -halfBoard + (posOnSide + 1) * tileSize;
-        break;
+    let x = 0, y = 0;
+    
+    if (currentPosition >= 0 && currentPosition <= 7) {
+      // Bottom edge - positions 0-7, moving left to right
+      const posOnSide = currentPosition;
+      x = -halfBoard + (posOnSide + 0.5) * tileSize * (8 / 8); // Distribute across bottom
+      y = halfBoard - tileSize * 0.5;
+    } else if (currentPosition >= 8 && currentPosition <= 12) {
+      // Right edge - positions 8-12, moving bottom to top
+      const posOnSide = currentPosition - 8;
+      x = halfBoard - tileSize * 0.5;
+      y = halfBoard - (posOnSide + 2) * tileSize * (8 / 5); // Adjust spacing
+    } else if (currentPosition >= 13 && currentPosition <= 21) {
+      // Top edge - positions 13-21, moving right to left
+      const posOnSide = currentPosition - 13;
+      x = halfBoard - (posOnSide + 0.5) * tileSize * (9 / 9);
+      y = -halfBoard + tileSize * 0.5;
+    } else if (currentPosition >= 22 && currentPosition <= 26) {
+      // Left edge - positions 22-26, moving top to bottom
+      const posOnSide = currentPosition - 22;
+      x = -halfBoard + tileSize * 0.5;
+      y = -halfBoard + (posOnSide + 2) * tileSize * (8 / 5); // Adjust spacing
     }
     
     // Negate to move board opposite direction (centers player)
-    return { x: -x, y: -y };
+    // Apply slight damping to keep more tiles visible
+    return { x: -x * 0.85, y: -y * 0.85 };
   }, [currentPosition, boardSize]);
 
   // Static camera settings - NO useState to avoid infinite loop!

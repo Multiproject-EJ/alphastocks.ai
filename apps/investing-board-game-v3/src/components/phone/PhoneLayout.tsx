@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import { TrendingUp, Wrench } from 'lucide-react';
 import { CompactHUD } from './CompactHUD';
 import { PhoneBottomNav } from './PhoneBottomNav';
 import { MobileBoard3D } from './MobileBoard3D';
@@ -19,12 +20,16 @@ interface PhoneLayoutProps {
     xp: number;
     xpToNext: number;
     rolls: number;
+    stars?: number; // Add stars
     cityLevel?: number; // Optional city level for backward compatibility
   };
   onRollDice: () => void;
   isRolling: boolean;
   isAutoRolling?: boolean;
   onToggleAutoRoll?: () => void;
+  // Add handlers for floating buttons
+  onOpenPortfolio?: () => void;
+  onOpenProTools?: () => void;
 }
 
 export function PhoneLayout({ 
@@ -35,6 +40,8 @@ export function PhoneLayout({
   isRolling,
   isAutoRolling = false,
   onToggleAutoRoll = () => {},
+  onOpenPortfolio = () => {},
+  onOpenProTools = () => {},
 }: PhoneLayoutProps) {
   const { mode } = useUIMode();
   const showDebug = import.meta.env.DEV;
@@ -75,6 +82,31 @@ export function PhoneLayout({
             {children}
           </MobileBoard3D>
         </div>
+      )}
+      
+      {/* Layer 20: Floating Action Buttons - OUTSIDE board transform */}
+      {mode === 'board' && (
+        <>
+          {/* Portfolio button - Right side */}
+          <button
+            onClick={onOpenPortfolio}
+            className="fixed right-4 z-40 bg-accent/90 hover:bg-accent backdrop-blur-sm rounded-full p-3 shadow-lg hover:shadow-xl transition-all"
+            style={{ top: `${COMPACT_HUD_HEIGHT + 80}px` }}
+            aria-label="Open Portfolio"
+          >
+            <TrendingUp size={24} className="text-accent-foreground" />
+          </button>
+          
+          {/* ProTools button - Right side below portfolio */}
+          <button
+            onClick={onOpenProTools}
+            className="fixed right-4 z-40 bg-primary/90 hover:bg-primary backdrop-blur-sm rounded-full p-3 shadow-lg hover:shadow-xl transition-all"
+            style={{ top: `${COMPACT_HUD_HEIGHT + 150}px` }}
+            aria-label="Open ProTools"
+          >
+            <Wrench size={24} className="text-primary-foreground" />
+          </button>
+        </>
       )}
       
       {/* Layer 30: Compact HUD */}

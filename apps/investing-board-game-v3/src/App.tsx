@@ -1885,7 +1885,8 @@ function App() {
             <SoundControls />
           </div>
 
-          {/* Center Section - Reorganized Layout */}
+          {/* Center Section - Reorganized Layout - HIDDEN on phone layout */}
+          {!isPhone && (
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 flex items-center gap-8">
             {/* Left Side - Shop, City Builder, Challenges, ThriftPath */}
             <div className={`flex flex-col gap-4 items-center transition-opacity duration-500 ${
@@ -2083,6 +2084,7 @@ function App() {
               </Button>
             </div>
           </div>
+          )}
 
           {/* Hide DiceHUD on mobile - shown in BottomNav instead */}
           {!isMobile && (
@@ -2303,12 +2305,29 @@ function App() {
           xp: gameState.xp,
           xpToNext: xpForNextLevel,
           rolls: rollsRemaining,
+          stars: gameState.stars, // Pass stars to CompactHUD
           cityLevel: gameState.cityLevel ?? 1, // Defensive fallback to 1
         }}
         onRollDice={() => handleRoll(1)}
         isRolling={phase === 'rolling'}
         isAutoRolling={isAutoRolling}
         onToggleAutoRoll={toggleAutoRoll}
+        onOpenPortfolio={() => {
+          showOverlay({
+            id: 'portfolio',
+            component: PortfolioModal,
+            props: {
+              gameState,
+            },
+            priority: 'normal',
+          })
+        }}
+        onOpenProTools={() => {
+          const proToolsUrl = 'https://www.alphastocks.ai/?proTools=1'
+          if (typeof window !== 'undefined') {
+            window.location.href = proToolsUrl
+          }
+        }}
       >
         {mainContent}
       </PhoneLayout>
