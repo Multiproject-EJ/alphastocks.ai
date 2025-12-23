@@ -1887,7 +1887,64 @@ function App() {
           />
         )}
 
-      <div className="relative z-10 max-w-[1600px] mx-auto" ref={boardContainerRef}>
+      {/* Layout wrapper - Three column layout for non-phone, regular for phone */}
+      <div className={`relative z-10 ${!isPhone ? 'flex items-center justify-center gap-8 h-[calc(100vh-2rem)] max-w-full px-4' : 'max-w-[1600px] mx-auto'}`} ref={boardContainerRef}>
+        {/* Left Column - Action buttons (desktop/tablet only) */}
+        {!isPhone && (
+          <div className={`flex flex-col gap-4 items-center justify-center transition-opacity duration-500 flex-shrink-0 ${
+            isLogoPanel ? 'opacity-0 pointer-events-none' : 'opacity-100'
+          }`}>
+            {/* Shop Button */}
+            <Button
+              onClick={() => {
+                showOverlay({
+                  id: 'shop',
+                  component: lazy(() => import('@/components/ShopModal')),
+                  props: {
+                    gameState,
+                    onPurchase: purchaseItem,
+                    isPermanentOwned,
+                    getItemQuantity,
+                    canAfford,
+                    onEquipCosmetic: equipCosmetic,
+                    getFinalPrice,
+                    shopDiscount,
+                  },
+                  priority: 'normal',
+                })
+              }}
+              className="bg-accent/90 hover:bg-accent text-accent-foreground shadow-lg hover:shadow-xl transition-all backdrop-blur-sm rounded-full h-14 px-6 text-base font-semibold flex items-center gap-2"
+              aria-label="Open Shop"
+            >
+              <ShoppingBag size={20} weight="bold" />
+              Shop
+            </Button>
+            {/* ProTools Button */}
+            <Button
+              onClick={() => {
+                const proToolsUrl = 'https://www.alphastocks.ai/?proTools=1'
+                if (typeof window !== 'undefined') {
+                  window.location.href = proToolsUrl
+                  return
+                }
+                setProToolsOpen(true)
+              }}
+              className="bg-accent/90 hover:bg-accent text-accent-foreground shadow-lg hover:shadow-xl transition-all backdrop-blur-sm rounded-full h-14 px-6 text-base font-semibold"
+              aria-label="Open Pro Tools"
+            >
+              ProTools
+            </Button>
+          </div>
+        )}
+
+        {/* Board Container - Centered and scaled to fit viewport height */}
+        <div className={`relative ${!isPhone ? 'flex-shrink flex items-center justify-center' : ''}`} style={{
+          ...((!isPhone) ? {
+            height: '100%',
+            maxHeight: 'calc(100vh - 4rem)',
+            aspectRatio: '1 / 1',
+          } : {})
+        }}>
         {/* Board wrapper with 3D camera or classic zoom support */}
         <Board3DViewport
           camera={camera}
@@ -1921,204 +1978,108 @@ function App() {
             <SoundControls />
           </div>
 
-          {/* Center Section - Reorganized Layout - HIDDEN on phone layout */}
+          {/* Center Content - User Info and Main Carousel - HIDDEN on phone layout */}
           {!isPhone && (
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 flex items-center gap-8">
-            {/* Left Side - Shop, City Builder, Challenges, ThriftPath */}
-            <div className={`flex flex-col gap-4 items-center transition-opacity duration-500 ${
-              isLogoPanel ? 'opacity-0 pointer-events-none' : 'opacity-100'
-            }`}>
-              <Button
-                onClick={() => {
-                  showOverlay({
-                    id: 'shop',
-                    component: lazy(() => import('@/components/ShopModal')),
-                    props: {
-                      gameState,
-                      onPurchase: purchaseItem,
-                      isPermanentOwned,
-                      getItemQuantity,
-                      canAfford,
-                      onEquipCosmetic: equipCosmetic,
-                      getFinalPrice,
-                      shopDiscount,
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 flex flex-col items-center gap-4">
+            <UserIndicator 
+              saving={saving} 
+              lastSaved={lastSavedTime} 
+              currentTier={currentTier}
+              stars={gameState.stars}
+              coins={gameState.coins}
+            />
+            <CenterCarousel
+              gameState={gameState}
+              netWorthChange={netWorthChange}
+              onStarsClick={() => {
+                showOverlay({
+                  id: 'hub',
+                  component: HubModal,
+                  props: {
+                    gameState,
+                    onOpenChallenges: () => {
+                      showOverlay({
+                        id: 'challenges',
+                        component: lazy(() => import('@/components/ChallengesModal')),
+                        props: {
+                          dailyChallenges,
+                          weeklyChallenges,
+                        },
+                        priority: 'normal',
+                      })
                     },
-                    priority: 'normal',
-                  })
-                }}
-                className="bg-accent/90 hover:bg-accent text-accent-foreground shadow-lg hover:shadow-xl transition-all backdrop-blur-sm rounded-full h-14 px-6 text-base font-semibold flex items-center gap-2"
-                aria-label="Open Shop"
-              >
-                <ShoppingBag size={20} weight="bold" />
-                Shop
-              </Button>
-              <Button
-                onClick={() => {
-                  showOverlay({
-                    id: 'cityBuilder',
-                    component: lazy(() => import('@/components/CityBuilderModal')),
-                    props: {
-                      stars: gameState.stars,
-                      currentCity,
-                      currentCityProgress,
-                      allCities,
-                      citiesProgress: cityBuilderState.cities,
-                      canUpgrade: canUpgradeBuilding,
-                      timeUntilNextUpgrade,
-                      onUpgradeBuilding: upgradeBuilding,
-                      onUnlockNextCity: unlockNextCity,
-                      onSelectCity: selectCity,
-                      nextCityToUnlock,
-                      canUnlockNext,
-                      totalBuildingsCompleted,
-                      totalCitiesCompleted,
-                      totalCitiesUnlocked,
+                    onOpenEventCalendar: () => {
+                      showOverlay({
+                        id: 'eventCalendar',
+                        component: lazy(() => import('@/components/EventCalendar')),
+                        props: {
+                          activeEvents,
+                          upcomingEvents,
+                        },
+                        priority: 'normal',
+                      })
                     },
-                    priority: 'normal',
-                  })
-                }}
-                className="bg-gradient-to-r from-emerald-500/90 to-teal-500/90 hover:from-emerald-500 hover:to-teal-500 text-white shadow-lg hover:shadow-xl transition-all backdrop-blur-sm rounded-full h-14 px-6 text-base font-semibold flex items-center gap-2"
-                aria-label="Open City Builder"
-              >
-                <Buildings size={20} weight="bold" />
-                Cities
-              </Button>
-              <ChallengeTracker
-                dailyChallenges={dailyChallenges}
-                onOpenModal={() => {
-                  showOverlay({
-                    id: 'challenges',
-                    component: lazy(() => import('@/components/ChallengesModal')),
-                    props: {
-                      dailyChallenges,
-                      weeklyChallenges,
+                    onOpenNetWorthGallery: () => {
+                      showOverlay({
+                        id: 'netWorthGallery',
+                        component: NetWorthGalleryModal,
+                        props: {
+                          currentNetWorth: gameState.netWorth,
+                        },
+                        priority: 'normal',
+                      })
                     },
-                    priority: 'normal',
-                  })
-                }}
-              />
-              <ThriftPathStatus
-                status={thriftPathStatus}
-                onClick={() => {
-                  // Could open a detailed Thrift Path info modal in the future
-                  toast.info('Thrift Path', {
-                    description: `Your disciplined choices earn XP and unlock benefits!`
-                  })
-                }}
-              />
-            </div>
-
-            {/* Center - Main Carousel with User Info on Top */}
-            <div className="flex flex-col items-center gap-4">
-              <UserIndicator 
-                saving={saving} 
-                lastSaved={lastSavedTime} 
-                currentTier={currentTier}
-                stars={gameState.stars}
-                coins={gameState.coins}
-              />
-              <CenterCarousel
-                gameState={gameState}
-                netWorthChange={netWorthChange}
-                onStarsClick={() => {
-                  showOverlay({
-                    id: 'hub',
-                    component: HubModal,
-                    props: {
-                      gameState,
-                      onOpenChallenges: () => {
-                        showOverlay({
-                          id: 'challenges',
-                          component: lazy(() => import('@/components/ChallengesModal')),
-                          props: {
-                            dailyChallenges,
-                            weeklyChallenges,
-                          },
-                          priority: 'normal',
-                        })
-                      },
-                      onOpenEventCalendar: () => {
-                        showOverlay({
-                          id: 'eventCalendar',
-                          component: lazy(() => import('@/components/EventCalendar')),
-                          props: {
-                            activeEvents,
-                            upcomingEvents,
-                          },
-                          priority: 'normal',
-                        })
-                      },
-                      onOpenNetWorthGallery: () => {
-                        showOverlay({
-                          id: 'netWorthGallery',
-                          component: NetWorthGalleryModal,
-                          props: {
-                            currentNetWorth: gameState.netWorth,
-                          },
-                          priority: 'normal',
-                        })
-                      },
-                      onOpenCityBuilder: () => {
-                        showOverlay({
-                          id: 'cityBuilder',
-                          component: lazy(() => import('@/components/CityBuilderModal')),
-                          props: {
-                            stars: gameState.stars,
-                            currentCity,
-                            currentCityProgress,
-                            allCities,
-                            citiesProgress: cityBuilderState.cities,
-                            canUpgrade: canUpgradeBuilding,
-                            timeUntilNextUpgrade,
-                            onUpgradeBuilding: upgradeBuilding,
-                            onUnlockNextCity: unlockNextCity,
-                            onSelectCity: selectCity,
-                            nextCityToUnlock,
-                            canUnlockNext,
-                            totalBuildingsCompleted,
-                            totalCitiesCompleted,
-                            totalCitiesUnlocked,
-                          },
-                          priority: 'normal',
-                        })
-                      },
+                    onOpenCityBuilder: () => {
+                      showOverlay({
+                        id: 'cityBuilder',
+                        component: lazy(() => import('@/components/CityBuilderModal')),
+                        props: {
+                          stars: gameState.stars,
+                          currentCity,
+                          currentCityProgress,
+                          allCities,
+                          citiesProgress: cityBuilderState.cities,
+                          canUpgrade: canUpgradeBuilding,
+                          timeUntilNextUpgrade,
+                          onUpgradeBuilding: upgradeBuilding,
+                          onUnlockNextCity: unlockNextCity,
+                          onSelectCity: selectCity,
+                          nextCityToUnlock,
+                          canUnlockNext,
+                          totalBuildingsCompleted,
+                          totalCitiesCompleted,
+                          totalCitiesUnlocked,
+                        },
+                        priority: 'normal',
+                      })
                     },
-                    priority: 'normal',
-                  })
-                }}
-                onPortfolioClick={() => {
-                  showOverlay({
-                    id: 'portfolio',
-                    component: PortfolioModal,
-                    props: {
-                      gameState,
-                    },
-                    priority: 'normal',
-                  })
-                }}
-                onPanelChange={setCurrentCarouselPanel}
-              />
-            </div>
-
-            {/* Right Side - ProTools */}
-            <div className={`flex flex-col items-center transition-opacity duration-500 ${
-              isLogoPanel ? 'opacity-0 pointer-events-none' : 'opacity-100'
-            }`}>
-              <Button
-                onClick={() => {
-                  const proToolsUrl = 'https://www.alphastocks.ai/?proTools=1'
-                  if (typeof window !== 'undefined') {
-                    window.location.href = proToolsUrl
-                    return
-                  }
-                  setProToolsOpen(true)
-                }}
-                className="bg-accent/90 hover:bg-accent text-accent-foreground shadow-lg hover:shadow-xl transition-all backdrop-blur-sm rounded-full h-14 px-6 text-base font-semibold"
-                aria-label="Open Pro Tools"
-              >
-                ProTools
-              </Button>
-            </div>
+                  },
+                  priority: 'normal',
+                })
+              }}
+              onPortfolioClick={() => {
+                showOverlay({
+                  id: 'portfolio',
+                  component: PortfolioModal,
+                  props: {
+                    gameState,
+                  },
+                  priority: 'normal',
+                })
+              }}
+              onPanelChange={setCurrentCarouselPanel}
+            />
+            
+            {/* ThriftPath Status - Moved here from side column */}
+            <ThriftPathStatus
+              status={thriftPathStatus}
+              onClick={() => {
+                // Could open a detailed Thrift Path info modal in the future
+                toast.info('Thrift Path', {
+                  description: `Your disciplined choices earn XP and unlock benefits!`
+                })
+              }}
+            />
           </div>
           )}
 
@@ -2235,6 +2196,62 @@ function App() {
           isMobile={isMobile}
           cameraMode={camera.mode}
         />
+        </div>
+
+        {/* Right Column - Action buttons (desktop/tablet only) */}
+        {!isPhone && (
+          <div className={`flex flex-col gap-4 items-center justify-center transition-opacity duration-500 flex-shrink-0 ${
+            isLogoPanel ? 'opacity-0 pointer-events-none' : 'opacity-100'
+          }`}>
+            {/* Cities Button */}
+            <Button
+              onClick={() => {
+                showOverlay({
+                  id: 'cityBuilder',
+                  component: lazy(() => import('@/components/CityBuilderModal')),
+                  props: {
+                    stars: gameState.stars,
+                    currentCity,
+                    currentCityProgress,
+                    allCities,
+                    citiesProgress: cityBuilderState.cities,
+                    canUpgrade: canUpgradeBuilding,
+                    timeUntilNextUpgrade,
+                    onUpgradeBuilding: upgradeBuilding,
+                    onUnlockNextCity: unlockNextCity,
+                    onSelectCity: selectCity,
+                    nextCityToUnlock,
+                    canUnlockNext,
+                    totalBuildingsCompleted,
+                    totalCitiesCompleted,
+                    totalCitiesUnlocked,
+                  },
+                  priority: 'normal',
+                })
+              }}
+              className="bg-gradient-to-r from-emerald-500/90 to-teal-500/90 hover:from-emerald-500 hover:to-teal-500 text-white shadow-lg hover:shadow-xl transition-all backdrop-blur-sm rounded-full h-14 px-6 text-base font-semibold flex items-center gap-2"
+              aria-label="Open City Builder"
+            >
+              <Buildings size={20} weight="bold" />
+              Cities
+            </Button>
+            {/* Challenges Button via ChallengeTracker */}
+            <ChallengeTracker
+              dailyChallenges={dailyChallenges}
+              onOpenModal={() => {
+                showOverlay({
+                  id: 'challenges',
+                  component: lazy(() => import('@/components/ChallengesModal')),
+                  props: {
+                    dailyChallenges,
+                    weeklyChallenges,
+                  },
+                  priority: 'normal',
+                })
+              }}
+            />
+          </div>
+        )}
       </div>
 
       {/* Centralized Overlay Renderer - handles all modals */}

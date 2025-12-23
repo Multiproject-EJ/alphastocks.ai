@@ -58,15 +58,18 @@ export function BoardViewport({
 
   const viewportHeight = getViewportHeight()
 
-  // Desktop: no special viewport handling  
+  // Desktop: Scale board to fit parent container with aspect ratio maintained
   if (!isMobile) {
     return (
       <div 
         ref={boardRef} 
         className={boardClassName}
         style={{
-          width: `${boardSize.width}px`,
-          height: `${boardSize.height}px`,
+          width: '100%',
+          height: '100%',
+          maxWidth: `${boardSize.width}px`,
+          maxHeight: `${boardSize.height}px`,
+          aspectRatio: '1 / 1',
           position: 'relative',
         }}
       >
