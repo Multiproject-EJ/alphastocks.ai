@@ -54,12 +54,12 @@ export function ThriftyPathModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <CelebrationEffect show={showCelebration} onComplete={() => setShowCelebration(false)} />
-      <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-[600px] max-h-[80vh] overflow-y-auto bg-card border-2 border-accent/50 shadow-[0_0_40px_oklch(0.75_0.15_85_/_0.3)]">
+      <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-[600px] max-h-[85vh] overflow-y-auto bg-card border-2 border-accent/50 shadow-[0_0_40px_oklch(0.75_0.15_85_/_0.3)] my-4 sm:my-8">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-accent">
+          <DialogTitle className="text-xl sm:text-2xl font-bold text-accent">
             🌿 Thrifty Path Opportunity
           </DialogTitle>
-          <DialogDescription className="text-base text-foreground/80">
+          <DialogDescription className="text-sm sm:text-base text-foreground/80">
             Complete challenges to earn Thrift Path XP and unlock persistent benefits!
           </DialogDescription>
           
@@ -75,11 +75,11 @@ export function ThriftyPathModal({
           )}
         </DialogHeader>
 
-        <div className="grid gap-2.5 py-4">
+        <div className="grid gap-2.5 py-2 sm:py-4">
           {challenges.map((challenge) => (
             <Card
               key={challenge.id}
-              className="p-3 bg-background/50 border-2 border-border hover:border-accent/50 transition-colors"
+              className="p-2.5 sm:p-3 bg-background/50 border-2 border-border hover:border-accent/50 transition-colors"
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
@@ -88,13 +88,14 @@ export function ThriftyPathModal({
                 </div>
                 <div className="flex flex-col items-end gap-2 flex-shrink-0">
                   <div className="flex items-center gap-1 text-accent font-bold text-sm">
-                    <Star size={14} weight="fill" />
+                    <Star size={12} className="sm:hidden" weight="fill" />
+                    <Star size={14} className="hidden sm:block" weight="fill" />
                     +{challenge.reward}
                   </div>
                   <Button
                     onClick={() => handleChoose(challenge)}
                     size="sm"
-                    className="bg-accent hover:bg-accent/90 text-accent-foreground h-7 px-3 text-xs"
+                    className="bg-accent hover:bg-accent/90 text-accent-foreground h-6 sm:h-7 px-3 text-xs"
                   >
                     Choose
                   </Button>

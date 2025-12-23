@@ -9,6 +9,7 @@ import { CentralStockCard } from '@/components/CentralStockCard'
 import { StockModal } from '@/components/StockModal'
 import { EventModal } from '@/components/EventModal'
 import { ThriftyPathModal } from '@/components/ThriftyPathModal'
+import { WildcardEventModal } from '@/components/WildcardEventModal'
 import { PortfolioModal } from '@/components/PortfolioModal'
 import { ProToolsOverlay } from '@/components/ProToolsOverlay'
 import { BiasSanctuaryModal } from '@/components/BiasSanctuaryModal'
@@ -60,7 +61,7 @@ if (import.meta.env.DEV || import.meta.env.VITE_DEVTOOLS === '1') {
   })
 }
 
-import { GameState, Stock, BiasCaseStudy } from '@/lib/types'
+import { GameState, Stock, BiasCaseStudy, WildcardEvent } from '@/lib/types'
 import { RealMoneyRollsPack } from '@/components/OutOfRollsModal'
 import {
   BOARD_TILES,
@@ -68,6 +69,7 @@ import {
   getRandomBiasCaseStudy,
   THRIFTY_CHALLENGES,
 } from '@/lib/mockData'
+import { getRandomWildcardEvent } from '@/lib/wildcardEvents'
 import { SHOP_ITEMS } from '@/lib/shopItems'
 import {
   DAILY_ROLL_LIMIT,
@@ -230,6 +232,7 @@ function App() {
   const [showCentralStock, setShowCentralStock] = useState(false)
   const [currentEvent, setCurrentEvent] = useState('')
   const [currentCaseStudy, setCurrentCaseStudy] = useState<BiasCaseStudy | null>(null)
+  const [currentWildcardEvent, setCurrentWildcardEvent] = useState<WildcardEvent | null>(null)
 
   // ProTools overlay state (separate from overlay manager)
   const [proToolsOpen, setProToolsOpen] = useState(false)
@@ -1420,92 +1423,38 @@ function App() {
       setShowCentralStock(true)
 
       setTimeout(() => {
-        const showThrifty = Math.random() > 0.6
-        if (showThrifty) {
-          debugGame('Opening Thrifty Path modal')
-          logEvent?.('modal_opened', { modal: 'thrifty_path' })
-          showOverlay({
-            id: 'thriftyPath',
-            component: ThriftyPathModal,
-            props: {
-              challenges: THRIFTY_CHALLENGES,
-              onChoose: handleChooseChallenge,
-              thriftPathStatus,
-            },
-            priority: 'normal',
-            onClose: () => {
-              debugGame('Thrifty modal closed - checking if stock modal should open')
-              if (currentStock) {
-                setTimeout(() => {
-                  debugGame('Opening stock modal after Thrifty modal close')
-                  showOverlay({
-                    id: 'stock',
-                    component: StockModal,
-                    props: {
-                      stock: currentStock,
-                      onBuy: handleBuyStock,
-                      cash: gameState.cash,
-                      showInsights: hasPowerUp('stock-insight'),
-                    },
-                    priority: 'normal',
-                    onClose: () => {
-                      logEvent?.('modal_closed', { modal: 'stock' })
-                      debugGame('Stock modal closed - cleaning up')
-                      setShowCentralStock(false)
-                      setCurrentStock(null)
-                      // Consume stock insight if it was active
-                      if (hasPowerUp('stock-insight')) {
-                        consumePowerUp('stock-insight')
-                      }
-                      setTimeout(() => {
-                        debugGame('Phase transition: landed -> idle (stock modal closed)')
-                        setPhase('idle')
-                      }, 300)
-                    }
-                  })
-                }, 300)
-              } else {
-                setTimeout(() => {
-                  debugGame('Phase transition: landed -> idle (thrifty modal closed, no stock)')
-                  setPhase('idle')
-                }, 300)
-              }
+        debugGame('Opening Stock modal')
+        logEvent?.('modal_opened', { modal: 'stock' })
+        showOverlay({
+          id: 'stock',
+          component: StockModal,
+          props: {
+            stock: currentStock,
+            onBuy: handleBuyStock,
+            cash: gameState.cash,
+            showInsights: hasPowerUp('stock-insight'),
+          },
+          priority: 'normal',
+          onClose: () => {
+            logEvent?.('modal_closed', { modal: 'stock' })
+            debugGame('Stock modal closed - cleaning up')
+            setShowCentralStock(false)
+            setCurrentStock(null)
+            // Consume stock insight if it was active
+            if (hasPowerUp('stock-insight')) {
+              consumePowerUp('stock-insight')
             }
-          })
-        } else {
-          debugGame('Opening Stock modal')
-          logEvent?.('modal_opened', { modal: 'stock' })
-          showOverlay({
-            id: 'stock',
-            component: StockModal,
-            props: {
-              stock: currentStock,
-              onBuy: handleBuyStock,
-              cash: gameState.cash,
-              showInsights: hasPowerUp('stock-insight'),
-            },
-            priority: 'normal',
-            onClose: () => {
-              logEvent?.('modal_closed', { modal: 'stock' })
-              debugGame('Stock modal closed - cleaning up')
-              setShowCentralStock(false)
-              setCurrentStock(null)
-              // Consume stock insight if it was active
-              if (hasPowerUp('stock-insight')) {
-                consumePowerUp('stock-insight')
-              }
-              setTimeout(() => {
-                debugGame('Phase transition: landed -> idle (stock modal closed)')
-                setPhase('idle')
-              }, 300)
-            }
-          })
-        }
+            setTimeout(() => {
+              debugGame('Phase transition: landed -> idle (stock modal closed)')
+              setPhase('idle')
+            }, 300)
+          }
+        })
       }, 2000)
     } else if (tile.type === 'event') {
       debugGame('Event tile:', tile.title)
-      if (tile.title === 'Quiz') {
-        debugGame('Opening Thrifty Path modal for Quiz')
+      if (tile.title === 'Thrift Path') {
+        debugGame('Opening Thrift Path modal for dedicated Thrift Path tile')
         showOverlay({
           id: 'thriftyPath',
           component: ThriftyPathModal,
@@ -1520,6 +1469,22 @@ function App() {
               debugGame('Phase transition: landed -> idle (thrifty modal closed)')
               setPhase('idle')
             }, 300)
+          }
+        })
+      } else if (tile.title === '?') {
+        debugGame('Opening Wildcard Event modal')
+        const wildcardEvent = getRandomWildcardEvent()
+        setCurrentWildcardEvent(wildcardEvent)
+        showOverlay({
+          id: 'wildcardEvent',
+          component: WildcardEventModal,
+          props: {
+            event: wildcardEvent,
+            onContinue: handleWildcardEvent,
+          },
+          priority: 'normal',
+          onClose: () => {
+            debugGame('Wildcard event modal closed')
           }
         })
       } else if (tile.title === 'Market Event') {
@@ -1787,6 +1752,77 @@ function App() {
       cash: prev.cash + amount,
       netWorth: prev.netWorth + amount,
     }))
+  }
+
+  const handleWildcardEvent = (event: WildcardEvent) => {
+    debugGame('Applying wildcard event:', event.id)
+    playSound('button-click')
+    
+    setGameState((prev) => {
+      let newCash = prev.cash
+      let newStars = prev.stars
+      let newPosition = prev.position
+      
+      // Apply cash effect
+      if (event.effect.cash !== undefined) {
+        if (event.effect.cash === -0.1) {
+          // Special case: 10% penalty
+          const penalty = Math.floor(prev.cash * 0.1)
+          newCash = prev.cash - penalty
+          toast.error(`${event.title}`, {
+            description: `Lost $${penalty.toLocaleString()} (10% of cash)`,
+          })
+        } else if (event.effect.cash > 0) {
+          newCash = prev.cash + event.effect.cash
+          toast.success(`${event.title}`, {
+            description: `Gained $${event.effect.cash.toLocaleString()}!`,
+          })
+        } else {
+          newCash = Math.max(0, prev.cash + event.effect.cash)
+          toast.error(`${event.title}`, {
+            description: `Lost $${Math.abs(event.effect.cash).toLocaleString()}`,
+          })
+        }
+      }
+      
+      // Apply stars effect
+      if (event.effect.stars !== undefined) {
+        if (event.effect.stars > 0) {
+          newStars = prev.stars + event.effect.stars
+          toast.success(`${event.title}`, {
+            description: `Gained ${event.effect.stars} stars! ⭐`,
+          })
+        } else {
+          newStars = Math.max(0, prev.stars + event.effect.stars)
+          toast.error(`${event.title}`, {
+            description: `Lost ${Math.abs(event.effect.stars)} stars`,
+          })
+        }
+      }
+      
+      // Apply teleport effect
+      if (event.effect.teleportTo !== undefined) {
+        newPosition = event.effect.teleportTo
+        const targetTile = BOARD_TILES.find(t => t.id === event.effect.teleportTo)
+        toast.info(`${event.title}`, {
+          description: `Teleported to ${targetTile?.title || 'tile ' + event.effect.teleportTo}!`,
+        })
+      }
+      
+      return {
+        ...prev,
+        cash: newCash,
+        stars: newStars,
+        position: newPosition,
+        netWorth: prev.netWorth + (newCash - prev.cash),
+      }
+    })
+    
+    // Transition back to idle after a short delay
+    setTimeout(() => {
+      debugGame('Phase transition: landed -> idle (wildcard event completed)')
+      setPhase('idle')
+    }, 1000)
   }
 
   const netWorthChange = ((gameState.netWorth - 100000) / 100000) * 100
