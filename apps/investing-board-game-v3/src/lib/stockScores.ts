@@ -165,7 +165,6 @@ export function formatRelativeTime(timestamp: string | null | undefined): string
   if (diffSeconds < 60) return 'Just now'
   if (diffMinutes < 60) return `${diffMinutes} min${diffMinutes > 1 ? 's' : ''} ago`
   if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`
-  if (diffDays === 0) return 'Today'
   if (diffDays === 1) return 'Yesterday'
   if (diffDays < 7) return `${diffDays} days ago`
   if (diffWeeks < 4) return `${diffWeeks} week${diffWeeks > 1 ? 's' : ''} ago`
@@ -180,7 +179,7 @@ export function formatRelativeTime(timestamp: string | null | undefined): string
  * @param flags - addon_flags object from database
  * @returns Array of warning flag objects with icon, label, and color
  */
-export function getWarningFlags(flags: any): Array<{ icon: string; label: string; color: string }> {
+export function getWarningFlags(flags: Record<string, boolean> | null | undefined): Array<{ icon: string; label: string; color: string }> {
   if (!flags || typeof flags !== 'object') return []
   
   const warnings: Array<{ icon: string; label: string; color: string }> = []

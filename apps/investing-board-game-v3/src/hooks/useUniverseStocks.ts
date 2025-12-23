@@ -14,7 +14,7 @@ type UniverseRow = {
   last_timing_label: string | null
   last_model: string | null
   last_deep_dive_at: string | null
-  addon_flags: any | null
+  addon_flags: Record<string, boolean> | null
   last_addon_run_at: string | null
   created_at: string | null
 }
