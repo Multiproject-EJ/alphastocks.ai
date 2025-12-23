@@ -308,6 +308,15 @@ function App() {
   const previewCardTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const stockModalTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
+  // Helper function to clear all timeout/interval refs
+  const clearAllTimers = () => {
+    if (rollTimeoutRef.current) clearTimeout(rollTimeoutRef.current)
+    if (hopIntervalRef.current) clearInterval(hopIntervalRef.current)
+    if (landingTimeoutRef.current) clearTimeout(landingTimeoutRef.current)
+    if (previewCardTimeoutRef.current) clearTimeout(previewCardTimeoutRef.current)
+    if (stockModalTimeoutRef.current) clearTimeout(stockModalTimeoutRef.current)
+  }
+
   const { getStockForCategory, loading: loadingUniverse, error: universeError, source: stockSource, universeCount } =
     useUniverseStocks()
 
@@ -926,11 +935,7 @@ function App() {
 
   useEffect(() => {
     return () => {
-      if (rollTimeoutRef.current) clearTimeout(rollTimeoutRef.current)
-      if (hopIntervalRef.current) clearInterval(hopIntervalRef.current)
-      if (landingTimeoutRef.current) clearTimeout(landingTimeoutRef.current)
-      if (previewCardTimeoutRef.current) clearTimeout(previewCardTimeoutRef.current)
-      if (stockModalTimeoutRef.current) clearTimeout(stockModalTimeoutRef.current)
+      clearAllTimers()
     }
   }, [])
 
@@ -942,11 +947,7 @@ function App() {
         debugGame('Page visible - resetting dice state')
         setPhase('idle')
         // Clear any lingering timers
-        if (rollTimeoutRef.current) clearTimeout(rollTimeoutRef.current)
-        if (hopIntervalRef.current) clearInterval(hopIntervalRef.current)
-        if (landingTimeoutRef.current) clearTimeout(landingTimeoutRef.current)
-        if (previewCardTimeoutRef.current) clearTimeout(previewCardTimeoutRef.current)
-        if (stockModalTimeoutRef.current) clearTimeout(stockModalTimeoutRef.current)
+        clearAllTimers()
       }
     }
     
@@ -1156,11 +1157,7 @@ function App() {
     }
 
     // clear any lingering timers from a previous roll to keep movement predictable
-    if (rollTimeoutRef.current) clearTimeout(rollTimeoutRef.current)
-    if (hopIntervalRef.current) clearInterval(hopIntervalRef.current)
-    if (landingTimeoutRef.current) clearTimeout(landingTimeoutRef.current)
-    if (previewCardTimeoutRef.current) clearTimeout(previewCardTimeoutRef.current)
-    if (stockModalTimeoutRef.current) clearTimeout(stockModalTimeoutRef.current)
+    clearAllTimers()
 
     // ✅ BUG FIX #1: Consume rolls IMMEDIATELY before processing
     // Synchronize both rollsRemaining and gameState.energyRolls

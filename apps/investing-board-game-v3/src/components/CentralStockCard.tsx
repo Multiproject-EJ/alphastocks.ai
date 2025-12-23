@@ -58,11 +58,9 @@ export function CentralStockCard({ stock, isVisible, onClose }: CentralStockCard
               {/* Stock details */}
               <div className="space-y-4">
                 <div>
-                  <div className="flex items-baseline justify-between mb-2">
-                    <span className="text-sm font-mono font-semibold text-muted-foreground">
-                      {stock.ticker}
-                    </span>
-                  </div>
+                  <span className="text-sm font-mono font-semibold text-muted-foreground block mb-2">
+                    {stock.ticker}
+                  </span>
                   <p className="text-sm text-muted-foreground">{stock.description}</p>
                 </div>
 
