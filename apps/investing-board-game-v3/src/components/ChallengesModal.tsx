@@ -4,6 +4,7 @@
  */
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { useResponsiveDialogClass } from '@/hooks/useResponsiveDialogClass'
 import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -25,6 +26,7 @@ export function ChallengesModal({
   dailyChallenges,
   weeklyChallenges,
 }: ChallengesModalProps) {
+  const dialogClass = useResponsiveDialogClass('large')
   const dailyCompleted = dailyChallenges.filter(c => c.completed).length
   const weeklyCompleted = weeklyChallenges.filter(c => c.completed).length
 
@@ -130,7 +132,7 @@ export function ChallengesModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-2xl max-h-[90vh] bg-card border-2 border-accent/30 shadow-2xl">
+      <DialogContent className={`${dialogClass} max-h-[90vh] bg-card border-2 border-accent/30 shadow-2xl`}>
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-accent flex items-center gap-2">
             <span>🎯</span>

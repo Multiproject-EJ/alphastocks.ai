@@ -4,6 +4,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { useResponsiveDialogClass } from '@/hooks/useResponsiveDialogClass'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -22,6 +23,7 @@ interface HubModalProps {
 }
 
 export function HubModal({ open, onOpenChange, gameState, onOpenChallenges, onOpenEventCalendar, onOpenNetWorthGallery, onOpenCityBuilder }: HubModalProps) {
+  const dialogClass = useResponsiveDialogClass('medium')
   // Combine human player with AI players for leaderboard
   const allPlayers = [
     {
@@ -38,7 +40,7 @@ export function HubModal({ open, onOpenChange, gameState, onOpenChallenges, onOp
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-card border-2 border-accent/30 shadow-2xl max-w-[calc(100vw-2rem)] sm:max-w-md">
+      <DialogContent className={`${dialogClass} bg-card border-2 border-accent/30 shadow-2xl`}>
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-accent">
             Investing Board Game – Hub

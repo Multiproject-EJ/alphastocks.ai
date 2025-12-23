@@ -12,6 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { useResponsiveDialogClass } from '@/hooks/useResponsiveDialogClass'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
@@ -245,6 +246,7 @@ export function CityBuilderModal({
   totalCitiesUnlocked,
 }: CityBuilderModalProps) {
   const { play: playSound } = useSound()
+  const dialogClass = useResponsiveDialogClass('full')
   const [selectedCityIndex, setSelectedCityIndex] = useState(
     allCities.findIndex(c => c.id === currentCity.id)
   )
@@ -276,7 +278,7 @@ export function CityBuilderModal({
   
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-[95vw] h-[90vh] overflow-hidden bg-card border-2 border-accent/50 shadow-[0_0_60px_oklch(0.75_0.15_85_/_0.4)] p-0">
+      <DialogContent className={`${dialogClass} h-[90vh] overflow-hidden bg-card border-2 border-accent/50 shadow-[0_0_60px_oklch(0.75_0.15_85_/_0.4)] p-0`}>
         <div className="flex flex-col h-full">
           {/* Header */}
           <DialogHeader className="px-6 pt-6 pb-4 border-b border-border">

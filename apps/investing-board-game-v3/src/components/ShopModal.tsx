@@ -12,6 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { useResponsiveDialogClass } from '@/hooks/useResponsiveDialogClass'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -77,6 +78,7 @@ export function ShopModal({
 }: ShopModalProps) {
   const { play: playSound } = useSound()
   const isMobile = useIsMobile()
+  const dialogClass = useResponsiveDialogClass('full')
   const [selectedCategory, setSelectedCategory] = useState<'powerup' | 'upgrade' | 'cosmetic' | 'currency'>('powerup')
   const [sortBy, setSortBy] = useState<SortOption>('default')
   const [confirmItem, setConfirmItem] = useState<ShopItem | null>(null)
@@ -190,7 +192,7 @@ export function ShopModal({
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-[95vw] h-[90vh] overflow-hidden bg-card border-2 border-accent/50 shadow-[0_0_60px_oklch(0.75_0.15_85_/_0.4)] p-0">
+        <DialogContent className={`${dialogClass} h-[90vh] overflow-hidden bg-card border-2 border-accent/50 shadow-[0_0_60px_oklch(0.75_0.15_85_/_0.4)] p-0`}>
           <div className="flex flex-col h-full">
             {/* Header */}
             <DialogHeader className="px-6 pt-6 pb-4 border-b border-border">

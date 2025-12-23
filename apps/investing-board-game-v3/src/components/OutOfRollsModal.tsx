@@ -7,6 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { useResponsiveDialogClass } from '@/hooks/useResponsiveDialogClass'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -51,6 +52,7 @@ export function OutOfRollsModal({
   nextResetTime,
   lastEnergyCheck,
 }: OutOfRollsModalProps) {
+  const dialogClass = useResponsiveDialogClass('small')
   const [timeUntilReset, setTimeUntilReset] = useState('')
 
   // Update countdown timer for next 2-hour reset
@@ -95,7 +97,7 @@ export function OutOfRollsModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-[500px] bg-card border-2 border-accent/50 shadow-[0_0_40px_oklch(0.6_0.2_280_/_0.3)]">
+      <DialogContent className={`${dialogClass} bg-card border-2 border-accent/50 shadow-[0_0_40px_oklch(0.6_0.2_280_/_0.3)]`}>
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-accent flex items-center gap-2">
             <DiceFive size={32} weight="fill" />
