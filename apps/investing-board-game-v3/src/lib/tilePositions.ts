@@ -41,8 +41,8 @@ export function calculateTilePositions(
   // Radius should be: (boardSize / 2) - (maxTileSize / 2) - padding
   const maxRadius = Math.min(boardSize.width, boardSize.height) / 2 - maxTileSize / 2 - tilePadding
   
-  // Use 85% of max radius for better visual spacing while ensuring fit
-  const radius = maxRadius * 0.85
+  // Use 90% of max radius for better visual spacing while ensuring fit
+  const radius = maxRadius * 0.90
   
   // Starting angle - position tile 0 at the bottom (270 degrees / 6 o'clock)
   const startAngle = 270

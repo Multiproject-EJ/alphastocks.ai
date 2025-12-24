@@ -1948,8 +1948,8 @@ function App() {
         {/* Board Container - Centered and scaled to fit viewport */}
         <div className={`relative ${!isPhone ? 'flex items-center justify-center' : ''}`} style={{
           ...((!isPhone) ? {
-            width: 'min(calc(100vh - 8rem), calc(100vw - 32rem))',
-            height: 'min(calc(100vh - 8rem), calc(100vw - 32rem))',
+            width: 'min(calc(100vh - 4rem), calc(100vw - 28rem))',
+            height: 'min(calc(100vh - 4rem), calc(100vw - 28rem))',
             maxWidth: '1200px',
             maxHeight: '1200px',
             aspectRatio: '1 / 1',
