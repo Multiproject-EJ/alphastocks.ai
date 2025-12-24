@@ -27,6 +27,8 @@ import { ThriftPathAura } from '@/components/ThriftPathAura'
 import { OutOfRollsModal } from '@/components/OutOfRollsModal'
 import { BoardZoomControls } from '@/components/BoardZoomControls'
 import { Board3DViewport } from '@/components/Board3DViewport'
+import { StockTickerRibbon } from '@/components/StockTickerRibbon'
+import { CenterSlices } from '@/components/CenterSlices'
 
 // Mobile-first components
 import { MobileGameLayout } from '@/components/MobileGameLayout'
@@ -1864,14 +1866,14 @@ function App() {
     return Math.max(radius, 200)
   }, [isPhone, isMobile])
 
-  // Board center classes - transparent/minimal on desktop for floating board
+  // Board center classes - circular glass container
   const boardCenterClasses = [
-    'relative',
-    // On desktop: transparent floating board
-    !isPhone && !isMobile ? 'bg-transparent' : 'bg-gradient-to-br from-white/15 via-white/8 to-white/12',
-    !isPhone && !isMobile ? '' : 'backdrop-blur-2xl rounded-2xl border border-white/25',
-    !isPhone && !isMobile ? '' : 'shadow-[inset_0_0_70px_rgba(255,255,255,0.08),_0_20px_80px_rgba(0,0,0,0.35)]',
-    'p-8 min-h-[900px] transition-all duration-700',
+    'relative bg-gradient-to-br from-white/15 via-white/8 to-white/12',
+    'backdrop-blur-2xl border border-white/25',
+    'shadow-[inset_0_0_70px_rgba(255,255,255,0.08),_0_20px_80px_rgba(0,0,0,0.35)]',
+    'p-8 transition-all duration-700',
+    // Circular container to match the board shape
+    !isPhone && !isMobile ? 'rounded-full aspect-square' : 'rounded-2xl min-h-[900px]',
     isLogoPanel ? 'bg-opacity-0 backdrop-blur-none' : ''
   ].filter(Boolean).join(' ')
 
@@ -2011,6 +2013,14 @@ function App() {
             isVisible={showCentralStock}
             onClose={() => setShowCentralStock(false)}
           />
+
+          {/* Decorative center slices and stock ticker ribbon - Desktop only */}
+          {!isPhone && !isMobile && (
+            <>
+              <CenterSlices radius={600} />
+              <StockTickerRibbon radius={calculateFittingRadius() || 456} />
+            </>
+          )}
 
           {/* Sound Controls - Top Right */}
           <div className="absolute top-4 right-4 z-40">

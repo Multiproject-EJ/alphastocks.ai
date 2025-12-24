@@ -1,0 +1,130 @@
+import { useEffect, useState } from 'react'
+import { motion } from 'framer-motion'
+import { useUniverseStocks } from '@/hooks/useUniverseStocks'
+
+interface StockTickerRibbonProps {
+  radius: number // Radius of the circular board
+}
+
+export function StockTickerRibbon({ radius }: StockTickerRibbonProps) {
+  const { getStockForCategory } = useUniverseStocks()
+  const [tickerItems, setTickerItems] = useState<Array<{ symbol: string; price: number; change: number }>>([])
+
+  useEffect(() => {
+    // Generate ticker items from different categories
+    const categories = ['Growth', 'Value', 'Dividends', 'Moats', 'Turnarounds']
+    const items = categories.map(category => {
+      const stock = getStockForCategory(category as any)
+      return {
+        symbol: stock?.ticker || 'N/A',
+        price: stock?.price || 0,
+        change: Math.random() * 10 - 5 // Random change for demo (-5% to +5%)
+      }
+    }).filter(item => item.symbol !== 'N/A') // Filter out any invalid items
+    
+    setTickerItems(items)
+  }, [getStockForCategory])
+
+  // Don't render if no ticker items available
+  if (tickerItems.length === 0) {
+    return null
+  }
+
+  // Calculate the circumference for the ribbon
+  const ribbonRadius = radius * 0.75 // 75% of board radius for inner ribbon
+  const circumference = 2 * Math.PI * ribbonRadius
+
+  return (
+    <div 
+      className="absolute inset-0 flex items-center justify-center pointer-events-none"
+      style={{
+        width: '100%',
+        height: '100%',
+      }}
+    >
+      {/* Circular ribbon band */}
+      <svg
+        width={ribbonRadius * 2}
+        height={ribbonRadius * 2}
+        className="absolute"
+        style={{
+          transform: 'rotate(-90deg)',
+        }}
+      >
+        {/* Background ribbon */}
+        <circle
+          cx={ribbonRadius}
+          cy={ribbonRadius}
+          r={ribbonRadius - 20}
+          fill="none"
+          stroke="rgba(255, 255, 255, 0.05)"
+          strokeWidth="40"
+          className="backdrop-blur-sm"
+        />
+        
+        {/* Animated stock ticker path */}
+        <motion.path
+          d={`M ${ribbonRadius - 20},${ribbonRadius} 
+              m -${ribbonRadius - 20},0 
+              a ${ribbonRadius - 20},${ribbonRadius - 20} 0 1,0 ${(ribbonRadius - 20) * 2},0 
+              a ${ribbonRadius - 20},${ribbonRadius - 20} 0 1,0 -${(ribbonRadius - 20) * 2},0`}
+          fill="none"
+          stroke="rgba(255, 255, 255, 0.1)"
+          strokeWidth="35"
+          strokeDasharray="10 5"
+          initial={{ strokeDashoffset: 0 }}
+          animate={{ strokeDashoffset: circumference }}
+          transition={{
+            duration: 60,
+            repeat: Infinity,
+            ease: 'linear',
+          }}
+        />
+      </svg>
+
+      {/* Ticker text items positioned around the circle */}
+      {tickerItems.map((item, index) => {
+        const angle = (360 / tickerItems.length) * index
+        const x = Math.cos((angle - 90) * (Math.PI / 180)) * (ribbonRadius - 20)
+        const y = Math.sin((angle - 90) * (Math.PI / 180)) * (ribbonRadius - 20)
+        
+        return (
+          <motion.div
+            key={item.symbol}
+            className="absolute text-xs font-mono"
+            style={{
+              left: '50%',
+              top: '50%',
+              transform: `translate(-50%, -50%) translate(${x}px, ${y}px) rotate(${angle}deg)`,
+            }}
+            initial={{ opacity: 0 }}
+            animate={{ 
+              opacity: [0.5, 1, 0.5],
+              rotate: [angle, angle + 360],
+            }}
+            transition={{
+              opacity: {
+                duration: 2,
+                repeat: Infinity,
+                ease: 'easeInOut',
+              },
+              rotate: {
+                duration: 60,
+                repeat: Infinity,
+                ease: 'linear',
+              },
+            }}
+          >
+            <div className="bg-black/40 backdrop-blur-sm px-2 py-1 rounded">
+              <span className="text-white font-semibold">{item.symbol}</span>
+              <span className="text-gray-300 ml-2">${item.price.toFixed(2)}</span>
+              <span className={`ml-1 ${item.change >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                {item.change >= 0 ? '+' : ''}{item.change.toFixed(2)}%
+              </span>
+            </div>
+          </motion.div>
+        )
+      })}
+    </div>
+  )
+}
