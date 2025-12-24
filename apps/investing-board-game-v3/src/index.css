@@ -78,6 +78,11 @@
   --font-mono: "JetBrains Mono", monospace;
 }
 
+/* Prevent scrollbars on desktop - critical for board sizing */
+html, body {
+  overflow: hidden;
+}
+
 body {
   font-family: var(--font-body);
 }
