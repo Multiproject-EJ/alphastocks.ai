@@ -1945,11 +1945,13 @@ function App() {
           </div>
         )}
 
-        {/* Board Container - Centered and scaled to fit viewport height */}
-        <div className={`relative ${!isPhone ? 'flex-shrink flex items-center justify-center' : ''}`} style={{
+        {/* Board Container - Centered and scaled to fit viewport */}
+        <div className={`relative ${!isPhone ? 'flex items-center justify-center' : ''}`} style={{
           ...((!isPhone) ? {
-            height: '100%',
-            maxHeight: 'calc(100vh - 4rem)',
+            width: 'min(calc(100vh - 8rem), calc(100vw - 32rem))',
+            height: 'min(calc(100vh - 8rem), calc(100vw - 32rem))',
+            maxWidth: '1200px',
+            maxHeight: '1200px',
             aspectRatio: '1 / 1',
           } : {})
         }}>

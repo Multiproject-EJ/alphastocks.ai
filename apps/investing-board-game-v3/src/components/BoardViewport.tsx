@@ -67,13 +67,22 @@ export function BoardViewport({
         style={{
           width: '100%',
           height: '100%',
+          position: 'relative',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <div style={{
+          width: '100%',
+          height: '100%',
           maxWidth: `${boardSize.width}px`,
           maxHeight: `${boardSize.height}px`,
           aspectRatio: '1 / 1',
           position: 'relative',
-        }}
-      >
-        {children}
+        }}>
+          {children}
+        </div>
       </div>
     )
   }

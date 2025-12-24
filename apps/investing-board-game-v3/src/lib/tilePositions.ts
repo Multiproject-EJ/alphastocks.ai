@@ -33,8 +33,16 @@ export function calculateTilePositions(
   const centerX = boardSize.width / 2
   const centerY = boardSize.height / 2
   
-  // Radius of the circular board (leaving space for tiles and padding)
-  const radius = Math.min(boardSize.width, boardSize.height) * 0.38 // 38% of board size for nice spacing
+  // Tile dimensions (corner tiles are largest at 140px, others ~100-120px)
+  const maxTileSize = 140
+  const tilePadding = 20 // Extra padding to prevent edge clipping
+  
+  // Calculate radius dynamically to ensure all tiles fit within board bounds
+  // Radius should be: (boardSize / 2) - (maxTileSize / 2) - padding
+  const maxRadius = Math.min(boardSize.width, boardSize.height) / 2 - maxTileSize / 2 - tilePadding
+  
+  // Use 85% of max radius for better visual spacing while ensuring fit
+  const radius = maxRadius * 0.85
   
   // Starting angle - position tile 0 at the bottom (270 degrees / 6 o'clock)
   const startAngle = 270
