@@ -93,11 +93,20 @@ function DonutSegment({
 
 // Category color mapping from mockData.ts
 const CATEGORY_COLORS: Record<string, string> = {
+  // Main track categories
   turnarounds: 'oklch(0.60 0.20 330)', // pink/magenta
   dividends: 'oklch(0.65 0.20 200)',   // blue
   growth: 'oklch(0.70 0.18 25)',       // orange
   value: 'oklch(0.75 0.15 85)',        // gold/yellow
   moats: 'oklch(0.55 0.22 15)',        // red
+  // Inner track categories
+  ipo: 'oklch(0.80 0.25 320)',         // bright pink/magenta
+  meme: 'oklch(0.75 0.30 60)',         // bright yellow
+  crypto: 'oklch(0.70 0.25 280)',      // purple
+  penny: 'oklch(0.65 0.20 120)',       // green
+  leverage: 'oklch(0.60 0.30 0)',      // red
+  options: 'oklch(0.70 0.20 180)',     // cyan
+  // Cash
   cash: '#22c55e',                     // green
 }
 

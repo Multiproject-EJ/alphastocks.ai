@@ -2237,7 +2237,7 @@ function App() {
                 const innerPositions = calculateTilePositions(boardSize, 12, dynamicRadius, true)
                 
                 // Check if inner track is unlocked (Tier 3 or higher)
-                const isUnlocked = currentTier >= 3
+                const isUnlocked = currentTier.tier >= 3
                 
                 return INNER_TRACK_TILES.map((tile, index) => {
                   const position = innerPositions[index]
