@@ -1,14 +1,10 @@
 import { ReactNode, useMemo } from 'react'
 import { CameraState, isCameraStateValid } from '@/hooks/useBoardCamera'
+import { calculateTilePositions } from '@/lib/tilePositions'
 
 // Board dimensions (must match the board size used in App.tsx)
 const BOARD_WIDTH = 1200
 const BOARD_HEIGHT = 1200
-
-// Tile layout constants
-const TOTAL_TILES = 40 // Standard Monopoly-style board
-const TILES_PER_SIDE = 10 // Tiles per side
-const CORNER_ADJUSTMENT = 2 // Account for corner tiles in calculation
 const Y_OFFSET_FOR_TILT = 100 // Y-offset to improve view in tilted mode
 
 interface Board3DViewportProps {
@@ -19,41 +15,6 @@ interface Board3DViewportProps {
   containerStyle?: React.CSSProperties
   playerPosition?: number
   boardSize?: number
-}
-
-// Helper to calculate tile positions on the board
-function calculateTilePositions(boardSize: number) {
-  const positions: Record<number, { x: number; y: number }> = {};
-  const tileSize = boardSize / (TILES_PER_SIDE + CORNER_ADJUSTMENT);
-  
-  // Calculate position for each tile (0-39 for standard Monopoly-style)
-  for (let i = 0; i < TOTAL_TILES; i++) {
-    const side = Math.floor(i / 10);
-    const posOnSide = i % 10;
-    
-    let x = 0, y = 0;
-    switch (side) {
-      case 0: // Bottom (right to left)
-        x = boardSize - (posOnSide + 1) * tileSize;
-        y = boardSize - tileSize;
-        break;
-      case 1: // Left (bottom to top)
-        x = 0;
-        y = boardSize - (posOnSide + 2) * tileSize;
-        break;
-      case 2: // Top (left to right)
-        x = (posOnSide + 1) * tileSize;
-        y = 0;
-        break;
-      case 3: // Right (top to bottom)
-        x = boardSize - tileSize;
-        y = (posOnSide + 1) * tileSize;
-        break;
-    }
-    positions[i] = { x: x - boardSize / 2, y: y - boardSize / 2 };
-  }
-  
-  return positions;
 }
 
 /**
@@ -76,9 +37,24 @@ export function Board3DViewport({
   playerPosition = 0,
   boardSize = BOARD_WIDTH,
 }: Board3DViewportProps) {
-  // Calculate tile positions for camera centering
-  const tilePositions = useMemo(() => calculateTilePositions(boardSize), [boardSize]);
-  const playerTilePos = tilePositions[playerPosition] || { x: 0, y: 0 };
+  // Calculate tile positions for camera centering using circular layout
+  const playerTilePos = useMemo(() => {
+    const positions = calculateTilePositions({ width: boardSize, height: boardSize })
+    const currentTile = positions.find(p => p.id === playerPosition)
+    
+    if (!currentTile) {
+      return { x: 0, y: 0 }
+    }
+    
+    // Calculate offset from center
+    const centerX = boardSize / 2
+    const centerY = boardSize / 2
+    
+    return {
+      x: currentTile.x - centerX,
+      y: currentTile.y - centerY
+    }
+  }, [playerPosition, boardSize]);
   
   // Desktop or classic mode: render without 3D transforms
   if (!isMobile || camera.mode === 'classic') {

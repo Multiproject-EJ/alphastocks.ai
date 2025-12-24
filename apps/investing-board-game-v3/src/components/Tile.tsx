@@ -61,19 +61,19 @@ const TileComponent = ({ tile, isActive, isHopping, isLanded, onClick, side }: T
 
   const isCorner = tile.type === 'corner'
   const isEvent = tile.type === 'event'
-  const isVertical = side === 'left' || side === 'right'
 
-  // Memoize style calculations for better performance
-  const borderStyles = useMemo(() => ({
-    borderTopColor: isVertical 
-      ? (isCorner ? (isActive ? 'oklch(0.75 0.15 85)' : 'oklch(0.30 0.02 250)') : 'oklch(0.30 0.02 250)')
-      : (tile.colorBorder || (isActive ? 'oklch(0.75 0.15 85)' : 'oklch(0.30 0.02 250)')),
-    borderLeftColor: isVertical
-      ? (tile.colorBorder || (isActive ? 'oklch(0.75 0.15 85)' : 'oklch(0.30 0.02 250)'))
-      : (isCorner ? (isActive ? 'oklch(0.75 0.15 85)' : 'oklch(0.30 0.02 250)') : 'oklch(0.30 0.02 250)'),
-    borderRightColor: isCorner ? (isActive ? 'oklch(0.75 0.15 85)' : 'oklch(0.30 0.02 250)') : 'oklch(0.30 0.02 250)',
-    borderBottomColor: isCorner ? (isActive ? 'oklch(0.75 0.15 85)' : 'oklch(0.30 0.02 250)') : 'oklch(0.30 0.02 250)',
-  }), [isVertical, isCorner, isActive, tile.colorBorder]);
+  // For circular layout, we use a simpler border system
+  // Category tiles get their category color, others get default/accent
+  const borderStyles = useMemo(() => {
+    const borderColor = isActive 
+      ? 'oklch(0.75 0.15 85)' 
+      : (tile.colorBorder || 'oklch(0.30 0.02 250)')
+    
+    return {
+      borderColor: isCorner ? borderColor : undefined,
+      borderTopColor: !isCorner ? borderColor : undefined,
+    }
+  }, [isCorner, isActive, tile.colorBorder]);
 
   return (
     <motion.div
@@ -82,20 +82,14 @@ const TileComponent = ({ tile, isActive, isHopping, isLanded, onClick, side }: T
         'bg-black/70 backdrop-blur-xl flex-shrink-0 overflow-visible shadow-[inset_0_1px_0_rgba(255,255,255,0.08),_0_25px_45px_rgba(0,0,0,0.55)]',
         isCorner
           ? 'w-[140px] h-[140px] border-4'
-          : isVertical
-          ? isEvent
-            ? 'w-[120px] h-[80px] border-l-8 border-y-2 border-r-2'
-            : 'w-[120px] border-l-8 border-y-2 border-r-2'
           : isEvent
-          ? 'h-[120px] w-[80px] border-t-8 border-x-2 border-b-2'
-          : 'h-[120px] border-t-8 border-x-2 border-b-2',
+          ? 'w-[100px] h-[80px] border-t-8 border-x-2 border-b-2'
+          : 'w-[100px] h-[120px] border-t-8 border-x-2 border-b-2',
         isActive
           ? 'shadow-[0_0_20px_oklch(0.75_0.15_85_/_0.5)]'
           : 'hover:bg-card/70'
       )}
       style={{
-        flexGrow: isCorner ? 0 : 1,
-        flexBasis: isCorner ? 'auto' : isVertical ? '0' : '0',
         ...borderStyles,
       }}
       onClick={handleClick}
@@ -184,7 +178,6 @@ export const Tile = memo(TileComponent, (prevProps, nextProps) => {
     prevProps.isHopping === nextProps.isHopping &&
     prevProps.isLanded === nextProps.isLanded &&
     prevProps.tile.title === nextProps.tile.title &&
-    prevProps.tile.type === nextProps.tile.type &&
-    prevProps.side === nextProps.side
+    prevProps.tile.type === nextProps.tile.type
   );
 });

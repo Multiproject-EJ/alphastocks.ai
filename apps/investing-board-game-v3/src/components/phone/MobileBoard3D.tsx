@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { useBoardPan } from '@/hooks/useBoardPan';
+import { calculateTilePositions } from '@/lib/tilePositions';
 
 interface MobileBoard3DProps {
   children: React.ReactNode;
@@ -9,11 +10,10 @@ interface MobileBoard3DProps {
 }
 
 /**
- * Mobile 3D Board - Monopoly GO Style
+ * Mobile 3D Board - Circular Layout
  * 
- * Creates a tilted, diamond-shaped (45° rotated) view of the board that:
- * - Rotates the board 45 degrees for diamond layout
- * - Tilts the board 55 degrees on X axis
+ * Creates a tilted view of the circular board that:
+ * - Tilts the board on X axis for 3D perspective
  * - Shows 6-8 tiles at once for optimal visibility
  * - Centers on the player's current position
  * - Smoothly animates when player moves
@@ -22,60 +22,38 @@ interface MobileBoard3DProps {
 export function MobileBoard3D({
   children,
   currentPosition,
-  totalTiles = 27, // Updated to match actual board layout
-  boardSize = 1200, // Match default board size used throughout app
+  totalTiles = 27,
+  boardSize = 1200,
 }: MobileBoard3DProps) {
   // Touch pan gesture hook
   const { panOffset, handlers } = useBoardPan();
 
-  // Calculate where player is on the board - FIXED calculation for 27-tile board
+  // Calculate where player is on the circular board
   const playerOffset = useMemo(() => {
-    // Board layout: 27 tiles arranged as:
-    // Bottom: 0-7 (8 tiles)
-    // Right: 8-12 (5 tiles)
-    // Top: 13-21 (9 tiles)
-    // Left: 22-26 (5 tiles)
+    const tilePositions = calculateTilePositions({ width: boardSize, height: boardSize })
+    const currentTile = tilePositions.find(t => t.id === currentPosition)
     
-    const totalTiles = 27;
-    const tileSize = boardSize / 10; // Approximate tile size
-    const halfBoard = boardSize / 2;
-    
-    let x = 0, y = 0;
-    
-    if (currentPosition >= 0 && currentPosition <= 7) {
-      // Bottom edge - positions 0-7, moving left to right
-      const posOnSide = currentPosition;
-      x = -halfBoard + (posOnSide + 0.5) * tileSize * (8 / 8); // Distribute across bottom
-      y = halfBoard - tileSize * 0.5;
-    } else if (currentPosition >= 8 && currentPosition <= 12) {
-      // Right edge - positions 8-12, moving bottom to top
-      const posOnSide = currentPosition - 8;
-      x = halfBoard - tileSize * 0.5;
-      y = halfBoard - (posOnSide + 2) * tileSize * (8 / 5); // Adjust spacing
-    } else if (currentPosition >= 13 && currentPosition <= 21) {
-      // Top edge - positions 13-21, moving right to left
-      const posOnSide = currentPosition - 13;
-      x = halfBoard - (posOnSide + 0.5) * tileSize * (9 / 9);
-      y = -halfBoard + tileSize * 0.5;
-    } else if (currentPosition >= 22 && currentPosition <= 26) {
-      // Left edge - positions 22-26, moving top to bottom
-      const posOnSide = currentPosition - 22;
-      x = -halfBoard + tileSize * 0.5;
-      y = -halfBoard + (posOnSide + 2) * tileSize * (8 / 5); // Adjust spacing
+    if (!currentTile) {
+      return { x: 0, y: 0 }
     }
+    
+    // Calculate offset from center
+    const centerX = boardSize / 2
+    const centerY = boardSize / 2
+    const x = currentTile.x - centerX
+    const y = currentTile.y - centerY
     
     // Negate to move board opposite direction (centers player)
     // Apply slight damping to keep more tiles visible
-    return { x: -x * 0.85, y: -y * 0.85 };
+    return { x: -x * 0.85, y: -y * 0.85 }
   }, [currentPosition, boardSize]);
 
-  // Static camera settings - NO useState to avoid infinite loop!
+  // Static camera settings
   const camera = useMemo(() => ({
     perspective: 800,
-    rotateX: 55,        // Tilt forward
-    rotateZ: 45,        // Diamond rotation!
-    scale: 0.62,        // Zoom to show ~6-8 tiles (increased for better visibility on small screens)
-  }), []); // Empty deps = never recalculates
+    rotateX: 55,        // Tilt forward for 3D effect
+    scale: 0.62,        // Zoom to show ~6-8 tiles
+  }), []);
 
   return (
     <div 
@@ -105,10 +83,9 @@ export function MobileBoard3D({
           width: `${boardSize}px`,
           height: `${boardSize}px`,
           position: 'relative',
-          // The magic 3D transform with diamond rotation
+          // 3D transform - no Z rotation needed for circular board
           transform: `
             rotateX(${camera.rotateX}deg)
-            rotateZ(${camera.rotateZ}deg)
             scale(${camera.scale})
             translate3d(${playerOffset.x + panOffset.x}px, ${playerOffset.y + panOffset.y}px, 0)
           `,
