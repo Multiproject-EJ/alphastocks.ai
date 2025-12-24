@@ -2,24 +2,24 @@
  * Tile Position Calculator
  * 
  * Calculates the center position of each tile on the board for camera targeting.
- * Based on the board layout in App.tsx with 27 tiles (0-26).
+ * Based on a circular layout with 27 tiles (0-26) arranged in a ring.
  */
 
 export interface TilePosition {
   id: number
-  x: number  // center X relative to board
-  y: number  // center Y relative to board
-  side: 'bottom' | 'right' | 'top' | 'left'
+  x: number      // center X relative to board center
+  y: number      // center Y relative to board center
+  angle: number  // angle in degrees (0-360)
+  radius: number // distance from center
 }
 
 /**
  * Calculate positions of all tiles on the board
  * 
- * Board layout (from mockData.ts):
- * - Bottom: tiles 0-7 (8 tiles, left to right)
- * - Right: tiles 8-12 (5 tiles, bottom to top)
- * - Top: tiles 13-21 (9 tiles, right to left)
- * - Left: tiles 22-26 (5 tiles, top to bottom)
+ * Board layout: 27 tiles arranged in a circular/ring pattern
+ * - Tiles are evenly distributed around a circle
+ * - Tile 0 (Start) is at the bottom (270° or 6 o'clock position)
+ * - Corner tiles (0, 7, 13, 21) are positioned at quadrant markers
  * 
  * Total: 27 tiles (0-26)
  */
@@ -29,39 +29,37 @@ export function calculateTilePositions(
 ): TilePosition[] {
   const positions: TilePosition[] = []
   
-  // Tile dimensions (approximate from board layout)
-  const tileSize = 140 // Approximate tile width/height
-  const padding = 32 // Board padding (p-8 = 2rem = 32px)
+  // Board center
+  const centerX = boardSize.width / 2
+  const centerY = boardSize.height / 2
   
-  // Calculate tile centers with half-tile offset for center positioning
-  const halfTile = tileSize / 2
+  // Radius of the circular board (leaving space for tiles and padding)
+  const radius = Math.min(boardSize.width, boardSize.height) * 0.38 // 38% of board size for nice spacing
   
-  // Bottom edge: tiles 0-7 (8 tiles)
-  for (let i = 0; i <= 7; i++) {
-    const x = padding + i * tileSize + halfTile
-    const y = boardSize.height - padding - halfTile
-    positions.push({ id: i, x, y, side: 'bottom' })
-  }
+  // Starting angle - position tile 0 at the bottom (270 degrees / 6 o'clock)
+  const startAngle = 270
   
-  // Right edge: tiles 8-12 (5 tiles)
-  for (let i = 8; i <= 12; i++) {
-    const x = boardSize.width - padding - halfTile
-    const y = boardSize.height - padding - (i - 7) * tileSize - halfTile
-    positions.push({ id: i, x, y, side: 'right' })
-  }
+  // Calculate angle step between tiles
+  const angleStep = 360 / tileCount
   
-  // Top edge: tiles 13-21 (9 tiles)
-  for (let i = 13; i <= 21; i++) {
-    const x = boardSize.width - padding - (i - 13) * tileSize - halfTile
-    const y = padding + halfTile
-    positions.push({ id: i, x, y, side: 'top' })
-  }
-  
-  // Left edge: tiles 22-26 (5 tiles)
-  for (let i = 22; i <= 26; i++) {
-    const x = padding + halfTile
-    const y = padding + (i - 22) * tileSize + halfTile
-    positions.push({ id: i, x, y, side: 'left' })
+  for (let i = 0; i < tileCount; i++) {
+    // Calculate angle for this tile (in degrees)
+    const angle = startAngle + (i * angleStep)
+    
+    // Convert to radians for trigonometry
+    const angleRad = (angle * Math.PI) / 180
+    
+    // Calculate x, y position relative to board center
+    const x = centerX + radius * Math.cos(angleRad)
+    const y = centerY + radius * Math.sin(angleRad)
+    
+    positions.push({ 
+      id: i, 
+      x, 
+      y, 
+      angle,
+      radius 
+    })
   }
   
   return positions

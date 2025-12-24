@@ -80,6 +80,7 @@ import {
 } from '@/lib/constants'
 import { rollDice, DOUBLES_BONUS } from '@/lib/dice'
 import { getResetRollsAmount, ENERGY_CONFIG } from '@/lib/energy'
+import { calculateTilePositions } from '@/lib/tilePositions'
 import { useUniverseStocks } from '@/hooks/useUniverseStocks'
 import { useGameSave } from '@/hooks/useGameSave'
 import { useAuth } from '@/context/AuthContext'
@@ -2115,77 +2116,50 @@ function App() {
 
           <div className="absolute inset-8 pointer-events-none">
             <div className="relative w-full h-full">
-              <div className="absolute bottom-0 left-0 right-0 flex gap-0 pointer-events-auto">
-                {BOARD_TILES.slice(0, 8).map((tile, index) => (
-                  <Tile
-                    key={tile.id}
-                    tile={tile}
-                    isActive={tile.id === gameState.position}
-                    isHopping={hoppingTiles.includes(tile.id)}
-                    isLanded={tile.id === gameState.position && phase === 'landed'}
-                    onClick={() => {
-                      if (phase === 'idle') {
-                        handleTileLanding(tile.id)
-                      }
-                    }}
-                    side="bottom"
-                  />
-                ))}
-              </div>
-
-              <div className="absolute top-[140px] bottom-[140px] right-0 flex flex-col-reverse gap-0 pointer-events-auto">
-                {BOARD_TILES.slice(8, 13).map((tile) => (
-                  <Tile
-                    key={tile.id}
-                    tile={tile}
-                    isActive={tile.id === gameState.position}
-                    isHopping={hoppingTiles.includes(tile.id)}
-                    isLanded={tile.id === gameState.position && phase === 'landed'}
-                    onClick={() => {
-                      if (phase === 'idle') {
-                        handleTileLanding(tile.id)
-                      }
-                    }}
-                    side="right"
-                  />
-                ))}
-              </div>
-
-              <div className="absolute top-0 left-0 right-0 flex flex-row-reverse gap-0 pointer-events-auto">
-                {BOARD_TILES.slice(13, 22).map((tile, index) => (
-                  <Tile
-                    key={tile.id}
-                    tile={tile}
-                    isActive={tile.id === gameState.position}
-                    isHopping={hoppingTiles.includes(tile.id)}
-                    isLanded={tile.id === gameState.position && phase === 'landed'}
-                    onClick={() => {
-                      if (phase === 'idle') {
-                        handleTileLanding(tile.id)
-                      }
-                    }}
-                    side="top"
-                  />
-                ))}
-              </div>
-
-              <div className="absolute top-[140px] bottom-[140px] left-0 flex flex-col gap-0 pointer-events-auto">
-                {BOARD_TILES.slice(22).map((tile) => (
-                  <Tile
-                    key={tile.id}
-                    tile={tile}
-                    isActive={tile.id === gameState.position}
-                    isHopping={hoppingTiles.includes(tile.id)}
-                    isLanded={tile.id === gameState.position && phase === 'landed'}
-                    onClick={() => {
-                      if (phase === 'idle') {
-                        handleTileLanding(tile.id)
-                      }
-                    }}
-                    side="left"
-                  />
-                ))}
-              </div>
+              {/* Circular Board Layout */}
+              {(() => {
+                // Calculate tile positions for circular layout
+                const boardSize = { width: 1200, height: 1200 }
+                const tilePositions = calculateTilePositions(boardSize)
+                
+                return BOARD_TILES.map((tile) => {
+                  const position = tilePositions.find(p => p.id === tile.id)
+                  if (!position) return null
+                  
+                  // Calculate position relative to the board container (inset-8 = 32px padding)
+                  const left = position.x - 32
+                  const top = position.y - 32
+                  
+                  // Rotate tile to face outward from center
+                  // Add 90 degrees because tiles are naturally "upright" and we want them perpendicular to radius
+                  const rotation = position.angle + 90
+                  
+                  return (
+                    <div
+                      key={tile.id}
+                      className="absolute pointer-events-auto"
+                      style={{
+                        left: `${left}px`,
+                        top: `${top}px`,
+                        transform: `translate(-50%, -50%) rotate(${rotation}deg)`,
+                        transformOrigin: 'center center',
+                      }}
+                    >
+                      <Tile
+                        tile={tile}
+                        isActive={tile.id === gameState.position}
+                        isHopping={hoppingTiles.includes(tile.id)}
+                        isLanded={tile.id === gameState.position && phase === 'landed'}
+                        onClick={() => {
+                          if (phase === 'idle') {
+                            handleTileLanding(tile.id)
+                          }
+                        }}
+                      />
+                    </div>
+                  )
+                })
+              })()}
             </div>
           </div>
         </BoardViewport>
