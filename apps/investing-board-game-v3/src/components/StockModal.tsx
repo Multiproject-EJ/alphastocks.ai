@@ -44,11 +44,11 @@ export function StockModal({ open, onOpenChange, stock, onBuy, cash, showInsight
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={`${dialogClass} bg-card border-2 border-accent/50 shadow-[0_0_40px_oklch(0.75_0.15_85_/_0.3)] flex flex-col max-h-[80vh] !top-[50%] !-translate-y-[50%] my-auto relative`}>
+      <DialogContent className={`${dialogClass} bg-card border-2 border-accent/50 shadow-[0_0_40px_oklch(0.75_0.15_85_/_0.3)] flex flex-col max-h-[80vh]`}>
         <DialogHeader className="flex-shrink-0">
           {/* Hero Score - Top Right */}
           {stock.scores && (
-            <div className="absolute top-4 right-16 flex flex-col items-center">
+            <div className="absolute top-4 right-12 flex flex-col items-center">
               <div className={`text-5xl font-bold font-mono ${getScoreColor(stock.scores.composite)}`}>
                 {stock.scores.composite.toFixed(1)}
               </div>
