@@ -29,6 +29,7 @@ import { BoardZoomControls } from '@/components/BoardZoomControls'
 import { Board3DViewport } from '@/components/Board3DViewport'
 import { StockTickerRibbon } from '@/components/StockTickerRibbon'
 import { CenterSlices } from '@/components/CenterSlices'
+import { PortfolioWheel } from '@/components/PortfolioWheel'
 
 // Mobile-first components
 import { MobileGameLayout } from '@/components/MobileGameLayout'
@@ -67,6 +68,7 @@ import { GameState, Stock, BiasCaseStudy, WildcardEvent } from '@/lib/types'
 import { RealMoneyRollsPack } from '@/components/OutOfRollsModal'
 import {
   BOARD_TILES,
+  INNER_TRACK_TILES,
   getRandomMarketEvent,
   getRandomBiasCaseStudy,
   THRIFTY_CHALLENGES,
@@ -2060,6 +2062,10 @@ function App() {
               stars={gameState.stars}
               coins={gameState.coins}
             />
+            
+            {/* Portfolio Wheel - Live donut chart of holdings */}
+            <PortfolioWheel gameState={gameState} />
+            
             <CenterCarousel
               gameState={gameState}
               netWorthChange={netWorthChange}
@@ -2180,11 +2186,11 @@ function App() {
 
           <div className="absolute inset-8 pointer-events-none">
             <div className="relative w-full h-full">
-              {/* Circular Board Layout */}
+              {/* Outer Ring - Main Board Layout */}
               {(() => {
                 // Calculate tile positions for circular layout
                 const boardSize = { width: 1200, height: 1200 }
-                const tilePositions = calculateTilePositions(boardSize, 27, dynamicRadius)
+                const tilePositions = calculateTilePositions(boardSize, 27, dynamicRadius, false)
                 
                 return BOARD_TILES.map((tile) => {
                   const position = tilePositions.find(p => p.id === tile.id)
@@ -2220,6 +2226,59 @@ function App() {
                           }
                         }}
                       />
+                    </div>
+                  )
+                })
+              })()}
+              
+              {/* Inner Express Track - High-risk lane */}
+              {!isPhone && (() => {
+                const boardSize = { width: 1200, height: 1200 }
+                const innerPositions = calculateTilePositions(boardSize, 12, dynamicRadius, true)
+                
+                // Check if inner track is unlocked (Tier 3 or higher)
+                const isUnlocked = currentTier >= 3
+                
+                return INNER_TRACK_TILES.map((tile, index) => {
+                  const position = innerPositions[index]
+                  if (!position) return null
+                  
+                  const left = position.x - 32
+                  const top = position.y - 32
+                  const rotation = position.angle + 90
+                  
+                  return (
+                    <div
+                      key={tile.id}
+                      className="absolute pointer-events-auto"
+                      style={{
+                        left: `${left}px`,
+                        top: `${top}px`,
+                        transform: `translate(-50%, -50%) rotate(${rotation}deg) scale(0.75)`,
+                        transformOrigin: 'center center',
+                        opacity: isUnlocked ? 1 : 0.5,
+                      }}
+                    >
+                      <div className="relative">
+                        {!isUnlocked && (
+                          <div className="absolute inset-0 flex items-center justify-center z-10 bg-black/60 rounded-lg">
+                            <span className="text-2xl">🔒</span>
+                          </div>
+                        )}
+                        <Tile
+                          tile={tile}
+                          isActive={false}
+                          isHopping={false}
+                          isLanded={false}
+                          onClick={() => {
+                            if (!isUnlocked) {
+                              toast.info('Express Track Locked', {
+                                description: 'Reach Tier 3 to unlock the Express Track!'
+                              })
+                            }
+                          }}
+                        />
+                      </div>
                     </div>
                   )
                 })
