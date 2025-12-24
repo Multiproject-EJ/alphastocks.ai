@@ -1,6 +1,6 @@
 export type TileType = 'corner' | 'category' | 'event'
 
-export type TileCategory = 'turnarounds' | 'dividends' | 'growth' | 'moats' | 'value'
+export type TileCategory = 'turnarounds' | 'dividends' | 'growth' | 'moats' | 'value' | 'ipo' | 'meme' | 'crypto' | 'penny' | 'leverage' | 'options'
 
 export interface DiceRoll {
   die1: number

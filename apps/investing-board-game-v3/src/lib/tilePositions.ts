@@ -67,16 +67,20 @@ export function calculateFittingRadius(viewportWidth: number, viewportHeight: nu
  * - Tile 0 (Start) is at the bottom (270° or 6 o'clock position)
  * - Corner tiles (0, 7, 13, 21) are positioned at quadrant markers
  * 
- * Total: 27 tiles (0-26)
+ * Supports dual-ring layout for inner express track
+ * 
+ * Total: 27 tiles (0-26) on outer ring, 12 tiles (100-111) on inner ring
  * 
  * @param boardSize - The dimensions of the board container
  * @param tileCount - Number of tiles to position (default: 27)
  * @param customRadius - Optional custom radius override for viewport-aware scaling
+ * @param isInnerTrack - Whether this is the inner express track (smaller radius)
  */
 export function calculateTilePositions(
   boardSize: { width: number; height: number },
   tileCount: number = 27,
-  customRadius?: number
+  customRadius?: number,
+  isInnerTrack: boolean = false
 ): TilePosition[] {
   const positions: TilePosition[] = []
   
@@ -86,7 +90,12 @@ export function calculateTilePositions(
   
   // Radius of the circular board (leaving space for tiles and padding)
   // Use custom radius if provided, otherwise calculate based on board size
-  const radius = customRadius ?? (Math.min(boardSize.width, boardSize.height) * 0.38) // 38% of board size for nice spacing
+  let radius = customRadius ?? (Math.min(boardSize.width, boardSize.height) * 0.38) // 38% of board size for nice spacing
+  
+  // Inner track uses 50% of outer radius
+  if (isInnerTrack) {
+    radius = radius * 0.5
+  }
   
   // Starting angle - position tile 0 at the bottom (270 degrees / 6 o'clock)
   const startAngle = 270
