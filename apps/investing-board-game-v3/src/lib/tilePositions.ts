@@ -14,6 +14,52 @@ export interface TilePosition {
 }
 
 /**
+ * Calculate optimal radius for circular board to fit viewport
+ * 
+ * This function ensures ALL tiles are visible without overflow by accounting
+ * for tile protrusion on ALL sides of the circle.
+ * 
+ * Formula: radius = (availableSize / 2) - TILE_SIZE
+ * 
+ * Where:
+ * - availableSize is the minimum of available width and height
+ * - TILE_SIZE is the largest tile dimension (corners at 140×140px)
+ * - Total board diameter = 2*radius + 2*TILE_SIZE
+ * 
+ * @param viewportWidth - Window width in pixels
+ * @param viewportHeight - Window height in pixels
+ * @returns Calculated radius in pixels, or undefined for mobile views
+ */
+export function calculateFittingRadius(viewportWidth: number, viewportHeight: number): number {
+  // Tile dimensions - corners are largest at 140×140px
+  const TILE_SIZE = 140
+  
+  // Space for sidebar buttons (Shop/ProTools on left, Cities/Challenges on right)
+  const SIDEBAR_WIDTH = 180 // 90px each side
+  
+  // Vertical margins (HUD at top, some bottom padding)
+  const TOP_MARGIN = 80
+  const BOTTOM_MARGIN = 40
+  
+  // Calculate available space
+  const availableWidth = viewportWidth - (SIDEBAR_WIDTH * 2)
+  const availableHeight = viewportHeight - TOP_MARGIN - BOTTOM_MARGIN
+  const availableSize = Math.min(availableWidth, availableHeight)
+  
+  // CRITICAL FORMULA:
+  // Total board diameter = 2*radius + 2*TILE_SIZE (tiles protrude on ALL sides)
+  // Therefore: radius = (availableSize - 2*TILE_SIZE) / 2
+  // Simplifies to: radius = (availableSize / 2) - TILE_SIZE
+  const radius = (availableSize / 2) - TILE_SIZE
+  
+  // Safety buffer
+  const safeRadius = radius - 20
+  
+  // Minimum usable radius (below this the board is too small to be playable)
+  return Math.max(safeRadius, 120)
+}
+
+/**
  * Calculate positions of all tiles on the board
  * 
  * Board layout: 27 tiles arranged in a circular/ring pattern

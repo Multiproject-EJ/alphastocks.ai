@@ -244,6 +244,7 @@ function App() {
   const [activeSection, setActiveSection] = useState<'home' | 'challenges' | 'shop' | 'leaderboard' | 'settings'>('home')
   const [isLoading, setIsLoading] = useState(true)
   const [isMobile, setIsMobile] = useState(false)
+  const [dynamicRadius, setDynamicRadius] = useState<number | undefined>(undefined)
 
   // Check for mobile device
   useEffect(() => {
@@ -254,6 +255,18 @@ function App() {
     window.addEventListener('resize', checkMobile)
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
+
+  // Recalculate radius on mount and window resize
+  useEffect(() => {
+    const updateRadius = () => {
+      const newRadius = calculateFittingRadius()
+      setDynamicRadius(newRadius)
+    }
+    
+    updateRadius()
+    window.addEventListener('resize', updateRadius)
+    return () => window.removeEventListener('resize', updateRadius)
+  }, [calculateFittingRadius, isPhone, isMobile])
 
   // Safe area insets
   const safeArea = useSafeArea()
@@ -1848,22 +1861,32 @@ function App() {
     const viewportWidth = window.innerWidth
     const viewportHeight = window.innerHeight
     
-    // Account for margins and UI elements
-    const sidebarMargin = 150  // Space for Shop/ProTools on left, Cities/Challenges on right
-    const topMargin = 80       // Space for notifications/HUD and event banner (reduced from 100)
-    const bottomMargin = 40    // Bottom padding (reduced from 60)
-    const tileProtrusion = 90  // Tiles extend beyond their center point (70px for corners + margin)
+    // Tile dimensions - corners are largest at 140×140px
+    const TILE_SIZE = 140
+    
+    // Space for sidebar buttons (Shop/ProTools on left, Cities/Challenges on right)
+    const SIDEBAR_WIDTH = 180 // 90px each side
+    
+    // Vertical margins (HUD at top, some bottom padding)
+    const TOP_MARGIN = 80
+    const BOTTOM_MARGIN = 40
     
     // Calculate available space
-    const availableWidth = viewportWidth - (sidebarMargin * 2)
-    const availableHeight = viewportHeight - topMargin - bottomMargin
+    const availableWidth = viewportWidth - (SIDEBAR_WIDTH * 2)
+    const availableHeight = viewportHeight - TOP_MARGIN - BOTTOM_MARGIN
     const availableSize = Math.min(availableWidth, availableHeight)
     
-    // Radius is half the available size, minus tile protrusion buffer
-    const radius = (availableSize / 2) - tileProtrusion
+    // CRITICAL FORMULA:
+    // Total board diameter = 2*radius + 2*TILE_SIZE (tiles protrude on ALL sides)
+    // Therefore: radius = (availableSize - 2*TILE_SIZE) / 2
+    // Simplifies to: radius = (availableSize / 2) - TILE_SIZE
+    const radius = (availableSize / 2) - TILE_SIZE
     
-    // Ensure minimum usable radius
-    return Math.max(radius, 200)
+    // Safety buffer
+    const safeRadius = radius - 20
+    
+    // Minimum usable radius (below this the board is too small to be playable)
+    return Math.max(safeRadius, 120)
   }, [isPhone, isMobile])
 
   // Board center classes - circular glass container
@@ -1979,7 +2002,7 @@ function App() {
         )}
 
         {/* Board Container - Centered and scaled to fit viewport height */}
-        <div className={`relative ${!isPhone ? 'flex-shrink flex items-center justify-center' : ''}`} style={{
+        <div className={`relative ${!isPhone ? 'flex-shrink flex items-center justify-center overflow-hidden' : ''}`} style={{
           ...((!isPhone) ? {
             height: '100%',
             maxHeight: 'calc(100vh - 4rem)',
@@ -2018,7 +2041,7 @@ function App() {
           {!isPhone && !isMobile && (
             <>
               <CenterSlices radius={600} />
-              <StockTickerRibbon radius={calculateFittingRadius() || 456} />
+              <StockTickerRibbon radius={dynamicRadius || 456} />
             </>
           )}
 
@@ -2161,7 +2184,6 @@ function App() {
               {(() => {
                 // Calculate tile positions for circular layout
                 const boardSize = { width: 1200, height: 1200 }
-                const dynamicRadius = calculateFittingRadius()
                 const tilePositions = calculateTilePositions(boardSize, 27, dynamicRadius)
                 
                 return BOARD_TILES.map((tile) => {
