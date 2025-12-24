@@ -48,7 +48,7 @@ export function StockModal({ open, onOpenChange, stock, onBuy, cash, showInsight
         <DialogHeader className="flex-shrink-0">
           {/* Hero Score - Top Right */}
           {stock.scores && (
-            <div className="absolute top-4 right-4 flex flex-col items-center">
+            <div className="absolute top-4 right-16 flex flex-col items-center">
               <div className={`text-5xl font-bold font-mono ${getScoreColor(stock.scores.composite)}`}>
                 {stock.scores.composite.toFixed(1)}
               </div>
