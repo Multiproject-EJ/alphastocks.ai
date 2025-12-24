@@ -73,12 +73,17 @@ export function calculateTilePositions(
 
 /**
  * Get position for a specific tile
+ * 
+ * @param tileId - The ID of the tile to position
+ * @param boardSize - The dimensions of the board container
+ * @param customRadius - Optional custom radius override for viewport-aware scaling
  */
 export function getTilePosition(
   tileId: number,
-  boardSize: { width: number; height: number }
+  boardSize: { width: number; height: number },
+  customRadius?: number
 ): TilePosition | undefined {
-  const positions = calculateTilePositions(boardSize)
+  const positions = calculateTilePositions(boardSize, 27, customRadius)
   return positions.find(pos => pos.id === tileId)
 }
 
