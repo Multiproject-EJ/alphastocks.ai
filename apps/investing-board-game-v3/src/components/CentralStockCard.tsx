@@ -15,7 +15,7 @@ export function CentralStockCard({ stock, isVisible, onClose }: CentralStockCard
   const [imageError, setImageError] = useState(false)
   
   return (
-    <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30">
+    <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-30">
       <AnimatePresence>
         {isVisible && stock && (
           <motion.div
