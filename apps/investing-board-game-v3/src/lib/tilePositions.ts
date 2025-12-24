@@ -5,6 +5,11 @@
  * Based on a circular layout with 27 tiles (0-26) arranged in a ring.
  */
 
+// Tile dimension constants (based on Tile.tsx component)
+const MAX_TILE_SIZE = 140 // Corner tiles are 140px × 140px (largest)
+const TILE_PADDING = 20   // Extra padding to prevent edge clipping
+const RADIUS_SCALE_FACTOR = 0.90 // Use 90% of available space for visual balance
+
 export interface TilePosition {
   id: number
   x: number      // center X relative to board center
@@ -34,15 +39,15 @@ export function calculateTilePositions(
   const centerY = boardSize.height / 2
   
   // Tile dimensions (corner tiles are largest at 140px, others ~100-120px)
-  const maxTileSize = 140
-  const tilePadding = 20 // Extra padding to prevent edge clipping
+  const maxTileSize = MAX_TILE_SIZE
+  const tilePadding = TILE_PADDING
   
   // Calculate radius dynamically to ensure all tiles fit within board bounds
   // Radius should be: (boardSize / 2) - (maxTileSize / 2) - padding
   const maxRadius = Math.min(boardSize.width, boardSize.height) / 2 - maxTileSize / 2 - tilePadding
   
-  // Use 90% of max radius for better visual spacing while ensuring fit
-  const radius = maxRadius * 0.90
+  // Use configured scale factor for visual spacing while ensuring fit
+  const radius = maxRadius * RADIUS_SCALE_FACTOR
   
   // Starting angle - position tile 0 at the bottom (270 degrees / 6 o'clock)
   const startAngle = 270

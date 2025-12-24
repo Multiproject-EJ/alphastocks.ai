@@ -1946,10 +1946,11 @@ function App() {
         )}
 
         {/* Board Container - Centered and scaled to fit viewport */}
+        {/* Size calculation: viewport minus sidebars (2×14rem buttons + padding) and vertical padding (2×2rem) */}
         <div className={`relative ${!isPhone ? 'flex items-center justify-center' : ''}`} style={{
           ...((!isPhone) ? {
-            width: 'min(calc(100vh - 4rem), calc(100vw - 28rem))',
-            height: 'min(calc(100vh - 4rem), calc(100vw - 28rem))',
+            width: 'min(calc(100vh - 4rem), calc(100vw - 28rem))', // 28rem = left sidebar (~14rem) + right sidebar (~14rem)
+            height: 'min(calc(100vh - 4rem), calc(100vw - 28rem))', // 4rem = top padding (2rem) + bottom padding (2rem)
             maxWidth: '1200px',
             maxHeight: '1200px',
             aspectRatio: '1 / 1',
