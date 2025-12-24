@@ -1835,11 +1835,42 @@ function App() {
 
   const netWorthChange = ((gameState.netWorth - 100000) / 100000) * 100
 
-  // Board center classes - fade background on logo panel
+  // Calculate viewport-aware radius for desktop to fit all tiles
+  const calculateFittingRadius = useCallback(() => {
+    if (isPhone || isMobile) {
+      // Mobile uses existing zoom/pan system, no need for custom radius
+      return undefined
+    }
+    
+    // Get viewport dimensions
+    const viewportWidth = window.innerWidth
+    const viewportHeight = window.innerHeight
+    
+    // Account for margins and UI elements
+    const sidebarMargin = 150  // Space for Shop/ProTools on left, Cities/Challenges on right
+    const topMargin = 100       // Space for notifications/HUD and event banner
+    const bottomMargin = 60     // Bottom padding
+    const tileProtrusion = 90   // Tiles extend beyond their center point (70px for corners + margin)
+    
+    // Calculate available space
+    const availableWidth = viewportWidth - (sidebarMargin * 2)
+    const availableHeight = viewportHeight - topMargin - bottomMargin
+    const availableSize = Math.min(availableWidth, availableHeight)
+    
+    // Radius is half the available size, minus tile protrusion buffer
+    const radius = (availableSize / 2) - tileProtrusion
+    
+    // Ensure minimum usable radius
+    return Math.max(radius, 200)
+  }, [isPhone, isMobile])
+
+  // Board center classes - transparent/minimal on desktop for floating board
   const boardCenterClasses = [
-    'relative bg-gradient-to-br from-white/15 via-white/8 to-white/12',
-    'backdrop-blur-2xl rounded-2xl border border-white/25',
-    'shadow-[inset_0_0_70px_rgba(255,255,255,0.08),_0_20px_80px_rgba(0,0,0,0.35)]',
+    'relative',
+    // On desktop: transparent floating board
+    !isPhone && !isMobile ? 'bg-transparent' : 'bg-gradient-to-br from-white/15 via-white/8 to-white/12',
+    !isPhone && !isMobile ? '' : 'backdrop-blur-2xl rounded-2xl border border-white/25',
+    !isPhone && !isMobile ? '' : 'shadow-[inset_0_0_70px_rgba(255,255,255,0.08),_0_20px_80px_rgba(0,0,0,0.35)]',
     'p-8 min-h-[900px] transition-all duration-700',
     isLogoPanel ? 'bg-opacity-0 backdrop-blur-none' : ''
   ].filter(Boolean).join(' ')
@@ -1899,7 +1930,7 @@ function App() {
       <div className={`relative z-10 ${!isPhone ? 'flex items-center justify-center gap-8 h-[calc(100vh-2rem)] max-w-full px-4' : 'max-w-[1600px] mx-auto'}`} ref={boardContainerRef}>
         {/* Left Column - Action buttons (desktop/tablet only) */}
         {!isPhone && (
-          <div className={`flex flex-col gap-4 items-center justify-center transition-opacity duration-500 flex-shrink-0 ${
+          <div className={`flex flex-col gap-4 items-center justify-center transition-opacity duration-500 flex-shrink-0 z-20 ${
             isLogoPanel ? 'opacity-0 pointer-events-none' : 'opacity-100'
           }`}>
             {/* Shop Button */}
@@ -2120,7 +2151,8 @@ function App() {
               {(() => {
                 // Calculate tile positions for circular layout
                 const boardSize = { width: 1200, height: 1200 }
-                const tilePositions = calculateTilePositions(boardSize)
+                const dynamicRadius = calculateFittingRadius()
+                const tilePositions = calculateTilePositions(boardSize, 27, dynamicRadius)
                 
                 return BOARD_TILES.map((tile) => {
                   const position = tilePositions.find(p => p.id === tile.id)
@@ -2181,7 +2213,7 @@ function App() {
 
         {/* Right Column - Action buttons (desktop/tablet only) */}
         {!isPhone && (
-          <div className={`flex flex-col gap-4 items-center justify-center transition-opacity duration-500 flex-shrink-0 ${
+          <div className={`flex flex-col gap-4 items-center justify-center transition-opacity duration-500 flex-shrink-0 z-20 ${
             isLogoPanel ? 'opacity-0 pointer-events-none' : 'opacity-100'
           }`}>
             {/* Cities Button */}

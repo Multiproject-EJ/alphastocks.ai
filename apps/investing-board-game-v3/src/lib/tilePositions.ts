@@ -22,10 +22,15 @@ export interface TilePosition {
  * - Corner tiles (0, 7, 13, 21) are positioned at quadrant markers
  * 
  * Total: 27 tiles (0-26)
+ * 
+ * @param boardSize - The dimensions of the board container
+ * @param tileCount - Number of tiles to position (default: 27)
+ * @param customRadius - Optional custom radius override for viewport-aware scaling
  */
 export function calculateTilePositions(
   boardSize: { width: number; height: number },
-  tileCount: number = 27
+  tileCount: number = 27,
+  customRadius?: number
 ): TilePosition[] {
   const positions: TilePosition[] = []
   
@@ -34,7 +39,8 @@ export function calculateTilePositions(
   const centerY = boardSize.height / 2
   
   // Radius of the circular board (leaving space for tiles and padding)
-  const radius = Math.min(boardSize.width, boardSize.height) * 0.38 // 38% of board size for nice spacing
+  // Use custom radius if provided, otherwise calculate based on board size
+  const radius = customRadius ?? (Math.min(boardSize.width, boardSize.height) * 0.38) // 38% of board size for nice spacing
   
   // Starting angle - position tile 0 at the bottom (270 degrees / 6 o'clock)
   const startAngle = 270
