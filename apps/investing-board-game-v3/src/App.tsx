@@ -1848,9 +1848,9 @@ function App() {
     
     // Account for margins and UI elements
     const sidebarMargin = 150  // Space for Shop/ProTools on left, Cities/Challenges on right
-    const topMargin = 100       // Space for notifications/HUD and event banner
-    const bottomMargin = 60     // Bottom padding
-    const tileProtrusion = 90   // Tiles extend beyond their center point (70px for corners + margin)
+    const topMargin = 80       // Space for notifications/HUD and event banner (reduced from 100)
+    const bottomMargin = 40    // Bottom padding (reduced from 60)
+    const tileProtrusion = 90  // Tiles extend beyond their center point (70px for corners + margin)
     
     // Calculate available space
     const availableWidth = viewportWidth - (sidebarMargin * 2)
