@@ -246,6 +246,45 @@ function App() {
   const [isMobile, setIsMobile] = useState(false)
   const [dynamicRadius, setDynamicRadius] = useState<number | undefined>(undefined)
 
+  // Calculate viewport-aware radius for desktop to fit all tiles
+  const calculateFittingRadius = useCallback(() => {
+    if (window.innerWidth < 768 || window.innerWidth < 1024) {
+      // Mobile uses existing zoom/pan system, no need for custom radius
+      return undefined
+    }
+    
+    // Get viewport dimensions
+    const viewportWidth = window.innerWidth
+    const viewportHeight = window.innerHeight
+    
+    // Tile dimensions - corners are largest at 140×140px
+    const TILE_SIZE = 140
+    
+    // Space for sidebar buttons (Shop/ProTools on left, Cities/Challenges on right)
+    const SIDEBAR_WIDTH = 180 // 90px each side
+    
+    // Vertical margins (HUD at top, some bottom padding)
+    const TOP_MARGIN = 80
+    const BOTTOM_MARGIN = 40
+    
+    // Calculate available space
+    const availableWidth = viewportWidth - (SIDEBAR_WIDTH * 2)
+    const availableHeight = viewportHeight - TOP_MARGIN - BOTTOM_MARGIN
+    const availableSize = Math.min(availableWidth, availableHeight)
+    
+    // CRITICAL FORMULA:
+    // Total board diameter = 2*radius + 2*TILE_SIZE (tiles protrude on ALL sides)
+    // Therefore: radius = (availableSize - 2*TILE_SIZE) / 2
+    // Simplifies to: radius = (availableSize / 2) - TILE_SIZE
+    const radius = (availableSize / 2) - TILE_SIZE
+    
+    // Safety buffer
+    const safeRadius = radius - 20
+    
+    // Minimum usable radius (below this the board is too small to be playable)
+    return Math.max(safeRadius, 120)
+  }, [])
+
   // Check for mobile device
   useEffect(() => {
     const checkMobile = () => {
@@ -266,7 +305,7 @@ function App() {
     updateRadius()
     window.addEventListener('resize', updateRadius)
     return () => window.removeEventListener('resize', updateRadius)
-  }, [calculateFittingRadius, isPhone, isMobile])
+  }, [calculateFittingRadius])
 
   // Safe area insets
   const safeArea = useSafeArea()
@@ -1849,45 +1888,6 @@ function App() {
   }
 
   const netWorthChange = ((gameState.netWorth - 100000) / 100000) * 100
-
-  // Calculate viewport-aware radius for desktop to fit all tiles
-  const calculateFittingRadius = useCallback(() => {
-    if (isPhone || isMobile) {
-      // Mobile uses existing zoom/pan system, no need for custom radius
-      return undefined
-    }
-    
-    // Get viewport dimensions
-    const viewportWidth = window.innerWidth
-    const viewportHeight = window.innerHeight
-    
-    // Tile dimensions - corners are largest at 140×140px
-    const TILE_SIZE = 140
-    
-    // Space for sidebar buttons (Shop/ProTools on left, Cities/Challenges on right)
-    const SIDEBAR_WIDTH = 180 // 90px each side
-    
-    // Vertical margins (HUD at top, some bottom padding)
-    const TOP_MARGIN = 80
-    const BOTTOM_MARGIN = 40
-    
-    // Calculate available space
-    const availableWidth = viewportWidth - (SIDEBAR_WIDTH * 2)
-    const availableHeight = viewportHeight - TOP_MARGIN - BOTTOM_MARGIN
-    const availableSize = Math.min(availableWidth, availableHeight)
-    
-    // CRITICAL FORMULA:
-    // Total board diameter = 2*radius + 2*TILE_SIZE (tiles protrude on ALL sides)
-    // Therefore: radius = (availableSize - 2*TILE_SIZE) / 2
-    // Simplifies to: radius = (availableSize / 2) - TILE_SIZE
-    const radius = (availableSize / 2) - TILE_SIZE
-    
-    // Safety buffer
-    const safeRadius = radius - 20
-    
-    // Minimum usable radius (below this the board is too small to be playable)
-    return Math.max(safeRadius, 120)
-  }, [isPhone, isMobile])
 
   // Board center classes - circular glass container
   const boardCenterClasses = [
