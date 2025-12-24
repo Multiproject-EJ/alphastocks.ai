@@ -1,0 +1,156 @@
+{
+  "table": "board_game_profiles",
+  "metadata": {
+    "description": "Demo board game profile with portfolio holdings",
+    "count": 1
+  },
+  "rows": [
+    {
+      "id": "bg-profile-demo-1",
+      "profile_id": "1f2a7f2e-0ad1-4a7d-8a19-3b22e35c88a5",
+      "cash": 45000,
+      "position": 15,
+      "net_worth": 145000,
+      "portfolio_value": 100000,
+      "stars": 12,
+      "holdings": [
+        {
+          "stock": {
+            "name": "Apple Inc.",
+            "ticker": "AAPL",
+            "category": "value",
+            "price": 185.50,
+            "description": "Technology hardware and software company"
+          },
+          "shares": 50,
+          "totalCost": 9000
+        },
+        {
+          "stock": {
+            "name": "Microsoft Corporation",
+            "ticker": "MSFT",
+            "category": "growth",
+            "price": 420.00,
+            "description": "Software and cloud services"
+          },
+          "shares": 30,
+          "totalCost": 12000
+        },
+        {
+          "stock": {
+            "name": "Johnson & Johnson",
+            "ticker": "JNJ",
+            "category": "dividends",
+            "price": 160.00,
+            "description": "Healthcare and pharmaceutical company"
+          },
+          "shares": 80,
+          "totalCost": 12500
+        },
+        {
+          "stock": {
+            "name": "Procter & Gamble",
+            "ticker": "PG",
+            "category": "dividends",
+            "price": 155.00,
+            "description": "Consumer goods company"
+          },
+          "shares": 70,
+          "totalCost": 10500
+        },
+        {
+          "stock": {
+            "name": "Coca-Cola Company",
+            "ticker": "KO",
+            "category": "dividends",
+            "price": 62.00,
+            "description": "Beverage company"
+          },
+          "shares": 150,
+          "totalCost": 9000
+        },
+        {
+          "stock": {
+            "name": "Tesla Inc.",
+            "ticker": "TSLA",
+            "category": "growth",
+            "price": 250.00,
+            "description": "Electric vehicles and clean energy"
+          },
+          "shares": 25,
+          "totalCost": 6000
+        },
+        {
+          "stock": {
+            "name": "Amazon.com Inc.",
+            "ticker": "AMZN",
+            "category": "moats",
+            "price": 175.00,
+            "description": "E-commerce and cloud computing"
+          },
+          "shares": 40,
+          "totalCost": 6800
+        },
+        {
+          "stock": {
+            "name": "Alphabet Inc.",
+            "ticker": "GOOGL",
+            "category": "moats",
+            "price": 145.00,
+            "description": "Internet services and technology"
+          },
+          "shares": 50,
+          "totalCost": 7000
+        },
+        {
+          "stock": {
+            "name": "Ford Motor Company",
+            "ticker": "F",
+            "category": "turnarounds",
+            "price": 12.50,
+            "description": "Automotive manufacturer"
+          },
+          "shares": 500,
+          "totalCost": 6000
+        },
+        {
+          "stock": {
+            "name": "General Electric",
+            "ticker": "GE",
+            "category": "turnarounds",
+            "price": 145.00,
+            "description": "Industrial conglomerate"
+          },
+          "shares": 60,
+          "totalCost": 8500
+        },
+        {
+          "stock": {
+            "name": "Berkshire Hathaway",
+            "ticker": "BRK.B",
+            "category": "value",
+            "price": 385.00,
+            "description": "Investment holding company"
+          },
+          "shares": 20,
+          "totalCost": 7500
+        },
+        {
+          "stock": {
+            "name": "Walmart Inc.",
+            "ticker": "WMT",
+            "category": "value",
+            "price": 165.00,
+            "description": "Retail corporation"
+          },
+          "shares": 35,
+          "totalCost": 5700
+        }
+      ],
+      "rolls_remaining": 8,
+      "rolls_reset_at": "2025-12-25T00:00:00Z",
+      "created_at": "2025-10-01T10:00:00Z",
+      "updated_at": "2025-12-24T15:30:00Z"
+    }
+  ]
+}

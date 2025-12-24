@@ -7,10 +7,12 @@ import {
   pickLatestJournalEntry,
   summarizeAnalysisQueue
 } from './dashboardUtils.js';
+import { getBoardGamePortfolio, transformBoardGamePortfolioSummary } from '../../services/boardGamePortfolioSync.js';
 
 export const useDashboardData = ({ dataService, profileId, defaultFocusList = [] }) => {
   const [focusList, setFocusList] = useState(defaultFocusList);
   const [portfolioSummary, setPortfolioSummary] = useState(null);
+  const [boardGamePortfolioSummary, setBoardGamePortfolioSummary] = useState(null);
   const [ledgerHighlights, setLedgerHighlights] = useState([]);
   const [eventsRows, setEventsRows] = useState([]);
   const [eventsScope, setEventsScope] = useState('personal');
@@ -41,7 +43,8 @@ export const useDashboardData = ({ dataService, profileId, defaultFocusList = []
         'portfolios',
         'transactions',
         'journal_entries',
-        'analysis_tasks'
+        'analysis_tasks',
+        'board_game_profiles'
       ]);
 
       if (!profileId || !tablesScopedToProfile.has(table)) {
@@ -61,7 +64,8 @@ export const useDashboardData = ({ dataService, profileId, defaultFocusList = []
           transactions,
           events,
           journals,
-          analysisTasks
+          analysisTasks,
+          boardGameProfile
         ] = await Promise.all([
           dataService.getTable('watchlist_items', buildScopedOptions('watchlist_items')),
           dataService.getTable('portfolio_snapshots', buildScopedOptions('portfolio_snapshots')),
@@ -70,7 +74,8 @@ export const useDashboardData = ({ dataService, profileId, defaultFocusList = []
           dataService.getTable('transactions', buildScopedOptions('transactions')),
           dataService.getTable('events'),
           dataService.getTable('journal_entries', buildScopedOptions('journal_entries')),
-          dataService.getTable('analysis_tasks', buildScopedOptions('analysis_tasks'))
+          dataService.getTable('analysis_tasks', buildScopedOptions('analysis_tasks')),
+          getBoardGamePortfolio(dataService, profileId)
         ]);
 
         if (cancelled) {
@@ -80,6 +85,7 @@ export const useDashboardData = ({ dataService, profileId, defaultFocusList = []
         const focus = buildFocusListFromWatchlist(watchlist.rows);
         setFocusList(focus?.length ? focus : defaultFocusList);
         setPortfolioSummary(computePortfolioSummary(snapshots.rows, positions.rows, portfolios.rows));
+        setBoardGamePortfolioSummary(transformBoardGamePortfolioSummary(boardGameProfile));
         setLedgerHighlights(computeLedgerHighlights(transactions.rows, portfolios.rows));
         setEventsRows(events.rows ?? []);
         setLatestJournal(pickLatestJournalEntry(journals.rows));
@@ -135,6 +141,7 @@ export const useDashboardData = ({ dataService, profileId, defaultFocusList = []
   return {
     focusList,
     portfolioSummary,
+    boardGamePortfolioSummary,
     ledgerHighlights,
     eventsScope,
     setEventsScope,

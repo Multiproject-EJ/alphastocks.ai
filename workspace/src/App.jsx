@@ -795,6 +795,7 @@ const App = () => {
   const [isMobileNavDrawerOpen, setIsMobileNavDrawerOpen] = useState(false);
   const [alertSettings, setAlertSettings] = useState(() => createInitialAlertState());
   const [isSigningOut, setIsSigningOut] = useState(false);
+  const [portfolioView, setPortfolioView] = useState('protools'); // 'protools' or 'boardgame'
   const [universeRows, setUniverseRows] = useState(DEFAULT_UNIVERSE_ROWS);
   const [universeLoadError, setUniverseLoadError] = useState(null);
   const [universeIsLoading, setUniverseIsLoading] = useState(false);
@@ -849,6 +850,7 @@ const App = () => {
   const {
     focusList,
     portfolioSummary,
+    boardGamePortfolioSummary,
     ledgerHighlights,
     eventsScope,
     setEventsScope,
@@ -1950,42 +1952,120 @@ const App = () => {
     }
 
     if (activeSection === 'portfolio') {
-      return {
-        title: 'Portfolio',
-        meta: portfolioSummary?.meta ?? 'Monitor realized performance and ledger entries.',
-        cards: [
-          {
-            title: 'Results snapshot',
-            body: portfolioSummary ? (
+      // Determine which portfolio to show
+      const showBoardGame = portfolioView === 'boardgame' && boardGamePortfolioSummary;
+      const showProTools = portfolioView === 'protools' && portfolioSummary;
+      
+      // If board game view is selected but no data, fallback to protools
+      const effectiveView = showBoardGame ? 'boardgame' : 'protools';
+      const effectiveSummary = showBoardGame ? boardGamePortfolioSummary : portfolioSummary;
+      
+      const cards = [];
+      
+      // Add toggle card if both portfolios exist
+      if (boardGamePortfolioSummary || portfolioSummary) {
+        const hasBothPortfolios = boardGamePortfolioSummary && portfolioSummary;
+        
+        if (hasBothPortfolios) {
+          cards.push({
+            title: 'Portfolio View',
+            body: (
+              <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button
+                  onClick={() => setPortfolioView('protools')}
+                  className={`toggle-button ${portfolioView === 'protools' ? 'active' : ''}`}
+                  style={{
+                    padding: '8px 16px',
+                    border: '1px solid var(--border-subtle)',
+                    borderRadius: '4px',
+                    background: portfolioView === 'protools' ? 'var(--accent-primary)' : 'transparent',
+                    color: portfolioView === 'protools' ? 'white' : 'var(--text-primary)',
+                    cursor: 'pointer',
+                    fontSize: '14px'
+                  }}
+                >
+                  💼 ProTools Portfolio
+                </button>
+                <button
+                  onClick={() => setPortfolioView('boardgame')}
+                  className={`toggle-button ${portfolioView === 'boardgame' ? 'active' : ''}`}
+                  style={{
+                    padding: '8px 16px',
+                    border: '1px solid var(--border-subtle)',
+                    borderRadius: '4px',
+                    background: portfolioView === 'boardgame' ? 'var(--accent-primary)' : 'transparent',
+                    color: portfolioView === 'boardgame' ? 'white' : 'var(--text-primary)',
+                    cursor: 'pointer',
+                    fontSize: '14px'
+                  }}
+                >
+                  🎮 Board Game Portfolio
+                </button>
+              </div>
+            )
+          });
+        }
+      }
+      
+      // Add results snapshot card
+      cards.push({
+        title: effectiveView === 'boardgame' ? 'Board Game Results' : 'Results snapshot',
+        body: effectiveSummary ? (
+          <>
+            <p className="detail-meta">{effectiveSummary.meta}</p>
+            <ul>
+              {effectiveSummary.bullets.map((bullet) => (
+                <li key={bullet}>{bullet}</li>
+              ))}
+            </ul>
+            {effectiveView === 'boardgame' && effectiveSummary.categoryAllocation && (
               <>
-                <p className="detail-meta">{portfolioSummary.meta}</p>
+                <p className="detail-meta" style="margin-top: 16px;"><strong>Category Allocation:</strong></p>
                 <ul>
-                  {portfolioSummary.bullets.map((bullet) => (
-                    <li key={bullet}>{bullet}</li>
-                  ))}
+                  {Object.entries(effectiveSummary.categoryAllocation)
+                    .sort(([, a], [, b]) => b - a)
+                    .map(([category, percentage]) => (
+                      <li key={category}>
+                        {category.charAt(0).toUpperCase() + category.slice(1)}: {percentage.toFixed(1)}%
+                      </li>
+                    ))}
                 </ul>
               </>
-            ) : (
-              <p>Performance data will appear once portfolio snapshots load.</p>
-            )
-          },
-          {
-            title: 'Ledger highlights',
-            body: ledgerHighlights.length > 0 ? (
-              <ul>
-                {ledgerHighlights.map((item) => (
-                  <li key={item.id}>
-                    <strong>{item.title}</strong>
-                    {item.note && <span> — {item.note}</span>}
-                    <span className="detail-meta">{item.caption}</span>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p>No recent transactions recorded in demo data.</p>
-            )
-          }
-        ]
+            )}
+          </>
+        ) : (
+          <p>
+            {effectiveView === 'boardgame'
+              ? 'No board game portfolio data available. Play the investment board game to build your portfolio!'
+              : 'Performance data will appear once portfolio snapshots load.'}
+          </p>
+        )
+      });
+      
+      // Add ledger highlights only for protools view
+      if (effectiveView === 'protools') {
+        cards.push({
+          title: 'Ledger highlights',
+          body: ledgerHighlights.length > 0 ? (
+            <ul>
+              {ledgerHighlights.map((item) => (
+                <li key={item.id}>
+                  <strong>{item.title}</strong>
+                  {item.note && <span> — {item.note}</span>}
+                  <span className="detail-meta">{item.caption}</span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No recent transactions recorded in demo data.</p>
+          )
+        });
+      }
+      
+      return {
+        title: 'Portfolio',
+        meta: effectiveSummary?.meta ?? 'Monitor realized performance and ledger entries.',
+        cards
       };
     }
 
@@ -2010,6 +2090,8 @@ const App = () => {
     ledgerHighlights,
     morningNewsAlert,
     portfolioSummary,
+    boardGamePortfolioSummary,
+    portfolioView,
     hasMorningNewsPing,
     dashboardTitle,
     dashboardCaption
