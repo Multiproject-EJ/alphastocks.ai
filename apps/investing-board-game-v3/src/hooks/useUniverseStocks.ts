@@ -21,6 +21,7 @@ type UniverseRow = {
 }
 
 const CATEGORY_ORDER: TileCategory[] = ['turnarounds', 'dividends', 'growth', 'moats', 'value']
+const DEFAULT_SCORE = 5
 
 function deriveCategory(symbol: string, index: number): TileCategory {
   const normalizedSymbol = symbol?.trim() || 'UNIVERSE'
@@ -46,7 +47,7 @@ function deriveScoresFromLabels(
   timingLabel: string | null | undefined,
   compositeScore: number | null | undefined
 ): { composite: number; quality: number; risk: number; timing: number } | undefined {
-  const scores: any = {}
+  const scores: Partial<{ composite: number; quality: number; risk: number; timing: number }> = {}
 
   // Risk: Low = 8, Medium = 5.5, High = 3
   if (riskLabel) {
@@ -84,7 +85,7 @@ function deriveScoresFromLabels(
     scores.composite = compositeScore
   } else {
     // Calculate composite as average of available scores
-    const values = [scores.risk, scores.quality, scores.timing].filter(v => v !== undefined)
+    const values = [scores.risk, scores.quality, scores.timing].filter((v): v is number => v !== undefined)
     if (values.length > 0) {
       scores.composite = values.reduce((a, b) => a + b, 0) / values.length
     }
@@ -93,10 +94,10 @@ function deriveScoresFromLabels(
   // Only return scores object if we have at least composite score
   if (scores.composite !== undefined) {
     return {
-      composite: scores.composite || 5,
-      quality: scores.quality || 5,
-      risk: scores.risk || 5,
-      timing: scores.timing || 5
+      composite: scores.composite || DEFAULT_SCORE,
+      quality: scores.quality || DEFAULT_SCORE,
+      risk: scores.risk || DEFAULT_SCORE,
+      timing: scores.timing || DEFAULT_SCORE
     }
   }
 
