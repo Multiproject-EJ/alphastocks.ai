@@ -36,6 +36,73 @@ function normalizePrice(score?: number | null): number {
   return 100
 }
 
+/**
+ * Derive numeric scores (0-10) from label strings
+ * Matches the logic from api-lib/valuebot/addons/parsers.js
+ */
+function deriveScoresFromLabels(
+  riskLabel: string | null | undefined,
+  qualityLabel: string | null | undefined,
+  timingLabel: string | null | undefined,
+  compositeScore: number | null | undefined
+): { composite: number; quality: number; risk: number; timing: number } | undefined {
+  const scores: any = {}
+
+  // Risk: Low = 8, Medium = 5.5, High = 3
+  if (riskLabel) {
+    const lower = riskLabel.toLowerCase()
+    if (lower.includes('low')) scores.risk = 8
+    else if (lower.includes('medium') || lower.includes('med')) scores.risk = 5.5
+    else if (lower.includes('high')) scores.risk = 3
+  }
+
+  // Quality: World Class = 9.5, Excellent = 8.5, Very Strong = 7.5, etc.
+  if (qualityLabel) {
+    const lower = qualityLabel.toLowerCase()
+    if (lower.includes('world')) scores.quality = 9.5
+    else if (lower.includes('excellent')) scores.quality = 8.5
+    else if (lower.includes('very strong')) scores.quality = 7.5
+    else if (lower.includes('strong')) scores.quality = 6.5
+    else if (lower.includes('good')) scores.quality = 5.5
+    else if (lower.includes('average')) scores.quality = 4.5
+    else if (lower.includes('weak')) scores.quality = 3.5
+    else if (lower.includes('poor')) scores.quality = 2.5
+    else scores.quality = 1.5
+  }
+
+  // Timing: Buy = 8, Hold = 6, Wait = 4
+  if (timingLabel) {
+    const lower = timingLabel.toLowerCase()
+    if (lower.includes('buy')) scores.timing = 8
+    else if (lower.includes('hold')) scores.timing = 6
+    else if (lower.includes('wait')) scores.timing = 4
+    else scores.timing = 2
+  }
+
+  // Composite score from database (if available)
+  if (typeof compositeScore === 'number' && !isNaN(compositeScore)) {
+    scores.composite = compositeScore
+  } else {
+    // Calculate composite as average of available scores
+    const values = [scores.risk, scores.quality, scores.timing].filter(v => v !== undefined)
+    if (values.length > 0) {
+      scores.composite = values.reduce((a, b) => a + b, 0) / values.length
+    }
+  }
+
+  // Only return scores object if we have at least composite score
+  if (scores.composite !== undefined) {
+    return {
+      composite: scores.composite || 5,
+      quality: scores.quality || 5,
+      risk: scores.risk || 5,
+      timing: scores.timing || 5
+    }
+  }
+
+  return undefined
+}
+
 function mapUniverseRowToStock(row: UniverseRow, index: number): Stock {
   return {
     name: row.name?.trim() || row.symbol,
@@ -50,6 +117,12 @@ function mapUniverseRowToStock(row: UniverseRow, index: number): Stock {
     analyzed_at: row.last_deep_dive_at,
     addon_flags: row.addon_flags,
     image_url: row.image_url,
+    scores: deriveScoresFromLabels(
+      row.last_risk_label,
+      row.last_quality_label,
+      row.last_timing_label,
+      row.last_composite_score
+    ),
   }
 }
 
