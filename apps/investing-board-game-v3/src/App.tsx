@@ -2184,7 +2184,7 @@ function App() {
             </div>
           )}
 
-          <div className="absolute inset-8 pointer-events-none">
+          <div className="absolute inset-0 pointer-events-none">
             <div className="relative w-full h-full">
               {/* Outer Ring - Main Board Layout */}
               {(() => {
