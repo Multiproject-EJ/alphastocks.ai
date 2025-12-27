@@ -358,6 +358,10 @@ function App() {
   const [diceResetKey, setDiceResetKey] = useState(0)
 
   const [showCelebration, setShowCelebration] = useState(false)
+  const BOARD_SIZE = 1200
+  const TILE_SIZE = 140
+  const boardFrameRef = useRef<HTMLDivElement>(null)
+  const [boardRenderSize, setBoardRenderSize] = useState(BOARD_SIZE)
 
   const rollTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const hopIntervalRef = useRef<NodeJS.Timeout | null>(null)
@@ -1891,13 +1895,42 @@ function App() {
 
   const netWorthChange = ((gameState.netWorth - 100000) / 100000) * 100
 
-  const BOARD_SIZE = 1200
-  const TILE_SIZE = 140
-  const desktopOuterRadius = BOARD_SIZE / 2 - TILE_SIZE / 2
+  const boardSize = !isPhone && !isMobile ? boardRenderSize : BOARD_SIZE
+  const desktopOuterRadius = boardSize / 2 - TILE_SIZE / 2
   const boardPadding = !isPhone && !isMobile ? 0 : 32
   const boardOuterRadius = !isPhone && !isMobile
     ? desktopOuterRadius
     : (dynamicRadius ?? 456)
+
+  useEffect(() => {
+    if (isPhone || isMobile) {
+      return
+    }
+
+    const node = boardFrameRef.current
+    if (!node) {
+      return
+    }
+
+    const updateSize = () => {
+      const rect = node.getBoundingClientRect()
+      const nextSize = Math.round(Math.min(rect.width, rect.height))
+      if (nextSize > 0) {
+        setBoardRenderSize(prev => (prev === nextSize ? prev : nextSize))
+      }
+    }
+
+    updateSize()
+
+    const observer = new ResizeObserver(() => updateSize())
+    observer.observe(node)
+    window.addEventListener('resize', updateSize)
+
+    return () => {
+      observer.disconnect()
+      window.removeEventListener('resize', updateSize)
+    }
+  }, [isPhone, isMobile])
 
   // Board center classes - circular glass container
   const boardCenterClasses = [
@@ -2019,7 +2052,7 @@ function App() {
             maxWidth: `${BOARD_SIZE}px`,
             aspectRatio: '1 / 1',
           } : {})
-        }}>
+        }} ref={boardFrameRef}>
         {/* Board wrapper with 3D camera or classic zoom support */}
         <Board3DViewport
           camera={camera}
@@ -2027,10 +2060,10 @@ function App() {
           boardStyle={camera3DStyle}
           containerStyle={camera3DContainerStyle}
           playerPosition={gameState.position}
-          boardSize={1200}
+          boardSize={boardSize}
         >
           <BoardViewport
-            boardSize={{ width: 1200, height: 1200 }}
+            boardSize={{ width: boardSize, height: boardSize }}
             isMobile={isMobile && camera.mode === 'classic'}
             currentPosition={gameState.position}
             safeArea={safeArea}
@@ -2198,8 +2231,8 @@ function App() {
               {/* Outer Ring - Main Board Layout */}
               {(() => {
                 // Calculate tile positions for circular layout
-                const boardSize = { width: BOARD_SIZE, height: BOARD_SIZE }
-                const tilePositions = calculateTilePositions(boardSize, 27, boardOuterRadius, false)
+                const tileBoardSize = { width: boardSize, height: boardSize }
+                const tilePositions = calculateTilePositions(tileBoardSize, 27, boardOuterRadius, false)
                 
                 return BOARD_TILES.map((tile) => {
                   const position = tilePositions.find(p => p.id === tile.id)
@@ -2242,8 +2275,8 @@ function App() {
               
               {/* Inner Express Track - High-risk lane */}
               {!isPhone && (() => {
-                const boardSize = { width: BOARD_SIZE, height: BOARD_SIZE }
-                const innerPositions = calculateTilePositions(boardSize, 12, boardOuterRadius, true)
+                const tileBoardSize = { width: boardSize, height: boardSize }
+                const innerPositions = calculateTilePositions(tileBoardSize, 12, boardOuterRadius, true)
                 
                 // Check if inner track is unlocked (Tier 3 or higher)
                 const isUnlocked = currentTier.tier >= 3
