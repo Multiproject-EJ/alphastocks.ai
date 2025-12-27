@@ -2015,7 +2015,8 @@ function App() {
         <div className={`relative ${!isPhone ? 'flex-shrink flex items-center justify-center overflow-hidden' : ''}`} style={{
           ...((!isPhone) ? {
             height: '100%',
-            maxHeight: 'calc(100vh - 4rem)',
+            maxHeight: `min(calc(100vh - 4rem), ${BOARD_SIZE}px)`,
+            maxWidth: `${BOARD_SIZE}px`,
             aspectRatio: '1 / 1',
           } : {})
         }}>
