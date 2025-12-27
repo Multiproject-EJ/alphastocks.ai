@@ -1891,12 +1891,20 @@ function App() {
 
   const netWorthChange = ((gameState.netWorth - 100000) / 100000) * 100
 
+  const BOARD_SIZE = 1200
+  const TILE_SIZE = 140
+  const desktopOuterRadius = BOARD_SIZE / 2 - TILE_SIZE / 2
+  const boardPadding = !isPhone && !isMobile ? 0 : 32
+  const boardOuterRadius = !isPhone && !isMobile
+    ? desktopOuterRadius
+    : (dynamicRadius ?? 456)
+
   // Board center classes - circular glass container
   const boardCenterClasses = [
     'relative bg-gradient-to-br from-white/15 via-white/8 to-white/12',
     'backdrop-blur-2xl border border-white/25',
     'shadow-[inset_0_0_70px_rgba(255,255,255,0.08),_0_20px_80px_rgba(0,0,0,0.35)]',
-    'p-8 transition-all duration-700',
+    `${!isPhone && !isMobile ? 'p-0' : 'p-8'} transition-all duration-700`,
     // Circular container to match the board shape
     !isPhone && !isMobile ? 'rounded-full aspect-square' : 'rounded-2xl min-h-[900px]',
     isLogoPanel ? 'bg-opacity-0 backdrop-blur-none' : ''
@@ -2043,7 +2051,7 @@ function App() {
           {!isPhone && !isMobile && (
             <>
               <CenterSlices radius={600} />
-              <StockTickerRibbon radius={dynamicRadius || 456} />
+              <StockTickerRibbon radius={boardOuterRadius} />
             </>
           )}
 
@@ -2189,16 +2197,16 @@ function App() {
               {/* Outer Ring - Main Board Layout */}
               {(() => {
                 // Calculate tile positions for circular layout
-                const boardSize = { width: 1200, height: 1200 }
-                const tilePositions = calculateTilePositions(boardSize, 27, dynamicRadius, false)
+                const boardSize = { width: BOARD_SIZE, height: BOARD_SIZE }
+                const tilePositions = calculateTilePositions(boardSize, 27, boardOuterRadius, false)
                 
                 return BOARD_TILES.map((tile) => {
                   const position = tilePositions.find(p => p.id === tile.id)
                   if (!position) return null
                   
-                  // Calculate position relative to the board container (inset-8 = 32px padding)
-                  const left = position.x - 32
-                  const top = position.y - 32
+                  // Calculate position relative to the board container padding
+                  const left = position.x - boardPadding
+                  const top = position.y - boardPadding
                   
                   // Rotate tile to face outward from center
                   // Add 90 degrees because tiles are naturally "upright" and we want them perpendicular to radius
@@ -2233,8 +2241,8 @@ function App() {
               
               {/* Inner Express Track - High-risk lane */}
               {!isPhone && (() => {
-                const boardSize = { width: 1200, height: 1200 }
-                const innerPositions = calculateTilePositions(boardSize, 12, dynamicRadius, true)
+                const boardSize = { width: BOARD_SIZE, height: BOARD_SIZE }
+                const innerPositions = calculateTilePositions(boardSize, 12, boardOuterRadius, true)
                 
                 // Check if inner track is unlocked (Tier 3 or higher)
                 const isUnlocked = currentTier.tier >= 3
@@ -2243,8 +2251,8 @@ function App() {
                   const position = innerPositions[index]
                   if (!position) return null
                   
-                  const left = position.x - 32
-                  const top = position.y - 32
+                  const left = position.x - boardPadding
+                  const top = position.y - boardPadding
                   const rotation = position.angle + 90
                   
                   return (
