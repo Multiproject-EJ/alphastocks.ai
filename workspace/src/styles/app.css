@@ -1576,6 +1576,10 @@ body[data-theme='dark'] {
   transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease, border-color 160ms ease;
 }
 
+.pro-toggle--compact {
+  padding: 0.45rem 1.25rem;
+}
+
 .pro-toggle__label {
   display: inline-flex;
   align-items: center;
@@ -1687,6 +1691,12 @@ body[data-theme='dark'] {
   border-color: rgba(248, 113, 113, 0.65);
   background: linear-gradient(120deg, rgba(248, 113, 113, 0.2), rgba(248, 113, 113, 0.12));
   color: #fecdd3;
+}
+
+.workspace-status-dock {
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
 }
 
 .fullscreen-boardgame {
@@ -3052,6 +3062,18 @@ code {
     padding: 0 1rem 1rem;
   }
 
+  .mobile-nav-drawer-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+  }
+
+  .mobile-nav-drawer-actions .pro-action-button {
+    width: 3rem;
+    height: 3rem;
+  }
+
   .mobile-nav-drawer-item {
     display: flex;
     align-items: center;
@@ -3123,6 +3145,18 @@ code {
 
   .pro-overlay__content {
     padding: 0;
+  }
+
+  .workspace-status-dock {
+    position: fixed;
+    left: 50%;
+    bottom: calc(var(--mobile-bottom-nav-height) - 12px);
+    transform: translate(-50%, 80%);
+    z-index: 5;
+  }
+
+  .workspace-status-dock .workspace-status {
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
   }
 }
 
