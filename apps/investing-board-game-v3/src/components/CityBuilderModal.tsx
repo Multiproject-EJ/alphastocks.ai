@@ -338,9 +338,9 @@ export function CityBuilderModal({
           </DialogHeader>
           
           {/* Main Content */}
-          <div className="flex-1 flex overflow-hidden">
+          <div className="flex-1 flex overflow-hidden min-h-0">
             {/* City Navigation Sidebar */}
-            <div className="w-72 border-r border-border p-4 bg-muted/30">
+            <div className="w-72 border-r border-border p-4 bg-muted/30 flex flex-col min-h-0">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wider">
                   Cities
@@ -350,7 +350,7 @@ export function CityBuilderModal({
                 </Badge>
               </div>
               
-              <ScrollArea className="h-[calc(100vh-320px)]">
+              <ScrollArea className="flex-1 min-h-0">
                 <div className="space-y-2 pr-4">
                   {allCities.map((city, index) => (
                     <CityOverviewCard
@@ -390,7 +390,7 @@ export function CityBuilderModal({
             </div>
             
             {/* City Details */}
-            <div className="flex-1 overflow-hidden flex flex-col">
+            <div className="flex-1 overflow-hidden flex flex-col min-h-0">
               {/* City Header */}
               <div 
                 className="px-6 py-4 border-b border-border"
@@ -434,7 +434,7 @@ export function CityBuilderModal({
               </div>
               
               {/* Buildings Grid */}
-              <ScrollArea className="flex-1 p-6">
+              <ScrollArea className="flex-1 min-h-0 p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
                   {selectedCity.buildings.map((building) => (
                     <BuildingCard
