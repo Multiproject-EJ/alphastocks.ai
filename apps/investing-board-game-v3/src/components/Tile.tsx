@@ -60,37 +60,32 @@ const TileComponent = ({ tile, isActive, isHopping, isLanded, onClick, side }: T
   }
 
   const isCorner = tile.type === 'corner'
-  const isEvent = tile.type === 'event'
 
   // For circular layout, we use a simpler border system
   // Category tiles get their category color, others get default/accent
   const borderStyles = useMemo(() => {
-    const borderColor = isActive 
-      ? 'oklch(0.75 0.15 85)' 
+    const borderColor = isActive
+      ? 'oklch(0.75 0.15 85)'
       : (tile.colorBorder || 'oklch(0.30 0.02 250)')
-    
+
     return {
-      borderColor: isCorner ? borderColor : undefined,
-      borderTopColor: !isCorner ? borderColor : undefined,
+      borderColor,
     }
-  }, [isCorner, isActive, tile.colorBorder]);
+  }, [isActive, tile.colorBorder]);
 
   return (
     <motion.div
       className={cn(
-        'relative flex flex-col items-center justify-center rounded-lg cursor-pointer transition-all touch-target touch-feedback no-select',
+        'relative flex flex-col items-center justify-center rounded-md cursor-pointer transition-all touch-target touch-feedback no-select',
         'bg-black/70 backdrop-blur-xl flex-shrink-0 overflow-visible shadow-[inset_0_1px_0_rgba(255,255,255,0.08),_0_25px_45px_rgba(0,0,0,0.55)]',
-        isCorner
-          ? 'w-[140px] h-[140px] border-4'
-          : isEvent
-          ? 'w-[100px] h-[80px] border-t-8 border-x-2 border-b-2'
-          : 'w-[100px] h-[120px] border-t-8 border-x-2 border-b-2',
+        'w-[112px] h-[128px] border-[3px]',
         isActive
           ? 'shadow-[0_0_20px_oklch(0.75_0.15_85_/_0.5)]'
           : 'hover:bg-card/70'
       )}
       style={{
         ...borderStyles,
+        clipPath: 'polygon(0% 0%, 100% 0%, 90% 100%, 10% 100%)',
       }}
       onClick={handleClick}
       whileHover={{ scale: 1.02 }}
@@ -154,13 +149,13 @@ const TileComponent = ({ tile, isActive, isHopping, isLanded, onClick, side }: T
         <img
           src={`${import.meta.env.BASE_URL}${TILE_IMAGES[tile.title].src}`}
           alt={TILE_IMAGES[tile.title].alt}
-          className="w-full h-full object-contain absolute inset-0 pt-4 px-1 pb-1"
+          className="w-full h-full object-contain absolute inset-0 pt-4 px-2 pb-1"
           loading="lazy"
         />
       ) : (
         <div className={cn(
           'text-center px-3 font-semibold',
-          isCorner ? 'text-lg' : 'text-xs',
+          isCorner ? 'text-base' : 'text-xs',
           getTypeColor()
         )}>
           {tile.title}
