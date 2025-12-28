@@ -48,6 +48,8 @@ export function MobileBoard3D({
     return { x: -x * 0.85, y: -y * 0.85 }
   }, [currentPosition, boardSize]);
 
+  const verticalOffset = useMemo(() => -boardSize * 0.12, [boardSize]);
+
   // Static camera settings
   const camera = useMemo(() => ({
     perspective: 800,
@@ -87,7 +89,7 @@ export function MobileBoard3D({
           transform: `
             rotateX(${camera.rotateX}deg)
             scale(${camera.scale})
-            translate3d(${playerOffset.x + panOffset.x}px, ${playerOffset.y + panOffset.y}px, 0)
+            translate3d(${playerOffset.x + panOffset.x}px, ${playerOffset.y + panOffset.y + verticalOffset}px, 0)
           `,
           transformStyle: 'preserve-3d',
           transformOrigin: 'center center',
