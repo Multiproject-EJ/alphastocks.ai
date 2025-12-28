@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { X } from '@phosphor-icons/react'
@@ -41,6 +41,10 @@ export function TutorialTooltip() {
   const [currentStep, setCurrentStep] = useState(0)
   const [showTutorial, setShowTutorial] = useState(false)
   const [position, setPosition] = useState({ x: 0, y: 0 })
+  const [placement, setPlacement] = useState<'top' | 'bottom' | 'left' | 'right'>('top')
+  const [spotlight, setSpotlight] = useState({ left: 0, top: 0, width: 0, height: 0 })
+  const [showMenu, setShowMenu] = useState(false)
+  const tooltipRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     // Check if tutorial has been completed
@@ -52,7 +56,12 @@ export function TutorialTooltip() {
     }
   }, [])
 
-  useEffect(() => {
+  const preferredPlacement = useMemo(() => {
+    const step = TUTORIAL_STEPS[currentStep]
+    return step?.position ?? 'top'
+  }, [currentStep])
+
+  const updatePositions = () => {
     if (!showTutorial) return
 
     const step = TUTORIAL_STEPS[currentStep]
@@ -62,25 +71,97 @@ export function TutorialTooltip() {
     if (!targetElement) return
 
     const rect = targetElement.getBoundingClientRect()
-    
-    // Calculate position based on step position
-    let x = rect.left + rect.width / 2
-    let y = rect.top
+    const tooltipRect = tooltipRef.current?.getBoundingClientRect() ?? {
+      width: 320,
+      height: 180,
+    }
+    const viewportWidth = window.innerWidth
+    const viewportHeight = window.innerHeight
+    const margin = 16
 
-    if (step.position === 'bottom') {
-      y = rect.bottom + 10
-    } else if (step.position === 'top') {
-      y = rect.top - 10
-    } else if (step.position === 'left') {
-      x = rect.left - 10
-      y = rect.top + rect.height / 2
-    } else if (step.position === 'right') {
-      x = rect.right + 10
-      y = rect.top + rect.height / 2
+    const candidates: Array<{ placement: 'top' | 'bottom' | 'left' | 'right'; x: number; y: number }> = [
+      {
+        placement: 'top',
+        x: rect.left + rect.width / 2,
+        y: rect.top - margin,
+      },
+      {
+        placement: 'bottom',
+        x: rect.left + rect.width / 2,
+        y: rect.bottom + margin,
+      },
+      {
+        placement: 'right',
+        x: rect.right + margin,
+        y: rect.top + rect.height / 2,
+      },
+      {
+        placement: 'left',
+        x: rect.left - margin,
+        y: rect.top + rect.height / 2,
+      },
+    ]
+
+    const orderedPlacements = [
+      candidates.find((candidate) => candidate.placement === preferredPlacement),
+      ...candidates.filter((candidate) => candidate.placement !== preferredPlacement),
+    ].filter(Boolean) as Array<{ placement: 'top' | 'bottom' | 'left' | 'right'; x: number; y: number }>
+
+    const fitsViewport = (candidate: { placement: 'top' | 'bottom' | 'left' | 'right'; x: number; y: number }) => {
+      let left = candidate.x - tooltipRect.width / 2
+      let top = candidate.y - tooltipRect.height
+
+      if (candidate.placement === 'bottom') {
+        top = candidate.y
+      }
+      if (candidate.placement === 'left') {
+        left = candidate.x - tooltipRect.width
+        top = candidate.y - tooltipRect.height / 2
+      }
+      if (candidate.placement === 'right') {
+        left = candidate.x
+        top = candidate.y - tooltipRect.height / 2
+      }
+
+      return (
+        left >= margin &&
+        top >= margin &&
+        left + tooltipRect.width <= viewportWidth - margin &&
+        top + tooltipRect.height <= viewportHeight - margin
+      )
     }
 
-    setPosition({ x, y })
+    const bestCandidate = orderedPlacements.find((candidate) => fitsViewport(candidate)) ?? orderedPlacements[0]
+
+    setPlacement(bestCandidate.placement)
+    setPosition({ x: bestCandidate.x, y: bestCandidate.y })
+    setSpotlight({
+      left: Math.max(rect.left - 16, 8),
+      top: Math.max(rect.top - 16, 8),
+      width: rect.width + 32,
+      height: rect.height + 32,
+    })
+  }
+
+  useLayoutEffect(() => {
+    if (!showTutorial) return
+    const handleUpdate = () => {
+      updatePositions()
+    }
+    handleUpdate()
+    window.addEventListener('resize', handleUpdate)
+    window.addEventListener('scroll', handleUpdate, true)
+    return () => {
+      window.removeEventListener('resize', handleUpdate)
+      window.removeEventListener('scroll', handleUpdate, true)
+    }
   }, [currentStep, showTutorial])
+
+  useEffect(() => {
+    if (!showTutorial) return
+    const id = window.setTimeout(() => updatePositions(), 0)
+    return () => window.clearTimeout(id)
+  }, [showTutorial, currentStep])
 
   const handleNext = () => {
     if (currentStep < TUTORIAL_STEPS.length - 1) {
@@ -88,6 +169,11 @@ export function TutorialTooltip() {
     } else {
       handleComplete()
     }
+  }
+
+  const handleSelectStep = (index: number) => {
+    setCurrentStep(index)
+    setShowMenu(false)
   }
 
   const handleSkip = () => {
@@ -108,7 +194,7 @@ export function TutorialTooltip() {
       {showTutorial && step && (
         <>
           {/* Backdrop */}
-          <div className="fixed inset-0 bg-black/70 z-[90] pointer-events-none" />
+          <div className="fixed inset-0 bg-black/45 z-[90] pointer-events-none" />
           
           {/* Spotlight on target */}
           <motion.div
@@ -117,12 +203,12 @@ export function TutorialTooltip() {
             exit={{ opacity: 0 }}
             className="fixed z-[95] pointer-events-none"
             style={{
-              left: position.x - 100,
-              top: position.y - 100,
-              width: 200,
-              height: 200,
-              boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.7)',
-              borderRadius: '50%',
+              left: spotlight.left,
+              top: spotlight.top,
+              width: spotlight.width,
+              height: spotlight.height,
+              boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.45), 0 0 25px rgba(99, 102, 241, 0.35)',
+              borderRadius: '20px',
             }}
           />
           
@@ -131,11 +217,19 @@ export function TutorialTooltip() {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
-            className="fixed z-[100] bg-card border-2 border-accent/50 rounded-lg shadow-2xl p-4 max-w-sm"
+            ref={tooltipRef}
+            className="fixed z-[100] w-[min(90vw,360px)] rounded-2xl border border-white/10 bg-card/80 p-4 text-foreground shadow-[0_0_30px_rgba(99,102,241,0.25)] backdrop-blur-md"
             style={{
               left: position.x,
               top: position.y,
-              transform: 'translate(-50%, -100%)',
+              transform:
+                placement === 'top'
+                  ? 'translate(-50%, -100%)'
+                  : placement === 'bottom'
+                    ? 'translate(-50%, 0)'
+                    : placement === 'left'
+                      ? 'translate(-100%, -50%)'
+                      : 'translate(0, -50%)',
             }}
           >
             <button
@@ -148,6 +242,28 @@ export function TutorialTooltip() {
             
             <h3 className="font-bold text-lg mb-2 pr-6">{step.title}</h3>
             <p className="text-sm text-muted-foreground mb-4">{step.description}</p>
+
+            {showMenu && (
+              <div className="mb-4 rounded-lg border border-white/10 bg-black/20 p-2">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
+                  All scenes
+                </p>
+                <div className="max-h-36 overflow-y-auto space-y-1">
+                  {TUTORIAL_STEPS.map((tutorialStep, index) => (
+                    <button
+                      key={tutorialStep.title}
+                      type="button"
+                      onClick={() => handleSelectStep(index)}
+                      className={`w-full rounded-md px-2 py-1 text-left text-sm transition hover:bg-white/10 ${
+                        index === currentStep ? 'text-accent' : 'text-foreground/80'
+                      }`}
+                    >
+                      {tutorialStep.title}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
             
             <div className="flex items-center justify-between gap-2">
               <div className="flex gap-1">
@@ -162,6 +278,13 @@ export function TutorialTooltip() {
               </div>
               
               <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setShowMenu((prev) => !prev)}
+                >
+                  All
+                </Button>
                 <Button size="sm" variant="outline" onClick={handleSkip}>
                   Skip
                 </Button>
