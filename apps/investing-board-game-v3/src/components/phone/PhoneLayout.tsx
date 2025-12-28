@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { ReactNode, useEffect, useMemo, useState } from 'react';
 import { TrendingUp, Wrench } from 'lucide-react';
 import { CompactHUD } from './CompactHUD';
 import { PhoneBottomNav } from './PhoneBottomNav';
@@ -45,6 +45,7 @@ export function PhoneLayout({
 }: PhoneLayoutProps) {
   const { mode } = useUIMode();
   const showDebug = import.meta.env.DEV;
+  const [currentHour, setCurrentHour] = useState(() => new Date().getHours());
   
   const camera = {
     perspective: 800,
@@ -53,11 +54,32 @@ export function PhoneLayout({
     scale: 0.55,
   };
 
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      setCurrentHour(new Date().getHours());
+    }, 60_000);
+
+    return () => window.clearInterval(interval);
+  }, []);
+
+  const phoneBackground = useMemo(() => {
+    if (currentHour >= 0 && currentHour <= 4) return 'Phonebgdeepnight.webp';
+    if (currentHour <= 6) return 'Phonebglatesunrise.webp';
+    if (currentHour <= 8) return 'Phonebgdawnsunrise.webp';
+    if (currentHour <= 16) return 'Phonebgday.webp';
+    if (currentHour <= 18) return 'Phonebgsunset.webp';
+    if (currentHour <= 20) return 'Phonebgearlynight.webp';
+    return 'Phonebgdeepnight.webp';
+  }, [currentHour]);
+
+  const backgroundUrl = `${import.meta.env.BASE_URL}${phoneBackground}`;
+
   return (
     <div className="h-[100dvh] w-full flex flex-col overflow-hidden relative phone-layout">
       {/* Layer 0: Background */}
       <div 
-        className="absolute inset-0 z-0 bg-[url('/board-game-v3/BG.webp')] bg-cover bg-center opacity-60 pointer-events-none"
+        className="absolute inset-0 z-0 bg-cover bg-center opacity-60 pointer-events-none"
+        style={{ backgroundImage: `url('${backgroundUrl}')` }}
         aria-hidden="true"
       />
       
