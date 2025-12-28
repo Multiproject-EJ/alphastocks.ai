@@ -2043,137 +2043,160 @@ function App() {
       <div className={`relative z-10 ${!isPhone ? 'flex items-center justify-center gap-8 h-[calc(100vh-2rem)] max-w-full px-4' : 'max-w-[1600px] mx-auto'}`} ref={boardContainerRef}>
         {/* Left Column - Action buttons (desktop/tablet only) */}
         {!isPhone && (
-          <div className={`flex flex-col gap-4 items-center justify-center transition-opacity duration-500 flex-shrink-0 z-20 ${
+          <div className={`flex flex-col gap-6 items-start justify-center transition-opacity duration-500 flex-shrink-0 z-20 ${
             isLogoPanel ? 'opacity-0 pointer-events-none' : 'opacity-100'
           }`}>
-            {/* ProTools Button */}
-            <Button
-              onClick={() => {
-                const proToolsUrl = 'https://www.alphastocks.ai/?proTools=1'
-                if (typeof window !== 'undefined') {
-                  window.location.href = proToolsUrl
-                  return
-                }
-                setProToolsOpen(true)
-              }}
-              className="bg-accent/90 hover:bg-accent text-accent-foreground shadow-lg hover:shadow-xl transition-all backdrop-blur-sm rounded-full h-14 px-6 text-base font-semibold"
-              aria-label="Open Pro Tools"
-            >
-              ProTools
-            </Button>
-            <Button
-              onClick={() => {
-                showToast('info', 'Right Now is warming up!', {
-                  description: 'Stay tuned for real-time action drops.',
-                })
-              }}
-              className="relative bg-emerald-500/90 hover:bg-emerald-500 text-white shadow-lg hover:shadow-xl transition-all backdrop-blur-sm rounded-full h-14 px-6 text-base font-semibold"
-              aria-label="Open Right Now"
-            >
-              <span className="absolute -top-1 -right-1 flex h-3 w-3">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-500 opacity-75" />
-                <span className="relative inline-flex h-3 w-3 rounded-full bg-red-500" />
-              </span>
-              Right Now
-            </Button>
-            <Button
-              onClick={() => {
-                showOverlay({
-                  id: 'hub',
-                  component: HubModal,
-                  props: {
-                    gameState,
-                    onOpenChallenges: () => {
-                      showOverlay({
-                        id: 'challenges',
-                        component: lazy(() => import('@/components/ChallengesModal')),
-                        props: {
-                          dailyChallenges,
-                          weeklyChallenges,
-                        },
-                        priority: 'normal',
-                      })
+            <div className="flex flex-col items-start gap-3">
+              <UserIndicator 
+                saving={saving} 
+                lastSaved={lastSavedTime} 
+                currentTier={currentTier}
+                stars={gameState.stars}
+                coins={gameState.coins}
+              />
+              <div className="w-72 rounded-2xl border border-white/15 bg-slate-950/70 px-4 py-3 text-white shadow-lg backdrop-blur">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/20">
+                    <Star size={18} weight="fill" className="text-emerald-300" />
+                  </div>
+                  <div>
+                    <p className="text-[11px] uppercase tracking-[0.2em] text-emerald-200/80">Goal Rush</p>
+                    <p className="text-sm font-semibold">
+                      +{starRewardValue.toLocaleString()} ⭐ every {starRewardInterval.toLocaleString()} stars
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-3">
+                  <div className="flex items-center justify-between text-xs text-white/70">
+                    <span>
+                      {starsProgressInInterval.toLocaleString()} / {starRewardInterval.toLocaleString()} ⭐
+                    </span>
+                    <span>{starsToNextReward.toLocaleString()} to prize</span>
+                  </div>
+                  <div className="mt-2 h-2 w-full rounded-full bg-white/10">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-emerald-400 via-green-400 to-lime-300"
+                      style={{ width: `${starsProgressPercent}%` }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="flex flex-col gap-4 items-center justify-center">
+              {/* ProTools Button */}
+              <Button
+                onClick={() => {
+                  const proToolsUrl = 'https://www.alphastocks.ai/?proTools=1'
+                  if (typeof window !== 'undefined') {
+                    window.location.href = proToolsUrl
+                    return
+                  }
+                  setProToolsOpen(true)
+                }}
+                className="bg-accent/90 hover:bg-accent text-accent-foreground shadow-lg hover:shadow-xl transition-all backdrop-blur-sm rounded-full h-14 px-6 text-base font-semibold"
+                aria-label="Open Pro Tools"
+              >
+                ProTools
+              </Button>
+              <Button
+                onClick={() => {
+                  showOverlay({
+                    id: 'hub',
+                    component: HubModal,
+                    props: {
+                      gameState,
+                      onOpenChallenges: () => {
+                        showOverlay({
+                          id: 'challenges',
+                          component: lazy(() => import('@/components/ChallengesModal')),
+                          props: {
+                            dailyChallenges,
+                            weeklyChallenges,
+                          },
+                          priority: 'normal',
+                        })
+                      },
+                      onOpenEventCalendar: () => {
+                        showOverlay({
+                          id: 'eventCalendar',
+                          component: lazy(() => import('@/components/EventCalendar')),
+                          props: {
+                            activeEvents,
+                            upcomingEvents,
+                          },
+                          priority: 'normal',
+                        })
+                      },
+                      onOpenNetWorthGallery: () => {
+                        showOverlay({
+                          id: 'netWorthGallery',
+                          component: NetWorthGalleryModal,
+                          props: {
+                            currentNetWorth: gameState.netWorth,
+                          },
+                          priority: 'normal',
+                        })
+                      },
+                      onOpenCityBuilder: () => {
+                        showOverlay({
+                          id: 'cityBuilder',
+                          component: lazy(() => import('@/components/CityBuilderModal')),
+                          props: {
+                            stars: gameState.stars,
+                            currentCity,
+                            currentCityProgress,
+                            allCities,
+                            citiesProgress: cityBuilderState.cities,
+                            canUpgrade: canUpgradeBuilding,
+                            timeUntilNextUpgrade,
+                            onUpgradeBuilding: upgradeBuilding,
+                            onUnlockNextCity: unlockNextCity,
+                            onSelectCity: selectCity,
+                            nextCityToUnlock,
+                            canUnlockNext,
+                            totalBuildingsCompleted,
+                            totalCitiesCompleted,
+                            totalCitiesUnlocked,
+                          },
+                          priority: 'normal',
+                        })
+                      },
                     },
-                    onOpenEventCalendar: () => {
-                      showOverlay({
-                        id: 'eventCalendar',
-                        component: lazy(() => import('@/components/EventCalendar')),
-                        props: {
-                          activeEvents,
-                          upcomingEvents,
-                        },
-                        priority: 'normal',
-                      })
+                    priority: 'normal',
+                  })
+                }}
+                className="bg-accent/90 hover:bg-accent text-accent-foreground shadow-lg hover:shadow-xl transition-all backdrop-blur-sm rounded-full h-14 px-6 text-base font-semibold flex items-center gap-2"
+                aria-label="Open Stars Hub"
+              >
+                <Star size={20} weight="fill" />
+                Stars
+              </Button>
+              <Button
+                onClick={() => {
+                  showOverlay({
+                    id: 'portfolio',
+                    component: PortfolioModal,
+                    props: {
+                      gameState,
                     },
-                    onOpenNetWorthGallery: () => {
-                      showOverlay({
-                        id: 'netWorthGallery',
-                        component: NetWorthGalleryModal,
-                        props: {
-                          currentNetWorth: gameState.netWorth,
-                        },
-                        priority: 'normal',
-                      })
-                    },
-                    onOpenCityBuilder: () => {
-                      showOverlay({
-                        id: 'cityBuilder',
-                        component: lazy(() => import('@/components/CityBuilderModal')),
-                        props: {
-                          stars: gameState.stars,
-                          currentCity,
-                          currentCityProgress,
-                          allCities,
-                          citiesProgress: cityBuilderState.cities,
-                          canUpgrade: canUpgradeBuilding,
-                          timeUntilNextUpgrade,
-                          onUpgradeBuilding: upgradeBuilding,
-                          onUnlockNextCity: unlockNextCity,
-                          onSelectCity: selectCity,
-                          nextCityToUnlock,
-                          canUnlockNext,
-                          totalBuildingsCompleted,
-                          totalCitiesCompleted,
-                          totalCitiesUnlocked,
-                        },
-                        priority: 'normal',
-                      })
-                    },
-                  },
-                  priority: 'normal',
-                })
-              }}
-              className="bg-accent/90 hover:bg-accent text-accent-foreground shadow-lg hover:shadow-xl transition-all backdrop-blur-sm rounded-full h-14 px-6 text-base font-semibold flex items-center gap-2"
-              aria-label="Open Stars Hub"
-            >
-              <Star size={20} weight="fill" />
-              Stars
-            </Button>
-            <Button
-              onClick={() => {
-                showOverlay({
-                  id: 'portfolio',
-                  component: PortfolioModal,
-                  props: {
-                    gameState,
-                  },
-                  priority: 'normal',
-                })
-              }}
-              className="bg-accent/90 hover:bg-accent text-accent-foreground shadow-lg hover:shadow-xl transition-all backdrop-blur-sm rounded-full h-14 px-6 text-base font-semibold flex items-center gap-2"
-              aria-label="Open Portfolio"
-            >
-              <ChartLine size={20} weight="bold" />
-              Portfolio
-            </Button>
-            <Button
-              onClick={() => setAchievementsOpen(true)}
-              className="bg-accent/90 hover:bg-accent text-accent-foreground shadow-lg hover:shadow-xl transition-all backdrop-blur-sm rounded-full h-14 px-6 text-base font-semibold flex items-center gap-2"
-              aria-label="Open Achievements"
-            >
-              <Trophy size={20} weight="fill" />
-              Achievements
-            </Button>
+                    priority: 'normal',
+                  })
+                }}
+                className="bg-accent/90 hover:bg-accent text-accent-foreground shadow-lg hover:shadow-xl transition-all backdrop-blur-sm rounded-full h-14 px-6 text-base font-semibold flex items-center gap-2"
+                aria-label="Open Portfolio"
+              >
+                <ChartLine size={20} weight="bold" />
+                Portfolio
+              </Button>
+              <Button
+                onClick={() => setAchievementsOpen(true)}
+                className="bg-accent/90 hover:bg-accent text-accent-foreground shadow-lg hover:shadow-xl transition-all backdrop-blur-sm rounded-full h-14 px-6 text-base font-semibold flex items-center gap-2"
+                aria-label="Open Achievements"
+              >
+                <Trophy size={20} weight="fill" />
+                Achievements
+              </Button>
+            </div>
           </div>
         )}
 
@@ -2226,46 +2249,6 @@ function App() {
           <div className="absolute top-4 right-4 z-40">
             <SoundControls />
           </div>
-
-          {/* Top Left HUD - User Info + Progress Counter */}
-          {!isPhone && (
-            <div className="absolute top-6 left-6 z-40 flex flex-col items-start gap-3">
-              <UserIndicator 
-                saving={saving} 
-                lastSaved={lastSavedTime} 
-                currentTier={currentTier}
-                stars={gameState.stars}
-                coins={gameState.coins}
-              />
-              <div className="w-72 rounded-2xl border border-white/15 bg-slate-950/70 px-4 py-3 text-white shadow-lg backdrop-blur">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/20">
-                    <Star size={18} weight="fill" className="text-emerald-300" />
-                  </div>
-                  <div>
-                    <p className="text-[11px] uppercase tracking-[0.2em] text-emerald-200/80">Goal Rush</p>
-                    <p className="text-sm font-semibold">
-                      +{starRewardValue.toLocaleString()} ⭐ every {starRewardInterval.toLocaleString()} stars
-                    </p>
-                  </div>
-                </div>
-                <div className="mt-3">
-                  <div className="flex items-center justify-between text-xs text-white/70">
-                    <span>
-                      {starsProgressInInterval.toLocaleString()} / {starRewardInterval.toLocaleString()} ⭐
-                    </span>
-                    <span>{starsToNextReward.toLocaleString()} to prize</span>
-                  </div>
-                  <div className="mt-2 h-2 w-full rounded-full bg-white/10">
-                    <div
-                      className="h-full rounded-full bg-gradient-to-r from-emerald-400 via-green-400 to-lime-300"
-                      style={{ width: `${starsProgressPercent}%` }}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
 
           {/* Center Content - Main Carousel - HIDDEN on phone layout */}
           {!isPhone && (
@@ -2484,6 +2467,21 @@ function App() {
                 })
               }}
             />
+            <Button
+              onClick={() => {
+                showToast('info', 'Right Now is warming up!', {
+                  description: 'Stay tuned for real-time action drops.',
+                })
+              }}
+              className="relative bg-emerald-500/90 hover:bg-emerald-500 text-white shadow-lg hover:shadow-xl transition-all backdrop-blur-sm rounded-full h-14 px-6 text-base font-semibold"
+              aria-label="Open Right Now"
+            >
+              <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-500 opacity-75" />
+                <span className="relative inline-flex h-3 w-3 rounded-full bg-red-500" />
+              </span>
+              Right Now
+            </Button>
           </div>
         )}
       </div>
