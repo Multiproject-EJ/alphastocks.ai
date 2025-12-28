@@ -259,8 +259,8 @@ function App() {
     const viewportWidth = window.innerWidth
     const viewportHeight = window.innerHeight
     
-    // Tile dimensions - corners are largest at 140×140px
-    const TILE_SIZE = 140
+    // Tile dimensions - tiles are uniform at 112×128px
+    const TILE_SIZE = 128
     
     // Space for sidebar buttons (Shop/ProTools on left, Cities/Challenges on right)
     const SIDEBAR_WIDTH = 180 // 90px each side
@@ -359,7 +359,7 @@ function App() {
 
   const [showCelebration, setShowCelebration] = useState(false)
   const BOARD_SIZE = 1200
-  const TILE_SIZE = 140
+  const TILE_SIZE = 128
   const boardFrameRef = useRef<HTMLDivElement>(null)
   const [boardRenderSize, setBoardRenderSize] = useState(BOARD_SIZE)
 
