@@ -20,6 +20,7 @@ interface DiceHUDProps {
   rollsRemaining: number
   nextResetTime: Date
   boardRef?: React.RefObject<HTMLDivElement | null>
+  dragConstraintsRef?: React.RefObject<HTMLElement | null>
   resetPositionKey?: number
   // Coin-related props
   coins?: number
@@ -40,6 +41,7 @@ export function DiceHUD({
   rollsRemaining, 
   nextResetTime, 
   boardRef, 
+  dragConstraintsRef,
   resetPositionKey,
   coins,
   canAffordReroll,
@@ -186,7 +188,7 @@ export function DiceHUD({
       drag
       dragMomentum={false}
       dragElastic={0}
-      dragConstraints={boardRef}
+      dragConstraints={dragConstraintsRef ?? boardRef}
       onDragStart={() => setIsDragging(true)}
       onDragEnd={(_, info) => {
         setIsDragging(false)
