@@ -85,7 +85,7 @@ const TileComponent = ({ tile, isActive, isHopping, isLanded, onClick, side }: T
       )}
       style={{
         ...borderStyles,
-        clipPath: 'polygon(0% 0%, 100% 0%, 90% 100%, 10% 100%)',
+        clipPath: 'polygon(0% 0%, 100% 0%, 86% 100%, 14% 100%)',
       }}
       onClick={handleClick}
       whileHover={{ scale: 1.02 }}
