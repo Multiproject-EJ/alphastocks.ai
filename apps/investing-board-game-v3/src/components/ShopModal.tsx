@@ -228,7 +228,7 @@ export function ShopModal({
             <Tabs
               value={selectedCategory}
               onValueChange={handleTabChange}
-              className="flex-1 flex flex-col overflow-hidden"
+              className="flex-1 flex flex-col overflow-hidden min-h-0"
             >
               <div className="px-6 pt-4 border-b border-border">
                 <div className="flex items-center justify-between mb-4">
@@ -271,7 +271,7 @@ export function ShopModal({
               </div>
 
               {/* Tab Content with Items Grid */}
-              <div className="flex-1 overflow-y-auto px-6 py-6">
+              <div className="flex-1 overflow-y-auto px-6 py-6 min-h-0">
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={selectedCategory}
