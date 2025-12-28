@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback, lazy, Suspense } from 'react'
 import { Toaster, toast } from 'sonner'
 import { Button } from '@/components/ui/button'
-import { ShoppingBag, Buildings } from '@phosphor-icons/react'
+import { ShoppingBag, Buildings, Star, ChartLine, Trophy } from '@phosphor-icons/react'
 import { Tile } from '@/components/Tile'
 import { DiceHUD } from '@/components/DiceHUD'
 import { HubModal } from '@/components/HubModal'
@@ -29,7 +29,7 @@ import { BoardZoomControls } from '@/components/BoardZoomControls'
 import { Board3DViewport } from '@/components/Board3DViewport'
 import { StockTickerRibbon } from '@/components/StockTickerRibbon'
 import { CenterSlices } from '@/components/CenterSlices'
-import { PortfolioWheel } from '@/components/PortfolioWheel'
+import { AchievementsModal } from '@/components/AchievementsModal'
 
 // Mobile-first components
 import { MobileGameLayout } from '@/components/MobileGameLayout'
@@ -90,6 +90,7 @@ import { useGameSave } from '@/hooks/useGameSave'
 import { useAuth } from '@/context/AuthContext'
 import { useSound } from '@/hooks/useSound'
 import { useShopInventory } from '@/hooks/useShopInventory'
+import { useAchievements } from '@/hooks/useAchievements'
 import { useChallenges } from '@/hooks/useChallenges'
 import { useEvents } from '@/hooks/useEvents'
 import { useHaptics } from '@/hooks/useHaptics'
@@ -123,7 +124,7 @@ const debugGame = (...args: unknown[]) => {
 }
 
 // Constants
-const LOGO_PANEL_INDEX = 3  // 4th panel (0-indexed)
+const LOGO_PANEL_INDEX = 1  // 2nd panel (0-indexed)
 const BOARD_CONTAINER_BASE_CLASSES = "relative bg-gradient-to-br from-white/15 via-white/8 to-white/12 backdrop-blur-2xl rounded-2xl border border-white/25 shadow-[inset_0_0_70px_rgba(255,255,255,0.08),_0_20px_80px_rgba(0,0,0,0.35)] p-8 min-h-[900px] transition-opacity duration-700"
 
 function App() {
@@ -210,6 +211,7 @@ function App() {
   const [nextResetTime, setNextResetTime] = useState(getNextMidnight())
   const [hoppingTiles, setHoppingTiles] = useState<number[]>([])
   const [lastSavedTime, setLastSavedTime] = useState<Date | null>(null)
+  const [achievementsOpen, setAchievementsOpen] = useState(false)
   
   // Auto-roll state for Monopoly GO style continuous rolling
   const [isAutoRolling, setIsAutoRolling] = useState(false)
@@ -407,6 +409,12 @@ function App() {
     earnFromSource,
     canAfford: canAffordCoins
   } = useCoins(gameState.coins)
+
+  const { unlockedAchievements, getAchievementProgress } = useAchievements({
+    gameState,
+    setGameState,
+    playSound,
+  })
 
   // Convert thriftPath from GameState format to ThriftPathStatus format
   const initialThriftPathStatus: ThriftPathStatusType | undefined = gameState.thriftPath ? {
@@ -2041,77 +2049,8 @@ function App() {
             >
               ProTools
             </Button>
-          </div>
-        )}
-
-        {/* Board Container - Centered and scaled to fit viewport height */}
-        <div className={`relative ${!isPhone ? 'flex-shrink flex items-center justify-center overflow-hidden' : ''}`} style={{
-          ...((!isPhone) ? {
-            height: '100%',
-            maxHeight: `min(calc(100vh - 4rem), ${BOARD_SIZE}px)`,
-            maxWidth: `${BOARD_SIZE}px`,
-            aspectRatio: '1 / 1',
-          } : {})
-        }} ref={boardFrameRef}>
-        {/* Board wrapper with 3D camera or classic zoom support */}
-        <Board3DViewport
-          camera={camera}
-          isMobile={isMobile && !isPhone}
-          boardStyle={camera3DStyle}
-          containerStyle={camera3DContainerStyle}
-          playerPosition={gameState.position}
-          boardSize={boardSize}
-        >
-          <BoardViewport
-            boardSize={{ width: boardSize, height: boardSize }}
-            isMobile={isMobile && camera.mode === 'classic'}
-            currentPosition={gameState.position}
-            safeArea={safeArea}
-            zoom={zoom}
-            isPanning={isPanning}
-            onTouchStart={camera.mode === 'classic' ? handleTouchStart : undefined}
-            onTouchMove={camera.mode === 'classic' ? handleTouchMove : undefined}
-            onTouchEnd={camera.mode === 'classic' ? handleTouchEnd : undefined}
-            boardRef={boardRef}
-            boardClassName={boardCenterClasses}
-          >
-          <CentralStockCard
-            stock={currentStock}
-            isVisible={showCentralStock}
-            onClose={() => setShowCentralStock(false)}
-          />
-
-          {/* Decorative center slices and stock ticker ribbon - Desktop only */}
-          {!isPhone && !isMobile && (
-            <>
-              <CenterSlices radius={600} />
-              <StockTickerRibbon radius={boardOuterRadius} />
-            </>
-          )}
-
-          {/* Sound Controls - Top Right */}
-          <div className="absolute top-4 right-4 z-40">
-            <SoundControls />
-          </div>
-
-          {/* Center Content - User Info and Main Carousel - HIDDEN on phone layout */}
-          {!isPhone && (
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 flex flex-col items-center gap-4">
-            <UserIndicator 
-              saving={saving} 
-              lastSaved={lastSavedTime} 
-              currentTier={currentTier}
-              stars={gameState.stars}
-              coins={gameState.coins}
-            />
-            
-            {/* Portfolio Wheel - Live donut chart of holdings */}
-            <PortfolioWheel gameState={gameState} />
-            
-            <CenterCarousel
-              gameState={gameState}
-              netWorthChange={netWorthChange}
-              onStarsClick={() => {
+            <Button
+              onClick={() => {
                 showOverlay({
                   id: 'hub',
                   component: HubModal,
@@ -2177,7 +2116,14 @@ function App() {
                   priority: 'normal',
                 })
               }}
-              onPortfolioClick={() => {
+              className="bg-accent/90 hover:bg-accent text-accent-foreground shadow-lg hover:shadow-xl transition-all backdrop-blur-sm rounded-full h-14 px-6 text-base font-semibold flex items-center gap-2"
+              aria-label="Open Stars Hub"
+            >
+              <Star size={20} weight="fill" />
+              Stars
+            </Button>
+            <Button
+              onClick={() => {
                 showOverlay({
                   id: 'portfolio',
                   component: PortfolioModal,
@@ -2187,6 +2133,87 @@ function App() {
                   priority: 'normal',
                 })
               }}
+              className="bg-accent/90 hover:bg-accent text-accent-foreground shadow-lg hover:shadow-xl transition-all backdrop-blur-sm rounded-full h-14 px-6 text-base font-semibold flex items-center gap-2"
+              aria-label="Open Portfolio"
+            >
+              <ChartLine size={20} weight="bold" />
+              Portfolio
+            </Button>
+            <Button
+              onClick={() => setAchievementsOpen(true)}
+              className="bg-accent/90 hover:bg-accent text-accent-foreground shadow-lg hover:shadow-xl transition-all backdrop-blur-sm rounded-full h-14 px-6 text-base font-semibold flex items-center gap-2"
+              aria-label="Open Achievements"
+            >
+              <Trophy size={20} weight="fill" />
+              Achievements
+            </Button>
+          </div>
+        )}
+
+        {/* Board Container - Centered and scaled to fit viewport height */}
+        <div className={`relative ${!isPhone ? 'flex-shrink flex items-center justify-center overflow-hidden' : ''}`} style={{
+          ...((!isPhone) ? {
+            height: '100%',
+            maxHeight: `min(calc(100vh - 4rem), ${BOARD_SIZE}px)`,
+            maxWidth: `${BOARD_SIZE}px`,
+            aspectRatio: '1 / 1',
+          } : {})
+        }} ref={boardFrameRef}>
+        {/* Board wrapper with 3D camera or classic zoom support */}
+        <Board3DViewport
+          camera={camera}
+          isMobile={isMobile && !isPhone}
+          boardStyle={camera3DStyle}
+          containerStyle={camera3DContainerStyle}
+          playerPosition={gameState.position}
+          boardSize={boardSize}
+        >
+          <BoardViewport
+            boardSize={{ width: boardSize, height: boardSize }}
+            isMobile={isMobile && camera.mode === 'classic'}
+            currentPosition={gameState.position}
+            safeArea={safeArea}
+            zoom={zoom}
+            isPanning={isPanning}
+            onTouchStart={camera.mode === 'classic' ? handleTouchStart : undefined}
+            onTouchMove={camera.mode === 'classic' ? handleTouchMove : undefined}
+            onTouchEnd={camera.mode === 'classic' ? handleTouchEnd : undefined}
+            boardRef={boardRef}
+            boardClassName={boardCenterClasses}
+          >
+          <CentralStockCard
+            stock={currentStock}
+            isVisible={showCentralStock}
+            onClose={() => setShowCentralStock(false)}
+          />
+
+          {/* Decorative center slices and stock ticker ribbon - Desktop only */}
+          {!isPhone && !isMobile && (
+            <>
+              <CenterSlices radius={600} />
+              <StockTickerRibbon radius={boardOuterRadius} />
+            </>
+          )}
+
+          {/* Sound Controls - Top Right */}
+          <div className="absolute top-4 right-4 z-40">
+            <SoundControls />
+          </div>
+
+          {/* Center Content - User Info and Main Carousel - HIDDEN on phone layout */}
+          {!isPhone && (
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 flex flex-col items-center gap-4">
+            <UserIndicator 
+              saving={saving} 
+              lastSaved={lastSavedTime} 
+              currentTier={currentTier}
+              stars={gameState.stars}
+              coins={gameState.coins}
+            />
+            
+            <CenterCarousel
+              gameState={gameState}
+              netWorthChange={netWorthChange}
               onPanelChange={setCurrentCarouselPanel}
             />
             
@@ -2460,6 +2487,13 @@ function App() {
         open={proToolsOpen}
         onOpenChange={setProToolsOpen}
         gameState={gameState}
+      />
+
+      <AchievementsModal
+        open={achievementsOpen}
+        onOpenChange={setAchievementsOpen}
+        unlockedAchievements={unlockedAchievements}
+        getAchievementProgress={getAchievementProgress}
       />
 
       {/* Mobile Bottom Navigation - Only show on non-phone devices */}
