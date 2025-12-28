@@ -1993,6 +1993,30 @@ function App() {
         
         {/* Tutorial for first-time users */}
         {!isLoading && <TutorialTooltip />}
+
+        {/* Hide DiceHUD on mobile - shown in BottomNav instead */}
+        {!isMobile && (
+          <div data-tutorial="dice">
+            <DiceHUD
+              onRoll={handleRoll}
+              lastRoll={lastRoll}
+              phase={phase}
+              rollsRemaining={rollsRemaining}
+              nextResetTime={nextResetTime}
+              boardRef={boardRef}
+              dragConstraintsRef={containerRef}
+              resetPositionKey={diceResetKey}
+              coins={gameState.coins}
+              canAffordReroll={canAffordCoins(COIN_COSTS.reroll_dice)}
+              onReroll={handleReroll}
+              dice1={dice1}
+              dice2={dice2}
+              energyRolls={gameState.energyRolls ?? DAILY_ROLL_LIMIT}
+              lastEnergyCheck={gameState.lastEnergyCheck}
+              rollHistory={gameState.rollHistory}
+            />
+          </div>
+        )}
         
         {/* Event Banner - Shows active events at top */}
         {!isPhone && (
@@ -2228,30 +2252,6 @@ function App() {
               }}
             />
           </div>
-          )}
-
-          {/* Hide DiceHUD on mobile - shown in BottomNav instead */}
-          {!isMobile && (
-            <div data-tutorial="dice">
-              <DiceHUD
-                onRoll={handleRoll}
-                lastRoll={lastRoll}
-                phase={phase}
-                rollsRemaining={rollsRemaining}
-                nextResetTime={nextResetTime}
-                boardRef={boardRef}
-                dragConstraintsRef={containerRef}
-                resetPositionKey={diceResetKey}
-                coins={gameState.coins}
-                canAffordReroll={canAffordCoins(COIN_COSTS.reroll_dice)}
-                onReroll={handleReroll}
-                dice1={dice1}
-                dice2={dice2}
-                energyRolls={gameState.energyRolls ?? DAILY_ROLL_LIMIT}
-                lastEnergyCheck={gameState.lastEnergyCheck}
-                rollHistory={gameState.rollHistory}
-              />
-            </div>
           )}
 
           <div className="absolute inset-0 pointer-events-none">
