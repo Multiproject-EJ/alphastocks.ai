@@ -232,7 +232,7 @@ function App() {
   const { isPhone, isTablet, isDesktop } = useLayoutMode()
 
   // Notification preferences for phone layout
-  const { enabled: notificationsEnabled } = useNotificationPreferences()
+  const { enabled: notificationsEnabled, toggleNotifications } = useNotificationPreferences()
 
   // Keep state for data that modals need (but not open/closed state)
   const [currentStock, setCurrentStock] = useState<Stock | null>(null)
@@ -845,14 +845,13 @@ function App() {
     saveGame,
   } = useGameSave()
 
-  // Conditional toast wrapper - only shows toasts if notifications are enabled on phone
+  // Conditional toast wrapper - only shows toasts if notifications are enabled
   const showToast = useCallback((
     type: 'success' | 'error' | 'info',
     message: string,
     options?: Parameters<typeof toast.success>[1]
   ) => {
-    // On phone, respect notification preferences
-    if (isPhone && !notificationsEnabled) {
+    if (!notificationsEnabled) {
       return;
     }
     
@@ -865,7 +864,13 @@ function App() {
       case 'info':
         return toast.info(message, options);
     }
-  }, [isPhone, notificationsEnabled]);
+  }, [notificationsEnabled]);
+
+  useEffect(() => {
+    if (!notificationsEnabled) {
+      toast.dismiss()
+    }
+  }, [notificationsEnabled])
 
   // Helper function to check if a power-up is active
   const hasPowerUp = useCallback((itemId: string): boolean => {
@@ -1960,6 +1965,12 @@ function App() {
       })()
     : 1000
 
+  const starRewardInterval = 5000
+  const starRewardValue = 1000
+  const starsProgressInInterval = gameState.stars % starRewardInterval
+  const starsProgressPercent = Math.min((starsProgressInInterval / starRewardInterval) * 100, 100)
+  const starsToNextReward = starRewardInterval - starsProgressInInterval
+
   // Main content that will be wrapped by layout
   const mainContent = (
     <div 
@@ -1977,17 +1988,19 @@ function App() {
         )}
         
         {/* Toaster - positioned outside transformed containers with high z-index for phone */}
-        <Toaster 
-          position="top-center"
-          style={{
-            // For phone layout, ensure toasts appear above everything and not affected by transforms
-            ...(isPhone ? { 
-              zIndex: 9999,
-              position: 'fixed',
-              top: '60px', // Below CompactHUD
-            } : {})
-          }}
-        />
+        {notificationsEnabled && (
+          <Toaster 
+            position="top-center"
+            style={{
+              // For phone layout, ensure toasts appear above everything and not affected by transforms
+              ...(isPhone ? { 
+                zIndex: 9999,
+                position: 'fixed',
+                top: '60px', // Below CompactHUD
+              } : {})
+            }}
+          />
+        )}
         
         <CelebrationEffect show={showCelebration} onComplete={() => setShowCelebration(false)} />
         
@@ -2033,31 +2046,6 @@ function App() {
           <div className={`flex flex-col gap-4 items-center justify-center transition-opacity duration-500 flex-shrink-0 z-20 ${
             isLogoPanel ? 'opacity-0 pointer-events-none' : 'opacity-100'
           }`}>
-            {/* Shop Button */}
-            <Button
-              onClick={() => {
-                showOverlay({
-                  id: 'shop',
-                  component: lazy(() => import('@/components/ShopModal')),
-                  props: {
-                    gameState,
-                    onPurchase: purchaseItem,
-                    isPermanentOwned,
-                    getItemQuantity,
-                    canAfford,
-                    onEquipCosmetic: equipCosmetic,
-                    getFinalPrice,
-                    shopDiscount,
-                  },
-                  priority: 'normal',
-                })
-              }}
-              className="bg-accent/90 hover:bg-accent text-accent-foreground shadow-lg hover:shadow-xl transition-all backdrop-blur-sm rounded-full h-14 px-6 text-base font-semibold flex items-center gap-2"
-              aria-label="Open Shop"
-            >
-              <ShoppingBag size={20} weight="bold" />
-              Shop
-            </Button>
             {/* ProTools Button */}
             <Button
               onClick={() => {
@@ -2072,6 +2060,21 @@ function App() {
               aria-label="Open Pro Tools"
             >
               ProTools
+            </Button>
+            <Button
+              onClick={() => {
+                showToast('info', 'Right Now is warming up!', {
+                  description: 'Stay tuned for real-time action drops.',
+                })
+              }}
+              className="relative bg-emerald-500/90 hover:bg-emerald-500 text-white shadow-lg hover:shadow-xl transition-all backdrop-blur-sm rounded-full h-14 px-6 text-base font-semibold"
+              aria-label="Open Right Now"
+            >
+              <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-500 opacity-75" />
+                <span className="relative inline-flex h-3 w-3 rounded-full bg-red-500" />
+              </span>
+              Right Now
             </Button>
             <Button
               onClick={() => {
@@ -2224,17 +2227,49 @@ function App() {
             <SoundControls />
           </div>
 
-          {/* Center Content - User Info and Main Carousel - HIDDEN on phone layout */}
+          {/* Top Left HUD - User Info + Progress Counter */}
+          {!isPhone && (
+            <div className="absolute top-6 left-6 z-40 flex flex-col items-start gap-3">
+              <UserIndicator 
+                saving={saving} 
+                lastSaved={lastSavedTime} 
+                currentTier={currentTier}
+                stars={gameState.stars}
+                coins={gameState.coins}
+              />
+              <div className="w-72 rounded-2xl border border-white/15 bg-slate-950/70 px-4 py-3 text-white shadow-lg backdrop-blur">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/20">
+                    <Star size={18} weight="fill" className="text-emerald-300" />
+                  </div>
+                  <div>
+                    <p className="text-[11px] uppercase tracking-[0.2em] text-emerald-200/80">Goal Rush</p>
+                    <p className="text-sm font-semibold">
+                      +{starRewardValue.toLocaleString()} ⭐ every {starRewardInterval.toLocaleString()} stars
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-3">
+                  <div className="flex items-center justify-between text-xs text-white/70">
+                    <span>
+                      {starsProgressInInterval.toLocaleString()} / {starRewardInterval.toLocaleString()} ⭐
+                    </span>
+                    <span>{starsToNextReward.toLocaleString()} to prize</span>
+                  </div>
+                  <div className="mt-2 h-2 w-full rounded-full bg-white/10">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-emerald-400 via-green-400 to-lime-300"
+                      style={{ width: `${starsProgressPercent}%` }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Center Content - Main Carousel - HIDDEN on phone layout */}
           {!isPhone && (
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 flex flex-col items-center gap-4">
-            <UserIndicator 
-              saving={saving} 
-              lastSaved={lastSavedTime} 
-              currentTier={currentTier}
-              stars={gameState.stars}
-              coins={gameState.coins}
-            />
-            
             <CenterCarousel
               gameState={gameState}
               netWorthChange={netWorthChange}
@@ -2377,6 +2412,31 @@ function App() {
           <div className={`flex flex-col gap-4 items-center justify-center transition-opacity duration-500 flex-shrink-0 z-20 ${
             isLogoPanel ? 'opacity-0 pointer-events-none' : 'opacity-100'
           }`}>
+            {/* Shop Button */}
+            <Button
+              onClick={() => {
+                showOverlay({
+                  id: 'shop',
+                  component: lazy(() => import('@/components/ShopModal')),
+                  props: {
+                    gameState,
+                    onPurchase: purchaseItem,
+                    isPermanentOwned,
+                    getItemQuantity,
+                    canAfford,
+                    onEquipCosmetic: equipCosmetic,
+                    getFinalPrice,
+                    shopDiscount,
+                  },
+                  priority: 'normal',
+                })
+              }}
+              className="bg-sky-500/90 hover:bg-sky-500 text-white shadow-lg hover:shadow-xl transition-all backdrop-blur-sm rounded-full h-14 px-6 text-base font-semibold flex items-center gap-2"
+              aria-label="Open Shop"
+            >
+              <ShoppingBag size={20} weight="bold" />
+              Shop
+            </Button>
             {/* Cities Button */}
             <Button
               onClick={() => {
@@ -2427,6 +2487,22 @@ function App() {
           </div>
         )}
       </div>
+
+      {!isPhone && (
+        <Button
+          onClick={toggleNotifications}
+          className="fixed bottom-6 right-6 z-50 h-11 rounded-full border border-white/15 bg-slate-900/80 px-5 text-sm font-semibold text-white shadow-lg backdrop-blur hover:bg-slate-900"
+          aria-pressed={notificationsEnabled}
+          aria-label={`Turn ${notificationsEnabled ? 'off' : 'on'} toast notifications`}
+        >
+          <span
+            className={`mr-2 inline-flex h-2.5 w-2.5 rounded-full ${
+              notificationsEnabled ? 'bg-emerald-400' : 'bg-red-400'
+            }`}
+          />
+          Toasts: {notificationsEnabled ? 'On' : 'Off'}
+        </Button>
+      )}
 
       {/* Centralized Overlay Renderer - handles all modals */}
       <OverlayRenderer />
