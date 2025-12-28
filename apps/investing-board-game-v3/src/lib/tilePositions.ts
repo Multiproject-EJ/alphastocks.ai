@@ -31,8 +31,8 @@ export interface TilePosition {
  * @returns Calculated radius in pixels, or undefined for mobile views
  */
 export function calculateFittingRadius(viewportWidth: number, viewportHeight: number): number {
-  // Tile dimensions - corners are largest at 140×140px
-  const TILE_SIZE = 140
+  // Tile dimensions - tiles are uniform at 112×128px
+  const TILE_SIZE = 128
   
   // Space for sidebar buttons (Shop/ProTools on left, Cities/Challenges on right)
   const SIDEBAR_WIDTH = 180 // 90px each side
