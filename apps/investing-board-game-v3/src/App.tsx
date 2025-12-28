@@ -2213,6 +2213,7 @@ function App() {
                 rollsRemaining={rollsRemaining}
                 nextResetTime={nextResetTime}
                 boardRef={boardRef}
+                dragConstraintsRef={containerRef}
                 resetPositionKey={diceResetKey}
                 coins={gameState.coins}
                 canAffordReroll={canAffordCoins(COIN_COSTS.reroll_dice)}
