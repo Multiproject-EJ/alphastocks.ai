@@ -823,8 +823,8 @@ const App = () => {
   
   // Mobile bottom navigation: Primary items (5 most important)
   const mobilePrimaryNavItems = [
-    { id: 'dashboard', icon: '🏠', label: 'Home' },
-    { id: 'focuslist', icon: '🎯', label: 'Focus' },
+    { id: 'dashboard', icon: '📰', label: 'News' },
+    { id: 'focuslist', icon: '🎯', label: 'List' },
     { id: 'valuebot', icon: '🤖', label: 'Bot' },
     { id: 'portfolio', icon: '💼', label: 'Portfolio' },
     { id: 'more', icon: '⋯', label: 'More' }
@@ -839,8 +839,8 @@ const App = () => {
   // TODO: This can be removed once bottom navigation is fully tested and adopted
   const mobilePrimaryNav = [
     { id: 'boardgame-v3', icon: '🎮', label: 'Investment Game' },
-    { id: 'dashboard', icon: '🏠', label: 'Morning Sales' },
-    { id: 'focuslist', icon: '🎯', label: 'Focus' },
+    { id: 'dashboard', icon: '📰', label: 'News' },
+    { id: 'focuslist', icon: '🎯', label: 'List' },
     { id: 'valuebot', icon: '🤖', label: 'ValueBot' },
     { id: 'portfolio', icon: '💼', label: 'Portfolio' }
   ];
