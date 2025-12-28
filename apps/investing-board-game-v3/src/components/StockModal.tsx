@@ -34,6 +34,11 @@ interface StockModalProps {
 export function StockModal({ open, onOpenChange, stock, onBuy, cash, showInsights = false }: StockModalProps) {
   const dialogClass = useResponsiveDialogClass('small')
   const [imageError, setImageError] = useState(false)
+  const handlePenPointerUp = (action: () => void) => (event: React.PointerEvent<HTMLButtonElement>) => {
+    if (event.pointerType !== 'pen') return
+    event.preventDefault()
+    action()
+  }
   
   if (!stock) return null
 
@@ -289,6 +294,7 @@ export function StockModal({ open, onOpenChange, stock, onBuy, cash, showInsight
             <div className="space-y-2">
               <Button
                 onClick={() => onBuy(0.5)}
+                onPointerUp={handlePenPointerUp(() => onBuy(0.5))}
                 disabled={cash < smallCost}
                 className="w-full bg-secondary hover:bg-secondary/80 text-secondary-foreground"
                 size="lg"
@@ -304,6 +310,7 @@ export function StockModal({ open, onOpenChange, stock, onBuy, cash, showInsight
             <div className="space-y-2">
               <Button
                 onClick={() => onBuy(1)}
+                onPointerUp={handlePenPointerUp(() => onBuy(1))}
                 disabled={cash < normalCost}
                 className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
                 size="lg"
@@ -319,6 +326,7 @@ export function StockModal({ open, onOpenChange, stock, onBuy, cash, showInsight
             <div className="space-y-2">
               <Button
                 onClick={() => onBuy(2)}
+                onPointerUp={handlePenPointerUp(() => onBuy(2))}
                 disabled={cash < highCost}
                 className="w-full bg-accent hover:bg-accent/90 text-accent-foreground border-2 border-accent"
                 size="lg"
@@ -334,6 +342,7 @@ export function StockModal({ open, onOpenChange, stock, onBuy, cash, showInsight
 
           <Button
             onClick={() => onOpenChange(false)}
+            onPointerUp={handlePenPointerUp(() => onOpenChange(false))}
             variant="outline"
             className="w-full mt-4"
           >
