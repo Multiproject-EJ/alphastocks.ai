@@ -3322,6 +3322,15 @@ code {
 
 /* Desktop: Keep existing multi-row wrapping layout */
 @media (min-width: 1024px) {
+  .pro-overlay__panel {
+    width: min(2200px, 100vw);
+    margin: 1rem;
+  }
+
+  .pro-overlay__content {
+    padding: 0 1rem 1rem;
+  }
+
   /* ========================================
      DESKTOP TYPOGRAPHY PRESERVATION
      ======================================== */
