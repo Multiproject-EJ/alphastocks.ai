@@ -2797,12 +2797,45 @@ const App = () => {
     </div>
   );
 
+  const workspaceActionButtons = (
+    <>
+      <button
+        type="button"
+        className={`pro-action-button${isAccountDialogOpen ? ' active' : ''}`}
+        onClick={openAccountDialog}
+        aria-expanded={isAccountDialogOpen}
+        aria-haspopup="dialog"
+        aria-controls="accountDialog"
+        aria-label="Account"
+      >
+        <span className="item-icon" aria-hidden="true">👤</span>
+      </button>
+      <button
+        type="button"
+        className={`pro-action-button${isSettingsDialogOpen ? ' active' : ''}`}
+        onClick={openSettingsDialog}
+        aria-label="Settings"
+      >
+        <span className="item-icon" aria-hidden="true">{settingsNavItem.icon}</span>
+      </button>
+      <button
+        type="button"
+        className="pro-action-button"
+        onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+        aria-label={themeCopy}
+        aria-pressed={theme === 'dark'}
+      >
+        <span className="item-icon" aria-hidden="true">{theme === 'dark' ? '☀️' : '🌙'}</span>
+      </button>
+    </>
+  );
+
   return (
     <ValueBotContext.Provider value={valueBotProviderValue}>
       <main className="app-stage">
         <div className="app-foreground">
           <div className="pro-toggle-bar">
-            {workspaceStatus && (
+            {workspaceStatus && !(isMobileView && workspaceStatus.tone === 'error') && (
               <span
                 className={`workspace-status workspace-status--${workspaceStatus.tone}`}
                 role={workspaceStatus.tone === 'error' ? 'alert' : 'status'}
@@ -2813,7 +2846,7 @@ const App = () => {
 
             <button
               type="button"
-              className={`pro-toggle${isProToolsOpen ? ' active' : ''}`}
+              className={`pro-toggle${isProToolsOpen ? ' active' : ''}${isMobileView ? ' pro-toggle--compact' : ''}`}
               onClick={handleProToolsToggle}
               aria-haspopup="dialog"
               aria-expanded={isProToolsOpen}
@@ -2829,37 +2862,20 @@ const App = () => {
               )}
             </button>
 
-            <div className="pro-toggle-actions" role="group" aria-label="Workspace quick actions">
-              <button
-                type="button"
-                className={`pro-action-button${isAccountDialogOpen ? ' active' : ''}`}
-                onClick={openAccountDialog}
-                aria-expanded={isAccountDialogOpen}
-                aria-haspopup="dialog"
-                aria-controls="accountDialog"
-                aria-label="Account"
-              >
-                <span className="item-icon" aria-hidden="true">👤</span>
-              </button>
-              <button
-                type="button"
-                className={`pro-action-button${isSettingsDialogOpen ? ' active' : ''}`}
-                onClick={openSettingsDialog}
-                aria-label="Settings"
-              >
-                <span className="item-icon" aria-hidden="true">{settingsNavItem.icon}</span>
-              </button>
-              <button
-                type="button"
-                className="pro-action-button"
-                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                aria-label={themeCopy}
-                aria-pressed={theme === 'dark'}
-              >
-                <span className="item-icon" aria-hidden="true">{theme === 'dark' ? '☀️' : '🌙'}</span>
-              </button>
-            </div>
+            {!isMobileView && (
+              <div className="pro-toggle-actions" role="group" aria-label="Workspace quick actions">
+                {workspaceActionButtons}
+              </div>
+            )}
           </div>
+
+          {isMobileView && workspaceStatus?.tone === 'error' && (
+            <div className="workspace-status-dock" aria-live="polite">
+              <span className="workspace-status workspace-status--error" role="alert">
+                {workspaceStatus.message}
+              </span>
+            </div>
+          )}
 
           {isProToolsOpen && (
             <div
@@ -3077,6 +3093,9 @@ const App = () => {
                       <h3 style={{ margin: '0 0 1rem', fontSize: '1.25rem', fontWeight: 600 }}>
                         More Options
                       </h3>
+                      <div className="mobile-nav-drawer-actions" role="group" aria-label="Workspace quick actions">
+                        {workspaceActionButtons}
+                      </div>
                       {mobileOverflowNavItems.map((item) => {
                         const isActive = activeSection === item.id;
                         return (
