@@ -1914,6 +1914,7 @@ function App() {
   const boardOuterRadius = !isPhone && !isMobile
     ? desktopOuterRadius
     : (dynamicRadius ?? 456)
+  const isCourtOfCapitalTile = BOARD_TILES[gameState.position]?.title === 'Court of Capital'
 
   useEffect(() => {
     if (isPhone || isMobile) {
@@ -2356,6 +2357,18 @@ function App() {
           </div>
         </BoardViewport>
         </Board3DViewport>
+
+        <div className="absolute bottom-6 right-6 z-40 pointer-events-none">
+          <img
+            src={`${import.meta.env.BASE_URL}Fraud.webp`}
+            alt="Fraud character appears during Court of Capital"
+            className={`w-28 sm:w-32 md:w-40 transition-all duration-300 ease-out origin-bottom-right ${
+              isCourtOfCapitalTile
+                ? 'opacity-100 scale-100 translate-y-0 drop-shadow-[0_0_25px_rgba(255,180,60,0.85)] animate-[pulse_2.4s_ease-in-out_infinite]'
+                : 'opacity-0 scale-75 translate-y-6'
+            }`}
+          />
+        </div>
         
         {/* Board Zoom Controls for mobile */}
         <BoardZoomControls
