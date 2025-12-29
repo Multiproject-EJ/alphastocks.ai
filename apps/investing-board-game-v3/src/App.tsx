@@ -238,6 +238,7 @@ function App() {
   // Keep state for data that modals need (but not open/closed state)
   const [currentStock, setCurrentStock] = useState<Stock | null>(null)
   const [showCentralStock, setShowCentralStock] = useState(false)
+  const [isStockSpinning, setIsStockSpinning] = useState(false)
   const [currentEvent, setCurrentEvent] = useState('')
   const [currentCaseStudy, setCurrentCaseStudy] = useState<BiasCaseStudy | null>(null)
   const [currentWildcardEvent, setCurrentWildcardEvent] = useState<WildcardEvent | null>(null)
@@ -373,6 +374,7 @@ function App() {
   const landingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const previewCardTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const stockModalTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const stockSpinTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   // Helper function to clear all timeout/interval refs
   const clearAllTimers = () => {
@@ -381,6 +383,7 @@ function App() {
     if (landingTimeoutRef.current) clearTimeout(landingTimeoutRef.current)
     if (previewCardTimeoutRef.current) clearTimeout(previewCardTimeoutRef.current)
     if (stockModalTimeoutRef.current) clearTimeout(stockModalTimeoutRef.current)
+    if (stockSpinTimeoutRef.current) clearTimeout(stockSpinTimeoutRef.current)
   }
 
   const { getStockForCategory, loading: loadingUniverse, error: universeError, source: stockSource, universeCount } =
@@ -1475,6 +1478,8 @@ function App() {
     const tile = BOARD_TILES[position]
     debugGame('handleTileLanding:', { position, tile, passedStart })
     setLastLandedTileId(position)
+    setIsStockSpinning(false)
+    if (stockSpinTimeoutRef.current) clearTimeout(stockSpinTimeoutRef.current)
 
     // Haptic feedback on tile landing
     lightTap()
@@ -1503,17 +1508,26 @@ function App() {
       const stock = getStockForCategory(tile.category)
       setCurrentStock(stock)
 
-      // Show preview card
-      setShowCentralStock(true)
+      const stockSpinDuration = 1200
+
+      setIsStockSpinning(true)
+
+      if (stockSpinTimeoutRef.current) clearTimeout(stockSpinTimeoutRef.current)
+      stockSpinTimeoutRef.current = setTimeout(() => {
+        setIsStockSpinning(false)
+        setShowCentralStock(true)
+      }, stockSpinDuration)
 
       // Clear any existing timeouts
       if (previewCardTimeoutRef.current) clearTimeout(previewCardTimeoutRef.current)
       if (stockModalTimeoutRef.current) clearTimeout(stockModalTimeoutRef.current)
 
+      setShowCentralStock(false)
+
       // Hide preview card after 1.5 seconds
       previewCardTimeoutRef.current = setTimeout(() => {
         setShowCentralStock(false)
-      }, 1500)
+      }, stockSpinDuration + 1500)
 
       // Open purchase modal after preview disappears (2 seconds total delay)
       stockModalTimeoutRef.current = setTimeout(() => {
@@ -1543,7 +1557,7 @@ function App() {
             }, 300)
           }
         })
-      }, 2000)
+      }, stockSpinDuration + 2000)
     } else if (tile.type === 'event') {
       debugGame('Event tile:', tile.title)
       if (tile.title === 'Thrift Path') {
@@ -1931,6 +1945,7 @@ function App() {
     ? desktopOuterRadius
     : (dynamicRadius ?? 456)
   const isCourtOfCapitalTile = BOARD_TILES[gameState.position]?.title === 'Court of Capital'
+  const isCategoryTileActive = phase === 'landed' && BOARD_TILES[gameState.position]?.type === 'category'
 
   const getTileCelebrationPosition = useCallback((tileId: number) => {
     const tileBoardSize = { width: boardSize, height: boardSize }
@@ -2275,7 +2290,11 @@ function App() {
           {!isPhone && !isMobile && (
             <>
               <CenterSlices radius={600} />
-              <StockTickerRibbon radius={boardOuterRadius} />
+              <StockTickerRibbon
+                radius={boardOuterRadius}
+                isActive={isCategoryTileActive}
+                isSpinning={isStockSpinning}
+              />
             </>
           )}
 
