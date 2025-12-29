@@ -1068,10 +1068,10 @@ function App() {
 
   // Sync local phase state with UI mode context
   useEffect(() => {
-    if (uiMode === 'board') {
+    if (uiMode === 'board' && uiPhase !== phase) {
       setUIPhase(phase)
     }
-  }, [phase, uiMode, setUIPhase])
+  }, [phase, uiMode, uiPhase, setUIPhase])
 
   // Helper function to check extra dice roll power-up
   useEffect(() => {
