@@ -1,4 +1,4 @@
-import { useState } from 'preact/hooks';
+import { useEffect, useRef, useState } from 'preact/hooks';
 import { useAuth } from '../context/AuthContext.jsx';
 
 const Login = ({ onToggleMode }) => {
@@ -7,6 +7,31 @@ const Login = ({ onToggleMode }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const { signIn } = useAuth();
+  const emailRef = useRef(null);
+  const passwordRef = useRef(null);
+
+  useEffect(() => {
+    const syncAutofill = () => {
+      const nextEmail = emailRef.current?.value || '';
+      const nextPassword = passwordRef.current?.value || '';
+
+      if (nextEmail && nextEmail !== email) {
+        setEmail(nextEmail);
+      }
+
+      if (nextPassword && nextPassword !== password) {
+        setPassword(nextPassword);
+      }
+    };
+
+    const immediate = window.setTimeout(syncAutofill, 0);
+    const delayed = window.setTimeout(syncAutofill, 400);
+
+    return () => {
+      window.clearTimeout(immediate);
+      window.clearTimeout(delayed);
+    };
+  }, [email, password]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -14,7 +39,9 @@ const Login = ({ onToggleMode }) => {
     setError('');
 
     try {
-      await signIn(email, password);
+      const currentEmail = emailRef.current?.value || email;
+      const currentPassword = passwordRef.current?.value || password;
+      await signIn(currentEmail, currentPassword);
       // Redirect will happen automatically via AuthContext state change
     } catch (err) {
       setError(err.message || 'Failed to sign in');
@@ -41,6 +68,8 @@ const Login = ({ onToggleMode }) => {
               placeholder="you@example.com"
               value={email}
               onInput={(e) => setEmail(e.target.value)}
+              autoComplete="email"
+              ref={emailRef}
               required
               disabled={loading}
             />
@@ -54,6 +83,8 @@ const Login = ({ onToggleMode }) => {
               placeholder="Enter your password"
               value={password}
               onInput={(e) => setPassword(e.target.value)}
+              autoComplete="current-password"
+              ref={passwordRef}
               required
               disabled={loading}
             />
@@ -93,4 +124,3 @@ const Login = ({ onToggleMode }) => {
 };
 
 export default Login;
-
