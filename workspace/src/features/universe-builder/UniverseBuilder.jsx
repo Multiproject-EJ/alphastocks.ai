@@ -306,7 +306,13 @@ const UniverseBuilder = () => {
           <h2>🌐 Global Stock Universe Builder</h2>
           <p className="detail-meta">Systematically catalog every stock from every exchange worldwide</p>
         </div>
-        
+        {status?.exchanges && (
+          <WorldMap 
+            exchanges={status.exchanges} 
+            progress={status.progress || {}}
+          />
+        )}
+
         {/* Stats Row */}
         {status && (
           <div className="universe-builder__stats">
@@ -477,14 +483,6 @@ const UniverseBuilder = () => {
           </div>
         )}
       </div>
-
-      {/* World Map Visualization */}
-      {status?.exchanges && (
-        <WorldMap 
-          exchanges={status.exchanges} 
-          progress={status.progress || {}}
-        />
-      )}
 
       {/* Exchanges Table */}
       <div className="universe-builder__section">
