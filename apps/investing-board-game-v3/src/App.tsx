@@ -128,6 +128,24 @@ const debugGame = (...args: unknown[]) => {
 const LOGO_PANEL_INDEX = 1  // 2nd panel (0-indexed)
 const BOARD_CONTAINER_BASE_CLASSES = "relative bg-gradient-to-br from-white/15 via-white/8 to-white/12 backdrop-blur-2xl rounded-2xl border border-white/25 shadow-[inset_0_0_70px_rgba(255,255,255,0.08),_0_20px_80px_rgba(0,0,0,0.35)] p-8 min-h-[900px] transition-opacity duration-700"
 
+const formatEventCountdown = (target: Date, now: Date) => {
+  const diffMs = target.getTime() - now.getTime()
+  if (diffMs <= 0) return 'now'
+
+  const totalMinutes = Math.ceil(diffMs / (1000 * 60))
+  const days = Math.floor(totalMinutes / (60 * 24))
+  const hours = Math.floor((totalMinutes % (60 * 24)) / 60)
+  const minutes = totalMinutes % 60
+
+  if (days > 0) {
+    return `${days}d ${hours}h`
+  }
+  if (hours > 0) {
+    return `${hours}h ${minutes}m`
+  }
+  return `${minutes}m`
+}
+
 function App() {
   const boardRef = useRef<HTMLDivElement>(null)
   const stockSourceAnnounced = useRef<'supabase' | 'mock' | null>(null)
@@ -673,6 +691,33 @@ function App() {
     getShopDiscount,
     getCustomEffects,
   } = useEvents({ playSound })
+
+  const [rightNowTick, setRightNowTick] = useState(() => new Date())
+
+  useEffect(() => {
+    const interval = setInterval(() => setRightNowTick(new Date()), 60000)
+    return () => clearInterval(interval)
+  }, [])
+
+  const openEventCalendar = useCallback(() => {
+    showOverlay({
+      id: 'eventCalendar',
+      component: EventCalendar,
+      props: {
+        activeEvents,
+        upcomingEvents,
+      },
+      priority: 'normal',
+    })
+  }, [activeEvents, upcomingEvents, showOverlay])
+
+  const currentActiveEvent = [...activeEvents].sort(
+    (a, b) => a.endDate.getTime() - b.endDate.getTime()
+  )[0]
+  const nextEvent = upcomingEvents[0]
+  const rightNowEvent = currentActiveEvent ?? nextEvent
+  const rightNowCountdownTarget = currentActiveEvent ? currentActiveEvent.endDate : nextEvent?.startDate
+  const rightNowStatusLabel = currentActiveEvent ? 'Ends in' : nextEvent ? 'Starts in' : 'Schedule updating'
 
   // Check for challenge resets on load and periodically
   useEffect(() => {
@@ -2083,7 +2128,7 @@ function App() {
         {!isPhone && (
           <EventBanner
             events={activeEvents}
-            onOpenCalendar={() => setEventCalendarOpen(true)}
+            onOpenCalendar={openEventCalendar}
           />
         )}
 
@@ -2164,17 +2209,7 @@ function App() {
                           priority: 'normal',
                         })
                       },
-                      onOpenEventCalendar: () => {
-                        showOverlay({
-                          id: 'eventCalendar',
-                          component: lazy(() => import('@/components/EventCalendar')),
-                          props: {
-                            activeEvents,
-                            upcomingEvents,
-                          },
-                          priority: 'normal',
-                        })
-                      },
+                      onOpenEventCalendar: openEventCalendar,
                       onOpenNetWorthGallery: () => {
                         showOverlay({
                           id: 'netWorthGallery',
@@ -2530,28 +2565,35 @@ function App() {
                     id: 'challenges',
                     component: lazy(() => import('@/components/ChallengesModal')),
                     props: {
-                      dailyChallenges,
-                      weeklyChallenges,
-                    },
-                    priority: 'normal',
-                  })
-                }}
-              />
-            </div>
-            <Button
-              onClick={() => {
-                showToast('info', 'Right Now is warming up!', {
-                  description: 'Stay tuned for real-time action drops.',
+                    dailyChallenges,
+                    weeklyChallenges,
+                  },
+                  priority: 'normal',
                 })
               }}
-              className="relative bg-emerald-500/90 hover:bg-emerald-500 text-white shadow-lg hover:shadow-xl transition-all backdrop-blur-sm rounded-full h-14 px-6 text-base font-semibold"
+            />
+          </div>
+            <Button
+              onClick={openEventCalendar}
+              className="relative bg-emerald-500/90 hover:bg-emerald-500 text-white shadow-lg hover:shadow-xl transition-all backdrop-blur-sm rounded-2xl px-5 py-3 text-left min-h-14"
               aria-label="Open Right Now"
             >
               <span className="absolute -top-1 -right-1 flex h-3 w-3">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-500 opacity-75" />
                 <span className="relative inline-flex h-3 w-3 rounded-full bg-red-500" />
               </span>
-              Right Now
+              <div className="flex flex-col gap-1">
+                <span className="text-[11px] uppercase tracking-[0.3em] text-white/80">Right Now</span>
+                <span className="text-sm font-semibold flex items-center gap-2">
+                  {rightNowEvent?.icon && <span className="text-base">{rightNowEvent.icon}</span>}
+                  {rightNowEvent ? rightNowEvent.title : 'No event scheduled'}
+                </span>
+                <span className="text-xs text-white/70">
+                  {rightNowCountdownTarget
+                    ? `${rightNowStatusLabel} ${formatEventCountdown(rightNowCountdownTarget, rightNowTick)}`
+                    : 'Schedule updating'}
+                </span>
+              </div>
             </Button>
           </div>
         )}
