@@ -4,9 +4,15 @@ import { useUniverseStocks } from '@/hooks/useUniverseStocks'
 
 interface StockTickerRibbonProps {
   radius: number // Radius of the circular board
+  isActive?: boolean
+  isSpinning?: boolean
 }
 
-export function StockTickerRibbon({ radius }: StockTickerRibbonProps) {
+export function StockTickerRibbon({
+  radius,
+  isActive = false,
+  isSpinning = false,
+}: StockTickerRibbonProps) {
   const { getStockForCategory } = useUniverseStocks()
   const [tickerItems, setTickerItems] = useState<Array<{ symbol: string; price: number; change: number }>>([])
 
@@ -25,14 +31,18 @@ export function StockTickerRibbon({ radius }: StockTickerRibbonProps) {
     setTickerItems(items)
   }, [getStockForCategory])
 
-  // Don't render if no ticker items available
-  if (tickerItems.length === 0) {
-    return null
-  }
+  const placeholderItems = Array.from({ length: 5 }, () => ({
+    symbol: '?',
+    price: 0,
+    change: 0,
+  }))
+  const shouldShowRealStocks = isActive && tickerItems.length > 0
+  const displayItems = shouldShowRealStocks ? tickerItems : placeholderItems
 
   // Calculate the circumference for the ribbon
   const ribbonRadius = radius * 0.75 // 75% of board radius for inner ribbon
   const circumference = 2 * Math.PI * ribbonRadius
+  const spinDuration = isSpinning ? 6 : 36
 
   return (
     <div 
@@ -73,24 +83,24 @@ export function StockTickerRibbon({ radius }: StockTickerRibbonProps) {
           strokeWidth="35"
           strokeDasharray="10 5"
           initial={{ strokeDashoffset: 0 }}
-          animate={{ strokeDashoffset: circumference }}
+          animate={isActive ? { strokeDashoffset: circumference } : { strokeDashoffset: 0 }}
           transition={{
-            duration: 60,
-            repeat: Infinity,
+            duration: isActive ? spinDuration : 0,
+            repeat: isActive ? Infinity : 0,
             ease: 'linear',
           }}
         />
       </svg>
 
       {/* Ticker text items positioned around the circle */}
-      {tickerItems.map((item, index) => {
-        const angle = (360 / tickerItems.length) * index
+      {displayItems.map((item, index) => {
+        const angle = (360 / displayItems.length) * index
         const x = Math.cos((angle - 90) * (Math.PI / 180)) * (ribbonRadius - 20)
         const y = Math.sin((angle - 90) * (Math.PI / 180)) * (ribbonRadius - 20)
         
         return (
           <motion.div
-            key={item.symbol}
+            key={`${item.symbol}-${index}`}
             className="absolute text-xs font-mono"
             style={{
               left: '50%',
@@ -98,28 +108,32 @@ export function StockTickerRibbon({ radius }: StockTickerRibbonProps) {
               transform: `translate(-50%, -50%) translate(${x}px, ${y}px) rotate(${angle}deg)`,
             }}
             initial={{ opacity: 0 }}
-            animate={{ 
+            animate={isActive ? { 
               opacity: [0.5, 1, 0.5],
               rotate: [angle, angle + 360],
-            }}
+            } : { opacity: 0.6, rotate: angle }}
             transition={{
-              opacity: {
+              opacity: isActive ? {
                 duration: 2,
                 repeat: Infinity,
                 ease: 'easeInOut',
-              },
-              rotate: {
-                duration: 60,
+              } : { duration: 0 },
+              rotate: isActive ? {
+                duration: spinDuration,
                 repeat: Infinity,
                 ease: 'linear',
-              },
+              } : { duration: 0 },
             }}
           >
             <div className="bg-black/40 backdrop-blur-sm px-2 py-1 rounded">
-              <span className="text-white font-semibold">{item.symbol}</span>
-              <span className="text-gray-300 ml-2">${item.price.toFixed(2)}</span>
-              <span className={`ml-1 ${item.change >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                {item.change >= 0 ? '+' : ''}{item.change.toFixed(2)}%
+              <span className="text-white font-semibold">{isActive ? item.symbol : '?'}</span>
+              <span className="text-gray-300 ml-2">
+                {isActive ? `$${item.price.toFixed(2)}` : '?'}
+              </span>
+              <span
+                className={`ml-1 ${isActive ? (item.change >= 0 ? 'text-green-400' : 'text-red-400') : 'text-gray-400'}`}
+              >
+                {isActive ? `${item.change >= 0 ? '+' : ''}${item.change.toFixed(2)}%` : '?'}
               </span>
             </div>
           </motion.div>
