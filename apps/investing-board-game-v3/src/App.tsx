@@ -708,13 +708,13 @@ function App() {
     })
   }, [activeEvents, upcomingEvents, showOverlay])
 
-  const currentEvent = [...activeEvents].sort(
+  const currentActiveEvent = [...activeEvents].sort(
     (a, b) => a.endDate.getTime() - b.endDate.getTime()
   )[0]
   const nextEvent = upcomingEvents[0]
-  const rightNowEvent = currentEvent ?? nextEvent
-  const rightNowCountdownTarget = currentEvent ? currentEvent.endDate : nextEvent?.startDate
-  const rightNowStatusLabel = currentEvent ? 'Ends in' : nextEvent ? 'Starts in' : 'Schedule updating'
+  const rightNowEvent = currentActiveEvent ?? nextEvent
+  const rightNowCountdownTarget = currentActiveEvent ? currentActiveEvent.endDate : nextEvent?.startDate
+  const rightNowStatusLabel = currentActiveEvent ? 'Ends in' : nextEvent ? 'Starts in' : 'Schedule updating'
 
   // Check for challenge resets on load and periodically
   useEffect(() => {
