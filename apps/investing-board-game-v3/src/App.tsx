@@ -236,7 +236,7 @@ function App() {
   const [isAutoRolling, setIsAutoRolling] = useState(false)
 
   // Overlay manager for coordinated modal display
-  const { show: showOverlay, wasRecentlyShown, getCurrentOverlay } = useOverlayManager()
+  const { show: showOverlay, wasRecentlyShown, getCurrentOverlay, closeCurrent } = useOverlayManager()
 
   // UI Mode management - centralizes "what view/mode are we in?"
   const { 
@@ -1579,11 +1579,21 @@ function App() {
     // In production, this would integrate with Stripe or another payment provider
     
     // For now, show a placeholder message
-    toast.info(`Purchase: ${pack.rolls} Dice Rolls for ${pack.priceKr} kr`, {
-      description: 'Payment integration coming soon! For now, enjoy the game with free resets every 2 hours.'
+    setRollsRemaining((prev) => prev + pack.rolls)
+    setGameState(prev => ({
+      ...prev,
+      energyRolls: (prev.energyRolls ?? DAILY_ROLL_LIMIT) + pack.rolls,
+      stats: {
+        ...prev.stats,
+        rollsPurchased: (prev.stats.rollsPurchased ?? 0) + pack.rolls,
+      }
+    }))
+
+    toast.success(`Added ${pack.rolls} Dice Rolls`, {
+      description: `Purchase: ${pack.priceKr} kr pack applied to your rolls.`
     })
-    
-    // Modal will close automatically via overlay manager's onOpenChange
+
+    closeCurrent()
   }
 
   const handleTileLanding = (position: number, passedStart = false) => {

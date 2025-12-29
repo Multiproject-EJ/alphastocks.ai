@@ -63,7 +63,7 @@ export function DiceHUD({
   const [autoRollActive, setAutoRollActive] = useState(false)
   const autoRollTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
-  const canRoll = phase === 'idle' && rollsRemaining > 0
+  const canRoll = phase === 'idle'
   const isDoubles = dice1 === dice2 && lastRoll !== null
 
   // Update dice when props change
@@ -289,7 +289,7 @@ export function DiceHUD({
 
                 <Button
                   onClick={() => onRoll(selectedMultiplier)}
-                  disabled={phase !== 'idle' || rollsRemaining < selectedMultiplier}
+                  disabled={phase !== 'idle'}
                   className="w-full gap-2 bg-accent text-accent-foreground hover:bg-accent/90 font-semibold"
                   size="lg"
                 >
