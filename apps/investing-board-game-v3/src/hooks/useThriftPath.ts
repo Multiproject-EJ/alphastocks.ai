@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { toast } from 'sonner'
 import {
   ThriftPathStatus,
@@ -30,7 +30,7 @@ export const useThriftPath = (initialStatus?: ThriftPathStatus) => {
     }
   )
   
-  const addThriftPathXP = (source: keyof typeof THRIFT_PATH_XP_SOURCES, amount?: number) => {
+  const addThriftPathXP = useCallback((source: keyof typeof THRIFT_PATH_XP_SOURCES, amount?: number) => {
     const xpGain = amount || THRIFT_PATH_XP_SOURCES[source]
     
     setThriftPathStatus(prev => {
@@ -66,9 +66,9 @@ export const useThriftPath = (initialStatus?: ThriftPathStatus) => {
         benefits: nowActive ? getThriftPathBenefits(newLevel) : { starMultiplier: 1, crashProtection: 0, recoveryBoost: 1 }
       }
     })
-  }
+  }, [])
   
-  const penalizeThriftPath = (reason: keyof typeof THRIFT_PATH_PENALTIES) => {
+  const penalizeThriftPath = useCallback((reason: keyof typeof THRIFT_PATH_PENALTIES) => {
     const penalty = THRIFT_PATH_PENALTIES[reason]
     
     setThriftPathStatus(prev => {
@@ -90,9 +90,9 @@ export const useThriftPath = (initialStatus?: ThriftPathStatus) => {
         benefits: nowActive ? getThriftPathBenefits(newLevel) : { starMultiplier: 1, crashProtection: 0, recoveryBoost: 1 }
       }
     })
-  }
+  }, [])
   
-  const updateStats = (stat: keyof ThriftPathStatus['stats'], increment: number = 1) => {
+  const updateStats = useCallback((stat: keyof ThriftPathStatus['stats'], increment: number = 1) => {
     setThriftPathStatus(prev => ({
       ...prev,
       stats: {
@@ -100,9 +100,9 @@ export const useThriftPath = (initialStatus?: ThriftPathStatus) => {
         [stat]: prev.stats[stat] + increment
       }
     }))
-  }
+  }, [])
   
-  const checkDailyStreak = () => {
+  const checkDailyStreak = useCallback(() => {
     const today = new Date().toDateString()
     const lastActivity = thriftPathStatus.lastActivityDate 
       ? new Date(thriftPathStatus.lastActivityDate).toDateString()
@@ -136,7 +136,7 @@ export const useThriftPath = (initialStatus?: ThriftPathStatus) => {
         }))
       }
     }
-  }
+  }, [addThriftPathXP, penalizeThriftPath, thriftPathStatus.lastActivityDate])
   
   return {
     thriftPathStatus,
