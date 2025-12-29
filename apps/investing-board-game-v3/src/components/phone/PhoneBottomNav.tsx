@@ -103,10 +103,12 @@ export function PhoneBottomNav({
             className={cn(
               'flex flex-col items-center justify-center',
               'min-h-[56px] min-w-[56px]',
-              'touch-target touch-feedback',
+              'touch-target',
               'cursor-pointer',
-              'transition-colors',
-              isActive ? 'text-primary' : 'text-muted-foreground',
+              'transition-[color,box-shadow,transform] duration-200',
+              isActive
+                ? 'text-primary shadow-[0_0_12px_hsl(var(--primary)/0.45)]'
+                : 'text-muted-foreground',
             )}
             style={{ 
               WebkitTapHighlightColor: 'transparent',
@@ -161,10 +163,12 @@ export function PhoneBottomNav({
             className={cn(
               'flex flex-col items-center justify-center',
               'min-h-[56px] min-w-[56px]',
-              'touch-target touch-feedback',
+              'touch-target',
               'cursor-pointer',
-              'transition-colors',
-              isActive ? 'text-primary' : 'text-muted-foreground',
+              'transition-[color,box-shadow,transform] duration-200',
+              isActive
+                ? 'text-primary shadow-[0_0_12px_hsl(var(--primary)/0.45)]'
+                : 'text-muted-foreground',
             )}
             style={{ 
               WebkitTapHighlightColor: 'transparent',
