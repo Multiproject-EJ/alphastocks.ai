@@ -1986,26 +1986,6 @@ function App() {
             aria-hidden="true"
           />
         )}
-        
-        {/* Toaster - positioned outside transformed containers with high z-index for phone */}
-        {notificationsEnabled && (
-          <Toaster 
-            position="top-center"
-            style={{
-              // For phone layout, ensure toasts appear above everything and not affected by transforms
-              ...(isPhone ? { 
-                zIndex: 9999,
-                position: 'fixed',
-                top: '60px', // Below CompactHUD
-              } : {})
-            }}
-          />
-        )}
-        
-        <CelebrationEffect show={showCelebration} onComplete={() => setShowCelebration(false)} />
-        
-        {/* Tutorial for first-time users */}
-        {!isLoading && <TutorialTooltip />}
 
         {/* Hide DiceHUD on mobile - shown in BottomNav instead */}
         {!isMobile && (
@@ -2506,6 +2486,51 @@ function App() {
         </Button>
       )}
 
+
+      {/* Mobile Bottom Navigation - Only show on non-phone devices */}
+      {!isPhone && (
+        <BottomNav
+          onNavigate={handleBottomNavigation}
+          activeSection={activeSection}
+          badges={{
+            challenges: dailyChallenges?.filter(c => !c.completed).length || 0,
+            shop: 0, // Could add new shop items count here
+          }}
+          dice1={dice1}
+          dice2={dice2}
+          isRolling={phase === 'rolling'}
+          rollsRemaining={rollsRemaining}
+          onRoll={() => handleRoll(1)}
+          canRoll={phase === 'idle' && rollsRemaining > 0}
+          showDice={isMobile}
+        />
+      )}
+
+    </div>
+  )
+
+  const overlayContent = (
+    <>
+      {/* Toaster - positioned outside transformed containers with high z-index for phone */}
+      {notificationsEnabled && (
+        <Toaster 
+          position="top-center"
+          style={{
+            // For phone layout, ensure toasts appear above everything and not affected by transforms
+            ...(isPhone ? { 
+              zIndex: 9999,
+              position: 'fixed',
+              top: '60px', // Below CompactHUD
+            } : {})
+          }}
+        />
+      )}
+
+      <CelebrationEffect show={showCelebration} onComplete={() => setShowCelebration(false)} />
+
+      {/* Tutorial for first-time users */}
+      {!isLoading && <TutorialTooltip />}
+
       {/* Centralized Overlay Renderer - handles all modals */}
       <OverlayRenderer />
 
@@ -2574,84 +2599,71 @@ function App() {
         getAchievementProgress={getAchievementProgress}
       />
 
-      {/* Mobile Bottom Navigation - Only show on non-phone devices */}
-      {!isPhone && (
-        <BottomNav
-          onNavigate={handleBottomNavigation}
-          activeSection={activeSection}
-          badges={{
-            challenges: dailyChallenges?.filter(c => !c.completed).length || 0,
-            shop: 0, // Could add new shop items count here
-          }}
-          dice1={dice1}
-          dice2={dice2}
-          isRolling={phase === 'rolling'}
-          rollsRemaining={rollsRemaining}
-          onRoll={() => handleRoll(1)}
-          canRoll={phase === 'idle' && rollsRemaining > 0}
-          showDice={isMobile}
-        />
-      )}
-
       {/* PWA Install Prompt */}
       <InstallPrompt />
-      
+
       {/* DevTools: Tap Test Overlay (dev mode only) */}
       {TapTestOverlay && (
         <Suspense fallback={null}>
           <TapTestOverlay />
         </Suspense>
       )}
-    </div>
+    </>
   )
 
   // Render with appropriate layout based on screen size
   if (isPhone) {
     return (
-      <PhoneLayout
-        currentPosition={gameState.position}
-        gameState={{
-          cash: gameState.cash,
-          netWorth: gameState.netWorth,
-          level: gameState.level,
-          xp: gameState.xp,
-          xpToNext: xpForNextLevel,
-          rolls: rollsRemaining,
-          stars: gameState.stars, // Pass stars to CompactHUD
-          cityLevel: gameState.cityLevel ?? 1, // Defensive fallback to 1
-        }}
-        onRollDice={() => handleRoll(1)}
-        isRolling={phase === 'rolling'}
-        isAutoRolling={isAutoRolling}
-        onToggleAutoRoll={toggleAutoRoll}
-        lastEnergyCheck={gameState.lastEnergyCheck}
-        onOpenPortfolio={() => {
-          showOverlay({
-            id: 'portfolio',
-            component: PortfolioModal,
-            props: {
-              gameState,
-            },
-            priority: 'normal',
-          })
-        }}
-        onOpenProTools={() => {
-          const proToolsUrl = 'https://www.alphastocks.ai/?proTools=1'
-          if (typeof window !== 'undefined') {
-            window.location.href = proToolsUrl
-          }
-        }}
-      >
-        {mainContent}
-      </PhoneLayout>
+      <>
+        <PhoneLayout
+          currentPosition={gameState.position}
+          gameState={{
+            cash: gameState.cash,
+            netWorth: gameState.netWorth,
+            level: gameState.level,
+            xp: gameState.xp,
+            xpToNext: xpForNextLevel,
+            rolls: rollsRemaining,
+            stars: gameState.stars, // Pass stars to CompactHUD
+            cityLevel: gameState.cityLevel ?? 1, // Defensive fallback to 1
+          }}
+          onRollDice={() => handleRoll(1)}
+          isRolling={phase === 'rolling'}
+          isAutoRolling={isAutoRolling}
+          onToggleAutoRoll={toggleAutoRoll}
+          lastEnergyCheck={gameState.lastEnergyCheck}
+          onOpenPortfolio={() => {
+            showOverlay({
+              id: 'portfolio',
+              component: PortfolioModal,
+              props: {
+                gameState,
+              },
+              priority: 'normal',
+            })
+          }}
+          onOpenProTools={() => {
+            const proToolsUrl = 'https://www.alphastocks.ai/?proTools=1'
+            if (typeof window !== 'undefined') {
+              window.location.href = proToolsUrl
+            }
+          }}
+        >
+          {mainContent}
+        </PhoneLayout>
+        {overlayContent}
+      </>
     )
   }
 
   // Desktop/Tablet layout with existing MobileGameLayout wrapper
   return (
-    <MobileGameLayout showBottomNav={!isPhone}>
-      {mainContent}
-    </MobileGameLayout>
+    <>
+      <MobileGameLayout showBottomNav={!isPhone}>
+        {mainContent}
+      </MobileGameLayout>
+      {overlayContent}
+    </>
   )
 }
 
