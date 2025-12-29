@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { toast } from 'sonner'
 import {
   NetWorthTier,
@@ -40,9 +40,9 @@ export const useNetWorthTier = (netWorth: number) => {
     isInitialMount.current = false
   }, [netWorth])
   
-  const nextTier = getNextTier(netWorth)
-  const progress = getTierProgress(netWorth)
-  const activeBenefits = getActiveBenefits(netWorth)
+  const nextTier = useMemo(() => getNextTier(netWorth), [netWorth])
+  const progress = useMemo(() => getTierProgress(netWorth), [netWorth])
+  const activeBenefits = useMemo(() => getActiveBenefits(netWorth), [netWorth])
   
   return {
     currentTier,
