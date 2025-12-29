@@ -444,6 +444,48 @@ h1, h2, h3, h4, h5, h6 {
   animation: dice-shake 0.1s ease-in-out infinite;
 }
 
+@keyframes dice-orbit {
+  0% {
+    transform: translate(-15%, -20%) scale(1);
+    opacity: 0.55;
+  }
+  50% {
+    transform: translate(20%, 15%) scale(1.25);
+    opacity: 0.85;
+  }
+  100% {
+    transform: translate(-15%, -20%) scale(1);
+    opacity: 0.55;
+  }
+}
+
+.dice-orb {
+  position: absolute;
+  inset: -20%;
+  border-radius: 9999px;
+  filter: blur(18px);
+  opacity: 0.7;
+  mix-blend-mode: screen;
+  animation: dice-orbit 7s ease-in-out infinite;
+}
+
+.dice-orb-a {
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.9), rgba(56, 189, 248, 0) 70%);
+  animation-duration: 8s;
+}
+
+.dice-orb-b {
+  background: radial-gradient(circle, rgba(217, 70, 239, 0.85), rgba(217, 70, 239, 0) 70%);
+  animation-duration: 10s;
+  animation-delay: -2s;
+}
+
+.dice-orb-c {
+  background: radial-gradient(circle, rgba(250, 204, 21, 0.8), rgba(250, 204, 21, 0) 70%);
+  animation-duration: 12s;
+  animation-delay: -4s;
+}
+
 /* Smooth camera transitions */
 .camera-transition {
   transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);

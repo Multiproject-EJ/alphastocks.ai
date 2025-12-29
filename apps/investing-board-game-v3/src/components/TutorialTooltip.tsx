@@ -1,7 +1,9 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { X } from '@phosphor-icons/react'
+import { useLayoutMode } from '@/hooks/useLayoutMode'
 
 interface TutorialStep {
   target: string // CSS selector
@@ -10,7 +12,7 @@ interface TutorialStep {
   position: 'top' | 'bottom' | 'left' | 'right'
 }
 
-const TUTORIAL_STEPS: TutorialStep[] = [
+const DESKTOP_TUTORIAL_STEPS: TutorialStep[] = [
   {
     target: '[data-tutorial="dice"]',
     title: 'Roll the Dice',
@@ -37,16 +39,64 @@ const TUTORIAL_STEPS: TutorialStep[] = [
   },
 ]
 
+const PHONE_TUTORIAL_STEPS: TutorialStep[] = [
+  {
+    target: '[data-tutorial="dice"]',
+    title: 'Roll the Dice',
+    description: 'Tap to roll and move around the board',
+    position: 'top'
+  },
+  {
+    target: '[data-tutorial="shop"]',
+    title: 'Shop',
+    description: 'Grab cosmetics and power-ups from the shop',
+    position: 'top'
+  },
+  {
+    target: '[data-tutorial="portfolio"]',
+    title: 'Portfolio',
+    description: 'Track your holdings and net worth here',
+    position: 'left'
+  },
+]
+
 export function TutorialTooltip() {
+  const { isPhone } = useLayoutMode()
   const [currentStep, setCurrentStep] = useState(0)
   const [showTutorial, setShowTutorial] = useState(false)
   const [position, setPosition] = useState({ x: 0, y: 0 })
   const [placement, setPlacement] = useState<'top' | 'bottom' | 'left' | 'right'>('top')
   const [spotlight, setSpotlight] = useState({ left: 0, top: 0, width: 0, height: 0 })
   const [showMenu, setShowMenu] = useState(false)
+  const [tutorialEnabled, setTutorialEnabled] = useState(true)
   const tooltipRef = useRef<HTMLDivElement | null>(null)
 
+  const tutorialSteps = useMemo(
+    () => (isPhone ? PHONE_TUTORIAL_STEPS : DESKTOP_TUTORIAL_STEPS),
+    [isPhone]
+  )
+
   useEffect(() => {
+    const stored = localStorage.getItem('tutorialEnabled')
+    setTutorialEnabled(stored !== 'false')
+  }, [])
+
+  useEffect(() => {
+    const handleSettingsChange = () => {
+      const stored = localStorage.getItem('tutorialEnabled')
+      const enabled = stored !== 'false'
+      setTutorialEnabled(enabled)
+      if (!enabled) {
+        setShowTutorial(false)
+      }
+    }
+
+    window.addEventListener('tutorial-settings-changed', handleSettingsChange)
+    return () => window.removeEventListener('tutorial-settings-changed', handleSettingsChange)
+  }, [])
+
+  useEffect(() => {
+    if (!tutorialEnabled) return
     // Check if tutorial has been completed
     const completed = localStorage.getItem('tutorialCompleted')
     if (!completed) {
@@ -54,17 +104,23 @@ export function TutorialTooltip() {
       const timer = setTimeout(() => setShowTutorial(true), 2000)
       return () => clearTimeout(timer)
     }
-  }, [])
+  }, [tutorialEnabled])
+
+  useEffect(() => {
+    if (currentStep > tutorialSteps.length - 1) {
+      setCurrentStep(0)
+    }
+  }, [currentStep, tutorialSteps.length])
 
   const preferredPlacement = useMemo(() => {
-    const step = TUTORIAL_STEPS[currentStep]
+    const step = tutorialSteps[currentStep]
     return step?.position ?? 'top'
-  }, [currentStep])
+  }, [currentStep, tutorialSteps])
 
   const updatePositions = () => {
-    if (!showTutorial) return
+    if (!showTutorial || !tutorialEnabled) return
 
-    const step = TUTORIAL_STEPS[currentStep]
+    const step = tutorialSteps[currentStep]
     if (!step) return
 
     const targetElement = document.querySelector(step.target)
@@ -161,10 +217,27 @@ export function TutorialTooltip() {
     if (!showTutorial) return
     const id = window.setTimeout(() => updatePositions(), 0)
     return () => window.clearTimeout(id)
-  }, [showTutorial, currentStep])
+  }, [showTutorial, currentStep, tutorialEnabled])
+
+  useEffect(() => {
+    if (!showTutorial) return
+    const step = tutorialSteps[currentStep]
+    if (!step) return
+    if (!document.querySelector(step.target)) {
+      const nextIndex = tutorialSteps.findIndex((candidate, index) => {
+        if (index <= currentStep) return false
+        return Boolean(document.querySelector(candidate.target))
+      })
+      if (nextIndex !== -1) {
+        setCurrentStep(nextIndex)
+      } else {
+        handleComplete()
+      }
+    }
+  }, [showTutorial, currentStep, tutorialSteps])
 
   const handleNext = () => {
-    if (currentStep < TUTORIAL_STEPS.length - 1) {
+    if (currentStep < tutorialSteps.length - 1) {
       setCurrentStep(currentStep + 1)
     } else {
       handleComplete()
@@ -185,11 +258,12 @@ export function TutorialTooltip() {
     localStorage.setItem('tutorialCompleted', 'true')
   }
 
-  if (!showTutorial) return null
+  if (!showTutorial || !tutorialEnabled) return null
+  if (typeof document === 'undefined') return null
 
-  const step = TUTORIAL_STEPS[currentStep]
+  const step = tutorialSteps[currentStep]
 
-  return (
+  return createPortal(
     <AnimatePresence>
       {showTutorial && step && (
         <>
@@ -249,7 +323,7 @@ export function TutorialTooltip() {
                   All scenes
                 </p>
                 <div className="max-h-36 overflow-y-auto space-y-1">
-                  {TUTORIAL_STEPS.map((tutorialStep, index) => (
+                  {tutorialSteps.map((tutorialStep, index) => (
                     <button
                       key={tutorialStep.title}
                       type="button"
@@ -267,7 +341,7 @@ export function TutorialTooltip() {
             
             <div className="flex items-center justify-between gap-2">
               <div className="flex gap-1">
-                {TUTORIAL_STEPS.map((_, i) => (
+                {tutorialSteps.map((_, i) => (
                   <div
                     key={i}
                     className={`w-2 h-2 rounded-full ${
@@ -289,7 +363,7 @@ export function TutorialTooltip() {
                   Skip
                 </Button>
                 <Button size="sm" onClick={handleNext}>
-                  {currentStep === TUTORIAL_STEPS.length - 1 ? 'Finish' : 'Next'}
+                  {currentStep === tutorialSteps.length - 1 ? 'Finish' : 'Next'}
                 </Button>
               </div>
             </div>
@@ -297,5 +371,5 @@ export function TutorialTooltip() {
         </>
       )}
     </AnimatePresence>
-  )
+  , document.body)
 }

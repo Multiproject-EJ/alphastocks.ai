@@ -18,6 +18,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
   const [reducedMotion, setReducedMotion] = useState(false)
   const [autoSave, setAutoSave] = useState(true)
   const [cameraMode, setCameraMode] = useState<'classic' | 'immersive'>('classic')
+  const [tutorialEnabled, setTutorialEnabled] = useState(true)
   const [isMobile, setIsMobile] = useState(false)
   
   // Check for mobile device
@@ -38,12 +39,14 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
     const savedReducedMotion = localStorage.getItem('reducedMotion')
     const savedAutoSave = localStorage.getItem('autoSave')
     const savedCameraMode = localStorage.getItem('alphastocks_camera_mode')
+    const savedTutorialEnabled = localStorage.getItem('tutorialEnabled')
 
     if (savedSoundEnabled !== null) setSoundEnabled(savedSoundEnabled === 'true')
     if (savedSoundVolume !== null) setSoundVolume(parseInt(savedSoundVolume))
     if (savedHapticsEnabled !== null) setHapticsEnabled(savedHapticsEnabled === 'true')
     if (savedReducedMotion !== null) setReducedMotion(savedReducedMotion === 'true')
     if (savedAutoSave !== null) setAutoSave(savedAutoSave === 'true')
+    if (savedTutorialEnabled !== null) setTutorialEnabled(savedTutorialEnabled !== 'false')
     if (savedCameraMode === 'classic' || savedCameraMode === 'immersive') {
       setCameraMode(savedCameraMode)
     } else {
@@ -78,6 +81,15 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
     setAutoSave(value)
     localStorage.setItem('autoSave', value.toString())
   }
+
+  const handleTutorialEnabledChange = (value: boolean) => {
+    setTutorialEnabled(value)
+    localStorage.setItem('tutorialEnabled', value.toString())
+    if (value) {
+      localStorage.removeItem('tutorialCompleted')
+    }
+    window.dispatchEvent(new Event('tutorial-settings-changed'))
+  }
   
   const handleCameraModeChange = (value: boolean) => {
     const newMode = value ? 'immersive' : 'classic'
@@ -89,6 +101,9 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
 
   const handleResetTutorial = () => {
     localStorage.removeItem('tutorialCompleted')
+    localStorage.setItem('tutorialEnabled', 'true')
+    setTutorialEnabled(true)
+    window.dispatchEvent(new Event('tutorial-settings-changed'))
     window.location.reload()
   }
 
@@ -186,6 +201,20 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                 onCheckedChange={handleAutoSaveChange}
               />
             </div>
+
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <Label htmlFor="tutorial-enabled">Onboarding / How to Play</Label>
+                <p className="text-xs text-muted-foreground">
+                  Show guided tips on screen when you return.
+                </p>
+              </div>
+              <Switch
+                id="tutorial-enabled"
+                checked={tutorialEnabled}
+                onCheckedChange={handleTutorialEnabledChange}
+              />
+            </div>
             
             {/* Camera Mode - Only show on mobile */}
             {isMobile && (
@@ -214,7 +243,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
               className="w-full"
               onClick={handleResetTutorial}
             >
-              Reset Tutorial
+              Replay Tutorial
             </Button>
             
             <Button
