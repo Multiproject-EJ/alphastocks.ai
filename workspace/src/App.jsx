@@ -456,11 +456,11 @@ const boardGameV3NavItem = {
 };
 
 const baseNavigation = [
-  { id: 'dashboard', icon: '🏠', title: 'Morning Sales Desk', caption: 'Added + updated', shortLabel: 'Desk' },
+  { id: 'dashboard', icon: '📭', title: 'Morning Sales Desk', caption: 'Added + updated', shortLabel: 'News' },
   { id: 'checkin', icon: '🧘', title: 'Check-In', caption: 'Daily reflections', shortLabel: 'Calm' },
   { id: 'focuslist', icon: '🎯', title: 'Focus List', caption: 'Priority names', shortLabel: 'Focus' },
   { id: 'valuebot', icon: '🤖', title: 'ValueBot', caption: 'Valuation copilot', shortLabel: 'Bot' },
-  { id: 'quadrant', icon: '🧭', title: 'Investing Universe', caption: 'Explore more', shortLabel: 'Map' },
+  { id: 'quadrant', icon: '🌐', title: 'Investing Universe', caption: 'Explore more', shortLabel: 'Universe' },
   { id: 'portfolio', icon: '💼', title: 'Portfolio', caption: 'Results & ledger', hasSubmenu: true, shortLabel: 'Book' }
 ];
 
@@ -879,6 +879,7 @@ const App = () => {
   const hasMorningNewsPing = Boolean(
     morningNewsAlert?.enabled && morningNewsAlert?.triggered && morningNewsAlert?.unread
   );
+  const dashboardInboxIcon = hasMorningNewsPing ? '📥' : '📭';
   const {
     deepDives: userDeepDives,
     loading: deepDiveIndexLoading,
@@ -2986,6 +2987,7 @@ const App = () => {
                             {mobileOverflowNav.map((item) => {
                               const isDashboardItem = item.id === 'dashboard';
                               const navTitle = isDashboardItem ? dashboardTitle : item.title;
+                              const navIcon = isDashboardItem ? dashboardInboxIcon : item.icon;
                               let caption = isDashboardItem ? dashboardCaption : item.caption;
                               if (isDashboardItem && hasMorningNewsPing) {
                                 caption = `${dashboardCaption} • Morning News`;
@@ -3009,7 +3011,7 @@ const App = () => {
                                 >
                                   {item.icon && (
                                     <span className="item-icon" aria-hidden="true">
-                                      {item.icon}
+                                      {navIcon}
                                     </span>
                                   )}
                                   <div className="item-copy">
@@ -3032,6 +3034,7 @@ const App = () => {
                         {mainNavigation.map((item) => {
                             const isDashboardItem = item.id === 'dashboard';
                             const navTitle = isDashboardItem ? dashboardTitle : item.title;
+                            const navIcon = isDashboardItem ? dashboardInboxIcon : item.icon;
                             let caption = isDashboardItem ? dashboardCaption : item.caption;
                             if (isDashboardItem && hasMorningNewsPing) {
                               caption = `${dashboardCaption} • Morning News`;
@@ -3051,7 +3054,7 @@ const App = () => {
                               >
                                 {item.icon && (
                                   <span className="item-icon" aria-hidden="true">
-                                    {item.icon}
+                                    {navIcon}
                                   </span>
                                 )}
                                 <span className="menu-item__label">{item.shortLabel ?? item.title}</span>
