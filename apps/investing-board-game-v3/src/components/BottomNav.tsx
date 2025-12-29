@@ -71,6 +71,7 @@ export function BottomNav({
                 touch-target touch-feedback no-select
               `}
               aria-label={tab.label}
+              data-tutorial={tab.id === 'challenges' ? 'challenges' : tab.id === 'shop' ? 'shop' : undefined}
             >
               <span className="text-xl">{tab.icon}</span>
               <span className="text-[10px] mt-0.5 font-medium">{tab.label}</span>
@@ -99,7 +100,7 @@ export function BottomNav({
 
         {/* Center - Dice (on mobile only) */}
         {showDice && onRoll && (
-          <div className="flex items-center justify-center px-4">
+          <div className="flex items-center justify-center px-4" data-tutorial="dice">
             <CompactDice
               dice1={dice1}
               dice2={dice2}

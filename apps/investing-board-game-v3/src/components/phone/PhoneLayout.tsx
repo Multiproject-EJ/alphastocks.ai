@@ -8,7 +8,7 @@ import { useUIMode } from '@/hooks/useUIMode';
 
 // Layout constants for consistent sizing
 const COMPACT_HUD_HEIGHT = 48;  // pixels
-const BOTTOM_NAV_HEIGHT = 70;   // pixels (updated to match new nav height)
+const BOTTOM_NAV_HEIGHT = 90;   // pixels (updated to match new nav height)
 
 interface PhoneLayoutProps {
   children: ReactNode;
@@ -27,6 +27,7 @@ interface PhoneLayoutProps {
   isRolling: boolean;
   isAutoRolling?: boolean;
   onToggleAutoRoll?: () => void;
+  lastEnergyCheck?: Date;
   // Add handlers for floating buttons
   onOpenPortfolio?: () => void;
   onOpenProTools?: () => void;
@@ -40,6 +41,7 @@ export function PhoneLayout({
   isRolling,
   isAutoRolling = false,
   onToggleAutoRoll = () => {},
+  lastEnergyCheck,
   onOpenPortfolio = () => {},
   onOpenProTools = () => {},
 }: PhoneLayoutProps) {
@@ -115,6 +117,7 @@ export function PhoneLayout({
             className="fixed right-4 z-40 bg-accent/90 hover:bg-accent backdrop-blur-sm rounded-full p-3 shadow-lg hover:shadow-xl transition-all"
             style={{ top: `${COMPACT_HUD_HEIGHT + 80}px` }}
             aria-label="Open Portfolio"
+            data-tutorial="portfolio"
           >
             <TrendingUp size={24} className="text-accent-foreground" />
           </button>
@@ -144,6 +147,7 @@ export function PhoneLayout({
           isRolling={isRolling}
           isAutoRolling={isAutoRolling}
           onToggleAutoRoll={onToggleAutoRoll}
+          lastEnergyCheck={lastEnergyCheck}
         />
       </div>
       

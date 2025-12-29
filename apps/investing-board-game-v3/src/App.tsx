@@ -2184,6 +2184,7 @@ function App() {
                 }}
                 className="bg-accent/90 hover:bg-accent text-accent-foreground shadow-lg hover:shadow-xl transition-all backdrop-blur-sm rounded-full h-14 px-6 text-base font-semibold flex items-center gap-2"
                 aria-label="Open Portfolio"
+                data-tutorial="portfolio"
               >
                 <ChartLine size={20} weight="bold" />
                 Portfolio
@@ -2416,6 +2417,7 @@ function App() {
               }}
               className="bg-sky-500/90 hover:bg-sky-500 text-white shadow-lg hover:shadow-xl transition-all backdrop-blur-sm rounded-full h-14 px-6 text-base font-semibold flex items-center gap-2"
               aria-label="Open Shop"
+              data-tutorial="shop"
             >
               <ShoppingBag size={20} weight="bold" />
               Shop
@@ -2453,20 +2455,22 @@ function App() {
               Cities
             </Button>
             {/* Challenges Button via ChallengeTracker */}
-            <ChallengeTracker
-              dailyChallenges={dailyChallenges}
-              onOpenModal={() => {
-                showOverlay({
-                  id: 'challenges',
-                  component: lazy(() => import('@/components/ChallengesModal')),
-                  props: {
-                    dailyChallenges,
-                    weeklyChallenges,
-                  },
-                  priority: 'normal',
-                })
-              }}
-            />
+            <div data-tutorial="challenges">
+              <ChallengeTracker
+                dailyChallenges={dailyChallenges}
+                onOpenModal={() => {
+                  showOverlay({
+                    id: 'challenges',
+                    component: lazy(() => import('@/components/ChallengesModal')),
+                    props: {
+                      dailyChallenges,
+                      weeklyChallenges,
+                    },
+                    priority: 'normal',
+                  })
+                }}
+              />
+            </div>
             <Button
               onClick={() => {
                 showToast('info', 'Right Now is warming up!', {
@@ -2620,6 +2624,7 @@ function App() {
         isRolling={phase === 'rolling'}
         isAutoRolling={isAutoRolling}
         onToggleAutoRoll={toggleAutoRoll}
+        lastEnergyCheck={gameState.lastEnergyCheck}
         onOpenPortfolio={() => {
           showOverlay({
             id: 'portfolio',

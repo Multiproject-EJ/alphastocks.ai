@@ -1,10 +1,11 @@
+import { useEffect, useState } from 'react';
 import { useUIMode } from '@/hooks/useUIMode';
 import { cn } from '@/lib/utils';
 import type { UIMode } from '@/lib/uiModeStateMachine';
+import { getTimeUntilNextRegen } from '@/lib/energy';
 import { 
   Gamepad2, 
   Building2, 
-  Image, 
   ShoppingBag, 
   Trophy 
 } from 'lucide-react';
@@ -26,6 +27,7 @@ interface PhoneBottomNavProps {
   isRolling: boolean;
   isAutoRolling: boolean;
   onToggleAutoRoll: () => void;
+  lastEnergyCheck?: Date;
 }
 
 export function PhoneBottomNav({
@@ -34,8 +36,10 @@ export function PhoneBottomNav({
   isRolling,
   isAutoRolling,
   onToggleAutoRoll,
+  lastEnergyCheck,
 }: PhoneBottomNavProps) {
   const { mode, transitionTo } = useUIMode();
+  const [energyCountdown, setEnergyCountdown] = useState('');
 
   const handleNavClick = async (targetMode: UIMode) => {
     console.log('Nav clicked:', targetMode);  // Debug log
@@ -50,6 +54,27 @@ export function PhoneBottomNav({
     }
   };
 
+  useEffect(() => {
+    if (!lastEnergyCheck) {
+      setEnergyCountdown('');
+      return;
+    }
+
+    const updateCountdown = () => {
+      const { minutes, seconds } = getTimeUntilNextRegen(lastEnergyCheck);
+      const hours = Math.floor(minutes / 60);
+      const remainingMinutes = minutes % 60;
+      const formatted = hours > 0
+        ? `${hours}h ${remainingMinutes}m`
+        : `${remainingMinutes}m ${seconds}s`;
+      setEnergyCountdown(formatted);
+    };
+
+    updateCountdown();
+    const interval = window.setInterval(updateCountdown, 1000);
+    return () => window.clearInterval(interval);
+  }, [lastEnergyCheck]);
+
   return (
     <nav 
       className={cn(
@@ -58,7 +83,7 @@ export function PhoneBottomNav({
         'safe-bottom',
       )}
       style={{
-        height: 70,
+        height: 90,
         display: 'flex',
         alignItems: 'flex-end',
         justifyContent: 'space-around',
@@ -107,13 +132,20 @@ export function PhoneBottomNav({
         position: 'relative',
         marginTop: -30,  // Sticks out above nav
       }}>
-        <DiceButton
-          onClick={onRollDice}
-          onLongPress={onToggleAutoRoll}
-          rollsRemaining={rollsRemaining}
-          isRolling={isRolling}
-          isAutoRolling={isAutoRolling}
-        />
+        <div className="flex flex-col items-center gap-1">
+          <DiceButton
+            onClick={onRollDice}
+            onLongPress={onToggleAutoRoll}
+            rollsRemaining={rollsRemaining}
+            isRolling={isRolling}
+            isAutoRolling={isAutoRolling}
+          />
+          {energyCountdown && (
+            <span className="text-[10px] font-medium text-muted-foreground">
+              Next dice in {energyCountdown}
+            </span>
+          )}
+        </div>
       </div>
       
       {/* Right navigation items */}
@@ -138,6 +170,7 @@ export function PhoneBottomNav({
               WebkitTapHighlightColor: 'transparent',
               touchAction: 'manipulation',
             }}
+            data-tutorial={item.id === 'shop' ? 'shop' : undefined}
           >
             <Icon className={cn(
               'w-6 h-6 mb-0.5',
