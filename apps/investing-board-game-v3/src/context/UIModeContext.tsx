@@ -59,6 +59,13 @@ export function UIModeProvider({
   initialMode = 'board',
   initialPhase = 'idle' 
 }: UIModeProviderProps) {
+  const shallowEqual = (a: Record<string, any> = {}, b: Record<string, any> = {}) => {
+    const aKeys = Object.keys(a)
+    const bKeys = Object.keys(b)
+    if (aKeys.length !== bKeys.length) return false
+    return aKeys.every(key => a[key] === b[key])
+  }
+
   const [state, setState] = useState<UIModeState>({
     mode: initialMode,
     previousMode: null,
@@ -99,10 +106,18 @@ export function UIModeProvider({
     // Always allow transition to same mode (refresh)
     if (newMode === state.mode) {
       console.log('[UIMode] Already in mode:', newMode);
-      setState(prev => ({
-        ...prev,
-        modeData: data || {},
-      }))
+      if (data) {
+        setState(prev => {
+          const nextData = data || {}
+          if (shallowEqual(prev.modeData || {}, nextData)) {
+            return prev
+          }
+          return {
+            ...prev,
+            modeData: nextData,
+          }
+        })
+      }
       return true;
     }
     
