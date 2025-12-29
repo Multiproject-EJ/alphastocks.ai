@@ -808,6 +808,7 @@ const App = () => {
   const [universeMutationError, setUniverseMutationError] = useState(null);
   const [isUniverseMutating, setIsUniverseMutating] = useState(false);
   const [selectedUniverseRowId, setSelectedUniverseRowId] = useState(null);
+  const [universeViewRow, setUniverseViewRow] = useState(null);
   const [deepDiveModalTicker, setDeepDiveModalTicker] = useState(null);
   const [deepDiveModalCompany, setDeepDiveModalCompany] = useState(null);
   const [tabsScrollState, setTabsScrollState] = useState({ atStart: true, atEnd: false });
@@ -820,6 +821,18 @@ const App = () => {
   const { user, signOut } = useAuth();
   const isSupabaseMode = dataService?.mode === 'supabase';
   const themeCopy = theme === 'dark' ? 'Switch to light' : 'Switch to dark';
+
+  useEffect(() => {
+    if (universeViewRow) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [universeViewRow]);
   
   // Mobile bottom navigation: Primary items (5 most important)
   const mobilePrimaryNavItems = [
@@ -879,6 +892,32 @@ const App = () => {
     () => new Set((userDeepDives ?? []).map((item) => item.ticker)),
     [userDeepDives]
   );
+  const universeViewDisplay = useMemo(() => {
+    const fallbackName = 'Anora Group Oyj';
+    const fallbackTicker = 'ANORA';
+    return {
+      name: universeViewRow?.name || fallbackName,
+      symbol: universeViewRow?.symbol || universeViewRow?.ticker || fallbackTicker,
+      exchange: 'HEL',
+      currency: 'EUR',
+      price: '€3.88',
+      change: '↓ 49.74%',
+      changeDetail: '-3.84 MAX',
+      asOf: 'Dec 29, 3:32:41 PM UTC+2',
+      chips: ['Stock', 'FI listed security'],
+      stats: [
+        { label: 'Previous close', value: '€3.71' },
+        { label: 'Day range', value: '€3.71 - €3.90' },
+        { label: 'Year range', value: '€2.68 - €3.90' },
+        { label: 'Market cap', value: '258.95M EUR' },
+        { label: 'Avg volume', value: '50.66K' },
+        { label: 'P/E ratio', value: '—' },
+        { label: 'Dividend yield', value: '—' },
+        { label: 'Primary exchange', value: 'HEL' }
+      ],
+      compareList: ['Atria Oyj', 'Kone Oyj', 'Mandatum Oyj', 'Konecranes Abp']
+    };
+  }, [universeViewRow]);
   const handleAlertToggle = useCallback((alertId) => {
     setAlertSettings((prev) => {
       const current = prev[alertId];
@@ -1460,6 +1499,17 @@ const App = () => {
     },
     [handleUniverseDelete]
   );
+
+  const openUniverseViewModal = useCallback((row) => {
+    if (!row) return;
+    setSelectedUniverseRowId(row.id);
+    setUniverseViewRow(row);
+    setOpenUniverseActionsId(null);
+  }, []);
+
+  const closeUniverseViewModal = useCallback(() => {
+    setUniverseViewRow(null);
+  }, []);
 
   useEffect(() => {
     document.body.setAttribute('data-theme', theme);
@@ -2280,8 +2330,7 @@ const App = () => {
                             type="button"
                             onClick={(event) => {
                               event.stopPropagation();
-                              setSelectedUniverseRowId(row.id);
-                              setOpenUniverseActionsId(null);
+                              openUniverseViewModal(row);
                             }}
                             disabled={isUniverseMutating}
                             role="menuitem"
@@ -3116,6 +3165,126 @@ const App = () => {
                   </div>
                 </>
               )}
+
+                {universeViewRow && (
+                  <div
+                    className="universe-view-modal"
+                    role="dialog"
+                    aria-modal="true"
+                    aria-label="Universe stock overview"
+                  >
+                    <div className="universe-view-modal__backdrop" onClick={closeUniverseViewModal} aria-hidden="true" />
+                    <div className="universe-view-modal__panel" role="document">
+                      <div className="universe-view-modal__header">
+                        <div className="universe-view-modal__breadcrumb">
+                          HOME <span aria-hidden="true">›</span> {universeViewDisplay.symbol} • {universeViewDisplay.exchange}
+                        </div>
+                        <button
+                          type="button"
+                          className="universe-view-modal__close"
+                          onClick={closeUniverseViewModal}
+                          aria-label="Close stock overview"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                      <div className="universe-view-modal__title-row">
+                        <h1>{universeViewDisplay.name}</h1>
+                      </div>
+                      <div className="universe-view-modal__price-row">
+                        <div className="universe-view-modal__price">{universeViewDisplay.price}</div>
+                        <span className="universe-view-modal__change">{universeViewDisplay.change}</span>
+                        <span className="universe-view-modal__change-detail">{universeViewDisplay.changeDetail}</span>
+                      </div>
+                      <div className="universe-view-modal__meta">
+                        {universeViewDisplay.asOf} • {universeViewDisplay.currency} • {universeViewDisplay.exchange} • Disclaimer
+                      </div>
+                      <div className="universe-view-modal__range-tabs" role="tablist" aria-label="Price range">
+                        {['1D', '5D', '1M', '6M', 'YTD', '1Y', '5Y', 'MAX'].map((tab) => (
+                          <button
+                            key={tab}
+                            type="button"
+                            className={`range-tab${tab === 'MAX' ? ' active' : ''}`}
+                            role="tab"
+                            aria-selected={tab === 'MAX'}
+                          >
+                            {tab}
+                          </button>
+                        ))}
+                      </div>
+                      <div className="universe-view-modal__content">
+                        <div className="universe-view-modal__chart">
+                          <div className="chart-grid">
+                            <div className="chart-axis">
+                              <span>12</span>
+                              <span>10</span>
+                              <span>8</span>
+                              <span>6</span>
+                              <span>4</span>
+                              <span>2</span>
+                            </div>
+                            <div className="chart-canvas">
+                              <svg viewBox="0 0 640 240" aria-hidden="true">
+                                <defs>
+                                  <linearGradient id="lineFill" x1="0" x2="0" y1="0" y2="1">
+                                    <stop offset="0%" stopColor="#f97316" stopOpacity="0.35" />
+                                    <stop offset="100%" stopColor="#f97316" stopOpacity="0" />
+                                  </linearGradient>
+                                </defs>
+                                <path
+                                  d="M10 140 L80 100 L140 120 L200 90 L260 120 L320 70 L380 90 L440 140 L500 150 L560 135 L620 145"
+                                  fill="none"
+                                  stroke="#ef4444"
+                                  strokeWidth="3"
+                                />
+                                <path
+                                  d="M10 140 L80 100 L140 120 L200 90 L260 120 L320 70 L380 90 L440 140 L500 150 L560 135 L620 145 L620 240 L10 240 Z"
+                                  fill="url(#lineFill)"
+                                />
+                                <circle cx="560" cy="135" r="6" fill="#ef4444" />
+                              </svg>
+                              <div className="chart-highlights">
+                                <span className="highlight highlight-high" />
+                                <span className="highlight highlight-low" />
+                              </div>
+                              <div className="chart-year">2020</div>
+                              <div className="chart-year chart-year--right">2024</div>
+                            </div>
+                          </div>
+                          <div className="chart-compare">
+                            <span className="compare-label">Compare to</span>
+                            <div className="compare-chips">
+                              {universeViewDisplay.compareList.map((item) => (
+                                <span key={item} className="compare-chip">
+                                  {item}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="universe-view-modal__stats">
+                          <div className="stat-card">
+                            <div className="stat-chips">
+                              {universeViewDisplay.chips.map((chip) => (
+                                <span key={chip} className="chip">
+                                  {chip}
+                                </span>
+                              ))}
+                            </div>
+                            <div className="stat-rows">
+                              {universeViewDisplay.stats.map((stat) => (
+                                <div key={stat.label} className="stat-row">
+                                  <span className="stat-label">{stat.label}</span>
+                                  <span className="stat-value">{stat.value}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {deepDiveModalTicker && (
                   <UniverseDeepDiveModal

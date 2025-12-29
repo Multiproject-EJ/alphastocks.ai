@@ -4294,3 +4294,273 @@ button:focus-visible {
     max-width: 500px;
   }
 }
+
+/* ========================================
+   UNIVERSE VIEW MODAL
+   ======================================== */
+.universe-view-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+}
+
+.universe-view-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(8, 10, 16, 0.75);
+}
+
+.universe-view-modal__panel {
+  position: relative;
+  z-index: 1;
+  background: #f9fafb;
+  color: #111827;
+  width: min(1200px, 100%);
+  margin: auto;
+  border-radius: 24px;
+  box-shadow: 0 20px 80px rgba(15, 23, 42, 0.35);
+  padding: 32px 36px 36px;
+  max-height: 92vh;
+  overflow: auto;
+}
+
+.universe-view-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: #6b7280;
+}
+
+.universe-view-modal__close {
+  border: none;
+  background: transparent;
+  font-size: 20px;
+  cursor: pointer;
+  color: #6b7280;
+}
+
+.universe-view-modal__title-row h1 {
+  margin: 12px 0 8px;
+  font-size: 34px;
+  font-weight: 600;
+}
+
+.universe-view-modal__price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.universe-view-modal__price {
+  font-size: 36px;
+  font-weight: 600;
+}
+
+.universe-view-modal__change {
+  background: #fee2e2;
+  color: #b91c1c;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+.universe-view-modal__change-detail {
+  color: #b91c1c;
+  font-weight: 600;
+}
+
+.universe-view-modal__meta {
+  margin-top: 6px;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.universe-view-modal__range-tabs {
+  display: flex;
+  gap: 16px;
+  margin: 16px 0 20px;
+  flex-wrap: wrap;
+}
+
+.range-tab {
+  border: none;
+  background: transparent;
+  color: #6b7280;
+  font-weight: 600;
+  padding: 6px 2px;
+  cursor: pointer;
+}
+
+.range-tab.active {
+  color: #2563eb;
+  border-bottom: 3px solid #2563eb;
+}
+
+.universe-view-modal__content {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 28px;
+}
+
+.universe-view-modal__chart {
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 24px;
+  border: 1px solid #e5e7eb;
+}
+
+.chart-grid {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  gap: 12px;
+}
+
+.chart-axis {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  color: #9ca3af;
+  font-size: 12px;
+  padding-bottom: 12px;
+}
+
+.chart-canvas {
+  position: relative;
+  min-height: 280px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.chart-canvas svg {
+  width: 100%;
+  height: 240px;
+}
+
+.chart-year {
+  position: absolute;
+  bottom: -18px;
+  left: 24px;
+  color: #9ca3af;
+  font-size: 12px;
+}
+
+.chart-year--right {
+  left: auto;
+  right: 16%;
+}
+
+.chart-highlights {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.highlight {
+  position: absolute;
+  width: 110px;
+  height: 40px;
+  border-radius: 999px;
+  opacity: 0.4;
+}
+
+.highlight-high {
+  background: #93c5fd;
+  top: 10%;
+  left: 50%;
+}
+
+.highlight-low {
+  background: #fde68a;
+  bottom: 16%;
+  right: 16%;
+}
+
+.chart-compare {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.compare-label {
+  color: #2563eb;
+  font-weight: 600;
+}
+
+.compare-chips {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.compare-chip {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 13px;
+  color: #111827;
+}
+
+.universe-view-modal__stats .stat-card {
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 18px;
+  border: 1px solid #e5e7eb;
+}
+
+.stat-chips {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.stat-chips .chip {
+  background: #f3f4f6;
+  color: #6b7280;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-top: 1px solid #f3f4f6;
+  font-size: 14px;
+}
+
+.stat-row:first-child {
+  border-top: none;
+}
+
+.stat-label {
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #6b7280;
+  font-size: 11px;
+}
+
+.stat-value {
+  font-weight: 600;
+  color: #111827;
+}
+
+@media (max-width: 900px) {
+  .universe-view-modal__panel {
+    border-radius: 0;
+    max-height: none;
+    height: 100%;
+  }
+
+  .universe-view-modal__content {
+    grid-template-columns: 1fr;
+  }
+}
