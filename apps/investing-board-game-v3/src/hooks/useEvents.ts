@@ -50,7 +50,7 @@ export function useEvents({ playSound }: UseEventsProps = {}): UseEventsReturn {
     
     // Update active and upcoming events
     setActiveEvents(getActiveEvents(now))
-    setUpcomingEvents(getUpcomingEvents(5, now))
+    setUpcomingEvents(getUpcomingEvents(45, now))
   }, [])
 
   // Handle event start

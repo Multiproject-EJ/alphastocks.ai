@@ -131,7 +131,7 @@ export const RECURRING_EVENTS: GameEvent[] = [
       frequency: 'weekly',
       dayOfWeek: 5, // Friday
       hour: 18,
-      duration: 3
+      duration: 24
     }
   },
   {
@@ -165,7 +165,7 @@ export const RECURRING_EVENTS: GameEvent[] = [
       frequency: 'weekly',
       dayOfWeek: 3, // Wednesday
       hour: 12,
-      duration: 12
+      duration: 36
     }
   }
 ]
@@ -196,6 +196,111 @@ export const SPECIAL_EVENTS: GameEvent[] = [
   },
 ]
 
+const ROTATION_EVENT_TEMPLATES: Array<Omit<GameEvent, 'startDate' | 'endDate' | 'isActive' | 'id'>> = [
+  {
+    title: 'Market Momentum',
+    description: '1.25x XP on all moves and challenges.',
+    type: 'special',
+    effects: { xpMultiplier: 1.25 },
+    icon: '📈',
+  },
+  {
+    title: 'Dividend Days',
+    description: '2x stars from passive rewards.',
+    type: 'special',
+    effects: { starsMultiplier: 2 },
+    icon: '💸',
+  },
+  {
+    title: 'Bull Run Rally',
+    description: 'Bonus rolls and 1.5x XP.',
+    type: 'special',
+    effects: { rollsBonus: 3, xpMultiplier: 1.5 },
+    icon: '🐂',
+  },
+  {
+    title: 'Savings Surge',
+    description: 'Shop discounts up to 20%.',
+    type: 'special',
+    effects: { shopDiscount: 20 },
+    icon: '🛍️',
+  },
+  {
+    title: 'Star Harvest',
+    description: '1.75x stars on everything.',
+    type: 'special',
+    effects: { starsMultiplier: 1.75 },
+    icon: '✨',
+  },
+  {
+    title: 'Investor Advantage',
+    description: 'Extra rolls and boosted XP.',
+    type: 'special',
+    effects: { rollsBonus: 2, xpMultiplier: 1.4 },
+    icon: '🧠',
+  },
+  {
+    title: 'Momentum Marathon',
+    description: 'Extended streak buffs and bonus XP.',
+    type: 'special',
+    effects: { xpMultiplier: 1.35 },
+    icon: '🏁',
+  },
+  {
+    title: 'High Yield Weekend',
+    description: '2.25x stars and lucky perks.',
+    type: 'special',
+    effects: { starsMultiplier: 2.25 },
+    icon: '🏦',
+  },
+]
+
+const ROTATION_DURATIONS_DAYS = [2, 3, 1, 4, 2, 1, 3, 2, 4, 1, 2]
+const ROTATION_GAP_AFTER_INDEX = new Set([2, 6])
+
+function generateMonthlyRotationEvents(now: Date = new Date()): GameEvent[] {
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0)
+  const monthEndExclusive = new Date(now.getFullYear(), now.getMonth() + 1, 1, 0, 0, 0, 0)
+  const events: GameEvent[] = []
+  let cursor = new Date(monthStart)
+  let templateIndex = 0
+  let durationIndex = 0
+  let gapDaysUsed = 0
+
+  while (cursor < monthEndExclusive) {
+    if (ROTATION_GAP_AFTER_INDEX.has(events.length) && gapDaysUsed < 3) {
+      cursor = new Date(cursor)
+      cursor.setDate(cursor.getDate() + 1)
+      gapDaysUsed += 1
+      continue
+    }
+
+    const template = ROTATION_EVENT_TEMPLATES[templateIndex % ROTATION_EVENT_TEMPLATES.length]
+    const durationDays = ROTATION_DURATIONS_DAYS[durationIndex % ROTATION_DURATIONS_DAYS.length]
+    const startDate = new Date(cursor)
+    const endDate = new Date(startDate)
+    endDate.setDate(endDate.getDate() + durationDays)
+
+    if (startDate >= monthEndExclusive) break
+
+    const cappedEndDate = endDate > monthEndExclusive ? new Date(monthEndExclusive) : endDate
+
+    events.push({
+      ...template,
+      id: `${template.title.toLowerCase().replace(/\s+/g, '-')}-${now.getFullYear()}-${now.getMonth() + 1}-${events.length + 1}`,
+      startDate,
+      endDate: cappedEndDate,
+      isActive: false,
+    })
+
+    cursor = new Date(cappedEndDate)
+    templateIndex += 1
+    durationIndex += 1
+  }
+
+  return events
+}
+
 /**
  * Initialize recurring event dates
  */
@@ -223,7 +328,11 @@ export function getAllEvents(): GameEvent[] {
   if (!initializedRecurringEvents) {
     initializedRecurringEvents = initializeRecurringEvents()
   }
-  return [...initializedRecurringEvents, ...SPECIAL_EVENTS]
+  return [
+    ...initializedRecurringEvents,
+    ...SPECIAL_EVENTS,
+    ...generateMonthlyRotationEvents(),
+  ]
 }
 
 /**
