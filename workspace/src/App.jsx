@@ -438,11 +438,10 @@ const ENABLE_BOARDGAME_V3 = true; // V3 is now the default and only visible game
 const sectionTabsById = {
   dashboard: dashboardTabs,
   valuebot: valueBotTabs.map((tab) => tab.label),
-  quadrant: ['Universe', 'Universe Quadrant', 'Add Stocks'],
+  quadrant: ['Global Ticker Database', 'Search', 'Universe', 'Map Universe Quadrant', 'Add Stocks'],
   checkin: ['Tab 1', 'Trading Journal', 'Tab 3', 'Tab 4', 'Tab 5'],
   focuslist: ['Focus List'],
-  'boardgame-v3': [],
-  'universe-builder': ['Global Ticker Database', 'Search']
+  'boardgame-v3': []
 };
 
 const settingsNavItem = { id: 'settings', icon: '⚙️', shortLabel: 'Prefs' };
@@ -461,8 +460,7 @@ const baseNavigation = [
   { id: 'checkin', icon: '🧘', title: 'Check-In', caption: 'Daily reflections', shortLabel: 'Calm' },
   { id: 'focuslist', icon: '🎯', title: 'Focus List', caption: 'Priority names', shortLabel: 'Focus' },
   { id: 'valuebot', icon: '🤖', title: 'ValueBot', caption: 'Valuation copilot', shortLabel: 'Bot' },
-  { id: 'quadrant', icon: '🧭', title: 'Investing Universe', caption: '', shortLabel: 'Map' },
-  { id: 'universe-builder', icon: '🌐', title: 'Universe Builder', caption: 'Build global stock catalog', shortLabel: 'Universe' },
+  { id: 'quadrant', icon: '🧭', title: 'Investing Universe', caption: 'Explore more', shortLabel: 'Map' },
   { id: 'portfolio', icon: '💼', title: 'Portfolio', caption: 'Results & ledger', hasSubmenu: true, shortLabel: 'Book' }
 ];
 
@@ -731,12 +729,11 @@ const staticSections = {
       }
     ]
   },
-  'universe-builder': {
-    title: 'Global Stock Universe Builder',
-    meta: 'Systematically catalog every stock from every exchange worldwide. The foundation for ValueBot analysis.',
-    cards: [],
-    component: <UniverseBuilder />
-  },
+};
+
+const universeBuilderSection = {
+  title: 'Global Stock Universe Builder',
+  meta: 'Systematically catalog every stock from every exchange worldwide. The foundation for ValueBot analysis.'
 };
 
 
@@ -2375,6 +2372,10 @@ const App = () => {
   };
 
   const renderQuadrantPanel = () => {
+    if (activeTab === 'Global Ticker Database' || activeTab === 'Search') {
+      return renderUniverseBuilderPanel();
+    }
+
     if (activeTab === 'Add Stocks') {
       return (
         <>
@@ -2422,7 +2423,7 @@ const App = () => {
       );
     }
 
-    if (activeTab === 'Universe Quadrant') {
+    if (activeTab === 'Map Universe Quadrant') {
       return renderDefaultSection();
     }
 
@@ -2510,12 +2511,13 @@ const App = () => {
   };
 
   const renderUniverseBuilderPanel = () => {
+    const { title, meta } = universeBuilderSection;
     // Tab 1: Global Ticker Database - shows the main UniverseBuilder component
     if (activeTab === 'Global Ticker Database') {
       return (
         <>
-          <h2>{section.title}</h2>
-          <p className="detail-meta">{section.meta}</p>
+          <h2>{title}</h2>
+          <p className="detail-meta">{meta}</p>
           <div className="detail-component">
             <UniverseBuilder />
           </div>
@@ -2539,8 +2541,8 @@ const App = () => {
     // Default fallback to first tab
     return (
       <>
-        <h2>{section.title}</h2>
-        <p className="detail-meta">{section.meta}</p>
+        <h2>{title}</h2>
+        <p className="detail-meta">{meta}</p>
         <div className="detail-component">
           <UniverseBuilder />
         </div>
@@ -2641,10 +2643,6 @@ const App = () => {
       return renderCheckInJournalPanel();
     }
 
-    if (activeSection === 'universe-builder') {
-      return renderUniverseBuilderPanel();
-    }
-
     if (!hasTabs) {
       return renderDefaultSection();
     }
@@ -2674,7 +2672,8 @@ const App = () => {
       'QuickTake': 'Quick',
       'Trading Journal': 'Journal',
       'Global Ticker Database': 'Database',
-      'Universe Quadrant': 'Quadrant',
+      'Search': 'Search',
+      'Map Universe Quadrant': 'Map',
       'Add Stocks': 'Add'
     };
     
