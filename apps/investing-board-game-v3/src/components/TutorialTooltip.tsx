@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { X } from '@phosphor-icons/react'
 import { useLayoutMode } from '@/hooks/useLayoutMode'
+import { useAuth } from '@/context/AuthContext'
 
 interface TutorialStep {
   target: string // CSS selector
@@ -62,6 +63,7 @@ const PHONE_TUTORIAL_STEPS: TutorialStep[] = [
 
 export function TutorialTooltip() {
   const { isPhone } = useLayoutMode()
+  const { isAuthenticated } = useAuth()
   const [currentStep, setCurrentStep] = useState(0)
   const [showTutorial, setShowTutorial] = useState(false)
   const [position, setPosition] = useState({ x: 0, y: 0 })
@@ -70,6 +72,7 @@ export function TutorialTooltip() {
   const [showMenu, setShowMenu] = useState(false)
   const [tutorialEnabled, setTutorialEnabled] = useState(true)
   const tooltipRef = useRef<HTMLDivElement | null>(null)
+  const previousAuth = useRef(isAuthenticated)
 
   const tutorialSteps = useMemo(
     () => (isPhone ? PHONE_TUTORIAL_STEPS : DESKTOP_TUTORIAL_STEPS),
@@ -105,6 +108,19 @@ export function TutorialTooltip() {
       return () => clearTimeout(timer)
     }
   }, [tutorialEnabled])
+
+  useEffect(() => {
+    if (!showTutorial) {
+      previousAuth.current = isAuthenticated
+      return
+    }
+
+    if (!previousAuth.current && isAuthenticated) {
+      handleComplete()
+    }
+
+    previousAuth.current = isAuthenticated
+  }, [isAuthenticated, showTutorial])
 
   useEffect(() => {
     if (currentStep > tutorialSteps.length - 1) {
@@ -316,6 +332,22 @@ export function TutorialTooltip() {
             
             <h3 className="font-bold text-lg mb-2 pr-6">{step.title}</h3>
             <p className="text-sm text-muted-foreground mb-4">{step.description}</p>
+            {!isAuthenticated && currentStep === 0 && (
+              <div className="mb-4 rounded-lg border border-white/10 bg-black/20 p-3">
+                <p className="text-xs text-muted-foreground mb-2">
+                  Sign in to save progress and sync across devices.
+                </p>
+                <Button
+                  size="sm"
+                  className="w-full"
+                  onClick={() => {
+                    window.location.href = 'https://www.alphastocks.ai/?proTools=1'
+                  }}
+                >
+                  Sign in to save
+                </Button>
+              </div>
+            )}
 
             {showMenu && (
               <div className="mb-4 rounded-lg border border-white/10 bg-black/20 p-2">
