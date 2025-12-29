@@ -15,6 +15,7 @@ import { ProToolsOverlay } from '@/components/ProToolsOverlay'
 import { BiasSanctuaryModal } from '@/components/BiasSanctuaryModal'
 import { CenterCarousel } from '@/components/CenterCarousel'
 import { CelebrationEffect } from '@/components/CelebrationEffect'
+import { TileCelebration, TileCelebrationEffect } from '@/components/TileCelebrationEffect'
 import { CasinoModal } from '@/components/CasinoModal'
 import { UserIndicator } from '@/components/UserIndicator'
 import { SoundControls } from '@/components/SoundControls'
@@ -360,6 +361,8 @@ function App() {
   const [diceResetKey, setDiceResetKey] = useState(0)
 
   const [showCelebration, setShowCelebration] = useState(false)
+  const [tileCelebrations, setTileCelebrations] = useState<TileCelebration[]>([])
+  const [lastLandedTileId, setLastLandedTileId] = useState<number | null>(null)
   const BOARD_SIZE = 1200
   const TILE_SIZE = 128
   const boardFrameRef = useRef<HTMLDivElement>(null)
@@ -1471,6 +1474,7 @@ function App() {
 
     const tile = BOARD_TILES[position]
     debugGame('handleTileLanding:', { position, tile, passedStart })
+    setLastLandedTileId(position)
 
     // Haptic feedback on tile landing
     lightTap()
@@ -1635,7 +1639,6 @@ function App() {
         debugGame('Phase transition: landed -> idle (Start corner)')
         setPhase('idle')
       } else if (tile.title === 'Casino') {
-        setShowCelebration(true)
         toast.info('🎰 Welcome to the Casino!', {
           description: 'Feeling lucky today?',
         })
@@ -1821,6 +1824,7 @@ function App() {
     toast.success(`Quiz complete: ${correct}/${total} correct`, {
       description: `Earned ${starsEarned} stars! ⭐ ${percentage >= 100 ? 'Perfect score!' : ''}`,
     })
+    triggerCelebrationFromLastTile(['⭐', '✨'])
   }
 
   const handleCasinoWin = (amount: number) => {
@@ -1833,11 +1837,15 @@ function App() {
       cash: prev.cash + amount,
       netWorth: prev.netWorth + amount,
     }))
+    triggerCelebrationFromLastTile(['💰', '🪙'])
   }
 
   const handleWildcardEvent = (event: WildcardEvent) => {
     debugGame('Applying wildcard event:', event.id)
     playSound('button-click')
+
+    const shouldCelebrateCash = (event.effect.cash ?? 0) > 0
+    const shouldCelebrateStars = (event.effect.stars ?? 0) > 0
     
     setGameState((prev) => {
       let newCash = prev.cash
@@ -1898,6 +1906,14 @@ function App() {
         netWorth: prev.netWorth + (newCash - prev.cash),
       }
     })
+
+    if (shouldCelebrateCash && shouldCelebrateStars) {
+      triggerCelebrationFromLastTile(['⭐', '💰'])
+    } else if (shouldCelebrateCash) {
+      triggerCelebrationFromLastTile(['💰', '🪙'])
+    } else if (shouldCelebrateStars) {
+      triggerCelebrationFromLastTile(['⭐', '✨'])
+    }
     
     // Transition back to idle after a short delay
     setTimeout(() => {
@@ -1915,6 +1931,42 @@ function App() {
     ? desktopOuterRadius
     : (dynamicRadius ?? 456)
   const isCourtOfCapitalTile = BOARD_TILES[gameState.position]?.title === 'Court of Capital'
+
+  const getTileCelebrationPosition = useCallback((tileId: number) => {
+    const tileBoardSize = { width: boardSize, height: boardSize }
+    const tilePositions = calculateTilePositions(tileBoardSize, 27, boardOuterRadius, false)
+    const position = tilePositions.find(p => p.id === tileId)
+    if (!position) return null
+    return {
+      x: position.x - boardPadding,
+      y: position.y - boardPadding,
+    }
+  }, [boardSize, boardOuterRadius, boardPadding])
+
+  const triggerTileCelebration = useCallback((tileId: number, emojis: string[]) => {
+    const position = getTileCelebrationPosition(tileId)
+    if (!position) return
+
+    const id = Date.now() + Math.random()
+    setTileCelebrations((prev) => [
+      ...prev,
+      {
+        id,
+        x: position.x,
+        y: position.y,
+        emojis,
+      },
+    ])
+
+    window.setTimeout(() => {
+      setTileCelebrations((prev) => prev.filter((celebration) => celebration.id !== id))
+    }, 1400)
+  }, [getTileCelebrationPosition])
+
+  const triggerCelebrationFromLastTile = useCallback((emojis: string[]) => {
+    if (lastLandedTileId === null) return
+    triggerTileCelebration(lastLandedTileId, emojis)
+  }, [lastLandedTileId, triggerTileCelebration])
 
   useEffect(() => {
     if (isPhone || isMobile) {
@@ -2256,6 +2308,9 @@ function App() {
 
           <div className="absolute inset-0 pointer-events-none">
             <div className="relative w-full h-full">
+              <div className="absolute inset-0 pointer-events-none z-30">
+                <TileCelebrationEffect celebrations={tileCelebrations} />
+              </div>
               {/* Outer Ring - Main Board Layout */}
               {(() => {
                 // Calculate tile positions for circular layout
