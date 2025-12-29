@@ -1,5 +1,5 @@
 import { ReactNode, useEffect, useMemo, useState } from 'react';
-import { TrendingUp, Wrench } from 'lucide-react';
+import { Building2, Clock3, ShoppingBag, TrendingUp, Wrench } from 'lucide-react';
 import { CompactHUD } from './CompactHUD';
 import { PhoneBottomNav } from './PhoneBottomNav';
 import { MobileBoard3D } from './MobileBoard3D';
@@ -31,6 +31,9 @@ interface PhoneLayoutProps {
   // Add handlers for floating buttons
   onOpenPortfolio?: () => void;
   onOpenProTools?: () => void;
+  onOpenShop?: () => void;
+  onOpenCities?: () => void;
+  onOpenRightNow?: () => void;
 }
 
 export function PhoneLayout({ 
@@ -44,6 +47,9 @@ export function PhoneLayout({
   lastEnergyCheck,
   onOpenPortfolio = () => {},
   onOpenProTools = () => {},
+  onOpenShop = () => {},
+  onOpenCities = () => {},
+  onOpenRightNow = () => {},
 }: PhoneLayoutProps) {
   const { mode } = useUIMode();
   const showDebug = import.meta.env.DEV;
@@ -131,6 +137,40 @@ export function PhoneLayout({
           >
             <Wrench size={24} className="text-primary-foreground" />
           </button>
+
+          <div
+            className="fixed left-4 z-40 flex flex-col gap-3"
+            style={{ top: `${COMPACT_HUD_HEIGHT + 80}px` }}
+          >
+            <button
+              onClick={onOpenShop}
+              className="flex items-center gap-2 rounded-full bg-sky-500/90 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-sky-500/30 backdrop-blur-sm transition-all hover:bg-sky-500"
+              aria-label="Open Shop"
+            >
+              <ShoppingBag size={18} />
+              Shop
+            </button>
+            <button
+              onClick={onOpenCities}
+              className="flex items-center gap-2 rounded-full bg-emerald-500/90 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-emerald-500/30 backdrop-blur-sm transition-all hover:bg-emerald-500"
+              aria-label="Open Cities"
+            >
+              <Building2 size={18} />
+              Cities
+            </button>
+            <button
+              onClick={onOpenRightNow}
+              className="relative flex items-center gap-2 rounded-full bg-amber-500/90 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-amber-500/30 backdrop-blur-sm transition-all hover:bg-amber-500"
+              aria-label="Open Right Now"
+            >
+              <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rose-400 opacity-75" />
+                <span className="relative inline-flex h-3 w-3 rounded-full bg-rose-400" />
+              </span>
+              <Clock3 size={18} />
+              Right Now
+            </button>
+          </div>
         </>
       )}
       

@@ -10,9 +10,11 @@ export type SoundType =
   | 'tile-land'
   | 'star-collect'
   | 'cash-register'
+  | 'cha-ching'
   | 'celebration'
   | 'button-click'
   | 'level-up'
+  | 'swipe-no'
   | 'error'
 
 export interface SoundSettings {
@@ -167,6 +169,16 @@ class SoundManager {
           oscillator.stop(now + 0.15)
           break
 
+        case 'cha-ching':
+          // Bright up-chirp (success purchase)
+          oscillator.frequency.setValueAtTime(520, now)
+          oscillator.frequency.exponentialRampToValueAtTime(980, now + 0.18)
+          gainNode.gain.setValueAtTime(this.settings.volume * 0.45, now)
+          gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.2)
+          oscillator.start(now)
+          oscillator.stop(now + 0.2)
+          break
+
         case 'celebration':
           // Ascending arpeggio (celebration)
           this.playCelebration(now)
@@ -189,6 +201,16 @@ class SoundManager {
           gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.4)
           oscillator.start(now)
           oscillator.stop(now + 0.4)
+          break
+
+        case 'swipe-no':
+          // Short flick down (dismiss)
+          oscillator.frequency.setValueAtTime(480, now)
+          oscillator.frequency.exponentialRampToValueAtTime(220, now + 0.12)
+          gainNode.gain.setValueAtTime(this.settings.volume * 0.35, now)
+          gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.12)
+          oscillator.start(now)
+          oscillator.stop(now + 0.12)
           break
 
         case 'error':
