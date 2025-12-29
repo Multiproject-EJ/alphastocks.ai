@@ -711,6 +711,76 @@ function App() {
     })
   }, [activeEvents, upcomingEvents, showOverlay])
 
+  const openShopOverlay = useCallback(() => {
+    showOverlay({
+      id: 'shop',
+      component: lazy(() => import('@/components/ShopModal')),
+      props: {
+        gameState,
+        onPurchase: purchaseItem,
+        isPermanentOwned,
+        getItemQuantity,
+        canAfford,
+        onEquipCosmetic: equipCosmetic,
+        getFinalPrice,
+        shopDiscount,
+      },
+      priority: 'normal',
+    })
+  }, [
+    showOverlay,
+    gameState,
+    purchaseItem,
+    isPermanentOwned,
+    getItemQuantity,
+    canAfford,
+    equipCosmetic,
+    getFinalPrice,
+    shopDiscount,
+  ])
+
+  const openCitiesOverlay = useCallback(() => {
+    showOverlay({
+      id: 'cityBuilder',
+      component: lazy(() => import('@/components/CityBuilderModal')),
+      props: {
+        stars: gameState.stars,
+        currentCity,
+        currentCityProgress,
+        allCities,
+        citiesProgress: cityBuilderState.cities,
+        canUpgrade: canUpgradeBuilding,
+        timeUntilNextUpgrade,
+        onUpgradeBuilding: upgradeBuilding,
+        onUnlockNextCity: unlockNextCity,
+        onSelectCity: selectCity,
+        nextCityToUnlock,
+        canUnlockNext,
+        totalBuildingsCompleted,
+        totalCitiesCompleted,
+        totalCitiesUnlocked,
+      },
+      priority: 'normal',
+    })
+  }, [
+    showOverlay,
+    gameState.stars,
+    currentCity,
+    currentCityProgress,
+    allCities,
+    cityBuilderState.cities,
+    canUpgradeBuilding,
+    timeUntilNextUpgrade,
+    upgradeBuilding,
+    unlockNextCity,
+    selectCity,
+    nextCityToUnlock,
+    canUnlockNext,
+    totalBuildingsCompleted,
+    totalCitiesCompleted,
+    totalCitiesUnlocked,
+  ])
+
   const currentActiveEvent = [...activeEvents].sort(
     (a, b) => a.endDate.getTime() - b.endDate.getTime()
   )[0]
@@ -2500,23 +2570,7 @@ function App() {
           }`}>
             {/* Shop Button */}
             <Button
-              onClick={() => {
-                showOverlay({
-                  id: 'shop',
-                  component: lazy(() => import('@/components/ShopModal')),
-                  props: {
-                    gameState,
-                    onPurchase: purchaseItem,
-                    isPermanentOwned,
-                    getItemQuantity,
-                    canAfford,
-                    onEquipCosmetic: equipCosmetic,
-                    getFinalPrice,
-                    shopDiscount,
-                  },
-                  priority: 'normal',
-                })
-              }}
+              onClick={openShopOverlay}
               className="bg-sky-500/90 hover:bg-sky-500 text-white shadow-lg hover:shadow-xl transition-all backdrop-blur-sm rounded-full h-14 px-6 text-base font-semibold flex items-center gap-2"
               aria-label="Open Shop"
               data-tutorial="shop"
@@ -2526,30 +2580,7 @@ function App() {
             </Button>
             {/* Cities Button */}
             <Button
-              onClick={() => {
-                showOverlay({
-                  id: 'cityBuilder',
-                  component: lazy(() => import('@/components/CityBuilderModal')),
-                  props: {
-                    stars: gameState.stars,
-                    currentCity,
-                    currentCityProgress,
-                    allCities,
-                    citiesProgress: cityBuilderState.cities,
-                    canUpgrade: canUpgradeBuilding,
-                    timeUntilNextUpgrade,
-                    onUpgradeBuilding: upgradeBuilding,
-                    onUnlockNextCity: unlockNextCity,
-                    onSelectCity: selectCity,
-                    nextCityToUnlock,
-                    canUnlockNext,
-                    totalBuildingsCompleted,
-                    totalCitiesCompleted,
-                    totalCitiesUnlocked,
-                  },
-                  priority: 'normal',
-                })
-              }}
+              onClick={openCitiesOverlay}
               className="bg-gradient-to-r from-emerald-500/90 to-teal-500/90 hover:from-emerald-500 hover:to-teal-500 text-white shadow-lg hover:shadow-xl transition-all backdrop-blur-sm rounded-full h-14 px-6 text-base font-semibold flex items-center gap-2"
               aria-label="Open City Builder"
             >
@@ -2777,6 +2808,9 @@ function App() {
               window.location.href = proToolsUrl
             }
           }}
+          onOpenShop={openShopOverlay}
+          onOpenCities={openCitiesOverlay}
+          onOpenRightNow={openEventCalendar}
         >
           {mainContent}
         </PhoneLayout>

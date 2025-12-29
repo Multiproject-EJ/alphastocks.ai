@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -10,6 +10,7 @@ import { useResponsiveDialogClass } from '@/hooks/useResponsiveDialogClass'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Stock } from '@/lib/types'
+import { useSound } from '@/hooks/useSound'
 import { 
   getScoreColor, 
   getScoreBgColor, 
@@ -34,22 +35,143 @@ interface StockModalProps {
 export function StockModal({ open, onOpenChange, stock, onBuy, cash, showInsights = false }: StockModalProps) {
   const dialogClass = useResponsiveDialogClass('small')
   const [imageError, setImageError] = useState(false)
+  const { play: playSound } = useSound()
+  const [dragX, setDragX] = useState(0)
+  const [isDragging, setIsDragging] = useState(false)
+  const dragXRef = useRef(0)
+  const swipeStateRef = useRef({
+    startX: 0,
+    startY: 0,
+    pointerId: -1,
+    isSwiping: false,
+    triggered: false,
+  })
+
+  const swipeThreshold = 130
+  const maxSwipe = 240
+
+  useEffect(() => {
+    if (!open) {
+      setDragX(0)
+      setIsDragging(false)
+      dragXRef.current = 0
+      swipeStateRef.current = {
+        startX: 0,
+        startY: 0,
+        pointerId: -1,
+        isSwiping: false,
+        triggered: false,
+      }
+    }
+  }, [open])
+
   const handlePenPointerUp = (action: () => void) => (event: React.PointerEvent<HTMLButtonElement>) => {
     if (event.pointerType !== 'pen') return
     event.preventDefault()
     action()
   }
-  
+
   if (!stock) return null
 
   const baseShares = 10
   const smallCost = stock.price * (baseShares * 0.5)
   const normalCost = stock.price * baseShares
   const highCost = stock.price * (baseShares * 2)
+  const canSwipeInvest = cash >= normalCost
+
+  const triggerSwipeAction = useCallback((direction: 'left' | 'right') => {
+    if (swipeStateRef.current.triggered) return
+    if (direction === 'right' && !canSwipeInvest) {
+      onBuy(1)
+      dragXRef.current = 0
+      setDragX(0)
+      swipeStateRef.current.isSwiping = false
+      return
+    }
+    swipeStateRef.current.triggered = true
+    setIsDragging(false)
+    const exitX = direction === 'right' ? maxSwipe * 1.4 : -maxSwipe * 1.4
+    dragXRef.current = exitX
+    setDragX(exitX)
+    if (direction === 'right') {
+      playSound('cha-ching')
+    } else {
+      playSound('swipe-no')
+    }
+    window.setTimeout(() => {
+      if (direction === 'right') {
+        onBuy(1)
+      } else {
+        onOpenChange(false)
+      }
+      dragXRef.current = 0
+      setDragX(0)
+      swipeStateRef.current.triggered = false
+      swipeStateRef.current.isSwiping = false
+    }, 220)
+  }, [canSwipeInvest, maxSwipe, onBuy, onOpenChange, playSound])
+
+  const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+    if ((event.target as HTMLElement).closest('button, a, input, textarea, select, [data-swipe-ignore]')) {
+      return
+    }
+    swipeStateRef.current.startX = event.clientX
+    swipeStateRef.current.startY = event.clientY
+    swipeStateRef.current.pointerId = event.pointerId
+    swipeStateRef.current.isSwiping = false
+    swipeStateRef.current.triggered = false
+    setIsDragging(true)
+    ;(event.currentTarget as HTMLElement).setPointerCapture(event.pointerId)
+  }
+
+  const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (!isDragging || swipeStateRef.current.pointerId !== event.pointerId) return
+    const deltaX = event.clientX - swipeStateRef.current.startX
+    const deltaY = event.clientY - swipeStateRef.current.startY
+    if (!swipeStateRef.current.isSwiping) {
+      if (Math.abs(deltaX) < 12 || Math.abs(deltaX) <= Math.abs(deltaY)) {
+        return
+      }
+      swipeStateRef.current.isSwiping = true
+    }
+    event.preventDefault()
+    const clamped = Math.max(-maxSwipe, Math.min(maxSwipe, deltaX))
+    dragXRef.current = clamped
+    setDragX(clamped)
+  }
+
+  const handlePointerEnd = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (swipeStateRef.current.pointerId !== event.pointerId) return
+    try {
+      ;(event.currentTarget as HTMLElement).releasePointerCapture(event.pointerId)
+    } catch {
+      // Ignore release errors for browsers that do not support capture
+    }
+    setIsDragging(false)
+    const shouldTrigger = Math.abs(dragXRef.current) >= swipeThreshold
+    if (shouldTrigger) {
+      triggerSwipeAction(dragXRef.current > 0 ? 'right' : 'left')
+      return
+    }
+    dragXRef.current = 0
+    setDragX(0)
+    swipeStateRef.current.isSwiping = false
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={`${dialogClass} bg-card border-2 border-accent/50 shadow-[0_0_40px_oklch(0.75_0.15_85_/_0.3)] flex flex-col max-h-[80vh]`}>
+      <DialogContent
+        className={`${dialogClass} bg-card border-2 border-accent/50 shadow-[0_0_40px_oklch(0.75_0.15_85_/_0.3)] flex flex-col max-h-[80vh] relative will-change-transform`}
+        style={{
+          transform: `translateX(${dragX}px) rotate(${dragX / 22}deg)`,
+          transition: isDragging ? 'none' : 'transform 220ms ease',
+          touchAction: 'pan-y',
+        }}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerEnd}
+        onPointerCancel={handlePointerEnd}
+      >
         <DialogHeader className="flex-shrink-0">
           {/* Hero Score - Top Right */}
           {stock.scores && (
@@ -348,7 +470,31 @@ export function StockModal({ open, onOpenChange, stock, onBuy, cash, showInsight
           >
             Pass
           </Button>
+          <div className="mt-3 flex items-center justify-center text-xs uppercase tracking-[0.3em] text-muted-foreground">
+            Swipe ← Pass · Swipe → Invest
           </div>
+          </div>
+        </div>
+
+        <div className="pointer-events-none absolute inset-x-6 top-24 flex justify-between text-xs font-semibold uppercase tracking-[0.35em]">
+          <span
+            className="rounded-full border border-emerald-400/40 bg-emerald-400/10 px-3 py-1 text-emerald-200"
+            style={{
+              opacity: dragX > 0 ? Math.min(1, Math.abs(dragX) / swipeThreshold) : 0,
+              transform: `scale(${dragX > 0 ? 0.9 + Math.min(1, Math.abs(dragX) / swipeThreshold) * 0.1 : 0.9})`,
+            }}
+          >
+            Invest
+          </span>
+          <span
+            className="rounded-full border border-rose-400/40 bg-rose-400/10 px-3 py-1 text-rose-200"
+            style={{
+              opacity: dragX < 0 ? Math.min(1, Math.abs(dragX) / swipeThreshold) : 0,
+              transform: `scale(${dragX < 0 ? 0.9 + Math.min(1, Math.abs(dragX) / swipeThreshold) * 0.1 : 0.9})`,
+            }}
+          >
+            Pass
+          </span>
         </div>
       </DialogContent>
     </Dialog>
