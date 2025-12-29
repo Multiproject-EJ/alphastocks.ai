@@ -457,11 +457,11 @@ const boardGameV3NavItem = {
 
 const baseNavigation = [
   { id: 'dashboard', icon: '📭', title: 'Morning Sales Desk', caption: 'Added + updated', shortLabel: 'News' },
-  { id: 'checkin', icon: '🧘', title: 'Check-In', caption: 'Daily reflections', shortLabel: 'Calm' },
+  { id: 'checkin', icon: '🧘', title: 'Check-In', caption: 'Daily reflections', shortLabel: 'Learn' },
   { id: 'focuslist', icon: '🎯', title: 'Focus List', caption: 'Priority names', shortLabel: 'Focus' },
   { id: 'valuebot', icon: '🤖', title: 'ValueBot', caption: 'Valuation copilot', shortLabel: 'Bot' },
   { id: 'quadrant', icon: '🌐', title: 'Investing Universe', caption: 'Explore more', shortLabel: 'Universe' },
-  { id: 'portfolio', icon: '💼', title: 'Portfolio', caption: 'Results & ledger', hasSubmenu: true, shortLabel: 'Book' }
+  { id: 'portfolio', icon: '💼', title: 'Portfolio', caption: 'Results & ledger', hasSubmenu: true, shortLabel: 'Portfolio' }
 ];
 
 const DemoBanner = () => (
@@ -2893,29 +2893,34 @@ const App = () => {
               </span>
             )}
 
-            <button
-              type="button"
+            <div
               className={`pro-toggle${isProToolsOpen ? ' active' : ''}${isMobileView ? ' pro-toggle--compact' : ''}`}
-              onClick={handleProToolsToggle}
-              aria-haspopup="dialog"
-              aria-expanded={isProToolsOpen}
-              aria-pressed={isProToolsOpen}
-              aria-label={isProToolsOpen ? 'Close Pro Tools workspace' : 'Open Pro Tools workspace'}
+              role="group"
+              aria-label="Pro Tools workspace quick actions"
             >
-              <span className="pro-toggle__indicator" aria-hidden="true" />
-              <span className="pro-toggle__label">Pro Tools</span>
-              {isProToolsOpen && (
-                <span className="pro-toggle__close" aria-hidden="true" role="presentation">
-                  ✕
-                </span>
-              )}
-            </button>
+              <button
+                type="button"
+                className="pro-toggle__trigger"
+                onClick={handleProToolsToggle}
+                aria-haspopup="dialog"
+                aria-expanded={isProToolsOpen}
+                aria-pressed={isProToolsOpen}
+                aria-label={isProToolsOpen ? 'Close Pro Tools workspace' : 'Open Pro Tools workspace'}
+              >
+                <span className="pro-toggle__indicator" aria-hidden="true" />
+                <span className="pro-toggle__label">Pro Tools</span>
+              </button>
 
-            {!isMobileView && (
-              <div className="pro-toggle-actions" role="group" aria-label="Workspace quick actions">
-                {workspaceActionButtons}
-              </div>
-            )}
+              {!isMobileView && (
+                <div className="pro-toggle-actions" role="group" aria-label="Workspace quick actions">
+                  {workspaceActionButtons}
+                </div>
+              )}
+
+              <a className="pro-toggle__close" href="/board-game-v3/" aria-label="Open the investing board game">
+                ✕
+              </a>
+            </div>
           </div>
 
           {isMobileView && workspaceStatus?.tone === 'error' && (
@@ -3053,11 +3058,18 @@ const App = () => {
                                 aria-expanded={isActive}
                               >
                                 {item.icon && (
-                                  <span className="item-icon" aria-hidden="true">
+                                  <span
+                                    className={`item-icon${item.id === 'boardgame-v3' ? ' item-icon--game' : ''}`}
+                                    aria-hidden="true"
+                                  >
                                     {navIcon}
                                   </span>
                                 )}
-                                <span className="menu-item__label">{item.shortLabel ?? item.title}</span>
+                                <span
+                                  className={`menu-item__label${item.id === 'boardgame-v3' ? ' menu-item__label--game' : ''}`}
+                                >
+                                  {item.shortLabel ?? item.title}
+                                </span>
                                 {isActive && (
                                   <div className="menu-item__details">
                                     <span className="item-title">{navTitle}</span>
