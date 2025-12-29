@@ -3404,6 +3404,15 @@ code {
 
   .tab__label-full {
     display: inline;
+    position: static;
+    transform: none;
+    padding: 0;
+    background: none;
+    border: 0;
+    box-shadow: none;
+    opacity: 1;
+    pointer-events: auto;
+    white-space: nowrap;
   }
 
   /* ========================================
@@ -3438,7 +3447,7 @@ code {
   /* Preserve existing desktop grid layouts */
   .app-panels {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 1.5rem;
   }
 
