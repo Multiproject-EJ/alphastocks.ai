@@ -99,10 +99,12 @@ export function UIModeProvider({
     // Always allow transition to same mode (refresh)
     if (newMode === state.mode) {
       console.log('[UIMode] Already in mode:', newMode);
-      setState(prev => ({
-        ...prev,
-        modeData: data || {},
-      }))
+      if (data && Object.keys(data).length > 0) {
+        setState(prev => ({
+          ...prev,
+          modeData: data,
+        }))
+      }
       return true;
     }
     
