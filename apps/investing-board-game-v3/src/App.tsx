@@ -376,6 +376,7 @@ function App() {
   // Carousel panel state
   const [currentCarouselPanel, setCurrentCarouselPanel] = useState(0)
   const isLogoPanel = currentCarouselPanel === LOGO_PANEL_INDEX
+  const showBoardTiles = isPhone ? true : currentCarouselPanel === LOGO_PANEL_INDEX
 
   const [diceResetKey, setDiceResetKey] = useState(0)
 
@@ -2454,103 +2455,110 @@ function App() {
               <div className="absolute inset-0 pointer-events-none z-30">
                 <TileCelebrationEffect celebrations={tileCelebrations} />
               </div>
-              {/* Outer Ring - Main Board Layout */}
-              {(() => {
-                // Calculate tile positions for circular layout
-                const tileBoardSize = { width: boardSize, height: boardSize }
-                const tilePositions = calculateTilePositions(tileBoardSize, 27, boardOuterRadius, false)
-                
-                return BOARD_TILES.map((tile) => {
-                  const position = tilePositions.find(p => p.id === tile.id)
-                  if (!position) return null
+              <div
+                className={`transition-opacity duration-500 ${
+                  showBoardTiles ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                }`}
+                aria-hidden={!showBoardTiles}
+              >
+                {/* Outer Ring - Main Board Layout */}
+                {(() => {
+                  // Calculate tile positions for circular layout
+                  const tileBoardSize = { width: boardSize, height: boardSize }
+                  const tilePositions = calculateTilePositions(tileBoardSize, 27, boardOuterRadius, false)
                   
-                  // Calculate position relative to the board container padding
-                  const left = position.x - boardPadding
-                  const top = position.y - boardPadding
-                  
-                  // Rotate tile to face outward from center
-                  // Add 90 degrees because tiles are naturally "upright" and we want them perpendicular to radius
-                  const rotation = position.angle + 90
-                  
-                  return (
-                    <div
-                      key={tile.id}
-                      className="absolute pointer-events-auto"
-                      style={{
-                        left: `${left}px`,
-                        top: `${top}px`,
-                        transform: `translate(-50%, -50%) rotate(${rotation}deg)`,
-                        transformOrigin: 'center center',
-                      }}
-                    >
-                      <Tile
-                        tile={tile}
-                        isActive={tile.id === gameState.position}
-                        isHopping={hoppingTiles.includes(tile.id)}
-                        isLanded={tile.id === gameState.position && phase === 'landed'}
-                        onClick={() => {
-                          if (phase === 'idle') {
-                            handleTileLanding(tile.id)
-                          }
+                  return BOARD_TILES.map((tile) => {
+                    const position = tilePositions.find(p => p.id === tile.id)
+                    if (!position) return null
+                    
+                    // Calculate position relative to the board container padding
+                    const left = position.x - boardPadding
+                    const top = position.y - boardPadding
+                    
+                    // Rotate tile to face outward from center
+                    // Add 90 degrees because tiles are naturally "upright" and we want them perpendicular to radius
+                    const rotation = position.angle + 90
+                    
+                    return (
+                      <div
+                        key={tile.id}
+                        className="absolute pointer-events-auto"
+                        style={{
+                          left: `${left}px`,
+                          top: `${top}px`,
+                          transform: `translate(-50%, -50%) rotate(${rotation}deg)`,
+                          transformOrigin: 'center center',
                         }}
-                      />
-                    </div>
-                  )
-                })
-              })()}
-              
-              {/* Inner Express Track - High-risk lane */}
-              {!isPhone && (() => {
-                const tileBoardSize = { width: boardSize, height: boardSize }
-                const innerPositions = calculateTilePositions(tileBoardSize, 12, boardOuterRadius, true)
-                
-                // Check if inner track is unlocked (Tier 3 or higher)
-                const isUnlocked = currentTier.tier >= 3
-                
-                return INNER_TRACK_TILES.map((tile, index) => {
-                  const position = innerPositions[index]
-                  if (!position) return null
-                  
-                  const left = position.x - boardPadding
-                  const top = position.y - boardPadding
-                  const rotation = position.angle + 90
-                  
-                  return (
-                    <div
-                      key={tile.id}
-                      className="absolute pointer-events-auto"
-                      style={{
-                        left: `${left}px`,
-                        top: `${top}px`,
-                        transform: `translate(-50%, -50%) rotate(${rotation}deg) scale(0.75)`,
-                        transformOrigin: 'center center',
-                        opacity: isUnlocked ? 1 : 0.5,
-                      }}
-                    >
-                      <div className="relative">
-                        {!isUnlocked && (
-                          <div className="absolute inset-0 flex items-center justify-center z-10 bg-black/60 rounded-lg">
-                            <span className="text-2xl">🔒</span>
-                          </div>
-                        )}
+                      >
                         <Tile
                           tile={tile}
-                          isActive={false}
-                          isHopping={false}
-                          isLanded={false}
+                          isActive={tile.id === gameState.position}
+                          isHopping={hoppingTiles.includes(tile.id)}
+                          isLanded={tile.id === gameState.position && phase === 'landed'}
                           onClick={() => {
-                            if (!isUnlocked) {
-                              toast.info('Express Track Locked', {
-                                description: 'Reach Tier 3 to unlock the Express Track!'
-                              })
+                            if (phase === 'idle') {
+                              handleTileLanding(tile.id)
                             }
                           }}
                         />
                       </div>
-                    </div>
-                  )
-                })
-              })()}
+                    )
+                  })
+                })()}
+                
+                {/* Inner Express Track - High-risk lane */}
+                {!isPhone && (() => {
+                  const tileBoardSize = { width: boardSize, height: boardSize }
+                  const innerPositions = calculateTilePositions(tileBoardSize, 12, boardOuterRadius, true)
+                  
+                  // Check if inner track is unlocked (Tier 3 or higher)
+                  const isUnlocked = currentTier.tier >= 3
+                  
+                  return INNER_TRACK_TILES.map((tile, index) => {
+                    const position = innerPositions[index]
+                    if (!position) return null
+                    
+                    const left = position.x - boardPadding
+                    const top = position.y - boardPadding
+                    const rotation = position.angle + 90
+                    
+                    return (
+                      <div
+                        key={tile.id}
+                        className="absolute pointer-events-auto"
+                        style={{
+                          left: `${left}px`,
+                          top: `${top}px`,
+                          transform: `translate(-50%, -50%) rotate(${rotation}deg) scale(0.75)`,
+                          transformOrigin: 'center center',
+                          opacity: isUnlocked ? 1 : 0.5,
+                        }}
+                      >
+                        <div className="relative">
+                          {!isUnlocked && (
+                            <div className="absolute inset-0 flex items-center justify-center z-10 bg-black/60 rounded-lg">
+                              <span className="text-2xl">🔒</span>
+                            </div>
+                          )}
+                          <Tile
+                            tile={tile}
+                            isActive={false}
+                            isHopping={false}
+                            isLanded={false}
+                            onClick={() => {
+                              if (!isUnlocked) {
+                                toast.info('Express Track Locked', {
+                                  description: 'Reach Tier 3 to unlock the Express Track!'
+                                })
+                              }
+                            }}
+                          />
+                        </div>
+                      </div>
+                    )
+                  })
+                })()}
+              </div>
             </div>
           </div>
         </BoardViewport>
