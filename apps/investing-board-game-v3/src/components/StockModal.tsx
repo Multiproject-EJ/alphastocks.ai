@@ -161,7 +161,7 @@ export function StockModal({ open, onOpenChange, stock, onBuy, cash, showInsight
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className={`${dialogClass} bg-card border-2 border-accent/50 shadow-[0_0_40px_oklch(0.75_0.15_85_/_0.3)] flex flex-col max-h-[80vh] relative will-change-transform`}
+        className={`${dialogClass} bg-card border-2 border-accent/50 shadow-[0_0_40px_oklch(0.75_0.15_85_/_0.3)] flex flex-col max-h-[calc(100dvh-2rem)] relative will-change-transform`}
         style={{
           transform: `translate(-50%, -50%) translateX(${dragX}px) rotate(${dragX / 22}deg)`,
           transition: isDragging ? 'none' : 'transform 220ms ease',
