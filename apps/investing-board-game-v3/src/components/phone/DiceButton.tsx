@@ -2,101 +2,145 @@ import { useRef, useState, useCallback, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 
 interface DiceButtonProps {
-  onClick: () => void;
-  onLongPress: () => void;
+  onRoll: () => void;
+  onToggleAutoRoll: () => void;
+  onCycleMultiplier: () => void;
+  multiplier: number;
   rollsRemaining: number;
   isRolling: boolean;
   isAutoRolling: boolean;
 }
 
 export function DiceButton({
-  onClick,
-  onLongPress,
+  onRoll,
+  onToggleAutoRoll,
+  onCycleMultiplier,
+  multiplier,
   rollsRemaining,
   isRolling,
   isAutoRolling,
 }: DiceButtonProps) {
-  const longPressTimer = useRef<NodeJS.Timeout | null>(null);
+  const autoRollHoldTimer = useRef<NodeJS.Timeout | null>(null);
   const [isPressed, setIsPressed] = useState(false);
-  const wasLongPress = useRef(false);
+  const [autoRollFlash, setAutoRollFlash] = useState(false);
 
   // Cleanup timeout on unmount
   useEffect(() => {
     return () => {
-      if (longPressTimer.current) {
-        clearTimeout(longPressTimer.current);
+      if (autoRollHoldTimer.current) {
+        clearTimeout(autoRollHoldTimer.current);
       }
     };
   }, []);
 
+  const triggerAutoRollFlash = () => {
+    setAutoRollFlash(true);
+    window.setTimeout(() => {
+      setAutoRollFlash(false);
+    }, 600);
+  };
 
-  const handleTouchStart = useCallback(() => {
+  const handleAutoRollHoldStart = useCallback(() => {
+    if (isAutoRolling) return;
+    if (autoRollHoldTimer.current) {
+      clearTimeout(autoRollHoldTimer.current);
+    }
+    autoRollHoldTimer.current = setTimeout(() => {
+      triggerAutoRollFlash();
+      onToggleAutoRoll();
+      if (navigator.vibrate) navigator.vibrate([40, 40, 40]);
+    }, 1400);
+  }, [isAutoRolling, onToggleAutoRoll]);
+
+  const handleAutoRollHoldEnd = useCallback(() => {
+    if (autoRollHoldTimer.current) {
+      clearTimeout(autoRollHoldTimer.current);
+      autoRollHoldTimer.current = null;
+    }
+  }, []);
+
+  const handleDiceClick = useCallback(() => {
     setIsPressed(true);
-    wasLongPress.current = false;
-    longPressTimer.current = setTimeout(() => {
-      // Long press detected - toggle auto-roll
-      wasLongPress.current = true;
-      onLongPress();
-      // Haptic feedback
-      if (navigator.vibrate) navigator.vibrate([50, 50, 50]);
-    }, 2000);  // 2 seconds for long press
-  }, [onLongPress]);
-
-  const handleTouchEnd = useCallback(() => {
-    setIsPressed(false);
-    if (longPressTimer.current) {
-      clearTimeout(longPressTimer.current);
-      longPressTimer.current = null;
+    window.setTimeout(() => setIsPressed(false), 150);
+    if (isAutoRolling) {
+      onToggleAutoRoll();
+      return;
     }
-    
-    // Only trigger onClick if it was a short press (not a long press)
-    if (!wasLongPress.current && !isAutoRolling) {
-      onClick();
-    }
-    
-    wasLongPress.current = false;
-  }, [onClick, isAutoRolling]);
+    onRoll();
+  }, [isAutoRolling, onRoll, onToggleAutoRoll]);
 
   return (
-    <button
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
-      onMouseDown={handleTouchStart}
-      onMouseUp={handleTouchEnd}
-      className={cn(
-        'dice-button',
-        'w-[120px] h-[120px] rounded-full',
-        'flex flex-col items-center justify-center',
-        'font-bold text-white',
-        'shadow-lg',
-        'transition-all duration-200',
-        'touch-target',
-        'relative overflow-visible',
-        isAutoRolling 
-          ? 'bg-gradient-to-br from-yellow-400 to-orange-500 animate-pulse shadow-orange-500/50' 
-          : 'bg-gradient-to-br from-blue-500 to-purple-600',
-        isPressed && 'scale-95',
-        isRolling && 'animate-bounce',
-      )}
-      style={{
-        boxShadow: isAutoRolling 
-          ? '0 0 20px rgba(255,165,0,0.6)' 
-          : '0 4px 15px rgba(0,0,0,0.3)',
-      }}
-      data-tutorial="dice"
-    >
-      <span className="absolute inset-0 -z-10 pointer-events-none">
-        <span className="dice-orb dice-orb-a" />
-        <span className="dice-orb dice-orb-b" />
-        <span className="dice-orb dice-orb-c" />
-      </span>
-      <span className="text-5xl">🎲</span>
-      <span className="text-sm mt-1">{rollsRemaining}</span>
-      {isAutoRolling && (
-        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1 rounded-full">
-          AUTO
+    <div className="relative flex items-center justify-center">
+      <button
+        onClick={handleDiceClick}
+        className={cn(
+          'dice-button',
+          'w-[120px] h-[120px] rounded-full',
+          'flex flex-col items-center justify-center',
+          'font-bold text-white',
+          'shadow-lg',
+          'transition-all duration-200',
+          'touch-target',
+          'relative overflow-visible',
+          isAutoRolling 
+            ? 'bg-gradient-to-br from-yellow-400 to-orange-500 animate-pulse shadow-orange-500/50' 
+            : 'bg-gradient-to-br from-blue-500 to-purple-600',
+          isPressed && 'scale-95',
+          isRolling && 'animate-bounce',
+        )}
+        style={{
+          boxShadow: isAutoRolling 
+            ? '0 0 20px rgba(255,165,0,0.6)' 
+            : '0 4px 15px rgba(0,0,0,0.3)',
+        }}
+        data-tutorial="dice"
+      >
+        <span className="absolute inset-0 -z-10 pointer-events-none">
+          <span className="dice-orb dice-orb-a" />
+          <span className="dice-orb dice-orb-b" />
+          <span className="dice-orb dice-orb-c" />
         </span>
-      )}
-    </button>
+        <span className="text-5xl">🎲</span>
+      </button>
+
+      <div className="absolute -right-12 top-1/2 flex -translate-y-1/2 flex-col gap-2">
+        <button
+          type="button"
+          onClick={onCycleMultiplier}
+          className="flex h-10 w-10 items-center justify-center rounded-full border border-white/30 bg-background/90 text-[10px] font-semibold text-white shadow-md backdrop-blur"
+          aria-label={`Dice multiplier ${multiplier}x. Tap to change.`}
+        >
+          {multiplier}x
+        </button>
+        <div
+          className="flex h-10 w-10 items-center justify-center rounded-full border border-accent/30 bg-background/90 text-[11px] font-bold text-white shadow-md backdrop-blur"
+          aria-label={`${rollsRemaining} rolls remaining`}
+        >
+          {rollsRemaining}
+        </div>
+        <button
+          type="button"
+          onPointerDown={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            handleAutoRollHoldStart();
+          }}
+          onPointerUp={handleAutoRollHoldEnd}
+          onPointerLeave={handleAutoRollHoldEnd}
+          onPointerCancel={handleAutoRollHoldEnd}
+          className={cn(
+            'flex h-10 w-10 items-center justify-center rounded-full border text-[8px] font-semibold text-white shadow-md backdrop-blur',
+            isAutoRolling ? 'border-yellow-300/70 bg-yellow-400/90' : 'border-white/30 bg-background/90',
+            autoRollFlash && 'auto-roll-flash',
+          )}
+          aria-label={isAutoRolling ? 'Auto roll on. Tap dice to stop.' : 'Hold to enable auto roll.'}
+        >
+          <span className="flex flex-col leading-none">
+            <span>AUTO</span>
+            <span>{isAutoRolling ? 'ON' : 'HOLD'}</span>
+          </span>
+        </button>
+      </div>
+    </div>
   );
 }

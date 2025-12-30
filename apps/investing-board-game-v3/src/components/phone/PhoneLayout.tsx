@@ -23,7 +23,9 @@ interface PhoneLayoutProps {
     stars?: number; // Add stars
     cityLevel?: number; // Optional city level for backward compatibility
   };
-  onRollDice: () => void;
+  onRollDice: (multiplier: number) => void;
+  multiplier: number;
+  onCycleMultiplier: () => void;
   isRolling: boolean;
   isAutoRolling?: boolean;
   onToggleAutoRoll?: () => void;
@@ -41,6 +43,8 @@ export function PhoneLayout({
   currentPosition,
   gameState, 
   onRollDice, 
+  multiplier,
+  onCycleMultiplier,
   isRolling,
   isAutoRolling = false,
   onToggleAutoRoll = () => {},
@@ -183,6 +187,8 @@ export function PhoneLayout({
       <div className="relative z-50">
         <PhoneBottomNav
           onRollDice={onRollDice}
+          multiplier={multiplier}
+          onCycleMultiplier={onCycleMultiplier}
           rollsRemaining={gameState.rolls}
           isRolling={isRolling}
           isAutoRolling={isAutoRolling}

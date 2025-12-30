@@ -82,6 +82,7 @@ import {
   AUTO_SAVE_TIMEOUT_MS,
   getNextMidnight,
   ENERGY_MAX,
+  MULTIPLIERS,
 } from '@/lib/constants'
 import { rollDice, DOUBLES_BONUS } from '@/lib/dice'
 import { getResetRollsAmount, ENERGY_CONFIG } from '@/lib/energy'
@@ -113,6 +114,7 @@ import { COIN_COSTS, COIN_EARNINGS } from '@/lib/coins'
 import { getInitialCityBuilderState, CITIES, CityBuilderState } from '@/lib/cityBuilder'
 import { calculateXPForLevel } from '@/lib/progression'
 import type { UIMode, GamePhase } from '@/lib/uiModeStateMachine'
+import type { RollMultiplier } from '@/lib/constants'
 
 // Alias for backward compatibility
 type Phase = GamePhase
@@ -234,6 +236,7 @@ function App() {
   
   // Auto-roll state for Monopoly GO style continuous rolling
   const [isAutoRolling, setIsAutoRolling] = useState(false)
+  const [mobileMultiplier, setMobileMultiplier] = useState<RollMultiplier>(1)
 
   // Overlay manager for coordinated modal display
   const { show: showOverlay, wasRecentlyShown, getCurrentOverlay, closeCurrent } = useOverlayManager()
@@ -1285,30 +1288,42 @@ function App() {
 
   // Auto-roll effect - Monopoly GO style
   useEffect(() => {
-    if (!isAutoRolling) return;
-    
-    const interval = setInterval(() => {
+    if (!isAutoRolling) return
+
+    const attemptRoll = () => {
       // Only roll if we have rolls remaining, not currently rolling, and no modal is open
-      const hasActiveOverlay = getCurrentOverlay() !== null || showCentralStock;
-      
+      const hasActiveOverlay = getCurrentOverlay() !== null || showCentralStock
+
       if (rollsRemaining > 0 && phase === 'idle' && !hasActiveOverlay) {
-        // Call handleRoll with default multiplier
-        handleRoll(1);
+        // Call handleRoll with selected multiplier
+        handleRoll(mobileMultiplier)
       } else if (rollsRemaining === 0) {
-        setIsAutoRolling(false);  // Stop when out of dice
+        setIsAutoRolling(false) // Stop when out of dice
       }
-    }, 3000);  // Roll every 3 seconds
-    
-    return () => clearInterval(interval);
+    }
+
+    attemptRoll()
+    const interval = setInterval(attemptRoll, 3000) // Roll every 3 seconds
+
+    return () => clearInterval(interval)
     // Note: handleRoll is intentionally not in deps to avoid re-creating interval
     // The function uses current state via closures which is acceptable here
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAutoRolling, rollsRemaining, phase, getCurrentOverlay, showCentralStock]);
+  }, [isAutoRolling, rollsRemaining, phase, getCurrentOverlay, showCentralStock, mobileMultiplier])
 
   const toggleAutoRoll = useCallback(() => {
-    setIsAutoRolling(prev => !prev);
-    if (navigator.vibrate) navigator.vibrate(100);
-  }, []);
+    setIsAutoRolling(prev => !prev)
+    if (navigator.vibrate) navigator.vibrate(100)
+  }, [])
+
+  const cycleMobileMultiplier = useCallback(() => {
+    setMobileMultiplier((prev) => {
+      const currentIndex = MULTIPLIERS.indexOf(prev)
+      const nextIndex = currentIndex === -1 ? 0 : (currentIndex + 1) % MULTIPLIERS.length
+      return MULTIPLIERS[nextIndex]
+    })
+    if (navigator.vibrate) navigator.vibrate(50)
+  }, [])
 
   const handleRoll = (multiplier: number = 1) => {
     if (phase !== 'idle') {
@@ -2817,7 +2832,9 @@ function App() {
             stars: gameState.stars, // Pass stars to CompactHUD
             cityLevel: gameState.cityLevel ?? 1, // Defensive fallback to 1
           }}
-          onRollDice={() => handleRoll(1)}
+          onRollDice={(multiplier) => handleRoll(multiplier)}
+          multiplier={mobileMultiplier}
+          onCycleMultiplier={cycleMobileMultiplier}
           isRolling={phase === 'rolling'}
           isAutoRolling={isAutoRolling}
           onToggleAutoRoll={toggleAutoRoll}

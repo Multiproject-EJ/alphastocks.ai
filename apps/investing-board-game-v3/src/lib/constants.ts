@@ -22,7 +22,7 @@ export const STARTING_CASH = 100000
 export const STARTING_NET_WORTH = 100000
 
 /** Available roll multipliers */
-export const MULTIPLIERS = [1, 5, 10, 25, 50] as const
+export const MULTIPLIERS = [1, 5, 10, 25, 50, 100] as const
 export type RollMultiplier = typeof MULTIPLIERS[number]
 
 /**
