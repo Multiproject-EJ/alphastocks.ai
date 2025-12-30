@@ -75,6 +75,7 @@ export function DiceButton({
         onClick={handleDiceClick}
         className={cn(
           'dice-button',
+          'phone-dice-button',
           'w-[120px] h-[120px] rounded-full',
           'flex flex-col items-center justify-center',
           'font-bold text-white',
@@ -82,9 +83,7 @@ export function DiceButton({
           'transition-all duration-200',
           'touch-target',
           'relative overflow-visible',
-          isAutoRolling 
-            ? 'bg-gradient-to-br from-yellow-400 to-orange-500 animate-pulse shadow-orange-500/50' 
-            : 'bg-gradient-to-br from-blue-500 to-purple-600',
+          isAutoRolling && 'phone-dice-button--auto animate-pulse shadow-orange-500/50',
           isPressed && 'scale-95',
           isRolling && 'animate-bounce',
         )}
@@ -100,7 +99,13 @@ export function DiceButton({
           <span className="dice-orb dice-orb-b" />
           <span className="dice-orb dice-orb-c" />
         </span>
-        <span className="text-5xl">🎲</span>
+        <span className="phone-dice-face" aria-hidden="true">
+          <span className="phone-dice-pip phone-dice-pip--tl" />
+          <span className="phone-dice-pip phone-dice-pip--tr" />
+          <span className="phone-dice-pip phone-dice-pip--c" />
+          <span className="phone-dice-pip phone-dice-pip--bl" />
+          <span className="phone-dice-pip phone-dice-pip--br" />
+        </span>
       </button>
 
       <div className="absolute -right-12 top-1/2 flex -translate-y-1/2 flex-col gap-2">

@@ -133,14 +133,21 @@ export function PhoneLayout({
           </button>
           
           {/* ProTools button - Right side below portfolio */}
-          <button
-            onClick={onOpenProTools}
-            className="fixed right-4 z-40 bg-primary/90 hover:bg-primary backdrop-blur-sm rounded-full p-3 shadow-lg hover:shadow-xl transition-all"
+          <div
+            className="fixed right-3 z-40 flex flex-col items-center gap-1"
             style={{ top: `${COMPACT_HUD_HEIGHT + 150}px` }}
-            aria-label="Open ProTools"
           >
-            <Wrench size={24} className="text-primary-foreground" />
-          </button>
+            <button
+              onClick={onOpenProTools}
+              className="bg-primary/90 hover:bg-primary backdrop-blur-sm rounded-full p-3 shadow-lg hover:shadow-xl transition-all"
+              aria-label="Open ProTools"
+            >
+              <Wrench size={24} className="text-primary-foreground" />
+            </button>
+            <span className="text-[10px] font-semibold text-white/80 tracking-wide">
+              ProTools
+            </span>
+          </div>
 
           <div
             className="fixed left-4 z-40 flex flex-col gap-3"
