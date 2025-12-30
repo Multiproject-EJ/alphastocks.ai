@@ -18,7 +18,6 @@ import { CelebrationEffect } from '@/components/CelebrationEffect'
 import { TileCelebration, TileCelebrationEffect } from '@/components/TileCelebrationEffect'
 import { CasinoModal } from '@/components/CasinoModal'
 import { UserIndicator } from '@/components/UserIndicator'
-import { SoundControls } from '@/components/SoundControls'
 import { ChallengeTracker } from '@/components/ChallengeTracker'
 import { EventBanner } from '@/components/EventBanner'
 import { NetWorthGalleryModal } from '@/components/NetWorthGalleryModal'
@@ -2687,7 +2686,6 @@ function App() {
             />
             Toasts: {notificationsEnabled ? 'On' : 'Off'}
           </Button>
-          <SoundControls />
         </div>
       )}
 

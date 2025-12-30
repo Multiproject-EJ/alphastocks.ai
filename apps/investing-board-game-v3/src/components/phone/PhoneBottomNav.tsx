@@ -7,7 +7,7 @@ import {
   Gamepad2, 
   Building2, 
   ShoppingBag, 
-  Trophy 
+  Settings 
 } from 'lucide-react';
 import { DiceButton } from './DiceButton';
 
@@ -18,7 +18,7 @@ const NAV_ITEMS: ReadonlyArray<{ id: UIMode; icon: typeof Gamepad2; label: strin
 
 const NAV_ITEMS_RIGHT: ReadonlyArray<{ id: UIMode; icon: typeof Gamepad2; label: string }> = [
   { id: 'shop', icon: ShoppingBag, label: 'Shop' },
-  { id: 'leaderboard', icon: Trophy, label: 'Ranks' },
+  { id: 'settings', icon: Settings, label: 'Settings' },
 ] as const;
 
 interface PhoneBottomNavProps {

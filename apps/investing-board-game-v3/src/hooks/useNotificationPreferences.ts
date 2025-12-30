@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 const NOTIFICATION_PREFERENCE_KEY = 'board-game-notifications-enabled';
 
 export interface NotificationPreferences {
   enabled: boolean;
   toggleNotifications: () => void;
+  setNotificationsEnabled: (enabled: boolean) => void;
 }
 
 /**
@@ -19,19 +20,41 @@ export function useNotificationPreferences(): NotificationPreferences {
     return stored === null ? true : stored === 'true';
   });
 
-  // Persist to localStorage when changed
-  useEffect(() => {
+  const updatePreference = useCallback((nextValue: boolean) => {
+    setEnabled(nextValue);
     if (typeof window !== 'undefined') {
-      localStorage.setItem(NOTIFICATION_PREFERENCE_KEY, String(enabled));
+      localStorage.setItem(NOTIFICATION_PREFERENCE_KEY, String(nextValue));
+      window.dispatchEvent(
+        new CustomEvent('notification-preference-changed', { detail: nextValue })
+      );
     }
-  }, [enabled]);
+  }, []);
 
-  const toggleNotifications = () => {
-    setEnabled(prev => !prev);
-  };
+  const toggleNotifications = useCallback(() => {
+    updatePreference(!enabled);
+  }, [enabled, updatePreference]);
+
+  const setNotificationsEnabled = useCallback(
+    (nextValue: boolean) => updatePreference(nextValue),
+    [updatePreference]
+  );
+
+  useEffect(() => {
+    const handlePreferenceChange = (event: Event) => {
+      if (!(event instanceof CustomEvent)) return;
+      const nextValue = Boolean(event.detail);
+      setEnabled(nextValue);
+    };
+
+    window.addEventListener('notification-preference-changed', handlePreferenceChange);
+    return () => {
+      window.removeEventListener('notification-preference-changed', handlePreferenceChange);
+    };
+  }, []);
 
   return {
     enabled,
     toggleNotifications,
+    setNotificationsEnabled,
   };
 }
