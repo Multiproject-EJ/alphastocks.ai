@@ -1,4 +1,4 @@
-import type { MouseEvent } from 'react'
+import type { MouseEvent, PointerEvent } from 'react'
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/button'
@@ -61,7 +61,9 @@ export function DiceHUD({
   const [dicePosition, setDicePosition] = useState({ x: 0, y: 0 })
   const [selectedMultiplier, setSelectedMultiplier] = useState(1)
   const [autoRollActive, setAutoRollActive] = useState(false)
+  const [autoRollFlash, setAutoRollFlash] = useState(false)
   const autoRollTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const autoRollHoldRef = useRef<NodeJS.Timeout | null>(null)
 
   const canRoll = phase === 'idle'
   const isDoubles = dice1 === dice2 && lastRoll !== null
@@ -117,6 +119,10 @@ export function DiceHUD({
 
   const handleCompactRoll = (event: MouseEvent<HTMLDivElement>) => {
     event.stopPropagation()
+    if (autoRollActive) {
+      stopAutoRoll()
+      return
+    }
     if (!canRoll) return
     onRoll(selectedMultiplier)
   }
@@ -163,11 +169,48 @@ export function DiceHUD({
     }
   }
 
+  const handleMultiplierToggle = () => {
+    const currentIndex = MULTIPLIERS.indexOf(selectedMultiplier)
+    const nextIndex = currentIndex === -1 ? 0 : (currentIndex + 1) % MULTIPLIERS.length
+    setSelectedMultiplier(MULTIPLIERS[nextIndex])
+  }
+
+  const triggerAutoRollFlash = () => {
+    setAutoRollFlash(true)
+    window.setTimeout(() => {
+      setAutoRollFlash(false)
+    }, 600)
+  }
+
+  const startAutoRollHold = (event: PointerEvent<HTMLButtonElement>) => {
+    event.preventDefault()
+    event.stopPropagation()
+    if (autoRollActive) return
+    if (autoRollHoldRef.current) {
+      clearTimeout(autoRollHoldRef.current)
+    }
+    autoRollHoldRef.current = setTimeout(() => {
+      triggerAutoRollFlash()
+      startAutoRoll()
+      if (navigator.vibrate) navigator.vibrate([40, 40, 40])
+    }, 1400)
+  }
+
+  const cancelAutoRollHold = () => {
+    if (autoRollHoldRef.current) {
+      clearTimeout(autoRollHoldRef.current)
+      autoRollHoldRef.current = null
+    }
+  }
+
   // Effect-based auto-roll: watches for phase changes and auto-rolls when idle
   useEffect(() => {
     return () => {
       if (autoRollTimeoutRef.current) {
         clearTimeout(autoRollTimeoutRef.current)
+      }
+      if (autoRollHoldRef.current) {
+        clearTimeout(autoRollHoldRef.current)
       }
     }
     // Note: onRoll is included in deps as required by React hooks rules
@@ -181,7 +224,7 @@ export function DiceHUD({
     }
   }, [autoRollActive, rollsRemaining, selectedMultiplier])
 
-  const availableMultipliers = MULTIPLIERS.filter(m => m <= 25) // Limit to 1, 5, 10, 25
+  const availableMultipliers = MULTIPLIERS
 
   return (
     <motion.div
@@ -389,22 +432,43 @@ export function DiceHUD({
             onClick={() => setIsExpanded(true)}
             className="relative flex items-center justify-center w-28 h-28 rounded-full border-2 border-white/20 bg-card/80 backdrop-blur-md shadow-xl cursor-pointer"
           >
-            {/* Roll Counter Badge - Compact Mode */}
-            <div className="absolute -top-1 -right-1 bg-background/90 backdrop-blur-sm rounded-full px-2 py-0.5 border border-accent/30 shadow-md">
-              <div className="flex items-center gap-1">
-                <DiceFive size={12} className="text-accent" />
-                <span 
-                  className={`font-mono font-bold text-xs ${
-                    rollsRemaining === 0
-                      ? 'text-destructive'
-                      : rollsRemaining <= 10
-                      ? 'text-orange-400'
-                      : 'text-accent'
-                  }`}
-                >
-                  {rollsRemaining}
-                </span>
+            {/* Updraft Controls - Compact Mode */}
+            <div className="absolute -right-12 top-1/2 flex -translate-y-1/2 flex-col gap-2">
+              <button
+                type="button"
+                onClick={(event) => {
+                  event.stopPropagation()
+                  handleMultiplierToggle()
+                }}
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-white/30 bg-background/90 text-[10px] font-semibold text-white shadow-md backdrop-blur"
+                aria-label={`Dice multiplier ${selectedMultiplier}x. Tap to change.`}
+              >
+                {selectedMultiplier}x
+              </button>
+              <div
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-accent/30 bg-background/90 text-[11px] font-bold text-white shadow-md backdrop-blur"
+                aria-label={`${rollsRemaining} rolls remaining`}
+              >
+                {rollsRemaining}
               </div>
+              <button
+                type="button"
+                onPointerDown={startAutoRollHold}
+                onPointerUp={cancelAutoRollHold}
+                onPointerLeave={cancelAutoRollHold}
+                onPointerCancel={cancelAutoRollHold}
+                className={`flex h-10 w-10 items-center justify-center rounded-full border ${
+                  autoRollActive ? 'border-yellow-300/70 bg-yellow-400/90' : 'border-white/30 bg-background/90'
+                } text-[8px] font-semibold text-white shadow-md backdrop-blur ${
+                  autoRollFlash ? 'auto-roll-flash' : ''
+                }`}
+                aria-label={autoRollActive ? 'Auto roll on. Tap dice to stop.' : 'Hold to enable auto roll.'}
+              >
+                <span className="flex flex-col leading-none">
+                  <span>AUTO</span>
+                  <span>{autoRollActive ? 'ON' : 'HOLD'}</span>
+                </span>
+              </button>
             </div>
 
             <div className="relative flex items-center justify-center w-full h-full">

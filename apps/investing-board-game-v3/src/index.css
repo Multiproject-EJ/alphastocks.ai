@@ -486,6 +486,25 @@ h1, h2, h3, h4, h5, h6 {
   animation-delay: -4s;
 }
 
+@keyframes auto-roll-flash {
+  0% {
+    box-shadow: 0 0 0 0 rgba(250, 204, 21, 0.9);
+    transform: scale(1);
+  }
+  70% {
+    box-shadow: 0 0 0 12px rgba(250, 204, 21, 0);
+    transform: scale(1.08);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(250, 204, 21, 0);
+    transform: scale(1);
+  }
+}
+
+.auto-roll-flash {
+  animation: auto-roll-flash 0.6s ease-out;
+}
+
 /* Smooth camera transitions */
 .camera-transition {
   transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);

@@ -22,7 +22,9 @@ const NAV_ITEMS_RIGHT: ReadonlyArray<{ id: UIMode; icon: typeof Gamepad2; label:
 ] as const;
 
 interface PhoneBottomNavProps {
-  onRollDice: () => void;
+  onRollDice: (multiplier: number) => void;
+  onCycleMultiplier: () => void;
+  multiplier: number;
   rollsRemaining: number;
   isRolling: boolean;
   isAutoRolling: boolean;
@@ -32,6 +34,8 @@ interface PhoneBottomNavProps {
 
 export function PhoneBottomNav({
   onRollDice,
+  onCycleMultiplier,
+  multiplier,
   rollsRemaining,
   isRolling,
   isAutoRolling,
@@ -136,8 +140,10 @@ export function PhoneBottomNav({
       }}>
         <div className="flex flex-col items-center gap-1">
           <DiceButton
-            onClick={onRollDice}
-            onLongPress={onToggleAutoRoll}
+            onRoll={() => onRollDice(multiplier)}
+            onToggleAutoRoll={onToggleAutoRoll}
+            onCycleMultiplier={onCycleMultiplier}
+            multiplier={multiplier}
             rollsRemaining={rollsRemaining}
             isRolling={isRolling}
             isAutoRolling={isAutoRolling}
