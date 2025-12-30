@@ -30,7 +30,7 @@ export function CentralStockCard({ stock, isVisible, onClose }: CentralStockCard
             }}
             className="pointer-events-auto"
           >
-            <Card className="w-[400px] p-6 bg-card/95 backdrop-blur-md border-4 border-accent/50 shadow-[0_0_60px_oklch(0.75_0.15_85_/_0.4)] relative">
+            <Card className="w-[min(400px,calc(100vw-2rem))] max-h-[calc(100dvh-2rem)] overflow-y-auto p-6 bg-card/95 backdrop-blur-md border-4 border-accent/50 shadow-[0_0_60px_oklch(0.75_0.15_85_/_0.4)] relative">
               {onClose && (
                 <div className="flex justify-end mb-2">
                   <Button

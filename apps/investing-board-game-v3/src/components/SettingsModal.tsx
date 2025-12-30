@@ -1,10 +1,12 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Slider } from '@/components/ui/slider'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
+import { useNotificationPreferences } from '@/hooks/useNotificationPreferences'
+import { useSound } from '@/hooks/useSound'
 
 interface SettingsModalProps {
   open: boolean
@@ -12,14 +14,18 @@ interface SettingsModalProps {
 }
 
 export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
-  const [soundEnabled, setSoundEnabled] = useState(true)
-  const [soundVolume, setSoundVolume] = useState(70)
   const [hapticsEnabled, setHapticsEnabled] = useState(true)
   const [reducedMotion, setReducedMotion] = useState(false)
   const [autoSave, setAutoSave] = useState(true)
   const [cameraMode, setCameraMode] = useState<'classic' | 'immersive'>('classic')
   const [tutorialEnabled, setTutorialEnabled] = useState(true)
   const [isMobile, setIsMobile] = useState(false)
+  const { enabled: notificationsEnabled, setNotificationsEnabled } = useNotificationPreferences()
+  const { volume, muted, setVolume, setMuted } = useSound()
+  const soundEnabled = !muted
+  const soundVolume = Math.round(volume * 100)
+  const toggleClassName =
+    'data-[state=checked]:bg-emerald-500 data-[state=unchecked]:bg-slate-600/70'
   
   // Check for mobile device
   useEffect(() => {
@@ -33,16 +39,12 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
 
   // Load settings from localStorage
   useEffect(() => {
-    const savedSoundEnabled = localStorage.getItem('soundEnabled')
-    const savedSoundVolume = localStorage.getItem('soundVolume')
     const savedHapticsEnabled = localStorage.getItem('hapticsEnabled')
     const savedReducedMotion = localStorage.getItem('reducedMotion')
     const savedAutoSave = localStorage.getItem('autoSave')
     const savedCameraMode = localStorage.getItem('alphastocks_camera_mode')
     const savedTutorialEnabled = localStorage.getItem('tutorialEnabled')
 
-    if (savedSoundEnabled !== null) setSoundEnabled(savedSoundEnabled === 'true')
-    if (savedSoundVolume !== null) setSoundVolume(parseInt(savedSoundVolume))
     if (savedHapticsEnabled !== null) setHapticsEnabled(savedHapticsEnabled === 'true')
     if (savedReducedMotion !== null) setReducedMotion(savedReducedMotion === 'true')
     if (savedAutoSave !== null) setAutoSave(savedAutoSave === 'true')
@@ -57,13 +59,11 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
 
   // Save settings to localStorage
   const handleSoundEnabledChange = (value: boolean) => {
-    setSoundEnabled(value)
-    localStorage.setItem('soundEnabled', value.toString())
+    setMuted(!value)
   }
 
   const handleSoundVolumeChange = (value: number[]) => {
-    setSoundVolume(value[0])
-    localStorage.setItem('soundVolume', value[0].toString())
+    setVolume(value[0] / 100)
   }
 
   const handleHapticsEnabledChange = (value: boolean) => {
@@ -133,6 +133,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                 id="sound-enabled"
                 checked={soundEnabled}
                 onCheckedChange={handleSoundEnabledChange}
+                className={toggleClassName}
               />
             </div>
 
@@ -153,6 +154,28 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
 
           <Separator />
 
+          {/* Notifications Settings */}
+          <div className="space-y-4">
+            <h3 className="font-semibold text-sm">Notifications</h3>
+
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <Label htmlFor="toast-enabled">Toast Messages</Label>
+                <p className="text-xs text-muted-foreground">
+                  Show roll results and other game alerts.
+                </p>
+              </div>
+              <Switch
+                id="toast-enabled"
+                checked={notificationsEnabled}
+                onCheckedChange={setNotificationsEnabled}
+                className={toggleClassName}
+              />
+            </div>
+          </div>
+
+          <Separator />
+
           {/* Haptics Settings */}
           <div className="space-y-4">
             <h3 className="font-semibold text-sm">Haptics</h3>
@@ -163,6 +186,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                 id="haptics-enabled"
                 checked={hapticsEnabled}
                 onCheckedChange={handleHapticsEnabledChange}
+                className={toggleClassName}
               />
             </div>
           </div>
@@ -179,6 +203,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                 id="reduced-motion"
                 checked={reducedMotion}
                 onCheckedChange={handleReducedMotionChange}
+                className={toggleClassName}
               />
             </div>
             
@@ -199,6 +224,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                 id="auto-save"
                 checked={autoSave}
                 onCheckedChange={handleAutoSaveChange}
+                className={toggleClassName}
               />
             </div>
 
@@ -213,6 +239,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                 id="tutorial-enabled"
                 checked={tutorialEnabled}
                 onCheckedChange={handleTutorialEnabledChange}
+                className={toggleClassName}
               />
             </div>
             
@@ -229,6 +256,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                   id="camera-mode"
                   checked={cameraMode === 'immersive'}
                   onCheckedChange={handleCameraModeChange}
+                  className={toggleClassName}
                 />
               </div>
             )}
