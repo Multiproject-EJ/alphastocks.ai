@@ -2579,7 +2579,7 @@ function App() {
         </BoardViewport>
         </Board3DViewport>
 
-        <div className="absolute bottom-6 right-6 z-40 pointer-events-none">
+        <div className="absolute bottom-6 left-6 z-40 pointer-events-none">
           <img
             src={`${import.meta.env.BASE_URL}Fraud.webp`}
             alt="Fraud character appears during Court of Capital"
