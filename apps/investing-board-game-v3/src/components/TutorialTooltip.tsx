@@ -179,7 +179,7 @@ export function TutorialTooltip() {
       ...candidates.filter((candidate) => candidate.placement !== preferredPlacement),
     ].filter(Boolean) as Array<{ placement: 'top' | 'bottom' | 'left' | 'right'; x: number; y: number }>
 
-    if (isPhone && currentStep === 0 && !isAuthenticated) {
+    if (isPhone && currentStep === 0) {
       setPlacement('top')
       setPosition({
         x: viewportWidth / 2,
