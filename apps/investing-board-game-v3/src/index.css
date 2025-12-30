@@ -446,22 +446,23 @@ h1, h2, h3, h4, h5, h6 {
 
 @keyframes dice-orbit {
   0% {
-    transform: translate(-15%, -20%) scale(1);
+    transform: translate(0, 0) scale(1);
     opacity: 0.55;
   }
   50% {
-    transform: translate(20%, 15%) scale(1.25);
+    transform: translate(6px, -8px) scale(1.15);
     opacity: 0.85;
   }
   100% {
-    transform: translate(-15%, -20%) scale(1);
+    transform: translate(0, 0) scale(1);
     opacity: 0.55;
   }
 }
 
 .dice-orb {
   position: absolute;
-  inset: -20%;
+  width: 44px;
+  height: 44px;
   border-radius: 9999px;
   filter: blur(18px);
   opacity: 0.7;
@@ -470,20 +471,101 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .dice-orb-a {
+  top: -18px;
+  left: 50%;
+  transform: translateX(-50%);
   background: radial-gradient(circle, rgba(56, 189, 248, 0.9), rgba(56, 189, 248, 0) 70%);
   animation-duration: 8s;
 }
 
 .dice-orb-b {
+  top: 28px;
+  left: -12px;
   background: radial-gradient(circle, rgba(217, 70, 239, 0.85), rgba(217, 70, 239, 0) 70%);
   animation-duration: 10s;
   animation-delay: -2s;
 }
 
 .dice-orb-c {
+  top: 28px;
+  right: -12px;
   background: radial-gradient(circle, rgba(250, 204, 21, 0.8), rgba(250, 204, 21, 0) 70%);
   animation-duration: 12s;
   animation-delay: -4s;
+}
+
+@keyframes phone-dice-blue-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 rgba(56, 189, 248, 0.15);
+  }
+  50% {
+    box-shadow: 0 0 24px rgba(56, 189, 248, 0.35);
+  }
+}
+
+@keyframes phone-dice-gold-pulse {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(250, 204, 21, 0.45);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 18px rgba(250, 204, 21, 0.8);
+    transform: scale(1.04);
+  }
+}
+
+.phone-dice-button {
+  background: radial-gradient(circle at 30% 25%, rgba(59, 130, 246, 0.4), rgba(2, 6, 23, 0.95));
+  animation: phone-dice-blue-pulse 4s ease-in-out infinite;
+}
+
+.phone-dice-button--auto {
+  background: radial-gradient(circle at 30% 25%, rgba(250, 204, 21, 0.75), rgba(161, 98, 7, 0.9));
+}
+
+.phone-dice-face {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background: radial-gradient(circle at 30% 30%, #fde68a, #f59e0b 60%, #d97706 100%);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  align-items: center;
+  justify-items: center;
+  animation: phone-dice-gold-pulse 2.6s ease-in-out infinite;
+}
+
+.phone-dice-pip {
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  background: #0f172a;
+}
+
+.phone-dice-pip--tl {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.phone-dice-pip--tr {
+  grid-column: 3;
+  grid-row: 1;
+}
+
+.phone-dice-pip--c {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.phone-dice-pip--bl {
+  grid-column: 1;
+  grid-row: 3;
+}
+
+.phone-dice-pip--br {
+  grid-column: 3;
+  grid-row: 3;
 }
 
 @keyframes auto-roll-flash {
