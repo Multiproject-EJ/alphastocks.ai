@@ -8,7 +8,7 @@ import { useResponsiveDialogClass } from '@/hooks/useResponsiveDialogClass'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Coins, TrendUp, Trophy, Target, CalendarBlank, Crown, Buildings } from '@phosphor-icons/react'
+import { Coins, TrendUp, Trophy, Target, Buildings } from '@phosphor-icons/react'
 import { GameState } from '@/lib/types'
 import { AI_PLAYERS } from '@/lib/mockData'
 
@@ -17,12 +17,10 @@ interface HubModalProps {
   onOpenChange: (open: boolean) => void
   gameState: GameState
   onOpenChallenges?: () => void
-  onOpenEventCalendar?: () => void
-  onOpenNetWorthGallery?: () => void
   onOpenCityBuilder?: () => void
 }
 
-export function HubModal({ open, onOpenChange, gameState, onOpenChallenges, onOpenEventCalendar, onOpenNetWorthGallery, onOpenCityBuilder }: HubModalProps) {
+export function HubModal({ open, onOpenChange, gameState, onOpenChallenges, onOpenCityBuilder }: HubModalProps) {
   const dialogClass = useResponsiveDialogClass('medium')
   // Combine human player with AI players for leaderboard
   const allPlayers = [
@@ -114,35 +112,11 @@ export function HubModal({ open, onOpenChange, gameState, onOpenChallenges, onOp
                 className="w-full"
                 onClick={() => {
                   onOpenChange(false)
-                  onOpenEventCalendar?.()
-                }}
-              >
-                <CalendarBlank size={16} className="mr-2" />
-                Events
-              </Button>
-              
-              <Button 
-                variant="outline" 
-                className="w-full"
-                onClick={() => {
-                  onOpenChange(false)
                   onOpenCityBuilder?.()
                 }}
               >
                 <Buildings size={16} className="mr-2" />
                 City Builder
-              </Button>
-              
-              <Button 
-                variant="outline" 
-                className="w-full"
-                onClick={() => {
-                  onOpenChange(false)
-                  onOpenNetWorthGallery?.()
-                }}
-              >
-                <Crown size={16} className="mr-2" />
-                Net Worth Gallery
               </Button>
             </div>
 
