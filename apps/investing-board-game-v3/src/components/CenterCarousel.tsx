@@ -22,7 +22,7 @@ export function CenterCarousel({
 }: CenterCarouselProps) {
   const [api, setApi] = useState<CarouselApi>()
   const [current, setCurrent] = useState(0)
-  const totalPanels = 3
+  const totalPanels = 4
 
   useEffect(() => {
     if (!api) return
@@ -71,7 +71,12 @@ export function CenterCarousel({
         className="w-full max-w-[600px] mx-auto pointer-events-auto"
       >
         <CarouselContent>
-          {/* Panel 1 - Wealth Throne */}
+          {/* Panel 1 - Empty (default) */}
+          <CarouselItem>
+            <div className="flex items-center justify-center" />
+          </CarouselItem>
+
+          {/* Panel 2 - Wealth Throne */}
           <CarouselItem>
             <div className="flex items-center justify-center">
               <WealthThrone
@@ -81,7 +86,7 @@ export function CenterCarousel({
             </div>
           </CarouselItem>
 
-          {/* Panel 2 - Logo only, centered */}
+          {/* Panel 3 - Logo only, centered */}
           <CarouselItem>
             <div className="flex items-center justify-center">
               <img
@@ -92,7 +97,7 @@ export function CenterCarousel({
             </div>
           </CarouselItem>
 
-          {/* Panel 3 - Net Worth */}
+          {/* Panel 4 - Net Worth */}
           <CarouselItem>
             <div className="flex items-center justify-center">
               <PortfolioWheel gameState={gameState} />
