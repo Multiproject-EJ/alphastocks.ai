@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback, lazy, Suspense } from 'react'
 import { Toaster, toast } from 'sonner'
 import { Button } from '@/components/ui/button'
-import { ShoppingBag, Buildings, Star, ChartLine, Trophy } from '@phosphor-icons/react'
+import { ShoppingBag, Buildings, Star, ChartLine, Trophy, CalendarBlank, Crown } from '@phosphor-icons/react'
 import { Tile } from '@/components/Tile'
 import { DiceHUD } from '@/components/DiceHUD'
 import { HubModal } from '@/components/HubModal'
@@ -2216,7 +2216,7 @@ function App() {
       <div className={`relative z-10 ${!isPhone ? 'flex items-center justify-center gap-8 h-[calc(100vh-2rem)] max-w-full px-4' : 'max-w-[1600px] mx-auto'}`} ref={boardContainerRef}>
         {/* Left Column - Action buttons (desktop/tablet only) */}
         {!isPhone && (
-          <div className={`flex flex-col gap-6 items-start justify-center transition-opacity duration-500 flex-shrink-0 z-20 ${
+          <div className={`flex flex-col gap-6 items-start justify-start self-start pt-4 transition-opacity duration-500 flex-shrink-0 z-20 ${
             isLogoPanel ? 'opacity-0 pointer-events-none' : 'opacity-100'
           }`}>
             <div className="flex flex-col items-start gap-3">
@@ -2289,17 +2289,6 @@ function App() {
                           priority: 'normal',
                         })
                       },
-                      onOpenEventCalendar: openEventCalendar,
-                      onOpenNetWorthGallery: () => {
-                        showOverlay({
-                          id: 'netWorthGallery',
-                          component: NetWorthGalleryModal,
-                          props: {
-                            currentNetWorth: gameState.netWorth,
-                          },
-                          priority: 'normal',
-                        })
-                      },
                       onOpenCityBuilder: () => {
                         showOverlay({
                           id: 'cityBuilder',
@@ -2359,6 +2348,31 @@ function App() {
               >
                 <Trophy size={20} weight="fill" />
                 Achievements
+              </Button>
+              <Button
+                onClick={openEventCalendar}
+                className="bg-accent/90 hover:bg-accent text-accent-foreground shadow-lg hover:shadow-xl transition-all backdrop-blur-sm rounded-full h-14 px-6 text-base font-semibold flex items-center gap-2"
+                aria-label="Open Events"
+              >
+                <CalendarBlank size={20} weight="fill" />
+                Events
+              </Button>
+              <Button
+                onClick={() => {
+                  showOverlay({
+                    id: 'netWorthGallery',
+                    component: NetWorthGalleryModal,
+                    props: {
+                      currentNetWorth: gameState.netWorth,
+                    },
+                    priority: 'normal',
+                  })
+                }}
+                className="bg-accent/90 hover:bg-accent text-accent-foreground shadow-lg hover:shadow-xl transition-all backdrop-blur-sm rounded-full h-14 px-6 text-base font-semibold flex items-center gap-2"
+                aria-label="Open Net Worth Gallery"
+              >
+                <Crown size={20} weight="fill" />
+                Net Worth Gallery
               </Button>
             </div>
           </div>
