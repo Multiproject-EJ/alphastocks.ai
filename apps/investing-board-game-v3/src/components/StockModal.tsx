@@ -21,7 +21,7 @@ import {
   formatRelativeTime,
   getWarningFlags
 } from '@/lib/stockScores'
-import { Coins, TrendUp, ShieldCheck, Speedometer, Sparkle, Clock, CheckCircle, WarningCircle } from '@phosphor-icons/react'
+import { ArrowLeft, ArrowRight, Coins, TrendUp, ShieldCheck, Speedometer, Sparkle, Clock, CheckCircle, WarningCircle } from '@phosphor-icons/react'
 
 interface StockModalProps {
   open: boolean
@@ -163,7 +163,7 @@ export function StockModal({ open, onOpenChange, stock, onBuy, cash, showInsight
       <DialogContent
         className={`${dialogClass} bg-card border-2 border-accent/50 shadow-[0_0_40px_oklch(0.75_0.15_85_/_0.3)] flex flex-col max-h-[80vh] relative will-change-transform`}
         style={{
-          transform: `translateX(${dragX}px) rotate(${dragX / 22}deg)`,
+          transform: `translate(-50%, -50%) translateX(${dragX}px) rotate(${dragX / 22}deg)`,
           transition: isDragging ? 'none' : 'transform 220ms ease',
           touchAction: 'pan-y',
         }}
@@ -470,8 +470,28 @@ export function StockModal({ open, onOpenChange, stock, onBuy, cash, showInsight
           >
             Pass
           </Button>
-          <div className="mt-3 flex items-center justify-center text-xs uppercase tracking-[0.3em] text-muted-foreground">
-            Swipe ← Pass · Swipe → Invest
+          <div className="mt-3 flex items-center justify-between gap-3 text-xs uppercase tracking-[0.3em] text-muted-foreground">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => triggerSwipeAction('left')}
+              className="h-9 gap-2 text-rose-200 hover:text-rose-100"
+              aria-label="Pass this stock"
+            >
+              <ArrowLeft size={14} />
+              Pass
+            </Button>
+            <span className="text-[10px] tracking-[0.4em] text-muted-foreground/80">Swipe</span>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => triggerSwipeAction('right')}
+              className="h-9 gap-2 text-emerald-200 hover:text-emerald-100"
+              aria-label="Invest in this stock"
+            >
+              Invest
+              <ArrowRight size={14} />
+            </Button>
           </div>
           </div>
         </div>
