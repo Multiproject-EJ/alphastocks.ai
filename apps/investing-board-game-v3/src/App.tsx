@@ -2161,7 +2161,7 @@ function App() {
     'shadow-[inset_0_0_70px_rgba(255,255,255,0.08),_0_20px_80px_rgba(0,0,0,0.35)]',
     `${!isPhone && !isMobile ? 'p-0' : 'p-8'} transition-all duration-700`,
     // Circular container to match the board shape
-    !isPhone && !isMobile ? 'rounded-full aspect-square' : 'rounded-2xl min-h-[900px]',
+    'rounded-full aspect-square',
     isLogoPanel ? 'bg-opacity-0 backdrop-blur-none' : ''
   ].filter(Boolean).join(' ')
 
