@@ -2427,11 +2427,6 @@ function App() {
             </>
           )}
 
-          {/* Sound Controls - Top Right */}
-          <div className="absolute top-4 right-4 z-40">
-            <SoundControls />
-          </div>
-
           {/* Center Content - Main Carousel - HIDDEN on phone layout */}
           {!isPhone && (
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 flex flex-col items-center gap-4">
@@ -2655,19 +2650,22 @@ function App() {
       </div>
 
       {!isPhone && (
-        <Button
-          onClick={toggleNotifications}
-          className="fixed bottom-6 right-6 z-50 h-11 rounded-full border border-white/15 bg-slate-900/80 px-5 text-sm font-semibold text-white shadow-lg backdrop-blur hover:bg-slate-900"
-          aria-pressed={notificationsEnabled}
-          aria-label={`Turn ${notificationsEnabled ? 'off' : 'on'} toast notifications`}
-        >
-          <span
-            className={`mr-2 inline-flex h-2.5 w-2.5 rounded-full ${
-              notificationsEnabled ? 'bg-emerald-400' : 'bg-red-400'
-            }`}
-          />
-          Toasts: {notificationsEnabled ? 'On' : 'Off'}
-        </Button>
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3">
+          <Button
+            onClick={toggleNotifications}
+            className="h-11 rounded-full border border-white/15 bg-slate-900/80 px-5 text-sm font-semibold text-white shadow-lg backdrop-blur hover:bg-slate-900"
+            aria-pressed={notificationsEnabled}
+            aria-label={`Turn ${notificationsEnabled ? 'off' : 'on'} toast notifications`}
+          >
+            <span
+              className={`mr-2 inline-flex h-2.5 w-2.5 rounded-full ${
+                notificationsEnabled ? 'bg-emerald-400' : 'bg-red-400'
+              }`}
+            />
+            Toasts: {notificationsEnabled ? 'On' : 'Off'}
+          </Button>
+          <SoundControls />
+        </div>
       )}
 
 
