@@ -24,6 +24,8 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
   const { volume, muted, setVolume, setMuted } = useSound()
   const soundEnabled = !muted
   const soundVolume = Math.round(volume * 100)
+  const toggleClassName =
+    'data-[state=checked]:bg-emerald-500 data-[state=unchecked]:bg-slate-600/70'
   
   // Check for mobile device
   useEffect(() => {
@@ -131,6 +133,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                 id="sound-enabled"
                 checked={soundEnabled}
                 onCheckedChange={handleSoundEnabledChange}
+                className={toggleClassName}
               />
             </div>
 
@@ -166,6 +169,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                 id="toast-enabled"
                 checked={notificationsEnabled}
                 onCheckedChange={setNotificationsEnabled}
+                className={toggleClassName}
               />
             </div>
           </div>
@@ -182,6 +186,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                 id="haptics-enabled"
                 checked={hapticsEnabled}
                 onCheckedChange={handleHapticsEnabledChange}
+                className={toggleClassName}
               />
             </div>
           </div>
@@ -198,6 +203,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                 id="reduced-motion"
                 checked={reducedMotion}
                 onCheckedChange={handleReducedMotionChange}
+                className={toggleClassName}
               />
             </div>
             
@@ -218,6 +224,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                 id="auto-save"
                 checked={autoSave}
                 onCheckedChange={handleAutoSaveChange}
+                className={toggleClassName}
               />
             </div>
 
@@ -232,6 +239,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                 id="tutorial-enabled"
                 checked={tutorialEnabled}
                 onCheckedChange={handleTutorialEnabledChange}
+                className={toggleClassName}
               />
             </div>
             
@@ -248,6 +256,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                   id="camera-mode"
                   checked={cameraMode === 'immersive'}
                   onCheckedChange={handleCameraModeChange}
+                  className={toggleClassName}
                 />
               </div>
             )}

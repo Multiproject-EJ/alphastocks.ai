@@ -67,7 +67,8 @@ export function TutorialTooltip() {
   const [currentStep, setCurrentStep] = useState(0)
   const [showTutorial, setShowTutorial] = useState(false)
   const [position, setPosition] = useState({ x: 0, y: 0 })
-  const [placement, setPlacement] = useState<'top' | 'bottom' | 'left' | 'right'>('top')
+  type Placement = 'top' | 'bottom' | 'left' | 'right' | 'center'
+  const [placement, setPlacement] = useState<Placement>('top')
   const [spotlight, setSpotlight] = useState({ left: 0, top: 0, width: 0, height: 0 })
   const [showMenu, setShowMenu] = useState(false)
   const [tutorialEnabled, setTutorialEnabled] = useState(true)
@@ -151,7 +152,7 @@ export function TutorialTooltip() {
     const viewportHeight = window.innerHeight
     const margin = 16
 
-    const candidates: Array<{ placement: 'top' | 'bottom' | 'left' | 'right'; x: number; y: number }> = [
+    const candidates: Array<{ placement: Exclude<Placement, 'center'>; x: number; y: number }> = [
       {
         placement: 'top',
         x: rect.left + rect.width / 2,
@@ -177,13 +178,13 @@ export function TutorialTooltip() {
     const orderedPlacements = [
       candidates.find((candidate) => candidate.placement === preferredPlacement),
       ...candidates.filter((candidate) => candidate.placement !== preferredPlacement),
-    ].filter(Boolean) as Array<{ placement: 'top' | 'bottom' | 'left' | 'right'; x: number; y: number }>
+    ].filter(Boolean) as Array<{ placement: Exclude<Placement, 'center'>; x: number; y: number }>
 
-    if (isPhone && currentStep === 0) {
-      setPlacement('top')
+    if (isPhone) {
+      setPlacement('center')
       setPosition({
         x: viewportWidth / 2,
-        y: viewportHeight / 2 + tooltipRect.height / 2,
+        y: viewportHeight / 2,
       })
       setSpotlight({
         left: Math.max(rect.left - 16, 8),
@@ -194,7 +195,7 @@ export function TutorialTooltip() {
       return
     }
 
-    const fitsViewport = (candidate: { placement: 'top' | 'bottom' | 'left' | 'right'; x: number; y: number }) => {
+    const fitsViewport = (candidate: { placement: Exclude<Placement, 'center'>; x: number; y: number }) => {
       let left = candidate.x - tooltipRect.width / 2
       let top = candidate.y - tooltipRect.height
 
@@ -334,7 +335,9 @@ export function TutorialTooltip() {
                     ? 'translate(-50%, 0)'
                     : placement === 'left'
                       ? 'translate(-100%, -50%)'
-                      : 'translate(0, -50%)',
+                      : placement === 'right'
+                        ? 'translate(0, -50%)'
+                        : 'translate(-50%, -50%)',
             }}
           >
             <button
