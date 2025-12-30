@@ -179,6 +179,21 @@ export function TutorialTooltip() {
       ...candidates.filter((candidate) => candidate.placement !== preferredPlacement),
     ].filter(Boolean) as Array<{ placement: 'top' | 'bottom' | 'left' | 'right'; x: number; y: number }>
 
+    if (isPhone && currentStep === 0 && !isAuthenticated) {
+      setPlacement('top')
+      setPosition({
+        x: viewportWidth / 2,
+        y: viewportHeight / 2 + tooltipRect.height / 2,
+      })
+      setSpotlight({
+        left: Math.max(rect.left - 16, 8),
+        top: Math.max(rect.top - 16, 8),
+        width: rect.width + 32,
+        height: rect.height + 32,
+      })
+      return
+    }
+
     const fitsViewport = (candidate: { placement: 'top' | 'bottom' | 'left' | 'right'; x: number; y: number }) => {
       let left = candidate.x - tooltipRect.width / 2
       let top = candidate.y - tooltipRect.height
@@ -227,13 +242,13 @@ export function TutorialTooltip() {
       window.removeEventListener('resize', handleUpdate)
       window.removeEventListener('scroll', handleUpdate, true)
     }
-  }, [currentStep, showTutorial])
+  }, [currentStep, isAuthenticated, isPhone, showTutorial])
 
   useEffect(() => {
     if (!showTutorial) return
     const id = window.setTimeout(() => updatePositions(), 0)
     return () => window.clearTimeout(id)
-  }, [showTutorial, currentStep, tutorialEnabled])
+  }, [showTutorial, currentStep, isAuthenticated, isPhone, tutorialEnabled])
 
   useEffect(() => {
     if (!showTutorial) return
