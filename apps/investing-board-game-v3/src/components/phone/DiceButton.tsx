@@ -20,6 +20,10 @@ export function DiceButton({
   isRolling,
   isAutoRolling,
 }: DiceButtonProps) {
+  const auxButtonBaseClass =
+    'flex h-10 w-10 items-center justify-center rounded-full border text-[10px] font-semibold text-white shadow-md backdrop-blur';
+  const auxButtonGlowClass =
+    'border-yellow-200/50 bg-yellow-400/15 shadow-[0_0_14px_rgba(250,204,21,0.35)]';
   const autoRollHoldTimer = useRef<NodeJS.Timeout | null>(null);
   const [isPressed, setIsPressed] = useState(false);
   const [autoRollFlash, setAutoRollFlash] = useState(false);
@@ -108,21 +112,15 @@ export function DiceButton({
         </span>
       </button>
 
-      <div className="absolute -right-12 top-1/2 flex -translate-y-1/2 flex-col gap-2">
+      <div className="absolute left-1/2 top-0 flex -translate-x-1/2 -translate-y-12 items-center gap-2">
         <button
           type="button"
           onClick={onCycleMultiplier}
-          className="flex h-10 w-10 items-center justify-center rounded-full border border-white/30 bg-background/90 text-[10px] font-semibold text-white shadow-md backdrop-blur"
+          className={cn(auxButtonBaseClass, auxButtonGlowClass)}
           aria-label={`Dice multiplier ${multiplier}x. Tap to change.`}
         >
           {multiplier}x
         </button>
-        <div
-          className="flex h-10 w-10 items-center justify-center rounded-full border border-accent/30 bg-background/90 text-[11px] font-bold text-white shadow-md backdrop-blur"
-          aria-label={`${rollsRemaining} rolls remaining`}
-        >
-          {rollsRemaining}
-        </div>
         <button
           type="button"
           onPointerDown={(event) => {
@@ -134,8 +132,10 @@ export function DiceButton({
           onPointerLeave={handleAutoRollHoldEnd}
           onPointerCancel={handleAutoRollHoldEnd}
           className={cn(
-            'flex h-10 w-10 items-center justify-center rounded-full border text-[8px] font-semibold text-white shadow-md backdrop-blur',
-            isAutoRolling ? 'border-yellow-300/70 bg-yellow-400/90' : 'border-white/30 bg-background/90',
+            auxButtonBaseClass,
+            auxButtonGlowClass,
+            'text-[8px]',
+            isAutoRolling && 'border-yellow-200/80 bg-yellow-400/40',
             autoRollFlash && 'auto-roll-flash',
           )}
           aria-label={isAutoRolling ? 'Auto roll on. Tap dice to stop.' : 'Hold to enable auto roll.'}
@@ -145,6 +145,16 @@ export function DiceButton({
             <span>{isAutoRolling ? 'ON' : 'HOLD'}</span>
           </span>
         </button>
+        <div
+          className={cn(
+            auxButtonBaseClass,
+            auxButtonGlowClass,
+            'text-[11px] font-bold',
+          )}
+          aria-label={`${rollsRemaining} rolls remaining`}
+        >
+          {rollsRemaining}
+        </div>
       </div>
     </div>
   );
