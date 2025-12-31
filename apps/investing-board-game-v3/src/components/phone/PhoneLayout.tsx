@@ -58,6 +58,7 @@ export function PhoneLayout({
   const { mode } = useUIMode();
   const showDebug = import.meta.env.DEV;
   const [currentHour, setCurrentHour] = useState(() => new Date().getHours());
+  const hideFloatingActions = isRolling;
   
   const camera = {
     perspective: 800,
@@ -124,9 +125,10 @@ export function PhoneLayout({
           {/* Portfolio button - Right side */}
           <button
             onClick={onOpenPortfolio}
-            className="fixed right-4 z-40 bg-accent/90 hover:bg-accent backdrop-blur-sm rounded-full p-3 shadow-lg hover:shadow-xl transition-all"
+            className={`fixed right-4 z-40 rounded-full bg-accent/90 p-3 shadow-lg backdrop-blur-sm transition-all hover:bg-accent hover:shadow-xl ${hideFloatingActions ? 'pointer-events-none opacity-0' : 'opacity-100'}`}
             style={{ top: `${COMPACT_HUD_HEIGHT + 80}px` }}
             aria-label="Open Portfolio"
+            aria-hidden={hideFloatingActions}
             data-tutorial="portfolio"
           >
             <TrendingUp size={24} className="text-accent-foreground" />
@@ -134,8 +136,9 @@ export function PhoneLayout({
           
           {/* ProTools button - Right side below portfolio */}
           <div
-            className="fixed right-3 z-40 flex flex-col items-center gap-1"
+            className={`fixed right-3 z-40 flex flex-col items-center gap-1 transition-opacity ${hideFloatingActions ? 'pointer-events-none opacity-0' : 'opacity-100'}`}
             style={{ top: `${COMPACT_HUD_HEIGHT + 150}px` }}
+            aria-hidden={hideFloatingActions}
           >
             <button
               onClick={onOpenProTools}
@@ -150,8 +153,9 @@ export function PhoneLayout({
           </div>
 
           <div
-            className="fixed left-4 z-40 flex flex-col gap-3"
+            className={`fixed left-4 z-40 flex flex-col gap-3 transition-opacity ${hideFloatingActions ? 'pointer-events-none opacity-0' : 'opacity-100'}`}
             style={{ top: `${COMPACT_HUD_HEIGHT + 80}px` }}
+            aria-hidden={hideFloatingActions}
           >
             <button
               onClick={onOpenShop}
