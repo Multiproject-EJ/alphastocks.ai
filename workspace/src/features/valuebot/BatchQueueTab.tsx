@@ -50,6 +50,8 @@ const BatchQueueTab: FunctionalComponent = () => {
   const [secondsPerJobEstimate, setSecondsPerJobEstimate] = useState<number | null>(null);
   const [isLoadingFromUniverse, setIsLoadingFromUniverse] = useState(false);
   const [universeLoadResult, setUniverseLoadResult] = useState<{ success: boolean; message: string } | null>(null);
+  const [skipAnalyzedStocks, setSkipAnalyzedStocks] = useState(true);
+  const [allowReanalysis, setAllowReanalysis] = useState(false);
 
   const profileId = user?.id ?? null;
   const modelChoices = useMemo(() => getModelOptionsForProvider(newProvider), [newProvider]);
@@ -400,6 +402,34 @@ const BatchQueueTab: FunctionalComponent = () => {
     }
   }
 
+  const handleSkipAnalyzedChange = (event: Event) => {
+    const checked = event.currentTarget instanceof HTMLInputElement ? event.currentTarget.checked : true;
+    if (checked) {
+      setSkipAnalyzedStocks(true);
+      setAllowReanalysis(false);
+      return;
+    }
+
+    if (!allowReanalysis) {
+      setAllowReanalysis(true);
+    }
+    setSkipAnalyzedStocks(false);
+  };
+
+  const handleAllowReanalysisChange = (event: Event) => {
+    const checked = event.currentTarget instanceof HTMLInputElement ? event.currentTarget.checked : false;
+    if (checked) {
+      setAllowReanalysis(true);
+      setSkipAnalyzedStocks(false);
+      return;
+    }
+
+    if (!skipAnalyzedStocks) {
+      setSkipAnalyzedStocks(true);
+    }
+    setAllowReanalysis(false);
+  };
+
   async function handleLoadFromUniverse() {
     try {
       setIsLoadingFromUniverse(true);
@@ -409,7 +439,11 @@ const BatchQueueTab: FunctionalComponent = () => {
       const unqueuedResponse = await fetch('/api/universe-builder', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'get-unqueued-stocks', limit: 3 })
+        body: JSON.stringify({
+          action: 'get-unqueued-stocks',
+          limit: 3,
+          include_analyzed: allowReanalysis
+        })
       });
 
       const unqueuedData = await unqueuedResponse.json();
@@ -435,7 +469,8 @@ const BatchQueueTab: FunctionalComponent = () => {
           stocks: unqueuedData.stocks,
           provider: newProvider,
           model: newModel || null,
-          user_id: profileId
+          user_id: profileId,
+          force_reanalysis: allowReanalysis
         })
       });
 
@@ -710,7 +745,7 @@ const BatchQueueTab: FunctionalComponent = () => {
                 <p className="eyebrow">🌐 Global Universe</p>
                 <p style={{ fontSize: '14px', fontWeight: 600 }}>Load stocks from Universe Builder</p>
                 <p className="detail-meta">
-                  Add 3 stocks from your global stock catalog that haven't been analyzed yet.
+                  Add 3 stocks from your global stock catalog. Choose whether to skip analyzed names or re-run them as a newer pass (t+1).
                 </p>
               </div>
               <button
@@ -721,6 +756,24 @@ const BatchQueueTab: FunctionalComponent = () => {
               >
                 {isLoadingFromUniverse ? 'Loading…' : '📋 Load 3 from Universe'}
               </button>
+            </div>
+            <div style={{ marginTop: '12px', display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
+              <label className="detail-meta" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <input
+                  type="checkbox"
+                  checked={skipAnalyzedStocks}
+                  onChange={handleSkipAnalyzedChange}
+                />
+                Skip already analyzed (default)
+              </label>
+              <label className="detail-meta" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <input
+                  type="checkbox"
+                  checked={allowReanalysis}
+                  onChange={handleAllowReanalysisChange}
+                />
+                Allow reanalysis (t+1)
+              </label>
             </div>
             {universeLoadResult && (
               <p
