@@ -13,11 +13,11 @@ export interface NotificationPreferences {
  * Stores preference in localStorage for persistence across sessions
  */
 export function useNotificationPreferences(): NotificationPreferences {
-  // Initialize from localStorage, default to true (enabled)
+  // Initialize from localStorage, default to false (disabled)
   const [enabled, setEnabled] = useState<boolean>(() => {
     if (typeof window === 'undefined') return true;
     const stored = localStorage.getItem(NOTIFICATION_PREFERENCE_KEY);
-    return stored === null ? true : stored === 'true';
+    return stored === null ? false : stored === 'true';
   });
 
   const updatePreference = useCallback((nextValue: boolean) => {
