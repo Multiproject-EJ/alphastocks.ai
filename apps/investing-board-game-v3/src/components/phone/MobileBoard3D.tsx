@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useBoardPan } from '@/hooks/useBoardPan';
 import { calculateTilePositions } from '@/lib/tilePositions';
 
@@ -27,14 +27,37 @@ export function MobileBoard3D({
 }: MobileBoard3DProps) {
   // Touch pan gesture hook
   const { panOffset, handlers } = useBoardPan();
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [viewportSize, setViewportSize] = useState({ width: 0, height: 0 });
+
+  useEffect(() => {
+    if (!containerRef.current) {
+      return;
+    }
+
+    const observer = new ResizeObserver(entries => {
+      const entry = entries[0];
+      if (!entry) {
+        return;
+      }
+
+      setViewportSize({
+        width: entry.contentRect.width,
+        height: entry.contentRect.height,
+      });
+    });
+
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   // Calculate where player is on the circular board
-  const playerOffset = useMemo(() => {
+  const playerPosition = useMemo(() => {
     const tilePositions = calculateTilePositions({ width: boardSize, height: boardSize })
     const currentTile = tilePositions.find(t => t.id === currentPosition)
     
     if (!currentTile) {
-      return { x: 0, y: 0 }
+      return { x: 0, y: 0, offsetX: 0, offsetY: 0 }
     }
     
     // Calculate offset from center
@@ -45,7 +68,7 @@ export function MobileBoard3D({
     
     // Negate to move board opposite direction (centers player)
     // Apply slight damping to keep more tiles visible
-    return { x: -x * 0.85, y: -y * 0.85 }
+    return { x, y, offsetX: -x * 0.85, offsetY: -y * 0.85 }
   }, [currentPosition, boardSize]);
 
   const verticalOffset = useMemo(() => -boardSize * 0.12, [boardSize]);
@@ -56,6 +79,34 @@ export function MobileBoard3D({
     rotateX: 55,        // Tilt forward for 3D effect
     scale: 0.62,        // Zoom to show ~6-8 tiles
   }), []);
+
+  const clampedTranslation = useMemo(() => {
+    const { width, height } = viewportSize;
+    const margin = 36;
+    if (!width || !height) {
+      return {
+        x: playerPosition.offsetX + panOffset.x,
+        y: playerPosition.offsetY + panOffset.y + verticalOffset,
+      };
+    }
+
+    const scaledHalfWidth = width / (2 * camera.scale);
+    const scaledHalfHeight = height / (2 * camera.scale);
+    const marginScaled = margin / camera.scale;
+
+    const minX = -(scaledHalfWidth - marginScaled) - playerPosition.x;
+    const maxX = scaledHalfWidth - marginScaled - playerPosition.x;
+    const minY = -(scaledHalfHeight - marginScaled) - playerPosition.y;
+    const maxY = scaledHalfHeight - marginScaled - playerPosition.y;
+
+    const desiredX = playerPosition.offsetX + panOffset.x;
+    const desiredY = playerPosition.offsetY + panOffset.y + verticalOffset;
+
+    return {
+      x: Math.min(Math.max(desiredX, minX), maxX),
+      y: Math.min(Math.max(desiredY, minY), maxY),
+    };
+  }, [camera.scale, panOffset.x, panOffset.y, playerPosition, verticalOffset, viewportSize]);
 
   return (
     <div 
@@ -76,6 +127,7 @@ export function MobileBoard3D({
         // Ensure it's above background
         zIndex: 10,
       }}
+      ref={containerRef}
       {...handlers}
     >
       {/* Board wrapper - applies the 3D transform */}
@@ -89,7 +141,7 @@ export function MobileBoard3D({
           transform: `
             rotateX(${camera.rotateX}deg)
             scale(${camera.scale})
-            translate3d(${playerOffset.x + panOffset.x}px, ${playerOffset.y + panOffset.y + verticalOffset}px, 0)
+            translate3d(${clampedTranslation.x}px, ${clampedTranslation.y}px, 0)
           `,
           transformStyle: 'preserve-3d',
           transformOrigin: 'center center',
