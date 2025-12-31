@@ -2084,7 +2084,8 @@ function App() {
   const boardOuterRadius = !isPhone && !isMobile
     ? desktopOuterRadius
     : (dynamicRadius ?? 456)
-  const isCourtOfCapitalTile = BOARD_TILES[gameState.position]?.title === 'Court of Capital'
+  const isCourtOfCapitalTile =
+    phase === 'landed' && BOARD_TILES[gameState.position]?.title === 'Court of Capital'
   const isCategoryTileActive = phase === 'landed' && BOARD_TILES[gameState.position]?.type === 'category'
 
   const getTileCelebrationPosition = useCallback((tileId: number) => {
