@@ -71,7 +71,7 @@ export function TutorialTooltip() {
   const [placement, setPlacement] = useState<Placement>('top')
   const [spotlight, setSpotlight] = useState({ left: 0, top: 0, width: 0, height: 0 })
   const [showMenu, setShowMenu] = useState(false)
-  const [tutorialEnabled, setTutorialEnabled] = useState(true)
+  const [tutorialEnabled, setTutorialEnabled] = useState(false)
   const tooltipRef = useRef<HTMLDivElement | null>(null)
   const previousAuth = useRef(isAuthenticated)
 
@@ -82,13 +82,13 @@ export function TutorialTooltip() {
 
   useEffect(() => {
     const stored = localStorage.getItem('tutorialEnabled')
-    setTutorialEnabled(stored !== 'false')
+    setTutorialEnabled(stored === 'true')
   }, [])
 
   useEffect(() => {
     const handleSettingsChange = () => {
       const stored = localStorage.getItem('tutorialEnabled')
-      const enabled = stored !== 'false'
+      const enabled = stored === 'true'
       setTutorialEnabled(enabled)
       if (!enabled) {
         setShowTutorial(false)

@@ -18,7 +18,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
   const [reducedMotion, setReducedMotion] = useState(false)
   const [autoSave, setAutoSave] = useState(true)
   const [cameraMode, setCameraMode] = useState<'classic' | 'immersive'>('classic')
-  const [tutorialEnabled, setTutorialEnabled] = useState(true)
+  const [tutorialEnabled, setTutorialEnabled] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const { enabled: notificationsEnabled, setNotificationsEnabled } = useNotificationPreferences()
   const { volume, muted, setVolume, setMuted } = useSound()
@@ -48,7 +48,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
     if (savedHapticsEnabled !== null) setHapticsEnabled(savedHapticsEnabled === 'true')
     if (savedReducedMotion !== null) setReducedMotion(savedReducedMotion === 'true')
     if (savedAutoSave !== null) setAutoSave(savedAutoSave === 'true')
-    if (savedTutorialEnabled !== null) setTutorialEnabled(savedTutorialEnabled !== 'false')
+    if (savedTutorialEnabled !== null) setTutorialEnabled(savedTutorialEnabled === 'true')
     if (savedCameraMode === 'classic' || savedCameraMode === 'immersive') {
       setCameraMode(savedCameraMode)
     } else {
