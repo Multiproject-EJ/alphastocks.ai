@@ -422,30 +422,49 @@ async function getUnqueuedStocks(supabase, limit = 3, userId = null) {
   const analyzedSet = new Set((analyzedTickers || []).map(t => t.symbol?.toUpperCase()).filter(Boolean));
   const excludedTickers = [...new Set([...queuedSet, ...analyzedSet])];
 
-  // Get stocks from universe that are not in either list
-  // Use server-side filtering with NOT IN when we have excluded tickers
-  let query = supabase
-    .from('stocks_universe_builder')
-    .select('ticker, company_name, exchange_mic, country, sector, industry')
-    .order('added_at', { ascending: true });
+  const batchSize = Math.max(limit * 5, 50);
+  const collected = [];
+  let offset = 0;
+  let hasMore = true;
 
-  // Apply NOT IN filter if we have tickers to exclude
-  if (excludedTickers.length > 0) {
-    // Supabase .not() with 'in' for efficient server-side filtering
-    query = query.not('ticker', 'in', `(${excludedTickers.join(',')})`);
-  }
+  while (collected.length < limit && hasMore) {
+    // Get stocks from universe that are not in either list
+    // Use server-side filtering with NOT IN when we have excluded tickers
+    let query = supabase
+      .from('stocks_universe_builder')
+      .select('ticker, company_name, exchange_mic, country, sector, industry')
+      .order('added_at', { ascending: true })
+      .range(offset, offset + batchSize - 1);
 
-  query = query.limit(limit);
+    // Apply NOT IN filter if we have tickers to exclude
+    if (excludedTickers.length > 0) {
+      // Supabase .not() with 'in' for efficient server-side filtering
+      const quotedTickers = excludedTickers.map(ticker => `"${ticker}"`).join(',');
+      query = query.not('ticker', 'in', `(${quotedTickers})`);
+    }
 
-  const { data: availableStocks, error: stocksError } = await query;
+    const { data: availableStocks, error: stocksError } = await query;
 
-  if (stocksError) {
-    throw new Error(`Failed to fetch stocks: ${stocksError.message}`);
+    if (stocksError) {
+      throw new Error(`Failed to fetch stocks: ${stocksError.message}`);
+    }
+
+    const filteredStocks = (availableStocks || []).filter(stock => {
+      const ticker = stock.ticker?.toUpperCase();
+      return ticker && !queuedSet.has(ticker) && !analyzedSet.has(ticker);
+    });
+
+    collected.push(...filteredStocks);
+    if ((availableStocks || []).length < batchSize) {
+      hasMore = false;
+    } else {
+      offset += batchSize;
+    }
   }
 
   return {
-    stocks: availableStocks || [],
-    totalAvailable: (availableStocks || []).length,
+    stocks: collected.slice(0, limit),
+    totalAvailable: collected.length,
     queuedCount: queuedSet.size,
     analyzedCount: analyzedSet.size
   };
