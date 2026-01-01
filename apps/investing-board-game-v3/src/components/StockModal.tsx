@@ -541,51 +541,53 @@ export function StockModal({ open, onOpenChange, stock, onBuy, cash, showInsight
             </div>
 
             <div className="hidden md:block">
-              <div
-                className={`rounded-xl border border-blue-500/30 bg-blue-500/10 p-4 text-blue-100 transition-opacity duration-200 ${shouldDimProtools ? 'opacity-60' : 'opacity-100'}`}
-                onMouseEnter={() => setProtoolsHovered(true)}
-                onMouseLeave={() => setProtoolsHovered(false)}
-                onFocus={() => setProtoolsActive(true)}
-                onBlur={() => setProtoolsActive(false)}
-                onClick={() => setProtoolsActive(true)}
-                role="button"
-                tabIndex={0}
-              >
-                <div className="flex items-center gap-2 text-blue-200 font-semibold">
-                  <LockKey size={18} weight="fill" />
-                  Protools Stock Insight
-                </div>
-                <p className="mt-2 text-sm text-blue-200/80">
-                  Unlock a second insight card with deeper signals before you buy.
-                </p>
-                <div className="mt-3 space-y-2 text-sm max-h-[280px] overflow-y-auto pr-1">
-                  <div className="rounded-lg border border-blue-400/20 bg-blue-900/30 p-3">
-                    <div className="text-xs uppercase tracking-widest text-blue-300">Momentum & Sentiment</div>
-                    <p className="mt-1 text-blue-100/80">
-                      AI sentiment trend, sector strength, and crowd positioning.
-                    </p>
-                  </div>
-                  <div className="rounded-lg border border-blue-400/20 bg-blue-900/30 p-3">
-                    <div className="text-xs uppercase tracking-widest text-blue-300">Risk & Catalysts</div>
-                    <p className="mt-1 text-blue-100/80">
-                      Upcoming earnings, news triggers, and downside warnings.
-                    </p>
-                  </div>
-                  <div className="rounded-lg border border-blue-400/20 bg-blue-900/30 p-3">
-                    <div className="text-xs uppercase tracking-widest text-blue-300">Entry Guidance</div>
-                    <p className="mt-1 text-blue-100/80">
-                      Suggested entry zones, watchlist priority, and exit ranges.
-                    </p>
-                  </div>
-                </div>
-                <Button
-                  className="mt-4 w-full bg-blue-500 text-white hover:bg-blue-400"
-                  onClick={() => {
-                    window.location.href = 'https://www.alphastocks.ai/?proTools=1'
-                  }}
+              <div className="rounded-lg border-2 border-blue-500/30 bg-blue-500/10 p-3">
+                <div
+                  className={`rounded-xl border border-blue-400/20 bg-blue-500/10 p-4 text-blue-100 transition-opacity duration-200 ${shouldDimProtools ? 'opacity-60' : 'opacity-100'}`}
+                  onMouseEnter={() => setProtoolsHovered(true)}
+                  onMouseLeave={() => setProtoolsHovered(false)}
+                  onFocus={() => setProtoolsActive(true)}
+                  onBlur={() => setProtoolsActive(false)}
+                  onClick={() => setProtoolsActive(true)}
+                  role="button"
+                  tabIndex={0}
                 >
-                  Unlock with Protools
-                </Button>
+                  <div className="flex items-center gap-2 text-blue-200 font-semibold">
+                    <LockKey size={18} weight="fill" />
+                    Protools Stock Insight
+                  </div>
+                  <p className="mt-2 text-sm text-blue-200/80">
+                    Unlock a second insight card with deeper signals before you buy.
+                  </p>
+                  <div className="mt-3 space-y-2 text-sm max-h-[280px] overflow-y-auto pr-1">
+                    <div className="rounded-lg border border-blue-400/20 bg-blue-900/30 p-3">
+                      <div className="text-xs uppercase tracking-widest text-blue-300">Momentum & Sentiment</div>
+                      <p className="mt-1 text-blue-100/80">
+                        AI sentiment trend, sector strength, and crowd positioning.
+                      </p>
+                    </div>
+                    <div className="rounded-lg border border-blue-400/20 bg-blue-900/30 p-3">
+                      <div className="text-xs uppercase tracking-widest text-blue-300">Risk & Catalysts</div>
+                      <p className="mt-1 text-blue-100/80">
+                        Upcoming earnings, news triggers, and downside warnings.
+                      </p>
+                    </div>
+                    <div className="rounded-lg border border-blue-400/20 bg-blue-900/30 p-3">
+                      <div className="text-xs uppercase tracking-widest text-blue-300">Entry Guidance</div>
+                      <p className="mt-1 text-blue-100/80">
+                        Suggested entry zones, watchlist priority, and exit ranges.
+                      </p>
+                    </div>
+                  </div>
+                  <Button
+                    className="mt-4 w-full bg-blue-500 text-white hover:bg-blue-400"
+                    onClick={() => {
+                      window.location.href = 'https://www.alphastocks.ai/?proTools=1'
+                    }}
+                  >
+                    Unlock with Protools
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
