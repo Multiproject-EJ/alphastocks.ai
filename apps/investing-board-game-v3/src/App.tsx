@@ -2180,6 +2180,14 @@ function App() {
   const starsProgressPercent = Math.min((starsProgressInInterval / starRewardInterval) * 100, 100)
   const starsToNextReward = starRewardInterval - starsProgressInInterval
 
+  const centralStockCard = (
+    <CentralStockCard
+      stock={currentStock}
+      isVisible={showCentralStock}
+      onClose={() => setShowCentralStock(false)}
+    />
+  )
+
   // Main content that will be wrapped by layout
   const mainContent = (
     <div 
@@ -2432,12 +2440,6 @@ function App() {
             boardRef={boardRef}
             boardClassName={boardCenterClasses}
           >
-          <CentralStockCard
-            stock={currentStock}
-            isVisible={showCentralStock}
-            onClose={() => setShowCentralStock(false)}
-          />
-
           {/* Decorative center slices and stock ticker ribbon - Desktop only */}
           {!isPhone && !isMobile && (
             <>
@@ -2586,17 +2588,19 @@ function App() {
         </BoardViewport>
         </Board3DViewport>
 
-        <div className="absolute bottom-6 left-6 z-40 pointer-events-none">
-          <img
-            src={`${import.meta.env.BASE_URL}Fraud.webp`}
-            alt="Fraud character appears during Court of Capital"
-            className={`w-28 sm:w-32 md:w-40 transition-all duration-300 ease-out origin-bottom-right ${
-              isCourtOfCapitalTile
-                ? 'opacity-100 scale-100 translate-y-0 drop-shadow-[0_0_25px_rgba(255,180,60,0.85)] animate-[pulse_2.4s_ease-in-out_infinite]'
-                : 'opacity-0 scale-75 translate-y-6'
-            }`}
-          />
-        </div>
+        {!isPhone && (
+          <div className="absolute bottom-6 left-6 z-40 pointer-events-none">
+            <img
+              src={`${import.meta.env.BASE_URL}Fraud.webp`}
+              alt="Fraud character appears during Court of Capital"
+              className={`w-28 sm:w-32 md:w-40 transition-all duration-300 ease-out origin-bottom-right ${
+                isCourtOfCapitalTile
+                  ? 'opacity-100 scale-100 translate-y-0 drop-shadow-[0_0_25px_rgba(255,180,60,0.85)] animate-[pulse_2.4s_ease-in-out_infinite]'
+                  : 'opacity-0 scale-75 translate-y-6'
+              }`}
+            />
+          </div>
+        )}
         
         {/* Board Zoom Controls for mobile */}
         <BoardZoomControls
@@ -2607,7 +2611,7 @@ function App() {
           onViewFullBoard={zoomOutTemporarily}
           autoFollow={autoFollow}
           onToggleAutoFollow={toggleAutoFollow}
-          isMobile={isMobile}
+          isMobile={isMobile && !isPhone}
           cameraMode={camera.mode}
         />
         </div>
@@ -2867,6 +2871,20 @@ function App() {
         >
           {mainContent}
         </PhoneLayout>
+        {centralStockCard}
+        {isPhone && (
+          <div className="fixed inset-0 z-[120] flex items-center justify-center pointer-events-none">
+            <img
+              src={`${import.meta.env.BASE_URL}Fraud.webp`}
+              alt="Fraud character appears during Court of Capital"
+              className={`w-36 sm:w-40 transition-all duration-300 ease-out ${
+                isCourtOfCapitalTile
+                  ? 'opacity-100 scale-100 translate-y-0 drop-shadow-[0_0_35px_rgba(255,180,60,0.9)] animate-[pulse_2.4s_ease-in-out_infinite]'
+                  : 'opacity-0 scale-75 translate-y-6'
+              }`}
+            />
+          </div>
+        )}
         {overlayContent}
       </>
     )
@@ -2878,6 +2896,7 @@ function App() {
       <MobileGameLayout showBottomNav={!isPhone}>
         {mainContent}
       </MobileGameLayout>
+      {centralStockCard}
       {overlayContent}
     </>
   )

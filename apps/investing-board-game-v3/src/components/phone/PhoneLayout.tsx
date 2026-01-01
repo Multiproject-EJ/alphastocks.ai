@@ -109,6 +109,9 @@ export function PhoneLayout({
             overflow: 'visible',
           }}
         >
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
+            <div className="phone-board-glow" />
+          </div>
           <MobileBoard3D
             currentPosition={currentPosition}
             totalTiles={40}

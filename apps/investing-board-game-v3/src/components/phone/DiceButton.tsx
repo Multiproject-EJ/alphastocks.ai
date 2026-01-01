@@ -80,7 +80,7 @@ export function DiceButton({
         className={cn(
           'dice-button',
           'phone-dice-button',
-          'w-[120px] h-[120px] rounded-full',
+          'w-[136px] h-[136px] rounded-full',
           'flex flex-col items-center justify-center',
           'font-bold text-white',
           'shadow-lg',
@@ -103,12 +103,34 @@ export function DiceButton({
           <span className="dice-orb dice-orb-b" />
           <span className="dice-orb dice-orb-c" />
         </span>
-        <span className="phone-dice-face" aria-hidden="true">
-          <span className="phone-dice-pip phone-dice-pip--tl" />
-          <span className="phone-dice-pip phone-dice-pip--tr" />
-          <span className="phone-dice-pip phone-dice-pip--c" />
-          <span className="phone-dice-pip phone-dice-pip--bl" />
-          <span className="phone-dice-pip phone-dice-pip--br" />
+        <span className="flex items-center gap-2" aria-hidden="true">
+          <span
+            className={cn(
+              'phone-dice-face',
+              'phone-dice-face--pair',
+              isRolling && 'animate-dice-shake',
+            )}
+          >
+            <span className="phone-dice-pip phone-dice-pip--tl" />
+            <span className="phone-dice-pip phone-dice-pip--tr" />
+            <span className="phone-dice-pip phone-dice-pip--c" />
+            <span className="phone-dice-pip phone-dice-pip--bl" />
+            <span className="phone-dice-pip phone-dice-pip--br" />
+          </span>
+          <span
+            className={cn(
+              'phone-dice-face',
+              'phone-dice-face--pair',
+              isRolling && 'animate-dice-shake',
+            )}
+            style={{ animationDelay: isRolling ? '0.05s' : undefined }}
+          >
+            <span className="phone-dice-pip phone-dice-pip--tl" />
+            <span className="phone-dice-pip phone-dice-pip--tr" />
+            <span className="phone-dice-pip phone-dice-pip--c" />
+            <span className="phone-dice-pip phone-dice-pip--bl" />
+            <span className="phone-dice-pip phone-dice-pip--br" />
+          </span>
         </span>
       </button>
 
