@@ -378,7 +378,7 @@ function App() {
   // Carousel panel state
   const [currentCarouselPanel, setCurrentCarouselPanel] = useState(0)
   const isLogoPanel = currentCarouselPanel === LOGO_PANEL_INDEX
-  const showBoardTiles = isPhone ? true : currentCarouselPanel === LOGO_PANEL_INDEX
+  const showBoardTiles = isPhone ? true : [0, LOGO_PANEL_INDEX].includes(currentCarouselPanel)
 
   const [diceResetKey, setDiceResetKey] = useState(0)
 
@@ -2229,10 +2229,13 @@ function App() {
         )}
 
       {/* Layout wrapper - Three column layout for non-phone, regular for phone */}
-      <div className={`relative z-10 ${!isPhone ? 'flex items-center justify-center gap-8 h-[calc(100vh-2rem)] max-w-full px-4' : 'max-w-[1600px] mx-auto'}`} ref={boardContainerRef}>
+      <div
+        className={`relative z-10 ${!isPhone ? 'h-[calc(100vh-2rem)] w-full' : 'max-w-[1600px] mx-auto'}`}
+        ref={boardContainerRef}
+      >
         {/* Left Column - Action buttons (desktop/tablet only) */}
         {!isPhone && (
-          <div className={`flex flex-col gap-6 items-start justify-start self-start pt-4 transition-opacity duration-500 flex-shrink-0 z-20 ${
+          <div className={`absolute left-4 top-4 flex flex-col gap-6 items-start justify-start pt-4 transition-opacity duration-500 flex-shrink-0 z-20 ${
             isLogoPanel ? 'opacity-0 pointer-events-none' : 'opacity-100'
           }`}>
             <div className="flex flex-col items-start gap-3">
@@ -2397,6 +2400,10 @@ function App() {
         {/* Board Container - Centered and scaled to fit viewport height */}
         <div className={`relative ${!isPhone ? 'flex-shrink flex items-center justify-center overflow-hidden' : ''}`} style={{
           ...((!isPhone) ? {
+            position: 'absolute',
+            left: '50%',
+            top: '50%',
+            transform: 'translate(-50%, -50%)',
             height: '100%',
             maxHeight: `min(calc(100vh - 4rem), ${BOARD_SIZE}px)`,
             maxWidth: `${BOARD_SIZE}px`,
@@ -2607,7 +2614,7 @@ function App() {
 
         {/* Right Column - Action buttons (desktop/tablet only) */}
         {!isPhone && (
-          <div className={`flex flex-col gap-4 items-center justify-center transition-opacity duration-500 flex-shrink-0 z-20 ${
+          <div className={`absolute right-4 top-1/2 -translate-y-1/2 flex flex-col gap-4 items-center justify-center transition-opacity duration-500 flex-shrink-0 z-20 ${
             isLogoPanel ? 'opacity-0 pointer-events-none' : 'opacity-100'
           }`}>
             {/* Shop Button */}
