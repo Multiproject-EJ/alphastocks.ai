@@ -1,5 +1,5 @@
 import { ReactNode, useEffect, useMemo, useState } from 'react';
-import { Building2, Clock3, ShoppingBag, TrendingUp, Wrench } from 'lucide-react';
+import { Building2, Clock3, TrendingUp, Wrench } from 'lucide-react';
 import { CompactHUD } from './CompactHUD';
 import { PhoneBottomNav } from './PhoneBottomNav';
 import { MobileBoard3D } from './MobileBoard3D';
@@ -162,11 +162,14 @@ export function PhoneLayout({
           >
             <button
               onClick={onOpenShop}
-              className="flex items-center gap-2 rounded-full bg-sky-500/90 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-sky-500/30 backdrop-blur-sm transition-all hover:bg-sky-500"
+              className="flex items-center justify-center rounded-full bg-transparent p-0 shadow-lg shadow-sky-500/30 transition-all hover:shadow-xl"
               aria-label="Open Shop"
             >
-              <ShoppingBag size={18} />
-              Shop
+              <img
+                src={`${import.meta.env.BASE_URL}Shop.webp`}
+                alt="Shop"
+                className="h-12 w-12 object-contain"
+              />
             </button>
             <button
               onClick={onOpenCities}

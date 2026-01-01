@@ -6,7 +6,6 @@ import { getTimeUntilNextRegen } from '@/lib/energy';
 import { 
   Gamepad2, 
   Building2, 
-  ShoppingBag, 
   Settings 
 } from 'lucide-react';
 import { DiceButton } from './DiceButton';
@@ -16,8 +15,8 @@ const NAV_ITEMS: ReadonlyArray<{ id: UIMode; icon: typeof Gamepad2; label: strin
   { id: 'cityBuilder', icon: Building2, label: 'Build' },
 ] as const;
 
-const NAV_ITEMS_RIGHT: ReadonlyArray<{ id: UIMode; icon: typeof Gamepad2; label: string }> = [
-  { id: 'shop', icon: ShoppingBag, label: 'Shop' },
+const NAV_ITEMS_RIGHT: ReadonlyArray<{ id: UIMode; icon?: typeof Gamepad2; label: string }> = [
+  { id: 'shop', label: 'Shop' },
   { id: 'settings', icon: Settings, label: 'Settings' },
 ] as const;
 
@@ -182,10 +181,23 @@ export function PhoneBottomNav({
             }}
             data-tutorial={item.id === 'shop' ? 'shop' : undefined}
           >
-            <Icon className={cn(
-              'w-6 h-6 mb-0.5',
-              isActive && 'scale-110 transition-transform'
-            )} />
+            {item.id === 'shop' ? (
+              <img
+                src={`${import.meta.env.BASE_URL}Shop.webp`}
+                alt="Shop"
+                className={cn(
+                  'h-7 w-7 mb-0.5 object-contain',
+                  isActive && 'scale-110 transition-transform'
+                )}
+              />
+            ) : (
+              Icon && (
+                <Icon className={cn(
+                  'w-6 h-6 mb-0.5',
+                  isActive && 'scale-110 transition-transform'
+                )} />
+              )
+            )}
             <span className={cn(
               'text-[10px] font-medium',
               isActive && 'font-semibold'
