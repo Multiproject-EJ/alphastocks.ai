@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback, lazy, Suspense } from 'react'
 import { Toaster, toast } from 'sonner'
 import { Button } from '@/components/ui/button'
-import { ShoppingBag, Buildings, Star, ChartLine, Trophy, CalendarBlank, Crown } from '@phosphor-icons/react'
+import { Buildings, Star, ChartLine, Trophy, CalendarBlank, Crown } from '@phosphor-icons/react'
 import { Tile } from '@/components/Tile'
 import { DiceHUD } from '@/components/DiceHUD'
 import { HubModal } from '@/components/HubModal'
@@ -2624,12 +2624,15 @@ function App() {
             {/* Shop Button */}
             <Button
               onClick={openShopOverlay}
-              className="bg-sky-500/90 hover:bg-sky-500 text-white shadow-lg hover:shadow-xl transition-all backdrop-blur-sm rounded-full h-14 px-6 text-base font-semibold flex items-center gap-2"
+              className="bg-transparent hover:bg-transparent shadow-lg hover:shadow-xl transition-all rounded-full p-0 flex items-center justify-center"
               aria-label="Open Shop"
               data-tutorial="shop"
             >
-              <ShoppingBag size={20} weight="bold" />
-              Shop
+              <img
+                src={`${import.meta.env.BASE_URL}Shop.webp`}
+                alt="Shop"
+                className="h-16 w-16 md:h-20 md:w-20 object-contain"
+              />
             </Button>
             {/* Cities Button */}
             <Button
