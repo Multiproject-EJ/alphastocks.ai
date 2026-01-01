@@ -670,15 +670,6 @@ h1, h2, h3, h4, h5, h6 {
   overflow: visible !important;
 }
 
-.phone-board-glow {
-  width: min(82vw, 520px);
-  height: min(82vw, 520px);
-  border-radius: 9999px;
-  background: radial-gradient(circle, rgba(148, 197, 255, 0.35), rgba(12, 19, 48, 0) 70%);
-  filter: blur(24px);
-  opacity: 0.75;
-}
-
 /* Prevent any overflow clipping of 3D content */
 .phone-layout,
 .phone-layout > * {
