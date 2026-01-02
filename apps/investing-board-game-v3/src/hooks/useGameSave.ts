@@ -37,6 +37,8 @@ interface BoardGameProfile {
   roll_history?: any[]
   doubles_streak?: number
   total_doubles?: number
+  // Jackpot system
+  jackpot?: number
   created_at: string
   updated_at: string
 }
@@ -112,6 +114,8 @@ export function useGameSave(): UseGameSaveReturn {
       rollHistory: Array.isArray(profile.roll_history) ? profile.roll_history : [],
       doublesStreak: profile.doubles_streak ?? 0,
       totalDoubles: profile.total_doubles ?? 0,
+      // Jackpot system
+      jackpot: profile.jackpot ?? 0,
     }
   }, [])
 
@@ -221,6 +225,8 @@ export function useGameSave(): UseGameSaveReturn {
           roll_history: gameState.rollHistory || [],
           doubles_streak: gameState.doublesStreak ?? 0,
           total_doubles: gameState.totalDoubles ?? 0,
+          // Jackpot system
+          jackpot: gameState.jackpot ?? 0,
         }
 
         const { error: upsertError } = await supabaseClient

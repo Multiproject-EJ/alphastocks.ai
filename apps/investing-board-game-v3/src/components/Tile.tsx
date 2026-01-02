@@ -12,6 +12,7 @@ interface TileProps {
   isLanded: boolean
   onClick: () => void
   side?: 'top' | 'bottom' | 'left' | 'right'
+  hasOwnership?: boolean // Indicates if player owns stock in this category
 }
 
 // Configuration for corner tiles and event tiles that use images instead of text
@@ -38,7 +39,7 @@ const TILE_IMAGES: Record<string, { src: string; alt: string }> = {
   },
 }
 
-const TileComponent = ({ tile, isActive, isHopping, isLanded, onClick, side }: TileProps) => {
+const TileComponent = ({ tile, isActive, isHopping, isLanded, onClick, side, hasOwnership = false }: TileProps) => {
   const { lightTap } = useHaptics();
 
   const handleClick = useCallback(() => {
@@ -145,6 +146,16 @@ const TileComponent = ({ tile, isActive, isHopping, isLanded, onClick, side }: T
         {tile.type}
       </Badge>
 
+      {/* Ownership indicator for category tiles */}
+      {hasOwnership && tile.type === 'category' && (
+        <div 
+          className="absolute -top-2 right-2 w-5 h-5 rounded-full bg-green-500 flex items-center justify-center shadow-md"
+          title="You own stocks in this category!"
+        >
+          <span className="text-[10px]">💰</span>
+        </div>
+      )}
+
       {TILE_IMAGES[tile.title] ? (
         <img
           src={`${import.meta.env.BASE_URL}${TILE_IMAGES[tile.title].src}`}
@@ -173,6 +184,7 @@ export const Tile = memo(TileComponent, (prevProps, nextProps) => {
     prevProps.isHopping === nextProps.isHopping &&
     prevProps.isLanded === nextProps.isLanded &&
     prevProps.tile.title === nextProps.tile.title &&
-    prevProps.tile.type === nextProps.tile.type
+    prevProps.tile.type === nextProps.tile.type &&
+    prevProps.hasOwnership === nextProps.hasOwnership
   );
 });

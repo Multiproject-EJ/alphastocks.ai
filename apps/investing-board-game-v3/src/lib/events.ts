@@ -195,6 +195,51 @@ export const RECURRING_EVENTS: GameEvent[] = [
   }
 ]
 
+/**
+ * Check if current week is a Jackpot Week (1 week every 8 weeks)
+ * Starting from a fixed epoch date
+ */
+export function isJackpotWeek(now: Date = new Date()): boolean {
+  // Use January 1, 2024 as epoch (Monday)
+  const epoch = new Date('2024-01-01T00:00:00Z')
+  const msPerWeek = 7 * 24 * 60 * 60 * 1000
+  const weeksSinceEpoch = Math.floor((now.getTime() - epoch.getTime()) / msPerWeek)
+  // Jackpot week is every 8th week (weeks 0, 8, 16, 24...)
+  return weeksSinceEpoch % 8 === 0
+}
+
+/**
+ * Get the Jackpot Week event if currently active
+ */
+export function getJackpotWeekEvent(now: Date = new Date()): GameEvent | null {
+  if (!isJackpotWeek(now)) return null
+  
+  // Calculate start of current week (Monday)
+  const startOfWeek = new Date(now)
+  const dayOfWeek = startOfWeek.getDay()
+  const diff = (dayOfWeek === 0 ? -6 : 1) - dayOfWeek // Adjust to Monday
+  startOfWeek.setDate(startOfWeek.getDate() + diff)
+  startOfWeek.setHours(0, 0, 0, 0)
+  
+  // End of week (Sunday 23:59:59)
+  const endOfWeek = new Date(startOfWeek)
+  endOfWeek.setDate(endOfWeek.getDate() + 7)
+  endOfWeek.setMilliseconds(-1)
+  
+  return {
+    id: 'jackpot-week',
+    title: 'Jackpot Week!',
+    description: 'Land on Start to win the entire Jackpot!',
+    type: 'special',
+    startDate: startOfWeek,
+    endDate: endOfWeek,
+    isActive: true,
+    effects: { customEffect: 'jackpot_week' },
+    icon: '🎰',
+    currency: createCurrencyRules('🎰', 8, 40, 1000),
+  }
+}
+
 // Special events (manually scheduled)
 export const SPECIAL_EVENTS: GameEvent[] = [
   {
@@ -363,11 +408,19 @@ export function getAllEvents(): GameEvent[] {
   if (!initializedRecurringEvents) {
     initializedRecurringEvents = initializeRecurringEvents()
   }
-  return [
+  const events = [
     ...initializedRecurringEvents,
     ...SPECIAL_EVENTS,
     ...generateMonthlyRotationEvents(),
   ]
+  
+  // Add Jackpot Week event if active
+  const jackpotEvent = getJackpotWeekEvent()
+  if (jackpotEvent) {
+    events.push(jackpotEvent)
+  }
+  
+  return events
 }
 
 /**

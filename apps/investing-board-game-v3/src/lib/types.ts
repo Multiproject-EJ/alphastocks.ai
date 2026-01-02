@@ -142,6 +142,8 @@ export interface GameState {
   rollHistory?: DiceRoll[]
   doublesStreak?: number
   totalDoubles?: number
+  // Jackpot system
+  jackpot?: number // Accumulated jackpot from passing Start without landing
   // Net Worth Tier fields
   currentTier?: number // Track current tier number for easy access
   tierUnlockHistory?: Array<{
