@@ -1645,6 +1645,52 @@ function App() {
     closeCurrent()
   }
 
+  const boardSize = !isPhone && !isMobile ? boardRenderSize : BOARD_SIZE
+  const desktopOuterRadius = boardSize / 2 - TILE_SIZE / 2
+  const boardPadding = !isPhone && !isMobile ? 0 : 32
+  const boardOuterRadius = !isPhone && !isMobile
+    ? desktopOuterRadius
+    : (dynamicRadius ?? 456)
+  const isCourtOfCapitalTile =
+    phase === 'landed' && BOARD_TILES[gameState.position]?.title === 'Court of Capital'
+  const isCategoryTileActive = phase === 'landed' && BOARD_TILES[gameState.position]?.type === 'category'
+
+  const getTileCelebrationPosition = useCallback((tileId: number) => {
+    const tileBoardSize = { width: boardSize, height: boardSize }
+    const tilePositions = calculateTilePositions(tileBoardSize, 27, boardOuterRadius, false)
+    const position = tilePositions.find(p => p.id === tileId)
+    if (!position) return null
+    return {
+      x: position.x - boardPadding,
+      y: position.y - boardPadding,
+    }
+  }, [boardSize, boardOuterRadius, boardPadding])
+
+  const triggerTileCelebration = useCallback((tileId: number, emojis: string[]) => {
+    const position = getTileCelebrationPosition(tileId)
+    if (!position) return
+
+    const id = Date.now() + Math.random()
+    setTileCelebrations((prev) => [
+      ...prev,
+      {
+        id,
+        x: position.x,
+        y: position.y,
+        emojis,
+      },
+    ])
+
+    window.setTimeout(() => {
+      setTileCelebrations((prev) => prev.filter((celebration) => celebration.id !== id))
+    }, 1400)
+  }, [getTileCelebrationPosition])
+
+  const triggerCelebrationFromLastTile = useCallback((emojis: string[]) => {
+    if (lastLandedTileId === null) return
+    triggerTileCelebration(lastLandedTileId, emojis)
+  }, [lastLandedTileId, triggerTileCelebration])
+
   const handleEventCurrencyEarned = useCallback((source: string) => {
     if (!currentActiveEvent || !activeEventCurrency) return
 
@@ -2152,52 +2198,6 @@ function App() {
   }
 
   const netWorthChange = ((gameState.netWorth - 100000) / 100000) * 100
-
-  const boardSize = !isPhone && !isMobile ? boardRenderSize : BOARD_SIZE
-  const desktopOuterRadius = boardSize / 2 - TILE_SIZE / 2
-  const boardPadding = !isPhone && !isMobile ? 0 : 32
-  const boardOuterRadius = !isPhone && !isMobile
-    ? desktopOuterRadius
-    : (dynamicRadius ?? 456)
-  const isCourtOfCapitalTile =
-    phase === 'landed' && BOARD_TILES[gameState.position]?.title === 'Court of Capital'
-  const isCategoryTileActive = phase === 'landed' && BOARD_TILES[gameState.position]?.type === 'category'
-
-  const getTileCelebrationPosition = useCallback((tileId: number) => {
-    const tileBoardSize = { width: boardSize, height: boardSize }
-    const tilePositions = calculateTilePositions(tileBoardSize, 27, boardOuterRadius, false)
-    const position = tilePositions.find(p => p.id === tileId)
-    if (!position) return null
-    return {
-      x: position.x - boardPadding,
-      y: position.y - boardPadding,
-    }
-  }, [boardSize, boardOuterRadius, boardPadding])
-
-  const triggerTileCelebration = useCallback((tileId: number, emojis: string[]) => {
-    const position = getTileCelebrationPosition(tileId)
-    if (!position) return
-
-    const id = Date.now() + Math.random()
-    setTileCelebrations((prev) => [
-      ...prev,
-      {
-        id,
-        x: position.x,
-        y: position.y,
-        emojis,
-      },
-    ])
-
-    window.setTimeout(() => {
-      setTileCelebrations((prev) => prev.filter((celebration) => celebration.id !== id))
-    }, 1400)
-  }, [getTileCelebrationPosition])
-
-  const triggerCelebrationFromLastTile = useCallback((emojis: string[]) => {
-    if (lastLandedTileId === null) return
-    triggerTileCelebration(lastLandedTileId, emojis)
-  }, [lastLandedTileId, triggerTileCelebration])
 
   useEffect(() => {
     if (isPhone || isMobile) {
