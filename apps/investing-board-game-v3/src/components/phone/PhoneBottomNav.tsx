@@ -101,6 +101,7 @@ export function PhoneBottomNav({
       {NAV_ITEMS.map((item) => {
         const isActive = mode === item.id;
         const Icon = item.icon;
+        const isBuildItem = item.id === 'cityBuilder';
         
         return (
           <button
@@ -122,10 +123,21 @@ export function PhoneBottomNav({
               touchAction: 'manipulation',
             }}
           >
-            <Icon className={cn(
-              'w-6 h-6 mb-0.5',
-              isActive && 'scale-110 transition-transform'
-            )} />
+            {isBuildItem ? (
+              <img
+                src={`${import.meta.env.BASE_URL}Build.webp`}
+                alt="Build"
+                className={cn(
+                  'h-7 w-7 mb-0.5 object-contain',
+                  isActive && 'scale-110 transition-transform'
+                )}
+              />
+            ) : (
+              <Icon className={cn(
+                'w-6 h-6 mb-0.5',
+                isActive && 'scale-110 transition-transform'
+              )} />
+            )}
             <span className={cn(
               'text-[10px] font-medium',
               isActive && 'font-semibold'
