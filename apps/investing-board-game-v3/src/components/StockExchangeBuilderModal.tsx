@@ -33,6 +33,7 @@ import {
   StockExchangePillarKey,
   getViewedStockCount,
   getPillarProgressPercentage,
+  getOverallProgressPercentage,
 } from '@/lib/stockExchangeBuilder'
 
 const pillarIcons: Record<StockExchangePillarKey, JSX.Element> = {
@@ -237,6 +238,7 @@ export function StockExchangeBuilderModal({
   }
 
   const pillarProgress = getPillarProgressPercentage(selectedProgress)
+  const overallProgress = getOverallProgressPercentage(selectedExchange, selectedProgress)
   const viewedStockCount = getViewedStockCount(selectedExchange, selectedProgress)
 
   return (
@@ -323,10 +325,10 @@ export function StockExchangeBuilderModal({
                   <div className="flex items-center gap-6">
                     <div className="text-right">
                       <div className="text-xs text-muted-foreground">Overall Progress</div>
-                      <div className="text-2xl font-bold text-accent">{pillarProgress}%</div>
+                      <div className="text-2xl font-bold text-accent">{overallProgress}%</div>
                     </div>
                     <div className="w-32">
-                      <Progress value={pillarProgress} className="h-3" />
+                      <Progress value={overallProgress} className="h-3" />
                     </div>
                     <Badge className="bg-accent/20 text-accent">
                       {viewedStockCount}/{selectedExchange.stockIds.length} stocks
