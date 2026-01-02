@@ -78,3 +78,25 @@ Transform the existing City Builder feature into a Stock Exchange Builder for th
 
 ### TODOs / follow-ups
 - Wire the modal into the overlay system and hook it up to live progression logic in Step 3.
+
+## Step 3 — Implement Progression Logic and Game Mechanics
+
+### What changed
+- Added progression utilities to compute stock discovery progress, overall progress, exchange level, glossy completion, and update card art.
+- Implemented upgrade and stock-view helper functions to advance pillar levels, track capital invested, and recalculate exchange completion state.
+- Updated the Stock Exchange Builder modal to display overall progress based on both pillar upgrades and stock discovery.
+
+### Files touched
+- `apps/investing-board-game-v3/src/lib/stockExchangeBuilder.ts`
+- `apps/investing-board-game-v3/src/components/StockExchangeBuilderModal.tsx`
+
+### Commands run + results
+- `npm test` → failed (missing script: "test").
+- `npm run build` → succeeded with existing warnings in the build output.
+- `npm run lint` → failed (missing script: "lint").
+
+### How to verify in the UI
+- Open the Stock Exchange Builder modal and confirm the overall progress bar reflects combined pillar and stock discovery progress when the underlying state changes.
+
+### TODOs / follow-ups
+- Wire the Stock Exchange Builder modal into live game state to exercise the new progression helpers.

@@ -45,6 +45,12 @@ export interface StockExchangeBuilderState {
   exchanges: StockExchangeProgress[]
 }
 
+export interface StockExchangeUpgradeResult {
+  progress: StockExchangeProgress
+  cost: number
+  wasUpgraded: boolean
+}
+
 export const STOCK_EXCHANGE_PILLARS: StockExchangePillarDefinition[] = [
   {
     key: 'capitalInfrastructure',
@@ -108,6 +114,11 @@ export const STOCK_EXCHANGES: StockExchangeDefinition[] = [
 ]
 
 const BASE_UPGRADE_COST = 10
+const LEVEL_PROGRESS_THRESHOLDS: Record<StockExchangeLevel, number> = {
+  1: 0,
+  2: 50,
+  3: 100,
+}
 
 export function calculateUpgradeCost(
   exchange: StockExchangeDefinition,
@@ -171,6 +182,17 @@ export function getViewedStockCount(
   return validViewed.length
 }
 
+export function getStockDiscoveryProgressPercentage(
+  exchange: StockExchangeDefinition,
+  progress: StockExchangeProgress
+): number {
+  const totalStocks = exchange.stockIds.length
+  if (totalStocks === 0) return 0
+
+  const viewedCount = getViewedStockCount(exchange, progress)
+  return Math.min(100, Math.round((viewedCount / totalStocks) * 100))
+}
+
 export function getPillarProgressPercentage(
   progress: StockExchangeProgress
 ): number {
@@ -183,4 +205,91 @@ export function getPillarProgressPercentage(
   if (maxTotal === 0) return 0
 
   return Math.min(100, Math.round((currentTotal / maxTotal) * 100))
+}
+
+export function getOverallProgressPercentage(
+  exchange: StockExchangeDefinition,
+  progress: StockExchangeProgress
+): number {
+  const pillarProgress = getPillarProgressPercentage(progress)
+  const stockProgress = getStockDiscoveryProgressPercentage(exchange, progress)
+
+  return Math.min(100, Math.round((pillarProgress + stockProgress) / 2))
+}
+
+export function resolveExchangeLevel(progressPercentage: number): StockExchangeLevel {
+  if (progressPercentage >= LEVEL_PROGRESS_THRESHOLDS[3]) {
+    return 3
+  }
+
+  if (progressPercentage >= LEVEL_PROGRESS_THRESHOLDS[2]) {
+    return 2
+  }
+
+  return 1
+}
+
+export function updateExchangeProgress(
+  exchange: StockExchangeDefinition,
+  progress: StockExchangeProgress
+): StockExchangeProgress {
+  const pillarProgress = getPillarProgressPercentage(progress)
+  const stockProgress = getStockDiscoveryProgressPercentage(exchange, progress)
+  const overallProgress = getOverallProgressPercentage(exchange, progress)
+  const level = resolveExchangeLevel(overallProgress)
+  const isCompleted = overallProgress >= 100
+  const shouldBeGlossy =
+    isCompleted && pillarProgress >= 100 && stockProgress >= 100
+  const isGlossy = progress.isGlossy || shouldBeGlossy
+  const cardImage =
+    isGlossy && exchange.glossyCardArtByLevel?.[level]
+      ? exchange.glossyCardArtByLevel[level]
+      : exchange.cardArtByLevel[level]
+
+  return {
+    ...progress,
+    level,
+    progress: overallProgress,
+    isGlossy,
+    cardImage,
+    completedAt: isCompleted ? progress.completedAt ?? new Date().toISOString() : progress.completedAt,
+  }
+}
+
+export function upgradePillar(
+  progress: StockExchangeProgress,
+  exchange: StockExchangeDefinition,
+  pillarKey: StockExchangePillarKey
+): StockExchangeUpgradeResult {
+  const pillarDefinition = STOCK_EXCHANGE_PILLARS.find(pillar => pillar.key === pillarKey)
+  if (!pillarDefinition) {
+    return { progress, cost: 0, wasUpgraded: false }
+  }
+
+  const currentLevel = progress.pillarLevels[pillarKey] ?? 0
+  if (currentLevel >= pillarDefinition.maxLevel) {
+    return { progress, cost: 0, wasUpgraded: false }
+  }
+
+  const cost = calculateUpgradeCost(exchange, pillarKey, currentLevel)
+  const nextProgress = updateExchangeProgress(exchange, {
+    ...progress,
+    pillarLevels: {
+      ...progress.pillarLevels,
+      [pillarKey]: currentLevel + 1,
+    },
+    capitalInvested: progress.capitalInvested + cost,
+  })
+
+  return { progress: nextProgress, cost, wasUpgraded: true }
+}
+
+export function recordStockView(
+  progress: StockExchangeProgress,
+  exchange: StockExchangeDefinition,
+  stockId: string
+): StockExchangeProgress {
+  const nextProgress = markStockViewed(progress, stockId)
+
+  return updateExchangeProgress(exchange, nextProgress)
 }
