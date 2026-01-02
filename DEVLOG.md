@@ -146,3 +146,24 @@ Transform the existing City Builder feature into a Stock Exchange Builder for th
 
 ### TODOs / follow-ups
 - Wire real purchase flow and pricing configuration when monetization backend is ready.
+
+## Step 6 — Testing and Optimization
+
+### What changed
+- Memoized stock discovery lookup sets and exchange progress lookups to reduce repeated searches in the Stock Exchange Builder modal.
+- Reduced repeated `progress.find` calls by caching exchange progress in a map.
+
+### Files touched
+- `apps/investing-board-game-v3/src/components/StockExchangeBuilderModal.tsx`
+
+### Commands run + results
+- `npm test` → failed (missing script: "test").
+- `npm run build` → succeeded with existing warnings in the build output.
+- `npm run lint` → failed (missing script: "lint").
+
+### How to verify in the UI
+- Open the Stock Exchange Builder modal and switch between exchanges.
+- Confirm the list, progress bars, and stock discovery buttons behave as before with no visual regressions.
+
+### TODOs / follow-ups
+- Add targeted performance profiling once the Stock Exchange Builder is wired to live gameplay state.
