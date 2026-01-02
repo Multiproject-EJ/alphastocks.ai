@@ -203,3 +203,26 @@ Transform the existing City Builder feature into a Stock Exchange Builder for th
 ### TODOs / follow-ups
 - Connect premium offer CTAs to the monetization backend once available.
 - Revisit capital cost tuning once progression balance is finalized.
+
+## Step 8 — Add Completion Snapshot and Next Focus Guidance
+
+### What changed
+- Added completion snapshot metrics and a “Next Focus” callout to highlight pillar/stock goals in the Stock Exchange Builder insights panel.
+
+### Files touched
+- `apps/investing-board-game-v3/src/components/StockExchangeBuilderModal.tsx`
+- `docs/stock-exchange-builder/PLAN.md`
+- `DEVLOG.md`
+
+### Commands run + results
+- `npm test` → failed (missing script: "test").
+- `npm run build` → succeeded with existing build warnings.
+- `npm run lint` → failed (missing script: "lint").
+- `npm run dev -- --host 0.0.0.0 --port 5000` (apps/investing-board-game-v3) → started for screenshot, then stopped.
+
+### How to verify in the UI
+- Open the Stock Exchange Builder modal.
+- In the “Exchange Insights” panel, confirm the new “Pillars Maxed” metric and “Next Focus” callout reflect remaining pillar upgrades and stock discovery.
+
+### TODOs / follow-ups
+- Consider adding a quick action shortcut from the Next Focus list to the relevant pillar or stock discovery section.

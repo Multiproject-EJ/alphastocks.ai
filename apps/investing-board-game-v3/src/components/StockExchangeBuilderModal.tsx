@@ -338,6 +338,21 @@ export function StockExchangeBuilderModal({
   const pillarProgress = getPillarProgressPercentage(selectedProgress)
   const overallProgress = getOverallProgressPercentage(selectedExchange, selectedProgress)
   const viewedStockCount = getViewedStockCount(selectedExchange, selectedProgress)
+  const maxedPillarCount = STOCK_EXCHANGE_PILLARS.filter(
+    pillar => (selectedProgress.pillarLevels[pillar.key] ?? 0) >= pillar.maxLevel
+  ).length
+  const remainingStocks = Math.max(0, selectedExchange.stockIds.length - viewedStockCount)
+  const nextPillar = STOCK_EXCHANGE_PILLARS.find(
+    pillar => (selectedProgress.pillarLevels[pillar.key] ?? 0) < pillar.maxLevel
+  )
+  const focusItems = [
+    nextPillar
+      ? `Upgrade ${nextPillar.name} to level ${(selectedProgress.pillarLevels[nextPillar.key] ?? 0) + 1}.`
+      : null,
+    remainingStocks > 0
+      ? `Discover ${remainingStocks} more stock${remainingStocks === 1 ? '' : 's'}.`
+      : null,
+  ].filter(Boolean) as string[]
   const archiveEntries = useMemo(
     () => getArchiveEntries(exchanges, progress),
     [exchanges, progress]
@@ -476,6 +491,12 @@ export function StockExchangeBuilderModal({
                         </span>
                       </div>
                       <div className="flex items-center justify-between">
+                        <span>Pillars Maxed</span>
+                        <span className="font-semibold text-foreground">
+                          {maxedPillarCount}/{STOCK_EXCHANGE_PILLARS.length}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between">
                         <span>Card Finish</span>
                         <span className="font-semibold text-foreground">
                           {selectedProgress.isGlossy ? 'Glossy' : 'Standard'}
@@ -487,6 +508,18 @@ export function StockExchangeBuilderModal({
                           {selectedProgress.completedAt ? 'Completed' : 'In Progress'}
                         </span>
                       </div>
+                    </div>
+                    <div className="mt-4 rounded-lg border border-dashed border-border bg-muted/40 p-3">
+                      <div className="text-[11px] uppercase tracking-widest text-muted-foreground">
+                        Next Focus
+                      </div>
+                      <ul className="mt-2 space-y-1 text-xs text-muted-foreground">
+                        {focusItems.length > 0 ? (
+                          focusItems.map(item => <li key={item}>• {item}</li>)
+                        ) : (
+                          <li>Exchange complete. Archive your card for bragging rights.</li>
+                        )}
+                      </ul>
                     </div>
                   </div>
                 </div>
