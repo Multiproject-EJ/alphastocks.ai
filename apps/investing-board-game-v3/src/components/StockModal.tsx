@@ -165,7 +165,7 @@ export function StockModal({ open, onOpenChange, stock, onBuy, cash, showInsight
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className={`${dialogClass} bg-card border-2 border-accent/50 shadow-[0_0_40px_oklch(0.75_0.15_85_/_0.3)] flex flex-col max-h-[calc(100dvh-2rem)] relative will-change-transform`}
+        className={`${dialogClass} bg-transparent border-0 shadow-none p-0 max-h-[calc(100dvh-2rem)] relative will-change-transform`}
         style={{
           transform: `translate(-50%, -50%) translateX(${dragX}px) rotate(${dragX / 22}deg)`,
           transition: isDragging ? 'none' : 'transform 220ms ease',
@@ -176,61 +176,61 @@ export function StockModal({ open, onOpenChange, stock, onBuy, cash, showInsight
         onPointerUp={handlePointerEnd}
         onPointerCancel={handlePointerEnd}
       >
-        <DialogHeader className="flex-shrink-0">
-          {/* Hero Score - Top Right */}
-          {stock.scores && (
-            <div className="absolute top-4 right-12 flex flex-col items-center">
-              <div className={`text-5xl font-bold font-mono ${getScoreColor(stock.scores.composite)}`}>
-                {stock.scores.composite.toFixed(1)}
-              </div>
-              <div className="text-xs text-muted-foreground uppercase tracking-wide">
-                Overall
-              </div>
-              <div className="text-[10px] text-muted-foreground">
-                / 10
-              </div>
-            </div>
-          )}
-          
-          <div className="flex items-center gap-3 mb-2">
-            {/* Image Placeholder */}
-            <div className="relative w-16 h-16 rounded-lg bg-gradient-to-br from-accent/20 to-accent/10 border-2 border-accent/30 overflow-hidden flex-shrink-0">
-              {stock.image_url && !imageError ? (
-                <img 
-                  src={stock.image_url} 
-                  alt={stock.name}
-                  className="w-full h-full object-cover"
-                  onError={() => setImageError(true)}
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-xs text-muted-foreground">
-                  LOGO
+        <div className="flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-4">
+          <div className="bg-card border-2 border-accent/50 shadow-[0_0_40px_oklch(0.75_0.15_85_/_0.3)] rounded-xl p-6 flex flex-col max-h-[calc(100dvh-2rem)] relative">
+            <DialogHeader className="flex-shrink-0">
+              {/* Hero Score - Top Right */}
+              {stock.scores && (
+                <div className="absolute top-4 right-12 flex flex-col items-center">
+                  <div className={`text-5xl font-bold font-mono ${getScoreColor(stock.scores.composite)}`}>
+                    {stock.scores.composite.toFixed(1)}
+                  </div>
+                  <div className="text-xs text-muted-foreground uppercase tracking-wide">
+                    Overall
+                  </div>
+                  <div className="text-[10px] text-muted-foreground">
+                    / 10
+                  </div>
                 </div>
               )}
-            </div>
-            
-            <div className="flex-1 pr-24">
-              <Badge variant="outline" className="text-xs font-mono uppercase bg-accent/20 text-accent border-accent/50 mb-2">
-                {stock.category}
-              </Badge>
-              {/* NEW: Label Badges in Header */}
-              {stock.risk_label && (
-                <Badge className={`text-xs px-2 py-1 border ml-2 ${getRiskLabelColor(stock.risk_label)}`}>
-                  {stock.risk_label}
-                </Badge>
-              )}
-            </div>
-          </div>
-          <DialogTitle className="text-2xl font-bold text-accent">{stock.name}</DialogTitle>
-          <DialogDescription className="text-base text-foreground/80 mt-2">
-            {stock.description}
-          </DialogDescription>
-        </DialogHeader>
+              
+              <div className="flex items-center gap-3 mb-2">
+                {/* Image Placeholder */}
+                <div className="relative w-16 h-16 rounded-lg bg-gradient-to-br from-accent/20 to-accent/10 border-2 border-accent/30 overflow-hidden flex-shrink-0">
+                  {stock.image_url && !imageError ? (
+                    <img 
+                      src={stock.image_url} 
+                      alt={stock.name}
+                      className="w-full h-full object-cover"
+                      onError={() => setImageError(true)}
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-xs text-muted-foreground">
+                      LOGO
+                    </div>
+                  )}
+                </div>
+                
+                <div className="flex-1 pr-24">
+                  <Badge variant="outline" className="text-xs font-mono uppercase bg-accent/20 text-accent border-accent/50 mb-2">
+                    {stock.category}
+                  </Badge>
+                  {/* NEW: Label Badges in Header */}
+                  {stock.risk_label && (
+                    <Badge className={`text-xs px-2 py-1 border ml-2 ${getRiskLabelColor(stock.risk_label)}`}>
+                      {stock.risk_label}
+                    </Badge>
+                  )}
+                </div>
+              </div>
+              <DialogTitle className="text-2xl font-bold text-accent">{stock.name}</DialogTitle>
+              <DialogDescription className="text-base text-foreground/80 mt-2">
+                {stock.description}
+              </DialogDescription>
+            </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto min-h-0">
-          <div className="py-4">
-          <div className="space-y-4 md:grid md:grid-cols-[minmax(0,1fr)_minmax(0,0.7fr)] md:gap-4 md:space-y-0">
-            <div className="space-y-4">
+            <div className="flex-1 overflow-y-auto min-h-0">
+              <div className="py-4 space-y-4">
               <div className="flex items-baseline gap-2">
                 <div className="text-sm text-muted-foreground">Current Price:</div>
                 <div className="text-2xl font-bold font-mono text-foreground">
@@ -539,80 +539,78 @@ export function StockModal({ open, onOpenChange, stock, onBuy, cash, showInsight
                 </Button>
               </div>
             </div>
+          </div>
 
-            <div className="hidden md:block">
-              <div className="rounded-lg border-2 border-blue-500/30 bg-blue-500/10 p-3">
-                <div
-                  className={`rounded-xl border border-blue-400/20 bg-blue-500/10 p-4 text-blue-100 transition-opacity duration-200 ${shouldDimProtools ? 'opacity-60' : 'opacity-100'}`}
-                  onMouseEnter={() => setProtoolsHovered(true)}
-                  onMouseLeave={() => setProtoolsHovered(false)}
-                  onFocus={() => setProtoolsActive(true)}
-                  onBlur={() => setProtoolsActive(false)}
-                  onClick={() => setProtoolsActive(true)}
-                  role="button"
-                  tabIndex={0}
-                >
-                  <div className="flex items-center gap-2 text-blue-200 font-semibold">
-                    <LockKey size={18} weight="fill" />
-                    Protools Stock Insight
-                  </div>
-                  <p className="mt-2 text-sm text-blue-200/80">
-                    Unlock a second insight card with deeper signals before you buy.
-                  </p>
-                  <div className="mt-3 space-y-2 text-sm max-h-[280px] overflow-y-auto pr-1">
-                    <div className="rounded-lg border border-blue-400/20 bg-blue-900/30 p-3">
-                      <div className="text-xs uppercase tracking-widest text-blue-300">Momentum & Sentiment</div>
-                      <p className="mt-1 text-blue-100/80">
-                        AI sentiment trend, sector strength, and crowd positioning.
-                      </p>
-                    </div>
-                    <div className="rounded-lg border border-blue-400/20 bg-blue-900/30 p-3">
-                      <div className="text-xs uppercase tracking-widest text-blue-300">Risk & Catalysts</div>
-                      <p className="mt-1 text-blue-100/80">
-                        Upcoming earnings, news triggers, and downside warnings.
-                      </p>
-                    </div>
-                    <div className="rounded-lg border border-blue-400/20 bg-blue-900/30 p-3">
-                      <div className="text-xs uppercase tracking-widest text-blue-300">Entry Guidance</div>
-                      <p className="mt-1 text-blue-100/80">
-                        Suggested entry zones, watchlist priority, and exit ranges.
-                      </p>
-                    </div>
-                  </div>
-                  <Button
-                    className="mt-4 w-full bg-blue-500 text-white hover:bg-blue-400"
-                    onClick={() => {
-                      window.location.href = 'https://www.alphastocks.ai/?proTools=1'
-                    }}
-                  >
-                    Unlock with Protools
-                  </Button>
-                </div>
-              </div>
+            <div className="pointer-events-none absolute inset-x-6 top-24 flex justify-between text-xs font-semibold uppercase tracking-[0.35em]">
+              <span
+                className="rounded-full border border-emerald-400/40 bg-emerald-400/10 px-3 py-1 text-emerald-200"
+                style={{
+                  opacity: dragX > 0 ? Math.min(1, Math.abs(dragX) / swipeThreshold) : 0,
+                  transform: `scale(${dragX > 0 ? 0.9 + Math.min(1, Math.abs(dragX) / swipeThreshold) * 0.1 : 0.9})`,
+                }}
+              >
+                Invest
+              </span>
+              <span
+                className="rounded-full border border-rose-400/40 bg-rose-400/10 px-3 py-1 text-rose-200"
+                style={{
+                  opacity: dragX < 0 ? Math.min(1, Math.abs(dragX) / swipeThreshold) : 0,
+                  transform: `scale(${dragX < 0 ? 0.9 + Math.min(1, Math.abs(dragX) / swipeThreshold) * 0.1 : 0.9})`,
+                }}
+              >
+                Pass
+              </span>
             </div>
           </div>
-          </div>
-        </div>
 
-        <div className="pointer-events-none absolute inset-x-6 top-24 flex justify-between text-xs font-semibold uppercase tracking-[0.35em]">
-          <span
-            className="rounded-full border border-emerald-400/40 bg-emerald-400/10 px-3 py-1 text-emerald-200"
-            style={{
-              opacity: dragX > 0 ? Math.min(1, Math.abs(dragX) / swipeThreshold) : 0,
-              transform: `scale(${dragX > 0 ? 0.9 + Math.min(1, Math.abs(dragX) / swipeThreshold) * 0.1 : 0.9})`,
-            }}
-          >
-            Invest
-          </span>
-          <span
-            className="rounded-full border border-rose-400/40 bg-rose-400/10 px-3 py-1 text-rose-200"
-            style={{
-              opacity: dragX < 0 ? Math.min(1, Math.abs(dragX) / swipeThreshold) : 0,
-              transform: `scale(${dragX < 0 ? 0.9 + Math.min(1, Math.abs(dragX) / swipeThreshold) * 0.1 : 0.9})`,
-            }}
-          >
-            Pass
-          </span>
+          <div className="hidden md:flex md:flex-col bg-card border-2 border-blue-500/30 shadow-[0_0_40px_oklch(0.75_0.15_85_/_0.3)] rounded-xl p-6 max-h-[calc(100dvh-2rem)]">
+            <div
+              className={`flex-1 rounded-xl border border-blue-400/20 bg-blue-500/10 p-4 text-blue-100 transition-opacity duration-200 ${shouldDimProtools ? 'opacity-60' : 'opacity-100'}`}
+              onMouseEnter={() => setProtoolsHovered(true)}
+              onMouseLeave={() => setProtoolsHovered(false)}
+              onFocus={() => setProtoolsActive(true)}
+              onBlur={() => setProtoolsActive(false)}
+              onClick={() => setProtoolsActive(true)}
+              role="button"
+              tabIndex={0}
+            >
+              <div className="flex items-center gap-2 text-blue-200 font-semibold">
+                <LockKey size={18} weight="fill" />
+                Protools Stock Insight
+              </div>
+              <p className="mt-2 text-sm text-blue-200/80">
+                Unlock a second insight card with deeper signals before you buy.
+              </p>
+              <div className="mt-3 space-y-2 text-sm max-h-[320px] overflow-y-auto pr-1">
+                <div className="rounded-lg border border-blue-400/20 bg-blue-900/30 p-3">
+                  <div className="text-xs uppercase tracking-widest text-blue-300">Momentum & Sentiment</div>
+                  <p className="mt-1 text-blue-100/80">
+                    AI sentiment trend, sector strength, and crowd positioning.
+                  </p>
+                </div>
+                <div className="rounded-lg border border-blue-400/20 bg-blue-900/30 p-3">
+                  <div className="text-xs uppercase tracking-widest text-blue-300">Risk & Catalysts</div>
+                  <p className="mt-1 text-blue-100/80">
+                    Upcoming earnings, news triggers, and downside warnings.
+                  </p>
+                </div>
+                <div className="rounded-lg border border-blue-400/20 bg-blue-900/30 p-3">
+                  <div className="text-xs uppercase tracking-widest text-blue-300">Entry Guidance</div>
+                  <p className="mt-1 text-blue-100/80">
+                    Suggested entry zones, watchlist priority, and exit ranges.
+                  </p>
+                </div>
+              </div>
+              <Button
+                className="mt-4 w-full bg-blue-500 text-white hover:bg-blue-400"
+                onClick={() => {
+                  window.location.href = 'https://www.alphastocks.ai/?proTools=1'
+                }}
+              >
+                Unlock with Protools
+              </Button>
+            </div>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
