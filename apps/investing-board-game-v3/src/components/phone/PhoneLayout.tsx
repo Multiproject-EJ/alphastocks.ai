@@ -169,7 +169,7 @@ export function PhoneLayout({
               <img
                 src={`${import.meta.env.BASE_URL}Shop.webp`}
                 alt="Shop"
-                className="h-12 w-12 object-contain"
+                className="h-16 w-16 object-contain"
               />
             </button>
             <button
