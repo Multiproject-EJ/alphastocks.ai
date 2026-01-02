@@ -19,9 +19,6 @@ interface DiceHUDProps {
   phase: 'idle' | 'rolling' | 'moving' | 'landed'
   rollsRemaining: number
   nextResetTime: Date
-  boardRef?: React.RefObject<HTMLDivElement | null>
-  dragConstraintsRef?: React.RefObject<HTMLElement | null>
-  resetPositionKey?: number
   // Coin-related props
   coins?: number
   canAffordReroll?: boolean
@@ -40,9 +37,6 @@ export function DiceHUD({
   phase, 
   rollsRemaining, 
   nextResetTime, 
-  boardRef, 
-  dragConstraintsRef,
-  resetPositionKey,
   coins,
   canAffordReroll,
   onReroll,
@@ -52,13 +46,11 @@ export function DiceHUD({
   lastEnergyCheck,
   rollHistory = []
 }: DiceHUDProps) {
-  const [isDragging, setIsDragging] = useState(false)
   const [timeUntilReset, setTimeUntilReset] = useState('')
   const [energyRegenTime, setEnergyRegenTime] = useState('')
   const [dice1, setDice1] = useState(propDice1 || 1)
   const [dice2, setDice2] = useState(propDice2 || 1)
   const [isExpanded, setIsExpanded] = useState(false)
-  const [dicePosition, setDicePosition] = useState({ x: 0, y: 0 })
   const [selectedMultiplier, setSelectedMultiplier] = useState(1)
   const [autoRollActive, setAutoRollActive] = useState(false)
   const [autoRollFlash, setAutoRollFlash] = useState(false)
@@ -73,10 +65,6 @@ export function DiceHUD({
     if (propDice1) setDice1(propDice1)
     if (propDice2) setDice2(propDice2)
   }, [propDice1, propDice2])
-
-  useEffect(() => {
-    setDicePosition({ x: 0, y: 0 })
-  }, [resetPositionKey])
 
   // Update daily reset timer
   useEffect(() => {
@@ -227,33 +215,25 @@ export function DiceHUD({
   const availableMultipliers = MULTIPLIERS
 
   return (
-    <motion.div
-      drag
-      dragMomentum={false}
-      dragElastic={0}
-      dragConstraints={dragConstraintsRef ?? boardRef}
-      onDragStart={() => setIsDragging(true)}
-      onDragEnd={(_, info) => {
-        setIsDragging(false)
-        setDicePosition((prev) => ({
-          x: prev.x + info.offset.x,
-          y: prev.y + info.offset.y,
-        }))
-      }}
-      className="absolute left-1/2 z-50 -translate-x-1/2"
-      style={{ top: 'calc(50% - 220px)', x: dicePosition.x, y: dicePosition.y }}
-      whileHover={{ scale: isDragging ? 1 : 1.02 }}
-    >
-      <AnimatePresence mode="wait" initial={false}>
-        {isExpanded ? (
-          <motion.div
-            key="expanded"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            transition={{ duration: 0.15 }}
-            className="cursor-move"
-          >
+    <div className="fixed bottom-8 right-8 z-50">
+      <div className="dice-control-zone">
+        <div
+          className={`dice-aura ${canRoll ? 'dice-aura--active' : ''}`}
+          aria-hidden="true"
+          onClick={() => {
+            if (!isExpanded) setIsExpanded(true)
+          }}
+        />
+        <AnimatePresence mode="wait" initial={false}>
+          {isExpanded ? (
+            <motion.div
+              key="expanded"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.15 }}
+              className="dice-control-zone__content absolute bottom-0 right-0"
+            >
             <Card className="p-4 bg-card/90 backdrop-blur-md border-2 border-border shadow-xl relative">
               {/* Roll Counter - Top Right */}
               <div className="absolute top-2 right-2 bg-background/80 backdrop-blur-sm rounded-full px-3 py-1 border border-accent/30">
@@ -419,19 +399,19 @@ export function DiceHUD({
                   )}
 
                   <div className="text-[10px] opacity-60 text-center">
-                    Dice: {energyRolls}/50 • Drag me anywhere
+                    Dice: {energyRolls}/50
                   </div>
                 </div>
               </div>
             </Card>
-          </motion.div>
-        ) : (
-          <motion.button
-            key="compact"
-            type="button"
-            onClick={() => setIsExpanded(true)}
-            className="relative flex items-center justify-center w-28 h-28 rounded-full border-2 border-white/20 bg-card/80 backdrop-blur-md shadow-xl cursor-pointer"
-          >
+            </motion.div>
+          ) : (
+            <motion.button
+              key="compact"
+              type="button"
+              onClick={() => setIsExpanded(true)}
+              className="dice-control-zone__content relative flex items-center justify-center w-28 h-28 rounded-full border-2 border-white/20 bg-card/80 backdrop-blur-md shadow-xl cursor-pointer"
+            >
             {/* Updraft Controls - Compact Mode */}
             <div className="absolute -right-12 top-1/2 flex -translate-y-1/2 flex-col gap-2">
               <button
@@ -533,9 +513,10 @@ export function DiceHUD({
               </motion.div>
             </div>
             <span className="sr-only">Open dice HUD</span>
-          </motion.button>
-        )}
-      </AnimatePresence>
-    </motion.div>
+            </motion.button>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
   )
 }
