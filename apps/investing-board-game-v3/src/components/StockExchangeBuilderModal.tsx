@@ -220,7 +220,7 @@ function StockDiscoveryCard({
   progress: StockExchangeProgress
   onViewStock?: (exchangeId: string, stockId: string) => void
 }) {
-  const viewed = new Set(progress.stocksViewed)
+  const viewed = useMemo(() => new Set(progress.stocksViewed), [progress.stocksViewed])
 
   return (
     <div className="rounded-xl border border-border bg-card/70 p-4">
@@ -316,6 +316,10 @@ export function StockExchangeBuilderModal({
   onPurchaseOffer,
 }: StockExchangeBuilderModalProps) {
   const dialogClass = useResponsiveDialogClass('full')
+  const progressByExchangeId = useMemo(
+    () => new Map(progress.map(entry => [entry.exchangeId, entry])),
+    [progress]
+  )
 
   const selectedExchange = useMemo(
     () => exchanges.find(exchange => exchange.id === selectedExchangeId) ?? exchanges[0],
@@ -323,8 +327,8 @@ export function StockExchangeBuilderModal({
   )
 
   const selectedProgress = useMemo(
-    () => progress.find(entry => entry.exchangeId === selectedExchange?.id) ?? progress[0],
-    [progress, selectedExchange]
+    () => (selectedExchange ? progressByExchangeId.get(selectedExchange.id) : undefined) ?? progress[0],
+    [progress, progressByExchangeId, selectedExchange]
   )
 
   if (!selectedExchange || !selectedProgress) {
@@ -386,7 +390,7 @@ export function StockExchangeBuilderModal({
               <ScrollArea className="flex-1 px-4 pb-4">
                 <div className="space-y-3">
                   {exchanges.map(exchange => {
-                    const entry = progress.find(item => item.exchangeId === exchange.id)
+                    const entry = progressByExchangeId.get(exchange.id)
 
                     if (!entry) return null
 
