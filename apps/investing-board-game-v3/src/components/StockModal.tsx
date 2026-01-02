@@ -166,17 +166,19 @@ export function StockModal({ open, onOpenChange, stock, onBuy, cash, showInsight
     <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent
           className={`${dialogClass} md:w-[1000px] md:max-w-[1000px] bg-transparent border-0 shadow-none p-0 max-h-[calc(100dvh-2rem)] will-change-transform`}
-        style={{
-          transform: `translate(calc(-50% + ${dragX}px), -50%) rotate(${dragX / 22}deg)`,
-          transition: isDragging ? 'none' : 'transform 220ms ease',
-          touchAction: 'pan-y',
-        }}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerEnd}
         onPointerCancel={handlePointerEnd}
       >
-        <div className="relative flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-4">
+        <div 
+          className="relative flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-4"
+          style={{
+            transform: `translateX(${dragX}px) rotate(${dragX / 22}deg)`,
+            transition: isDragging ? 'none' : 'transform 220ms ease',
+            touchAction: 'pan-y',
+          }}
+        >
           <div className="bg-card border-2 border-accent/50 shadow-[0_0_40px_oklch(0.75_0.15_85_/_0.3)] rounded-xl p-6 flex flex-col max-h-[calc(100dvh-2rem)] relative">
             <DialogHeader className="flex-shrink-0">
               {/* Hero Score - Top Right */}
