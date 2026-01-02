@@ -2683,28 +2683,36 @@ function App() {
               }}
             />
           </div>
-            <Button
-              onClick={openEventCalendar}
-              className="relative bg-emerald-500/90 hover:bg-emerald-500 text-white shadow-lg hover:shadow-xl transition-all backdrop-blur-sm rounded-2xl px-5 py-3 text-left min-h-14"
-              aria-label="Open Right Now"
-            >
-              <span className="absolute -top-1 -right-1 flex h-3 w-3">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-500 opacity-75" />
-                <span className="relative inline-flex h-3 w-3 rounded-full bg-red-500" />
-              </span>
-              <div className="flex flex-col gap-1">
-                <span className="text-[11px] uppercase tracking-[0.3em] text-white/80">Right Now</span>
-                <span className="text-sm font-semibold flex items-center gap-2">
-                  {rightNowEvent?.icon && <span className="text-base">{rightNowEvent.icon}</span>}
-                  {rightNowEvent ? rightNowEvent.title : 'No event scheduled'}
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={openEventCalendar}
+                className="relative bg-emerald-500/90 hover:bg-emerald-500 text-white shadow-lg hover:shadow-xl transition-all backdrop-blur-sm rounded-2xl px-5 py-3 text-left min-h-14"
+                aria-label="Open Right Now"
+              >
+                <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-500 opacity-75" />
+                  <span className="relative inline-flex h-3 w-3 rounded-full bg-red-500" />
                 </span>
-                <span className="text-xs text-white/70">
-                  {rightNowCountdownTarget
-                    ? `${rightNowStatusLabel} ${formatEventCountdown(rightNowCountdownTarget, rightNowTick)}`
-                    : 'Schedule updating'}
-                </span>
-              </div>
-            </Button>
+                <div className="flex flex-col gap-2">
+                  <span className="text-sm font-semibold flex items-center gap-2">
+                    {rightNowEvent?.icon && <span className="text-base">{rightNowEvent.icon}</span>}
+                    {rightNowEvent ? rightNowEvent.title : 'No event scheduled'}
+                  </span>
+                  <span className="inline-flex items-center rounded-full bg-white/15 px-3 py-1 text-xs text-white/90">
+                    {rightNowCountdownTarget
+                      ? `${rightNowStatusLabel} ${formatEventCountdown(rightNowCountdownTarget, rightNowTick)}`
+                      : 'Schedule updating'}
+                  </span>
+                </div>
+              </Button>
+              <Button
+                onClick={openEventCalendar}
+                className="bg-emerald-500/80 hover:bg-emerald-500 text-white shadow-lg hover:shadow-xl transition-all backdrop-blur-sm rounded-full h-12 w-12 p-0 flex items-center justify-center"
+                aria-label="Open Event Calendar"
+              >
+                <CalendarBlank size={20} weight="fill" />
+              </Button>
+            </div>
           </div>
         )}
       </div>
