@@ -88,7 +88,7 @@ export function UIModeProvider({
     try {
       const lastMode = localStorage.getItem('lastUIMode')
       // Validate that it's a valid UIMode
-      const validModes: UIMode[] = ['board', 'cityBuilder', 'gallery', 'portfolio', 'hub', 'shop', 'casino', 'biasSanctuary', 'challenges', 'leaderboard', 'settings']
+      const validModes: UIMode[] = ['board', 'stockExchangeBuilder', 'gallery', 'portfolio', 'hub', 'shop', 'casino', 'biasSanctuary', 'challenges', 'leaderboard', 'settings']
       if (lastMode && validModes.includes(lastMode as UIMode) && lastMode !== initialMode) {
         // Schedule transition for next tick to ensure transitionTo is defined
         setTimeout(() => {

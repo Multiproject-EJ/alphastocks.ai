@@ -7,7 +7,7 @@
 
 export type UIMode = 
   | 'board'           // Main game board (playing)
-  | 'cityBuilder'     // Building/upgrading city
+  | 'stockExchangeBuilder'     // Building/upgrading exchanges
   | 'gallery'         // Net worth gallery view
   | 'portfolio'       // Portfolio management
   | 'hub'             // Hub/navigation view
@@ -38,11 +38,11 @@ export interface UIModeTransition {
 
 // Valid transitions between UI modes
 const VALID_TRANSITIONS: Record<UIMode, UIMode[]> = {
-  board: ['cityBuilder', 'gallery', 'portfolio', 'hub', 'shop', 'casino', 'biasSanctuary', 'challenges', 'leaderboard', 'settings'],
-  cityBuilder: ['board'],
+  board: ['stockExchangeBuilder', 'gallery', 'portfolio', 'hub', 'shop', 'casino', 'biasSanctuary', 'challenges', 'leaderboard', 'settings'],
+  stockExchangeBuilder: ['board'],
   gallery: ['board'],
   portfolio: ['board'],
-  hub: ['board', 'cityBuilder', 'gallery', 'portfolio', 'shop', 'challenges', 'leaderboard'],
+  hub: ['board', 'stockExchangeBuilder', 'gallery', 'portfolio', 'shop', 'challenges', 'leaderboard'],
   shop: ['board', 'hub'],
   casino: ['board'],
   biasSanctuary: ['board'],
@@ -75,12 +75,12 @@ export const MODE_HANDLERS: Record<UIMode, {
       // Pause animations if needed
     },
   },
-  cityBuilder: {
+  stockExchangeBuilder: {
     onEnter: async (data) => {
-      console.log('[UIMode] Entering city builder', data);
+      console.log('[UIMode] Entering stock exchange builder', data);
     },
     onExit: async () => {
-      console.log('[UIMode] Exiting city builder');
+      console.log('[UIMode] Exiting stock exchange builder');
     },
   },
   gallery: {

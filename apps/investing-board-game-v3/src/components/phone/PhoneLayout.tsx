@@ -1,5 +1,5 @@
 import { ReactNode, useEffect, useMemo, useState } from 'react';
-import { Building2, Clock3, TrendingUp, Wrench } from 'lucide-react';
+import { Clock3, TrendingUp, Wrench } from 'lucide-react';
 import { CompactHUD } from './CompactHUD';
 import { PhoneBottomNav } from './PhoneBottomNav';
 import { MobileBoard3D } from './MobileBoard3D';
@@ -36,7 +36,7 @@ interface PhoneLayoutProps {
   onOpenPortfolio?: () => void;
   onOpenProTools?: () => void;
   onOpenShop?: () => void;
-  onOpenCities?: () => void;
+  onOpenStockExchangeBuilder?: () => void;
   onOpenRightNow?: () => void;
 }
 
@@ -56,7 +56,7 @@ export function PhoneLayout({
   onOpenPortfolio = () => {},
   onOpenProTools = () => {},
   onOpenShop = () => {},
-  onOpenCities = () => {},
+  onOpenStockExchangeBuilder = () => {},
   onOpenRightNow = () => {},
 }: PhoneLayoutProps) {
   const { mode } = useUIMode();
@@ -173,12 +173,12 @@ export function PhoneLayout({
               />
             </button>
             <button
-              onClick={onOpenCities}
+              onClick={onOpenStockExchangeBuilder}
               className="flex items-center gap-2 rounded-full bg-emerald-500/90 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-emerald-500/30 backdrop-blur-sm transition-all hover:bg-emerald-500"
-              aria-label="Open Cities"
+              aria-label="Open Stock Exchange Builder"
             >
-              <Building2 size={18} />
-              Cities
+              <TrendingUp size={18} />
+              Exchanges
             </button>
             <button
               onClick={onOpenRightNow}
