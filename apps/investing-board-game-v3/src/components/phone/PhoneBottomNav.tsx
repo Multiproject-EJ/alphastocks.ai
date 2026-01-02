@@ -128,7 +128,7 @@ export function PhoneBottomNav({
                 src={`${import.meta.env.BASE_URL}Build.webp`}
                 alt="Build"
                 className={cn(
-                  'h-7 w-7 mb-0.5 object-contain',
+                  'h-9 w-9 mb-0.5 object-contain',
                   isActive && 'scale-110 transition-transform'
                 )}
               />
@@ -204,7 +204,7 @@ export function PhoneBottomNav({
                 src={`${import.meta.env.BASE_URL}Shop.webp`}
                 alt="Shop"
                 className={cn(
-                  'h-7 w-7 mb-0.5 object-contain',
+                  'h-9 w-9 mb-0.5 object-contain',
                   isActive && 'scale-110 transition-transform'
                 )}
               />
