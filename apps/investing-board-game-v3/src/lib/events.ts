@@ -22,6 +22,7 @@ export interface GameEvent {
   }
   
   icon: string // emoji
+  currency?: EventCurrencyRules
   theme?: string // optional UI theme during event
   
   recurrence?: {
@@ -32,6 +33,25 @@ export interface GameEvent {
     duration: number // hours
   }
 }
+
+export interface EventCurrencyRules {
+  emoji: string
+  earnOnMarketEvent: number
+  goal: number
+  rewardStars: number
+}
+
+const createCurrencyRules = (
+  emoji: string,
+  earnOnMarketEvent: number,
+  goal: number,
+  rewardStars: number
+): EventCurrencyRules => ({
+  emoji,
+  earnOnMarketEvent,
+  goal,
+  rewardStars,
+})
 
 /**
  * Calculate the next occurrence of a recurring event
@@ -93,6 +113,7 @@ export const RECURRING_EVENTS: GameEvent[] = [
     isActive: false,
     effects: { starsMultiplier: 2 },
     icon: '🌟',
+    currency: createCurrencyRules('🌟', 6, 30, 600),
     recurrence: { 
       frequency: 'weekly', 
       dayOfWeek: 5, // Friday
@@ -110,6 +131,7 @@ export const RECURRING_EVENTS: GameEvent[] = [
     isActive: false,
     effects: { customEffect: 'thrifty_2x' },
     icon: '💰',
+    currency: createCurrencyRules('💰', 4, 20, 350),
     recurrence: {
       frequency: 'weekly',
       dayOfWeek: 4, // Thursday
@@ -127,6 +149,7 @@ export const RECURRING_EVENTS: GameEvent[] = [
     isActive: false,
     effects: { guaranteedWin: true },
     icon: '🎰',
+    currency: createCurrencyRules('🎰', 5, 25, 400),
     recurrence: {
       frequency: 'weekly',
       dayOfWeek: 5, // Friday
@@ -144,6 +167,7 @@ export const RECURRING_EVENTS: GameEvent[] = [
     isActive: false,
     effects: { rollsBonus: 5 },
     icon: '🎲',
+    currency: createCurrencyRules('🎲', 5, 20, 450),
     recurrence: {
       frequency: 'weekly',
       dayOfWeek: 0, // Sunday
@@ -161,6 +185,7 @@ export const RECURRING_EVENTS: GameEvent[] = [
     isActive: false,
     effects: { xpMultiplier: 1.5 },
     icon: '⚡',
+    currency: createCurrencyRules('⚡', 4, 24, 375),
     recurrence: {
       frequency: 'weekly',
       dayOfWeek: 3, // Wednesday
@@ -181,7 +206,8 @@ export const SPECIAL_EVENTS: GameEvent[] = [
     endDate: new Date('2026-01-02T00:00:00'),
     isActive: false,
     effects: { starsMultiplier: 3, xpMultiplier: 3 },
-    icon: '🎊'
+    icon: '🎊',
+    currency: createCurrencyRules('🎊', 6, 24, 750),
   },
   {
     id: 'new-year-2025',
@@ -192,7 +218,8 @@ export const SPECIAL_EVENTS: GameEvent[] = [
     endDate: new Date('2025-01-02T00:00:00'),
     isActive: false,
     effects: { starsMultiplier: 3, xpMultiplier: 3 },
-    icon: '🎊'
+    icon: '🎊',
+    currency: createCurrencyRules('🎊', 6, 24, 750),
   },
 ]
 
@@ -203,6 +230,7 @@ const ROTATION_EVENT_TEMPLATES: Array<Omit<GameEvent, 'startDate' | 'endDate' | 
     type: 'special',
     effects: { xpMultiplier: 1.25 },
     icon: '📈',
+    currency: createCurrencyRules('📈', 5, 25, 500),
   },
   {
     title: 'Dividend Days',
@@ -210,6 +238,7 @@ const ROTATION_EVENT_TEMPLATES: Array<Omit<GameEvent, 'startDate' | 'endDate' | 
     type: 'special',
     effects: { starsMultiplier: 2 },
     icon: '💸',
+    currency: createCurrencyRules('💸', 4, 20, 400),
   },
   {
     title: 'Bull Run Rally',
@@ -217,6 +246,7 @@ const ROTATION_EVENT_TEMPLATES: Array<Omit<GameEvent, 'startDate' | 'endDate' | 
     type: 'special',
     effects: { rollsBonus: 3, xpMultiplier: 1.5 },
     icon: '🐂',
+    currency: createCurrencyRules('🐂', 6, 30, 600),
   },
   {
     title: 'Savings Surge',
@@ -224,6 +254,7 @@ const ROTATION_EVENT_TEMPLATES: Array<Omit<GameEvent, 'startDate' | 'endDate' | 
     type: 'special',
     effects: { shopDiscount: 20 },
     icon: '🛍️',
+    currency: createCurrencyRules('🛍️', 3, 18, 350),
   },
   {
     title: 'Star Harvest',
@@ -231,6 +262,7 @@ const ROTATION_EVENT_TEMPLATES: Array<Omit<GameEvent, 'startDate' | 'endDate' | 
     type: 'special',
     effects: { starsMultiplier: 1.75 },
     icon: '✨',
+    currency: createCurrencyRules('✨', 5, 22, 450),
   },
   {
     title: 'Investor Advantage',
@@ -238,6 +270,7 @@ const ROTATION_EVENT_TEMPLATES: Array<Omit<GameEvent, 'startDate' | 'endDate' | 
     type: 'special',
     effects: { rollsBonus: 2, xpMultiplier: 1.4 },
     icon: '🧠',
+    currency: createCurrencyRules('🧠', 4, 24, 425),
   },
   {
     title: 'Momentum Marathon',
@@ -245,6 +278,7 @@ const ROTATION_EVENT_TEMPLATES: Array<Omit<GameEvent, 'startDate' | 'endDate' | 
     type: 'special',
     effects: { xpMultiplier: 1.35 },
     icon: '🏁',
+    currency: createCurrencyRules('🏁', 5, 28, 500),
   },
   {
     title: 'High Yield Weekend',
@@ -252,6 +286,7 @@ const ROTATION_EVENT_TEMPLATES: Array<Omit<GameEvent, 'startDate' | 'endDate' | 
     type: 'special',
     effects: { starsMultiplier: 2.25 },
     icon: '🏦',
+    currency: createCurrencyRules('🏦', 6, 30, 650),
   },
 ]
 
