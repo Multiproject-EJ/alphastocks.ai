@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback, lazy, Suspense } from 'react'
 import { Toaster, toast } from 'sonner'
 import { Button } from '@/components/ui/button'
-import { Buildings, Star, ChartLine, Trophy, CalendarBlank, Crown } from '@phosphor-icons/react'
+import { Buildings, Star, ChartLine, Trophy, CalendarBlank, Crown, GearSix } from '@phosphor-icons/react'
 import { Tile } from '@/components/Tile'
 import { DiceHUD } from '@/components/DiceHUD'
 import { HubModal } from '@/components/HubModal'
@@ -2414,6 +2414,20 @@ function App() {
           </div>
         )}
 
+        {!isPhone && (
+          <div className={`absolute right-4 top-4 z-30 transition-opacity duration-500 ${
+            isLogoPanel ? 'opacity-0 pointer-events-none' : 'opacity-100'
+          }`}>
+            <Button
+              onClick={() => handleBottomNavigation('settings')}
+              className="h-12 w-12 rounded-full border border-white/15 bg-slate-900/80 text-white shadow-lg backdrop-blur hover:bg-slate-900"
+              aria-label="Open Settings"
+            >
+              <GearSix size={22} weight="bold" />
+            </Button>
+          </div>
+        )}
+
         {/* Board Container - Centered and scaled to fit viewport height */}
         <div className={`relative ${!isPhone ? 'flex-shrink flex items-center justify-center overflow-hidden' : ''}`} style={{
           ...((!isPhone) ? {
@@ -2694,25 +2708,6 @@ function App() {
           </div>
         )}
       </div>
-
-      {!isPhone && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3">
-          <Button
-            onClick={toggleNotifications}
-            className="h-11 rounded-full border border-white/15 bg-slate-900/80 px-5 text-sm font-semibold text-white shadow-lg backdrop-blur hover:bg-slate-900"
-            aria-pressed={notificationsEnabled}
-            aria-label={`Turn ${notificationsEnabled ? 'off' : 'on'} toast notifications`}
-          >
-            <span
-              className={`mr-2 inline-flex h-2.5 w-2.5 rounded-full ${
-                notificationsEnabled ? 'bg-emerald-400' : 'bg-red-400'
-              }`}
-            />
-            Toasts: {notificationsEnabled ? 'On' : 'Off'}
-          </Button>
-        </div>
-      )}
-
 
       {/* Mobile Bottom Navigation - Only show on non-phone devices */}
       {!isPhone && (
