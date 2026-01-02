@@ -29,6 +29,7 @@ const DEFAULT_FOCUS_LIST = [
   { id: 'focus-3', title: 'Macro digest', caption: 'Upload CPI research PDF', tag: { tone: 'tag-blue', label: 'Pinned' } },
   { id: 'focus-4', title: 'Position audit', caption: 'Rotate winners & laggards', tag: { label: 'Next week' } }
 ];
+const DEEP_DIVE_READS_TABLE = 'valuebot_deep_dive_reads';
 
 const DEFAULT_UNIVERSE_ROWS = [
   {
@@ -886,10 +887,94 @@ const App = () => {
     error: deepDiveIndexError,
     refresh: refreshDeepDiveIndex
   } = useFetchDeepDivesFromUniverse();
+  const [readDeepDiveIds, setReadDeepDiveIds] = useState(() => new Set());
+  const [readDeepDiveError, setReadDeepDiveError] = useState(null);
+  const [isReadDeepDiveLoading, setIsReadDeepDiveLoading] = useState(false);
+  const [unreadOpenId, setUnreadOpenId] = useState(null);
+  const [unreadOpenError, setUnreadOpenError] = useState(null);
   const deepDiveTickers = useMemo(
     () => new Set((userDeepDives ?? []).map((item) => item.ticker)),
     [userDeepDives]
   );
+  const loadReadDeepDiveIds = useCallback(async () => {
+    if (typeof dataService?.getTable !== 'function') {
+      return;
+    }
+
+    if (dataService?.mode === 'demo' && typeof dataService?.listTables === 'function') {
+      const tables = dataService.listTables();
+      if (!tables.includes(DEEP_DIVE_READS_TABLE)) {
+        setReadDeepDiveIds(new Set());
+        return;
+      }
+    }
+
+    if (isSupabaseMode && !user?.id) {
+      setReadDeepDiveIds(new Set());
+      return;
+    }
+
+    setIsReadDeepDiveLoading(true);
+    setReadDeepDiveError(null);
+
+    try {
+      const options = isSupabaseMode && user?.id ? { match: { user_id: user.id } } : undefined;
+      const { rows } = await dataService.getTable(DEEP_DIVE_READS_TABLE, options);
+      const ids = (rows ?? [])
+        .filter((row) => (!user?.id ? true : row.user_id === user.id))
+        .map((row) => row.deep_dive_id)
+        .filter(Boolean);
+
+      setReadDeepDiveIds(new Set(ids));
+    } catch (err) {
+      setReadDeepDiveError(err?.message || 'Unable to load unread analysis tracking right now.');
+      setReadDeepDiveIds(new Set());
+    } finally {
+      setIsReadDeepDiveLoading(false);
+    }
+  }, [dataService, isSupabaseMode, user?.id]);
+  const markDeepDiveAsRead = useCallback(
+    async (deepDiveId) => {
+      if (!deepDiveId || readDeepDiveIds.has(deepDiveId)) {
+        return;
+      }
+
+      if (isSupabaseMode && !user?.id) {
+        return;
+      }
+
+      const payload = {
+        deep_dive_id: deepDiveId,
+        user_id: user?.id ?? 'demo',
+        read_at: new Date().toISOString()
+      };
+
+      try {
+        if (typeof dataService?.createRow === 'function') {
+          await dataService.createRow(DEEP_DIVE_READS_TABLE, payload);
+        }
+      } catch (err) {
+        console.warn('Unable to mark deep dive as read.', err);
+      } finally {
+        setReadDeepDiveIds((prev) => {
+          const next = new Set(prev);
+          next.add(deepDiveId);
+          return next;
+        });
+      }
+    },
+    [dataService, isSupabaseMode, readDeepDiveIds, user?.id]
+  );
+  const unreadAnalyses = useMemo(
+    () => (userDeepDives ?? []).filter((dive) => !readDeepDiveIds.has(dive.id)),
+    [readDeepDiveIds, userDeepDives]
+  );
+  const handleUnreadAnalysesRefresh = useCallback(async () => {
+    await Promise.allSettled([refreshDeepDiveIndex(), loadReadDeepDiveIds()]);
+  }, [loadReadDeepDiveIds, refreshDeepDiveIndex]);
+  useEffect(() => {
+    loadReadDeepDiveIds();
+  }, [loadReadDeepDiveIds]);
   const universeViewDisplay = useMemo(() => {
     const fallbackName = 'Anora Group Oyj';
     const fallbackTicker = 'ANORA';
@@ -1225,6 +1310,7 @@ const App = () => {
 
       handleValueBotContextUpdate(restoredContext);
       setActiveSection('valuebot');
+      markDeepDiveAsRead(row.id);
 
       if (finalVerdictTab) {
         setActiveValueBotTab(finalVerdictTab.id);
@@ -1234,7 +1320,43 @@ const App = () => {
         }));
       }
     },
-    [finalVerdictTab, handleValueBotContextUpdate, valueBotContext?.deepDiveConfig]
+    [finalVerdictTab, handleValueBotContextUpdate, markDeepDiveAsRead, valueBotContext?.deepDiveConfig]
+  );
+
+  const handleOpenUnreadAnalysis = useCallback(
+    async (summary) => {
+      if (!summary?.id) {
+        return;
+      }
+
+      if (typeof dataService?.getTable !== 'function') {
+        setUnreadOpenError('Data service is not configured. Unable to open deep dive.');
+        return;
+      }
+
+      setUnreadOpenError(null);
+      setUnreadOpenId(summary.id);
+
+      try {
+        const { rows } = await dataService.getTable('valuebot_deep_dives', {
+          match: { id: summary.id },
+          limit: 1
+        });
+        const deepDive = rows?.[0];
+
+        if (!deepDive) {
+          throw new Error('Deep dive record not found.');
+        }
+
+        handleReopenDeepDive(deepDive);
+        await markDeepDiveAsRead(deepDive.id);
+      } catch (err) {
+        setUnreadOpenError(err?.message || 'Unable to open that analysis right now.');
+      } finally {
+        setUnreadOpenId(null);
+      }
+    },
+    [dataService, handleReopenDeepDive, markDeepDiveAsRead]
   );
 
   const openDeepDiveModal = useCallback((row) => {
@@ -2485,7 +2607,60 @@ const App = () => {
         <h2>{section.title}</h2>
         {section.meta && <p className="detail-meta">{section.meta}</p>}
         <div className="detail-grid detail-grid--dashboard">
-          {[0, 1, 2].map((index) => (
+          <div className="detail-card" data-size="third">
+            <header className="list-header">
+              <h3>Unread analyses</h3>
+              <button
+                className="btn-tertiary"
+                type="button"
+                onClick={handleUnreadAnalysesRefresh}
+                disabled={deepDiveIndexLoading || isReadDeepDiveLoading}
+              >
+                {deepDiveIndexLoading || isReadDeepDiveLoading ? 'Refreshing…' : 'Refresh'}
+              </button>
+            </header>
+            <ul className="list-items">
+              {unreadAnalyses.length ? (
+                unreadAnalyses.map((item) => {
+                  const title = item.company_name || item.ticker || 'New analysis';
+                  const subtitle = [item.ticker, item.created_at ? formatDateLabel(item.created_at) : null]
+                    .filter(Boolean)
+                    .join(' • ');
+                  const isOpening = unreadOpenId === item.id;
+
+                  return (
+                    <li key={item.id} className="list-item list-item--linked">
+                      <button
+                        className="list-item__link"
+                        type="button"
+                        onClick={() => handleOpenUnreadAnalysis(item)}
+                        disabled={isOpening}
+                      >
+                        <div>
+                          <strong>{title}</strong>
+                          <span>{subtitle || 'New deep dive saved'}</span>
+                        </div>
+                        <span className="tag tag-blue">{isOpening ? 'Opening…' : 'Open'}</span>
+                      </button>
+                    </li>
+                  );
+                })
+              ) : (
+                <li className="list-item list-item--empty">
+                  <div>
+                    <strong>All caught up</strong>
+                    <span>New ValueBot analyses will appear here when they are saved.</span>
+                  </div>
+                </li>
+              )}
+            </ul>
+            {(deepDiveIndexError || readDeepDiveError || unreadOpenError) && (
+              <p className="detail-meta" role="status">
+                {unreadOpenError || readDeepDiveError || deepDiveIndexError}
+              </p>
+            )}
+          </div>
+          {[0, 1].map((index) => (
             <div className="detail-card" data-size="third" key={`focus-column-${index}`}>
               <header className="list-header">
                 <h3>Today&apos;s focus</h3>
