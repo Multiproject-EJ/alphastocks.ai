@@ -100,3 +100,25 @@ Transform the existing City Builder feature into a Stock Exchange Builder for th
 
 ### TODOs / follow-ups
 - Wire the Stock Exchange Builder modal into live game state to exercise the new progression helpers.
+## Step 4 — Implement the Archive / Album Feature
+
+### What changed
+- Added archive entry helpers to collect completed exchanges and surface them in the Stock Exchange Builder UI.
+- Added an Archive Album section to the modal that lists completed exchanges with card art, glossy badges, and completion dates.
+
+### Files touched
+- `apps/investing-board-game-v3/src/lib/stockExchangeBuilder.ts`
+- `apps/investing-board-game-v3/src/components/StockExchangeBuilderModal.tsx`
+
+### Commands run + results
+- `npm test` → failed (missing script: "test").
+- `npm run build` → succeeded with existing build warnings.
+- `npm run lint` → failed (missing script: "lint").
+- `npm run dev -- --host 0.0.0.0 --port 5000` (apps/investing-board-game-v3) → started for screenshot, then stopped.
+
+### How to verify in the UI
+- Open the Stock Exchange Builder modal and scroll below the stock discovery section.
+- Confirm the "Archive Album" section appears and lists any exchanges with `completedAt` populated; otherwise it shows the empty-state message.
+
+### TODOs / follow-ups
+- Wire real completion data into game state once progression is connected to gameplay.
