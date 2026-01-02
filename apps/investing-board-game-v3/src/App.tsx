@@ -1359,20 +1359,17 @@ function App() {
       return
     }
 
-    // NEW: Multiplier now affects rewards, not roll count - only consume 1 roll
-    const rollsToConsume = 1
-
     // clear any lingering timers from a previous roll to keep movement predictable
     clearAllTimers()
 
     // Store the reward multiplier for use in handleTileLanding
     currentRewardMultiplierRef.current = multiplier
 
-    // Consume 1 roll (multiplier affects rewards, not roll count)
-    setRollsRemaining((prev) => prev - rollsToConsume)
+    // Consume 1 roll (multiplier affects rewards only, not roll count)
+    setRollsRemaining((prev) => prev - 1)
     setGameState(prev => ({
       ...prev,
-      energyRolls: Math.max(0, (prev.energyRolls ?? DAILY_ROLL_LIMIT) - rollsToConsume)
+      energyRolls: Math.max(0, (prev.energyRolls ?? DAILY_ROLL_LIMIT) - 1)
     }))
 
     // DevTools: Log roll event
@@ -1472,10 +1469,11 @@ function App() {
         addCoins(finalCoins, multiplier > 1 ? `${multiplier}x Roll Rewards` : 'Roll Rewards')
       }
       
-      // Notify about jackpot increase
+      // Notify about jackpot increase (calculate new total explicitly since setState is async)
       if (jackpotChange > 0) {
+        const newJackpotTotal = (gameState.jackpot ?? 0) + jackpotChange
         toast.info('🎰 Jackpot Growing!', {
-          description: `+$${jackpotChange.toLocaleString()} added to jackpot (now $${((gameState.jackpot ?? 0) + jackpotChange).toLocaleString()})`,
+          description: `+$${jackpotChange.toLocaleString()} added to jackpot (now $${newJackpotTotal.toLocaleString()})`,
         })
       }
       
@@ -1700,8 +1698,9 @@ function App() {
     // Haptic feedback on tile landing
     lightTap()
 
-    // Get current reward multiplier
+    // Get current reward multiplier and reset it for next roll
     const rewardMultiplier = currentRewardMultiplierRef.current
+    currentRewardMultiplierRef.current = 1 // Reset to default after reading
 
     // DevTools: Log tile landed event
     logEvent?.('tile_landed', { position, tileType: tile.type, passedStart, rewardMultiplier })

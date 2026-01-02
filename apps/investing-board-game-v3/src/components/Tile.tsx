@@ -149,10 +149,11 @@ const TileComponent = ({ tile, isActive, isHopping, isLanded, onClick, side, has
       {/* Ownership indicator for category tiles */}
       {hasOwnership && tile.type === 'category' && (
         <div 
-          className="absolute -top-2 right-2 w-5 h-5 rounded-full bg-green-500 flex items-center justify-center shadow-md"
-          title="You own stocks in this category!"
+          className="absolute -top-2 right-2 w-5 h-5 rounded-full bg-green-500 flex items-center justify-center shadow-md border border-white/30"
+          role="img"
+          aria-label="You own stocks in this category"
         >
-          <span className="text-[10px]">💰</span>
+          <span className="text-[10px]" aria-hidden="true">💰</span>
         </div>
       )}
 

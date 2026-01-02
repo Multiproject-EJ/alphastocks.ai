@@ -200,12 +200,14 @@ export const RECURRING_EVENTS: GameEvent[] = [
  * Starting from a fixed epoch date
  */
 export function isJackpotWeek(now: Date = new Date()): boolean {
-  // Use January 1, 2024 as epoch (Monday)
+  // Use January 1, 2024 as epoch (this was a Monday)
   const epoch = new Date('2024-01-01T00:00:00Z')
   const msPerWeek = 7 * 24 * 60 * 60 * 1000
   const weeksSinceEpoch = Math.floor((now.getTime() - epoch.getTime()) / msPerWeek)
+  // Handle dates before epoch (negative weeks) - use absolute value for consistent pattern
+  const normalizedWeeks = Math.abs(weeksSinceEpoch)
   // Jackpot week is every 8th week (weeks 0, 8, 16, 24...)
-  return weeksSinceEpoch % 8 === 0
+  return normalizedWeeks % 8 === 0
 }
 
 /**
