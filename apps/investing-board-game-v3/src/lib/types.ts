@@ -86,6 +86,10 @@ export interface GameState {
   portfolioValue: number
   stars: number
   coins: number // New: Third currency for micro-transactions
+  eventCurrency?: {
+    eventId: string | null
+    amount: number
+  }
   holdings: Array<{
     stock: Stock
     shares: number

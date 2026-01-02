@@ -165,6 +165,10 @@ function App() {
     portfolioValue: 0,
     stars: 0,
     coins: 100,
+    eventCurrency: {
+      eventId: null,
+      amount: 0,
+    },
     holdings: [],
     inventory: [],
     activeEffects: [],
@@ -791,6 +795,32 @@ function App() {
   const rightNowEvent = currentActiveEvent ?? nextEvent
   const rightNowCountdownTarget = currentActiveEvent ? currentActiveEvent.endDate : nextEvent?.startDate
   const rightNowStatusLabel = currentActiveEvent ? 'Ends in' : nextEvent ? 'Starts in' : 'Schedule updating'
+  const activeEventCurrency = currentActiveEvent?.currency
+  const storedEventCurrency = gameState.eventCurrency ?? { eventId: null, amount: 0 }
+  const activeEventCurrencyAmount =
+    currentActiveEvent && storedEventCurrency.eventId === currentActiveEvent.id
+      ? storedEventCurrency.amount
+      : 0
+  const eventCurrencyGoal = activeEventCurrency?.goal ?? 0
+  const eventCurrencyProgressPercent =
+    eventCurrencyGoal > 0 ? Math.min((activeEventCurrencyAmount / eventCurrencyGoal) * 100, 100) : 0
+  const eventCurrencyToNextReward =
+    eventCurrencyGoal > 0 ? Math.max(eventCurrencyGoal - activeEventCurrencyAmount, 0) : 0
+
+  useEffect(() => {
+    const activeEventId = currentActiveEvent?.id ?? null
+    setGameState(prev => {
+      const currentEventId = prev.eventCurrency?.eventId ?? null
+      if (currentEventId === activeEventId) return prev
+      return {
+        ...prev,
+        eventCurrency: {
+          eventId: activeEventId,
+          amount: 0,
+        },
+      }
+    })
+  }, [currentActiveEvent?.id])
 
   // Check for challenge resets on load and periodically
   useEffect(() => {
@@ -1037,6 +1067,10 @@ function App() {
       const loadedState = {
         ...savedGameState,
         cityLevel: savedGameState.cityLevel ?? 1, // Default to 1 if not present
+        eventCurrency: savedGameState.eventCurrency ?? {
+          eventId: null,
+          amount: 0,
+        },
       }
       setGameState(loadedState)
       // Initialize rollsRemaining from energyRolls in savedGameState
@@ -1611,6 +1645,46 @@ function App() {
     closeCurrent()
   }
 
+  const handleEventCurrencyEarned = useCallback((source: string) => {
+    if (!currentActiveEvent || !activeEventCurrency) return
+
+    const { earnOnMarketEvent, goal, rewardStars, emoji } = activeEventCurrency
+    if (earnOnMarketEvent <= 0 || goal <= 0) return
+
+    let goalsHit = 0
+    let starsAwarded = 0
+
+    setGameState(prev => {
+      const eventId = currentActiveEvent.id
+      const currentAmount = prev.eventCurrency?.eventId === eventId ? prev.eventCurrency.amount : 0
+      const updatedAmount = currentAmount + earnOnMarketEvent
+      goalsHit = Math.floor(updatedAmount / goal)
+      starsAwarded = goalsHit * rewardStars
+      const remainder = updatedAmount % goal
+
+      return {
+        ...prev,
+        stars: prev.stars + starsAwarded,
+        eventCurrency: {
+          eventId,
+          amount: remainder,
+        },
+      }
+    })
+
+    toast.success(`+${earnOnMarketEvent} ${emoji}`, {
+      description: `${currentActiveEvent.title} reward from ${source}.`,
+    })
+    triggerCelebrationFromLastTile([emoji])
+
+    if (goalsHit > 0) {
+      toast.success(`${currentActiveEvent.title} prize unlocked!`, {
+        description: `Earned ${starsAwarded.toLocaleString()} ⭐`,
+      })
+      triggerCelebrationFromLastTile(['⭐', '✨'])
+    }
+  }, [activeEventCurrency, currentActiveEvent, triggerCelebrationFromLastTile])
+
   const handleTileLanding = (position: number, passedStart = false) => {
     setDiceResetKey((prev) => prev + 1)
     playSound('tile-land')
@@ -1736,6 +1810,7 @@ function App() {
         })
       } else if (tile.title === 'Market Event') {
         debugGame('Opening Event modal')
+        handleEventCurrencyEarned('Market Event tile')
         
         // Check if Market Shield is active
         if (hasPowerUp('market-shield')) {
@@ -2174,11 +2249,9 @@ function App() {
       })()
     : 1000
 
-  const starRewardInterval = 5000
-  const starRewardValue = 1000
-  const starsProgressInInterval = gameState.stars % starRewardInterval
-  const starsProgressPercent = Math.min((starsProgressInInterval / starRewardInterval) * 100, 100)
-  const starsToNextReward = starRewardInterval - starsProgressInInterval
+  const activeEventCurrencyEmoji = activeEventCurrency?.emoji ?? '⭐'
+  const activeEventRewardStars = activeEventCurrency?.rewardStars ?? 0
+  const eventCurrencyProgress = activeEventCurrencyAmount
 
   const centralStockCard = (
     <CentralStockCard
@@ -2266,26 +2339,39 @@ function App() {
               <div className="w-72 rounded-2xl border border-white/15 bg-slate-950/70 px-4 py-3 text-white shadow-lg backdrop-blur">
                 <div className="flex items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/20">
-                    <Star size={18} weight="fill" className="text-emerald-300" />
+                    <span className="text-lg">{activeEventCurrencyEmoji}</span>
                   </div>
                   <div>
                     <p className="text-[11px] uppercase tracking-[0.2em] text-emerald-200/80">Goal Rush</p>
                     <p className="text-sm font-semibold">
-                      +{starRewardValue.toLocaleString()} ⭐ every {starRewardInterval.toLocaleString()} stars
+                      {currentActiveEvent
+                        ? `${currentActiveEvent.title} Rewards`
+                        : 'No active event'}
+                    </p>
+                    <p className="text-xs text-emerald-100/80">
+                      {currentActiveEvent && activeEventRewardStars > 0 && eventCurrencyGoal > 0
+                        ? `+${activeEventRewardStars.toLocaleString()} ⭐ every ${eventCurrencyGoal.toLocaleString()} ${activeEventCurrencyEmoji}`
+                        : 'Event rewards update when an event begins.'}
                     </p>
                   </div>
                 </div>
                 <div className="mt-3">
                   <div className="flex items-center justify-between text-xs text-white/70">
                     <span>
-                      {starsProgressInInterval.toLocaleString()} / {starRewardInterval.toLocaleString()} ⭐
+                      {eventCurrencyGoal > 0
+                        ? `${eventCurrencyProgress.toLocaleString()} / ${eventCurrencyGoal.toLocaleString()} ${activeEventCurrencyEmoji}`
+                        : 'Event currency paused'}
                     </span>
-                    <span>{starsToNextReward.toLocaleString()} to prize</span>
+                    <span>
+                      {eventCurrencyGoal > 0
+                        ? `${eventCurrencyToNextReward.toLocaleString()} to prize`
+                        : 'Waiting on schedule'}
+                    </span>
                   </div>
                   <div className="mt-2 h-2 w-full rounded-full bg-white/10">
                     <div
                       className="h-full rounded-full bg-gradient-to-r from-emerald-400 via-green-400 to-lime-300"
-                      style={{ width: `${starsProgressPercent}%` }}
+                      style={{ width: `${eventCurrencyProgressPercent}%` }}
                     />
                   </div>
                 </div>
