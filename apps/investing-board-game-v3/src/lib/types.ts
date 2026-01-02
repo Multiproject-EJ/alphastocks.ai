@@ -184,6 +184,23 @@ export interface GameState {
     totalUpgrades: number
     totalBuildingsCompleted: number
   }
+  // Stock Exchange Builder State
+  stockExchangeBuilder?: {
+    exchanges: Array<{
+      exchangeId: string
+      level: 1 | 2 | 3
+      progress: number
+      stocksViewed: string[]
+      pillarLevels: Record<
+        'capitalInfrastructure' | 'marketActivity' | 'knowledgeDiscovery' | 'investorSkill',
+        number
+      >
+      capitalInvested: number
+      isGlossy: boolean
+      cardImage: string
+      completedAt?: string
+    }>
+  }
   // City Level (current city index for backward compatibility)
   cityLevel?: number
 }
