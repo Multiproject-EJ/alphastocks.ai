@@ -25,6 +25,23 @@ export const STARTING_NET_WORTH = 100000
 export const MULTIPLIERS = [1, 5, 10, 25, 50, 100] as const
 export type RollMultiplier = typeof MULTIPLIERS[number]
 
+/** Jackpot amount added when passing Start without landing on it */
+export const JACKPOT_PASS_START_AMOUNT = 10000
+
+/** Maximum cash reward for owning 100% of a category in portfolio */
+export const CATEGORY_OWNERSHIP_MAX_REWARD = 100000
+
+/**
+ * Calculate cash reward for landing on a category tile where player owns stock
+ * @param ownershipPercent - Percentage of portfolio in this category (0-100)
+ * @returns Cash reward amount (10% = $10,000, 100% = $100,000)
+ */
+export function calculateCategoryOwnershipReward(ownershipPercent: number): number {
+  // Linear scaling: 10% ownership = $10,000, 100% ownership = $100,000
+  const clampedPercent = Math.max(0, Math.min(100, ownershipPercent))
+  return Math.floor((clampedPercent / 100) * CATEGORY_OWNERSHIP_MAX_REWARD)
+}
+
 /**
  * Calculate the next midnight time for daily roll reset
  */
