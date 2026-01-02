@@ -81,8 +81,8 @@ export function PhoneLayout({
 
   const phoneBackground = useMemo(() => {
     if (currentHour >= 0 && currentHour <= 4) return 'Phonebgdeepnight.webp';
-    if (currentHour <= 6) return 'Phonebglatesunrise.webp';
-    if (currentHour <= 8) return 'Phonebgdawnsunrise.webp';
+    if (currentHour <= 6) return 'Phonebgdawnsunrise.webp';
+    if (currentHour <= 8) return 'Phonebglatesunrise.webp';
     if (currentHour <= 16) return 'Phonebgday.webp';
     if (currentHour <= 18) return 'Phonebgsunset.webp';
     if (currentHour <= 20) return 'Phonebgearlynight.webp';
