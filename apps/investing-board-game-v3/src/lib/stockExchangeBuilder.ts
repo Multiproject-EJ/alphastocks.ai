@@ -57,6 +57,21 @@ export interface StockExchangeUpgradeResult {
   wasUpgraded: boolean
 }
 
+export type StockExchangePremiumOfferType =
+  | 'capitalInfusion'
+  | 'pillarAccelerator'
+  | 'glossyFinisher'
+
+export interface StockExchangePremiumOffer {
+  id: string
+  type: StockExchangePremiumOfferType
+  title: string
+  description: string
+  priceLabel: string
+  perks: string[]
+  badge?: string
+}
+
 export const STOCK_EXCHANGE_PILLARS: StockExchangePillarDefinition[] = [
   {
     key: 'capitalInfrastructure',
@@ -116,6 +131,34 @@ export const STOCK_EXCHANGES: StockExchangeDefinition[] = [
       2: '/assets/exchanges/nasdaq-level-2-glossy.png',
       3: '/assets/exchanges/nasdaq-level-3-glossy.png',
     },
+  },
+]
+
+export const STOCK_EXCHANGE_PREMIUM_OFFERS: StockExchangePremiumOffer[] = [
+  {
+    id: 'capital-burst',
+    type: 'capitalInfusion',
+    title: 'Capital Burst Pack',
+    description: 'Instant capital infusion to speed up pillar upgrades.',
+    priceLabel: '$4.99',
+    perks: ['+5,000 capital', 'Unlocks 2 pillar upgrades instantly'],
+    badge: 'Best Value',
+  },
+  {
+    id: 'research-pass',
+    type: 'pillarAccelerator',
+    title: 'Research Pass',
+    description: 'Double stock discovery rewards for 24 hours.',
+    priceLabel: '$2.99',
+    perks: ['2x discovery rewards', 'Bonus glossy chance'],
+  },
+  {
+    id: 'glossy-finish',
+    type: 'glossyFinisher',
+    title: 'Glossy Finish Kit',
+    description: 'Guarantee a glossy card on next exchange completion.',
+    priceLabel: '$6.99',
+    perks: ['Guaranteed glossy finish', 'Exclusive border'],
   },
 ]
 

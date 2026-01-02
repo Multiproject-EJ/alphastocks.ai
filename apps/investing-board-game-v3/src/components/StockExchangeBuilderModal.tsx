@@ -32,6 +32,7 @@ import {
   STOCK_EXCHANGE_PILLARS,
   StockExchangePillarKey,
   StockExchangeArchiveEntry,
+  STOCK_EXCHANGE_PREMIUM_OFFERS,
   getViewedStockCount,
   getPillarProgressPercentage,
   getOverallProgressPercentage,
@@ -55,6 +56,7 @@ interface StockExchangeBuilderModalProps {
   availableCapital: number
   onUpgradePillar?: (exchangeId: string, pillarKey: StockExchangePillarKey) => void
   onViewStock?: (exchangeId: string, stockId: string) => void
+  onPurchaseOffer?: (offerId: string) => void
 }
 
 function StockExchangeArchive({ entries }: { entries: StockExchangeArchiveEntry[] }) {
@@ -255,6 +257,52 @@ function StockDiscoveryCard({
   )
 }
 
+function PremiumOfferCard({
+  offer,
+  onPurchase,
+}: {
+  offer: (typeof STOCK_EXCHANGE_PREMIUM_OFFERS)[number]
+  onPurchase?: (offerId: string) => void
+}) {
+  return (
+    <div className="flex h-full flex-col rounded-xl border border-border bg-card/70 p-4">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <div className="flex items-center gap-2">
+            <h5 className="text-sm font-semibold">{offer.title}</h5>
+            {offer.badge && (
+              <Badge className="bg-amber-400 text-amber-950 text-[10px]">
+                {offer.badge}
+              </Badge>
+            )}
+          </div>
+          <p className="mt-1 text-xs text-muted-foreground">{offer.description}</p>
+        </div>
+        <Badge variant="outline" className="text-[11px]">
+          {offer.priceLabel}
+        </Badge>
+      </div>
+      <ul className="mt-4 space-y-1 text-xs text-muted-foreground">
+        {offer.perks.map(perk => (
+          <li key={perk} className="flex items-center gap-2">
+            <span className="text-accent">•</span>
+            <span>{perk}</span>
+          </li>
+        ))}
+      </ul>
+      <Button
+        size="sm"
+        className="mt-4 w-full"
+        variant={onPurchase ? 'default' : 'outline'}
+        onClick={() => onPurchase?.(offer.id)}
+        disabled={!onPurchase}
+      >
+        {onPurchase ? 'Unlock Boost' : 'Coming Soon'}
+      </Button>
+    </div>
+  )
+}
+
 export function StockExchangeBuilderModal({
   open,
   onOpenChange,
@@ -265,6 +313,7 @@ export function StockExchangeBuilderModal({
   availableCapital,
   onUpgradePillar,
   onViewStock,
+  onPurchaseOffer,
 }: StockExchangeBuilderModalProps) {
   const dialogClass = useResponsiveDialogClass('full')
 
@@ -435,6 +484,33 @@ export function StockExchangeBuilderModal({
                         </span>
                       </div>
                     </div>
+                  </div>
+                </div>
+
+                <div className="my-6">
+                  <Separator />
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="text-sm font-semibold">Premium Boosts</h4>
+                      <p className="text-xs text-muted-foreground">
+                        Optional boosts to accelerate exchange progression and card finishes.
+                      </p>
+                    </div>
+                    <Badge variant="outline" className="text-[11px]">
+                      Limited-time
+                    </Badge>
+                  </div>
+                  <div className="mt-4 grid gap-3 lg:grid-cols-3">
+                    {STOCK_EXCHANGE_PREMIUM_OFFERS.map(offer => (
+                      <PremiumOfferCard
+                        key={offer.id}
+                        offer={offer}
+                        onPurchase={onPurchaseOffer}
+                      />
+                    ))}
                   </div>
                 </div>
 

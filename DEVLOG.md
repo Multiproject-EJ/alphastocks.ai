@@ -122,3 +122,27 @@ Transform the existing City Builder feature into a Stock Exchange Builder for th
 
 ### TODOs / follow-ups
 - Wire real completion data into game state once progression is connected to gameplay.
+
+## Step 5 — Integrate Monetization Features (Optional)
+
+### What changed
+- Added premium offer metadata for Stock Exchange Builder monetization packs.
+- Added a Premium Boosts section in the Stock Exchange Builder modal with offer cards and CTA buttons.
+
+### Files touched
+- `apps/investing-board-game-v3/src/lib/stockExchangeBuilder.ts`
+- `apps/investing-board-game-v3/src/components/StockExchangeBuilderModal.tsx`
+
+### Commands run + results
+- `npm test` → failed (missing script: "test").
+- `npm run build` → succeeded with existing build warnings.
+- `npm run lint` → failed (missing script: "lint").
+- `npm run dev -- --host 0.0.0.0 --port 5000` (apps/investing-board-game-v3) → started for screenshot, then stopped.
+
+### How to verify in the UI
+- Open the Stock Exchange Builder modal.
+- Scroll below Exchange Insights to find the “Premium Boosts” section.
+- Confirm the offer cards list perks and show “Coming Soon” CTAs when no purchase handler is wired.
+
+### TODOs / follow-ups
+- Wire real purchase flow and pricing configuration when monetization backend is ready.
