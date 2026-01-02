@@ -2241,6 +2241,15 @@ function App() {
         className={`relative z-10 ${!isPhone ? 'h-[calc(100vh-2rem)] w-full' : 'max-w-[1600px] mx-auto'}`}
         ref={boardContainerRef}
       >
+        {!isPhone && !isMobile && (
+          <div className="absolute bottom-6 left-6 z-20 pointer-events-none">
+            <img
+              src="/board-game-v3/Chance.webp"
+              alt="Chance cards"
+              className="h-auto w-32 max-w-[18vw] drop-shadow-[0_10px_20px_rgba(0,0,0,0.45)]"
+            />
+          </div>
+        )}
         {/* Left Column - Action buttons (desktop/tablet only) */}
         {!isPhone && (
           <div className={`absolute left-4 top-4 flex flex-col gap-6 items-start justify-start pt-4 transition-opacity duration-500 flex-shrink-0 z-20 ${
