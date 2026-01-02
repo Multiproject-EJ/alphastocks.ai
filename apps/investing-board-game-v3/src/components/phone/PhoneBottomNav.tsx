@@ -12,7 +12,7 @@ import { DiceButton } from './DiceButton';
 
 const NAV_ITEMS: ReadonlyArray<{ id: UIMode; icon: typeof Gamepad2; label: string }> = [
   { id: 'board', icon: Gamepad2, label: 'Play' },
-  { id: 'cityBuilder', icon: Building2, label: 'Build' },
+  { id: 'stockExchangeBuilder', icon: Building2, label: 'Exchange' },
 ] as const;
 
 const NAV_ITEMS_RIGHT: ReadonlyArray<{ id: UIMode; icon?: typeof Gamepad2; label: string }> = [
@@ -101,7 +101,7 @@ export function PhoneBottomNav({
       {NAV_ITEMS.map((item) => {
         const isActive = mode === item.id;
         const Icon = item.icon;
-        const isBuildItem = item.id === 'cityBuilder';
+        const isBuildItem = item.id === 'stockExchangeBuilder';
         
         return (
           <button

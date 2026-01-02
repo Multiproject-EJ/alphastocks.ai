@@ -25,7 +25,7 @@ const ShopModal = lazy(() => import('@/components/ShopModal'))
 const ChallengesModal = lazy(() => import('@/components/ChallengesModal'))
 const EventCalendar = lazy(() => import('@/components/EventCalendar'))
 const SettingsModal = lazy(() => import('@/components/SettingsModal'))
-const CityBuilderModal = lazy(() => import('@/components/CityBuilderModal'))
+const StockExchangeBuilderModal = lazy(() => import('@/components/StockExchangeBuilderModal'))
 const LeaderboardModal = lazy(() => import('@/components/LeaderboardModal'))
 
 export const OVERLAY_REGISTRY = {
@@ -44,7 +44,7 @@ export const OVERLAY_REGISTRY = {
   'tierUp': TierUpModal,
   'outOfRolls': OutOfRollsModal,
   'settings': SettingsModal,
-  'cityBuilder': CityBuilderModal,
+  'stockExchangeBuilder': StockExchangeBuilderModal,
   'levelUp': LevelUpModal,
   'leaderboard': LeaderboardModal,
   'achievement': AchievementNotification,

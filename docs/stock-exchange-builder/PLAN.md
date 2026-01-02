@@ -8,7 +8,7 @@
 - [x] Step 4
 - [x] Step 5
 - [x] Step 6
-- [ ] Step 7
+- [x] Step 7
 
 ## Steps Overview
 0. Adapt the Plan to the Existing Repository

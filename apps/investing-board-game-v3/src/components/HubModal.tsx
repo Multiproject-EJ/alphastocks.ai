@@ -17,10 +17,10 @@ interface HubModalProps {
   onOpenChange: (open: boolean) => void
   gameState: GameState
   onOpenChallenges?: () => void
-  onOpenCityBuilder?: () => void
+  onOpenStockExchangeBuilder?: () => void
 }
 
-export function HubModal({ open, onOpenChange, gameState, onOpenChallenges, onOpenCityBuilder }: HubModalProps) {
+export function HubModal({ open, onOpenChange, gameState, onOpenChallenges, onOpenStockExchangeBuilder }: HubModalProps) {
   const dialogClass = useResponsiveDialogClass('medium')
   // Combine human player with AI players for leaderboard
   const allPlayers = [
@@ -112,11 +112,11 @@ export function HubModal({ open, onOpenChange, gameState, onOpenChallenges, onOp
                 className="w-full"
                 onClick={() => {
                   onOpenChange(false)
-                  onOpenCityBuilder?.()
+                  onOpenStockExchangeBuilder?.()
                 }}
               >
                 <Buildings size={16} className="mr-2" />
-                City Builder
+                Stock Exchange Builder
               </Button>
             </div>
 

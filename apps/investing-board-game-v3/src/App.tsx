@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback, lazy, Suspense } from 'react'
 import { Toaster, toast } from 'sonner'
 import { Button } from '@/components/ui/button'
-import { Buildings, Star, ChartLine, Trophy, CalendarBlank, Crown, GearSix } from '@phosphor-icons/react'
+import { Star, ChartLine, Trophy, CalendarBlank, Crown, GearSix } from '@phosphor-icons/react'
 import { Tile } from '@/components/Tile'
 import { DiceHUD } from '@/components/DiceHUD'
 import { HubModal } from '@/components/HubModal'
@@ -49,7 +49,7 @@ const ShopModal = lazy(() => import('@/components/ShopModal'))
 const ChallengesModal = lazy(() => import('@/components/ChallengesModal'))
 const EventCalendar = lazy(() => import('@/components/EventCalendar'))
 const SettingsModal = lazy(() => import('@/components/SettingsModal'))
-const CityBuilderModal = lazy(() => import('@/components/CityBuilderModal'))
+const StockExchangeBuilderModal = lazy(() => import('@/components/StockExchangeBuilderModal'))
 
 // DevTools components (only in dev mode)
 const TapTestOverlay = import.meta.env.DEV || import.meta.env.VITE_DEVTOOLS === '1' 
@@ -100,7 +100,7 @@ import { useGestureArbitration } from '@/hooks/useGestureArbitration'
 import { useNetWorthTier } from '@/hooks/useNetWorthTier'
 import { useCoins } from '@/hooks/useCoins'
 import { useThriftPath } from '@/hooks/useThriftPath'
-import { useCityBuilder } from '@/hooks/useCityBuilder'
+import { useStockExchangeBuilder } from '@/hooks/useStockExchangeBuilder'
 import { useBoardZoom } from '@/hooks/useBoardZoom'
 import { useBoardCamera } from '@/hooks/useBoardCamera'
 import { useSafeArea } from '@/hooks/useSafeArea'
@@ -110,7 +110,7 @@ import { useLayoutMode } from '@/hooks/useLayoutMode'
 import { useNotificationPreferences } from '@/hooks/useNotificationPreferences'
 import { ThriftPathStatus as ThriftPathStatusType } from '@/lib/thriftPath'
 import { COIN_COSTS, COIN_EARNINGS } from '@/lib/coins'
-import { getInitialCityBuilderState, CITIES, CityBuilderState } from '@/lib/cityBuilder'
+import { getInitialStockExchangeState, StockExchangeBuilderState } from '@/lib/stockExchangeBuilder'
 import { calculateXPForLevel } from '@/lib/progression'
 import type { UIMode, GamePhase } from '@/lib/uiModeStateMachine'
 import type { RollMultiplier } from '@/lib/constants'
@@ -222,6 +222,7 @@ function App() {
         longTermHoldings: 0
       }
     },
+    stockExchangeBuilder: getInitialStockExchangeState(),
     cityLevel: 1, // City level for backward compatibility (defaults to first city)
   }
 
@@ -463,75 +464,58 @@ function App() {
     checkDailyStreak
   } = useThriftPath(initialThriftPathStatus)
 
-  // City Builder hook (Monopoly Go style)
+  // Stock Exchange Builder hook
   const {
-    cityBuilderState,
-    setCityBuilderState,
-    currentCity,
-    currentCityProgress,
-    unlockedCities,
-    allCities,
-    upgradeBuilding,
-    unlockNextCity,
-    claimCityReward,
-    selectCity,
-    canUpgrade: canUpgradeBuilding,
-    timeUntilNextUpgrade,
-    totalBuildingsCompleted,
-    totalCitiesCompleted,
-    totalCitiesUnlocked,
-    nextCityToUnlock,
-    canUnlockNext,
-  } = useCityBuilder({
-    initialState: gameState.cityBuilder,
-    stars: gameState.stars,
-    onSpendStars: (amount, reason) => {
-      if (gameState.stars < amount) return false
-      setGameState(prev => ({ ...prev, stars: prev.stars - amount }))
+    exchanges: stockExchanges,
+    stockExchangeState,
+    setStockExchangeState,
+    selectedExchangeId,
+    selectExchange,
+    onUpgradePillar,
+    onViewStock,
+  } = useStockExchangeBuilder({
+    initialState: gameState.stockExchangeBuilder,
+    availableCapital: gameState.cash,
+    onSpendCapital: (amount) => {
+      if (gameState.cash < amount) return false
+      setGameState(prev => ({
+        ...prev,
+        cash: prev.cash - amount,
+        netWorth: prev.netWorth - amount,
+      }))
       return true
-    },
-    onEarnCoins: (amount, source) => {
-      addCoins(amount, source)
-    },
-    onEarnStars: (amount, source) => {
-      setGameState(prev => ({ ...prev, stars: prev.stars + amount }))
-      toast.success(`+${amount} ⭐`, { description: source })
     },
   })
 
-  // Sync cityBuilderState to gameState - use ref to prevent infinite loops
-  const lastSyncedCityBuilderRef = useRef<CityBuilderState | null>(null)
+  // Sync stockExchangeState to gameState - use ref to prevent infinite loops
+  const lastSyncedStockExchangeRef = useRef<StockExchangeBuilderState | null>(null)
   useEffect(() => {
-    // Skip if we've already synced this exact state reference
-    if (lastSyncedCityBuilderRef.current === cityBuilderState) {
+    if (lastSyncedStockExchangeRef.current === stockExchangeState) {
       return
     }
-    
+
     let shouldUpdate = false
-    
+
     setGameState(prev => {
-      // Compare stringified versions only if needed to detect actual changes
-      const prevCityBuilderJson = JSON.stringify(prev.cityBuilder)
-      const newCityBuilderJson = JSON.stringify(cityBuilderState)
-      
-      // Only update if the state has actually changed
-      if (prevCityBuilderJson === newCityBuilderJson) {
+      const prevStockExchangeJson = JSON.stringify(prev.stockExchangeBuilder)
+      const newStockExchangeJson = JSON.stringify(stockExchangeState)
+
+      if (prevStockExchangeJson === newStockExchangeJson) {
         return prev
       }
-      
+
       shouldUpdate = true
-      
+
       return {
         ...prev,
-        cityBuilder: cityBuilderState,
+        stockExchangeBuilder: stockExchangeState,
       }
     })
-    
-    // Only mark as synced if we actually updated the state
+
     if (shouldUpdate) {
-      lastSyncedCityBuilderRef.current = cityBuilderState
+      lastSyncedStockExchangeRef.current = stockExchangeState
     }
-  }, [cityBuilderState])
+  }, [stockExchangeState])
 
   // Gesture arbitration hook - Priority: pinch > swipe > pan > tap
   // This replaces the simple swipe gesture hook with a more sophisticated system
@@ -746,46 +730,35 @@ function App() {
     shopDiscount,
   ])
 
-  const openCitiesOverlay = useCallback(() => {
+  const openStockExchangeOverlay = useCallback(() => {
     showOverlay({
-      id: 'cityBuilder',
-      component: lazy(() => import('@/components/CityBuilderModal')),
+      id: 'stockExchangeBuilder',
+      component: StockExchangeBuilderModal,
       props: {
-        stars: gameState.stars,
-        currentCity,
-        currentCityProgress,
-        allCities,
-        citiesProgress: cityBuilderState.cities,
-        canUpgrade: canUpgradeBuilding,
-        timeUntilNextUpgrade,
-        onUpgradeBuilding: upgradeBuilding,
-        onUnlockNextCity: unlockNextCity,
-        onSelectCity: selectCity,
-        nextCityToUnlock,
-        canUnlockNext,
-        totalBuildingsCompleted,
-        totalCitiesCompleted,
-        totalCitiesUnlocked,
+        exchanges: stockExchanges,
+        progress: stockExchangeState.exchanges,
+        selectedExchangeId,
+        onSelectExchange: selectExchange,
+        availableCapital: gameState.cash,
+        onUpgradePillar,
+        onViewStock,
+        onPurchaseOffer: (offerId: string) => {
+          toast.info('Premium boosts coming soon', {
+            description: `Offer ${offerId} will be available later.`,
+          })
+        },
       },
       priority: 'normal',
     })
   }, [
     showOverlay,
-    gameState.stars,
-    currentCity,
-    currentCityProgress,
-    allCities,
-    cityBuilderState.cities,
-    canUpgradeBuilding,
-    timeUntilNextUpgrade,
-    upgradeBuilding,
-    unlockNextCity,
-    selectCity,
-    nextCityToUnlock,
-    canUnlockNext,
-    totalBuildingsCompleted,
-    totalCitiesCompleted,
-    totalCitiesUnlocked,
+    stockExchanges,
+    stockExchangeState.exchanges,
+    selectedExchangeId,
+    selectExchange,
+    gameState.cash,
+    onUpgradePillar,
+    onViewStock,
   ])
 
   const currentActiveEvent = [...activeEvents].sort(
@@ -2411,30 +2384,7 @@ function App() {
                           priority: 'normal',
                         })
                       },
-                      onOpenCityBuilder: () => {
-                        showOverlay({
-                          id: 'cityBuilder',
-                          component: lazy(() => import('@/components/CityBuilderModal')),
-                          props: {
-                            stars: gameState.stars,
-                            currentCity,
-                            currentCityProgress,
-                            allCities,
-                            citiesProgress: cityBuilderState.cities,
-                            canUpgrade: canUpgradeBuilding,
-                            timeUntilNextUpgrade,
-                            onUpgradeBuilding: upgradeBuilding,
-                            onUnlockNextCity: unlockNextCity,
-                            onSelectCity: selectCity,
-                            nextCityToUnlock,
-                            canUnlockNext,
-                            totalBuildingsCompleted,
-                            totalCitiesCompleted,
-                            totalCitiesUnlocked,
-                          },
-                          priority: 'normal',
-                        })
-                      },
+                      onOpenStockExchangeBuilder: openStockExchangeOverlay,
                     },
                     priority: 'normal',
                   })
@@ -2743,15 +2693,15 @@ function App() {
                 className="h-16 w-16 md:h-20 md:w-20 object-contain"
               />
             </Button>
-            {/* Cities Button */}
+            {/* Stock Exchange Builder Button */}
             <Button
-              onClick={openCitiesOverlay}
+              onClick={openStockExchangeOverlay}
               className="bg-transparent hover:bg-transparent shadow-lg hover:shadow-xl transition-all rounded-full p-0 flex items-center justify-center"
-              aria-label="Open City Builder"
+              aria-label="Open Stock Exchange Builder"
             >
               <img
                 src={`${import.meta.env.BASE_URL}Build.webp`}
-                alt="City Builder"
+                alt="Stock Exchange Builder"
                 className="h-16 w-16 md:h-20 md:w-20 object-contain"
               />
             </Button>
@@ -2866,22 +2816,19 @@ function App() {
           getFinalPrice,
           shopDiscount,
         }}
-        cityBuilderProps={{
-          stars: gameState.stars,
-          currentCity: currentCity,
-          currentCityProgress: currentCityProgress,
-          allCities: allCities,
-          citiesProgress: cityBuilderState.cities,
-          canUpgrade: canUpgradeBuilding,
-          timeUntilNextUpgrade: timeUntilNextUpgrade,
-          onUpgradeBuilding: upgradeBuilding,
-          onUnlockNextCity: unlockNextCity,
-          onSelectCity: selectCity,
-          nextCityToUnlock: nextCityToUnlock,
-          canUnlockNext: canUnlockNext,
-          totalBuildingsCompleted: totalBuildingsCompleted,
-          totalCitiesCompleted: totalCitiesCompleted,
-          totalCitiesUnlocked: totalCitiesUnlocked,
+        stockExchangeBuilderProps={{
+          exchanges: stockExchanges,
+          progress: stockExchangeState.exchanges,
+          selectedExchangeId,
+          onSelectExchange: selectExchange,
+          availableCapital: gameState.cash,
+          onUpgradePillar,
+          onViewStock,
+          onPurchaseOffer: (offerId: string) => {
+            toast.info('Premium boosts coming soon', {
+              description: `Offer ${offerId} will be available later.`,
+            })
+          },
         }}
         leaderboardProps={{
           currentPlayer: {
@@ -2972,7 +2919,7 @@ function App() {
             }
           }}
           onOpenShop={openShopOverlay}
-          onOpenCities={openCitiesOverlay}
+          onOpenStockExchangeBuilder={openStockExchangeOverlay}
           onOpenRightNow={openEventCalendar}
         >
           {mainContent}

@@ -13,7 +13,7 @@ import type { UIMode } from '@/lib/uiModeStateMachine'
 // Map UI modes to overlay IDs
 const MODE_TO_OVERLAY_MAP: Partial<Record<UIMode, string>> = {
   shop: 'shop',
-  cityBuilder: 'cityBuilder',
+  stockExchangeBuilder: 'stockExchangeBuilder',
   gallery: 'netWorthGallery',
   leaderboard: 'leaderboard',
   challenges: 'challenges',
@@ -28,7 +28,7 @@ const MODE_TO_OVERLAY_MAP: Partial<Record<UIMode, string>> = {
 interface UIModeOverlayBridgeProps {
   // Props for various overlays
   shopProps?: any
-  cityBuilderProps?: any
+  stockExchangeBuilderProps?: any
   galleryProps?: any
   leaderboardProps?: any
   challengesProps?: any
@@ -37,7 +37,7 @@ interface UIModeOverlayBridgeProps {
 
 export function UIModeOverlayBridge({
   shopProps,
-  cityBuilderProps,
+  stockExchangeBuilderProps,
   galleryProps,
   leaderboardProps,
   challengesProps,
@@ -94,9 +94,9 @@ export function UIModeOverlayBridge({
         component = lazy(() => import('@/components/ShopModal'))
         props = shopProps || {}
         break
-      case 'cityBuilder':
-        component = lazy(() => import('@/components/CityBuilderModal'))
-        props = cityBuilderProps || {}
+      case 'stockExchangeBuilder':
+        component = lazy(() => import('@/components/StockExchangeBuilderModal'))
+        props = stockExchangeBuilderProps || {}
         break
       case 'gallery':
         component = lazy(() => import('@/components/NetWorthGalleryModal'))
@@ -144,7 +144,7 @@ export function UIModeOverlayBridge({
       },
     })
   }, [mode, showOverlay, closeCurrent, getCurrentOverlay, transitionTo, 
-      shopProps, cityBuilderProps, galleryProps, leaderboardProps, challengesProps, portfolioProps])
+      shopProps, stockExchangeBuilderProps, galleryProps, leaderboardProps, challengesProps, portfolioProps])
 
   // This component doesn't render anything
   return null

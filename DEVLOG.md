@@ -115,6 +115,7 @@ Transform the existing City Builder feature into a Stock Exchange Builder for th
 - `npm run build` → succeeded with existing build warnings.
 - `npm run lint` → failed (missing script: "lint").
 - `npm run dev -- --host 0.0.0.0 --port 5000` (apps/investing-board-game-v3) → started for screenshot, then stopped.
+- `npm run dev -- --host 0.0.0.0 --port 5000` (apps/investing-board-game-v3) → started for screenshot, then stopped.
 
 ### How to verify in the UI
 - Open the Stock Exchange Builder modal and scroll below the stock discovery section.
@@ -167,3 +168,38 @@ Transform the existing City Builder feature into a Stock Exchange Builder for th
 
 ### TODOs / follow-ups
 - Add targeted performance profiling once the Stock Exchange Builder is wired to live gameplay state.
+
+## Step 7 — Final Integration and Deployment
+
+### What changed
+- Wired the Stock Exchange Builder into the overlay system, hub, and phone navigation.
+- Added a new Stock Exchange Builder state hook that manages exchange selection, pillar upgrades, and stock discovery while syncing to game state.
+- Updated UI mode routing and overlay registry to use the new Stock Exchange Builder mode.
+- Renamed phone/desktop entry points from City Builder to Stock Exchange Builder.
+
+### Files touched
+- `apps/investing-board-game-v3/src/App.tsx`
+- `apps/investing-board-game-v3/src/components/HubModal.tsx`
+- `apps/investing-board-game-v3/src/components/UIModeOverlayBridge.tsx`
+- `apps/investing-board-game-v3/src/components/phone/PhoneBottomNav.tsx`
+- `apps/investing-board-game-v3/src/components/phone/PhoneLayout.tsx`
+- `apps/investing-board-game-v3/src/context/UIModeContext.tsx`
+- `apps/investing-board-game-v3/src/hooks/useStockExchangeBuilder.ts`
+- `apps/investing-board-game-v3/src/lib/overlayRegistry.ts`
+- `apps/investing-board-game-v3/src/lib/uiModeStateMachine.ts`
+- `docs/stock-exchange-builder/PLAN.md`
+- `DEVLOG.md`
+
+### Commands run + results
+- `npm test` → failed (missing script: "test").
+- `npm run build` → succeeded with existing build warnings.
+- `npm run lint` → failed (missing script: "lint").
+
+### How to verify in the UI
+- Open the Hub modal and click “Stock Exchange Builder” to open the new modal.
+- On mobile, use the bottom nav “Exchange” entry or the floating “Exchanges” button.
+- Confirm that pillar upgrades and stock discovery update progress and spend capital.
+
+### TODOs / follow-ups
+- Connect premium offer CTAs to the monetization backend once available.
+- Revisit capital cost tuning once progression balance is finalized.
