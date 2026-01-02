@@ -31,13 +31,8 @@ export function StockTickerRibbon({
     setTickerItems(items)
   }, [getStockForCategory])
 
-  const placeholderItems = Array.from({ length: 5 }, () => ({
-    symbol: '?',
-    price: 0,
-    change: 0,
-  }))
   const shouldShowRealStocks = isActive && tickerItems.length > 0
-  const displayItems = shouldShowRealStocks ? tickerItems : placeholderItems
+  const displayItems = shouldShowRealStocks ? tickerItems : []
 
   // Calculate the circumference for the ribbon
   const ribbonRadius = radius * 0.75 // 75% of board radius for inner ribbon
@@ -83,10 +78,10 @@ export function StockTickerRibbon({
           strokeWidth="35"
           strokeDasharray="10 5"
           initial={{ strokeDashoffset: 0 }}
-          animate={isActive ? { strokeDashoffset: circumference } : { strokeDashoffset: 0 }}
+          animate={shouldShowRealStocks ? { strokeDashoffset: circumference } : { strokeDashoffset: 0 }}
           transition={{
-            duration: isActive ? spinDuration : 0,
-            repeat: isActive ? Infinity : 0,
+            duration: shouldShowRealStocks ? spinDuration : 0,
+            repeat: shouldShowRealStocks ? Infinity : 0,
             ease: 'linear',
           }}
         />
@@ -108,17 +103,17 @@ export function StockTickerRibbon({
               transform: `translate(-50%, -50%) translate(${x}px, ${y}px) rotate(${angle}deg)`,
             }}
             initial={{ opacity: 0 }}
-            animate={isActive ? { 
+            animate={shouldShowRealStocks ? { 
               opacity: [0.5, 1, 0.5],
               rotate: [angle, angle + 360],
             } : { opacity: 0.6, rotate: angle }}
             transition={{
-              opacity: isActive ? {
+              opacity: shouldShowRealStocks ? {
                 duration: 2,
                 repeat: Infinity,
                 ease: 'easeInOut',
               } : { duration: 0 },
-              rotate: isActive ? {
+              rotate: shouldShowRealStocks ? {
                 duration: spinDuration,
                 repeat: Infinity,
                 ease: 'linear',
@@ -126,14 +121,14 @@ export function StockTickerRibbon({
             }}
           >
             <div className="bg-black/40 backdrop-blur-sm px-2 py-1 rounded">
-              <span className="text-white font-semibold">{isActive ? item.symbol : '?'}</span>
+              <span className="text-white font-semibold">{item.symbol}</span>
               <span className="text-gray-300 ml-2">
-                {isActive ? `$${item.price.toFixed(2)}` : '?'}
+                {`$${item.price.toFixed(2)}`}
               </span>
               <span
-                className={`ml-1 ${isActive ? (item.change >= 0 ? 'text-green-400' : 'text-red-400') : 'text-gray-400'}`}
+                className={`ml-1 ${item.change >= 0 ? 'text-green-400' : 'text-red-400'}`}
               >
-                {isActive ? `${item.change >= 0 ? '+' : ''}${item.change.toFixed(2)}%` : '?'}
+                {`${item.change >= 0 ? '+' : ''}${item.change.toFixed(2)}%`}
               </span>
             </div>
           </motion.div>
