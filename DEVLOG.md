@@ -58,3 +58,23 @@ Transform the existing City Builder feature into a Stock Exchange Builder for th
 ### TODOs / follow-ups
 - Wire `stockExchangeBuilder` into app state and UI in Steps 2–3.
 - Replace placeholder card art paths with real assets when available.
+
+## Step 2 — Build Responsive UI Components for the Exchange Builder
+
+### What changed
+- Added a new `StockExchangeBuilderModal` UI with responsive layout for exchange navigation, pillar upgrades, and stock discovery.
+- Built reusable cards for exchange overview, pillar progress, and stock discovery actions.
+
+### Files touched
+- `apps/investing-board-game-v3/src/components/StockExchangeBuilderModal.tsx`
+
+### Commands run + results
+- `npm test` → failed (missing script: "test").
+- `npm run build` → succeeded with existing warnings in the build output.
+- `npm run lint` → failed (missing script: "lint").
+
+### How to verify in the UI
+- Open the Stock Exchange Builder modal (once wired in Step 3) and confirm the layout adapts between mobile and desktop widths, with pillar cards and stock discovery panels visible.
+
+### TODOs / follow-ups
+- Wire the modal into the overlay system and hook it up to live progression logic in Step 3.
