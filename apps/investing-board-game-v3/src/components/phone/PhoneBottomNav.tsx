@@ -29,6 +29,8 @@ interface PhoneBottomNavProps {
   isAutoRolling: boolean;
   onToggleAutoRoll: () => void;
   lastEnergyCheck?: Date;
+  dice1?: number;
+  dice2?: number;
 }
 
 export function PhoneBottomNav({
@@ -40,6 +42,8 @@ export function PhoneBottomNav({
   isAutoRolling,
   onToggleAutoRoll,
   lastEnergyCheck,
+  dice1,
+  dice2,
 }: PhoneBottomNavProps) {
   const { mode, transitionTo } = useUIMode();
   const [energyCountdown, setEnergyCountdown] = useState('');
@@ -146,6 +150,8 @@ export function PhoneBottomNav({
             rollsRemaining={rollsRemaining}
             isRolling={isRolling}
             isAutoRolling={isAutoRolling}
+            dice1={dice1}
+            dice2={dice2}
           />
           {energyCountdown && (
             <span className="text-[10px] font-medium text-muted-foreground">
