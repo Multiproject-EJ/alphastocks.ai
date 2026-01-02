@@ -161,7 +161,7 @@ export function useBoardCamera(options: UseBoardCameraOptions) {
   }, [tilePositions, boardSize])
   
   // Calculate translation needed to center a tile in viewport
-  const calculateTranslation = useCallback((tileId: number, scale: number = camera.scale): { x: number; y: number } => {
+  const calculateTranslation = useCallback((tileId: number): { x: number; y: number } => {
     const tilePos = getTileCenterPosition(tileId)
     
     // For classic mode or desktop, keep centered
@@ -175,11 +175,11 @@ export function useBoardCamera(options: UseBoardCameraOptions) {
     const boardCenterY = boardSize.height / 2
     
     // Calculate how much to offset the board so tile appears centered
-    const offsetX = (boardCenterX - tilePos.x) * scale
-    const offsetY = (boardCenterY - tilePos.y) * scale
+    const offsetX = boardCenterX - tilePos.x
+    const offsetY = boardCenterY - tilePos.y
     
     return { x: offsetX, y: offsetY }
-  }, [getTileCenterPosition, isMobile, camera.mode, camera.scale, boardSize])
+  }, [getTileCenterPosition, isMobile, camera.mode, boardSize])
   
   // Center camera on a specific tile
   const centerOnTile = useCallback((tileId: number, animate: boolean = true) => {

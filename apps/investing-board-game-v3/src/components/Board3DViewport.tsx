@@ -5,7 +5,7 @@ import { calculateTilePositions } from '@/lib/tilePositions'
 // Board dimensions (must match the board size used in App.tsx)
 const BOARD_WIDTH = 1200
 const BOARD_HEIGHT = 1200
-const Y_OFFSET_FOR_TILT = 100 // Y-offset to improve view in tilted mode
+const Y_OFFSET_FOR_TILT = 60 // Y-offset to improve view in tilted mode
 
 interface Board3DViewportProps {
   children: ReactNode
@@ -66,8 +66,8 @@ export function Board3DViewport({
     perspective: camera.perspective || 800,        // Closer perspective for more 3D effect
     rotateX: camera.rotateX || 28,                 // Tilt angle (25-35 degrees works well)
     scale: camera.scale || 2.5,                    // Zoom in significantly (show ~6-8 tiles)
-    translateX: camera.translateX || -playerTilePos.x,  // Center on player X
-    translateY: camera.translateY || (-playerTilePos.y + Y_OFFSET_FOR_TILT),  // Center on player Y (offset for tilt)
+    translateX: camera.translateX ?? -playerTilePos.x,  // Center on player X
+    translateY: camera.translateY ?? (-playerTilePos.y + Y_OFFSET_FOR_TILT),  // Center on player Y (offset for tilt)
   };
   
   // Safety checks for camera values to prevent invalid transforms
