@@ -2950,6 +2950,8 @@ function App() {
           isAutoRolling={isAutoRolling}
           onToggleAutoRoll={toggleAutoRoll}
           lastEnergyCheck={gameState.lastEnergyCheck}
+          dice1={dice1}
+          dice2={dice2}
           onOpenPortfolio={() => {
             showOverlay({
               id: 'portfolio',

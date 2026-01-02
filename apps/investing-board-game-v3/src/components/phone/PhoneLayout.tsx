@@ -30,6 +30,8 @@ interface PhoneLayoutProps {
   isAutoRolling?: boolean;
   onToggleAutoRoll?: () => void;
   lastEnergyCheck?: Date;
+  dice1?: number;
+  dice2?: number;
   // Add handlers for floating buttons
   onOpenPortfolio?: () => void;
   onOpenProTools?: () => void;
@@ -49,6 +51,8 @@ export function PhoneLayout({
   isAutoRolling = false,
   onToggleAutoRoll = () => {},
   lastEnergyCheck,
+  dice1,
+  dice2,
   onOpenPortfolio = () => {},
   onOpenProTools = () => {},
   onOpenShop = () => {},
@@ -208,6 +212,8 @@ export function PhoneLayout({
           isAutoRolling={isAutoRolling}
           onToggleAutoRoll={onToggleAutoRoll}
           lastEnergyCheck={lastEnergyCheck}
+          dice1={dice1}
+          dice2={dice2}
         />
       </div>
       

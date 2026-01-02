@@ -1,4 +1,5 @@
 import { useRef, useState, useCallback, useEffect } from 'react';
+import { AnimatedDice } from '@/components/AnimatedDice';
 import { cn } from '@/lib/utils';
 
 interface DiceButtonProps {
@@ -9,6 +10,8 @@ interface DiceButtonProps {
   rollsRemaining: number;
   isRolling: boolean;
   isAutoRolling: boolean;
+  dice1?: number;
+  dice2?: number;
 }
 
 export function DiceButton({
@@ -19,6 +22,8 @@ export function DiceButton({
   rollsRemaining,
   isRolling,
   isAutoRolling,
+  dice1 = 1,
+  dice2 = 1,
 }: DiceButtonProps) {
   const auxButtonBaseClass =
     'flex h-10 w-10 items-center justify-center rounded-full border text-[10px] font-semibold text-white shadow-md backdrop-blur';
@@ -27,6 +32,7 @@ export function DiceButton({
   const autoRollHoldTimer = useRef<NodeJS.Timeout | null>(null);
   const [isPressed, setIsPressed] = useState(false);
   const [autoRollFlash, setAutoRollFlash] = useState(false);
+  const isDoubles = dice1 === dice2;
 
   // Cleanup timeout on unmount
   useEffect(() => {
@@ -104,33 +110,20 @@ export function DiceButton({
           <span className="dice-orb dice-orb-c" />
         </span>
         <span className="flex items-center gap-2" aria-hidden="true">
-          <span
-            className={cn(
-              'phone-dice-face',
-              'phone-dice-face--pair',
-              isRolling && 'animate-dice-shake',
-            )}
-          >
-            <span className="phone-dice-pip phone-dice-pip--tl" />
-            <span className="phone-dice-pip phone-dice-pip--tr" />
-            <span className="phone-dice-pip phone-dice-pip--c" />
-            <span className="phone-dice-pip phone-dice-pip--bl" />
-            <span className="phone-dice-pip phone-dice-pip--br" />
-          </span>
-          <span
-            className={cn(
-              'phone-dice-face',
-              'phone-dice-face--pair',
-              isRolling && 'animate-dice-shake',
-            )}
-            style={{ animationDelay: isRolling ? '0.05s' : undefined }}
-          >
-            <span className="phone-dice-pip phone-dice-pip--tl" />
-            <span className="phone-dice-pip phone-dice-pip--tr" />
-            <span className="phone-dice-pip phone-dice-pip--c" />
-            <span className="phone-dice-pip phone-dice-pip--bl" />
-            <span className="phone-dice-pip phone-dice-pip--br" />
-          </span>
+          <AnimatedDice
+            value={dice1}
+            isRolling={isRolling}
+            isMoving={false}
+            isDoubles={isDoubles}
+            className={cn('scale-90', isRolling && 'animate-dice-shake')}
+          />
+          <AnimatedDice
+            value={dice2}
+            isRolling={isRolling}
+            isMoving={false}
+            isDoubles={isDoubles}
+            className={cn('scale-90', isRolling && 'animate-dice-shake')}
+          />
         </span>
       </button>
 
