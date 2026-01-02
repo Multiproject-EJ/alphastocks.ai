@@ -2746,11 +2746,14 @@ function App() {
             {/* Cities Button */}
             <Button
               onClick={openCitiesOverlay}
-              className="bg-gradient-to-r from-emerald-500/90 to-teal-500/90 hover:from-emerald-500 hover:to-teal-500 text-white shadow-lg hover:shadow-xl transition-all backdrop-blur-sm rounded-full h-14 px-6 text-base font-semibold flex items-center gap-2"
+              className="bg-transparent hover:bg-transparent shadow-lg hover:shadow-xl transition-all rounded-full p-0 flex items-center justify-center"
               aria-label="Open City Builder"
             >
-              <Buildings size={20} weight="bold" />
-              Cities
+              <img
+                src={`${import.meta.env.BASE_URL}Build.webp`}
+                alt="City Builder"
+                className="h-16 w-16 md:h-20 md:w-20 object-contain"
+              />
             </Button>
             {/* Challenges Button via ChallengeTracker */}
             <div data-tutorial="challenges">
