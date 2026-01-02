@@ -494,6 +494,62 @@ h1, h2, h3, h4, h5, h6 {
   animation-delay: -4s;
 }
 
+@keyframes dice-aura-pulse {
+  0%, 100% {
+    transform: translate(20%, 20%) scale(0.92);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translate(20%, 20%) scale(1);
+    opacity: 0.75;
+  }
+}
+
+@keyframes dice-aura-pulse-active {
+  0%, 100% {
+    transform: translate(20%, 20%) scale(0.95);
+    opacity: 0.65;
+  }
+  50% {
+    transform: translate(20%, 20%) scale(1.08);
+    opacity: 0.9;
+  }
+}
+
+.dice-control-zone {
+  position: relative;
+  width: 240px;
+  height: 240px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+}
+
+.dice-control-zone__content {
+  pointer-events: auto;
+}
+
+.dice-aura {
+  position: absolute;
+  bottom: -16px;
+  right: -16px;
+  width: 240px;
+  height: 220px;
+  border-radius: 9999px;
+  background:
+    radial-gradient(circle at 65% 60%, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.08) 40%, rgba(255, 255, 255, 0) 70%),
+    radial-gradient(circle at 70% 70%, rgba(96, 165, 250, 0.28), rgba(30, 64, 175, 0) 65%);
+  filter: blur(6px);
+  opacity: 0.6;
+  animation: dice-aura-pulse 4.8s ease-in-out infinite;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.dice-aura--active {
+  animation: dice-aura-pulse-active 3.6s ease-in-out infinite;
+}
+
 @keyframes phone-dice-blue-pulse {
   0%, 100% {
     box-shadow: 0 0 0 rgba(56, 189, 248, 0.15);

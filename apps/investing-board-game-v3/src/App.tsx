@@ -385,7 +385,6 @@ function App() {
   const isLogoPanel = currentCarouselPanel === LOGO_PANEL_INDEX
   const showBoardTiles = isPhone ? true : [0, LOGO_PANEL_INDEX].includes(currentCarouselPanel)
 
-  const [diceResetKey, setDiceResetKey] = useState(0)
 
   const [showCelebration, setShowCelebration] = useState(false)
   const [tileCelebrations, setTileCelebrations] = useState<TileCelebration[]>([])
@@ -1705,7 +1704,6 @@ function App() {
   }, [activeEventCurrency, currentActiveEvent, triggerCelebrationFromLastTile])
 
   const handleTileLanding = (position: number, passedStart = false) => {
-    setDiceResetKey((prev) => prev + 1)
     playSound('tile-land')
 
     const tile = BOARD_TILES[position]
@@ -2259,9 +2257,6 @@ function App() {
               phase={phase}
               rollsRemaining={rollsRemaining}
               nextResetTime={nextResetTime}
-              boardRef={boardRef}
-              dragConstraintsRef={containerRef}
-              resetPositionKey={diceResetKey}
               coins={gameState.coins}
               canAffordReroll={canAffordCoins(COIN_COSTS.reroll_dice)}
               onReroll={handleReroll}
