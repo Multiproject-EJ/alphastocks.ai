@@ -45,6 +45,12 @@ export interface StockExchangeBuilderState {
   exchanges: StockExchangeProgress[]
 }
 
+export interface StockExchangeArchiveEntry {
+  exchange: StockExchangeDefinition
+  progress: StockExchangeProgress
+  completedAt: string
+}
+
 export interface StockExchangeUpgradeResult {
   progress: StockExchangeProgress
   cost: number
@@ -292,4 +298,26 @@ export function recordStockView(
   const nextProgress = markStockViewed(progress, stockId)
 
   return updateExchangeProgress(exchange, nextProgress)
+}
+
+export function getArchiveEntries(
+  exchanges: StockExchangeDefinition[],
+  progressEntries: StockExchangeProgress[]
+): StockExchangeArchiveEntry[] {
+  const exchangeMap = new Map(exchanges.map(exchange => [exchange.id, exchange]))
+
+  return progressEntries
+    .filter(entry => entry.completedAt)
+    .map(entry => {
+      const exchange = exchangeMap.get(entry.exchangeId)
+      if (!exchange || !entry.completedAt) return null
+
+      return {
+        exchange,
+        progress: entry,
+        completedAt: entry.completedAt,
+      }
+    })
+    .filter((entry): entry is StockExchangeArchiveEntry => Boolean(entry))
+    .sort((a, b) => b.completedAt.localeCompare(a.completedAt))
 }

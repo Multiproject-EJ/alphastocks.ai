@@ -31,9 +31,11 @@ import {
   StockExchangeProgress,
   STOCK_EXCHANGE_PILLARS,
   StockExchangePillarKey,
+  StockExchangeArchiveEntry,
   getViewedStockCount,
   getPillarProgressPercentage,
   getOverallProgressPercentage,
+  getArchiveEntries,
 } from '@/lib/stockExchangeBuilder'
 
 const pillarIcons: Record<StockExchangePillarKey, JSX.Element> = {
@@ -53,6 +55,49 @@ interface StockExchangeBuilderModalProps {
   availableCapital: number
   onUpgradePillar?: (exchangeId: string, pillarKey: StockExchangePillarKey) => void
   onViewStock?: (exchangeId: string, stockId: string) => void
+}
+
+function StockExchangeArchive({ entries }: { entries: StockExchangeArchiveEntry[] }) {
+  if (entries.length === 0) {
+    return (
+      <div className="rounded-xl border border-dashed border-border bg-muted/30 p-4 text-xs text-muted-foreground">
+        No exchanges archived yet. Complete an exchange to add it to your album.
+      </div>
+    )
+  }
+
+  return (
+    <div className="grid gap-3 sm:grid-cols-2">
+      {entries.map(entry => (
+        <div
+          key={entry.exchange.id}
+          className="flex items-center gap-3 rounded-xl border border-border bg-card/70 p-3"
+        >
+          <div className="h-14 w-20 overflow-hidden rounded-lg border border-border bg-black/20">
+            <img
+              src={entry.progress.cardImage}
+              alt={`${entry.exchange.name} archive card`}
+              className="h-full w-full object-cover"
+            />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2">
+              <h5 className="truncate text-sm font-semibold">
+                {entry.exchange.name}
+              </h5>
+              {entry.progress.isGlossy && (
+                <Badge className="bg-amber-400 text-amber-950 text-[10px]">Glossy</Badge>
+              )}
+            </div>
+            <div className="text-xs text-muted-foreground">{entry.exchange.region}</div>
+            <div className="mt-1 text-[11px] text-muted-foreground">
+              Completed {new Date(entry.completedAt).toLocaleDateString()}
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
 }
 
 function ExchangeOverviewCard({
@@ -240,6 +285,10 @@ export function StockExchangeBuilderModal({
   const pillarProgress = getPillarProgressPercentage(selectedProgress)
   const overallProgress = getOverallProgressPercentage(selectedExchange, selectedProgress)
   const viewedStockCount = getViewedStockCount(selectedExchange, selectedProgress)
+  const archiveEntries = useMemo(
+    () => getArchiveEntries(exchanges, progress),
+    [exchanges, progress]
+  )
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -386,6 +435,27 @@ export function StockExchangeBuilderModal({
                         </span>
                       </div>
                     </div>
+                  </div>
+                </div>
+
+                <div className="my-6">
+                  <Separator />
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="text-sm font-semibold">Archive Album</h4>
+                      <p className="text-xs text-muted-foreground">
+                        Completed exchanges are saved here for quick review.
+                      </p>
+                    </div>
+                    <Badge variant="outline" className="text-[11px]">
+                      {archiveEntries.length} archived
+                    </Badge>
+                  </div>
+                  <div className="mt-4">
+                    <StockExchangeArchive entries={archiveEntries} />
                   </div>
                 </div>
               </ScrollArea>
