@@ -137,6 +137,31 @@ export const createDemoProvider = () => {
       });
 
       return clone(removed);
+    },
+    /**
+     * Fetch stock analysis from demo data
+     * @param {string} symbol - Stock ticker symbol
+     * @returns {Promise<{data: object|null, error: Error|null}>}
+     */
+    async fetchStockAnalysis(symbol) {
+      try {
+        // Lazy load demo data
+        const demoModule = await import('../demo/demo.stock_analyses.json');
+        const analyses = demoModule.default?.rows || demoModule.rows || [];
+        
+        const analysis = analyses.find(a => 
+          a.symbol?.toUpperCase() === symbol.toUpperCase()
+        );
+        
+        if (!analysis) {
+          return { data: null, error: null };
+        }
+        
+        return { data: analysis, error: null };
+      } catch (err) {
+        console.error('[DemoDataService] Failed to load demo stock analysis:', err);
+        return { data: null, error: err };
+      }
     }
   };
 };

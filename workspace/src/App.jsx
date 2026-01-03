@@ -22,6 +22,7 @@ import useFetchDeepDivesFromUniverse from './features/valuebot/useFetchDeepDives
 import { useAuth } from './context/AuthContext.jsx';
 import UniverseBuilder from './features/universe-builder/UniverseBuilder.jsx';
 import SearchTab from './features/universe-builder/SearchTab.jsx';
+import StockAnalysisReport from './features/stock-analysis-report/StockAnalysisReport.jsx';
 
 const DEFAULT_FOCUS_LIST = [
   { id: 'focus-1', title: 'SPY breakout', caption: 'Checklist ready • 09:30', tag: { tone: 'tag-green', label: 'Today' } },
@@ -809,6 +810,10 @@ const App = () => {
   const [universeViewRow, setUniverseViewRow] = useState(null);
   const [deepDiveModalTicker, setDeepDiveModalTicker] = useState(null);
   const [deepDiveModalCompany, setDeepDiveModalCompany] = useState(null);
+  const [analysisReportOpen, setAnalysisReportOpen] = useState(false);
+  const [analysisReportData, setAnalysisReportData] = useState(null);
+  const [analysisReportLoading, setAnalysisReportLoading] = useState(false);
+  const [analysisReportError, setAnalysisReportError] = useState(null);
   const [tabsScrollState, setTabsScrollState] = useState({ atStart: true, atEnd: false });
   const [tabsScrollStateModules, setTabsScrollStateModules] = useState({ atStart: true, atEnd: false });
   const tabsRef = useRef(null);
@@ -1620,11 +1625,54 @@ const App = () => {
     [handleUniverseDelete]
   );
 
-  const openUniverseViewModal = useCallback((row) => {
-    if (!row) return;
-    setSelectedUniverseRowId(row.id);
-    setUniverseViewRow(row);
+  const openUniverseViewModal = useCallback(async (row) => {
     setOpenUniverseActionsId(null);
+    setAnalysisReportLoading(true);
+    setAnalysisReportError(null);
+    setAnalysisReportData(null);
+    setAnalysisReportOpen(true);
+    
+    try {
+      const symbol = row.symbol || row.ticker;
+      const profileId = user?.id;
+      
+      if (!symbol) {
+        throw new Error('No ticker symbol found for this stock');
+      }
+      
+      // Fetch analysis data from database
+      const { data, error } = await dataService.fetchStockAnalysis(symbol, profileId);
+      
+      if (error) {
+        throw error;
+      }
+      
+      if (!data) {
+        // No analysis found - show error state
+        setAnalysisReportError(`No analysis found for ${symbol}. Run ValueBot Module 6 to generate a full analysis.`);
+        setAnalysisReportLoading(false);
+        return;
+      }
+      
+      // Successfully loaded analysis
+      setAnalysisReportData(data);
+      setAnalysisReportLoading(false);
+      
+    } catch (err) {
+      console.error('[Universe] Failed to load stock analysis:', err);
+      setAnalysisReportError(err.message || 'Failed to load analysis report');
+      setAnalysisReportLoading(false);
+    }
+  }, [dataService, user]);
+
+  const closeAnalysisReport = useCallback(() => {
+    setAnalysisReportOpen(false);
+    // Clear data after animation
+    setTimeout(() => {
+      setAnalysisReportData(null);
+      setAnalysisReportError(null);
+      setAnalysisReportLoading(false);
+    }, 300);
   }, []);
 
   const closeUniverseViewModal = useCallback(() => {
@@ -3473,6 +3521,17 @@ const App = () => {
                       </div>
                     </div>
                   </div>
+                )}
+
+                {/* Stock Analysis Report Modal */}
+                {analysisReportOpen && (
+                  <StockAnalysisReport
+                    open={analysisReportOpen}
+                    onOpenChange={closeAnalysisReport}
+                    analysisData={analysisReportData}
+                    loading={analysisReportLoading}
+                    error={analysisReportError}
+                  />
                 )}
 
                 {deepDiveModalTicker && (

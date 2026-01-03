@@ -109,6 +109,37 @@ export const createSupabaseProvider = () => {
       }
 
       return data ?? [];
+    },
+    /**
+     * Fetch the latest stock analysis for a given symbol
+     * @param {string} symbol - Stock ticker symbol
+     * @param {string} profileId - User profile ID
+     * @returns {Promise<{data: object|null, error: Error|null}>}
+     */
+    async fetchStockAnalysis(symbol, profileId) {
+      try {
+        const { data, error } = await client
+          .from('stock_analyses')
+          .select('*')
+          .eq('symbol', symbol.toUpperCase())
+          .eq('profile_id', profileId)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single();
+        
+        if (error) {
+          // If no analysis found, return null data instead of throwing
+          if (error.code === 'PGRST116') {
+            return { data: null, error: null };
+          }
+          throw error;
+        }
+        
+        return { data, error: null };
+      } catch (err) {
+        console.error('[DataService] Failed to fetch stock analysis:', err);
+        return { data: null, error: err };
+      }
     }
   };
 };
