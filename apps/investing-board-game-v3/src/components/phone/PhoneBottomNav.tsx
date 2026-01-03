@@ -6,12 +6,19 @@ import { getTimeUntilNextRegen } from '@/lib/energy';
 import { 
   Gamepad2, 
   Building2, 
-  Settings 
+  Settings,
+  Wrench,
 } from 'lucide-react';
 import { DiceButton } from './DiceButton';
 
-const NAV_ITEMS: ReadonlyArray<{ id: UIMode; icon: typeof Gamepad2; label: string }> = [
-  { id: 'board', icon: Gamepad2, label: 'Play' },
+type NavItem = {
+  id: UIMode | 'proTools';
+  icon: typeof Gamepad2;
+  label: string;
+};
+
+const NAV_ITEMS: ReadonlyArray<NavItem> = [
+  { id: 'proTools', icon: Wrench, label: 'ProTools' },
   { id: 'stockExchangeBuilder', icon: Building2, label: 'Exchange' },
 ] as const;
 
@@ -28,6 +35,7 @@ interface PhoneBottomNavProps {
   isRolling: boolean;
   isAutoRolling: boolean;
   onToggleAutoRoll: () => void;
+  onOpenProTools: () => void;
   lastEnergyCheck?: Date;
   dice1?: number;
   dice2?: number;
@@ -41,6 +49,7 @@ export function PhoneBottomNav({
   isRolling,
   isAutoRolling,
   onToggleAutoRoll,
+  onOpenProTools,
   lastEnergyCheck,
   dice1,
   dice2,
@@ -82,6 +91,16 @@ export function PhoneBottomNav({
     return () => window.clearInterval(interval);
   }, [lastEnergyCheck]);
 
+  const handleDiceRoll = async () => {
+    if (mode !== 'board') {
+      const success = await transitionTo('board');
+      if (!success) {
+        return;
+      }
+    }
+    onRollDice(multiplier);
+  };
+
   return (
     <nav 
       className={cn(
@@ -99,15 +118,22 @@ export function PhoneBottomNav({
     >
       {/* Left navigation items */}
       {NAV_ITEMS.map((item) => {
-        const isActive = mode === item.id;
+        const isActive = item.id !== 'proTools' && mode === item.id;
         const Icon = item.icon;
         const isBuildItem = item.id === 'stockExchangeBuilder';
+        const handleClick = () => {
+          if (item.id === 'proTools') {
+            onOpenProTools();
+            return;
+          }
+          handleNavClick(item.id);
+        };
         
         return (
           <button
             key={item.id}
             type="button"
-            onClick={() => handleNavClick(item.id)}
+            onClick={handleClick}
             className={cn(
               'flex flex-col items-center justify-center',
               'min-h-[56px] min-w-[56px]',
@@ -155,7 +181,7 @@ export function PhoneBottomNav({
       }}>
         <div className="flex flex-col items-center gap-1">
           <DiceButton
-            onRoll={() => onRollDice(multiplier)}
+            onRoll={handleDiceRoll}
             onToggleAutoRoll={onToggleAutoRoll}
             onCycleMultiplier={onCycleMultiplier}
             multiplier={multiplier}

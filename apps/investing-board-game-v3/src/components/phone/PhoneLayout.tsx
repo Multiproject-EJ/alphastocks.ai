@@ -1,5 +1,5 @@
 import { ReactNode, useEffect, useMemo, useState } from 'react';
-import { Clock3, TrendingUp, Wrench } from 'lucide-react';
+import { Clock3, TrendingUp } from 'lucide-react';
 import { CompactHUD } from './CompactHUD';
 import { PhoneBottomNav } from './PhoneBottomNav';
 import { MobileBoard3D } from './MobileBoard3D';
@@ -94,8 +94,8 @@ export function PhoneLayout({
   // Calculate UI element widths for board centering
   // Left side: Shop button + Exchanges/Right Now buttons occupy ~100px effective horizontal space
   const leftUIOffset = 100;
-  // Right side: Portfolio + ProTools buttons occupy ~60px effective space (with right-4 positioning)
-  const rightUIOffset = 60;
+  // Right side: Portfolio button occupies ~40px effective space (with right-4 positioning)
+  const rightUIOffset = 40;
 
   return (
     <div className="h-[100dvh] w-full flex flex-col overflow-hidden relative phone-layout">
@@ -146,24 +146,6 @@ export function PhoneLayout({
             <TrendingUp size={24} className="text-accent-foreground" />
           </button>
           
-          {/* ProTools button - Right side below portfolio */}
-          <div
-            className={`fixed right-3 z-40 flex flex-col items-center gap-1 transition-opacity ${hideFloatingActions ? 'pointer-events-none opacity-0' : 'opacity-100'}`}
-            style={{ top: `${COMPACT_HUD_HEIGHT + 150}px` }}
-            aria-hidden={hideFloatingActions}
-          >
-            <button
-              onClick={onOpenProTools}
-              className="bg-primary/90 hover:bg-primary backdrop-blur-sm rounded-full p-3 shadow-lg hover:shadow-xl transition-all"
-              aria-label="Open ProTools"
-            >
-              <Wrench size={24} className="text-primary-foreground" />
-            </button>
-            <span className="text-[10px] font-semibold text-white/80 tracking-wide">
-              ProTools
-            </span>
-          </div>
-
           <div
             className={`fixed left-4 z-40 flex flex-col gap-3 transition-opacity ${hideFloatingActions ? 'pointer-events-none opacity-0' : 'opacity-100'}`}
             style={{ top: `${COMPACT_HUD_HEIGHT + 80}px` }}
@@ -219,6 +201,7 @@ export function PhoneLayout({
           isRolling={isRolling}
           isAutoRolling={isAutoRolling}
           onToggleAutoRoll={onToggleAutoRoll}
+          onOpenProTools={onOpenProTools}
           lastEnergyCheck={lastEnergyCheck}
           dice1={dice1}
           dice2={dice2}
