@@ -547,13 +547,13 @@ export function StockModal({ open, onOpenChange, stock, onBuy, cash, showInsight
               </div>
 
               <div className="mt-4 pt-4 border-t border-border/50">
-                <button 
-                  type="button" 
-                  className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-accent/10 hover:bg-accent/20 border border-accent/30 rounded-lg text-accent font-medium" 
+                <Button
                   onClick={handleViewFullAnalysis}
+                  variant="outline"
+                  className="w-full flex items-center justify-center gap-2 bg-accent/10 hover:bg-accent/20 border-accent/30 text-accent font-medium"
                 >
                   View Full Analysis Report
-                </button>
+                </Button>
               </div>
             </div>
           </div>
