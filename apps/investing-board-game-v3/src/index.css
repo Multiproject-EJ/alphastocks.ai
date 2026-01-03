@@ -735,7 +735,6 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .phone-parallax-layer {
-  transform: translate3d(var(--parallax-x), var(--parallax-y), 0) scale(1.02);
   will-change: transform;
   transition: transform 120ms linear;
 }
