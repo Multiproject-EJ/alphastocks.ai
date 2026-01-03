@@ -37,6 +37,9 @@ export function setupSwipeToClose(element, onSwipeDown, threshold = 100) {
   let isDragging = false;
   
   const handleTouchStart = (e) => {
+    // Guard against empty touches array
+    if (!e.touches || e.touches.length === 0) return;
+    
     // Only start drag from the header area or if scrolled to top
     const scrollContainer = element.querySelector('.report-scroll-content');
     const isAtTop = !scrollContainer || scrollContainer.scrollTop <= 0;
@@ -50,6 +53,9 @@ export function setupSwipeToClose(element, onSwipeDown, threshold = 100) {
   
   const handleTouchMove = (e) => {
     if (!isDragging) return;
+    
+    // Guard against empty touches array
+    if (!e.touches || e.touches.length === 0) return;
     
     currentY = e.touches[0].clientY;
     const deltaY = currentY - startY;
@@ -150,6 +156,9 @@ export function setupPullToRefresh(scrollContainer, onRefresh, threshold = 80) {
   };
   
   const handleTouchStart = (e) => {
+    // Guard against empty touches array
+    if (!e.touches || e.touches.length === 0) return;
+    
     if (scrollContainer.scrollTop === 0) {
       startY = e.touches[0].clientY;
       isPulling = true;
@@ -161,6 +170,9 @@ export function setupPullToRefresh(scrollContainer, onRefresh, threshold = 80) {
       isPulling = false;
       return;
     }
+    
+    // Guard against empty touches array
+    if (!e.touches || e.touches.length === 0) return;
     
     const currentY = e.touches[0].clientY;
     const deltaY = currentY - startY;
@@ -245,8 +257,8 @@ export function lockBodyScroll(lock) {
  * @returns {Function} Cleanup function
  */
 export function setupBackButtonHandler(onBackButton) {
-  const handlePopState = (e) => {
-    e.preventDefault();
+  const handlePopState = () => {
+    // Note: popstate events are not cancelable
     onBackButton();
   };
   
