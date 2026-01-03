@@ -1,0 +1,360 @@
+/* Stock Analysis Report - Mobile-first Styles */
+
+/* Container */
+.stock-analysis-report {
+  position: relative;
+  background: var(--surface-card, rgba(23, 31, 50, 0.95));
+  color: var(--text-primary, #e2e8f0);
+  width: min(900px, 96vw);
+  max-height: 92vh;
+  margin: auto;
+  border-radius: 16px;
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.12));
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 28px 70px rgba(0, 0, 0, 0.45);
+}
+
+/* Sticky Header */
+.report-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--surface-card, rgba(23, 31, 50, 0.95));
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.report-header__content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex: 1;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.report-header__ticker {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--text-primary, #e2e8f0);
+}
+
+.report-header__label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+  color: var(--accent, #38bdf8);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.report-header__valuation {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+}
+
+.report-header__price {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary, #e2e8f0);
+}
+
+.report-header__upside {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--positive, #34d399);
+}
+
+.report-header__close {
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--text-secondary, #94a3b8);
+  cursor: pointer;
+  padding: 0.5rem;
+  line-height: 1;
+  transition: color 0.15s ease;
+}
+
+.report-header__close:hover {
+  color: var(--text-primary, #e2e8f0);
+}
+
+/* Scrollable Content */
+.report-scroll-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0;
+}
+
+/* Sections */
+.report-section {
+  padding: 1.5rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.report-section:last-child {
+  border-bottom: none;
+}
+
+.report-section__title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0 0 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-primary, #e2e8f0);
+}
+
+/* Verdict Card */
+.verdict-card {
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  border-radius: 12px;
+  padding: 1.25rem;
+  color: white;
+}
+
+.verdict-card__rating {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.verdict-card__label {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.verdict-card__summary {
+  line-height: 1.6;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+/* Valuation Cards */
+.valuation-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.75rem;
+}
+
+.valuation-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+}
+
+.valuation-card__icon {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.valuation-card__label {
+  font-size: 0.875rem;
+  color: var(--text-secondary, #94a3b8);
+  margin-bottom: 0.5rem;
+}
+
+.valuation-card__price {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+  color: var(--text-primary, #e2e8f0);
+}
+
+.valuation-card__change {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.valuation-card--bear .valuation-card__change {
+  color: #ef4444;
+}
+
+.valuation-card--base .valuation-card__change {
+  color: var(--text-secondary, #94a3b8);
+}
+
+.valuation-card--bull .valuation-card__change {
+  color: #22c55e;
+}
+
+/* Porter Forces */
+.porter-forces-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.porter-force-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.porter-force-card__header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.porter-force-card__icon {
+  font-size: 1.25rem;
+}
+
+.porter-force-card__title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+  color: var(--text-primary, #e2e8f0);
+}
+
+.porter-force-card__description {
+  margin: 0;
+  line-height: 1.5;
+  color: var(--text-secondary, #cbd5e1);
+}
+
+/* Stress Tests */
+.stress-tests-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.stress-test-card {
+  background: rgba(239, 68, 68, 0.1);
+  border-left: 4px solid #ef4444;
+  border-radius: 4px;
+  padding: 1rem;
+}
+
+.stress-test-card__header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.stress-test-card__scenario {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+  color: var(--text-primary, #e2e8f0);
+}
+
+.stress-test-card__impact {
+  color: var(--text-secondary, #cbd5e1);
+}
+
+/* Full Analysis */
+.full-analysis-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+
+.full-analysis-text {
+  line-height: 1.7;
+  margin: 0;
+  color: var(--text-secondary, #cbd5e1);
+}
+
+.analysis-metadata {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+.metadata-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.metadata-item > span:last-child {
+  color: var(--text-primary, #e2e8f0);
+  font-weight: 500;
+}
+
+/* Loading Skeleton */
+.report-loading {
+  padding: 1.5rem;
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.05) 25%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0.05) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.skeleton--header {
+  height: 60px;
+}
+
+.skeleton--card {
+  height: 120px;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Responsive */
+@media (min-width: 768px) {
+  .report-section {
+    padding: 2rem 1.5rem;
+  }
+  
+  .porter-forces-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .report-header__content {
+    flex-wrap: nowrap;
+  }
+}
+
+@media (max-width: 640px) {
+  .report-header__ticker {
+    font-size: 1.5rem;
+  }
+  
+  .report-header__price {
+    font-size: 1.25rem;
+  }
+  
+  .valuation-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .valuation-card__price {
+    font-size: 1.25rem;
+  }
+}
