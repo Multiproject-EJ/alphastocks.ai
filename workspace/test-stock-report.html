@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stock Analysis Report - Test</title>
+  <script type="module">
+    import { render, h } from 'preact';
+    import { useState } from 'preact/hooks';
+    import StockAnalysisReport from './src/features/stock-analysis-report/StockAnalysisReport.jsx';
+
+    // Demo data from demo.stock_analyses.json
+    const demoAnalysisData = {
+      symbol: "NVDA",
+      label: "Investable",
+      summary: "Remain overweight as demand visibility stays strong; trim only if supply normalises faster than expected.",
+      valuation: {
+        base: 980,
+        bull: 1120,
+        bear: 780
+      },
+      porter_forces: {
+        supplier_power: "Medium — key foundries concentrated but long-term agreements in place.",
+        buyer_power: "Low — hyperscalers scrambling for GPU capacity.",
+        competitive_rivalry: "Rising — AMD catching up but still lagging in software moat.",
+        threat_new: "Low — capex intensity and ecosystem lock-in deter entrants.",
+        threat_substitutes: "Medium — custom ASICs for specific workloads remain a watchpoint."
+      },
+      stress_tests: [
+        {
+          scenario: "Cloud capex pause",
+          delta: -0.18
+        },
+        {
+          scenario: "China export tightening",
+          delta: -0.12
+        }
+      ],
+      analyzed_at: "2025-12-15T10:30:00Z"
+    };
+
+    function TestApp() {
+      const [open, setOpen] = useState(false);
+
+      return h('div', { style: { padding: '2rem' } },
+        h('button', {
+          onClick: () => setOpen(true),
+          style: {
+            padding: '1rem 2rem',
+            fontSize: '1.2rem',
+            backgroundColor: '#3b82f6',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: 'pointer'
+          }
+        }, 'Open Stock Analysis Report (NVDA)'),
+        h(StockAnalysisReport, {
+          open: open,
+          onOpenChange: setOpen,
+          analysisData: demoAnalysisData
+        })
+      );
+    }
+
+    render(h(TestApp), document.getElementById('app'));
+  </script>
+</head>
+<body data-theme="dark">
+  <div id="app"></div>
+</body>
+</html>
