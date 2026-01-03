@@ -1,6 +1,6 @@
-const calculateChange = (targetPrice, basePrice) => {
-  if (!targetPrice || !basePrice) return '0';
-  const change = ((targetPrice - basePrice) / basePrice) * 100;
+const calculatePercentageFromBase = (price, basePrice) => {
+  if (!price || !basePrice) return '0';
+  const change = ((price - basePrice) / basePrice) * 100;
   return Math.abs(Math.round(change));
 };
 
@@ -16,7 +16,7 @@ const ValuationSection = ({ valuation }) => {
           <div className="valuation-card__label">Bear Case</div>
           <div className="valuation-card__price">${valuation.bear}</div>
           <div className="valuation-card__change">
-            -{calculateChange(valuation.base, valuation.bear)}%
+            -{calculatePercentageFromBase(valuation.bear, valuation.base)}%
           </div>
         </div>
         
@@ -32,7 +32,7 @@ const ValuationSection = ({ valuation }) => {
           <div className="valuation-card__label">Bull Case</div>
           <div className="valuation-card__price">${valuation.bull}</div>
           <div className="valuation-card__change">
-            +{calculateChange(valuation.bull, valuation.base)}%
+            +{calculatePercentageFromBase(valuation.bull, valuation.base)}%
           </div>
         </div>
       </div>

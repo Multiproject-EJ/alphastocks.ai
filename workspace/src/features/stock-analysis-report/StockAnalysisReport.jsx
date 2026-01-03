@@ -12,6 +12,10 @@ import './styles/stock-analysis-report.css';
  * 
  * A mobile-first, scrollable modal that displays comprehensive Protools analysis data.
  * 
+ * NOTE: This component depends on global CSS classes from app.css:
+ * - .modal-backdrop: Modal overlay backdrop
+ * - .detail-meta: Secondary text styling
+ * 
  * @param {Object} props
  * @param {boolean} props.open - Whether the modal is open
  * @param {Function} props.onOpenChange - Callback to handle modal open/close state

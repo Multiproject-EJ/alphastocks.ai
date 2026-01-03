@@ -139,7 +139,13 @@ The component uses CSS custom properties from the existing design system:
 - `--positive` - Positive value color
 - `--border` - Border color
 
-All styles are defined in `styles/stock-analysis-report.css` and follow mobile-first responsive design patterns.
+### Global CSS Dependencies
+
+The component relies on these global classes from `app.css`:
+- `.modal-backdrop` - Modal overlay backdrop styling
+- `.detail-meta` - Secondary/meta text styling
+
+All component-specific styles are defined in `styles/stock-analysis-report.css` and follow mobile-first responsive design patterns.
 
 ## Accessibility
 
