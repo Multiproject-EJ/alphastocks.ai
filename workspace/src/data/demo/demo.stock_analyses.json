@@ -9,6 +9,11 @@
       "id": "8c1bd0f1-0f64-4ad3-8e9b-8f5b52b91201",
       "symbol": "NVDA",
       "profile_id": "1f2a7f2e-0ad1-4a7d-8a19-3b22e35c88a5",
+      "analyzed_at": "2024-12-15T10:30:00Z",
+      "data_freshness": "fresh",
+      "verdict_rating": 85,
+      "conviction_level": "high",
+      "upside_potential": 14.29,
       "valuation": {
         "base": 980,
         "bull": 1120,
@@ -31,6 +36,30 @@
           "delta": -0.12
         }
       ],
+      "key_strengths": [
+        "Dominant position in AI/ML accelerators with 80%+ market share",
+        "CUDA ecosystem creates significant switching costs",
+        "Strong pricing power with ASPs trending upward",
+        "Expanding TAM as AI adoption accelerates across industries",
+        "Healthy margins despite increased competition"
+      ],
+      "key_weaknesses": [
+        "High concentration risk with top 5 customers ~40% of revenue",
+        "Geopolitical exposure to China market restrictions",
+        "Supply chain dependency on TSMC for advanced nodes",
+        "Valuation premium leaves little room for disappointment"
+      ],
+      "catalysts": [
+        "H100/H200 ramp through 2024",
+        "B100 Blackwell architecture launch in Q2 2024",
+        "Enterprise AI adoption accelerating",
+        "Automotive and robotics revenue inflection"
+      ],
+      "red_flags": [
+        "Customer diversification efforts (custom silicon)",
+        "Increased export control restrictions",
+        "Potential inventory build in channel"
+      ],
       "label": "Investable",
       "summary": "Remain overweight as demand visibility stays strong; trim only if supply normalises faster than expected."
     },
@@ -38,6 +67,11 @@
       "id": "631070b9-a6fc-4ec1-9cc2-4b61f3635941",
       "symbol": "TSLA",
       "profile_id": "1f2a7f2e-0ad1-4a7d-8a19-3b22e35c88a5",
+      "analyzed_at": "2024-12-10T14:20:00Z",
+      "data_freshness": "fresh",
+      "verdict_rating": 65,
+      "conviction_level": "medium",
+      "upside_potential": 50.0,
       "valuation": {
         "base": 255,
         "bull": 320,
@@ -59,6 +93,29 @@
           "scenario": "FSD attach inflection",
           "delta": 0.15
         }
+      ],
+      "key_strengths": [
+        "Leading EV brand recognition and charging infrastructure",
+        "Vertical integration provides cost advantages",
+        "FSD technology lead over competitors",
+        "Energy storage business showing strong growth"
+      ],
+      "key_weaknesses": [
+        "Increased competition from legacy automakers",
+        "Margin pressure from price cuts",
+        "Production quality concerns persist",
+        "Heavy reliance on CEO for brand value"
+      ],
+      "catalysts": [
+        "Cybertruck production ramp",
+        "FSD subscription adoption",
+        "Energy storage demand acceleration",
+        "Next-generation platform launch"
+      ],
+      "red_flags": [
+        "Declining gross margins",
+        "Inventory build concerns",
+        "Regulatory scrutiny on FSD claims"
       ],
       "label": "Monitor",
       "summary": "Maintain tactical position; wait for margin stability confirmation before adding."

@@ -53,20 +53,22 @@ export default function StockAnalysisReport({
               symbol={analysisData.symbol}
               label={analysisData.label}
               valuation={analysisData.valuation}
+              analysisData={analysisData}
               onClose={() => onOpenChange(false)}
             />
             
             <div className="report-scroll-content">
               <ExecutiveSummary 
                 summary={analysisData.summary} 
-                label={analysisData.label} 
+                label={analysisData.label}
+                analysisData={analysisData}
               />
               <ValuationSection valuation={analysisData.valuation} />
               <PorterForcesSection forces={analysisData.porter_forces} />
               <StressTestsSection tests={analysisData.stress_tests} />
               <FullAnalysisSection 
                 summary={analysisData.summary}
-                analyzed_at={analysisData.created_at}
+                analysisData={analysisData}
               />
             </div>
           </>
