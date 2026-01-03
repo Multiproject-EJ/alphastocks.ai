@@ -91,6 +91,12 @@ export function PhoneLayout({
 
   const backgroundUrl = `${import.meta.env.BASE_URL}${phoneBackground}`;
 
+  // Calculate UI element widths for board centering
+  // Left side: Shop button + Exchanges/Right Now buttons occupy ~100px effective horizontal space
+  const leftUIOffset = 100;
+  // Right side: Portfolio + ProTools buttons occupy ~60px effective space (with right-4 positioning)
+  const rightUIOffset = 60;
+
   return (
     <div className="h-[100dvh] w-full flex flex-col overflow-hidden relative phone-layout">
       {/* Layer 0: Background */}
@@ -117,6 +123,8 @@ export function PhoneLayout({
             currentPosition={currentPosition}
             totalTiles={40}
             boardSize={1200}
+            leftOffset={leftUIOffset}
+            rightOffset={rightUIOffset}
           >
             {children}
           </MobileBoard3D>

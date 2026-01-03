@@ -7,6 +7,8 @@ interface MobileBoard3DProps {
   currentPosition: number;
   totalTiles?: number;
   boardSize?: number;
+  leftOffset?: number;   // Width of left UI elements (buttons, panels)
+  rightOffset?: number;  // Width of right UI elements (ProTools panel)
 }
 
 /**
@@ -24,6 +26,8 @@ export function MobileBoard3D({
   currentPosition,
   totalTiles = 27,
   boardSize = 1200,
+  leftOffset = 0,
+  rightOffset = 0,
 }: MobileBoard3DProps) {
   // Touch pan gesture hook
   const { panOffset, handlers } = useBoardPan();
@@ -73,11 +77,11 @@ export function MobileBoard3D({
 
   const verticalOffset = useMemo(() => -boardSize * 0.12, [boardSize]);
 
-  // Static camera settings
+  // Static camera settings - increased scale for better tile visibility
   const camera = useMemo(() => ({
     perspective: 800,
     rotateX: 55,        // Tilt forward for 3D effect
-    scale: 0.62,        // Zoom to show ~6-8 tiles
+    scale: 0.75,        // Increased from 0.62 for larger, more visible tiles
   }), []);
 
   const clampedTranslation = useMemo(() => {
@@ -90,7 +94,14 @@ export function MobileBoard3D({
       };
     }
 
-    const scaledHalfWidth = width / (2 * camera.scale);
+    // Calculate the available width between UI elements
+    const availableWidth = width - leftOffset - rightOffset;
+    
+    // Calculate horizontal shift to center board in available space
+    // Simplified: (leftOffset - rightOffset) / 2
+    const horizontalShift = (leftOffset - rightOffset) / 2;
+
+    const scaledHalfWidth = availableWidth / (2 * camera.scale);
     const scaledHalfHeight = height / (2 * camera.scale);
     const marginScaled = margin / camera.scale;
 
@@ -99,14 +110,14 @@ export function MobileBoard3D({
     const minY = -(scaledHalfHeight - marginScaled) - playerPosition.y;
     const maxY = scaledHalfHeight - marginScaled - playerPosition.y;
 
-    const desiredX = playerPosition.offsetX + panOffset.x;
+    const desiredX = playerPosition.offsetX + panOffset.x + horizontalShift;
     const desiredY = playerPosition.offsetY + panOffset.y + verticalOffset;
 
     return {
       x: Math.min(Math.max(desiredX, minX), maxX),
       y: Math.min(Math.max(desiredY, minY), maxY),
     };
-  }, [camera.scale, panOffset.x, panOffset.y, playerPosition, verticalOffset, viewportSize]);
+  }, [camera.scale, panOffset.x, panOffset.y, playerPosition, verticalOffset, viewportSize, leftOffset, rightOffset]);
 
   return (
     <div 
