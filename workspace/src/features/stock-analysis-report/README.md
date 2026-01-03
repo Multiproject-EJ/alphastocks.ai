@@ -4,6 +4,7 @@ A mobile-first, scrollable modal component that displays comprehensive Protools 
 
 ## Features
 
+### Core Features
 - ✅ Sticky header with ticker symbol and verdict
 - ✅ Executive summary with investment rating
 - ✅ Valuation scenarios (Base/Bull/Bear cases)
@@ -13,6 +14,15 @@ A mobile-first, scrollable modal component that displays comprehensive Protools 
 - ✅ Loading state with skeleton loader
 - ✅ Mobile-first responsive design
 - ✅ Accessibility features (ARIA labels, semantic HTML)
+
+### Mobile Gesture Support 📱
+- ✅ **Swipe-to-close**: Swipe down from the top to dismiss the modal
+- ✅ **Pull-to-refresh**: Pull down when at the top of content to refresh data
+- ✅ **Haptic feedback**: Vibration feedback on interactions (when supported)
+- ✅ **Body scroll lock**: Prevents background scrolling when modal is open
+- ✅ **Android back button**: Hardware back button closes the modal
+- ✅ **iOS safe areas**: Respects notch, home indicator, and other safe areas
+- ✅ **Touch targets**: All interactive elements are minimum 48x48px for better accessibility
 
 ## Usage
 
@@ -58,6 +68,11 @@ function MyComponent() {
         open={reportOpen}
         onOpenChange={setReportOpen}
         analysisData={analysisData}
+        onRefresh={() => {
+          // Optional: Handle pull-to-refresh
+          console.log('Refreshing data...');
+          // Fetch fresh data here
+        }}
       />
     </div>
   );
@@ -76,6 +91,9 @@ const nvdaAnalysis = demoData.rows.find(row => row.symbol === 'NVDA');
   open={true}
   onOpenChange={(open) => console.log('Modal open state:', open)}
   analysisData={nvdaAnalysis}
+  onRefresh={() => {
+    // Refresh handler for pull-to-refresh gesture
+  }}
 />
 ```
 
@@ -88,6 +106,9 @@ const nvdaAnalysis = demoData.rows.find(row => row.symbol === 'NVDA');
 | `open` | `boolean` | Yes | Whether the modal is visible |
 | `onOpenChange` | `(open: boolean) => void` | Yes | Callback when modal should open/close |
 | `analysisData` | `AnalysisData \| null` | No | Analysis data to display (shows loading if null) |
+| `loading` | `boolean` | No | Shows loading skeleton when true (default: false) |
+| `error` | `string \| null` | No | Error message to display (default: null) |
+| `onRefresh` | `() => void` | No | Optional callback for pull-to-refresh gesture |
 
 ### `AnalysisData` Interface
 
@@ -153,6 +174,39 @@ All component-specific styles are defined in `styles/stock-analysis-report.css` 
 - Semantic HTML structure
 - Keyboard-accessible close button
 - Screen reader friendly content
+- Touch targets minimum 48x48px for better mobile accessibility
+- High contrast colors for readability
+
+## Mobile Gestures
+
+### Swipe to Close
+Swipe down from anywhere in the modal when scrolled to the top to dismiss it. The modal will follow your finger with visual feedback (translucency and movement). Release after swiping down 100px or more to close.
+
+### Pull to Refresh
+When the `onRefresh` prop is provided, pull down from the top of the scrollable content to trigger a refresh. A visual indicator appears showing pull progress. Release when the indicator says "Release to refresh" to trigger the callback.
+
+### Haptic Feedback
+The component provides haptic feedback (vibration) on supported devices for:
+- Modal open/close
+- Reaching swipe threshold
+- Pull-to-refresh activation
+- Button interactions
+
+To disable haptics on specific devices, the `navigator.vibrate` API is automatically detected and used only when available.
+
+### Android Back Button
+The hardware back button on Android devices will close the modal. This is implemented using the History API without affecting your app's routing.
+
+### iOS Safe Areas
+The modal automatically adapts to iOS safe areas:
+- Top safe area (notch)
+- Bottom safe area (home indicator)
+- Left/right safe areas (for landscape on notched devices)
+
+This is implemented using CSS environment variables (`env(safe-area-inset-*)`) with fallbacks for non-iOS devices.
+
+### Body Scroll Lock
+When the modal is open, scrolling is locked on the body element to prevent background content from scrolling. Scroll position is preserved and restored when the modal closes.
 
 ## Design Patterns
 
