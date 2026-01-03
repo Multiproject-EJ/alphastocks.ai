@@ -34,7 +34,7 @@ export function BasicExample() {
       { scenario: 'Cloud capex pause', delta: -0.18 },
       { scenario: 'China export tightening', delta: -0.12 }
     ],
-    analyzed_at: '2025-12-15T10:30:00Z'
+    analyzed_at: '2024-12-15T10:30:00Z'
   };
 
   return (
