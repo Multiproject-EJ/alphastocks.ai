@@ -5,6 +5,7 @@ import PorterForcesSection from './components/PorterForcesSection.jsx';
 import StressTestsSection from './components/StressTestsSection.jsx';
 import FullAnalysisSection from './components/FullAnalysisSection.jsx';
 import LoadingState from './components/LoadingState.jsx';
+import ErrorState from './components/ErrorState.jsx';
 import './styles/stock-analysis-report.css';
 
 /**
@@ -26,66 +27,56 @@ import './styles/stock-analysis-report.css';
  * @param {Object} props.analysisData.valuation - Valuation scenarios (base, bull, bear)
  * @param {Object} props.analysisData.porter_forces - Porter's Five Forces analysis
  * @param {Array} props.analysisData.stress_tests - Array of stress test scenarios
- * @param {string} props.analysisData.analyzed_at - Timestamp of analysis
+ * @param {string} props.analysisData.created_at - Timestamp of analysis creation
+ * @param {boolean} props.loading - Loading state
+ * @param {string|null} props.error - Error message
  */
-const StockAnalysisReport = ({ open, onOpenChange, analysisData }) => {
-  // Don't render if modal is not open
+export default function StockAnalysisReport({ 
+  open, 
+  onOpenChange, 
+  analysisData, 
+  loading = false,
+  error = null 
+}) {
   if (!open) return null;
 
-  // Handle backdrop click to close modal
-  const handleBackdropClick = (e) => {
-    if (e.target === e.currentTarget) {
-      onOpenChange(false);
-    }
-  };
-
-  // Show loading state if no data
-  if (!analysisData) {
-    return (
-      <div className="modal-backdrop" role="dialog" aria-modal="true" onClick={handleBackdropClick}>
-        <div className="stock-analysis-report" role="document">
-          <LoadingState />
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="modal-backdrop" role="dialog" aria-modal="true" onClick={handleBackdropClick}>
+    <div className="modal-backdrop" role="dialog" aria-modal="true">
       <div className="stock-analysis-report" role="document">
-        <ReportHeader 
-          symbol={analysisData.symbol}
-          label={analysisData.label}
-          valuation={analysisData.valuation}
-          onClose={() => onOpenChange(false)}
-        />
-        
-        <div className="report-scroll-content">
-          <ExecutiveSummary 
-            summary={analysisData.summary} 
-            label={analysisData.label} 
+        {loading ? (
+          <LoadingState />
+        ) : error ? (
+          <ErrorState error={error} onClose={() => onOpenChange(false)} />
+        ) : analysisData ? (
+          <>
+            <ReportHeader 
+              symbol={analysisData.symbol}
+              label={analysisData.label}
+              valuation={analysisData.valuation}
+              onClose={() => onOpenChange(false)}
+            />
+            
+            <div className="report-scroll-content">
+              <ExecutiveSummary 
+                summary={analysisData.summary} 
+                label={analysisData.label} 
+              />
+              <ValuationSection valuation={analysisData.valuation} />
+              <PorterForcesSection forces={analysisData.porter_forces} />
+              <StressTestsSection tests={analysisData.stress_tests} />
+              <FullAnalysisSection 
+                summary={analysisData.summary}
+                analyzed_at={analysisData.created_at}
+              />
+            </div>
+          </>
+        ) : (
+          <ErrorState 
+            error="No data available" 
+            onClose={() => onOpenChange(false)} 
           />
-          
-          <ValuationSection 
-            valuation={analysisData.valuation} 
-          />
-          
-          <PorterForcesSection 
-            forces={analysisData.porter_forces} 
-          />
-          
-          <StressTestsSection 
-            tests={analysisData.stress_tests} 
-          />
-          
-          <FullAnalysisSection 
-            summary={analysisData.summary}
-            analyzed_at={analysisData.analyzed_at}
-          />
-        </div>
+        )}
       </div>
     </div>
   );
-};
-
-export default StockAnalysisReport;
+}
