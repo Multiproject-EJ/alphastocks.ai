@@ -92,9 +92,9 @@ export function PhoneLayout({
   const backgroundUrl = `${import.meta.env.BASE_URL}${phoneBackground}`;
 
   // Calculate UI element widths for board centering
-  // Left side: Shop (~90px) + Exchanges/Right Now buttons (~100px) = ~100px total effective offset
+  // Left side: Shop button + Exchanges/Right Now buttons occupy ~100px effective horizontal space
   const leftUIOffset = 100;
-  // Right side: Portfolio + ProTools buttons (~60px effective due to right-4 positioning)
+  // Right side: Portfolio + ProTools buttons occupy ~60px effective space (with right-4 positioning)
   const rightUIOffset = 60;
 
   return (

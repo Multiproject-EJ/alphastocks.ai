@@ -77,11 +77,11 @@ export function MobileBoard3D({
 
   const verticalOffset = useMemo(() => -boardSize * 0.12, [boardSize]);
 
-  // Static camera settings - increased scale for better mobile visibility
+  // Static camera settings - increased scale for better tile visibility
   const camera = useMemo(() => ({
     perspective: 800,
     rotateX: 55,        // Tilt forward for 3D effect
-    scale: 0.75,        // Increased from 0.62 to show more board detail
+    scale: 0.75,        // Increased from 0.62 for larger, more visible tiles
   }), []);
 
   const clampedTranslation = useMemo(() => {
@@ -98,10 +98,8 @@ export function MobileBoard3D({
     const availableWidth = width - leftOffset - rightOffset;
     
     // Calculate horizontal shift to center board in available space
-    // The center of available space is at leftOffset + (availableWidth / 2)
-    // But the viewport center is at width / 2
-    // So we need to shift by: (leftOffset + availableWidth/2) - (width/2)
-    const horizontalShift = leftOffset + (availableWidth / 2) - (width / 2);
+    // Simplified: (leftOffset - rightOffset) / 2
+    const horizontalShift = (leftOffset - rightOffset) / 2;
 
     const scaledHalfWidth = availableWidth / (2 * camera.scale);
     const scaledHalfHeight = height / (2 * camera.scale);
