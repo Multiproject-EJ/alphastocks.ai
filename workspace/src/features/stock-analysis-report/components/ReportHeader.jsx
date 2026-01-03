@@ -21,18 +21,20 @@ const ReportHeader = ({ symbol, label, valuation, onClose }) => {
     <div className="report-header">
       <div className="report-header__content">
         <div>
-          <h1 className="report-header__ticker">{symbol}</h1>
+          <h1 className="report-header__ticker">{symbol || 'N/A'}</h1>
           <div className="report-header__label">
-            {label} {renderStars(label)}
+            {label || 'Unknown'} {renderStars(label)}
           </div>
         </div>
-        <div className="report-header__valuation">
-          <span className="detail-meta">Base Target</span>
-          <span className="report-header__price">${valuation.base}</span>
-          <span className="report-header__upside">
-            {calculateUpside(valuation)}% upside
-          </span>
-        </div>
+        {valuation && valuation.base && (
+          <div className="report-header__valuation">
+            <span className="detail-meta">Base Target</span>
+            <span className="report-header__price">${valuation.base}</span>
+            <span className="report-header__upside">
+              {calculateUpside(valuation)}% upside
+            </span>
+          </div>
+        )}
       </div>
       <button 
         className="report-header__close"

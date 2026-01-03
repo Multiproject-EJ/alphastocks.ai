@@ -28,6 +28,8 @@ const calculateFreshness = (dateString) => {
 };
 
 const FullAnalysisSection = ({ summary, analyzed_at }) => {
+  if (!summary) return null;
+  
   return (
     <section className="report-section">
       <h2 className="report-section__title">📄 Full Analysis</h2>
@@ -35,16 +37,18 @@ const FullAnalysisSection = ({ summary, analyzed_at }) => {
         <p className="full-analysis-text">{summary}</p>
       </div>
       
-      <div className="analysis-metadata">
-        <div className="metadata-item">
-          <span className="detail-meta">Analyzed</span>
-          <span>{formatDate(analyzed_at)}</span>
+      {analyzed_at && (
+        <div className="analysis-metadata">
+          <div className="metadata-item">
+            <span className="detail-meta">Analyzed</span>
+            <span>{formatDate(analyzed_at)}</span>
+          </div>
+          <div className="metadata-item">
+            <span className="detail-meta">Data Freshness</span>
+            <span>{calculateFreshness(analyzed_at)}</span>
+          </div>
         </div>
-        <div className="metadata-item">
-          <span className="detail-meta">Data Freshness</span>
-          <span>{calculateFreshness(analyzed_at)}</span>
-        </div>
-      </div>
+      )}
     </section>
   );
 };
