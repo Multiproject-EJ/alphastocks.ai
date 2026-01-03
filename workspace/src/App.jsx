@@ -31,6 +31,8 @@ const DEFAULT_FOCUS_LIST = [
   { id: 'focus-4', title: 'Position audit', caption: 'Rotate winners & laggards', tag: { label: 'Next week' } }
 ];
 const DEEP_DIVE_READS_TABLE = 'valuebot_deep_dive_reads';
+// Delay before auto-opening analysis report to ensure workspace UI is fully initialized
+const ANALYSIS_REPORT_OPEN_DELAY_MS = 500;
 
 const DEFAULT_UNIVERSE_ROWS = [
   {
@@ -1201,6 +1203,42 @@ const App = () => {
       openProToolsWorkspace();
     }
   }, [openProToolsWorkspace]);
+
+  useEffect(() => {
+    const symbol = new URLSearchParams(window.location.search).get('analysis');
+    if (!symbol || !dataService) {
+      return;
+    }
+
+    const loadAnalysisReport = async () => {
+      setAnalysisReportLoading(true);
+      setAnalysisReportError(null);
+      setAnalysisReportData(null);
+      setAnalysisReportOpen(true);
+      
+      try {
+        const result = await dataService.fetchStockAnalysis(symbol, user?.id);
+        if (result.data) {
+          setAnalysisReportData(result.data);
+          setAnalysisReportLoading(false);
+        } else if (result.error) {
+          setAnalysisReportError(result.error.message || 'Failed to load analysis');
+          setAnalysisReportLoading(false);
+        } else {
+          setAnalysisReportError(`No analysis found for ${symbol}. Run ValueBot Module 6 to generate a full analysis.`);
+          setAnalysisReportLoading(false);
+        }
+      } catch (error) {
+        setAnalysisReportError(error.message || 'Failed to load analysis');
+        setAnalysisReportLoading(false);
+      }
+    };
+
+    // Delay to ensure workspace UI is fully initialized
+    const timeoutId = setTimeout(loadAnalysisReport, ANALYSIS_REPORT_OPEN_DELAY_MS);
+    
+    return () => clearTimeout(timeoutId);
+  }, [dataService, user?.id]);
 
   const handleProToolsToggle = useCallback(() => {
     setIsProToolsOpen((prev) => {

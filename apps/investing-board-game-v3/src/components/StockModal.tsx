@@ -74,6 +74,11 @@ export function StockModal({ open, onOpenChange, stock, onBuy, cash, showInsight
     action()
   }
 
+  const handleViewFullAnalysis = () => {
+    const baseUrl = import.meta.env.PROD ? 'https://www.alphastocks.ai' : window.location.origin
+    window.open(`${baseUrl}/?proTools=1&analysis=${stock.symbol}`, '_blank')
+  }
+
   if (!stock) return null
 
   const baseShares = 10
@@ -538,6 +543,16 @@ export function StockModal({ open, onOpenChange, stock, onBuy, cash, showInsight
                 >
                   Invest
                   <ArrowRight size={14} />
+                </Button>
+              </div>
+
+              <div className="mt-4 pt-4 border-t border-border/50">
+                <Button
+                  onClick={handleViewFullAnalysis}
+                  variant="outline"
+                  className="w-full flex items-center justify-center gap-2 bg-accent/10 hover:bg-accent/20 border-accent/30 text-accent font-medium"
+                >
+                  View Full Analysis Report
                 </Button>
               </div>
             </div>
