@@ -1202,6 +1202,25 @@ const App = () => {
     }
   }, [openProToolsWorkspace]);
 
+  useEffect(() => {
+    const symbol = new URLSearchParams(window.location.search).get('analysis');
+    if (symbol && dataService) {
+      setTimeout(async () => {
+        try {
+          setAnalysisReportOpen(true);
+          const result = await dataService.fetchStockAnalysis(symbol, user?.id);
+          if (result.data) {
+            setAnalysisReportData(result.data);
+          } else if (result.error) {
+            setAnalysisReportError(result.error.message || 'Failed to load analysis');
+          }
+        } catch (error) {
+          setAnalysisReportError(error.message || 'Failed to load analysis');
+        }
+      }, 500);
+    }
+  }, [dataService, user?.id]);
+
   const handleProToolsToggle = useCallback(() => {
     setIsProToolsOpen((prev) => {
       const nextIsOpen = !prev;
