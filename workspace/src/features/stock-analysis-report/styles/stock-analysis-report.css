@@ -125,6 +125,13 @@
   color: white;
 }
 
+.verdict-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
 .verdict-card__rating {
   display: flex;
   justify-content: space-between;
@@ -137,10 +144,138 @@
   font-weight: 700;
 }
 
+.verdict-card__score {
+  text-align: right;
+}
+
+.verdict-card__score-value {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.verdict-card__score-label {
+  font-size: 0.875rem;
+  opacity: 0.8;
+}
+
+.verdict-card__meta {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.conviction-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.conviction-badge--high {
+  background: rgba(34, 197, 94, 0.2);
+  color: #22c55e;
+}
+
+.conviction-badge--medium {
+  background: rgba(245, 158, 11, 0.2);
+  color: #f59e0b;
+}
+
+.conviction-badge--low {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+.upside-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: rgba(34, 197, 94, 0.2);
+  color: #22c55e;
+}
+
+.rating-badge {
+  padding: 0.125rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--accent-primary);
+}
+
 .verdict-card__summary {
   line-height: 1.6;
   margin: 0;
   color: rgba(255, 255, 255, 0.95);
+}
+
+/* Insights Grid */
+.insights-grid {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.insight-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.insight-card--positive {
+  border-left: 4px solid #22c55e;
+  background: rgba(34, 197, 94, 0.05);
+}
+
+.insight-card--caution {
+  border-left: 4px solid #f59e0b;
+  background: rgba(245, 158, 11, 0.05);
+}
+
+.insight-card--catalyst {
+  border-left: 4px solid #3b82f6;
+  background: rgba(59, 130, 246, 0.05);
+}
+
+.insight-card--warning {
+  border-left: 4px solid #ef4444;
+  background: rgba(239, 68, 68, 0.05);
+}
+
+.insight-card__title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin: 0 0 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.insight-card__icon {
+  font-size: 1.125rem;
+}
+
+.insight-list {
+  margin: 0;
+  padding-left: 1.25rem;
+  list-style: disc;
+}
+
+.insight-list li {
+  margin-bottom: 0.5rem;
+  line-height: 1.5;
+  color: var(--text-secondary, #cbd5e1);
+}
+
+.insight-list li:last-child {
+  margin-bottom: 0;
 }
 
 /* Valuation Cards */
@@ -333,6 +468,10 @@
   }
   
   .porter-forces-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .insights-grid {
     grid-template-columns: repeat(2, 1fr);
   }
   
