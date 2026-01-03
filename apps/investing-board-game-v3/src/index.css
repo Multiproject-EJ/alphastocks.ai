@@ -717,6 +717,8 @@ h1, h2, h3, h4, h5, h6 {
 /* Phone layout z-index stack */
 .phone-layout {
   isolation: isolate; /* Create stacking context */
+  --parallax-x: 0px;
+  --parallax-y: 0px;
 }
 
 /* Board area positioning */
@@ -730,6 +732,37 @@ h1, h2, h3, h4, h5, h6 {
 .phone-layout,
 .phone-layout > * {
   overflow: visible;
+}
+
+.phone-parallax-layer {
+  transform: translate3d(var(--parallax-x), var(--parallax-y), 0) scale(1.02);
+  will-change: transform;
+  transition: transform 120ms linear;
+}
+
+.phone-parallax-layer--far {
+  transform: translate3d(
+      calc(var(--parallax-x) * 0.45),
+      calc(var(--parallax-y) * 0.45),
+      0
+    )
+    scale(1.015);
+}
+
+.phone-parallax-layer--near {
+  transform: translate3d(
+      calc(var(--parallax-x) * 0.8),
+      calc(var(--parallax-y) * 0.8),
+      0
+    )
+    scale(1.03);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .phone-parallax-layer {
+    transform: none;
+    transition: none;
+  }
 }
 
 /* GPU acceleration for smooth animations */

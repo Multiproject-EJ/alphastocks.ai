@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useMemo, useState } from 'react';
+import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { Clock3, TrendingUp } from 'lucide-react';
 import { CompactHUD } from './CompactHUD';
 import { PhoneBottomNav } from './PhoneBottomNav';
@@ -63,6 +63,8 @@ export function PhoneLayout({
   const showDebug = import.meta.env.DEV;
   const [currentHour, setCurrentHour] = useState(() => new Date().getHours());
   const hideFloatingActions = isRolling;
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const parallaxTarget = useRef({ x: 0, y: 0 });
   
   const camera = {
     perspective: 800,
@@ -91,6 +93,53 @@ export function PhoneLayout({
 
   const backgroundUrl = `${import.meta.env.BASE_URL}${phoneBackground}`;
 
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (prefersReducedMotion.matches) return;
+
+    const maxOffset = 12;
+    const updateTarget = (x: number, y: number) => {
+      parallaxTarget.current.x = Math.max(-1, Math.min(1, x)) * maxOffset;
+      parallaxTarget.current.y = Math.max(-1, Math.min(1, y)) * maxOffset;
+    };
+
+    const handlePointerMove = (event: PointerEvent) => {
+      const { innerWidth, innerHeight } = window;
+      const x = (event.clientX / innerWidth) * 2 - 1;
+      const y = (event.clientY / innerHeight) * 2 - 1;
+      updateTarget(x, y);
+    };
+
+    const handleOrientation = (event: DeviceOrientationEvent) => {
+      if (event.gamma == null || event.beta == null) return;
+      const x = event.gamma / 30;
+      const y = event.beta / 30;
+      updateTarget(x, y);
+    };
+
+    window.addEventListener('pointermove', handlePointerMove, { passive: true });
+    window.addEventListener('deviceorientation', handleOrientation, { passive: true });
+
+    let rafId = 0;
+    const animate = () => {
+      const { x, y } = parallaxTarget.current;
+      container.style.setProperty('--parallax-x', `${x}px`);
+      container.style.setProperty('--parallax-y', `${y}px`);
+      rafId = window.requestAnimationFrame(animate);
+    };
+
+    rafId = window.requestAnimationFrame(animate);
+
+    return () => {
+      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('deviceorientation', handleOrientation);
+      window.cancelAnimationFrame(rafId);
+    };
+  }, []);
+
   // Calculate UI element widths for board centering
   // Left side: Shop button + Exchanges/Right Now buttons occupy ~100px effective horizontal space
   const leftUIOffset = 100;
@@ -98,10 +147,23 @@ export function PhoneLayout({
   const rightUIOffset = 40;
 
   return (
-    <div className="h-[100dvh] w-full flex flex-col overflow-hidden relative phone-layout">
+    <div
+      ref={containerRef}
+      className="h-[100dvh] w-full flex flex-col overflow-hidden relative phone-layout"
+    >
       {/* Layer 0: Background */}
       <div 
         className="absolute inset-0 z-0 bg-cover bg-center opacity-60 pointer-events-none"
+        style={{ backgroundImage: `url('${backgroundUrl}')` }}
+        aria-hidden="true"
+      />
+      <div
+        className="absolute inset-0 z-[1] bg-cover bg-center opacity-30 pointer-events-none phone-parallax-layer phone-parallax-layer--far"
+        style={{ backgroundImage: `url('${backgroundUrl}')` }}
+        aria-hidden="true"
+      />
+      <div
+        className="absolute inset-0 z-[2] bg-cover bg-center opacity-35 pointer-events-none phone-parallax-layer phone-parallax-layer--near"
         style={{ backgroundImage: `url('${backgroundUrl}')` }}
         aria-hidden="true"
       />
