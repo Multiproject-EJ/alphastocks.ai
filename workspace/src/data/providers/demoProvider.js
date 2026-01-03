@@ -141,9 +141,10 @@ export const createDemoProvider = () => {
     /**
      * Fetch stock analysis from demo data
      * @param {string} symbol - Stock ticker symbol
+     * @param {string} profileId - User profile ID (not used in demo mode)
      * @returns {Promise<{data: object|null, error: Error|null}>}
      */
-    async fetchStockAnalysis(symbol) {
+    async fetchStockAnalysis(symbol, profileId) {
       try {
         // Lazy load demo data
         const demoModule = await import('../demo/demo.stock_analyses.json');

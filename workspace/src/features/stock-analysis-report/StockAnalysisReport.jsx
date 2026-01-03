@@ -27,7 +27,7 @@ import './styles/stock-analysis-report.css';
  * @param {Object} props.analysisData.valuation - Valuation scenarios (base, bull, bear)
  * @param {Object} props.analysisData.porter_forces - Porter's Five Forces analysis
  * @param {Array} props.analysisData.stress_tests - Array of stress test scenarios
- * @param {string} props.analysisData.analyzed_at - Timestamp of analysis
+ * @param {string} props.analysisData.created_at - Timestamp of analysis creation
  * @param {boolean} props.loading - Loading state
  * @param {string|null} props.error - Error message
  */
@@ -66,7 +66,7 @@ export default function StockAnalysisReport({
               <StressTestsSection tests={analysisData.stress_tests} />
               <FullAnalysisSection 
                 summary={analysisData.summary}
-                analyzedAt={analysisData.created_at}
+                analyzed_at={analysisData.created_at}
               />
             </div>
           </>
