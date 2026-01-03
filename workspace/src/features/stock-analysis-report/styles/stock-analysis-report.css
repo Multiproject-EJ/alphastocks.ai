@@ -141,7 +141,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
   opacity: 0;
   transition: opacity 0.4s;
 }
@@ -474,9 +474,9 @@
 
 .skeleton {
   background: linear-gradient(90deg, 
-    rgba(255,255,255,0.04) 0%,
-    rgba(255,255,255,0.12) 40%,
-    rgba(255,255,255,0.04) 100%
+    rgba(255, 255, 255, 0.04) 0%,
+    rgba(255, 255, 255, 0.12) 40%,
+    rgba(255, 255, 255, 0.04) 100%
   );
   background-size: 200% 100%;
   animation: shimmer 2s ease-in-out infinite;
@@ -509,6 +509,9 @@
 
 @media (prefers-reduced-motion: reduce) {
   .report-section { animation: none; }
+  .stock-analysis-report { animation: none; }
+  .valuation-card:hover { transform: none; }
+  .porter-force-card:hover { transform: none; }
 }
 
 /* Responsive */
