@@ -38,14 +38,14 @@ const ExecutiveSummary = ({ summary, label, analysisData }) => {
           )}
         </div>
         
-        {(conviction || upside) && (
+        {(conviction || upside !== null && upside !== undefined) && (
           <div className="verdict-card__meta">
-            {conviction && (
+            {conviction && ['high', 'medium', 'low'].includes(conviction) && (
               <span className={`conviction-badge conviction-badge--${conviction}`}>
                 {conviction.toUpperCase()} CONVICTION
               </span>
             )}
-            {upside && (
+            {upside !== null && upside !== undefined && typeof upside === 'number' && (
               <span className="upside-badge">
                 +{upside.toFixed(1)}% Upside
               </span>

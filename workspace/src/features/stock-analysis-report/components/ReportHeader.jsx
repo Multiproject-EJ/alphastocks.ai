@@ -37,7 +37,7 @@ const ReportHeader = ({ symbol, label, valuation, analysisData, onClose }) => {
           <div className="report-header__valuation">
             <span className="detail-meta">Base Target</span>
             <span className="report-header__price">${basePrice}</span>
-            {upside > 0 && (
+            {upside > 0 && typeof upside === 'number' && (
               <span className="report-header__upside">
                 +{upside.toFixed(1)}% upside
               </span>
