@@ -10,11 +10,15 @@ const formatDate = (dateString) => {
   });
 };
 
+// Data freshness thresholds (in days)
+const FRESHNESS_THRESHOLD_DAYS = 7;
+const STALE_THRESHOLD_DAYS = 30;
+
 const calculateFreshness = (analyzedAt) => {
   if (!analyzedAt) return 'fresh';
   const days = Math.floor((Date.now() - new Date(analyzedAt).getTime()) / (1000 * 60 * 60 * 24));
-  if (days <= 7) return 'fresh';
-  if (days <= 30) return 'stale';
+  if (days <= FRESHNESS_THRESHOLD_DAYS) return 'fresh';
+  if (days <= STALE_THRESHOLD_DAYS) return 'stale';
   return 'outdated';
 };
 

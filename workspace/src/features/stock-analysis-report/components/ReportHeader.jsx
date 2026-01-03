@@ -10,7 +10,8 @@ const renderStars = (label) => {
 
 const calculateUpside = (valuation) => {
   if (!valuation?.base) return 0;
-  // Assume current price is base - 10% for demo
+  // Demo calculation: assumes current price is 10% below base target
+  // In production, this should use actual current market price
   const currentPrice = valuation.base * 0.9;
   return ((valuation.base - currentPrice) / currentPrice) * 100;
 };
