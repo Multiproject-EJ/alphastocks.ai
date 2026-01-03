@@ -512,6 +512,10 @@
   .stock-analysis-report { animation: none; }
   .valuation-card:hover { transform: none; }
   .porter-force-card:hover { transform: none; }
+  .verdict-card::before { transition: none; }
+  .insight-card { transition: none; }
+  .valuation-card { transition: none; }
+  .porter-force-card { transition: none; }
 }
 
 /* Responsive */
