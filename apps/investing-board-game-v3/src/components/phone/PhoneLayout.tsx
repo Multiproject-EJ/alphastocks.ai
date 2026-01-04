@@ -164,13 +164,13 @@ export function PhoneLayout({
       />
       {/* Layer 1: Far parallax layer */}
       <div
-        className="absolute inset-0 z-[1] bg-center opacity-30 pointer-events-none phone-parallax-layer phone-parallax-layer--far"
+        className="absolute inset-0 z-[1] bg-cover bg-center opacity-30 pointer-events-none phone-parallax-layer phone-parallax-layer--far"
         style={{ backgroundImage: `url('${backgroundUrl}')` }}
         aria-hidden="true"
       />
       {/* Layer 2: Near parallax layer */}
       <div
-        className="absolute inset-0 z-[2] bg-center opacity-35 pointer-events-none phone-parallax-layer phone-parallax-layer--near"
+        className="absolute inset-0 z-[2] bg-cover bg-center opacity-35 pointer-events-none phone-parallax-layer phone-parallax-layer--near"
         style={{ backgroundImage: `url('${backgroundUrl}')` }}
         aria-hidden="true"
       />
