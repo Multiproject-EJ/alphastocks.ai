@@ -66,6 +66,7 @@ export function PhoneLayout({
   const hideFloatingActions = isRolling;
   const containerRef = useRef<HTMLDivElement | null>(null);
   const parallaxTarget = useRef({ x: 0, y: 0 });
+  const positionTarget = useRef({ x: 0, y: 0 });
   const lastInteraction = useRef<number>(performance.now());
   
   const camera = {
@@ -136,8 +137,9 @@ export function PhoneLayout({
       const time = performance.now() * 0.00035;
       const driftX = Math.sin(time) * driftStrength;
       const driftY = Math.cos(time * 0.9) * (driftStrength * 0.7);
-      const compositeX = x + driftX;
-      const compositeY = y + driftY;
+      const { x: posX, y: posY } = positionTarget.current;
+      const compositeX = x + driftX + posX;
+      const compositeY = y + driftY + posY;
 
       container.style.setProperty('--parallax-x', `${compositeX}px`);
       container.style.setProperty('--parallax-y', `${compositeY}px`);
@@ -168,6 +170,7 @@ export function PhoneLayout({
     // Create subtle circular movement pattern
     const bgOffsetX = Math.sin(angleRad) * 8; // Small 8px max offset
     const bgOffsetY = Math.cos(angleRad) * 8;
+    positionTarget.current = { x: bgOffsetX, y: bgOffsetY };
     
     container.style.setProperty('--position-offset-x', `${bgOffsetX}px`);
     container.style.setProperty('--position-offset-y', `${bgOffsetY}px`);
