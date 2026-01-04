@@ -91,6 +91,8 @@ const CLASSIC_DEFAULTS = {
   scale: DESKTOP_DEFAULT_SCALE,
 }
 
+const MOBILE_PLAYER_FOCUS_Y_RATIO = 0.6
+
 export function useBoardCamera(options: UseBoardCameraOptions) {
   const { isMobile, currentPosition, boardSize } = options
   
@@ -169,14 +171,16 @@ export function useBoardCamera(options: UseBoardCameraOptions) {
       return { x: 0, y: 0 }
     }
     
-    // For immersive mode, calculate offset to center tile
-    // The tile should appear in the center of the viewport
+    // For immersive mode, calculate offset to keep the player in the lower
+    // portion of the screen (bottom ~40%).
     const boardCenterX = boardSize.width / 2
     const boardCenterY = boardSize.height / 2
+    const targetCenterY =
+      boardCenterY + boardSize.height * (MOBILE_PLAYER_FOCUS_Y_RATIO - 0.5)
     
     // Calculate how much to offset the board so tile appears centered
     const offsetX = boardCenterX - tilePos.x
-    const offsetY = boardCenterY - tilePos.y
+    const offsetY = targetCenterY - tilePos.y
     
     return { x: offsetX, y: offsetY }
   }, [getTileCenterPosition, isMobile, camera.mode, boardSize])
