@@ -731,9 +731,9 @@ h1, h2, h3, h4, h5, h6 {
 .phone-background-3d {
   will-change: transform;
   transition: transform 180ms cubic-bezier(0.16, 1, 0.3, 1);
-  /* Optimize image rendering for quality on mobile */
-  image-rendering: -webkit-optimize-contrast;
-  image-rendering: crisp-edges;
+  /* Optimize image rendering for quality on mobile - with fallbacks */
+  image-rendering: -webkit-optimize-contrast; /* Safari */
+  image-rendering: crisp-edges; /* Standard - Firefox, Chrome */
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
   /* Use fixed background size to prevent stretching artifacts */
@@ -767,13 +767,6 @@ h1, h2, h3, h4, h5, h6 {
 .phone-layout,
 .phone-layout > * {
   overflow: visible;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .phone-background-3d {
-    transform: none;
-    transition: none;
-  }
 }
 
 /* GPU acceleration for smooth animations */

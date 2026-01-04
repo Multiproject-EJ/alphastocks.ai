@@ -9,6 +9,7 @@ import { useUIMode } from '@/hooks/useUIMode';
 // Layout constants for consistent sizing
 const COMPACT_HUD_HEIGHT = 48;  // pixels
 const BOTTOM_NAV_HEIGHT = 90;   // pixels (updated to match new nav height)
+const DEFAULT_TOTAL_TILES = 40; // Standard board size for position calculations
 
 interface PhoneLayoutProps {
   children: ReactNode;
@@ -148,7 +149,7 @@ export function PhoneLayout({
     
     // Calculate position-based offset (subtle, for background depth)
     // Normalized position around the circle (0-1)
-    const normalizedPosition = currentPosition / 40; // Assuming 40 tiles max
+    const normalizedPosition = currentPosition / DEFAULT_TOTAL_TILES;
     const angleRad = normalizedPosition * Math.PI * 2;
     
     // Create subtle circular movement pattern
@@ -176,9 +177,7 @@ export function PhoneLayout({
         style={{ 
           backgroundImage: `url('${backgroundUrl}')`,
           WebkitBackfaceVisibility: 'hidden',
-          backfaceVisibility: 'hidden',
-          // High quality image rendering for crisp display
-          imageRendering: '-webkit-optimize-contrast'
+          backfaceVisibility: 'hidden'
         }}
         aria-hidden="true"
       />
