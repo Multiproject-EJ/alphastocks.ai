@@ -175,10 +175,9 @@ export function PhoneLayout({
         className="absolute inset-0 z-0 bg-cover bg-center pointer-events-none phone-background-3d"
         style={{ 
           backgroundImage: `url('${backgroundUrl}')`,
-          imageRendering: 'crisp-edges',
           WebkitBackfaceVisibility: 'hidden',
           backfaceVisibility: 'hidden',
-          // High quality image rendering
+          // High quality image rendering for crisp display
           imageRendering: '-webkit-optimize-contrast'
         }}
         aria-hidden="true"
