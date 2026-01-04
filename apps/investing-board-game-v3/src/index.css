@@ -737,6 +737,17 @@ h1, h2, h3, h4, h5, h6 {
 .phone-parallax-layer {
   will-change: transform;
   transition: transform 120ms linear;
+  /* Optimize image rendering for quality on mobile */
+  image-rendering: auto;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  /* Use fixed background size to prevent stretching artifacts */
+  background-size: cover !important;
+  background-position: center !important;
+  /* Slight sharpening filter to counteract scaling blur */
+  filter: contrast(1.02) brightness(1.01);
+  /* Enable hardware acceleration */
+  transform: translateZ(0);
 }
 
 .phone-parallax-layer--far {
@@ -745,7 +756,8 @@ h1, h2, h3, h4, h5, h6 {
       calc(var(--parallax-y) * 0.45),
       0
     )
-    scale(1.015);
+    scale(1.008);
+  filter: contrast(1.01) brightness(1.005);
 }
 
 .phone-parallax-layer--near {
@@ -754,7 +766,8 @@ h1, h2, h3, h4, h5, h6 {
       calc(var(--parallax-y) * 0.8),
       0
     )
-    scale(1.03);
+    scale(1.015);
+  filter: contrast(1.03) brightness(1.02);
 }
 
 @media (prefers-reduced-motion: reduce) {
