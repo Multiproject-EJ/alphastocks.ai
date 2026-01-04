@@ -710,7 +710,7 @@ button:active,
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 8px;
   padding: 0.5rem;
-  color: var(--text-primary);
+  color: var(--text-primary, #e2e8f0);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -763,13 +763,13 @@ button:active,
 .share-menu__title {
   font-size: 0.875rem;
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--text-primary, #e2e8f0);
 }
 
 .share-menu__close {
   background: transparent;
   border: none;
-  color: var(--text-secondary);
+  color: var(--text-secondary, #94a3b8);
   cursor: pointer;
   padding: 0.25rem;
   font-size: 1.125rem;
@@ -778,7 +778,7 @@ button:active,
 }
 
 .share-menu__close:hover {
-  color: var(--text-primary);
+  color: var(--text-primary, #e2e8f0);
 }
 
 .share-menu__items {
@@ -794,7 +794,7 @@ button:active,
   background: transparent;
   border: none;
   border-radius: 6px;
-  color: var(--text-primary);
+  color: var(--text-primary, #e2e8f0);
   cursor: pointer;
   transition: background 0.2s ease;
   font-size: 0.9375rem;
@@ -873,7 +873,7 @@ button:active,
   left: 50%;
   transform: translateX(-50%);
   background: var(--card-bg, #1e293b);
-  color: var(--text-primary);
+  color: var(--text-primary, #e2e8f0);
   padding: 0.75rem 1.5rem;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);

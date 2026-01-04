@@ -89,12 +89,7 @@ export default function ShareMenu({ symbol, onClose }) {
     }
   };
 
-  const handlePrint = () => {
-    window.print();
-    handleClose();
-  };
-
-  const handleExportPDF = () => {
+  const handlePrintOrExport = () => {
     window.print();
     handleClose();
   };
@@ -130,12 +125,12 @@ export default function ShareMenu({ symbol, onClose }) {
           </button>
         )}
 
-        <button className="share-menu__item" onClick={handlePrint}>
+        <button className="share-menu__item" onClick={handlePrintOrExport}>
           <PrinterIcon />
           <span>Print</span>
         </button>
 
-        <button className="share-menu__item" onClick={handleExportPDF}>
+        <button className="share-menu__item" onClick={handlePrintOrExport}>
           <DownloadIcon />
           <span>Export PDF</span>
         </button>
