@@ -2403,22 +2403,6 @@ function App() {
           />
         )}
 
-        {isPhone && (
-          <div
-            className="fixed left-3 right-3 z-40"
-            style={{ top: 'calc(3.5rem + var(--safe-area-top))' }}
-          >
-            <EventTrackBar
-              definition={eventTrackDefinition}
-              progress={eventTrackProgress}
-              onClaim={claimMilestone}
-              onCTA={purchaseCTA}
-              ctaLabel={eventTrackCTA?.label ?? null}
-              ctaDisabled={!eventTrackCTA}
-            />
-          </div>
-        )}
-
       {/* Layout wrapper - Three column layout for non-phone, regular for phone */}
       <div
         className={`relative z-10 ${!isPhone ? 'h-[calc(100vh-2rem)] w-full' : 'max-w-[1600px] mx-auto'}`}
@@ -3054,6 +3038,16 @@ function App() {
           onOpenShop={openShopOverlay}
           onOpenStockExchangeBuilder={openStockExchangeOverlay}
           onOpenRightNow={openEventCalendar}
+          eventTrackNode={(
+            <EventTrackBar
+              definition={eventTrackDefinition}
+              progress={eventTrackProgress}
+              onClaim={claimMilestone}
+              onCTA={purchaseCTA}
+              ctaLabel={eventTrackCTA?.label ?? null}
+              ctaDisabled={!eventTrackCTA}
+            />
+          )}
         >
           {mainContent}
         </PhoneLayout>

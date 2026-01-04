@@ -39,6 +39,7 @@ interface PhoneLayoutProps {
   onOpenShop?: () => void;
   onOpenStockExchangeBuilder?: () => void;
   onOpenRightNow?: () => void;
+  eventTrackNode?: ReactNode;
 }
 
 export function PhoneLayout({ 
@@ -59,6 +60,7 @@ export function PhoneLayout({
   onOpenShop = () => {},
   onOpenStockExchangeBuilder = () => {},
   onOpenRightNow = () => {},
+  eventTrackNode,
 }: PhoneLayoutProps) {
   const { mode } = useUIMode();
   const showDebug = import.meta.env.DEV;
@@ -282,6 +284,15 @@ export function PhoneLayout({
       <div className="relative z-30">
         <CompactHUD {...gameState} />
       </div>
+
+      {eventTrackNode && (
+        <div
+          className="fixed left-3 right-3 z-40"
+          style={{ top: `calc(${COMPACT_HUD_HEIGHT}px + 12px + var(--safe-area-top))` }}
+        >
+          {eventTrackNode}
+        </div>
+      )}
       
       {/* Layer 50: Bottom Nav with Dice */}
       <div className="relative z-50">
