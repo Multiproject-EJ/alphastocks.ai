@@ -90,6 +90,13 @@ export interface GameState {
     eventId: string | null
     amount: number
   }
+  eventTrack?: {
+    eventId: string | null
+    points: number
+    claimedMilestones: string[]
+    premiumPurchased: boolean
+    lastUpdated: string | null
+  }
   holdings: Array<{
     stock: Stock
     shares: number
