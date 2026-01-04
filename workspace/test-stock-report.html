@@ -2,8 +2,102 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Stock Analysis Report - Test</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Stock Analysis Report - Mobile Gesture Test</title>
+  <style>
+    /* Import necessary global styles */
+    :root {
+      --surface-card: rgba(23, 31, 50, 0.95);
+      --text-primary: #e2e8f0;
+      --text-secondary: #94a3b8;
+      --accent: #38bdf8;
+      --positive: #34d399;
+      --border: rgba(255, 255, 255, 0.12);
+      --surface-app: #0c111d;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--surface-app);
+      color: var(--text-primary);
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 40;
+      animation: fadeInBackdrop 0.2s ease-out;
+    }
+
+    @keyframes fadeInBackdrop {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .detail-meta {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+    }
+
+    .test-container {
+      padding: 2rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .test-info {
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .test-info h2 {
+      margin: 0 0 1rem 0;
+      font-size: 1.5rem;
+      color: #3b82f6;
+    }
+
+    .test-info ul {
+      margin: 0.5rem 0;
+      padding-left: 1.5rem;
+    }
+
+    .test-info li {
+      margin-bottom: 0.5rem;
+      line-height: 1.5;
+    }
+
+    .test-button {
+      padding: 1rem 2rem;
+      font-size: 1.2rem;
+      background-color: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      width: 100%;
+      max-width: 400px;
+      display: block;
+      margin: 0 auto;
+      transition: background-color 0.2s;
+    }
+
+    .test-button:hover {
+      background-color: #2563eb;
+    }
+
+    .test-button:active {
+      transform: scale(0.98);
+    }
+  </style>
   <script type="module">
     import { render, h } from 'preact';
     import { useState } from 'preact/hooks';
@@ -41,24 +135,39 @@
 
     function TestApp() {
       const [open, setOpen] = useState(false);
+      const [refreshCount, setRefreshCount] = useState(0);
 
-      return h('div', { style: { padding: '2rem' } },
+      const handleRefresh = () => {
+        setRefreshCount(c => c + 1);
+        console.log('Pull-to-refresh triggered! Count:', refreshCount + 1);
+      };
+
+      return h('div', { className: 'test-container' },
+        h('div', { className: 'test-info' },
+          h('h2', null, '📱 Mobile Gesture Test'),
+          h('p', null, 'Test the following mobile gestures:'),
+          h('ul', null,
+            h('li', null, '👆 Swipe down to close - Start from the top and swipe down'),
+            h('li', null, '🔄 Pull to refresh - Pull down when at the top of content'),
+            h('li', null, '🔙 Android back button - Uses browser history'),
+            h('li', null, '📳 Haptic feedback - Feel vibrations on interactions'),
+            h('li', null, '🔒 Body scroll lock - Background won\'t scroll when modal is open'),
+            h('li', null, '📱 iOS safe areas - Respects notch and home indicator'),
+            h('li', null, '👉 Touch targets - All buttons are at least 48x48px')
+          ),
+          refreshCount > 0 && h('p', { style: { color: '#34d399', fontWeight: 'bold', marginTop: '1rem' } },
+            `✓ Pull-to-refresh triggered ${refreshCount} time${refreshCount > 1 ? 's' : ''}!`
+          )
+        ),
         h('button', {
           onClick: () => setOpen(true),
-          style: {
-            padding: '1rem 2rem',
-            fontSize: '1.2rem',
-            backgroundColor: '#3b82f6',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer'
-          }
+          className: 'test-button'
         }, 'Open Stock Analysis Report (NVDA)'),
         h(StockAnalysisReport, {
           open: open,
           onOpenChange: setOpen,
-          analysisData: demoAnalysisData
+          analysisData: demoAnalysisData,
+          onRefresh: handleRefresh
         })
       );
     }

@@ -1,4 +1,14 @@
-/* Stock Analysis Report - Mobile-first Styles */
+/* Stock Analysis Report - Mobile-first Styles with Gesture Support */
+
+/* iOS Safe Area Support */
+@supports (padding: max(0px)) {
+  .stock-analysis-report {
+    padding-top: max(0px, env(safe-area-inset-top));
+    padding-bottom: max(0px, env(safe-area-inset-bottom));
+    padding-left: max(0px, env(safe-area-inset-left));
+    padding-right: max(0px, env(safe-area-inset-right));
+  }
+}
 
 /* Container */
 .stock-analysis-report {
@@ -15,9 +25,13 @@
   overflow: hidden;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
   animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  touch-action: pan-y;
+  /* Will be modified by gesture handlers */
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), 
+              opacity 0.3s ease;
 }
 
-/* Sticky Header */
+/* Sticky Header with iOS safe area */
 .report-header {
   position: sticky;
   top: 0;
@@ -25,10 +39,13 @@
   background: var(--surface-card, rgba(23, 31, 50, 0.95));
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   padding: 1rem;
+  padding-top: max(1rem, env(safe-area-inset-top));
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   gap: 1rem;
+  /* Add swipe indicator */
+  cursor: grab;
 }
 
 .report-header__content {
@@ -82,13 +99,28 @@
   font-size: 1.5rem;
   color: var(--text-secondary, #94a3b8);
   cursor: pointer;
-  padding: 0.5rem;
+  /* Improved touch target: minimum 48x48px */
+  padding: 0.75rem;
+  min-width: 48px;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   line-height: 1;
-  transition: color 0.15s ease;
+  transition: color 0.15s ease, background-color 0.15s ease;
+  border-radius: 8px;
+  /* Better touch feedback */
+  -webkit-tap-highlight-color: rgba(255, 255, 255, 0.1);
 }
 
 .report-header__close:hover {
   color: var(--text-primary, #e2e8f0);
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.report-header__close:active {
+  background-color: rgba(255, 255, 255, 0.1);
+  transform: scale(0.95);
 }
 
 /* Scrollable Content */
@@ -584,4 +616,84 @@
   .valuation-card__price {
     font-size: 1.25rem;
   }
+  
+  /* Adjust for iOS safe areas on mobile */
+  .stock-analysis-report {
+    max-height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    border-radius: 16px 16px 0 0;
+  }
+  
+  /* Bottom padding for iOS home indicator */
+  .report-scroll-content {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+}
+
+/* Gesture-related styles */
+.swipe-indicator {
+  position: absolute;
+  top: 0.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+/* Pull-to-refresh indicator */
+.refresh-indicator {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  right: 0;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  color: var(--text-secondary, #94a3b8);
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Modal backdrop with body scroll lock */
+.modal-backdrop {
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Improved touch feedback for all interactive elements */
+button,
+.btn-primary,
+.btn-secondary,
+.btn-tertiary {
+  min-width: 48px;
+  min-height: 48px;
+  -webkit-tap-highlight-color: rgba(255, 255, 255, 0.1);
+  touch-action: manipulation;
+}
+
+/* Active state for better mobile feedback */
+button:active,
+.valuation-card:active,
+.porter-force-card:active,
+.insight-card:active {
+  opacity: 0.8;
+  transform: scale(0.98);
+}
+
+/* Prevent text selection during gestures */
+.stock-analysis-report.dragging {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Smoother scrolling on iOS */
+.report-scroll-content {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }

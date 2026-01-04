@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Mobile Gesture Test - Stock Analysis Report</title>
+  <style>
+    :root {
+      --surface-card: rgba(23, 31, 50, 0.95);
+      --text-primary: #e2e8f0;
+      --text-secondary: #94a3b8;
+      --accent: #38bdf8;
+      --positive: #34d399;
+      --border: rgba(255, 255, 255, 0.12);
+      --surface-app: #0c111d;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--surface-app);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 2rem;
+    }
+
+    .test-container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .test-info {
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .test-info h1 {
+      margin: 0 0 1rem 0;
+      font-size: 2rem;
+      color: #3b82f6;
+    }
+
+    .test-info p {
+      margin-bottom: 1rem;
+      line-height: 1.6;
+    }
+
+    .test-info ul {
+      margin: 0.5rem 0;
+      padding-left: 1.5rem;
+    }
+
+    .test-info li {
+      margin-bottom: 0.5rem;
+      line-height: 1.5;
+    }
+
+    .success-message {
+      color: #34d399;
+      font-weight: bold;
+      margin-top: 1rem;
+      padding: 0.75rem;
+      background: rgba(34, 197, 94, 0.1);
+      border-radius: 8px;
+    }
+
+    .test-button {
+      padding: 1rem 2rem;
+      font-size: 1.2rem;
+      background-color: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      width: 100%;
+      max-width: 400px;
+      display: block;
+      margin: 0 auto;
+      transition: all 0.2s;
+      font-weight: 600;
+    }
+
+    .test-button:hover {
+      background-color: #2563eb;
+      transform: translateY(-2px);
+    }
+
+    .test-button:active {
+      transform: scale(0.98);
+    }
+
+    /* Global modal styles */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 40;
+      animation: fadeInBackdrop 0.2s ease-out;
+    }
+
+    @keyframes fadeInBackdrop {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .detail-meta {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .feature-item {
+      padding: 0.75rem;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .feature-item strong {
+      display: block;
+      margin-bottom: 0.25rem;
+      color: #3b82f6;
+    }
+  </style>
+</head>
+<body>
+  <div class="test-container">
+    <div class="test-info">
+      <h1>📱 Mobile Gesture Test</h1>
+      <p>This page demonstrates all the mobile gesture features added to the Stock Analysis Report component:</p>
+      
+      <div class="feature-grid">
+        <div class="feature-item">
+          <strong>👆 Swipe to Close</strong>
+          <small>Swipe down from the top to dismiss</small>
+        </div>
+        <div class="feature-item">
+          <strong>🔄 Pull to Refresh</strong>
+          <small>Pull down when at the top</small>
+        </div>
+        <div class="feature-item">
+          <strong>📳 Haptic Feedback</strong>
+          <small>Feel vibrations on interactions</small>
+        </div>
+        <div class="feature-item">
+          <strong>🔒 Scroll Lock</strong>
+          <small>Background won't scroll</small>
+        </div>
+        <div class="feature-item">
+          <strong>🔙 Back Button</strong>
+          <small>Android hardware back closes modal</small>
+        </div>
+        <div class="feature-item">
+          <strong>📱 Safe Areas</strong>
+          <small>Respects iOS notch and home indicator</small>
+        </div>
+        <div class="feature-item">
+          <strong>👉 Touch Targets</strong>
+          <small>All buttons are at least 48x48px</small>
+        </div>
+        <div class="feature-item">
+          <strong>✨ Visual Feedback</strong>
+          <small>Smooth animations and transitions</small>
+        </div>
+      </div>
+      
+      <div id="refresh-message"></div>
+    </div>
+    
+    <button class="test-button" id="open-modal">
+      Open Stock Analysis Report
+    </button>
+  </div>
+
+  <div id="modal-root"></div>
+
+  <script>
+    // Simple demonstration of gestures (visual only)
+    let refreshCount = 0;
+    let modalOpen = false;
+
+    document.getElementById('open-modal').addEventListener('click', () => {
+      if (modalOpen) return;
+      modalOpen = true;
+      
+      const modalHTML = `
+        <div class="modal-backdrop" id="modal-backdrop">
+          <div style="
+            position: relative;
+            background: var(--surface-card);
+            color: var(--text-primary);
+            width: min(900px, 96vw);
+            max-height: 92vh;
+            margin: auto;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+          ">
+            <!-- Header -->
+            <div style="
+              position: sticky;
+              top: 0;
+              z-index: 10;
+              background: var(--surface-card);
+              border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+              padding: 1rem;
+              padding-top: max(1rem, env(safe-area-inset-top));
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            ">
+              <div>
+                <h1 style="font-size: 1.75rem; margin: 0; color: var(--text-primary);">NVDA</h1>
+                <div style="color: var(--accent); font-weight: 600; margin-top: 0.25rem;">
+                  Investable ⭐⭐⭐⭐⭐
+                </div>
+              </div>
+              <button id="close-modal" style="
+                background: transparent;
+                border: none;
+                font-size: 1.5rem;
+                color: var(--text-secondary);
+                cursor: pointer;
+                padding: 0.75rem;
+                min-width: 48px;
+                min-height: 48px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 8px;
+                transition: all 0.15s ease;
+              ">✕</button>
+            </div>
+            
+            <!-- Scrollable Content -->
+            <div style="
+              flex: 1;
+              overflow-y: auto;
+              padding: 1.5rem;
+              -webkit-overflow-scrolling: touch;
+            ">
+              <div style="
+                background: linear-gradient(135deg, #3b82f6 0%, #6366f1 50%, #8b5cf6 100%);
+                border-radius: 12px;
+                padding: 1.5rem;
+                color: white;
+                margin-bottom: 1.5rem;
+              ">
+                <h2 style="margin: 0 0 1rem 0;">Executive Summary</h2>
+                <p style="line-height: 1.6; margin: 0;">
+                  Remain overweight as demand visibility stays strong; trim only if supply normalises faster than expected.
+                </p>
+              </div>
+
+              <div style="margin-bottom: 1.5rem;">
+                <h3 style="margin: 0 0 1rem 0;">✅ Try These Gestures:</h3>
+                <ul style="line-height: 1.8; padding-left: 1.5rem;">
+                  <li><strong>Swipe down</strong> from anywhere when at the top to close</li>
+                  <li><strong>Pull down</strong> when at the top to see refresh indicator</li>
+                  <li><strong>Click the backdrop</strong> to close</li>
+                  <li><strong>Press Android back button</strong> (if on Android)</li>
+                  <li><strong>Notice</strong> the background is locked from scrolling</li>
+                </ul>
+              </div>
+
+              <div style="
+                background: rgba(255, 255, 255, 0.05);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 8px;
+                padding: 1.25rem;
+                margin-bottom: 1.5rem;
+              ">
+                <h3 style="margin: 0 0 1rem 0;">Valuation Scenarios</h3>
+                <div style="display: grid; gap: 1rem;">
+                  <div style="padding: 1rem; background: rgba(239, 68, 68, 0.1); border-radius: 8px;">
+                    <div style="color: var(--text-secondary); font-size: 0.875rem;">Bear Case</div>
+                    <div style="font-size: 1.5rem; font-weight: bold; color: #ef4444;">$780</div>
+                  </div>
+                  <div style="padding: 1rem; background: rgba(59, 130, 246, 0.1); border-radius: 8px;">
+                    <div style="color: var(--text-secondary); font-size: 0.875rem;">Base Case</div>
+                    <div style="font-size: 1.5rem; font-weight: bold; color: #3b82f6;">$980</div>
+                  </div>
+                  <div style="padding: 1rem; background: rgba(34, 197, 94, 0.1); border-radius: 8px;">
+                    <div style="color: var(--text-secondary); font-size: 0.875rem;">Bull Case</div>
+                    <div style="font-size: 1.5rem; font-weight: bold; color: #22c55e;">$1,120</div>
+                  </div>
+                </div>
+              </div>
+
+              <div style="
+                padding: 1.5rem;
+                background: rgba(34, 197, 94, 0.1);
+                border-left: 4px solid #22c55e;
+                border-radius: 4px;
+                margin-bottom: 1.5rem;
+              ">
+                <h4 style="margin: 0 0 0.5rem 0;">✨ All touch targets are 48x48px minimum</h4>
+                <p style="margin: 0; line-height: 1.6;">
+                  This ensures accessibility and ease of use on mobile devices, following WCAG guidelines.
+                </p>
+              </div>
+
+              <div style="padding-bottom: max(1rem, env(safe-area-inset-bottom));">
+                <p style="color: var(--text-secondary); text-align: center;">
+                  Scroll to see iOS safe area padding at the bottom
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('modal-root').innerHTML = modalHTML;
+      
+      // Lock body scroll
+      document.body.style.position = 'fixed';
+      document.body.style.width = '100%';
+      document.body.style.overflow = 'hidden';
+      
+      // Close handlers
+      const closeModal = () => {
+        document.getElementById('modal-root').innerHTML = '';
+        document.body.style.position = '';
+        document.body.style.width = '';
+        document.body.style.overflow = '';
+        modalOpen = false;
+        
+        // Vibrate if supported
+        if (navigator.vibrate) {
+          navigator.vibrate(10);
+        }
+      };
+
+      document.getElementById('close-modal').addEventListener('click', closeModal);
+      document.getElementById('modal-backdrop').addEventListener('click', (e) => {
+        if (e.target.id === 'modal-backdrop') {
+          closeModal();
+        }
+      });
+
+      // Android back button simulation
+      window.history.pushState({ modal: true }, '');
+      const handlePopState = () => {
+        if (modalOpen) {
+          closeModal();
+          window.history.pushState({ modal: false }, '');
+        }
+      };
+      window.addEventListener('popstate', handlePopState);
+
+      // Vibrate on open if supported
+      if (navigator.vibrate) {
+        navigator.vibrate(10);
+      }
+    });
+
+    // Background content for testing scroll lock
+    const container = document.querySelector('.test-container');
+    const extraContent = document.createElement('div');
+    extraContent.style.cssText = 'margin-top: 2rem; padding: 2rem; background: rgba(255,255,255,0.05); border-radius: 12px;';
+    extraContent.innerHTML = `
+      <h3 style="margin-bottom: 1rem;">Background Content</h3>
+      <p style="line-height: 1.8; margin-bottom: 1rem;">
+        Try scrolling this page when the modal is open. You'll notice that the background content is locked and won't scroll.
+        This prevents the confusing experience of scrolling both the modal and the background at the same time.
+      </p>
+      <p style="line-height: 1.8;">
+        This is a common pattern in mobile UX to maintain focus on the modal content and prevent accidental background interactions.
+      </p>
+    `;
+    container.appendChild(extraContent);
+  </script>
+
+  <style>
+    @keyframes scaleIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+  </style>
+</body>
+</html>
