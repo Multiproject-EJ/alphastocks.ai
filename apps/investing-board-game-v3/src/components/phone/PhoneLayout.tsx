@@ -100,7 +100,7 @@ export function PhoneLayout({
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     if (prefersReducedMotion.matches) return;
 
-    const maxOffset = 12;
+    const maxOffset = 30; // Increased from 12 to 30 for more noticeable movement
     const updateTarget = (x: number, y: number) => {
       parallaxTarget.current.x = Math.max(-1, Math.min(1, x)) * maxOffset;
       parallaxTarget.current.y = Math.max(-1, Math.min(1, y)) * maxOffset;
@@ -115,8 +115,9 @@ export function PhoneLayout({
 
     const handleOrientation = (event: DeviceOrientationEvent) => {
       if (event.gamma == null || event.beta == null) return;
-      const x = event.gamma / 30;
-      const y = event.beta / 30;
+      // Increased sensitivity: divided by 15 instead of 30 for more responsive movement
+      const x = event.gamma / 15;
+      const y = event.beta / 15;
       updateTarget(x, y);
     };
 
@@ -140,6 +141,24 @@ export function PhoneLayout({
     };
   }, []);
 
+  // Add subtle background shift based on player position for extra depth
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    
+    // Calculate position-based offset (subtle, for background depth)
+    // Normalized position around the circle (0-1)
+    const normalizedPosition = currentPosition / 40; // Assuming 40 tiles max
+    const angleRad = normalizedPosition * Math.PI * 2;
+    
+    // Create subtle circular movement pattern
+    const bgOffsetX = Math.sin(angleRad) * 8; // Small 8px max offset
+    const bgOffsetY = Math.cos(angleRad) * 8;
+    
+    container.style.setProperty('--position-offset-x', `${bgOffsetX}px`);
+    container.style.setProperty('--position-offset-y', `${bgOffsetY}px`);
+  }, [currentPosition]);
+
   // Calculate UI element widths for board centering
   // Left side: Shop button + Exchanges/Right Now buttons occupy ~100px effective horizontal space
   const leftUIOffset = 100;
@@ -151,27 +170,17 @@ export function PhoneLayout({
       ref={containerRef}
       className="h-[100dvh] w-full flex flex-col overflow-hidden relative phone-layout"
     >
-      {/* Layer 0: Background - Base static layer */}
+      {/* Single crisp background with 3D depth effect */}
       <div 
-        className="absolute inset-0 z-0 bg-cover bg-center opacity-60 pointer-events-none"
+        className="absolute inset-0 z-0 bg-cover bg-center pointer-events-none phone-background-3d"
         style={{ 
           backgroundImage: `url('${backgroundUrl}')`,
-          imageRendering: 'auto',
+          imageRendering: 'crisp-edges',
           WebkitBackfaceVisibility: 'hidden',
-          backfaceVisibility: 'hidden'
+          backfaceVisibility: 'hidden',
+          // High quality image rendering
+          imageRendering: '-webkit-optimize-contrast'
         }}
-        aria-hidden="true"
-      />
-      {/* Layer 1: Far parallax layer */}
-      <div
-        className="absolute inset-0 z-[1] bg-cover bg-center opacity-30 pointer-events-none phone-parallax-layer phone-parallax-layer--far"
-        style={{ backgroundImage: `url('${backgroundUrl}')` }}
-        aria-hidden="true"
-      />
-      {/* Layer 2: Near parallax layer */}
-      <div
-        className="absolute inset-0 z-[2] bg-cover bg-center opacity-35 pointer-events-none phone-parallax-layer phone-parallax-layer--near"
-        style={{ backgroundImage: `url('${backgroundUrl}')` }}
         aria-hidden="true"
       />
       
