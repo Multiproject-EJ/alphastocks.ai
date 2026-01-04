@@ -697,3 +697,197 @@ button:active,
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
 }
+
+/* Share Menu */
+.report-header__actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.report-header__share {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 0.5rem;
+  color: var(--text-primary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  min-width: 40px;
+  min-height: 40px;
+}
+
+.report-header__share:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: scale(1.05);
+}
+
+.report-header__share:active {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(0.95);
+}
+
+.share-menu {
+  position: absolute;
+  top: 60px;
+  right: 1rem;
+  background: var(--card-bg, #1e293b);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  z-index: 20;
+  min-width: 200px;
+  opacity: 0;
+  transform: translateY(-10px) scale(0.95);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+.share-menu--open {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: all;
+}
+
+.share-menu__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.share-menu__title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.share-menu__close {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0.25rem;
+  font-size: 1.125rem;
+  line-height: 1;
+  transition: color 0.15s ease;
+}
+
+.share-menu__close:hover {
+  color: var(--text-primary);
+}
+
+.share-menu__items {
+  padding: 0.5rem;
+}
+
+.share-menu__item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: background 0.2s ease;
+  font-size: 0.9375rem;
+  text-align: left;
+}
+
+.share-menu__item:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.share-menu__item:active {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.share-menu__item svg {
+  flex-shrink: 0;
+}
+
+/* Print Styles */
+@media print {
+  .report-header__actions,
+  .share-menu,
+  .modal-backdrop {
+    display: none !important;
+  }
+  
+  .stock-analysis-report {
+    max-height: none;
+    box-shadow: none;
+    border-radius: 0;
+  }
+  
+  .report-scroll-content {
+    overflow: visible;
+  }
+  
+  .report-section {
+    page-break-inside: avoid;
+    animation: none;
+  }
+  
+  .report-header {
+    position: static;
+    border-bottom: 2px solid #000;
+    margin-bottom: 1rem;
+  }
+  
+  body {
+    background: white !important;
+  }
+  
+  .stock-analysis-report {
+    background: white !important;
+    color: #000 !important;
+  }
+  
+  .verdict-card,
+  .valuation-card,
+  .porter-force-card,
+  .stress-test-card,
+  .insight-card {
+    border: 1px solid #ddd !important;
+    background: white !important;
+    color: #000 !important;
+  }
+  
+  @page {
+    margin: 1cm;
+  }
+}
+
+/* Toast Notification */
+.toast {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--card-bg, #1e293b);
+  color: var(--text-primary);
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  animation: toastIn 0.3s ease-out;
+}
+
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}

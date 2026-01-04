@@ -1,3 +1,13 @@
+import { useState } from 'preact/hooks';
+import ShareMenu from './ShareMenu.jsx';
+
+// Inline SVG Icon for ShareNetwork
+const ShareNetworkIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor">
+    <path d="M176,160a39.89,39.89,0,0,0-28.62,12.09l-46.1-29.63a39.8,39.8,0,0,0,0-28.92l46.1-29.63a40,40,0,1,0-8.66-13.45l-46.1,29.63a40,40,0,1,0,0,55.82l46.1,29.63A40,40,0,1,0,176,160Zm0-128a24,24,0,1,1-24,24A24,24,0,0,1,176,32ZM64,152a24,24,0,1,1,24-24A24,24,0,0,1,64,152Zm112,72a24,24,0,1,1,24-24A24,24,0,0,1,176,224Z"></path>
+  </svg>
+);
+
 const renderStars = (label) => {
   const starMap = {
     'Investable': '⭐⭐⭐⭐⭐',
@@ -17,6 +27,7 @@ const calculateUpside = (valuation) => {
 };
 
 const ReportHeader = ({ symbol, label, valuation, analysisData, onClose }) => {
+  const [showShareMenu, setShowShareMenu] = useState(false);
   const basePrice = valuation?.base || 0;
   const upside = analysisData?.upside_potential || calculateUpside(valuation);
   const rating = analysisData?.verdict_rating;
@@ -46,13 +57,30 @@ const ReportHeader = ({ symbol, label, valuation, analysisData, onClose }) => {
           </div>
         )}
       </div>
-      <button 
-        className="report-header__close"
-        onClick={onClose}
-        aria-label="Close analysis report"
-      >
-        ✕
-      </button>
+      
+      <div className="report-header__actions">
+        <button 
+          className="report-header__share"
+          onClick={() => setShowShareMenu(true)}
+          aria-label="Share analysis"
+        >
+          <ShareNetworkIcon />
+        </button>
+        <button 
+          className="report-header__close"
+          onClick={onClose}
+          aria-label="Close analysis report"
+        >
+          ✕
+        </button>
+      </div>
+      
+      {showShareMenu && (
+        <ShareMenu 
+          symbol={symbol} 
+          onClose={() => setShowShareMenu(false)} 
+        />
+      )}
     </div>
   );
 };
