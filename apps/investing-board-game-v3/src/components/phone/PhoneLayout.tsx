@@ -66,6 +66,7 @@ export function PhoneLayout({
   const hideFloatingActions = isRolling;
   const containerRef = useRef<HTMLDivElement | null>(null);
   const parallaxTarget = useRef({ x: 0, y: 0 });
+  const lastInteraction = useRef<number>(performance.now());
   
   const camera = {
     perspective: 800,
@@ -102,9 +103,11 @@ export function PhoneLayout({
     if (prefersReducedMotion.matches) return;
 
     const maxOffset = 30; // Increased from 12 to 30 for more noticeable movement
+    const maxRotation = 6; // Degrees for 3D tilt
     const updateTarget = (x: number, y: number) => {
       parallaxTarget.current.x = Math.max(-1, Math.min(1, x)) * maxOffset;
       parallaxTarget.current.y = Math.max(-1, Math.min(1, y)) * maxOffset;
+      lastInteraction.current = performance.now();
     };
 
     const handlePointerMove = (event: PointerEvent) => {
@@ -128,8 +131,18 @@ export function PhoneLayout({
     let rafId = 0;
     const animate = () => {
       const { x, y } = parallaxTarget.current;
-      container.style.setProperty('--parallax-x', `${x}px`);
-      container.style.setProperty('--parallax-y', `${y}px`);
+      const idleTime = performance.now() - lastInteraction.current;
+      const driftStrength = idleTime > 1200 ? 10 : 4;
+      const time = performance.now() * 0.00035;
+      const driftX = Math.sin(time) * driftStrength;
+      const driftY = Math.cos(time * 0.9) * (driftStrength * 0.7);
+      const compositeX = x + driftX;
+      const compositeY = y + driftY;
+
+      container.style.setProperty('--parallax-x', `${compositeX}px`);
+      container.style.setProperty('--parallax-y', `${compositeY}px`);
+      container.style.setProperty('--parallax-rotate-x', `${(-compositeY / maxOffset) * maxRotation}deg`);
+      container.style.setProperty('--parallax-rotate-y', `${(compositeX / maxOffset) * maxRotation}deg`);
       rafId = window.requestAnimationFrame(animate);
     };
 

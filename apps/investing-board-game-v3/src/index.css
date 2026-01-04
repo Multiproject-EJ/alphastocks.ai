@@ -723,6 +723,8 @@ h1, h2, h3, h4, h5, h6 {
   --position-offset-y: 0px;
   /* 3D depth variables */
   --parallax-depth: -100px;
+  --parallax-rotate-x: 0deg;
+  --parallax-rotate-y: 0deg;
   perspective: 1000px;
   perspective-origin: 50% 50%;
 }
@@ -733,7 +735,6 @@ h1, h2, h3, h4, h5, h6 {
   transition: transform 180ms cubic-bezier(0.16, 1, 0.3, 1);
   /* Optimize image rendering for quality on mobile - with fallbacks */
   image-rendering: -webkit-optimize-contrast; /* Safari */
-  image-rendering: crisp-edges; /* Standard - Firefox, Chrome */
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
   /* Use fixed background size to prevent stretching artifacts */
@@ -745,13 +746,15 @@ h1, h2, h3, h4, h5, h6 {
       calc(var(--parallax-y) * 1.2 + var(--position-offset-y) * 0.5),
       var(--parallax-depth)
     )
-    scale(1.15);
+    rotateX(var(--parallax-rotate-x))
+    rotateY(var(--parallax-rotate-y))
+    scale(1.08);
   transform-style: preserve-3d;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .phone-background-3d {
-    transform: translateZ(var(--parallax-depth)) scale(1.15);
+    transform: translateZ(var(--parallax-depth)) scale(1.08);
     transition: none;
   }
 }
