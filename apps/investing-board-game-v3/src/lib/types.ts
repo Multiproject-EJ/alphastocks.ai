@@ -1,4 +1,4 @@
-export type TileType = 'corner' | 'category' | 'event'
+export type TileType = 'corner' | 'category' | 'event' | 'mystery'
 
 export type TileCategory = 'turnarounds' | 'dividends' | 'growth' | 'moats' | 'value' | 'ipo' | 'meme' | 'crypto' | 'penny' | 'leverage' | 'options'
 
