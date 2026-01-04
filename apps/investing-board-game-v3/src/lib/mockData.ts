@@ -33,21 +33,13 @@ export const BOARD_TILES: Tile[] = [
   { id: 26, type: 'event', title: 'Quiz' },
 ]
 
-// Inner Express Track - High-risk, high-reward tiles
-export const INNER_TRACK_TILES: Tile[] = [
-  { id: 100, type: 'corner', title: 'Express Start' },
-  { id: 101, type: 'category', title: 'IPO', category: 'ipo', colorBorder: 'oklch(0.80 0.25 320)' },
-  { id: 102, type: 'event', title: 'Margin Call' },
-  { id: 103, type: 'category', title: 'Meme Stocks', category: 'meme', colorBorder: 'oklch(0.75 0.30 60)' },
-  { id: 104, type: 'corner', title: 'Jackpot' },
-  { id: 105, type: 'category', title: 'Crypto', category: 'crypto', colorBorder: 'oklch(0.70 0.25 280)' },
-  { id: 106, type: 'event', title: 'Whale Alert' },
-  { id: 107, type: 'category', title: 'Penny Stocks', category: 'penny', colorBorder: 'oklch(0.65 0.20 120)' },
-  { id: 108, type: 'corner', title: 'Short Squeeze' },
-  { id: 109, type: 'category', title: 'Leverage', category: 'leverage', colorBorder: 'oklch(0.60 0.30 0)' },
-  { id: 110, type: 'event', title: 'Flash Crash' },
-  { id: 111, type: 'category', title: 'Options', category: 'options', colorBorder: 'oklch(0.70 0.20 180)' },
-]
+// Inner Express Track - Mystery cards that change color based on dice rolls
+export const INNER_TRACK_TILES: Tile[] = Array.from({ length: 12 }, (_, i) => ({
+  id: 100 + i,
+  type: 'mystery',
+  title: '?',
+  colorBorder: 'oklch(0.35 0.02 250)', // neutral gray default
+}))
 
 export const MOCK_STOCKS: Record<string, Stock[]> = {
   turnarounds: [

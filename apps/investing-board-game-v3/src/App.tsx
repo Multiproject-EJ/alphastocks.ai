@@ -30,6 +30,7 @@ import { Board3DViewport } from '@/components/Board3DViewport'
 import { StockTickerRibbon } from '@/components/StockTickerRibbon'
 import { CenterSlices } from '@/components/CenterSlices'
 import { AchievementsModal } from '@/components/AchievementsModal'
+import { MysteryCard } from '@/components/MysteryCard'
 
 // Mobile-first components
 import { MobileGameLayout } from '@/components/MobileGameLayout'
@@ -394,6 +395,12 @@ function App() {
   const [showCelebration, setShowCelebration] = useState(false)
   const [tileCelebrations, setTileCelebrations] = useState<TileCelebration[]>([])
   const [lastLandedTileId, setLastLandedTileId] = useState<number | null>(null)
+  
+  // Mystery Card state management
+  const [activeInnerTile, setActiveInnerTile] = useState<number | null>(null)
+  const [innerTileColors, setInnerTileColors] = useState<Map<number, string>>(new Map())
+  const [isJackpotCelebrating, setIsJackpotCelebrating] = useState(false)
+  
   const BOARD_SIZE = 1200
   const TILE_SIZE = 128
   const boardFrameRef = useRef<HTMLDivElement>(null)
@@ -1748,6 +1755,21 @@ function App() {
       }
     }
 
+    // Activate inner mystery card when landing on category tile
+    if (tile.type === 'category' && tile.category) {
+      // Calculate which inner tile to activate (aligned with outer tile)
+      const innerTileIndex = Math.floor((position / 27) * 12)
+      const innerTileId = 100 + innerTileIndex
+      
+      setActiveInnerTile(innerTileId)
+      setInnerTileColors(prev => new Map(prev).set(innerTileId, tile.colorBorder || 'oklch(0.60 0.15 85)'))
+      
+      // Reset after 3 seconds
+      setTimeout(() => {
+        setActiveInnerTile(null)
+      }, 3000)
+    }
+
     // NOTE: Pass Start bonuses are now handled in handleRoll with multiplier applied
     // This section is kept for backwards compatibility but won't trigger from normal rolls
     // Only used if handleTileLanding is called directly (not from handleRoll)
@@ -1911,6 +1933,22 @@ function App() {
             hapticSuccess()
             triggerTileCelebration(position, ['🎰', '💰', '🎉'])
             setShowCelebration(true)
+            
+            // Trigger inner circle celebration
+            setIsJackpotCelebrating(true)
+            
+            // All inner tiles rainbow for 5 seconds
+            const rainbowColors = ['oklch(0.60 0.20 0)', 'oklch(0.65 0.22 60)', 'oklch(0.70 0.20 120)', 
+                                   'oklch(0.65 0.22 180)', 'oklch(0.60 0.25 240)', 'oklch(0.70 0.20 300)']
+            
+            INNER_TRACK_TILES.forEach((tile, index) => {
+              setInnerTileColors(prev => new Map(prev).set(tile.id, rainbowColors[index % rainbowColors.length]))
+            })
+            
+            setTimeout(() => {
+              setIsJackpotCelebrating(false)
+              setInnerTileColors(new Map()) // Reset all colors
+            }, 5000)
             
             toast.success(`🎰 JACKPOT WIN!`, {
               description: `You landed on Start during Jackpot Week! +$${jackpotWin.toLocaleString()}${rewardMultiplier > 1 ? ` (${rewardMultiplier}x)` : ''}`,
@@ -2629,13 +2667,13 @@ function App() {
                   })
                 })()}
                 
-                {/* Inner Express Track - High-risk lane */}
-                {!isPhone && (() => {
+                {/* Inner Mystery Cards - Always visible */}
+                {(() => {
                   const tileBoardSize = { width: boardSize, height: boardSize }
                   const innerPositions = calculateTilePositions(tileBoardSize, 12, boardOuterRadius, true)
                   
-                  // Check if inner track is unlocked (Tier 3 or higher)
-                  const isUnlocked = currentTier.tier >= 3
+                  // Mobile scaling adjustment
+                  const mobileScale = isPhone ? 0.6 : 0.75
                   
                   return INNER_TRACK_TILES.map((tile, index) => {
                     const position = innerPositions[index]
@@ -2652,32 +2690,16 @@ function App() {
                         style={{
                           left: `${left}px`,
                           top: `${top}px`,
-                          transform: `translate(-50%, -50%) rotate(${rotation}deg) scale(0.75)`,
+                          transform: `translate(-50%, -50%) rotate(${rotation}deg) scale(${mobileScale})`,
                           transformOrigin: 'center center',
-                          opacity: isUnlocked ? 1 : 0.5,
                         }}
                       >
-                        <div className="relative">
-                          {!isUnlocked && (
-                            <div className="absolute inset-0 flex items-center justify-center z-10 bg-black/60 rounded-lg">
-                              <span className="text-2xl">🔒</span>
-                            </div>
-                          )}
-                          <Tile
-                            tile={tile}
-                            isActive={false}
-                            isHopping={false}
-                            isLanded={false}
-                            hasOwnership={tile.category ? ownedCategories.has(tile.category) : false}
-                            onClick={() => {
-                              if (!isUnlocked) {
-                                toast.info('Express Track Locked', {
-                                  description: 'Reach Tier 3 to unlock the Express Track!'
-                                })
-                              }
-                            }}
-                          />
-                        </div>
+                        <MysteryCard
+                          isActive={activeInnerTile === tile.id}
+                          color={innerTileColors.get(tile.id) || tile.colorBorder || 'oklch(0.35 0.02 250)'}
+                          isJackpotCelebrating={isJackpotCelebrating}
+                          index={index}
+                        />
                       </div>
                     )
                   })
