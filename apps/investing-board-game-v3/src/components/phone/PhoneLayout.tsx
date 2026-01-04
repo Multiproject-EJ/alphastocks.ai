@@ -151,19 +151,26 @@ export function PhoneLayout({
       ref={containerRef}
       className="h-[100dvh] w-full flex flex-col overflow-hidden relative phone-layout"
     >
-      {/* Layer 0: Background */}
+      {/* Layer 0: Background - Base static layer */}
       <div 
         className="absolute inset-0 z-0 bg-cover bg-center opacity-60 pointer-events-none"
+        style={{ 
+          backgroundImage: `url('${backgroundUrl}')`,
+          imageRendering: 'auto',
+          WebkitBackfaceVisibility: 'hidden',
+          backfaceVisibility: 'hidden'
+        }}
+        aria-hidden="true"
+      />
+      {/* Layer 1: Far parallax layer */}
+      <div
+        className="absolute inset-0 z-[1] bg-center opacity-30 pointer-events-none phone-parallax-layer phone-parallax-layer--far"
         style={{ backgroundImage: `url('${backgroundUrl}')` }}
         aria-hidden="true"
       />
+      {/* Layer 2: Near parallax layer */}
       <div
-        className="absolute inset-0 z-[1] bg-cover bg-center opacity-30 pointer-events-none phone-parallax-layer phone-parallax-layer--far"
-        style={{ backgroundImage: `url('${backgroundUrl}')` }}
-        aria-hidden="true"
-      />
-      <div
-        className="absolute inset-0 z-[2] bg-cover bg-center opacity-35 pointer-events-none phone-parallax-layer phone-parallax-layer--near"
+        className="absolute inset-0 z-[2] bg-center opacity-35 pointer-events-none phone-parallax-layer phone-parallax-layer--near"
         style={{ backgroundImage: `url('${backgroundUrl}')` }}
         aria-hidden="true"
       />
