@@ -112,6 +112,10 @@ import { useOverlayManager } from '@/hooks/useOverlayManager'
 import { useUIMode } from '@/hooks/useUIMode'
 import { useLayoutMode } from '@/hooks/useLayoutMode'
 import { useNotificationPreferences } from '@/hooks/useNotificationPreferences'
+import { EventTrackBar } from '@/features/eventTrack/components/EventTrackBar'
+import { useEventTrack } from '@/features/eventTrack/useEventTrack'
+import { pointsForChallengeComplete, pointsForRoll, pointsForTileLanding } from '@/features/eventTrack/adapter'
+import { createEventTrackProgress } from '@/features/eventTrack/store'
 import { ThriftPathStatus as ThriftPathStatusType } from '@/lib/thriftPath'
 import { COIN_COSTS, COIN_EARNINGS } from '@/lib/coins'
 import { getInitialStockExchangeState, StockExchangeBuilderState } from '@/lib/stockExchangeBuilder'
@@ -161,6 +165,7 @@ function App() {
   const lastEnergyCheckRef = useRef<Date | null>(null)
   const processedPowerUpsRef = useRef<Set<string>>(new Set())
   const currentRewardMultiplierRef = useRef<number>(1) // Track reward multiplier for current roll
+  const eventTrackPointsRef = useRef<(amount: number, source?: string) => void>(() => {})
 
   // Default initial game state
   const defaultGameState: GameState = {
@@ -174,6 +179,7 @@ function App() {
       eventId: null,
       amount: 0,
     },
+    eventTrack: createEventTrackProgress(null),
     holdings: [],
     inventory: [],
     activeEffects: [],
@@ -265,6 +271,32 @@ function App() {
 
   // Notification preferences for phone layout
   const { enabled: notificationsEnabled, toggleNotifications } = useNotificationPreferences()
+
+  // Conditional toast wrapper - only shows toasts if notifications are enabled
+  const showToast = useCallback((
+    type: 'success' | 'error' | 'info',
+    message: string,
+    options?: Parameters<typeof toast.success>[1]
+  ) => {
+    if (!notificationsEnabled) {
+      return
+    }
+
+    switch (type) {
+      case 'success':
+        return toast.success(message, options)
+      case 'error':
+        return toast.error(message, options)
+      case 'info':
+        return toast.info(message, options)
+    }
+  }, [notificationsEnabled])
+
+  useEffect(() => {
+    if (!notificationsEnabled) {
+      toast.dismiss()
+    }
+  }, [notificationsEnabled])
 
   // Keep state for data that modals need (but not open/closed state)
   const [currentStock, setCurrentStock] = useState<Stock | null>(null)
@@ -667,6 +699,13 @@ function App() {
     playSound,
     addXP: undefined, // Will be set later after we get the function from XP hook if it exists
     addSeasonPoints: undefined, // Will be set later
+    onChallengeComplete: (challenge) => {
+      if (challenge.type !== 'daily' && challenge.type !== 'weekly') return
+      eventTrackPointsRef.current(
+        pointsForChallengeComplete(challenge.type),
+        `Challenge: ${challenge.title}`
+      )
+    },
   })
 
   // Debug logging for challenge state changes
@@ -983,32 +1022,26 @@ function App() {
     saveGame,
   } = useGameSave()
 
-  // Conditional toast wrapper - only shows toasts if notifications are enabled
-  const showToast = useCallback((
-    type: 'success' | 'error' | 'info',
-    message: string,
-    options?: Parameters<typeof toast.success>[1]
-  ) => {
-    if (!notificationsEnabled) {
-      return;
-    }
-    
-    // Show the toast
-    switch (type) {
-      case 'success':
-        return toast.success(message, options);
-      case 'error':
-        return toast.error(message, options);
-      case 'info':
-        return toast.info(message, options);
-    }
-  }, [notificationsEnabled]);
+  const {
+    definition: eventTrackDefinition,
+    progress: eventTrackProgress,
+    cta: eventTrackCTA,
+    addPoints: addEventTrackPoints,
+    claimMilestone,
+    purchaseCTA,
+  } = useEventTrack({
+    gameState,
+    setGameState,
+    setRollsRemaining,
+    addCoins,
+    spendCoins,
+    activeEvent: currentActiveEvent ?? null,
+    notify: showToast,
+  })
 
   useEffect(() => {
-    if (!notificationsEnabled) {
-      toast.dismiss()
-    }
-  }, [notificationsEnabled])
+    eventTrackPointsRef.current = addEventTrackPoints
+  }, [addEventTrackPoints])
 
   // Helper function to check if a power-up is active
   const hasPowerUp = useCallback((itemId: string): boolean => {
@@ -1055,6 +1088,7 @@ function App() {
           eventId: null,
           amount: 0,
         },
+        eventTrack: savedGameState.eventTrack ?? createEventTrackProgress(currentActiveEvent?.id ?? null),
       }
       setGameState(loadedState)
       // Initialize rollsRemaining from energyRolls in savedGameState
@@ -1394,6 +1428,11 @@ function App() {
     // Roll dice once (multiplier affects rewards, not movement)
     const diceResult = rollDice()
     const rollResults = [diceResult]
+
+    addEventTrackPoints(
+      pointsForRoll(diceResult.total, diceResult.isDoubles),
+      'Dice roll'
+    )
     
     debugGame('Dice roll:', { 
       die1: diceResult.die1, 
@@ -1701,6 +1740,11 @@ function App() {
     setLastLandedTileId(position)
     setIsStockSpinning(false)
     if (stockSpinTimeoutRef.current) clearTimeout(stockSpinTimeoutRef.current)
+
+    addEventTrackPoints(
+      pointsForTileLanding(tile),
+      `Landed on ${tile.title}`
+    )
 
     // Haptic feedback on tile landing
     lightTap()
@@ -2426,6 +2470,16 @@ function App() {
                   </div>
                 </div>
               </div>
+              <div className="w-72">
+                <EventTrackBar
+                  definition={eventTrackDefinition}
+                  progress={eventTrackProgress}
+                  onClaim={claimMilestone}
+                  onCTA={purchaseCTA}
+                  ctaLabel={eventTrackCTA?.label ?? null}
+                  ctaDisabled={!eventTrackCTA}
+                />
+              </div>
             </div>
             <div className="flex flex-col gap-4 items-center justify-center">
               {/* ProTools Button */}
@@ -2984,6 +3038,16 @@ function App() {
           onOpenShop={openShopOverlay}
           onOpenStockExchangeBuilder={openStockExchangeOverlay}
           onOpenRightNow={openEventCalendar}
+          eventTrackNode={(
+            <EventTrackBar
+              definition={eventTrackDefinition}
+              progress={eventTrackProgress}
+              onClaim={claimMilestone}
+              onCTA={purchaseCTA}
+              ctaLabel={eventTrackCTA?.label ?? null}
+              ctaDisabled={!eventTrackCTA}
+            />
+          )}
         >
           {mainContent}
         </PhoneLayout>

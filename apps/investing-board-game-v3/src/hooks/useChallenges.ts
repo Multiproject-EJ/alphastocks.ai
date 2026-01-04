@@ -20,6 +20,7 @@ interface UseChallengesProps {
   playSound?: (sound: string) => void
   addXP?: (amount: number, source: string) => void
   addSeasonPoints?: (amount: number) => void
+  onChallengeComplete?: (challenge: Challenge) => void
 }
 
 interface UseChallengesReturn {
@@ -74,6 +75,7 @@ export function useChallenges({
   playSound,
   addXP,
   addSeasonPoints,
+  onChallengeComplete,
 }: UseChallengesProps): UseChallengesReturn {
   const [dailyChallenges, setDailyChallenges] = useState<Challenge[]>([])
   const [weeklyChallenges, setWeeklyChallenges] = useState<Challenge[]>([])
@@ -271,6 +273,8 @@ export function useChallenges({
               claimedReward: true,
             }
 
+            onChallengeComplete?.(updatedChallenge)
+
             // Update the appropriate array
             if (challenge.type === 'daily') {
               const dailyIndex = dailyChallenges.findIndex(c => c.id === challenge.id)
@@ -370,7 +374,18 @@ export function useChallenges({
         }
       }
     },
-    [dailyChallenges, weeklyChallenges, completedToday, completedThisWeek, gameState, setGameState, playSound, addXP, addSeasonPoints]
+    [
+      dailyChallenges,
+      weeklyChallenges,
+      completedToday,
+      completedThisWeek,
+      gameState,
+      setGameState,
+      playSound,
+      addXP,
+      addSeasonPoints,
+      onChallengeComplete,
+    ]
   )
 
   return {

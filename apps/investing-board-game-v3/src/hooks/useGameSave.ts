@@ -31,6 +31,7 @@ interface BoardGameProfile {
   challenges?: GameState['challenges']
   stats: GameState['stats']
   thrift_path?: GameState['thriftPath']
+  event_track?: GameState['eventTrack']
   // Energy regeneration fields
   last_energy_check?: string
   energy_rolls?: number
@@ -108,6 +109,7 @@ export function useGameSave(): UseGameSaveReturn {
         roll6Streak: 0,
       },
       thriftPath: profile.thrift_path || undefined,
+      eventTrack: profile.event_track || undefined,
       // Energy regeneration fields with defaults
       lastEnergyCheck: profile.last_energy_check ? new Date(profile.last_energy_check) : new Date(),
       energyRolls: profile.energy_rolls ?? 10,
@@ -219,6 +221,7 @@ export function useGameSave(): UseGameSaveReturn {
             roll6Streak: 0,
           },
           thrift_path: gameState.thriftPath || undefined,
+          event_track: gameState.eventTrack || undefined,
           // Energy regeneration fields - use rollsRemaining as the source of truth
           last_energy_check: gameState.lastEnergyCheck?.toISOString() || new Date().toISOString(),
           energy_rolls: rollsRemaining,
