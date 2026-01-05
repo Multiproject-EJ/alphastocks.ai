@@ -284,14 +284,14 @@ export function StockModal({ open, onOpenChange, stock, onBuy, cash, showInsight
                 </div>
               )}
 
-              <div className="md:hidden">
+              <div>
                 <Button
                   className="w-full bg-blue-500/90 text-white hover:bg-blue-500"
                   onClick={() => setMobileProtoolsOpen((prev) => !prev)}
                   aria-expanded={mobileProtoolsOpen}
                   aria-controls="protools-insight-panel"
                 >
-                  Protools - Stock Insight
+                  Stock Analysis &amp; Insights
                 </Button>
                 {mobileProtoolsOpen && (
                   <div
