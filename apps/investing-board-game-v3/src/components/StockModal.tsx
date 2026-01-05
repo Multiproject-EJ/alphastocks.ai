@@ -299,7 +299,6 @@ export function StockModal({ open, onOpenChange, stock, onBuy, cash, showInsight
                     className="mt-3 rounded-lg border border-blue-500/30 bg-blue-500/10 p-4 space-y-4"
                   >
                     {/* Moved sections from main view */}
-                    
                     {/* Universe Scores Section */}
                     {stock.scores && (
                       <div className="bg-accent/10 border-2 border-accent/30 rounded-lg p-4 space-y-3">
