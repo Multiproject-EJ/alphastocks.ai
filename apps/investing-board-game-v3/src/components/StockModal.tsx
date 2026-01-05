@@ -250,147 +250,6 @@ export function StockModal({ open, onOpenChange, stock, onBuy, cash, showInsight
                 Available Cash: <span className="font-mono text-foreground">${cash.toLocaleString()}</span>
               </div>
 
-              {/* Universe Scores Section */}
-              {stock.scores && (
-                <div className="bg-accent/10 border-2 border-accent/30 rounded-lg p-4 space-y-3">
-                  <div className="text-sm font-semibold text-accent flex items-center gap-2 mb-3">
-                    📊 Stock Analysis Scores
-                  </div>
-                  
-                  <div className="grid grid-cols-3 gap-3">
-                    {/* Quality Score */}
-                    <div className={`rounded-lg p-3 border ${getScoreBgColor(stock.scores.quality)}`}>
-                      <div className="flex items-center gap-2 mb-1">
-                        <ShieldCheck size={16} className={getScoreColor(stock.scores.quality)} weight="bold" />
-                        <div className="text-xs text-muted-foreground font-semibold">Quality</div>
-                      </div>
-                      <div className={`text-2xl font-bold font-mono ${getScoreColor(stock.scores.quality)}`}>
-                        {stock.scores.quality.toFixed(1)}
-                      </div>
-                      <div className="text-xs text-muted-foreground mt-1">Business Quality</div>
-                    </div>
-
-                    {/* Risk Score */}
-                    <div className={`rounded-lg p-3 border ${getScoreBgColor(stock.scores.risk, true)}`}>
-                      <div className="flex items-center gap-2 mb-1">
-                        <TrendUp size={16} className={getScoreColor(stock.scores.risk, true)} weight="bold" />
-                        <div className="text-xs text-muted-foreground font-semibold">Risk</div>
-                      </div>
-                      <div className={`text-2xl font-bold font-mono ${getScoreColor(stock.scores.risk, true)}`}>
-                        {getRiskLabel(stock.scores.risk)}
-                      </div>
-                      <div className="text-xs text-muted-foreground mt-1">Risk Level ({stock.scores.risk.toFixed(1)})</div>
-                    </div>
-
-                    {/* Timing Score */}
-                    <div className={`rounded-lg p-3 border ${getScoreBgColor(stock.scores.timing)}`}>
-                      <div className="flex items-center gap-2 mb-1">
-                        <Speedometer size={16} className={getScoreColor(stock.scores.timing)} weight="bold" />
-                        <div className="text-xs text-muted-foreground font-semibold">Timing</div>
-                      </div>
-                      <div className={`text-2xl font-bold font-mono ${getScoreColor(stock.scores.timing)}`}>
-                        {stock.scores.timing.toFixed(1)}
-                      </div>
-                      <div className="text-xs text-muted-foreground mt-1">Market Timing</div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-          {/* NEW: Quality/Timing Label Badges */}
-          {(stock.quality_label || stock.timing_label) && (
-            <div className="flex flex-wrap gap-2">
-              {stock.quality_label && (
-                <Badge className={`text-xs px-3 py-1.5 border ${getQualityLabelColor(stock.quality_label)}`}>
-                  ⭐ Quality: {stock.quality_label}
-                </Badge>
-              )}
-              {stock.timing_label && (
-                <Badge className={`text-xs px-3 py-1.5 border ${getTimingLabelColor(stock.timing_label)}`}>
-                  ⏰ Timing: {stock.timing_label}
-                </Badge>
-              )}
-            </div>
-          )}
-
-          {/* NEW: Warning Flags Section */}
-          {stock.addon_flags && getWarningFlags(stock.addon_flags).length > 0 && (
-            <div className="bg-orange-500/10 border-2 border-orange-500/30 rounded-lg p-4 space-y-2">
-              <div className="text-sm font-semibold text-orange-700 flex items-center gap-2 mb-2">
-                <WarningCircle size={18} weight="fill" />
-                Risk Warnings
-              </div>
-              <div className="space-y-2">
-                {getWarningFlags(stock.addon_flags).map((warning, index) => (
-                  <div
-                    key={index}
-                    className={`flex items-center gap-2 p-2 rounded-lg border text-sm ${warning.color}`}
-                  >
-                    <span className="text-lg">{warning.icon}</span>
-                    <span className="font-semibold">{warning.label}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* NEW: Stock Intelligence Section */}
-          {(stock.ai_model || stock.analyzed_at) && (
-            <div className="bg-accent/10 border-2 border-accent/30 rounded-lg p-4 space-y-2">
-              <div className="text-sm font-semibold text-accent flex items-center gap-2">
-                <Sparkle size={18} weight="fill" />
-                Stock Intelligence
-              </div>
-              <div className="space-y-2 text-sm">
-                {stock.ai_model && (
-                  <div className="flex items-center gap-2">
-                    <CheckCircle size={16} className="text-accent" weight="fill" />
-                    <span className="text-muted-foreground">AI Model:</span>
-                    <span className="font-mono font-semibold text-foreground">{stock.ai_model}</span>
-                  </div>
-                )}
-                {stock.analyzed_at && (
-                  <div className="flex items-center gap-2">
-                    <Clock size={16} className="text-accent" weight="bold" />
-                    <span className="text-muted-foreground">Analyzed:</span>
-                    <span className="font-semibold text-foreground">{formatRelativeTime(stock.analyzed_at)}</span>
-                  </div>
-                )}
-                {stock.analyzed_at && (
-                  <div className="mt-2 pt-2 border-t border-accent/20">
-                    <div className="flex items-center gap-2 text-xs">
-                      {(() => {
-                        const diffDays = Math.floor((Date.now() - new Date(stock.analyzed_at).getTime()) / (1000 * 60 * 60 * 24))
-                        if (diffDays <= 1) {
-                          return (
-                            <>
-                              <CheckCircle size={14} className="text-green-500" weight="fill" />
-                              <span className="text-green-700 font-semibold">Fresh Analysis</span>
-                            </>
-                          )
-                        } else if (diffDays <= 7) {
-                          return (
-                            <>
-                              <CheckCircle size={14} className="text-yellow-500" weight="fill" />
-                              <span className="text-yellow-700 font-semibold">Recent Analysis</span>
-                            </>
-                          )
-                        } else {
-                          return (
-                            <>
-                              <WarningCircle size={14} className="text-orange-500" weight="fill" />
-                              <span className="text-orange-700 font-semibold">Older Analysis - Consider Updating</span>
-                            </>
-                          )
-                        }
-                      })()}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
               {showInsights && (
                 <div className="bg-accent/10 border-2 border-accent/30 rounded-lg p-4 space-y-2">
                   <div className="text-sm font-semibold text-accent flex items-center gap-2">
@@ -437,29 +296,175 @@ export function StockModal({ open, onOpenChange, stock, onBuy, cash, showInsight
                 {mobileProtoolsOpen && (
                   <div
                     id="protools-insight-panel"
-                    className="mt-3 rounded-lg border border-blue-500/30 bg-blue-500/10 p-4 text-sm text-blue-100 max-h-[260px] overflow-y-auto"
+                    className="mt-3 rounded-lg border border-blue-500/30 bg-blue-500/10 p-4 space-y-4"
                   >
-                    <div className="flex items-center gap-2 text-blue-200 font-semibold">
-                      <LockKey size={18} weight="fill" />
-                      Protools Stock Insight
+                    {/* Moved sections from main view */}
+                    
+                    {/* Universe Scores Section */}
+                    {stock.scores && (
+                      <div className="bg-accent/10 border-2 border-accent/30 rounded-lg p-4 space-y-3">
+                        <div className="text-sm font-semibold text-accent flex items-center gap-2 mb-3">
+                          📊 Stock Analysis Scores
+                        </div>
+                        
+                        <div className="grid grid-cols-3 gap-3">
+                          {/* Quality Score */}
+                          <div className={`rounded-lg p-3 border ${getScoreBgColor(stock.scores.quality)}`}>
+                            <div className="flex items-center gap-2 mb-1">
+                              <ShieldCheck size={16} className={getScoreColor(stock.scores.quality)} weight="bold" />
+                              <div className="text-xs text-muted-foreground font-semibold">Quality</div>
+                            </div>
+                            <div className={`text-2xl font-bold font-mono ${getScoreColor(stock.scores.quality)}`}>
+                              {stock.scores.quality.toFixed(1)}
+                            </div>
+                            <div className="text-xs text-muted-foreground mt-1">Business Quality</div>
+                          </div>
+
+                          {/* Risk Score */}
+                          <div className={`rounded-lg p-3 border ${getScoreBgColor(stock.scores.risk, true)}`}>
+                            <div className="flex items-center gap-2 mb-1">
+                              <TrendUp size={16} className={getScoreColor(stock.scores.risk, true)} weight="bold" />
+                              <div className="text-xs text-muted-foreground font-semibold">Risk</div>
+                            </div>
+                            <div className={`text-2xl font-bold font-mono ${getScoreColor(stock.scores.risk, true)}`}>
+                              {getRiskLabel(stock.scores.risk)}
+                            </div>
+                            <div className="text-xs text-muted-foreground mt-1">Risk Level ({stock.scores.risk.toFixed(1)})</div>
+                          </div>
+
+                          {/* Timing Score */}
+                          <div className={`rounded-lg p-3 border ${getScoreBgColor(stock.scores.timing)}`}>
+                            <div className="flex items-center gap-2 mb-1">
+                              <Speedometer size={16} className={getScoreColor(stock.scores.timing)} weight="bold" />
+                              <div className="text-xs text-muted-foreground font-semibold">Timing</div>
+                            </div>
+                            <div className={`text-2xl font-bold font-mono ${getScoreColor(stock.scores.timing)}`}>
+                              {stock.scores.timing.toFixed(1)}
+                            </div>
+                            <div className="text-xs text-muted-foreground mt-1">Market Timing</div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Quality/Timing Label Badges */}
+                    {(stock.quality_label || stock.timing_label) && (
+                      <div className="flex flex-wrap gap-2">
+                        {stock.quality_label && (
+                          <Badge className={`text-xs px-3 py-1.5 border ${getQualityLabelColor(stock.quality_label)}`}>
+                            ⭐ Quality: {stock.quality_label}
+                          </Badge>
+                        )}
+                        {stock.timing_label && (
+                          <Badge className={`text-xs px-3 py-1.5 border ${getTimingLabelColor(stock.timing_label)}`}>
+                            ⏰ Timing: {stock.timing_label}
+                          </Badge>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Warning Flags Section */}
+                    {stock.addon_flags && getWarningFlags(stock.addon_flags).length > 0 && (
+                      <div className="bg-orange-500/10 border-2 border-orange-500/30 rounded-lg p-4 space-y-2">
+                        <div className="text-sm font-semibold text-orange-700 flex items-center gap-2 mb-2">
+                          <WarningCircle size={18} weight="fill" />
+                          Risk Warnings
+                        </div>
+                        <div className="space-y-2">
+                          {getWarningFlags(stock.addon_flags).map((warning, index) => (
+                            <div
+                              key={index}
+                              className={`flex items-center gap-2 p-2 rounded-lg border text-sm ${warning.color}`}
+                            >
+                              <span className="text-lg">{warning.icon}</span>
+                              <span className="font-semibold">{warning.label}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Stock Intelligence Section */}
+                    {(stock.ai_model || stock.analyzed_at) && (
+                      <div className="bg-accent/10 border-2 border-accent/30 rounded-lg p-4 space-y-2">
+                        <div className="text-sm font-semibold text-accent flex items-center gap-2">
+                          <Sparkle size={18} weight="fill" />
+                          Stock Intelligence
+                        </div>
+                        <div className="space-y-2 text-sm">
+                          {stock.ai_model && (
+                            <div className="flex items-center gap-2">
+                              <CheckCircle size={16} className="text-accent" weight="fill" />
+                              <span className="text-muted-foreground">AI Model:</span>
+                              <span className="font-mono font-semibold text-foreground">{stock.ai_model}</span>
+                            </div>
+                          )}
+                          {stock.analyzed_at && (
+                            <div className="flex items-center gap-2">
+                              <Clock size={16} className="text-accent" weight="bold" />
+                              <span className="text-muted-foreground">Analyzed:</span>
+                              <span className="font-semibold text-foreground">{formatRelativeTime(stock.analyzed_at)}</span>
+                            </div>
+                          )}
+                          {stock.analyzed_at && (
+                            <div className="mt-2 pt-2 border-t border-accent/20">
+                              <div className="flex items-center gap-2 text-xs">
+                                {(() => {
+                                  const diffDays = Math.floor((Date.now() - new Date(stock.analyzed_at).getTime()) / (1000 * 60 * 60 * 24))
+                                  if (diffDays <= 1) {
+                                    return (
+                                      <>
+                                        <CheckCircle size={14} className="text-green-500" weight="fill" />
+                                        <span className="text-green-700 font-semibold">Fresh Analysis</span>
+                                      </>
+                                    )
+                                  } else if (diffDays <= 7) {
+                                    return (
+                                      <>
+                                        <CheckCircle size={14} className="text-yellow-500" weight="fill" />
+                                        <span className="text-yellow-700 font-semibold">Recent Analysis</span>
+                                      </>
+                                    )
+                                  } else {
+                                    return (
+                                      <>
+                                        <WarningCircle size={14} className="text-orange-500" weight="fill" />
+                                        <span className="text-orange-700 font-semibold">Older Analysis - Consider Updating</span>
+                                      </>
+                                    )
+                                  }
+                                })()}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Original Protools content */}
+                    <div className="text-sm text-blue-100">
+                      <div className="flex items-center gap-2 text-blue-200 font-semibold">
+                        <LockKey size={18} weight="fill" />
+                        Protools Stock Insight
+                      </div>
+                      <p className="mt-2 text-blue-200/80">
+                        Unlock premium insight cards, deeper risk scanning, and personalized catalysts before you invest.
+                      </p>
+                      <ul className="mt-3 space-y-2 text-blue-100/80">
+                        <li>• AI sentiment summary and trend momentum</li>
+                        <li>• Key catalysts, earnings signals, and alerts</li>
+                        <li>• Suggested entry & exit ranges</li>
+                        <li>• Watchlist-quality score boost</li>
+                      </ul>
+                      <Button
+                        className="mt-4 w-full bg-blue-500 text-white hover:bg-blue-400"
+                        onClick={() => {
+                          window.location.href = 'https://www.alphastocks.ai/?proTools=1'
+                        }}
+                      >
+                        Unlock with Protools
+                      </Button>
                     </div>
-                    <p className="mt-2 text-blue-200/80">
-                      Unlock premium insight cards, deeper risk scanning, and personalized catalysts before you invest.
-                    </p>
-                    <ul className="mt-3 space-y-2 text-blue-100/80">
-                      <li>• AI sentiment summary and trend momentum</li>
-                      <li>• Key catalysts, earnings signals, and alerts</li>
-                      <li>• Suggested entry & exit ranges</li>
-                      <li>• Watchlist-quality score boost</li>
-                    </ul>
-                    <Button
-                      className="mt-4 w-full bg-blue-500 text-white hover:bg-blue-400"
-                      onClick={() => {
-                        window.location.href = 'https://www.alphastocks.ai/?proTools=1'
-                      }}
-                    >
-                      Unlock with Protools
-                    </Button>
                   </div>
                 )}
               </div>
