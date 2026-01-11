@@ -9,7 +9,6 @@ import { useUIMode } from '@/hooks/useUIMode';
 // Layout constants for consistent sizing
 const COMPACT_HUD_HEIGHT = 48;  // pixels
 const BOTTOM_NAV_HEIGHT = 90;   // pixels (updated to match new nav height)
-const DEFAULT_TOTAL_TILES = 40; // Standard board size for position calculations
 
 interface PhoneLayoutProps {
   children: ReactNode;
@@ -67,9 +66,6 @@ export function PhoneLayout({
   const [currentHour, setCurrentHour] = useState(() => new Date().getHours());
   const hideFloatingActions = isRolling;
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const parallaxTarget = useRef({ x: 0, y: 0 });
-  const positionTarget = useRef({ x: 0, y: 0 });
-  const lastInteraction = useRef<number>(performance.now());
   
   const camera = {
     perspective: 800,
@@ -102,81 +98,13 @@ export function PhoneLayout({
     const container = containerRef.current;
     if (!container) return;
 
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-    if (prefersReducedMotion.matches) return;
-
-    const maxOffset = 30; // Increased from 12 to 30 for more noticeable movement
-    const maxRotation = 6; // Degrees for 3D tilt
-    const updateTarget = (x: number, y: number) => {
-      parallaxTarget.current.x = Math.max(-1, Math.min(1, x)) * maxOffset;
-      parallaxTarget.current.y = Math.max(-1, Math.min(1, y)) * maxOffset;
-      lastInteraction.current = performance.now();
-    };
-
-    const handlePointerMove = (event: PointerEvent) => {
-      const { innerWidth, innerHeight } = window;
-      const x = (event.clientX / innerWidth) * 2 - 1;
-      const y = (event.clientY / innerHeight) * 2 - 1;
-      updateTarget(x, y);
-    };
-
-    const handleOrientation = (event: DeviceOrientationEvent) => {
-      if (event.gamma == null || event.beta == null) return;
-      // Increased sensitivity: divided by 15 instead of 30 for more responsive movement
-      const x = event.gamma / 15;
-      const y = event.beta / 15;
-      updateTarget(x, y);
-    };
-
-    window.addEventListener('pointermove', handlePointerMove, { passive: true });
-    window.addEventListener('deviceorientation', handleOrientation, { passive: true });
-
-    let rafId = 0;
-    const animate = () => {
-      const { x, y } = parallaxTarget.current;
-      const idleTime = performance.now() - lastInteraction.current;
-      const driftStrength = idleTime > 1200 ? 10 : 4;
-      const time = performance.now() * 0.00035;
-      const driftX = Math.sin(time) * driftStrength;
-      const driftY = Math.cos(time * 0.9) * (driftStrength * 0.7);
-      const { x: posX, y: posY } = positionTarget.current;
-      const compositeX = x + driftX + posX;
-      const compositeY = y + driftY + posY;
-
-      container.style.setProperty('--parallax-x', `${compositeX}px`);
-      container.style.setProperty('--parallax-y', `${compositeY}px`);
-      container.style.setProperty('--parallax-rotate-x', `${(-compositeY / maxOffset) * maxRotation}deg`);
-      container.style.setProperty('--parallax-rotate-y', `${(compositeX / maxOffset) * maxRotation}deg`);
-      rafId = window.requestAnimationFrame(animate);
-    };
-
-    rafId = window.requestAnimationFrame(animate);
-
-    return () => {
-      window.removeEventListener('pointermove', handlePointerMove);
-      window.removeEventListener('deviceorientation', handleOrientation);
-      window.cancelAnimationFrame(rafId);
-    };
+    container.style.setProperty('--parallax-x', '0px');
+    container.style.setProperty('--parallax-y', '0px');
+    container.style.setProperty('--parallax-rotate-x', '0deg');
+    container.style.setProperty('--parallax-rotate-y', '0deg');
+    container.style.setProperty('--position-offset-x', '0px');
+    container.style.setProperty('--position-offset-y', '0px');
   }, []);
-
-  // Add subtle background shift based on player position for extra depth
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-    
-    // Calculate position-based offset (subtle, for background depth)
-    // Normalized position around the circle (0-1)
-    const normalizedPosition = currentPosition / DEFAULT_TOTAL_TILES;
-    const angleRad = normalizedPosition * Math.PI * 2;
-    
-    // Create subtle circular movement pattern
-    const bgOffsetX = Math.sin(angleRad) * 8; // Small 8px max offset
-    const bgOffsetY = Math.cos(angleRad) * 8;
-    positionTarget.current = { x: bgOffsetX, y: bgOffsetY };
-    
-    container.style.setProperty('--position-offset-x', `${bgOffsetX}px`);
-    container.style.setProperty('--position-offset-y', `${bgOffsetY}px`);
-  }, [currentPosition]);
 
   // Calculate UI element widths for board centering
   // Left side: Shop button + Exchanges/Right Now buttons occupy ~100px effective horizontal space

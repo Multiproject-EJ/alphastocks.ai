@@ -717,22 +717,10 @@ h1, h2, h3, h4, h5, h6 {
 /* Phone layout z-index stack */
 .phone-layout {
   isolation: isolate; /* Create stacking context */
-  --parallax-x: 0px;
-  --parallax-y: 0px;
-  --position-offset-x: 0px;
-  --position-offset-y: 0px;
-  /* 3D depth variables */
-  --parallax-depth: -100px;
-  --parallax-rotate-x: 0deg;
-  --parallax-rotate-y: 0deg;
-  perspective: 1000px;
-  perspective-origin: 50% 50%;
 }
 
 /* 3D background with depth */
 .phone-background-3d {
-  will-change: transform;
-  transition: transform 180ms cubic-bezier(0.16, 1, 0.3, 1);
   /* Optimize image rendering for quality on mobile - with fallbacks */
   image-rendering: -webkit-optimize-contrast; /* Safari */
   -webkit-backface-visibility: hidden;
@@ -740,23 +728,6 @@ h1, h2, h3, h4, h5, h6 {
   /* Use fixed background size to prevent stretching artifacts */
   background-size: cover !important;
   background-position: center !important;
-  /* Enable hardware acceleration with 3D transform */
-  transform: translate3d(
-      calc(var(--parallax-x) * 1.2 + var(--position-offset-x) * 0.5),
-      calc(var(--parallax-y) * 1.2 + var(--position-offset-y) * 0.5),
-      var(--parallax-depth)
-    )
-    rotateX(var(--parallax-rotate-x))
-    rotateY(var(--parallax-rotate-y))
-    scale(1.08);
-  transform-style: preserve-3d;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .phone-background-3d {
-    transform: translateZ(var(--parallax-depth)) scale(1.08);
-    transition: none;
-  }
 }
 
 /* Board area positioning */
