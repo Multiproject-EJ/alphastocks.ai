@@ -2,16 +2,18 @@
  * Hook for managing shop purchases and inventory
  */
 
-import { useCallback, useMemo } from 'react'
+import { useCallback } from 'react'
 import { GameState, InventoryItem, ActiveEffect } from '@/lib/types'
 import { getShopItemById, ShopItem } from '@/lib/shopItems'
 import { useSound } from '@/hooks/useSound'
 import { toast } from 'sonner'
+import { DAILY_ROLL_LIMIT, ENERGY_MAX } from '@/lib/constants'
 
 interface UseShopInventoryProps {
   gameState: GameState
   setGameState: React.Dispatch<React.SetStateAction<GameState>>
   tierBenefits?: Map<string, number>
+  onAddRolls?: (amount: number) => void
 }
 
 interface UseShopInventoryReturn {
@@ -30,6 +32,7 @@ export function useShopInventory({
   gameState,
   setGameState,
   tierBenefits,
+  onAddRolls,
 }: UseShopInventoryProps): UseShopInventoryReturn {
   const { play: playSound } = useSound()
 
@@ -126,6 +129,9 @@ export function useShopInventory({
       // Process purchase
       playSound('cash-register')
 
+      const shouldGrantExtraRolls = itemId === 'extra-dice-rolls'
+      const extraRollsAmount = 3
+
       setGameState((prev) => {
         const newStars = prev.stars - finalPrice
         const now = new Date()
@@ -136,19 +142,21 @@ export function useShopInventory({
           (inv) => inv.itemId === itemId
         )
 
-        if (existingItemIndex >= 0 && item.stackable) {
-          // Increase quantity for stackable items
-          newInventory[existingItemIndex] = {
-            ...newInventory[existingItemIndex],
-            quantity: newInventory[existingItemIndex].quantity + 1,
+        if (!shouldGrantExtraRolls) {
+          if (existingItemIndex >= 0 && item.stackable) {
+            // Increase quantity for stackable items
+            newInventory[existingItemIndex] = {
+              ...newInventory[existingItemIndex],
+              quantity: newInventory[existingItemIndex].quantity + 1,
+            }
+          } else {
+            // Add new item
+            newInventory.push({
+              itemId,
+              quantity: 1,
+              purchasedAt: now,
+            })
           }
-        } else {
-          // Add new item
-          newInventory.push({
-            itemId,
-            quantity: 1,
-            purchasedAt: now,
-          })
         }
 
         // Handle immediate effects for certain items
@@ -160,9 +168,12 @@ export function useShopInventory({
 
         // Apply immediate effects based on item type
         if (itemId === 'extra-dice-rolls') {
-          // Extra rolls are activated immediately in App.tsx via activatePowerUp
-          toast.success('Purchase successful!', {
-            description: 'Use the power-up from your inventory',
+          updatedState.energyRolls = Math.min(
+            (prev.energyRolls ?? DAILY_ROLL_LIMIT) + extraRollsAmount,
+            ENERGY_MAX
+          )
+          toast.success('Dice rolls added!', {
+            description: `+${extraRollsAmount} rolls available`,
           })
         } else if (itemId === 'cash-small') {
           updatedState.cash += 100000
@@ -201,12 +212,17 @@ export function useShopInventory({
         return updatedState
       })
 
+      if (shouldGrantExtraRolls) {
+        onAddRolls?.(extraRollsAmount)
+      }
+
       return true
     },
     [
       canAfford,
       gameState.stars,
       isPermanentOwned,
+      onAddRolls,
       playSound,
       setGameState,
       getFinalPrice,

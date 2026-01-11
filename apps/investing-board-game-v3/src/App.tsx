@@ -613,7 +613,14 @@ function App() {
     equipCosmetic,
     getFinalPrice,
     shopDiscount,
-  } = useShopInventory({ gameState, setGameState, tierBenefits: activeBenefits })
+  } = useShopInventory({
+    gameState,
+    setGameState,
+    tierBenefits: activeBenefits,
+    onAddRolls: (amount) => {
+      setRollsRemaining((prev) => Math.min(prev + amount, ENERGY_MAX))
+    },
+  })
 
   // Mobile shop purchase handler (uses cash instead of stars)
   const handleMobileShopPurchase = useCallback((itemId: string) => {
@@ -630,7 +637,7 @@ function App() {
 
     // Deduct cash and apply effect
     setGameState((prev) => {
-      const newState = {
+      let newState = {
         ...prev,
         cash: prev.cash - item.price,
       }
@@ -638,6 +645,13 @@ function App() {
       // Apply item effect based on type
       switch (item.effect.type) {
         case 'dice':
+          newState = {
+            ...newState,
+            energyRolls: Math.min(
+              (prev.energyRolls ?? DAILY_ROLL_LIMIT) + (item.effect.value as number),
+              ENERGY_MAX
+            ),
+          }
           // Add dice rolls - this is done via setRollsRemaining
           toast.success('Dice purchased!', {
             description: `+${item.effect.value} dice rolls added`,
@@ -678,7 +692,7 @@ function App() {
 
     // Handle dice rolls separately as it's in a different state
     if (item.effect.type === 'dice') {
-      setRollsRemaining(prev => prev + (item.effect.value as number))
+      setRollsRemaining(prev => Math.min(prev + (item.effect.value as number), ENERGY_MAX))
     }
 
     playSound('cash-register')
