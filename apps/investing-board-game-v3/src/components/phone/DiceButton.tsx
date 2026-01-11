@@ -1,4 +1,4 @@
-import { useRef, useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, type PointerEvent } from 'react';
 import { AnimatedDice } from '@/components/AnimatedDice';
 import { cn } from '@/lib/utils';
 
@@ -25,23 +25,9 @@ export function DiceButton({
   dice1 = 1,
   dice2 = 1,
 }: DiceButtonProps) {
-  const auxButtonBaseClass =
-    'flex h-10 w-10 items-center justify-center rounded-full border text-[10px] font-semibold text-white shadow-md backdrop-blur';
-  const auxButtonGlowClass =
-    'border-yellow-200/50 bg-yellow-400/15 shadow-[0_0_14px_rgba(250,204,21,0.35)]';
-  const autoRollHoldTimer = useRef<NodeJS.Timeout | null>(null);
   const [isPressed, setIsPressed] = useState(false);
   const [autoRollFlash, setAutoRollFlash] = useState(false);
   const isDoubles = dice1 === dice2;
-
-  // Cleanup timeout on unmount
-  useEffect(() => {
-    return () => {
-      if (autoRollHoldTimer.current) {
-        clearTimeout(autoRollHoldTimer.current);
-      }
-    };
-  }, []);
 
   const triggerAutoRollFlash = () => {
     setAutoRollFlash(true);
@@ -50,24 +36,20 @@ export function DiceButton({
     }, 600);
   };
 
-  const handleAutoRollHoldStart = useCallback(() => {
-    if (isAutoRolling) return;
-    if (autoRollHoldTimer.current) {
-      clearTimeout(autoRollHoldTimer.current);
-    }
-    autoRollHoldTimer.current = setTimeout(() => {
+  const handleAutoRollToggle = useCallback(
+    (event: PointerEvent<HTMLButtonElement>) => {
+      event.preventDefault();
+      event.stopPropagation();
+      if (isAutoRolling) {
+        onToggleAutoRoll();
+        return;
+      }
       triggerAutoRollFlash();
       onToggleAutoRoll();
       if (navigator.vibrate) navigator.vibrate([40, 40, 40]);
-    }, 1400);
-  }, [isAutoRolling, onToggleAutoRoll]);
-
-  const handleAutoRollHoldEnd = useCallback(() => {
-    if (autoRollHoldTimer.current) {
-      clearTimeout(autoRollHoldTimer.current);
-      autoRollHoldTimer.current = null;
-    }
-  }, []);
+    },
+    [isAutoRolling, onToggleAutoRoll],
+  );
 
   const handleDiceClick = useCallback(() => {
     setIsPressed(true);
@@ -109,6 +91,30 @@ export function DiceButton({
           <span className="dice-orb dice-orb-b" />
           <span className="dice-orb dice-orb-c" />
         </span>
+        <button
+          type="button"
+          onClick={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            onCycleMultiplier();
+          }}
+          className="absolute -top-6 left-1/2 flex h-12 w-[150px] -translate-x-1/2 items-start justify-center rounded-t-full border-2 border-yellow-200/60 bg-background/40 pt-2 text-[10px] font-semibold uppercase tracking-[0.25em] text-yellow-100 shadow-[0_0_14px_rgba(250,204,21,0.25)] backdrop-blur-sm"
+          aria-label={`Leverage ${multiplier}x. Tap to change.`}
+        >
+          Leverage {multiplier}x
+        </button>
+        <button
+          type="button"
+          onPointerDown={handleAutoRollToggle}
+          className={cn(
+            'absolute top-2 left-1/2 flex -translate-x-1/2 items-center justify-center rounded-full border px-3 py-1 text-[9px] font-semibold uppercase tracking-[0.2em] text-white',
+            isAutoRolling ? 'border-yellow-200/80 bg-yellow-400/40' : 'border-white/30 bg-background/80',
+            autoRollFlash && 'auto-roll-flash',
+          )}
+          aria-label={isAutoRolling ? 'Auto roll on. Tap to stop.' : 'Tap to enable auto roll.'}
+        >
+          Auto {isAutoRolling ? 'ON' : 'OFF'}
+        </button>
         <span className="flex items-center gap-2" aria-hidden="true">
           <AnimatedDice
             value={dice1}
@@ -125,52 +131,11 @@ export function DiceButton({
             className={cn('scale-90', isRolling && 'animate-dice-shake')}
           />
         </span>
-      </button>
-
-      <div className="absolute left-1/2 top-0 flex -translate-x-1/2 -translate-y-12 items-center gap-2">
-        <button
-          type="button"
-          onClick={onCycleMultiplier}
-          className={cn(auxButtonBaseClass, auxButtonGlowClass)}
-          aria-label={`Dice multiplier ${multiplier}x. Tap to change.`}
-        >
-          {multiplier}x
-        </button>
-        <button
-          type="button"
-          onPointerDown={(event) => {
-            event.preventDefault();
-            event.stopPropagation();
-            handleAutoRollHoldStart();
-          }}
-          onPointerUp={handleAutoRollHoldEnd}
-          onPointerLeave={handleAutoRollHoldEnd}
-          onPointerCancel={handleAutoRollHoldEnd}
-          className={cn(
-            auxButtonBaseClass,
-            auxButtonGlowClass,
-            'text-[8px]',
-            isAutoRolling && 'border-yellow-200/80 bg-yellow-400/40',
-            autoRollFlash && 'auto-roll-flash',
-          )}
-          aria-label={isAutoRolling ? 'Auto roll on. Tap dice to stop.' : 'Hold to enable auto roll.'}
-        >
-          <span className="flex flex-col leading-none">
-            <span>AUTO</span>
-            <span>{isAutoRolling ? 'ON' : 'HOLD'}</span>
-          </span>
-        </button>
-        <div
-          className={cn(
-            auxButtonBaseClass,
-            auxButtonGlowClass,
-            'text-[11px] font-bold',
-          )}
-          aria-label={`${rollsRemaining} rolls remaining`}
-        >
-          {rollsRemaining}
+        <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 flex-col items-center text-white">
+          <span className="text-[10px] uppercase tracking-[0.2em] text-white/70">Rolls</span>
+          <span className="text-lg font-bold">{rollsRemaining}</span>
         </div>
-      </div>
+      </button>
     </div>
   );
 }

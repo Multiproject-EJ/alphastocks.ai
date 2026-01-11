@@ -10,9 +10,6 @@ import { MULTIPLIERS } from '@/lib/constants'
 import { getTimeUntilNextRegen } from '@/lib/energy'
 import type { DiceRoll } from '@/lib/types'
 
-// Auto-roll delay after phase returns to idle (in milliseconds)
-const AUTO_ROLL_DELAY_MS = 1000
-
 interface DiceHUDProps {
   onRoll: (multiplier?: number) => void
   lastRoll: number | null
@@ -55,7 +52,6 @@ export function DiceHUD({
   const [autoRollActive, setAutoRollActive] = useState(false)
   const [autoRollFlash, setAutoRollFlash] = useState(false)
   const autoRollTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-  const autoRollHoldRef = useRef<NodeJS.Timeout | null>(null)
 
   const canRoll = phase === 'idle'
   const isDoubles = dice1 === dice2 && lastRoll !== null
@@ -170,25 +166,15 @@ export function DiceHUD({
     }, 600)
   }
 
-  const startAutoRollHold = (event: PointerEvent<HTMLButtonElement>) => {
+  const handleAutoRollToggle = (event: PointerEvent<HTMLButtonElement>) => {
     event.preventDefault()
     event.stopPropagation()
-    if (autoRollActive) return
-    if (autoRollHoldRef.current) {
-      clearTimeout(autoRollHoldRef.current)
+    if (autoRollActive) {
+      stopAutoRoll()
+      return
     }
-    autoRollHoldRef.current = setTimeout(() => {
-      triggerAutoRollFlash()
-      startAutoRoll()
-      if (navigator.vibrate) navigator.vibrate([40, 40, 40])
-    }, 1400)
-  }
-
-  const cancelAutoRollHold = () => {
-    if (autoRollHoldRef.current) {
-      clearTimeout(autoRollHoldRef.current)
-      autoRollHoldRef.current = null
-    }
+    triggerAutoRollFlash()
+    startAutoRoll()
   }
 
   // Effect-based auto-roll: watches for phase changes and auto-rolls when idle
@@ -196,9 +182,6 @@ export function DiceHUD({
     return () => {
       if (autoRollTimeoutRef.current) {
         clearTimeout(autoRollTimeoutRef.current)
-      }
-      if (autoRollHoldRef.current) {
-        clearTimeout(autoRollHoldRef.current)
       }
     }
     // Note: onRoll is included in deps as required by React hooks rules
@@ -410,46 +393,30 @@ export function DiceHUD({
               key="compact"
               type="button"
               onClick={() => setIsExpanded(true)}
-              className="dice-control-zone__content relative flex items-center justify-center w-28 h-28 rounded-full border-2 border-white/20 bg-card/80 backdrop-blur-md shadow-xl cursor-pointer"
+              className="dice-control-zone__content relative flex items-center justify-center w-32 h-32 rounded-full border-2 border-white/20 bg-card/80 backdrop-blur-md shadow-xl cursor-pointer"
             >
-            {/* Updraft Controls - Compact Mode */}
-            <div className="absolute -right-12 top-1/2 flex -translate-y-1/2 flex-col gap-2">
-              <button
-                type="button"
-                onClick={(event) => {
-                  event.stopPropagation()
-                  handleMultiplierToggle()
-                }}
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-white/30 bg-background/90 text-[10px] font-semibold text-white shadow-md backdrop-blur"
-                aria-label={`Dice multiplier ${selectedMultiplier}x. Tap to change.`}
-              >
-                {selectedMultiplier}x
-              </button>
-              <div
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-accent/30 bg-background/90 text-[11px] font-bold text-white shadow-md backdrop-blur"
-                aria-label={`${rollsRemaining} rolls remaining`}
-              >
-                {rollsRemaining}
-              </div>
-              <button
-                type="button"
-                onPointerDown={startAutoRollHold}
-                onPointerUp={cancelAutoRollHold}
-                onPointerLeave={cancelAutoRollHold}
-                onPointerCancel={cancelAutoRollHold}
-                className={`flex h-10 w-10 items-center justify-center rounded-full border ${
-                  autoRollActive ? 'border-yellow-300/70 bg-yellow-400/90' : 'border-white/30 bg-background/90'
-                } text-[8px] font-semibold text-white shadow-md backdrop-blur ${
-                  autoRollFlash ? 'auto-roll-flash' : ''
-                }`}
-                aria-label={autoRollActive ? 'Auto roll on. Tap dice to stop.' : 'Hold to enable auto roll.'}
-              >
-                <span className="flex flex-col leading-none">
-                  <span>AUTO</span>
-                  <span>{autoRollActive ? 'ON' : 'HOLD'}</span>
-                </span>
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation()
+                handleMultiplierToggle()
+              }}
+              className="absolute -top-6 left-1/2 flex h-12 w-[150px] -translate-x-1/2 items-start justify-center rounded-t-full border-2 border-yellow-200/60 bg-background/40 pt-2 text-[10px] font-semibold uppercase tracking-[0.25em] text-yellow-100 shadow-[0_0_14px_rgba(250,204,21,0.25)] backdrop-blur-sm"
+              aria-label={`Leverage ${selectedMultiplier}x. Tap to change.`}
+            >
+              Leverage {selectedMultiplier}x
+            </button>
+
+            <button
+              type="button"
+              onPointerDown={handleAutoRollToggle}
+              className={`absolute top-2 left-1/2 flex -translate-x-1/2 items-center justify-center rounded-full border px-3 py-1 text-[9px] font-semibold uppercase tracking-[0.2em] text-white ${
+                autoRollActive ? 'border-yellow-300/70 bg-yellow-400/70' : 'border-white/30 bg-background/80'
+              } ${autoRollFlash ? 'auto-roll-flash' : ''}`}
+              aria-label={autoRollActive ? 'Auto roll on. Tap to stop.' : 'Tap to enable auto roll.'}
+            >
+              Auto {autoRollActive ? 'ON' : 'OFF'}
+            </button>
 
             <div className="relative flex items-center justify-center w-full h-full">
               <motion.div
@@ -511,6 +478,10 @@ export function DiceHUD({
                   />
                 </motion.div>
               </motion.div>
+            </div>
+            <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 flex-col items-center text-white">
+              <span className="text-[10px] uppercase tracking-[0.2em] text-white/70">Rolls</span>
+              <span className="text-lg font-bold">{rollsRemaining}</span>
             </div>
             <span className="sr-only">Open dice HUD</span>
             </motion.button>
