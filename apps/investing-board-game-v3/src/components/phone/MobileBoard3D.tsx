@@ -71,8 +71,7 @@ export function MobileBoard3D({
     const y = currentTile.y - centerY
     
     // Negate to move board opposite direction (centers player)
-    // Apply slight damping to keep more tiles visible
-    return { x, y, offsetX: -x * 0.85, offsetY: -y * 0.85 }
+    return { x, y, offsetX: -x, offsetY: -y }
   }, [currentPosition, boardSize]);
 
   const verticalOffset = useMemo(() => -boardSize * 0.12, [boardSize]);
