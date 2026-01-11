@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
@@ -27,6 +27,7 @@ export function EventTrackBar({
   const prefersReducedMotion = useReducedMotion()
   const [userReducedMotion, setUserReducedMotion] = useState(false)
   const [isExpanded, setIsExpanded] = useState(!compactByDefault)
+  const containerRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -36,6 +37,20 @@ export function EventTrackBar({
   useEffect(() => {
     setIsExpanded(!compactByDefault)
   }, [compactByDefault])
+
+  useEffect(() => {
+    if (!compactByDefault || !isExpanded) return
+
+    const handleClick = (event: MouseEvent) => {
+      if (!containerRef.current) return
+      if (!containerRef.current.contains(event.target as Node)) {
+        setIsExpanded(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [compactByDefault, isExpanded])
 
   const reducedMotion = prefersReducedMotion || userReducedMotion
 
@@ -67,7 +82,20 @@ export function EventTrackBar({
   }
 
   return (
-    <section className="w-full rounded-2xl border border-white/15 bg-slate-950/70 p-4 text-white shadow-lg backdrop-blur">
+    <section
+      ref={containerRef}
+      className="relative w-full rounded-2xl border border-white/15 bg-slate-950/70 p-4 text-white shadow-lg backdrop-blur"
+    >
+      {compactByDefault && (
+        <button
+          type="button"
+          onClick={() => setIsExpanded(false)}
+          className="absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-full border border-white/20 bg-white/10 text-sm text-white/80 transition hover:bg-white/20"
+          aria-label="Minimize event reward track"
+        >
+          ×
+        </button>
+      )}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-[11px] uppercase tracking-[0.2em] text-emerald-200/80">Event Reward Track</p>
