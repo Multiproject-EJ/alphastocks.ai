@@ -2606,7 +2606,10 @@ function App() {
             maxHeight: `min(calc(100vh - 4rem), ${BOARD_SIZE}px)`,
             maxWidth: `${BOARD_SIZE}px`,
             aspectRatio: '1 / 1',
-          } : {})
+          } : {
+            width: `${boardSize}px`,
+            height: `${boardSize}px`,
+          })
         }} ref={boardFrameRef}>
         {/* Board wrapper with 3D camera or classic zoom support */}
         <Board3DViewport
