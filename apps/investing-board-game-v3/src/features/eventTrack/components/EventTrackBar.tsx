@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
@@ -12,6 +12,7 @@ interface EventTrackBarProps {
   onCTA: () => void
   ctaLabel?: string | null
   ctaDisabled?: boolean
+  compactByDefault?: boolean
 }
 
 export function EventTrackBar({
@@ -21,14 +22,35 @@ export function EventTrackBar({
   onCTA,
   ctaLabel,
   ctaDisabled = false,
+  compactByDefault = false,
 }: EventTrackBarProps) {
   const prefersReducedMotion = useReducedMotion()
   const [userReducedMotion, setUserReducedMotion] = useState(false)
+  const [isExpanded, setIsExpanded] = useState(!compactByDefault)
+  const containerRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     if (typeof window === 'undefined') return
     setUserReducedMotion(localStorage.getItem('reducedMotion') === 'true')
   }, [])
+
+  useEffect(() => {
+    setIsExpanded(!compactByDefault)
+  }, [compactByDefault])
+
+  useEffect(() => {
+    if (!compactByDefault || !isExpanded) return
+
+    const handleClick = (event: MouseEvent) => {
+      if (!containerRef.current) return
+      if (!containerRef.current.contains(event.target as Node)) {
+        setIsExpanded(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [compactByDefault, isExpanded])
 
   const reducedMotion = prefersReducedMotion || userReducedMotion
 
@@ -37,8 +59,43 @@ export function EventTrackBar({
     return Math.min((progress.points / definition.pointsMax) * 100, 100)
   }, [definition.pointsMax, progress.points])
 
+  if (compactByDefault && !isExpanded) {
+    return (
+      <button
+        type="button"
+        className="w-full rounded-2xl border border-white/15 bg-slate-950/70 px-4 py-3 text-left text-white shadow-lg backdrop-blur"
+        onClick={() => setIsExpanded(true)}
+        aria-label="Expand event reward track"
+      >
+        <div className="flex items-center justify-between text-xs text-white/80">
+          <span>{progress.points} / {definition.pointsMax} pts</span>
+          <span>{definition.isActive ? 'Keep rolling!' : 'Event ended'}</span>
+        </div>
+        <div className="mt-2 h-2 w-full rounded-full bg-white/10">
+          <div
+            className="h-full rounded-full bg-gradient-to-r from-emerald-400 via-green-400 to-lime-300 transition-all duration-500"
+            style={{ width: `${progressPercent}%` }}
+          />
+        </div>
+      </button>
+    )
+  }
+
   return (
-    <section className="w-full rounded-2xl border border-white/15 bg-slate-950/70 p-4 text-white shadow-lg backdrop-blur">
+    <section
+      ref={containerRef}
+      className="relative w-full rounded-2xl border border-white/15 bg-slate-950/70 p-4 text-white shadow-lg backdrop-blur"
+    >
+      {compactByDefault && (
+        <button
+          type="button"
+          onClick={() => setIsExpanded(false)}
+          className="absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-full border border-white/20 bg-white/10 text-sm text-white/80 transition hover:bg-white/20"
+          aria-label="Minimize event reward track"
+        >
+          ×
+        </button>
+      )}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-[11px] uppercase tracking-[0.2em] text-emerald-200/80">Event Reward Track</p>

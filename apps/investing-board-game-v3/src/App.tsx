@@ -3046,6 +3046,7 @@ function App() {
               onCTA={purchaseCTA}
               ctaLabel={eventTrackCTA?.label ?? null}
               ctaDisabled={!eventTrackCTA}
+              compactByDefault
             />
           )}
         >
