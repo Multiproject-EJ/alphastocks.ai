@@ -12,6 +12,7 @@ interface EventTrackBarProps {
   onCTA: () => void
   ctaLabel?: string | null
   ctaDisabled?: boolean
+  compactByDefault?: boolean
 }
 
 export function EventTrackBar({
@@ -21,14 +22,20 @@ export function EventTrackBar({
   onCTA,
   ctaLabel,
   ctaDisabled = false,
+  compactByDefault = false,
 }: EventTrackBarProps) {
   const prefersReducedMotion = useReducedMotion()
   const [userReducedMotion, setUserReducedMotion] = useState(false)
+  const [isExpanded, setIsExpanded] = useState(!compactByDefault)
 
   useEffect(() => {
     if (typeof window === 'undefined') return
     setUserReducedMotion(localStorage.getItem('reducedMotion') === 'true')
   }, [])
+
+  useEffect(() => {
+    setIsExpanded(!compactByDefault)
+  }, [compactByDefault])
 
   const reducedMotion = prefersReducedMotion || userReducedMotion
 
@@ -36,6 +43,28 @@ export function EventTrackBar({
     if (definition.pointsMax === 0) return 0
     return Math.min((progress.points / definition.pointsMax) * 100, 100)
   }, [definition.pointsMax, progress.points])
+
+  if (compactByDefault && !isExpanded) {
+    return (
+      <button
+        type="button"
+        className="w-full rounded-2xl border border-white/15 bg-slate-950/70 px-4 py-3 text-left text-white shadow-lg backdrop-blur"
+        onClick={() => setIsExpanded(true)}
+        aria-label="Expand event reward track"
+      >
+        <div className="flex items-center justify-between text-xs text-white/80">
+          <span>{progress.points} / {definition.pointsMax} pts</span>
+          <span>{definition.isActive ? 'Keep rolling!' : 'Event ended'}</span>
+        </div>
+        <div className="mt-2 h-2 w-full rounded-full bg-white/10">
+          <div
+            className="h-full rounded-full bg-gradient-to-r from-emerald-400 via-green-400 to-lime-300 transition-all duration-500"
+            style={{ width: `${progressPercent}%` }}
+          />
+        </div>
+      </button>
+    )
+  }
 
   return (
     <section className="w-full rounded-2xl border border-white/15 bg-slate-950/70 p-4 text-white shadow-lg backdrop-blur">
