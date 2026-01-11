@@ -83,27 +83,6 @@ export function ShopModal({
   const [sortBy, setSortBy] = useState<SortOption>('default')
   const [confirmItem, setConfirmItem] = useState<ShopItem | null>(null)
 
-  // Handle mobile shop purchase (uses cash instead of stars)
-  const handleMobilePurchase = (itemId: string, cost: number) => {
-    if (onMobilePurchase) {
-      onMobilePurchase(itemId)
-    }
-  }
-
-  // Show mobile shop on mobile devices
-  if (isMobile) {
-    return (
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-[100vw] h-[100vh] overflow-hidden bg-background p-0 gap-0 border-0">
-          <MobileShop 
-            cash={gameState.cash}
-            onPurchase={handleMobilePurchase}
-          />
-        </DialogContent>
-      </Dialog>
-    )
-  }
-
   // Get items for current category
   const categoryItems = useMemo(() => {
     let items = getShopItemsByCategory(selectedCategory)
@@ -126,6 +105,27 @@ export function ShopModal({
     
     return items
   }, [selectedCategory, sortBy])
+
+  // Handle mobile shop purchase (uses cash instead of stars)
+  const handleMobilePurchase = (itemId: string, cost: number) => {
+    if (onMobilePurchase) {
+      onMobilePurchase(itemId)
+    }
+  }
+
+  // Show mobile shop on mobile devices
+  if (isMobile) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="max-w-[100vw] h-[100vh] overflow-hidden bg-background p-0 gap-0 border-0">
+          <MobileShop 
+            cash={gameState.cash}
+            onPurchase={handleMobilePurchase}
+          />
+        </DialogContent>
+      </Dialog>
+    )
+  }
 
   const handleTabChange = (value: string) => {
     playSound('button-click')

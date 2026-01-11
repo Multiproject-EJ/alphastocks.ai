@@ -361,7 +361,7 @@ export function StockExchangeBuilderModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className={`${dialogClass} h-[90vh] overflow-hidden border-2 border-accent/40 bg-card p-0 shadow-[0_0_60px_oklch(0.75_0.15_85_/_0.35)]`}
+        className={`${dialogClass} h-[90vh] overflow-y-auto md:overflow-hidden border-2 border-accent/40 bg-card p-0 shadow-[0_0_60px_oklch(0.75_0.15_85_/_0.35)]`}
       >
         <div className="flex h-full flex-col">
           <DialogHeader className="border-b border-border px-6 pb-4 pt-6">
