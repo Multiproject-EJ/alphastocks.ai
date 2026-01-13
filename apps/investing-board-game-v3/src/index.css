@@ -559,6 +559,17 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
+@keyframes phone-dice-auto-pulse {
+  0%, 100% {
+    box-shadow: 0 0 12px rgba(250, 204, 21, 0.45);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 26px rgba(250, 204, 21, 0.8);
+    transform: scale(1.06);
+  }
+}
+
 @keyframes phone-dice-gold-pulse {
   0%, 100% {
     box-shadow: 0 0 10px rgba(250, 204, 21, 0.45);
@@ -570,13 +581,63 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
+@keyframes phone-dice-tap {
+  0% {
+    background: radial-gradient(circle at 30% 25%, rgba(250, 204, 21, 0.75), rgba(161, 98, 7, 0.85));
+    box-shadow: 0 0 0 0 rgba(250, 204, 21, 0.6);
+  }
+  70% {
+    background: radial-gradient(circle at 30% 25%, rgba(250, 204, 21, 0.35), rgba(30, 41, 59, 0.9));
+    box-shadow: 0 0 0 18px rgba(250, 204, 21, 0);
+  }
+  100% {
+    background: radial-gradient(circle at 30% 25%, rgba(59, 130, 246, 0.4), rgba(2, 6, 23, 0.95));
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  }
+}
+
+@keyframes phone-dice-tap-wave {
+  0% {
+    opacity: 0.75;
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.35);
+  }
+}
+
 .phone-dice-button {
   background: radial-gradient(circle at 30% 25%, rgba(59, 130, 246, 0.4), rgba(2, 6, 23, 0.95));
   animation: phone-dice-blue-pulse 4s ease-in-out infinite;
+  position: relative;
+}
+
+.phone-dice-button::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  border: 1px solid rgba(250, 204, 21, 0.6);
+  opacity: 0;
+  pointer-events: none;
 }
 
 .phone-dice-button--auto {
   background: radial-gradient(circle at 30% 25%, rgba(250, 204, 21, 0.75), rgba(161, 98, 7, 0.9));
+  animation: phone-dice-auto-pulse 2.4s ease-in-out infinite;
+}
+
+.phone-dice-button--tap {
+  animation: phone-dice-blue-pulse 4s ease-in-out infinite, phone-dice-tap 0.8s ease-out;
+}
+
+.phone-dice-button--tap::after {
+  animation: phone-dice-tap-wave 0.8s ease-out;
+}
+
+.phone-dice-button--auto.phone-dice-button--tap {
+  animation: phone-dice-auto-pulse 2.4s ease-in-out infinite, phone-dice-tap 0.8s ease-out;
 }
 
 .phone-dice-face {
@@ -633,6 +694,48 @@ h1, h2, h3, h4, h5, h6 {
 .phone-dice-pip--br {
   grid-column: 3;
   grid-row: 3;
+}
+
+.auto-toggle-track {
+  position: relative;
+  width: 32px;
+  height: 16px;
+  border-radius: 9999px;
+  background: rgba(148, 163, 184, 0.4);
+  box-shadow: inset 0 0 6px rgba(15, 23, 42, 0.6);
+  transition: background-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.auto-toggle-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 9999px;
+  background: #f8fafc;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.45);
+  transition: transform 0.25s ease, background-color 0.25s ease;
+}
+
+.auto-toggle-track--on {
+  background: rgba(250, 204, 21, 0.65);
+  box-shadow: 0 0 12px rgba(250, 204, 21, 0.5);
+  animation: auto-toggle-pulse 2.1s ease-in-out infinite;
+}
+
+.auto-toggle-thumb--on {
+  transform: translateX(16px);
+  background: #fef9c3;
+}
+
+@keyframes auto-toggle-pulse {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(250, 204, 21, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 16px rgba(250, 204, 21, 0.7);
+  }
 }
 
 @keyframes auto-roll-flash {
