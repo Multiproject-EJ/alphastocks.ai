@@ -144,6 +144,7 @@ summary, etc.), ensuring JSON responses instead of HTML.
 - ☐ Accessibility review (WCAG AA) and implement fixes.
 - ☐ Analytics & telemetry plan (user opt-in, privacy-first).
 - ☐ Deployment pipeline (static hosting with edge functions for Supabase interaction, or Supabase Functions).
+  - 2026-01-13: Added a GitHub Pages workflow (`.github/workflows/pages.yml`) to build the Vite workspace app and deploy the `dist/` output; Vite now auto-sets its base path from the GitHub repository name during Actions builds.
 
 ## Working Agreements
 - Keep commits scoped to a single task and include brief research summary in the message body when relevant.

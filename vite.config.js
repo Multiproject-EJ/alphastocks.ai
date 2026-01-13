@@ -4,8 +4,11 @@ import { dirname, resolve } from 'node:path';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+const repoName = process.env.GITHUB_REPOSITORY?.split('/')[1];
+const base = repoName ? `/${repoName}/` : '/';
 
 export default defineConfig({
+  base,
   root: resolve(__dirname, 'workspace'),
   publicDir: resolve(__dirname, 'public'),
   build: {
