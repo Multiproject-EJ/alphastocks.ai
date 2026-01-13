@@ -1,0 +1,199 @@
+import { useState, useCallback, useEffect } from 'react'
+import { supabaseClient, hasSupabaseConfig } from '@/lib/supabaseClient'
+import { useAuth } from '@/context/AuthContext'
+
+export interface DailyDividendStatus {
+  currentDay: number // 1-7
+  lastCollectionDate: Date | null
+  canCollect: boolean
+  totalCollected: number
+}
+
+export interface DailyDividendReward {
+  type: 'dice' | 'cash'
+  amount: number
+}
+
+// Reward pattern: alternating dice rolls and cash
+const REWARD_PATTERN: DailyDividendReward[] = [
+  { type: 'dice', amount: 10 },  // Day 1
+  { type: 'cash', amount: 1000 }, // Day 2
+  { type: 'dice', amount: 10 },  // Day 3
+  { type: 'cash', amount: 1000 }, // Day 4
+  { type: 'dice', amount: 10 },  // Day 5
+  { type: 'cash', amount: 1000 }, // Day 6
+  { type: 'dice', amount: 10 },  // Day 7
+]
+
+export function getRewardForDay(day: number): DailyDividendReward {
+  const index = (day - 1) % 7
+  return REWARD_PATTERN[index]
+}
+
+interface UseDailyDividendsReturn {
+  status: DailyDividendStatus | null
+  loading: boolean
+  error: string | null
+  canShowPopup: boolean
+  collectReward: () => Promise<DailyDividendReward | null>
+  refreshStatus: () => Promise<void>
+}
+
+/**
+ * Hook for managing daily dividends system
+ * Tracks user's progress through 7-day dividend cycle
+ * Only advances when user collects their reward (not calendar-based)
+ */
+export function useDailyDividends(): UseDailyDividendsReturn {
+  const { user, isAuthenticated } = useAuth()
+  const [status, setStatus] = useState<DailyDividendStatus | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [canShowPopup, setCanShowPopup] = useState(false)
+
+  // Check if user can collect today
+  const canCollectToday = useCallback((lastCollectionDate: Date | null): boolean => {
+    if (!lastCollectionDate) return true
+    
+    const now = new Date()
+    const lastCollection = new Date(lastCollectionDate)
+    
+    // Check if it's a different day (comparing dates, not times)
+    const nowDate = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+    const lastDate = new Date(lastCollection.getFullYear(), lastCollection.getMonth(), lastCollection.getDate())
+    
+    return nowDate > lastDate
+  }, [])
+
+  // Load dividend status from database
+  const refreshStatus = useCallback(async () => {
+    if (!supabaseClient || !hasSupabaseConfig || !isAuthenticated || !user) {
+      setLoading(false)
+      return
+    }
+
+    try {
+      setLoading(true)
+      setError(null)
+
+      const { data, error: queryError } = await supabaseClient
+        .from('board_game_profiles')
+        .select('daily_dividend_day, daily_dividend_last_collection, daily_dividend_total_collected')
+        .eq('profile_id', user.id)
+        .maybeSingle()
+
+      if (queryError) {
+        // Table might not have dividend columns yet
+        if (queryError.code === '42703') {
+          console.warn('Daily dividends columns do not exist yet. Run migration 028_daily_dividends.sql')
+          setStatus({
+            currentDay: 1,
+            lastCollectionDate: null,
+            canCollect: true,
+            totalCollected: 0,
+          })
+          setCanShowPopup(true)
+          return
+        }
+        throw queryError
+      }
+
+      if (data) {
+        const lastCollectionDate = data.daily_dividend_last_collection 
+          ? new Date(data.daily_dividend_last_collection)
+          : null
+        
+        const canCollect = canCollectToday(lastCollectionDate)
+        
+        const dividendStatus: DailyDividendStatus = {
+          currentDay: data.daily_dividend_day || 1,
+          lastCollectionDate,
+          canCollect,
+          totalCollected: data.daily_dividend_total_collected || 0,
+        }
+
+        setStatus(dividendStatus)
+        
+        // Show popup if user can collect today
+        setCanShowPopup(canCollect)
+      } else {
+        // No profile yet, will be created on first save
+        const dividendStatus: DailyDividendStatus = {
+          currentDay: 1,
+          lastCollectionDate: null,
+          canCollect: true,
+          totalCollected: 0,
+        }
+        setStatus(dividendStatus)
+        setCanShowPopup(true)
+      }
+    } catch (err) {
+      console.error('Failed to load daily dividend status:', err)
+      setError(err instanceof Error ? err.message : 'Failed to load dividend status')
+    } finally {
+      setLoading(false)
+    }
+  }, [isAuthenticated, user, canCollectToday])
+
+  // Collect today's reward
+  const collectReward = useCallback(async (): Promise<DailyDividendReward | null> => {
+    if (!supabaseClient || !hasSupabaseConfig || !isAuthenticated || !user || !status) {
+      return null
+    }
+
+    if (!status.canCollect) {
+      console.warn('Cannot collect reward - already collected today')
+      return null
+    }
+
+    try {
+      const reward = getRewardForDay(status.currentDay)
+      const nextDay = status.currentDay === 7 ? 1 : status.currentDay + 1
+      const now = new Date()
+
+      // Update database
+      const { error: updateError } = await supabaseClient
+        .from('board_game_profiles')
+        .update({
+          daily_dividend_day: nextDay,
+          daily_dividend_last_collection: now.toISOString(),
+          daily_dividend_total_collected: status.totalCollected + 1,
+        })
+        .eq('profile_id', user.id)
+
+      if (updateError) {
+        throw updateError
+      }
+
+      // Update local state
+      setStatus({
+        currentDay: nextDay,
+        lastCollectionDate: now,
+        canCollect: false,
+        totalCollected: status.totalCollected + 1,
+      })
+
+      setCanShowPopup(false)
+
+      return reward
+    } catch (err) {
+      console.error('Failed to collect dividend:', err)
+      setError(err instanceof Error ? err.message : 'Failed to collect dividend')
+      return null
+    }
+  }, [isAuthenticated, user, status])
+
+  // Load status on mount
+  useEffect(() => {
+    refreshStatus()
+  }, [refreshStatus])
+
+  return {
+    status,
+    loading,
+    error,
+    canShowPopup,
+    collectReward,
+    refreshStatus,
+  }
+}

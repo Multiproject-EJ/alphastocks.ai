@@ -25,6 +25,7 @@ import { TierUpModal } from '@/components/TierUpModal'
 import { ThriftPathStatus } from '@/components/ThriftPathStatus'
 import { ThriftPathAura } from '@/components/ThriftPathAura'
 import { OutOfRollsModal } from '@/components/OutOfRollsModal'
+import { DailyDividendsModal } from '@/components/DailyDividendsModal'
 import { BoardZoomControls } from '@/components/BoardZoomControls'
 import { Board3DViewport } from '@/components/Board3DViewport'
 import { StockTickerRibbon } from '@/components/StockTickerRibbon'
@@ -114,6 +115,7 @@ import { useLayoutMode } from '@/hooks/useLayoutMode'
 import { useNotificationPreferences } from '@/hooks/useNotificationPreferences'
 import { EventTrackBar } from '@/features/eventTrack/components/EventTrackBar'
 import { useEventTrack } from '@/features/eventTrack/useEventTrack'
+import { useDailyDividends } from '@/hooks/useDailyDividends'
 import { pointsForChallengeComplete, pointsForRoll, pointsForTileLanding } from '@/features/eventTrack/adapter'
 import { createEventTrackProgress } from '@/features/eventTrack/store'
 import { ThriftPathStatus as ThriftPathStatusType } from '@/lib/thriftPath'
@@ -919,6 +921,73 @@ function App() {
     }
   }, [showTierUpModal, newTier, showOverlay, setShowTierUpModal])
 
+  // Handle Daily Dividends modal - Show on first visit each day
+  useEffect(() => {
+    // Wait for loading to complete and status to be available
+    if (isLoading || dividendsLoading || !dailyDividendStatus) return
+    
+    // Show popup if user can collect today and hasn't been shown recently
+    if (canShowDividendsPopup && !wasRecentlyShown('dailyDividends')) {
+      // Delay slightly to ensure other critical modals are shown first
+      const timer = setTimeout(() => {
+        showOverlay({
+          id: 'dailyDividends',
+          component: DailyDividendsModal,
+          props: {
+            status: dailyDividendStatus,
+            onCollect: async () => {
+              const reward = await collectDailyReward()
+              if (reward) {
+                // Add rewards to user's balance
+                if (reward.type === 'dice') {
+                  setRollsRemaining(prev => prev + reward.amount)
+                  setGameState(prev => ({
+                    ...prev,
+                    energyRolls: (prev.energyRolls ?? DAILY_ROLL_LIMIT) + reward.amount,
+                  }))
+                  toast.success(`Daily Dividend Collected!`, {
+                    description: `+${reward.amount} dice rolls added to your balance`,
+                  })
+                } else if (reward.type === 'cash') {
+                  setGameState(prev => ({
+                    ...prev,
+                    cash: prev.cash + reward.amount,
+                    netWorth: prev.netWorth + reward.amount,
+                  }))
+                  toast.success(`Daily Dividend Collected!`, {
+                    description: `+$${reward.amount.toLocaleString()} cash added to your balance`,
+                  })
+                }
+                
+                playSound('level-up')
+                hapticSuccess()
+                
+                // Refresh status
+                await refreshDividendStatus()
+              }
+            },
+          },
+          priority: 'high', // Show early but after critical modals
+        })
+      }, 500)
+      
+      return () => clearTimeout(timer)
+    }
+  }, [
+    isLoading,
+    dividendsLoading,
+    dailyDividendStatus,
+    canShowDividendsPopup,
+    wasRecentlyShown,
+    showOverlay,
+    collectDailyReward,
+    setRollsRemaining,
+    setGameState,
+    playSound,
+    hapticSuccess,
+    refreshDividendStatus,
+  ])
+
   // Loading screen on initial mount
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 2000)
@@ -1056,6 +1125,15 @@ function App() {
   useEffect(() => {
     eventTrackPointsRef.current = addEventTrackPoints
   }, [addEventTrackPoints])
+
+  // Daily Dividends hook
+  const {
+    status: dailyDividendStatus,
+    loading: dividendsLoading,
+    canShowPopup: canShowDividendsPopup,
+    collectReward: collectDailyReward,
+    refreshStatus: refreshDividendStatus,
+  } = useDailyDividends()
 
   // Helper function to check if a power-up is active
   const hasPowerUp = useCallback((itemId: string): boolean => {
