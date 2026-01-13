@@ -40,6 +40,10 @@ interface BoardGameProfile {
   total_doubles?: number
   // Jackpot system
   jackpot?: number
+  // Daily dividends
+  daily_dividend_day?: number
+  daily_dividend_last_collection?: string
+  daily_dividend_total_collected?: number
   created_at: string
   updated_at: string
 }
