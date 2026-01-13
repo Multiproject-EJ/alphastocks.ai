@@ -926,8 +926,9 @@ function App() {
     // Wait for loading to complete and status to be available
     if (isLoading || dividendsLoading || !dailyDividendStatus) return
     
-    // Show popup if user can collect today and hasn't been shown recently
-    if (canShowDividendsPopup && !wasRecentlyShown('dailyDividends')) {
+    // Show popup if user can collect today and hasn't been shown recently (within last 5 minutes)
+    const FIVE_MINUTES_MS = 5 * 60 * 1000
+    if (canShowDividendsPopup && !wasRecentlyShown('dailyDividends', FIVE_MINUTES_MS)) {
       // Delay slightly to ensure other critical modals are shown first
       const timer = setTimeout(() => {
         showOverlay({

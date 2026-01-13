@@ -2,6 +2,9 @@ import { useState, useCallback, useEffect } from 'react'
 import { supabaseClient, hasSupabaseConfig } from '@/lib/supabaseClient'
 import { useAuth } from '@/context/AuthContext'
 
+// Constants
+const POSTGRES_ERROR_UNDEFINED_COLUMN = '42703'
+
 export interface DailyDividendStatus {
   currentDay: number // 1-7
   lastCollectionDate: Date | null
@@ -58,11 +61,11 @@ export function useDailyDividends(): UseDailyDividendsReturn {
     const now = new Date()
     const lastCollection = new Date(lastCollectionDate)
     
-    // Check if it's a different day (comparing dates, not times)
-    const nowDate = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-    const lastDate = new Date(lastCollection.getFullYear(), lastCollection.getMonth(), lastCollection.getDate())
+    // Compare dates in UTC to avoid timezone issues
+    const nowDateUTC = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())
+    const lastDateUTC = Date.UTC(lastCollection.getUTCFullYear(), lastCollection.getUTCMonth(), lastCollection.getUTCDate())
     
-    return nowDate > lastDate
+    return nowDateUTC > lastDateUTC
   }, [])
 
   // Load dividend status from database
@@ -84,7 +87,7 @@ export function useDailyDividends(): UseDailyDividendsReturn {
 
       if (queryError) {
         // Table might not have dividend columns yet
-        if (queryError.code === '42703') {
+        if (queryError.code === POSTGRES_ERROR_UNDEFINED_COLUMN) {
           console.warn('Daily dividends columns do not exist yet. Run migration 028_daily_dividends.sql')
           setStatus({
             currentDay: 1,
