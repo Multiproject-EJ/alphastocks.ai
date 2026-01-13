@@ -64,6 +64,7 @@ export function PhoneLayout({
   const { mode } = useUIMode();
   const showDebug = import.meta.env.DEV;
   const [currentHour, setCurrentHour] = useState(() => new Date().getHours());
+  const [spaceBackgroundEnabled, setSpaceBackgroundEnabled] = useState(false);
   const hideFloatingActions = isRolling;
   const containerRef = useRef<HTMLDivElement | null>(null);
   
@@ -119,9 +120,9 @@ export function PhoneLayout({
     >
       {/* Single crisp background with 3D depth effect */}
       <div 
-        className="absolute inset-0 z-0 bg-cover bg-center pointer-events-none phone-background-3d"
+        className={`absolute inset-0 z-0 bg-cover bg-center pointer-events-none phone-background-3d ${spaceBackgroundEnabled ? 'phone-background-space' : ''}`}
         style={{ 
-          backgroundImage: `url('${backgroundUrl}')`,
+          backgroundImage: spaceBackgroundEnabled ? 'none' : `url('${backgroundUrl}')`,
           WebkitBackfaceVisibility: 'hidden',
           backfaceVisibility: 'hidden'
         }}
@@ -210,7 +211,11 @@ export function PhoneLayout({
       
       {/* Layer 30: Compact HUD */}
       <div className="relative z-30">
-        <CompactHUD {...gameState} />
+        <CompactHUD
+          {...gameState}
+          spaceBackgroundEnabled={spaceBackgroundEnabled}
+          onToggleSpaceBackground={() => setSpaceBackgroundEnabled((enabled) => !enabled)}
+        />
       </div>
 
       {eventTrackNode && (
