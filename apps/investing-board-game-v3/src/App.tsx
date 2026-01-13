@@ -509,6 +509,15 @@ function App() {
     checkDailyStreak
   } = useThriftPath(initialThriftPathStatus)
 
+  // Daily Dividends hook
+  const {
+    status: dailyDividendStatus,
+    loading: dividendsLoading,
+    canShowPopup: canShowDividendsPopup,
+    collectReward: collectDailyReward,
+    refreshStatus: refreshDividendStatus,
+  } = useDailyDividends()
+
   // Stock Exchange Builder hook
   const {
     exchanges: stockExchanges,
@@ -1126,15 +1135,6 @@ function App() {
   useEffect(() => {
     eventTrackPointsRef.current = addEventTrackPoints
   }, [addEventTrackPoints])
-
-  // Daily Dividends hook
-  const {
-    status: dailyDividendStatus,
-    loading: dividendsLoading,
-    canShowPopup: canShowDividendsPopup,
-    collectReward: collectDailyReward,
-    refreshStatus: refreshDividendStatus,
-  } = useDailyDividends()
 
   // Helper function to check if a power-up is active
   const hasPowerUp = useCallback((itemId: string): boolean => {
