@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronDown, ChevronUp, Bell, BellOff, Star } from 'lucide-react';
+import { ChevronDown, ChevronUp, Bell, BellOff, Sparkles, Star } from 'lucide-react';
 import { useNotificationPreferences } from '@/hooks/useNotificationPreferences';
 
 interface CompactHUDProps {
@@ -11,9 +11,22 @@ interface CompactHUDProps {
   rolls: number;
   stars?: number; // Add stars to the HUD
   cityLevel?: number; // Optional city level for backward compatibility
+  spaceBackgroundEnabled?: boolean;
+  onToggleSpaceBackground?: () => void;
 }
 
-export function CompactHUD({ cash, netWorth, level, xp, xpToNext, rolls, stars = 0, cityLevel = 1 }: CompactHUDProps) {
+export function CompactHUD({
+  cash,
+  netWorth,
+  level,
+  xp,
+  xpToNext,
+  rolls,
+  stars = 0,
+  cityLevel = 1,
+  spaceBackgroundEnabled = false,
+  onToggleSpaceBackground = () => {},
+}: CompactHUDProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const { enabled: notificationsEnabled, toggleNotifications } = useNotificationPreferences();
 
@@ -38,6 +51,18 @@ export function CompactHUD({ cash, netWorth, level, xp, xpToNext, rolls, stars =
         </div>
         
         <div className="flex items-center gap-3">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleSpaceBackground();
+            }}
+            className={`p-1.5 rounded-md transition-colors ${spaceBackgroundEnabled ? 'bg-indigo-500/20 text-indigo-200' : 'hover:bg-accent/20 text-muted-foreground'}`}
+            aria-label={spaceBackgroundEnabled ? 'Disable space background' : 'Enable space background'}
+            aria-pressed={spaceBackgroundEnabled}
+            title={spaceBackgroundEnabled ? 'Space background on' : 'Space background off'}
+          >
+            <Sparkles size={16} />
+          </button>
           {/* Notification Toggle Button */}
           <button
             onClick={(e) => {
