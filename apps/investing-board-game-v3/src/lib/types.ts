@@ -1,6 +1,21 @@
 export type TileType = 'corner' | 'category' | 'event' | 'mystery'
 
-export type TileCategory = 'turnarounds' | 'dividends' | 'growth' | 'moats' | 'value' | 'ipo' | 'meme' | 'crypto' | 'penny' | 'leverage' | 'options'
+export type TileCategory = 'turnarounds' | 'dividends' | 'growth' | 'moats' | 'value' | 'ipo' | 'meme' | 'crypto' | 'penny' | 'leverage' | 'options' | 'elite'
+
+export type RingNumber = 1 | 2 | 3
+
+export interface RingConfig {
+  name: string
+  tiles: number
+  rewardMultiplier: number
+  riskMultiplier: number
+}
+
+export interface ElevatorResult {
+  action: 'ascend' | 'stay' | 'fall' | 'throne'
+  targetRing: RingNumber | 0  // 0 = Throne
+  message: string
+}
 
 export interface DiceRoll {
   die1: number
@@ -86,6 +101,10 @@ export interface GameState {
   portfolioValue: number
   stars: number
   coins: number // New: Third currency for micro-transactions
+  currentRing: RingNumber
+  ring1LapsCompleted: number
+  hasReachedThrone: boolean
+  throneCount: number
   eventCurrency?: {
     eventId: string | null
     amount: number
