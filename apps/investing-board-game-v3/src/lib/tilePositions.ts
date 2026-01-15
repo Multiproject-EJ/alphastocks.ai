@@ -153,3 +153,42 @@ export function getTileDistance(
   const dy = tile2.y - tile1.y
   return Math.sqrt(dx * dx + dy * dy)
 }
+
+/**
+ * Calculate positions for all rings (Ring 1, Ring 2, Ring 3) and throne
+ * 
+ * Creates a multi-ring "Wealth Spiral" layout with concentric circles:
+ * - Ring 1: Outer ring (27 tiles) at 100% of base radius
+ * - Ring 2: Middle ring (18 tiles) at 65% of base radius
+ * - Ring 3: Inner ring (9 tiles) at 35% of base radius
+ * - Throne: Center point at (0, 0) relative to board center
+ * 
+ * @param boardSize - The dimensions of the board container
+ * @param outerRadius - Optional custom radius for the outer ring (Ring 1)
+ * @returns Object with positions for all rings and throne
+ */
+export function calculateAllRingPositions(
+  boardSize: { width: number; height: number },
+  outerRadius?: number
+): {
+  ring1: TilePosition[]
+  ring2: TilePosition[]
+  ring3: TilePosition[]
+  thronePosition: { x: number; y: number }
+} {
+  const baseRadius = outerRadius ?? Math.min(boardSize.width, boardSize.height) * 0.38
+  
+  return {
+    // Ring 1: Outer ring - 27 tiles at 100% radius
+    ring1: calculateTilePositions(boardSize, 27, baseRadius, false),
+    // Ring 2: Middle ring - 18 tiles at 65% of outer radius
+    ring2: calculateTilePositions(boardSize, 18, baseRadius * 0.65, false),
+    // Ring 3: Inner ring - 9 tiles at 35% of outer radius
+    ring3: calculateTilePositions(boardSize, 9, baseRadius * 0.35, false),
+    // Throne: Center point
+    thronePosition: {
+      x: boardSize.width / 2,
+      y: boardSize.height / 2
+    }
+  }
+}
