@@ -177,6 +177,10 @@ function App() {
     portfolioValue: 0,
     stars: 0,
     coins: 100,
+    currentRing: 1,
+    ring1LapsCompleted: 0,
+    hasReachedThrone: false,
+    throneCount: 0,
     eventCurrency: {
       eventId: null,
       amount: 0,
