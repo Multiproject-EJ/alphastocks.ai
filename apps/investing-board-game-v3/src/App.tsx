@@ -141,6 +141,13 @@ const debugGame = (...args: unknown[]) => {
 const LOGO_PANEL_INDEX = 1  // 2nd panel (0-indexed)
 const BOARD_CONTAINER_BASE_CLASSES = "relative bg-gradient-to-br from-white/15 via-white/8 to-white/12 backdrop-blur-2xl rounded-2xl border border-white/25 shadow-[inset_0_0_70px_rgba(255,255,255,0.08),_0_20px_80px_rgba(0,0,0,0.35)] p-8 min-h-[900px] transition-opacity duration-700"
 
+// Ring 3 reveal animation timing (in milliseconds)
+// Animation duration per tile: 800ms
+// Stagger delay between tiles: 100ms
+// Total tiles in Ring 3: 9
+// Total animation time: 800ms + (9 tiles × 100ms stagger) = 1700ms, rounded to 1600ms for safety
+const RING_3_REVEAL_DURATION = 1600
+
 const formatEventCountdown = (target: Date, now: Date) => {
   const diffMs = target.getTime() - now.getTime()
   if (diffMs <= 0) return 'now'
@@ -1508,7 +1515,7 @@ function App() {
         ring3Revealed: true,
         ring3RevealedAt: new Date(),
       }))
-    }, 1600) // 0.8s animation + 0.8s for all 9 tiles with stagger
+    }, RING_3_REVEAL_DURATION)
   }, [ring3Revealed, playSound, showToast])
 
   // Trigger Ring 3 reveal when player reaches Ring 3 for the first time

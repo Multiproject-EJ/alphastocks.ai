@@ -42,7 +42,7 @@ const TILE_IMAGES: Record<string, { src: string; alt: string }> = {
   },
 }
 
-const TileComponent = ({ tile, isActive, isHopping, isLanded, onClick, side, hasOwnership = false, ringNumber, isRing3Revealed = true, isRing3Revealing = false }: TileProps) => {
+const TileComponent = ({ tile, isActive, isHopping, isLanded, onClick, side, hasOwnership = false, ringNumber, isRing3Revealed = false, isRing3Revealing = false }: TileProps) => {
   const { lightTap } = useHaptics();
 
   const handleClick = useCallback(() => {
