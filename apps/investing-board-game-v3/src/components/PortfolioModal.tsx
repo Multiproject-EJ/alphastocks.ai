@@ -11,20 +11,22 @@ interface PortfolioModalProps {
 }
 
 // Category color mapping
-const CATEGORY_COLORS: Record<TileCategory, string> = {
+const CATEGORY_COLORS: Partial<Record<TileCategory, string>> = {
   turnarounds: '#FF6B6B',
   dividends: '#4ECDC4',
   growth: '#45B7D1',
   moats: '#96CEB4',
   value: '#FFEAA7',
+  elite: '#FFD700', // Gold for elite stocks
 }
 
-const CATEGORY_LABELS: Record<TileCategory, string> = {
+const CATEGORY_LABELS: Partial<Record<TileCategory, string>> = {
   turnarounds: 'Turnarounds',
   dividends: 'Dividends',
   growth: 'Growth',
   moats: 'Moats',
   value: 'Value',
+  elite: 'Elite',
 }
 
 export function PortfolioModal({ open, onOpenChange, gameState }: PortfolioModalProps) {
