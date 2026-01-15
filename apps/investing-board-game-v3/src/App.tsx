@@ -262,6 +262,10 @@ function App() {
   const [isAutoRolling, setIsAutoRolling] = useState(false)
   const [mobileMultiplier, setMobileMultiplier] = useState<RollMultiplier>(1)
 
+  // Ring 3 reveal state
+  const [ring3Revealed, setRing3Revealed] = useState(false)
+  const [ring3Revealing, setRing3Revealing] = useState(false)
+
   // Overlay manager for coordinated modal display
   const { show: showOverlay, wasRecentlyShown, getCurrentOverlay, closeCurrent } = useOverlayManager()
 
@@ -1190,6 +1194,8 @@ function App() {
         eventTrack: savedGameState.eventTrack ?? createEventTrackProgress(currentActiveEvent?.id ?? null),
       }
       setGameState(loadedState)
+      // Initialize Ring 3 revealed state
+      setRing3Revealed(savedGameState.ring3Revealed ?? false)
       // Initialize rollsRemaining from energyRolls in savedGameState
       setRollsRemaining(savedGameState.energyRolls ?? DAILY_ROLL_LIMIT)
       // Initialize energy check ref
@@ -1202,6 +1208,13 @@ function App() {
       })
     }
   }, [savedGameState, saveLoading, authLoading, isAuthenticated])
+
+  // Trigger Ring 3 reveal when player reaches Ring 3 for the first time
+  useEffect(() => {
+    if (gameState.currentRing === 3 && !ring3Revealed && !ring3Revealing) {
+      revealRing3()
+    }
+  }, [gameState.currentRing, ring3Revealed, ring3Revealing, revealRing3])
 
   // Load saved rolls when available (sync with energyRolls if already loaded)
   useEffect(() => {
@@ -1474,6 +1487,36 @@ function App() {
     })
     if (navigator.vibrate) navigator.vibrate(50)
   }, [])
+
+  // Function to trigger Ring 3 reveal animation
+  const revealRing3 = useCallback(() => {
+    if (ring3Revealed) return // Already revealed
+    
+    setRing3Revealing(true)
+    playSound('level-up') // Using level-up sound for epic reveal
+    
+    // Heavy haptic feedback
+    if (navigator.vibrate) {
+      navigator.vibrate([100, 50, 100, 50, 200])
+    }
+    
+    // Show toast notification
+    showToast('success', '💎 Ring 3 Unlocked!', {
+      description: 'The Elite Circle has been revealed!',
+      duration: 5000,
+    })
+    
+    // After animation completes, set as revealed
+    setTimeout(() => {
+      setRing3Revealing(false)
+      setRing3Revealed(true)
+      setGameState(prev => ({
+        ...prev,
+        ring3Revealed: true,
+        ring3RevealedAt: new Date(),
+      }))
+    }, 1600) // 0.8s animation + 0.8s for all 9 tiles with stagger
+  }, [ring3Revealed, playSound, showToast])
 
   const handleRoll = (multiplier: number = 1) => {
     if (phase !== 'idle') {
@@ -2812,6 +2855,7 @@ function App() {
                           isHopping={hoppingTiles.includes(tile.id)}
                           isLanded={tile.id === gameState.position && phase === 'landed'}
                           hasOwnership={tile.category ? ownedCategories.has(tile.category) : false}
+                          ringNumber={1}
                           onClick={() => {
                             if (phase === 'idle') {
                               handleTileLanding(tile.id)
@@ -2900,6 +2944,7 @@ function App() {
                               isActive={gameState.currentRing === 2 && tile.id === gameState.position}
                               isHopping={false}
                               isLanded={false}
+                              ringNumber={2}
                               onClick={() => {
                                 if (phase === 'idle' && gameState.currentRing === 2) {
                                   handleTileLanding(tile.id)
@@ -2936,6 +2981,9 @@ function App() {
                               isActive={gameState.currentRing === 3 && tile.id === gameState.position}
                               isHopping={false}
                               isLanded={false}
+                              ringNumber={3}
+                              isRing3Revealed={ring3Revealed}
+                              isRing3Revealing={ring3Revealing}
                               onClick={() => {
                                 if (phase === 'idle' && gameState.currentRing === 3) {
                                   handleTileLanding(tile.id)
@@ -2955,14 +3003,16 @@ function App() {
                           transform: 'translate(-50%, -50%)',
                         }}
                       >
-                        <div className={`w-16 h-16 rounded-full bg-gradient-to-br from-yellow-400 to-amber-600 
-                                        flex items-center justify-center shadow-lg shadow-yellow-500/50
-                                        border-2 border-yellow-300 transition-all duration-500 ${
-                                          gameState.currentRing === 3 
-                                            ? 'animate-pulse opacity-100' 
-                                            : 'opacity-40'
-                                        }`}>
-                          <span className="text-2xl">👑</span>
+                        <div className={`
+                          w-20 h-20 rounded-full 
+                          flex items-center justify-center 
+                          transition-all duration-500
+                          ${ring3Revealed 
+                            ? 'bg-gradient-to-br from-yellow-400 via-amber-500 to-yellow-600 shadow-2xl shadow-yellow-500/50 border-2 border-yellow-300 animate-pulse' 
+                            : 'bg-gradient-to-br from-gray-600 to-gray-800 shadow-lg border-2 border-gray-500 opacity-50'
+                          }
+                        `}>
+                          <span className="text-3xl">{ring3Revealed ? '👑' : '🔒'}</span>
                         </div>
                       </div>
                     </>
