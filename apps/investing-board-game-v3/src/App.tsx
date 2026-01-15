@@ -71,6 +71,8 @@ import { RealMoneyRollsPack } from '@/components/OutOfRollsModal'
 import {
   BOARD_TILES,
   INNER_TRACK_TILES,
+  RING_2_TILES,
+  RING_3_TILES,
   getRandomMarketEvent,
   getRandomBiasCaseStudy,
   THRIFTY_CHALLENGES,
@@ -89,7 +91,7 @@ import {
 } from '@/lib/constants'
 import { rollDice, DOUBLES_BONUS } from '@/lib/dice'
 import { getResetRollsAmount, ENERGY_CONFIG } from '@/lib/energy'
-import { calculateTilePositions } from '@/lib/tilePositions'
+import { calculateTilePositions, calculateAllRingPositions } from '@/lib/tilePositions'
 import { isJackpotWeek } from '@/lib/events'
 import { useUniverseStocks } from '@/hooks/useUniverseStocks'
 import { useGameSave } from '@/hooks/useGameSave'
@@ -2857,6 +2859,123 @@ function App() {
                       </div>
                     )
                   })
+                })()}
+                
+                {/* Ring 2 - Executive Floor (18 tiles) */}
+                {(() => {
+                  const tileBoardSize = { width: boardSize, height: boardSize }
+                  const ring2Positions = calculateTilePositions(tileBoardSize, 18, boardOuterRadius * 0.65, false)
+                  
+                  return RING_2_TILES.map((tile) => {
+                    const position = ring2Positions.find(p => p.id === (tile.id - 200))
+                    if (!position) return null
+                    
+                    const left = position.x - boardPadding
+                    const top = position.y - boardPadding
+                    const rotation = position.angle + 90
+                    
+                    // Scale down tiles for inner rings
+                    const scale = 0.8
+                    
+                    return (
+                      <div
+                        key={tile.id}
+                        className="absolute pointer-events-auto"
+                        style={{
+                          left: `${left}px`,
+                          top: `${top}px`,
+                          transform: `translate(-50%, -50%) rotate(${rotation}deg) scale(${scale})`,
+                          transformOrigin: 'center center',
+                          opacity: gameState.currentRing >= 2 ? 1 : 0.4, // Dim if not unlocked
+                        }}
+                      >
+                        <Tile
+                          tile={tile}
+                          isActive={gameState.currentRing === 2 && tile.id === gameState.position}
+                          isHopping={false}
+                          isLanded={false}
+                          onClick={() => {
+                            if (phase === 'idle' && gameState.currentRing === 2) {
+                              handleTileLanding(tile.id)
+                            }
+                          }}
+                        />
+                      </div>
+                    )
+                  })
+                })()}
+
+                {/* Ring 3 - Elite Circle (9 tiles) */}
+                {(() => {
+                  const tileBoardSize = { width: boardSize, height: boardSize }
+                  const ring3Positions = calculateTilePositions(tileBoardSize, 9, boardOuterRadius * 0.35, false)
+                  
+                  return RING_3_TILES.map((tile) => {
+                    const position = ring3Positions.find(p => p.id === (tile.id - 300))
+                    if (!position) return null
+                    
+                    const left = position.x - boardPadding
+                    const top = position.y - boardPadding
+                    const rotation = position.angle + 90
+                    
+                    const scale = 0.6
+                    
+                    return (
+                      <div
+                        key={tile.id}
+                        className="absolute pointer-events-auto"
+                        style={{
+                          left: `${left}px`,
+                          top: `${top}px`,
+                          transform: `translate(-50%, -50%) rotate(${rotation}deg) scale(${scale})`,
+                          transformOrigin: 'center center',
+                          opacity: gameState.currentRing >= 3 ? 1 : 0.3, // More dim if not unlocked
+                        }}
+                      >
+                        <Tile
+                          tile={tile}
+                          isActive={gameState.currentRing === 3 && tile.id === gameState.position}
+                          isHopping={false}
+                          isLanded={false}
+                          onClick={() => {
+                            if (phase === 'idle' && gameState.currentRing === 3) {
+                              handleTileLanding(tile.id)
+                            }
+                          }}
+                        />
+                      </div>
+                    )
+                  })
+                })()}
+
+                {/* Wealth Throne - Center */}
+                {(() => {
+                  const tileBoardSize = { width: boardSize, height: boardSize }
+                  const thronePosition = {
+                    x: tileBoardSize.width / 2,
+                    y: tileBoardSize.height / 2
+                  }
+                  
+                  return (
+                    <div
+                      className="absolute pointer-events-auto"
+                      style={{
+                        left: `${thronePosition.x - boardPadding}px`,
+                        top: `${thronePosition.y - boardPadding}px`,
+                        transform: 'translate(-50%, -50%)',
+                      }}
+                    >
+                      <div className={`w-16 h-16 rounded-full bg-gradient-to-br from-yellow-400 to-amber-600 
+                                      flex items-center justify-center shadow-lg shadow-yellow-500/50
+                                      border-2 border-yellow-300 transition-all duration-500 ${
+                                        gameState.currentRing === 3 
+                                          ? 'animate-pulse opacity-100' 
+                                          : 'opacity-40'
+                                      }`}>
+                        <span className="text-2xl">👑</span>
+                      </div>
+                    </div>
+                  )
                 })()}
               </div>
             </div>
