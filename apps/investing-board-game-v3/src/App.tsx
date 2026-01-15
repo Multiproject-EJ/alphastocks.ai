@@ -1209,13 +1209,6 @@ function App() {
     }
   }, [savedGameState, saveLoading, authLoading, isAuthenticated])
 
-  // Trigger Ring 3 reveal when player reaches Ring 3 for the first time
-  useEffect(() => {
-    if (gameState.currentRing === 3 && !ring3Revealed && !ring3Revealing) {
-      revealRing3()
-    }
-  }, [gameState.currentRing, ring3Revealed, ring3Revealing, revealRing3])
-
   // Load saved rolls when available (sync with energyRolls if already loaded)
   useEffect(() => {
     if (saveLoading || authLoading || !savedRolls || gameLoadedFromSave.current) return
@@ -1517,6 +1510,13 @@ function App() {
       }))
     }, 1600) // 0.8s animation + 0.8s for all 9 tiles with stagger
   }, [ring3Revealed, playSound, showToast])
+
+  // Trigger Ring 3 reveal when player reaches Ring 3 for the first time
+  useEffect(() => {
+    if (gameState.currentRing === 3 && !ring3Revealed && !ring3Revealing) {
+      revealRing3()
+    }
+  }, [gameState.currentRing, ring3Revealed, ring3Revealing, revealRing3])
 
   const handleRoll = (multiplier: number = 1) => {
     if (phase !== 'idle') {
