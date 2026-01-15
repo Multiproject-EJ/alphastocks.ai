@@ -25,6 +25,18 @@ export interface DiceRoll {
   timestamp?: Date
 }
 
+// Portal transition types
+export type PortalDirection = 'up' | 'down'
+
+export interface PortalTransition {
+  direction: PortalDirection
+  fromRing: RingNumber
+  toRing: RingNumber | 0  // 0 = Throne
+  fromTile: number
+  toTile: number
+  triggeredBy: 'pass' | 'land'
+}
+
 export interface Tile {
   id: number
   type: TileType

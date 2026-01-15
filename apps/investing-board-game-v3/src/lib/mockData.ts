@@ -83,6 +83,25 @@ export const RING_CONFIG = {
   3: { name: 'Elite Circle', tiles: 9, rewardMultiplier: 10, riskMultiplier: 10 },
 } as const
 
+// Portal configuration for each ring's start tile
+export const PORTAL_CONFIG = {
+  ring1: {
+    startTileId: 0,
+    onPass: { action: 'ascend', targetRing: 2, targetTile: 200 },
+    onLand: { action: 'ascend', targetRing: 2, targetTile: 200 }, // Same as pass for Ring 1
+  },
+  ring2: {
+    startTileId: 200,
+    onPass: { action: 'descend', targetRing: 1, targetTile: 0 },
+    onLand: { action: 'ascend', targetRing: 3, targetTile: 300 },
+  },
+  ring3: {
+    startTileId: 300,
+    onPass: { action: 'descend', targetRing: 1, targetTile: 0 },
+    onLand: { action: 'throne', targetRing: 0, targetTile: -1 }, // -1 = Throne center
+  },
+} as const
+
 // Elevator Odds
 export const ELEVATOR_ODDS = {
   ring2: {
