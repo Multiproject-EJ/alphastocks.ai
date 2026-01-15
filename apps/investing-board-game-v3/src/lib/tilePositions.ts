@@ -192,17 +192,3 @@ export function calculateAllRingPositions(
     }
   }
 }
-
-/**
- * Get ring-specific tile size (inner rings have smaller tiles)
- * 
- * @param ringNumber - The ring number (1, 2, or 3)
- * @returns Width and height for tiles in that ring
- */
-export function getTileSizeForRing(ringNumber: 1 | 2 | 3): { width: number; height: number } {
-  switch (ringNumber) {
-    case 1: return { width: 64, height: 80 }  // Standard size
-    case 2: return { width: 52, height: 65 }  // 80% of standard
-    case 3: return { width: 40, height: 50 }  // 60% of standard
-  }
-}
