@@ -272,7 +272,7 @@ export const MOCK_STOCKS: Record<string, Stock[]> = {
       name: 'Berkshire Hathaway A', 
       ticker: 'BRK.A', 
       category: 'elite', 
-      price: 685000, 
+      price: 685000, // $685,000 per share - Warren Buffett's Class A shares
       description: 'The ultimate blue chip - Warren Buffett\'s masterpiece',
       scores: { composite: 9.5, quality: 10, risk: 2.0, timing: 8.5 }
     },

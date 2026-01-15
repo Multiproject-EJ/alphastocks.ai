@@ -13,7 +13,7 @@ export interface RingConfig {
 
 export interface ElevatorResult {
   action: 'ascend' | 'stay' | 'fall' | 'throne'
-  targetRing: RingNumber | 0  // 0 = Throne
+  targetRing: RingNumber | 'throne'  // 'throne' = reached the center
   message: string
 }
 
