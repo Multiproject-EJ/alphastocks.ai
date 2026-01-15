@@ -1957,7 +1957,8 @@ function App() {
     setTimeout(() => {
       setGameState(prev => ({
         ...prev,
-        currentRing: transition.toRing as RingNumber,
+        // Only update currentRing if not going to throne (toRing !== 0)
+        ...(transition.toRing !== 0 && { currentRing: transition.toRing as RingNumber }),
         position: transition.toTile,
         // Track throne if reached
         ...(transition.toRing === 0 && {
@@ -1978,7 +1979,7 @@ function App() {
           })
         } else {
           toast.success(`⬆️ PORTAL UP!`, {
-            description: `Welcome to Ring ${transition.toRing}: ${RING_CONFIG[transition.toRing].name}!`,
+            description: `Welcome to Ring ${transition.toRing}: ${RING_CONFIG[transition.toRing as RingNumber].name}!`,
             duration: 3000,
           })
         }

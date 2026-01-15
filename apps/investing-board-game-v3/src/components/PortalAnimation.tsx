@@ -89,7 +89,7 @@ export function PortalAnimation({ transition, isAnimating }: PortalAnimationProp
           <div className="text-lg text-white/70 mt-2">
             {isThrone
               ? 'You have conquered the Wealth Spiral!'
-              : isAscending
+              : isAscending && transition.toRing !== 0
                 ? `Welcome to ${RING_CONFIG[transition.toRing as RingNumber].name}!`
                 : 'Complete another lap to ascend again'
             }
