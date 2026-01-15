@@ -231,6 +231,9 @@ export interface GameState {
   }
   // City Level (current city index for backward compatibility)
   cityLevel?: number
+  // Ring 3 reveal tracking
+  ring3Revealed?: boolean  // Has the player ever reached Ring 3?
+  ring3RevealedAt?: Date  // When was Ring 3 first revealed?
 }
 
 export interface BiasQuizQuestion {

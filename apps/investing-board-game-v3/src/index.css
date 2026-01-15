@@ -950,3 +950,143 @@ h1, h2, h3, h4, h5, h6 {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+
+/* ===== RING VISUAL HIERARCHY ===== */
+
+/* ===== RING 1: Street Level (Ground) ===== */
+.ring-1-tile {
+  /* Standard appearance - no special elevation */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+/* ===== RING 2: Executive Floor (Elevated + Golden Glow) ===== */
+.ring-2-tile {
+  transform: translateY(-10px);
+  box-shadow: 
+    0 8px 16px rgba(0, 0, 0, 0.3),
+    0 0 20px rgba(255, 200, 50, 0.2),
+    inset 0 1px 0 rgba(255, 215, 0, 0.1);
+  border: 1px solid rgba(255, 200, 50, 0.3);
+  transition: all 0.3s ease;
+}
+
+.ring-2-tile:hover {
+  transform: translateY(-12px);
+  box-shadow: 
+    0 10px 20px rgba(0, 0, 0, 0.35),
+    0 0 30px rgba(255, 200, 50, 0.3);
+}
+
+/* ===== RING 3: Elite Circle ===== */
+
+/* Locked State - Mysterious silhouettes */
+.ring-3-tile--locked {
+  transform: translateY(-15px) scale(0.9);
+  opacity: 0.5;
+  filter: brightness(0.3) saturate(0.2);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+.ring-3-tile--locked:hover {
+  opacity: 0.6;
+  filter: brightness(0.4) saturate(0.3);
+}
+
+/* Revealed/Activated State - VIP Vault */
+.ring-3-tile--revealed {
+  transform: translateY(-25px);
+  box-shadow: 
+    0 15px 30px rgba(0, 0, 0, 0.4),
+    0 0 40px rgba(147, 51, 234, 0.5),
+    0 0 60px rgba(147, 51, 234, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(147, 51, 234, 0.5);
+  animation: ring3Float 3s ease-in-out infinite, ring3Pulse 2s ease-in-out infinite;
+  transition: all 0.3s ease;
+}
+
+.ring-3-tile--revealed:hover {
+  transform: translateY(-28px) scale(1.05);
+  box-shadow: 
+    0 18px 35px rgba(0, 0, 0, 0.45),
+    0 0 50px rgba(147, 51, 234, 0.6),
+    0 0 80px rgba(147, 51, 234, 0.3);
+}
+
+/* Floating animation for Ring 3 */
+@keyframes ring3Float {
+  0%, 100% {
+    transform: translateY(-25px);
+  }
+  50% {
+    transform: translateY(-28px);
+  }
+}
+
+/* Pulsing glow for Ring 3 */
+@keyframes ring3Pulse {
+  0%, 100% {
+    box-shadow: 
+      0 15px 30px rgba(0, 0, 0, 0.4),
+      0 0 40px rgba(147, 51, 234, 0.5),
+      0 0 60px rgba(147, 51, 234, 0.2);
+  }
+  50% {
+    box-shadow: 
+      0 15px 30px rgba(0, 0, 0, 0.4),
+      0 0 50px rgba(147, 51, 234, 0.7),
+      0 0 80px rgba(147, 51, 234, 0.3);
+  }
+}
+
+/* Ring 3 Reveal Animation (played once when unlocking) */
+@keyframes ring3Reveal {
+  0% {
+    transform: scale(0.5) rotateY(180deg) translateY(-15px);
+    opacity: 0;
+    filter: brightness(0.3) saturate(0);
+  }
+  40% {
+    transform: scale(1.1) rotateY(90deg) translateY(-20px);
+    opacity: 0.7;
+    filter: brightness(0.8) saturate(0.5);
+  }
+  70% {
+    transform: scale(1.15) rotateY(30deg) translateY(-27px);
+    opacity: 0.9;
+    filter: brightness(1.2) saturate(1);
+  }
+  100% {
+    transform: scale(1) rotateY(0deg) translateY(-25px);
+    opacity: 1;
+    filter: brightness(1) saturate(1);
+  }
+}
+
+.ring-3-tile--revealing {
+  animation: ring3Reveal 0.8s ease-out forwards;
+}
+
+/* Staggered reveal for each tile */
+.ring-3-tile--revealing:nth-child(1) { animation-delay: 0s; }
+.ring-3-tile--revealing:nth-child(2) { animation-delay: 0.1s; }
+.ring-3-tile--revealing:nth-child(3) { animation-delay: 0.2s; }
+.ring-3-tile--revealing:nth-child(4) { animation-delay: 0.3s; }
+.ring-3-tile--revealing:nth-child(5) { animation-delay: 0.4s; }
+.ring-3-tile--revealing:nth-child(6) { animation-delay: 0.5s; }
+.ring-3-tile--revealing:nth-child(7) { animation-delay: 0.6s; }
+.ring-3-tile--revealing:nth-child(8) { animation-delay: 0.7s; }
+.ring-3-tile--revealing:nth-child(9) { animation-delay: 0.8s; }
+
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .ring-3-tile--revealed {
+    animation: none;
+  }
+  .ring-3-tile--revealing {
+    animation: none;
+    transform: scale(1) rotateY(0deg) translateY(-25px);
+  }
+}

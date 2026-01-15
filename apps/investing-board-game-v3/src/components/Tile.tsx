@@ -13,6 +13,9 @@ interface TileProps {
   onClick: () => void
   side?: 'top' | 'bottom' | 'left' | 'right'
   hasOwnership?: boolean // Indicates if player owns stock in this category
+  ringNumber?: 1 | 2 | 3  // NEW: Which ring this tile belongs to
+  isRing3Revealed?: boolean  // NEW: Whether Ring 3 has been unlocked
+  isRing3Revealing?: boolean  // NEW: Whether Ring 3 is currently revealing
 }
 
 // Configuration for corner tiles and event tiles that use images instead of text
@@ -39,13 +42,33 @@ const TILE_IMAGES: Record<string, { src: string; alt: string }> = {
   },
 }
 
-const TileComponent = ({ tile, isActive, isHopping, isLanded, onClick, side, hasOwnership = false }: TileProps) => {
+const TileComponent = ({ tile, isActive, isHopping, isLanded, onClick, side, hasOwnership = false, ringNumber, isRing3Revealed = false, isRing3Revealing = false }: TileProps) => {
   const { lightTap } = useHaptics();
 
   const handleClick = useCallback(() => {
     lightTap();  // Haptic feedback
     onClick();
   }, [onClick, lightTap]);
+
+  // Determine ring-specific classes
+  const getRingClasses = () => {
+    if (!ringNumber || ringNumber === 1) {
+      return 'ring-1-tile'
+    }
+    if (ringNumber === 2) {
+      return 'ring-2-tile'
+    }
+    if (ringNumber === 3) {
+      if (isRing3Revealing) {
+        return 'ring-3-tile ring-3-tile--revealing'
+      }
+      return isRing3Revealed ? 'ring-3-tile ring-3-tile--revealed' : 'ring-3-tile ring-3-tile--locked'
+    }
+    return ''
+  }
+
+  // For Ring 3 locked state, show mystery content
+  const shouldShowMysteryContent = ringNumber === 3 && !isRing3Revealed
 
   const getTypeColor = () => {
     switch (tile.type) {
@@ -82,7 +105,8 @@ const TileComponent = ({ tile, isActive, isHopping, isLanded, onClick, side, has
         'w-[112px] h-[128px] border-[3px]',
         isActive
           ? 'shadow-[0_0_20px_oklch(0.75_0.15_85_/_0.5)]'
-          : 'hover:bg-card/70'
+          : 'hover:bg-card/70',
+        getRingClasses()
       )}
       style={{
         ...borderStyles,
@@ -157,7 +181,12 @@ const TileComponent = ({ tile, isActive, isHopping, isLanded, onClick, side, has
         </div>
       )}
 
-      {TILE_IMAGES[tile.title] ? (
+      {/* Ring 3 locked content - show mystery */}
+      {shouldShowMysteryContent ? (
+        <div className="flex items-center justify-center w-full h-full">
+          <span className="text-4xl opacity-50">?</span>
+        </div>
+      ) : TILE_IMAGES[tile.title] ? (
         <img
           src={`${import.meta.env.BASE_URL}${TILE_IMAGES[tile.title].src}`}
           alt={TILE_IMAGES[tile.title].alt}
@@ -186,6 +215,9 @@ export const Tile = memo(TileComponent, (prevProps, nextProps) => {
     prevProps.isLanded === nextProps.isLanded &&
     prevProps.tile.title === nextProps.tile.title &&
     prevProps.tile.type === nextProps.tile.type &&
-    prevProps.hasOwnership === nextProps.hasOwnership
+    prevProps.hasOwnership === nextProps.hasOwnership &&
+    prevProps.ringNumber === nextProps.ringNumber &&
+    prevProps.isRing3Revealed === nextProps.isRing3Revealed &&
+    prevProps.isRing3Revealing === nextProps.isRing3Revealing
   );
 });
