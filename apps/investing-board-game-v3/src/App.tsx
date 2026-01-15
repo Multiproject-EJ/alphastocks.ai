@@ -32,6 +32,7 @@ import { StockTickerRibbon } from '@/components/StockTickerRibbon'
 import { CenterSlices } from '@/components/CenterSlices'
 import { AchievementsModal } from '@/components/AchievementsModal'
 import { MysteryCard } from '@/components/MysteryCard'
+import { PortalAnimation } from '@/components/PortalAnimation'
 
 // Mobile-first components
 import { MobileGameLayout } from '@/components/MobileGameLayout'
@@ -66,7 +67,7 @@ if (import.meta.env.DEV || import.meta.env.VITE_DEVTOOLS === '1') {
   })
 }
 
-import { GameState, Stock, BiasCaseStudy, WildcardEvent } from '@/lib/types'
+import { GameState, Stock, BiasCaseStudy, WildcardEvent, PortalTransition, RingNumber } from '@/lib/types'
 import { RealMoneyRollsPack } from '@/components/OutOfRollsModal'
 import {
   BOARD_TILES,
@@ -76,6 +77,8 @@ import {
   getRandomMarketEvent,
   getRandomBiasCaseStudy,
   THRIFTY_CHALLENGES,
+  RING_CONFIG,
+  PORTAL_CONFIG,
 } from '@/lib/mockData'
 import { getRandomWildcardEvent, CASH_PERCENTAGE_PENALTY } from '@/lib/wildcardEvents'
 import { SHOP_ITEMS } from '@/lib/shopItems'
@@ -272,6 +275,10 @@ function App() {
   // Ring 3 reveal state
   const [ring3Revealed, setRing3Revealed] = useState(false)
   const [ring3Revealing, setRing3Revealing] = useState(false)
+
+  // Portal state for ring transitions
+  const [portalTransition, setPortalTransition] = useState<PortalTransition | null>(null)
+  const [isPortalAnimating, setIsPortalAnimating] = useState(false)
 
   // Overlay manager for coordinated modal display
   const { show: showOverlay, wasRecentlyShown, getCurrentOverlay, closeCurrent } = useOverlayManager()
@@ -1736,6 +1743,26 @@ function App() {
               setCanTransition(true)
               // Trigger landing event with current reward multiplier
               handleTileLanding(newPosition, passedStart)
+              
+              // Check for portal transitions
+              const currentRing = gameState.currentRing
+              const startTileId = PORTAL_CONFIG[`ring${currentRing}` as keyof typeof PORTAL_CONFIG]?.startTileId
+              
+              if (startTileId !== undefined) {
+                const landedOnStartTile = newPosition === startTileId
+                const passedStartTile = tilesToHop.includes(startTileId) && !landedOnStartTile
+                
+                if (passedStartTile || landedOnStartTile) {
+                  const transition = handlePortalTransition(currentRing, startTileId, landedOnStartTile)
+                  
+                  if (transition) {
+                    // Trigger portal animation
+                    setTimeout(() => {
+                      triggerPortalAnimation(transition)
+                    }, 1000) // Delay to let tile landing complete
+                  }
+                }
+              }
             }, 200)
           }
         }, 200)
@@ -1880,6 +1907,89 @@ function App() {
       triggerCelebrationFromLastTile(['⭐', '✨'])
     }
   }, [activeEventCurrency, currentActiveEvent, triggerCelebrationFromLastTile])
+
+  // Function to check if a tile is a portal start tile
+  const isPortalStartTile = useCallback((tileId: number, ring: RingNumber): boolean => {
+    const portalConfig = PORTAL_CONFIG[`ring${ring}` as keyof typeof PORTAL_CONFIG]
+    return portalConfig?.startTileId === tileId
+  }, [])
+
+  // Function to handle portal transitions
+  const handlePortalTransition = useCallback((
+    currentRing: RingNumber,
+    tileId: number,
+    didLandExactly: boolean
+  ): PortalTransition | null => {
+    const portalConfig = PORTAL_CONFIG[`ring${currentRing}` as keyof typeof PORTAL_CONFIG]
+    if (!portalConfig) return null
+
+    // Check if this is the start tile for the current ring
+    if (tileId !== portalConfig.startTileId) return null
+
+    // Determine action based on pass vs land
+    const action = didLandExactly ? portalConfig.onLand : portalConfig.onPass
+
+    const transition: PortalTransition = {
+      direction: action.action === 'ascend' || action.action === 'throne' ? 'up' : 'down',
+      fromRing: currentRing,
+      toRing: action.targetRing as RingNumber | 0,
+      fromTile: tileId,
+      toTile: action.targetTile,
+      triggeredBy: didLandExactly ? 'land' : 'pass',
+    }
+
+    return transition
+  }, [])
+
+  // Portal animation trigger
+  const triggerPortalAnimation = useCallback((transition: PortalTransition) => {
+    setPortalTransition(transition)
+    setIsPortalAnimating(true)
+    
+    // Play appropriate sound
+    if (transition.direction === 'up') {
+      playSound('portal-ascend')
+    } else {
+      playSound('portal-descend')
+    }
+    
+    // After animation, update game state
+    setTimeout(() => {
+      setGameState(prev => ({
+        ...prev,
+        currentRing: transition.toRing as RingNumber,
+        position: transition.toTile,
+        // Track throne if reached
+        ...(transition.toRing === 0 && {
+          hasReachedThrone: true,
+          throneCount: (prev.throneCount || 0) + 1,
+        }),
+      }))
+      
+      setIsPortalAnimating(false)
+      setPortalTransition(null)
+      
+      // Show toast message
+      if (transition.direction === 'up') {
+        if (transition.toRing === 0) {
+          toast.success('👑 THRONE REACHED!', {
+            description: 'You have conquered the Wealth Spiral!',
+            duration: 5000,
+          })
+        } else {
+          toast.success(`⬆️ PORTAL UP!`, {
+            description: `Welcome to Ring ${transition.toRing}: ${RING_CONFIG[transition.toRing].name}!`,
+            duration: 3000,
+          })
+        }
+      } else {
+        toast.info('⬇️ Portal Down', {
+          description: 'Back to Street Level. Complete another lap to ascend!',
+          duration: 3000,
+        })
+      }
+    }, 1500) // Animation duration
+  }, [playSound])
 
   const handleTileLanding = (position: number, passedStart = false) => {
     playSound('tile-land')
@@ -3247,6 +3357,12 @@ function App() {
         onOpenChange={setAchievementsOpen}
         unlockedAchievements={unlockedAchievements}
         getAchievementProgress={getAchievementProgress}
+      />
+
+      {/* Portal Animation */}
+      <PortalAnimation 
+        transition={portalTransition}
+        isAnimating={isPortalAnimating}
       />
 
       {/* PWA Install Prompt */}
