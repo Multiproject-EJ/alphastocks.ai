@@ -12,17 +12,18 @@
 3. [Reward Hierarchy](#reward-hierarchy)
 4. [Three-Layer Architecture](#three-layer-architecture)
 5. [Multi-Ring Board System](#multi-ring-board-system)
-6. [Implementation Status](#implementation-status)
-7. [Visual Priority Rules](#visual-priority-rules)
-8. [First 10 Minutes Constraint](#first-10-minutes-constraint)
-9. [Boring Detection Check](#boring-detection-check)
-10. [Hard Stop Rule for AI](#hard-stop-rule-for-ai)
-11. [Self-Auditing Implementation Flow](#self-auditing-implementation-flow)
-12. [Telemetry Requirements](#telemetry-requirements)
-13. [Monetization Guidelines](#monetization-guidelines)
-14. [Ethical Hard Line](#ethical-hard-line)
-15. [Priority Roadmap](#priority-roadmap)
-16. [How to Use This Document](#how-to-use-this-document)
+6. [Portal Mechanics](#portal-mechanics)
+7. [Implementation Status](#implementation-status)
+8. [Visual Priority Rules](#visual-priority-rules)
+9. [First 10 Minutes Constraint](#first-10-minutes-constraint)
+10. [Boring Detection Check](#boring-detection-check)
+11. [Hard Stop Rule for AI](#hard-stop-rule-for-ai)
+12. [Self-Auditing Implementation Flow](#self-auditing-implementation-flow)
+13. [Telemetry Requirements](#telemetry-requirements)
+14. [Monetization Guidelines](#monetization-guidelines)
+15. [Ethical Hard Line](#ethical-hard-line)
+16. [Priority Roadmap](#priority-roadmap)
+17. [How to Use This Document](#how-to-use-this-document)
 
 ---
 
@@ -228,6 +229,61 @@ Ring 2 and Ring 3 each have an "Elevator" corner tile. When landing on it, playe
 
 ---
 
+## Portal Mechanics 🌀
+
+The Start tile on each ring acts as a **portal** that determines whether players ascend, descend, or reach victory.
+
+### Portal Rules
+
+| Ring | Start Tile | On PASS (don't land) | On LAND EXACTLY |
+|------|------------|----------------------|-----------------|
+| 1 | Start / ThriftyPath | ⬆️ Portal UP to Ring 2 | ⬆️ Portal UP to Ring 2 |
+| 2 | Ascension Gate | ⬇️ Portal DOWN to Ring 1 | ⬆️ Portal UP to Ring 3 |
+| 3 | Inner Sanctum | ⬇️ Portal DOWN to Ring 1 | 👑 REACH THE THRONE! |
+
+### Key Mechanics
+
+1. **Ring 1 → Ring 2 (Easy Ascent)**
+   - Complete one full lap on Ring 1
+   - When you pass Start, automatically portal up
+   - No precision required — just complete the lap
+
+2. **Ring 2 → Ring 3 (Precision Required)**
+   - You must land EXACTLY on Ascension Gate (tile 200)
+   - If you pass it (roll too high), you fall back to Ring 1
+   - This creates tension: "Will I land exactly?"
+   - Probability of exact landing varies by position
+
+3. **Ring 3 → Throne (Maximum Precision)**
+   - Same rule: land EXACTLY on Inner Sanctum (tile 300)
+   - If you pass it, fall all the way back to Ring 1
+   - Creates high-stakes moments
+   - Victory requires skill AND luck
+
+### Portal Animations
+
+**Portal UP (Ascending):**
+- Purple/blue vortex swirl effect
+- Player token rises toward center
+- Celebratory particles
+- Ascending sound effect
+- Toast: "Welcome to [Ring Name]!"
+
+**Portal DOWN (Falling):**
+- Gray vortex with gravity effect
+- Player token falls outward
+- Descending whoosh sound
+- Toast: "Back to Street Level — try again!"
+
+**Throne Victory:**
+- Golden explosion effect
+- Crown icon animation
+- Confetti + fireworks
+- Epic victory fanfare
+- Full-screen celebration modal
+
+---
+
 ## Implementation Status
 
 ### ✅ Completed Systems
@@ -251,6 +307,8 @@ Ring 2 and Ring 3 each have an "Elevator" corner tile. When landing on it, playe
 | Achievement System | ✅ Complete | `AchievementsModal.tsx` |
 | Net Worth Tiers | ✅ Complete | Tier progression system |
 | Thrift Path | ✅ Complete | Challenge-based financial discipline |
+| Portal System | ✅ Complete | `App.tsx`, `PortalAnimation.tsx` |
+| Portal Animations | ✅ Complete | `PortalAnimation.tsx` |
 
 ### 🚧 In Progress
 
