@@ -2863,6 +2863,12 @@ function App() {
                 
                 {/* Ring 2, Ring 3, and Wealth Throne */}
                 {(() => {
+                  // Ring configuration constants
+                  const RING_2_ID_OFFSET = 200  // Ring 2 tile IDs start at 200
+                  const RING_3_ID_OFFSET = 300  // Ring 3 tile IDs start at 300
+                  const RING_2_SCALE = 0.8      // Scale Ring 2 tiles to 80%
+                  const RING_3_SCALE = 0.6      // Scale Ring 3 tiles to 60%
+                  
                   const tileBoardSize = { width: boardSize, height: boardSize }
                   const { ring2, ring3, thronePosition } = calculateAllRingPositions(tileBoardSize, boardOuterRadius)
                   
@@ -2870,15 +2876,12 @@ function App() {
                     <>
                       {/* Ring 2 - Executive Floor (18 tiles) */}
                       {RING_2_TILES.map((tile) => {
-                        const position = ring2.find(p => p.id === (tile.id - 200))
+                        const position = ring2.find(p => p.id === (tile.id - RING_2_ID_OFFSET))
                         if (!position) return null
                         
                         const left = position.x - boardPadding
                         const top = position.y - boardPadding
                         const rotation = position.angle + 90
-                        
-                        // Scale down tiles for inner rings
-                        const scale = 0.8
                         
                         return (
                           <div
@@ -2887,7 +2890,7 @@ function App() {
                             style={{
                               left: `${left}px`,
                               top: `${top}px`,
-                              transform: `translate(-50%, -50%) rotate(${rotation}deg) scale(${scale})`,
+                              transform: `translate(-50%, -50%) rotate(${rotation}deg) scale(${RING_2_SCALE})`,
                               transformOrigin: 'center center',
                               opacity: gameState.currentRing >= 2 ? 1 : 0.4, // Dim if not unlocked
                             }}
@@ -2909,14 +2912,12 @@ function App() {
 
                       {/* Ring 3 - Elite Circle (9 tiles) */}
                       {RING_3_TILES.map((tile) => {
-                        const position = ring3.find(p => p.id === (tile.id - 300))
+                        const position = ring3.find(p => p.id === (tile.id - RING_3_ID_OFFSET))
                         if (!position) return null
                         
                         const left = position.x - boardPadding
                         const top = position.y - boardPadding
                         const rotation = position.angle + 90
-                        
-                        const scale = 0.6
                         
                         return (
                           <div
@@ -2925,7 +2926,7 @@ function App() {
                             style={{
                               left: `${left}px`,
                               top: `${top}px`,
-                              transform: `translate(-50%, -50%) rotate(${rotation}deg) scale(${scale})`,
+                              transform: `translate(-50%, -50%) rotate(${rotation}deg) scale(${RING_3_SCALE})`,
                               transformOrigin: 'center center',
                               opacity: gameState.currentRing >= 3 ? 1 : 0.3, // More dim if not unlocked
                             }}
