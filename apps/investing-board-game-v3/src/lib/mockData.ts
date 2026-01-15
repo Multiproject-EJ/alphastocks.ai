@@ -41,6 +41,61 @@ export const INNER_TRACK_TILES: Tile[] = Array.from({ length: 12 }, (_, i) => ({
   colorBorder: 'oklch(0.35 0.02 250)', // neutral gray default
 }))
 
+// Ring 2: Executive Floor (18 tiles, IDs 200-217)
+export const RING_2_TILES: Tile[] = [
+  { id: 200, type: 'corner', title: 'Ascension Gate' },
+  { id: 201, type: 'category', title: 'Premium Turnarounds', category: 'turnarounds', colorBorder: 'oklch(0.65 0.25 330)' },
+  { id: 202, type: 'event', title: 'Executive Event' },
+  { id: 203, type: 'category', title: 'Premium Turnarounds', category: 'turnarounds', colorBorder: 'oklch(0.65 0.25 330)' },
+  { id: 204, type: 'category', title: 'Premium Dividends', category: 'dividends', colorBorder: 'oklch(0.70 0.25 200)' },
+  { id: 205, type: 'corner', title: 'Elevator 🛗' },
+  { id: 206, type: 'category', title: 'Premium Dividends', category: 'dividends', colorBorder: 'oklch(0.70 0.25 200)' },
+  { id: 207, type: 'category', title: 'Premium Growth', category: 'growth', colorBorder: 'oklch(0.75 0.22 25)' },
+  { id: 208, type: 'event', title: 'Insider Quiz' },
+  { id: 209, type: 'category', title: 'Premium Growth', category: 'growth', colorBorder: 'oklch(0.75 0.22 25)' },
+  { id: 210, type: 'corner', title: 'High Roller Casino' },
+  { id: 211, type: 'category', title: 'Premium Value', category: 'value', colorBorder: 'oklch(0.80 0.18 85)' },
+  { id: 212, type: 'event', title: 'Market Shock' },
+  { id: 213, type: 'category', title: 'Premium Value', category: 'value', colorBorder: 'oklch(0.80 0.18 85)' },
+  { id: 214, type: 'category', title: 'Premium Moats', category: 'moats', colorBorder: 'oklch(0.60 0.27 15)' },
+  { id: 215, type: 'event', title: 'Wildcard' },
+  { id: 216, type: 'category', title: 'Premium Moats', category: 'moats', colorBorder: 'oklch(0.60 0.27 15)' },
+  { id: 217, type: 'corner', title: 'Merger Room' },
+]
+
+// Ring 3: Elite Circle (9 tiles, IDs 300-308)
+export const RING_3_TILES: Tile[] = [
+  { id: 300, type: 'corner', title: 'Inner Sanctum' },
+  { id: 301, type: 'category', title: 'Elite Blue Chips', category: 'elite', colorBorder: 'oklch(0.85 0.30 45)' },
+  { id: 302, type: 'event', title: 'Black Swan' },
+  { id: 303, type: 'corner', title: 'Final Elevator 🛗' },
+  { id: 304, type: 'category', title: 'Elite Legends', category: 'elite', colorBorder: 'oklch(0.85 0.30 45)' },
+  { id: 305, type: 'event', title: 'Oracle Vision' },
+  { id: 306, type: 'corner', title: 'VIP Casino' },
+  { id: 307, type: 'category', title: 'Elite Dynasty', category: 'elite', colorBorder: 'oklch(0.85 0.30 45)' },
+  { id: 308, type: 'event', title: 'Throne Approach' },
+]
+
+// Ring Configuration
+export const RING_CONFIG = {
+  1: { name: 'Street Level', tiles: 27, rewardMultiplier: 1, riskMultiplier: 1 },
+  2: { name: 'Executive Floor', tiles: 18, rewardMultiplier: 3, riskMultiplier: 3 },
+  3: { name: 'Elite Circle', tiles: 9, rewardMultiplier: 10, riskMultiplier: 10 },
+} as const
+
+// Elevator Odds
+export const ELEVATOR_ODDS = {
+  ring2: {
+    ascend: { min: 11, max: 12 },   // ~8% - go to Ring 3
+    stay: { min: 5, max: 10 },       // ~72% - stay on Ring 2
+    fall: { min: 2, max: 4 },        // ~20% - fall to Ring 1
+  },
+  ring3: {
+    throne: { min: 11, max: 12 },    // ~8% - reach the Throne!
+    fall: { min: 2, max: 10 },       // ~92% - fall to Ring 1
+  },
+} as const
+
 export const MOCK_STOCKS: Record<string, Stock[]> = {
   turnarounds: [
     { 
@@ -210,6 +265,40 @@ export const MOCK_STOCKS: Record<string, Stock[]> = {
       price: 27.30, 
       description: 'Pharmaceutical company with strong cash flow, low valuation',
       scores: { composite: 7.0, quality: 7.8, risk: 5.0, timing: 6.5 }
+    },
+  ],
+  elite: [
+    { 
+      name: 'Berkshire Hathaway A', 
+      ticker: 'BRK.A', 
+      category: 'elite', 
+      price: 685000, // $685,000 per share - Warren Buffett's Class A shares
+      description: 'The ultimate blue chip - Warren Buffett\'s masterpiece',
+      scores: { composite: 9.5, quality: 10, risk: 2.0, timing: 8.5 }
+    },
+    { 
+      name: 'LVMH', 
+      ticker: 'LVMH', 
+      category: 'elite', 
+      price: 892, 
+      description: 'Luxury empire with unmatched brand portfolio',
+      scores: { composite: 9.2, quality: 9.5, risk: 3.0, timing: 8.0 }
+    },
+    { 
+      name: 'Saudi Aramco', 
+      ticker: 'ARAMCO', 
+      category: 'elite', 
+      price: 8.50, 
+      description: 'World\'s most valuable energy company',
+      scores: { composite: 8.8, quality: 9.0, risk: 4.0, timing: 7.5 }
+    },
+    { 
+      name: 'Taiwan Semiconductor', 
+      ticker: 'TSM', 
+      category: 'elite', 
+      price: 178, 
+      description: 'The backbone of global chip manufacturing',
+      scores: { composite: 9.3, quality: 9.8, risk: 4.5, timing: 8.8 }
     },
   ],
 }
