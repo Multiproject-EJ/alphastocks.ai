@@ -16,6 +16,8 @@ export type SoundType =
   | 'level-up'
   | 'swipe-no'
   | 'error'
+  | 'portal-ascend'
+  | 'portal-descend'
 
 export interface SoundSettings {
   volume: number // 0-1
@@ -221,6 +223,26 @@ class SoundManager {
           gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.2)
           oscillator.start(now)
           oscillator.stop(now + 0.2)
+          break
+
+        case 'portal-ascend':
+          // Ascending swirl (portal up)
+          oscillator.frequency.setValueAtTime(300, now)
+          oscillator.frequency.exponentialRampToValueAtTime(900, now + 0.5)
+          gainNode.gain.setValueAtTime(this.settings.volume * 0.4, now)
+          gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.6)
+          oscillator.start(now)
+          oscillator.stop(now + 0.6)
+          break
+
+        case 'portal-descend':
+          // Descending whoosh (portal down)
+          oscillator.frequency.setValueAtTime(800, now)
+          oscillator.frequency.exponentialRampToValueAtTime(200, now + 0.5)
+          gainNode.gain.setValueAtTime(this.settings.volume * 0.4, now)
+          gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.6)
+          oscillator.start(now)
+          oscillator.stop(now + 0.6)
           break
       }
     } catch (error) {
