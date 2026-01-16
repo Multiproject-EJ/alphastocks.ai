@@ -71,11 +71,24 @@ export function EventTrackBar({
           <span>{progress.points} / {definition.pointsMax} pts</span>
           <span>{definition.isActive ? 'Keep rolling!' : 'Event ended'}</span>
         </div>
-        <div className="mt-2 h-2 w-full rounded-full bg-white/10">
-          <div
-            className="h-full rounded-full bg-gradient-to-r from-emerald-400 via-green-400 to-lime-300 transition-all duration-500"
-            style={{ width: `${progressPercent}%` }}
-          />
+        <div className="mt-2 flex items-center gap-2">
+          {/* Left: Goal circle */}
+          <div className="w-8 h-8 rounded-full bg-gray-700 border-2 border-gray-500 flex items-center justify-center flex-shrink-0">
+            <span className="text-sm">🎯</span>
+          </div>
+          
+          {/* Progress bar */}
+          <div className="flex-1 h-2 rounded-full bg-white/10">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-emerald-400 via-green-400 to-lime-300 transition-all duration-500"
+              style={{ width: `${progressPercent}%` }}
+            />
+          </div>
+          
+          {/* Right: Star circle */}
+          <div className="w-8 h-8 rounded-full bg-yellow-500/20 border-2 border-yellow-500 flex items-center justify-center flex-shrink-0">
+            <span className="text-sm">⭐</span>
+          </div>
         </div>
       </button>
     )

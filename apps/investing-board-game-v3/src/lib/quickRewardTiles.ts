@@ -199,3 +199,60 @@ export const QUICK_REWARD_TILE_STYLES: Record<QuickRewardType, QuickRewardTileSt
     shadowColor: 'shadow-gray-500/30',
   },
 }
+
+/**
+ * Premium Tile Configuration for Ring 3 (200× multiplier)
+ * Last 3 tiles before Start on Ring 3
+ */
+export const PREMIUM_TILE_CONFIG = {
+  multiplier: 200,
+  
+  // Visual styling
+  gradient: 'from-yellow-400 via-amber-500 to-orange-600',
+  borderColor: 'border-yellow-300',
+  shadowColor: 'shadow-yellow-500/50',
+  glowEffect: true,
+  
+  // Labels
+  labelPrefix: '💎 PREMIUM',
+  
+  // Badge display
+  badgeText: '💎 200×',
+}
+
+/**
+ * Get premium tile styling
+ */
+export function getPremiumTileStyle(): QuickRewardTileStyle {
+  return {
+    emoji: '💎',
+    label: 'PREMIUM',
+    gradient: PREMIUM_TILE_CONFIG.gradient,
+    borderColor: PREMIUM_TILE_CONFIG.borderColor,
+    shadowColor: PREMIUM_TILE_CONFIG.shadowColor,
+  }
+}
+
+/**
+ * Calculate reward for a premium tile (200× multiplier)
+ */
+export function calculatePremiumReward(
+  type: QuickRewardType
+): { amount: number; emoji: string } {
+  const config = QUICK_REWARD_CONFIG[type]
+  
+  // Random amount between min and max
+  const baseAmount = Math.floor(
+    Math.random() * (config.maxReward - config.minReward + 1) + config.minReward
+  )
+  
+  // Apply premium 200× multiplier (except for bonus-roll)
+  const finalAmount = type === 'bonus-roll' 
+    ? baseAmount 
+    : baseAmount * PREMIUM_TILE_CONFIG.multiplier
+  
+  return {
+    amount: finalAmount,
+    emoji: config.celebrationEmoji,
+  }
+}

@@ -151,8 +151,10 @@ export const RING_2_TILES: Tile[] = [
   { id: 223, type: 'quick-reward', title: 'Premium Cash', quickRewardType: 'cash' },
 ]
 
-// Ring 3: Elite Circle (7 tiles, IDs 300-306)
+// Ring 3: Elite Circle (9 tiles, IDs 300-309)
+// Last 3 tiles before Start (307-309) are PREMIUM with 200× multiplier
 export const RING_3_TILES: Tile[] = [
+  // Tile 0: Start/Portal (Inner Sanctum)
   { 
     id: 300, 
     type: 'corner', 
@@ -160,6 +162,7 @@ export const RING_3_TILES: Tile[] = [
     ring3Reward: 20000,
     isWinTile: true,
   },
+  // Tiles 1-6: Normal Ring 3 tiles (10× multiplier)
   { 
     id: 301, 
     type: 'category', 
@@ -204,10 +207,36 @@ export const RING_3_TILES: Tile[] = [
   },
   { 
     id: 306, 
-    type: 'event', 
-    title: 'Oracle Vision',
+    type: 'quick-reward', 
+    title: 'Elite Bonus',
+    quickRewardType: 'coins',
     ring3Reward: 20000,
     isWinTile: true,
+  },
+  // Tiles 7-9: PREMIUM tiles (200× multiplier)
+  { 
+    id: 307, 
+    type: 'quick-reward', 
+    title: '💎 PREMIUM Cash',
+    quickRewardType: 'cash',
+    isPremium: true,
+    multiplier: 200,
+  },
+  { 
+    id: 308, 
+    type: 'quick-reward', 
+    title: '💎 PREMIUM Stars',
+    quickRewardType: 'stars',
+    isPremium: true,
+    multiplier: 200,
+  },
+  { 
+    id: 309, 
+    type: 'quick-reward', 
+    title: '💎 PREMIUM Jackpot',
+    quickRewardType: 'mystery',
+    isPremium: true,
+    multiplier: 200,
   },
 ]
 
@@ -215,7 +244,7 @@ export const RING_3_TILES: Tile[] = [
 export const RING_CONFIG = {
   1: { name: 'Street Level', tiles: 35, rewardMultiplier: 1, riskMultiplier: 1 },
   2: { name: 'Executive Floor', tiles: 24, rewardMultiplier: 3, riskMultiplier: 3 },
-  3: { name: 'Elite Circle', tiles: 7, rewardMultiplier: 10, riskMultiplier: 10 },
+  3: { name: 'Elite Circle', tiles: 9, rewardMultiplier: 10, riskMultiplier: 10 },
 } as const
 
 // Ring 3 Configuration

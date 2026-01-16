@@ -55,6 +55,9 @@ export interface Tile {
     stars?: number
     coins?: number
   }
+  // Premium tile properties
+  isPremium?: boolean
+  multiplier?: number
 }
 
 export interface Stock {

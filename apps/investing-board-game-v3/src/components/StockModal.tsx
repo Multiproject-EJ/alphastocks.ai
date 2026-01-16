@@ -11,6 +11,7 @@ interface StockModalProps {
   cash: number
   ringNumber?: RingNumber
   playSound?: (sound: string) => void
+  onOpenProTools?: () => void
 }
 
 // Stock hook generator - one catchy line per stock type
@@ -135,7 +136,8 @@ export function StockModal({
   onBuy, 
   cash, 
   ringNumber = 1,
-  playSound 
+  playSound,
+  onOpenProTools
 }: StockModalProps) {
   const [buyPressed, setBuyPressed] = useState(false)
   const [passPressed, setPassPressed] = useState(false)
@@ -277,6 +279,21 @@ export function StockModal({
                 <ScoreMiniBar label="Risk" value={10 - riskScore} />
                 <ScoreMiniBar label="Timing" value={timingScore} />
               </div>
+
+              {/* ProTools Report Link */}
+              {onOpenProTools && (
+                <button
+                  onClick={() => {
+                    playSound?.('button-click')
+                    onOpenProTools()
+                  }}
+                  className="w-full flex items-center justify-center gap-2 py-2 mt-3
+                             text-blue-400 hover:text-blue-300 transition-colors"
+                >
+                  <span className="text-lg">📊</span>
+                  <span className="text-sm font-medium">Read the full report →</span>
+                </button>
+              )}
 
               {/* Ring multiplier badge */}
               {multiplier > 1 && (
