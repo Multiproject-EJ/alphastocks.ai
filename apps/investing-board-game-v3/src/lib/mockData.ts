@@ -31,6 +31,14 @@ export const BOARD_TILES: Tile[] = [
   { id: 24, type: 'category', title: 'Moats', category: 'moats', colorBorder: 'oklch(0.55 0.22 15)' },
   { id: 25, type: 'event', title: '?' },
   { id: 26, type: 'event', title: 'Quiz' },
+  { id: 27, type: 'category', title: 'Value Picks', category: 'value', colorBorder: 'oklch(0.80 0.18 85)' },
+  { id: 28, type: 'event', title: 'News Flash' },
+  { id: 29, type: 'category', title: 'Growth Stars', category: 'growth', colorBorder: 'oklch(0.75 0.22 25)' },
+  { id: 30, type: 'category', title: 'Dividend Yield', category: 'dividends', colorBorder: 'oklch(0.70 0.25 200)' },
+  { id: 31, type: 'event', title: 'Market Rumor' },
+  { id: 32, type: 'category', title: 'Moat Masters', category: 'moats', colorBorder: 'oklch(0.60 0.27 15)' },
+  { id: 33, type: 'category', title: 'Turnaround Play', category: 'turnarounds', colorBorder: 'oklch(0.65 0.25 330)' },
+  { id: 34, type: 'event', title: 'Analyst Call' },
 ]
 
 // Inner Express Track - Mystery cards that change color based on dice rolls
@@ -61,42 +69,49 @@ export const RING_2_TILES: Tile[] = [
   { id: 215, type: 'event', title: 'Wildcard' },
   { id: 216, type: 'category', title: 'Premium Moats', category: 'moats', colorBorder: 'oklch(0.60 0.27 15)' },
   { id: 217, type: 'corner', title: 'Merger Room' },
+  { id: 218, type: 'category', title: 'Premium Growth', category: 'growth', colorBorder: 'oklch(0.75 0.22 25)' },
+  { id: 219, type: 'event', title: 'Board Meeting' },
+  { id: 220, type: 'category', title: 'Premium Dividends', category: 'dividends', colorBorder: 'oklch(0.70 0.25 200)' },
+  { id: 221, type: 'category', title: 'Premium Value', category: 'value', colorBorder: 'oklch(0.80 0.18 85)' },
+  { id: 222, type: 'event', title: 'Earnings Surprise' },
+  { id: 223, type: 'category', title: 'Premium Moats', category: 'moats', colorBorder: 'oklch(0.60 0.27 15)' },
 ]
 
-// Ring 3: Elite Circle (9 tiles, IDs 300-308)
+// Ring 3: Elite Circle (7 tiles, IDs 300-306)
 export const RING_3_TILES: Tile[] = [
   { id: 300, type: 'corner', title: 'Inner Sanctum' },
   { id: 301, type: 'category', title: 'Elite Blue Chips', category: 'elite', colorBorder: 'oklch(0.85 0.30 45)' },
   { id: 302, type: 'event', title: 'Black Swan' },
-  { id: 303, type: 'corner', title: 'Final Elevator 🛗' },
-  { id: 304, type: 'category', title: 'Elite Legends', category: 'elite', colorBorder: 'oklch(0.85 0.30 45)' },
-  { id: 305, type: 'event', title: 'Oracle Vision' },
-  { id: 306, type: 'corner', title: 'VIP Casino' },
-  { id: 307, type: 'category', title: 'Elite Dynasty', category: 'elite', colorBorder: 'oklch(0.85 0.30 45)' },
-  { id: 308, type: 'event', title: 'Throne Approach' },
+  { id: 303, type: 'category', title: 'Elite Legends', category: 'elite', colorBorder: 'oklch(0.85 0.30 45)' },
+  { id: 304, type: 'corner', title: 'Final Elevator 🛗' },
+  { id: 305, type: 'category', title: 'Elite Dynasty', category: 'elite', colorBorder: 'oklch(0.85 0.30 45)' },
+  { id: 306, type: 'event', title: 'Oracle Vision' },
 ]
 
 // Ring Configuration
 export const RING_CONFIG = {
-  1: { name: 'Street Level', tiles: 27, rewardMultiplier: 1, riskMultiplier: 1 },
-  2: { name: 'Executive Floor', tiles: 18, rewardMultiplier: 3, riskMultiplier: 3 },
-  3: { name: 'Elite Circle', tiles: 9, rewardMultiplier: 10, riskMultiplier: 10 },
+  1: { name: 'Street Level', tiles: 35, rewardMultiplier: 1, riskMultiplier: 1 },
+  2: { name: 'Executive Floor', tiles: 24, rewardMultiplier: 3, riskMultiplier: 3 },
+  3: { name: 'Elite Circle', tiles: 7, rewardMultiplier: 10, riskMultiplier: 10 },
 } as const
 
 // Portal configuration for each ring's start tile
 export const PORTAL_CONFIG = {
   ring1: {
     startTileId: 0,
+    totalTiles: 35,
     onPass: { action: 'ascend', targetRing: 2, targetTile: 200 },
     onLand: { action: 'ascend', targetRing: 2, targetTile: 200 }, // Same as pass for Ring 1
   },
   ring2: {
     startTileId: 200,
+    totalTiles: 24,
     onPass: { action: 'descend', targetRing: 1, targetTile: 0 },
     onLand: { action: 'ascend', targetRing: 3, targetTile: 300 },
   },
   ring3: {
     startTileId: 300,
+    totalTiles: 7,
     onPass: { action: 'descend', targetRing: 1, targetTile: 0 },
     onLand: { action: 'throne', targetRing: 0, targetTile: -1 }, // -1 = Throne center
   },
