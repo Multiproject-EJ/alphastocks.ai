@@ -95,6 +95,7 @@ import {
 import { rollDice, DOUBLES_BONUS } from '@/lib/dice'
 import { getResetRollsAmount, ENERGY_CONFIG } from '@/lib/energy'
 import { calculateTilePositions, calculateAllRingPositions } from '@/lib/tilePositions'
+import { calculateMovement, getHoppingTiles } from '@/lib/movementEngine'
 import { isJackpotWeek } from '@/lib/events'
 import { useUniverseStocks } from '@/hooks/useUniverseStocks'
 import { useGameSave } from '@/hooks/useGameSave'
@@ -275,6 +276,10 @@ function App() {
   // Ring 3 reveal state
   const [ring3Revealed, setRing3Revealed] = useState(false)
   const [ring3Revealing, setRing3Revealing] = useState(false)
+
+  // Ring focus system state
+  const [revealingRing, setRevealingRing] = useState<RingNumber | null>(null)
+  const [fadingRing, setFadingRing] = useState<RingNumber | null>(null)
 
   // Portal state for ring transitions
   const [portalTransition, setPortalTransition] = useState<PortalTransition | null>(null)
@@ -859,6 +864,44 @@ function App() {
     onUpgradePillar,
     onViewStock,
   ])
+
+  // Ring Focus System Helper Functions
+  const getRingOpacity = useCallback((ringNumber: RingNumber): number => {
+    if (ringNumber === gameState.currentRing) {
+      return 1 // Active ring: full opacity
+    }
+    if (ringNumber < gameState.currentRing) {
+      return 0.25 // Lower rings: very muted (been there)
+    }
+    return 0.15 // Higher rings: almost hidden (not yet unlocked)
+  }, [gameState.currentRing])
+
+  const getRingFilter = useCallback((ringNumber: RingNumber): string => {
+    if (ringNumber === gameState.currentRing) {
+      return 'none' // Active: no filter
+    }
+    return 'grayscale(0.7) brightness(0.6)' // Inactive: desaturated and dimmed
+  }, [gameState.currentRing])
+
+  const isRingInteractive = useCallback((ringNumber: RingNumber): boolean => {
+    return ringNumber === gameState.currentRing
+  }, [gameState.currentRing])
+
+  const handleRingTransition = useCallback((fromRing: RingNumber, toRing: RingNumber) => {
+    // Fade out the old ring
+    setFadingRing(fromRing)
+    
+    // Reveal the new ring
+    setTimeout(() => {
+      setRevealingRing(toRing)
+    }, 300)
+    
+    // Clear animation states after completion
+    setTimeout(() => {
+      setFadingRing(null)
+      setRevealingRing(null)
+    }, 1200)
+  }, [])
 
   const currentActiveEvent = [...activeEvents].sort(
     (a, b) => a.endDate.getTime() - b.endDate.getTime()
@@ -1605,6 +1648,13 @@ function App() {
     
     const totalMovement = diceResult.total
     
+    // Use new movement engine to calculate cross-ring movement
+    const movementResult = calculateMovement(
+      gameState.currentRing,
+      gameState.position,
+      totalMovement
+    )
+    
     // Calculate base rewards (will be multiplied)
     let baseStars = 0
     let baseCoins = COIN_EARNINGS.dice_roll
@@ -1617,10 +1667,12 @@ function App() {
       baseXP += DOUBLES_BONUS.xp
     }
     
-    // Check if player will pass Start (position 0)
+    // Check if player will pass Start (position 0) - only on Ring 1
     const startPosition = gameState.position
-    const finalPosition = (startPosition + totalMovement) % BOARD_TILES.length
-    const willPassStart = startPosition + totalMovement >= BOARD_TILES.length
+    const ringConfig = RING_CONFIG[gameState.currentRing]
+    const portalConfig = PORTAL_CONFIG[`ring${gameState.currentRing}` as keyof typeof PORTAL_CONFIG]
+    const finalPosition = (startPosition + totalMovement) % ringConfig.tiles
+    const willPassStart = gameState.currentRing === 1 && startPosition + totalMovement >= ringConfig.tiles
     const willLandOnStart = finalPosition === 0
     
     if (willPassStart) {
@@ -1704,14 +1756,12 @@ function App() {
       
       // Move player after brief delay
       setTimeout(() => {
-        debugGame('Movement started', { totalMovement })
+        debugGame('Movement started', { totalMovement, movementResult })
         logEvent?.('move_started', { totalMovement, startPosition })
         setPhase('moving')
-        const tilesToHop: number[] = []
-
-        for (let j = 1; j <= totalMovement; j++) {
-          tilesToHop.push((startPosition + j) % BOARD_TILES.length)
-        }
+        
+        // Get tiles to hop from movement engine
+        const tilesToHop = getHoppingTiles(movementResult)
 
         // Check if player passes Start (position 0) without landing on it
         const passedStart = willPassStart && !willLandOnStart
@@ -1728,40 +1778,54 @@ function App() {
           if (currentHop < tilesToHop.length) {
             const nextPosition = tilesToHop[currentHop]
             setHoppingTiles([nextPosition])
-            setGameState((prev) => ({ ...prev, position: nextPosition }))
+            
+            // Update position and ring as we hop
+            const currentStep = movementResult.path[currentHop]
+            setGameState((prev) => ({ 
+              ...prev, 
+              position: nextPosition,
+              currentRing: currentStep.ring
+            }))
             currentHop++
           } else {
             if (hopIntervalRef.current) clearInterval(hopIntervalRef.current)
             setHoppingTiles([])
 
             landingTimeoutRef.current = setTimeout(() => {
-              const newPosition = tilesToHop[tilesToHop.length - 1]
-              debugGame('Landing on tile:', { position: newPosition, tile: BOARD_TILES[newPosition] })
-              logEvent?.('move_ended', { newPosition, totalMovement })
+              const newPosition = movementResult.finalTileId
+              const newRing = movementResult.finalRing
+              
+              debugGame('Landing on tile:', { position: newPosition, ring: newRing })
+              logEvent?.('move_ended', { newPosition, newRing, totalMovement })
               setPhase('landed')
               // Re-enable UI mode transitions after landing
               setCanTransition(true)
+              
+              // Apply final position
+              setGameState(prev => ({
+                ...prev,
+                position: newPosition,
+                currentRing: newRing,
+              }))
+              
               // Trigger landing event with current reward multiplier
               handleTileLanding(newPosition, passedStart)
               
-              // Check for portal transitions
-              const currentRing = gameState.currentRing
-              const startTileId = PORTAL_CONFIG[`ring${currentRing}` as keyof typeof PORTAL_CONFIG]?.startTileId
-              
-              if (startTileId !== undefined) {
-                const landedOnStartTile = newPosition === startTileId
-                const passedStartTile = tilesToHop.includes(startTileId) && !landedOnStartTile
-                
-                if (passedStartTile || landedOnStartTile) {
-                  const transition = handlePortalTransition(currentRing, startTileId, landedOnStartTile)
-                  
-                  if (transition) {
-                    // Trigger portal animation
-                    setTimeout(() => {
-                      triggerPortalAnimation(transition)
-                    }, 1000) // Delay to let tile landing complete
-                  }
+              // Handle portal animation if triggered
+              if (movementResult.portalTriggered && movementResult.portalDirection) {
+                const portalDirection = movementResult.portalDirection === 'throne' ? 'up' : movementResult.portalDirection
+                const transition: PortalTransition = {
+                  direction: portalDirection,
+                  fromRing: gameState.currentRing,
+                  toRing: newRing,
+                  fromTile: gameState.position,
+                  toTile: newPosition,
+                  triggeredBy: movementResult.landedExactlyOnPortal ? 'land' : 'pass',
                 }
+                
+                setTimeout(() => {
+                  triggerPortalAnimation(transition)
+                }, 1000) // Delay to let tile landing complete
               }
             }, 200)
           }
@@ -1946,6 +2010,13 @@ function App() {
     setPortalTransition(transition)
     setIsPortalAnimating(true)
     
+    // Trigger ring focus transition animation
+    if (transition.direction === 'up' && transition.toRing !== 0) {
+      handleRingTransition(transition.fromRing, transition.toRing as RingNumber)
+    } else if (transition.direction === 'down' && transition.toRing !== 0) {
+      handleRingTransition(transition.fromRing, transition.toRing as RingNumber)
+    }
+    
     // Play appropriate sound
     if (transition.direction === 'up') {
       playSound('portal-ascend')
@@ -1990,7 +2061,7 @@ function App() {
         })
       }
     }, 1500) // Animation duration
-  }, [playSound])
+  }, [playSound, handleRingTransition])
 
   const handleTileLanding = (position: number, passedStart = false) => {
     playSound('tile-land')
@@ -2942,9 +3013,20 @@ function App() {
                 {(() => {
                   // Calculate tile positions for circular layout
                   const tileBoardSize = { width: boardSize, height: boardSize }
-                  const tilePositions = calculateTilePositions(tileBoardSize, 27, boardOuterRadius, false)
+                  const tilePositions = calculateTilePositions(tileBoardSize, 35, boardOuterRadius, false)
                   
-                  return BOARD_TILES.map((tile) => {
+                  return (
+                    <div 
+                      className={`transition-all duration-500 ${
+                        revealingRing === 1 ? 'ring-revealing' : ''
+                      } ${fadingRing === 1 ? 'ring-fading' : ''}`}
+                      style={{
+                        opacity: getRingOpacity(1),
+                        filter: getRingFilter(1),
+                        pointerEvents: isRingInteractive(1) ? 'auto' : 'none',
+                      }}
+                    >
+                      {BOARD_TILES.map((tile) => {
                     const position = tilePositions.find(p => p.id === tile.id)
                     if (!position) return null
                     
@@ -2982,7 +3064,9 @@ function App() {
                         />
                       </div>
                     )
-                  })
+                  })}
+                    </div>
+                  )
                 })()}
                 
                 {/* Inner Mystery Cards - Always visible */}
@@ -3036,8 +3120,18 @@ function App() {
                   
                   return (
                     <>
-                      {/* Ring 2 - Executive Floor (18 tiles) */}
-                      {RING_2_TILES.map((tile) => {
+                      {/* Ring 2 - Executive Floor (24 tiles) */}
+                      <div 
+                        className={`transition-all duration-500 ${
+                          revealingRing === 2 ? 'ring-revealing' : ''
+                        } ${fadingRing === 2 ? 'ring-fading' : ''}`}
+                        style={{
+                          opacity: getRingOpacity(2),
+                          filter: getRingFilter(2),
+                          pointerEvents: isRingInteractive(2) ? 'auto' : 'none',
+                        }}
+                      >
+                        {RING_2_TILES.map((tile) => {
                         const position = ring2.find(p => p.id === (tile.id - RING_2_ID_OFFSET))
                         if (!position) return null
                         
@@ -3054,13 +3148,12 @@ function App() {
                               top: `${top}px`,
                               transform: `translate(-50%, -50%) rotate(${rotation}deg) scale(${RING_2_SCALE})`,
                               transformOrigin: 'center center',
-                              opacity: gameState.currentRing >= 2 ? 1 : 0.4, // Dim if not unlocked
                             }}
                           >
                             <Tile
                               tile={tile}
                               isActive={gameState.currentRing === 2 && tile.id === gameState.position}
-                              isHopping={false}
+                              isHopping={hoppingTiles.includes(tile.id)}
                               isLanded={false}
                               ringNumber={2}
                               onClick={() => {
@@ -3072,9 +3165,20 @@ function App() {
                           </div>
                         )
                       })}
+                      </div>
 
-                      {/* Ring 3 - Elite Circle (9 tiles) */}
-                      {RING_3_TILES.map((tile) => {
+                      {/* Ring 3 - Elite Circle (7 tiles) */}
+                      <div 
+                        className={`transition-all duration-500 ${
+                          revealingRing === 3 ? 'ring-revealing' : ''
+                        } ${fadingRing === 3 ? 'ring-fading' : ''}`}
+                        style={{
+                          opacity: getRingOpacity(3),
+                          filter: getRingFilter(3),
+                          pointerEvents: isRingInteractive(3) ? 'auto' : 'none',
+                        }}
+                      >
+                        {RING_3_TILES.map((tile) => {
                         const position = ring3.find(p => p.id === (tile.id - RING_3_ID_OFFSET))
                         if (!position) return null
                         
@@ -3091,13 +3195,12 @@ function App() {
                               top: `${top}px`,
                               transform: `translate(-50%, -50%) rotate(${rotation}deg) scale(${RING_3_SCALE})`,
                               transformOrigin: 'center center',
-                              opacity: gameState.currentRing >= 3 ? 1 : 0.3, // More dim if not unlocked
                             }}
                           >
                             <Tile
                               tile={tile}
                               isActive={gameState.currentRing === 3 && tile.id === gameState.position}
-                              isHopping={false}
+                              isHopping={hoppingTiles.includes(tile.id)}
                               isLanded={false}
                               ringNumber={3}
                               isRing3Revealed={ring3Revealed}
@@ -3111,6 +3214,7 @@ function App() {
                           </div>
                         )
                       })}
+                      </div>
 
                       {/* Wealth Throne - Center */}
                       <div
