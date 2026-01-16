@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { QUICK_REWARD_CONFIG, QuickRewardType } from '../lib/quickRewardTiles'
+import { QUICK_REWARD_CONFIG, QUICK_REWARD_TILE_STYLES, QuickRewardType } from '../lib/quickRewardTiles'
 
 interface QuickRewardTileProps {
   type: QuickRewardType
@@ -15,6 +15,7 @@ export function QuickRewardTile({
   onClick,
 }: QuickRewardTileProps) {
   const config = QUICK_REWARD_CONFIG[type]
+  const styles = QUICK_REWARD_TILE_STYLES[type]
 
   return (
     <motion.div
@@ -22,14 +23,15 @@ export function QuickRewardTile({
         relative w-full h-full rounded-xl overflow-hidden
         flex flex-col items-center justify-center
         cursor-pointer select-none
-        bg-gradient-to-br ${config.color}
-        border-2 border-white/20
+        bg-gradient-to-br ${styles.gradient}
+        ${styles.borderColor}
+        shadow-lg ${styles.shadowColor}
+        p-2 min-w-[60px] min-h-[70px]
+        transition-all duration-200
         ${isActive ? 'ring-2 ring-white ring-offset-2 ring-offset-black' : ''}
         ${isLanded ? 'scale-110' : ''}
+        hover:scale-105 hover:brightness-110
       `}
-      style={{
-        boxShadow: isActive ? `0 0 20px ${config.glowColor}` : 'none',
-      }}
       whileTap={{ scale: 0.95 }}
       onClick={onClick}
       animate={isLanded ? {
@@ -42,12 +44,12 @@ export function QuickRewardTile({
       } : {}}
       transition={{ duration: 0.3 }}
     >
-      {/* Big emoji - Mobile friendly touch target */}
-      <span className="text-3xl sm:text-4xl mb-1">{config.emoji}</span>
+      {/* Large emoji - drop shadow for depth */}
+      <span className="text-2xl sm:text-3xl drop-shadow-md">{styles.emoji}</span>
       
-      {/* Label - Compact for mobile */}
-      <span className="text-[10px] sm:text-xs text-white/80 font-medium text-center px-1 leading-tight">
-        {config.label}
+      {/* Label - white with drop shadow for readability */}
+      <span className="text-[10px] sm:text-xs font-semibold text-white text-center leading-tight mt-1 drop-shadow-sm">
+        {styles.label}
       </span>
 
       {/* Subtle shine effect */}

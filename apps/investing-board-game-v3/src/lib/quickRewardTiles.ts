@@ -20,6 +20,14 @@ export interface QuickRewardConfig {
   glowColor: string
 }
 
+export interface QuickRewardTileStyle {
+  emoji: string
+  label: string
+  gradient: string
+  borderColor: string
+  shadowColor: string
+}
+
 // EXPONENTIAL: Coins(1x) < Stars(10x) < Cash(100x)
 export const QUICK_REWARD_CONFIG: Record<QuickRewardType, QuickRewardConfig> = {
   'cash': {
@@ -134,4 +142,60 @@ export function getMysteryReward(): QuickRewardType {
 export function getChameleonType(lapCount: number): QuickRewardType {
   const options: QuickRewardType[] = ['cash', 'stars', 'coins', 'xp']
   return options[lapCount % options.length]
+}
+
+/**
+ * Tile styling configuration for Quick Rewards
+ * Maps each reward type to its visual styling properties
+ */
+export const QUICK_REWARD_TILE_STYLES: Record<QuickRewardType, QuickRewardTileStyle> = {
+  coins: {
+    emoji: '🪙',
+    label: 'Coins',
+    gradient: 'from-amber-500 to-orange-600',
+    borderColor: 'border-amber-300/50',
+    shadowColor: 'shadow-amber-500/30',
+  },
+  stars: {
+    emoji: '⭐',
+    label: 'Stars',
+    gradient: 'from-yellow-400 to-amber-500',
+    borderColor: 'border-yellow-300/50',
+    shadowColor: 'shadow-yellow-500/30',
+  },
+  cash: {
+    emoji: '💰',
+    label: 'Cash',
+    gradient: 'from-green-500 to-emerald-600',
+    borderColor: 'border-green-300/50',
+    shadowColor: 'shadow-green-500/30',
+  },
+  xp: {
+    emoji: '⚡',
+    label: 'XP',
+    gradient: 'from-blue-500 to-indigo-600',
+    borderColor: 'border-blue-300/50',
+    shadowColor: 'shadow-blue-500/30',
+  },
+  'bonus-roll': {
+    emoji: '🎲',
+    label: 'Bonus Roll',
+    gradient: 'from-purple-500 to-violet-600',
+    borderColor: 'border-purple-300/50',
+    shadowColor: 'shadow-purple-500/30',
+  },
+  mystery: {
+    emoji: '🎁',
+    label: 'Mystery',
+    gradient: 'from-pink-500 to-purple-600',
+    borderColor: 'border-pink-300/50',
+    shadowColor: 'shadow-pink-500/30',
+  },
+  chameleon: {
+    emoji: '🔄',
+    label: 'Random',
+    gradient: 'from-gray-500 to-slate-600',
+    borderColor: 'border-gray-300/50',
+    shadowColor: 'shadow-gray-500/30',
+  },
 }
