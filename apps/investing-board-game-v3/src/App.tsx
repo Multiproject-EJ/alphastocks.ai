@@ -116,7 +116,7 @@ import { useUniverseStocks } from '@/hooks/useUniverseStocks'
 import { useGameSave } from '@/hooks/useGameSave'
 import { useAuth } from '@/context/AuthContext'
 import { useSound } from '@/hooks/useSound'
-import { getRewardSound } from '@/lib/sounds'
+import { getRewardSound, SoundType } from '@/lib/sounds'
 import { useShopInventory } from '@/hooks/useShopInventory'
 import { useAchievements } from '@/hooks/useAchievements'
 import { useChallenges } from '@/hooks/useChallenges'
@@ -2208,17 +2208,14 @@ function App() {
     lightTap()
 
     // Play sound based on reward type and amount
-    let soundType: string = 'coin-collect'
+    let soundType: SoundType = 'coin-collect'
     if (rewardType === 'bonus-roll') {
       soundType = 'star-collect'
     } else if (rewardType === 'xp') {
       soundType = 'coin-collect'
-    } else {
+    } else if (rewardType === 'cash' || rewardType === 'stars' || rewardType === 'coins') {
       // Use reward-based sound selection for cash, stars, coins
-      soundType = getRewardSound(
-        rewardType as 'cash' | 'stars' | 'coins', 
-        amount
-      )
+      soundType = getRewardSound(rewardType, amount)
     }
     
     // Premium tiles always use big sounds
@@ -2226,7 +2223,7 @@ function App() {
       soundType = 'mega-jackpot'
     }
     
-    playSound(soundType as any)
+    playSound(soundType)
 
     // Auto-continue to next phase after brief delay
     setTimeout(() => {
@@ -2309,7 +2306,7 @@ function App() {
           }))
           
           // Play reward sound based on amount
-          playSound(getRewardSound('cash', cashReward) as any)
+          playSound(getRewardSound('cash', cashReward))
           hapticSuccess()
           triggerTileCelebration(position, ['💰', '💵'])
           
@@ -2655,7 +2652,7 @@ function App() {
     }))
 
     // Play celebration sound based on reward amount
-    playSound(getRewardSound('cash', winAmount) as any)
+    playSound(getRewardSound('cash', winAmount))
     hapticSuccess()
 
     // Show toast
