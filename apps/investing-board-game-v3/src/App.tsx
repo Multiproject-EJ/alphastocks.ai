@@ -33,6 +33,9 @@ import { CenterSlices } from '@/components/CenterSlices'
 import { AchievementsModal } from '@/components/AchievementsModal'
 import { MysteryCard } from '@/components/MysteryCard'
 import { PortalAnimation } from '@/components/PortalAnimation'
+import { PortalTeleportAnimation } from '@/components/PortalTeleportAnimation'
+import { MoneyCelebration } from '@/components/MoneyCelebration'
+import { BlackSwanAnimation } from '@/components/BlackSwanAnimation'
 
 // Mobile-first components
 import { MobileGameLayout } from '@/components/MobileGameLayout'
@@ -78,7 +81,9 @@ import {
   getRandomBiasCaseStudy,
   THRIFTY_CHALLENGES,
   RING_CONFIG,
+  RING_3_CONFIG,
   PORTAL_CONFIG,
+  getEliteStocksForRing3,
 } from '@/lib/mockData'
 import { getRandomWildcardEvent, CASH_PERCENTAGE_PENALTY } from '@/lib/wildcardEvents'
 import { SHOP_ITEMS } from '@/lib/shopItems'
@@ -277,6 +282,18 @@ function App() {
   // Ring 3 reveal state
   const [ring3Revealed, setRing3Revealed] = useState(false)
   const [ring3Revealing, setRing3Revealing] = useState(false)
+
+  // Ring 3 roll tracking and animations
+  const [ring3RollUsed, setRing3RollUsed] = useState(false)
+  const [moneyCelebration, setMoneyCelebration] = useState<{
+    active: boolean
+    amount: number
+    position: { x: number; y: number }
+  } | null>(null)
+  const [blackSwanAnimation, setBlackSwanAnimation] = useState<{
+    active: boolean
+    consolationReward: { type: 'stars' | 'coins'; amount: number }
+  } | null>(null)
 
   // Ring focus system state
   const [revealingRing, setRevealingRing] = useState<RingNumber | null>(null)
@@ -489,6 +506,21 @@ function App() {
 
   const { getStockForCategory, loading: loadingUniverse, error: universeError, source: stockSource, universeCount } =
     useUniverseStocks()
+
+  // Wrap getStockForCategory to filter for Ring 3 elite stocks
+  const getStockForCategoryWithRingFilter = useCallback((category: string) => {
+    const stock = getStockForCategory(category)
+    
+    // If on Ring 3 and it's an elite category, only allow 8.0+ composite score
+    if (gameState.currentRing === 3 && category === 'elite') {
+      const eliteStocks = getEliteStocksForRing3()
+      if (eliteStocks.length > 0) {
+        return eliteStocks[Math.floor(Math.random() * eliteStocks.length)]
+      }
+    }
+    
+    return stock
+  }, [getStockForCategory, gameState.currentRing])
 
   // Sound effects hook
   const { play: playSound } = useSound()
@@ -1576,11 +1608,26 @@ function App() {
     }
   }, [gameState.currentRing, ring3Revealed, ring3Revealing, revealRing3])
 
+  // Reset Ring 3 roll counter when entering Ring 3
+  useEffect(() => {
+    if (gameState.currentRing === 3) {
+      setRing3RollUsed(false)
+    }
+  }, [gameState.currentRing])
+
   const handleRoll = (multiplier: number = 1) => {
     if (phase !== 'idle') {
       debugGame('Cannot roll - phase is not idle:', { phase, currentPosition: gameState.position })
       toast.info('Finish your current action first', {
         description: 'Close any open cards or modals before rolling again.',
+      })
+      return
+    }
+
+    // Check Ring 3 roll limit
+    if (gameState.currentRing === 3 && ring3RollUsed) {
+      toast.error('No more rolls!', {
+        description: 'You only get 1 roll on Ring 3. Land on a tile or face the Black Swan!',
       })
       return
     }
@@ -1602,6 +1649,11 @@ function App() {
 
     // clear any lingering timers from a previous roll to keep movement predictable
     clearAllTimers()
+
+    // Mark Ring 3 roll as used
+    if (gameState.currentRing === 3) {
+      setRing3RollUsed(true)
+    }
 
     // Store the reward multiplier for use in handleTileLanding
     currentRewardMultiplierRef.current = multiplier
@@ -2068,6 +2120,18 @@ function App() {
   }, [playSound, handleRingTransition])
 
   const handleTileLanding = (position: number, passedStart = false) => {
+    // Check if this is a Ring 3 tile (IDs 300-306)
+    if (position >= 300 && position < 400 && gameState.currentRing === 3) {
+      // Get tile position for animation (we'll use center of screen as approximation)
+      const tilePosition = { 
+        x: window.innerWidth / 2, 
+        y: window.innerHeight / 2 
+      }
+      handleRing3Landing(position, tilePosition)
+      setPhase('idle')
+      return
+    }
+
     playSound('tile-land')
 
     const tile = BOARD_TILES[position]
@@ -2155,7 +2219,7 @@ function App() {
 
     if (tile.type === 'category' && tile.category) {
       debugGame('Category tile - showing stock card')
-      const stock = getStockForCategory(tile.category)
+      const stock = getStockForCategoryWithRingFilter(tile.category)
       setCurrentStock(stock)
 
       const stockSpinDuration = 1200
@@ -2398,6 +2462,87 @@ function App() {
         })
       }
     }
+  }
+
+  // Handle Ring 3 tile landing
+  const handleRing3Landing = (tileId: number, tilePosition: { x: number; y: number }) => {
+    const tile = RING_3_TILES.find(t => t.id === tileId)
+    if (!tile) return
+
+    // Mark roll as used (already done in handleRoll, but ensure it's set)
+    setRing3RollUsed(true)
+
+    // Check if it's the Black Swan danger tile
+    if (tile.isBlackSwan) {
+      // Random consolation: stars or coins
+      const rewardType = Math.random() > 0.5 ? 'stars' : 'coins'
+      const reward = { type: rewardType as 'stars' | 'coins', amount: 50 }
+
+      // Get Ring 1 Start position for destination
+      const ring1StartPosition = { x: window.innerWidth / 2, y: window.innerHeight / 2 }
+
+      setBlackSwanAnimation({
+        active: true,
+        consolationReward: reward,
+      })
+
+      // Give consolation reward
+      setGameState(prev => ({
+        ...prev,
+        [rewardType]: prev[rewardType] + 50,
+      }))
+
+      playSound('error')
+
+      // After animation, move to Ring 1
+      setTimeout(() => {
+        setGameState(prev => ({
+          ...prev,
+          currentRing: 1,
+          position: 0, // Start of Ring 1
+        }))
+        setRing3RollUsed(false) // Reset for next time
+        setBlackSwanAnimation(null)
+
+        toast.info('🦢 Black Swan Event', {
+          description: `Consolation: +${reward.amount} ${reward.type === 'stars' ? '⭐' : '🪙'}`,
+          duration: 3000,
+        })
+      }, 2500)
+
+      return
+    }
+
+    // It's a winning tile!
+    const winAmount = RING_3_CONFIG.rewardPerWinTile
+
+    // Trigger money celebration
+    setMoneyCelebration({
+      active: true,
+      amount: winAmount,
+      position: tilePosition,
+    })
+
+    // Add the cash reward
+    setGameState(prev => ({
+      ...prev,
+      cash: prev.cash + winAmount,
+      netWorth: prev.netWorth + winAmount,
+    }))
+
+    // Play celebration sound
+    playSound('cash-register')
+    hapticSuccess()
+
+    // Show toast
+    toast.success(`💰 +$${winAmount.toLocaleString()}!`, {
+      description: 'Ring 3 Victory Reward!',
+      duration: 3000,
+    })
+
+    setTimeout(() => {
+      setMoneyCelebration(null)
+    }, 1500)
   }
 
   const handleBuyStock = (multiplier: number) => {
@@ -3486,6 +3631,27 @@ function App() {
         transition={portalTransition}
         isAnimating={isPortalAnimating}
       />
+
+      {/* Money Celebration for Ring 3 wins */}
+      {moneyCelebration && (
+        <MoneyCelebration
+          isActive={moneyCelebration.active}
+          amount={moneyCelebration.amount}
+          position={moneyCelebration.position}
+          onComplete={() => setMoneyCelebration(null)}
+        />
+      )}
+
+      {/* Black Swan Animation for Ring 3 danger tile */}
+      {blackSwanAnimation && (
+        <BlackSwanAnimation
+          isActive={blackSwanAnimation.active}
+          tilePosition={{ x: window.innerWidth / 2, y: window.innerHeight / 2 }}
+          destinationPosition={{ x: window.innerWidth / 2, y: window.innerHeight / 2 }}
+          consolationReward={blackSwanAnimation.consolationReward}
+          onComplete={() => setBlackSwanAnimation(null)}
+        />
+      )}
 
       {/* PWA Install Prompt */}
       <InstallPrompt />
