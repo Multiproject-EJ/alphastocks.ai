@@ -1,5 +1,8 @@
 import { PORTAL_CONFIG, RING_CONFIG, BOARD_TILES, RING_2_TILES, RING_3_TILES } from './mockData'
-import type { RingNumber } from './types'
+import type { RingNumber, Tile } from './types'
+
+// Constants
+const RING_START_INDEX = 0
 
 export interface MovementResult {
   path: Array<{ ring: RingNumber; tileId: number }>
@@ -13,7 +16,7 @@ export interface MovementResult {
 /**
  * Get the tile array for a given ring
  */
-function getTilesForRing(ring: RingNumber) {
+function getTilesForRing(ring: RingNumber): Tile[] {
   switch (ring) {
     case 1: return BOARD_TILES
     case 2: return RING_2_TILES
@@ -36,6 +39,13 @@ function getRingOffset(ring: RingNumber): number {
  * Get the portal configuration for a ring
  */
 function getPortalConfig(ring: RingNumber) {
+  return PORTAL_CONFIG[`ring${ring}` as keyof typeof PORTAL_CONFIG]
+}
+
+/**
+ * Helper function to get portal config for a ring (exported for use in App.tsx)
+ */
+export function getPortalConfigForRing(ring: RingNumber) {
   return PORTAL_CONFIG[`ring${ring}` as keyof typeof PORTAL_CONFIG]
 }
 
@@ -87,7 +97,7 @@ export function calculateMovement(
         portalTriggered = true
         portalDirection = 'up'
         currentRing = action.targetRing as RingNumber
-        currentPositionIndex = 0 // Start at position 0 of new ring
+        currentPositionIndex = RING_START_INDEX // Start at position 0 of new ring
         
         // Add the portal destination to path if we're continuing
         if (remainingSteps > 0) {
@@ -98,7 +108,7 @@ export function calculateMovement(
         portalTriggered = true
         portalDirection = 'down'
         currentRing = action.targetRing as RingNumber
-        currentPositionIndex = 0
+        currentPositionIndex = RING_START_INDEX
         
         if (remainingSteps > 0) {
           const newTileId = getRingOffset(currentRing)

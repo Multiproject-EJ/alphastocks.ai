@@ -49,7 +49,7 @@ export const INNER_TRACK_TILES: Tile[] = Array.from({ length: 12 }, (_, i) => ({
   colorBorder: 'oklch(0.35 0.02 250)', // neutral gray default
 }))
 
-// Ring 2: Executive Floor (18 tiles, IDs 200-217)
+// Ring 2: Executive Floor (24 tiles, IDs 200-223)
 export const RING_2_TILES: Tile[] = [
   { id: 200, type: 'corner', title: 'Ascension Gate' },
   { id: 201, type: 'category', title: 'Premium Turnarounds', category: 'turnarounds', colorBorder: 'oklch(0.65 0.25 330)' },
