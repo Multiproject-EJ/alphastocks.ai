@@ -37,7 +37,7 @@ export const QUICK_REWARD_CONFIG: Record<QuickRewardType, QuickRewardConfig> = {
     minReward: 500,
     maxReward: 2000,
     celebrationEmoji: '💵',
-    color: 'from-green-600 to-green-800',
+    color: 'from-green-500 to-emerald-600',
     glowColor: 'rgba(34, 197, 94, 0.6)',
   },
   'stars': {
@@ -47,7 +47,7 @@ export const QUICK_REWARD_CONFIG: Record<QuickRewardType, QuickRewardConfig> = {
     minReward: 5,
     maxReward: 20,
     celebrationEmoji: '⭐',
-    color: 'from-yellow-500 to-amber-700',
+    color: 'from-yellow-400 to-amber-500',
     glowColor: 'rgba(234, 179, 8, 0.6)',
   },
   'coins': {
@@ -57,7 +57,7 @@ export const QUICK_REWARD_CONFIG: Record<QuickRewardType, QuickRewardConfig> = {
     minReward: 10,
     maxReward: 50,
     celebrationEmoji: '🪙',
-    color: 'from-amber-500 to-orange-700',
+    color: 'from-amber-500 to-orange-600',
     glowColor: 'rgba(245, 158, 11, 0.6)',
   },
   'bonus-roll': {
@@ -67,7 +67,7 @@ export const QUICK_REWARD_CONFIG: Record<QuickRewardType, QuickRewardConfig> = {
     minReward: 1,
     maxReward: 2,
     celebrationEmoji: '🎲',
-    color: 'from-purple-600 to-purple-800',
+    color: 'from-purple-500 to-violet-600',
     glowColor: 'rgba(147, 51, 234, 0.6)',
   },
   'xp': {
@@ -77,7 +77,7 @@ export const QUICK_REWARD_CONFIG: Record<QuickRewardType, QuickRewardConfig> = {
     minReward: 15,
     maxReward: 50,
     celebrationEmoji: '⚡',
-    color: 'from-blue-500 to-blue-700',
+    color: 'from-blue-500 to-indigo-600',
     glowColor: 'rgba(59, 130, 246, 0.6)',
   },
   'mystery': {
@@ -87,7 +87,7 @@ export const QUICK_REWARD_CONFIG: Record<QuickRewardType, QuickRewardConfig> = {
     minReward: 1,
     maxReward: 1,
     celebrationEmoji: '🎁',
-    color: 'from-pink-500 to-purple-700',
+    color: 'from-pink-500 to-purple-600',
     glowColor: 'rgba(236, 72, 153, 0.6)',
   },
   'chameleon': {
