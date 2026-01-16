@@ -95,6 +95,7 @@ const TileComponent = ({ tile, isActive, isHopping, isLanded, onClick, side, has
         isActive={isActive}
         isLanded={isLanded}
         onClick={handleClick}
+        isPremium={tile.isPremium}
       />
     )
   }

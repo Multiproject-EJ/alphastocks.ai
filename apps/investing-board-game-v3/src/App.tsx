@@ -101,6 +101,7 @@ import {
 import { rollDice, DOUBLES_BONUS } from '@/lib/dice'
 import { 
   calculateQuickReward, 
+  calculatePremiumReward,
   getMysteryReward, 
   getChameleonType,
   QUICK_REWARD_CONFIG,
@@ -2148,8 +2149,10 @@ function App() {
       rewardType = getChameleonType(gameState.ring1LapsCompleted)
     }
 
-    // Calculate reward with ring multiplier
-    const { amount, emoji } = calculateQuickReward(rewardType, gameState.currentRing)
+    // Calculate reward - use premium calculation if it's a premium tile
+    const { amount, emoji } = tile.isPremium 
+      ? calculatePremiumReward(rewardType)
+      : calculateQuickReward(rewardType, gameState.currentRing)
     const config = QUICK_REWARD_CONFIG[rewardType]
 
     // Get tile position for celebration animation (center of screen as approximation)
@@ -2355,6 +2358,7 @@ function App() {
             cash: gameState.cash,
             ringNumber: gameState.currentRing,
             playSound,
+            onOpenProTools: () => setProToolsOpen(true),
           },
           priority: 'normal',
           onClose: () => {
