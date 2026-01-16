@@ -24,7 +24,7 @@ export function QuickRewardTile({
         flex flex-col items-center justify-center
         cursor-pointer select-none
         bg-gradient-to-br ${styles.gradient}
-        ${styles.borderColor}
+        border-2 ${styles.borderColor}
         shadow-lg ${styles.shadowColor}
         p-2 min-w-[60px] min-h-[70px]
         transition-all duration-200
