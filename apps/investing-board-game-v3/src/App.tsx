@@ -2254,7 +2254,8 @@ function App() {
             stock: stock,
             onBuy: handleBuyStock,
             cash: gameState.cash,
-            showInsights: hasPowerUp('stock-insight'),
+            ringNumber: gameState.currentRing,
+            playSound,
           },
           priority: 'normal',
           onClose: () => {

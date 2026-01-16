@@ -1,639 +1,372 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
-import { useResponsiveDialogClass } from '@/hooks/useResponsiveDialogClass'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+import { motion, AnimatePresence } from 'framer-motion'
+import { useState } from 'react'
 import { Stock } from '@/lib/types'
-import { useSound } from '@/hooks/useSound'
-import { 
-  getScoreColor, 
-  getScoreBgColor, 
-  getRiskLabel,
-  getRiskLabelColor,
-  getQualityLabelColor,
-  getTimingLabelColor,
-  formatRelativeTime,
-  getWarningFlags
-} from '@/lib/stockScores'
-import { ArrowLeft, ArrowRight, Coins, TrendUp, ShieldCheck, Speedometer, Sparkle, Clock, CheckCircle, WarningCircle, LockKey } from '@phosphor-icons/react'
+import type { RingNumber } from '@/lib/types'
 
 interface StockModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   stock: Stock | null
-  onBuy: (multiplier: number) => void
+  onBuy: (shares: number) => void
   cash: number
-  showInsights?: boolean
+  ringNumber?: RingNumber
+  playSound?: (sound: string) => void
 }
 
-export function StockModal({ open, onOpenChange, stock, onBuy, cash, showInsights = false }: StockModalProps) {
-  const dialogClass = useResponsiveDialogClass('small')
-  const [imageError, setImageError] = useState(false)
-  const { play: playSound } = useSound()
-  const [dragX, setDragX] = useState(0)
-  const [isDragging, setIsDragging] = useState(false)
-  const [protoolsHovered, setProtoolsHovered] = useState(false)
-  const [protoolsActive, setProtoolsActive] = useState(false)
-  const [mobileProtoolsOpen, setMobileProtoolsOpen] = useState(false)
-  const dragXRef = useRef(0)
-  const swipeStateRef = useRef({
-    startX: 0,
-    startY: 0,
-    pointerId: -1,
-    isSwiping: false,
-    triggered: false,
-  })
-
-  const swipeThreshold = 130
-  const maxSwipe = 240
-
-  useEffect(() => {
-    if (!open) {
-      setDragX(0)
-      setIsDragging(false)
-      dragXRef.current = 0
-      swipeStateRef.current = {
-        startX: 0,
-        startY: 0,
-        pointerId: -1,
-        isSwiping: false,
-        triggered: false,
-      }
-    }
-  }, [open])
-
-  const handlePenPointerUp = (action: () => void) => (event: React.PointerEvent<HTMLButtonElement>) => {
-    if (event.pointerType !== 'pen') return
-    event.preventDefault()
-    action()
+// Stock hook generator - one catchy line per stock type
+function getStockHook(stock: Stock): string {
+  const hooks: Record<string, string[]> = {
+    growth: [
+      "Rocket ship ready for liftoff",
+      "Growth machine that keeps delivering",
+      "The future is bullish here",
+    ],
+    value: [
+      "Hidden gem at a discount",
+      "Wall Street's sleeping on this one",
+      "Buy low, smile later",
+    ],
+    dividends: [
+      "Passive income on autopilot",
+      "Cash flow that never sleeps",
+      "Your money making money",
+    ],
+    moats: [
+      "Competition can't touch this",
+      "Fortress business model",
+      "Untouchable market leader",
+    ],
+    turnarounds: [
+      "Comeback story in progress",
+      "From underdog to top dog",
+      "The phoenix is rising",
+    ],
+    elite: [
+      "The crown jewel of investing",
+      "Legendary wealth builder",
+      "Elite tier excellence",
+    ],
   }
 
-  const handleViewFullAnalysis = () => {
-    const baseUrl = import.meta.env.PROD ? 'https://www.alphastocks.ai' : window.location.origin
-    window.open(`${baseUrl}/?proTools=1&analysis=${stock.symbol}`, '_blank')
+  const category = stock.category || 'value'
+  const categoryHooks = hooks[category] || hooks.value
+  return categoryHooks[Math.floor(Math.random() * categoryHooks.length)]
+}
+
+// Mini score bar component
+function ScoreMiniBar({ label, value }: { label: string; value: number }) {
+  const percentage = (value / 10) * 100
+  const color = value >= 7 ? 'bg-green-500' : value >= 5 ? 'bg-yellow-500' : 'bg-red-500'
+
+  return (
+    <div>
+      <div className="flex justify-between text-gray-400 mb-1">
+        <span>{label}</span>
+        <span className="text-white">{value.toFixed(1)}</span>
+      </div>
+      <div className="h-1.5 bg-gray-700 rounded-full overflow-hidden">
+        <div 
+          className={`h-full ${color} rounded-full transition-all`}
+          style={{ width: `${percentage}%` }}
+        />
+      </div>
+    </div>
+  )
+}
+
+// Particle burst effect on buy
+function BuyParticles() {
+  const particles = Array.from({ length: 20 }, (_, i) => ({
+    id: i,
+    angle: (360 / 20) * i,
+    distance: 40 + Math.random() * 30,
+    emoji: ['💵', '✨', '⭐', '💰'][Math.floor(Math.random() * 4)],
+  }))
+
+  return (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden">
+      {particles.map((p) => {
+        const radians = (p.angle * Math.PI) / 180
+        const x = Math.cos(radians) * p.distance
+        const y = Math.sin(radians) * p.distance
+
+        return (
+          <motion.span
+            key={p.id}
+            className="absolute left-1/2 top-1/2 text-sm"
+            initial={{ x: 0, y: 0, opacity: 1, scale: 1 }}
+            animate={{ 
+              x, 
+              y, 
+              opacity: 0, 
+              scale: 0.5,
+            }}
+            transition={{ duration: 0.5, ease: 'easeOut' }}
+          >
+            {p.emoji}
+          </motion.span>
+        )
+      })}
+    </div>
+  )
+}
+
+// Haptic feedback utility
+function triggerHaptic(type: 'light' | 'medium' | 'heavy' = 'medium') {
+  if (typeof navigator === 'undefined' || !navigator.vibrate) return
+  
+  switch (type) {
+    case 'light':
+      navigator.vibrate(10)
+      break
+    case 'medium':
+      navigator.vibrate(30)
+      break
+    case 'heavy':
+      navigator.vibrate([30, 50, 30])
+      break
   }
+}
+
+export function StockModal({ 
+  open, 
+  onOpenChange, 
+  stock, 
+  onBuy, 
+  cash, 
+  ringNumber = 1,
+  playSound 
+}: StockModalProps) {
+  const [buyPressed, setBuyPressed] = useState(false)
+  const [passPressed, setPassPressed] = useState(false)
+  const [showParticles, setShowParticles] = useState(false)
 
   if (!stock) return null
 
-  const baseShares = 10
-  const smallCost = stock.price * (baseShares * 0.5)
-  const normalCost = stock.price * baseShares
-  const highCost = stock.price * (baseShares * 2)
-  const canSwipeInvest = cash >= normalCost
-  const shouldDimProtools = !(protoolsHovered || protoolsActive)
+  const canAfford = cash >= stock.price
+  const multiplier = ringNumber === 3 ? 10 : ringNumber === 2 ? 3 : 1
 
-  const triggerSwipeAction = useCallback((direction: 'left' | 'right') => {
-    if (swipeStateRef.current.triggered) return
-    if (direction === 'right' && !canSwipeInvest) {
-      onBuy(1)
-      dragXRef.current = 0
-      setDragX(0)
-      swipeStateRef.current.isSwiping = false
+  const handleBuy = () => {
+    if (!canAfford) {
+      playSound?.('error')
+      triggerHaptic('light')
       return
     }
-    swipeStateRef.current.triggered = true
-    setIsDragging(false)
-    const exitX = direction === 'right' ? maxSwipe * 1.4 : -maxSwipe * 1.4
-    dragXRef.current = exitX
-    setDragX(exitX)
-    if (direction === 'right') {
-      playSound('cha-ching')
-    } else {
-      playSound('swipe-no')
-    }
-    window.setTimeout(() => {
-      if (direction === 'right') {
-        onBuy(1)
-      } else {
-        onOpenChange(false)
-      }
-      dragXRef.current = 0
-      setDragX(0)
-      swipeStateRef.current.triggered = false
-      swipeStateRef.current.isSwiping = false
-    }, 220)
-  }, [canSwipeInvest, maxSwipe, onBuy, onOpenChange, playSound])
 
-  const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
-    if ((event.target as HTMLElement).closest('button, a, input, textarea, select, [data-swipe-ignore]')) {
-      return
-    }
-    swipeStateRef.current.startX = event.clientX
-    swipeStateRef.current.startY = event.clientY
-    swipeStateRef.current.pointerId = event.pointerId
-    swipeStateRef.current.isSwiping = false
-    swipeStateRef.current.triggered = false
-    setIsDragging(true)
-    ;(event.currentTarget as HTMLElement).setPointerCapture(event.pointerId)
+    playSound?.('cash-register')
+    triggerHaptic('medium')
+    setBuyPressed(true)
+    setShowParticles(true)
+    
+    setTimeout(() => {
+      onBuy(1) // Buy 10 shares (multiplier = 1)
+      setBuyPressed(false)
+      setShowParticles(false)
+      onOpenChange(false)
+    }, 300)
   }
 
-  const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (!isDragging || swipeStateRef.current.pointerId !== event.pointerId) return
-    const deltaX = event.clientX - swipeStateRef.current.startX
-    const deltaY = event.clientY - swipeStateRef.current.startY
-    if (!swipeStateRef.current.isSwiping) {
-      if (Math.abs(deltaX) < 12 || Math.abs(deltaX) <= Math.abs(deltaY)) {
-        return
-      }
-      swipeStateRef.current.isSwiping = true
-    }
-    event.preventDefault()
-    const clamped = Math.max(-maxSwipe, Math.min(maxSwipe, deltaX))
-    dragXRef.current = clamped
-    setDragX(clamped)
+  const handlePass = () => {
+    playSound?.('swipe-no')
+    triggerHaptic('light')
+    setPassPressed(true)
+    setTimeout(() => {
+      onOpenChange(false)
+      setPassPressed(false)
+    }, 200)
   }
 
-  const handlePointerEnd = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (swipeStateRef.current.pointerId !== event.pointerId) return
-    try {
-      ;(event.currentTarget as HTMLElement).releasePointerCapture(event.pointerId)
-    } catch {
-      // Ignore release errors for browsers that do not support capture
-    }
-    setIsDragging(false)
-    const shouldTrigger = Math.abs(dragXRef.current) >= swipeThreshold
-    if (shouldTrigger) {
-      triggerSwipeAction(dragXRef.current > 0 ? 'right' : 'left')
-      return
-    }
-    dragXRef.current = 0
-    setDragX(0)
-    swipeStateRef.current.isSwiping = false
-  }
+  // Generate score stars (0-5 based on composite score 0-10)
+  const scoreStars = Math.round((stock.scores?.composite ?? 5) / 2)
+  const starDisplay = '⭐'.repeat(Math.min(scoreStars, 5))
+
+  // One-line stock hook/summary
+  const stockHook = getStockHook(stock)
+
+  // Scores with safe defaults
+  const qualityScore = stock.scores?.quality ?? 5
+  const riskScore = stock.scores?.risk ?? 5
+  const timingScore = stock.scores?.timing ?? 5
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent
-          className={`${dialogClass} md:w-[1000px] md:max-w-[1000px] bg-transparent border-0 shadow-none p-0 max-h-[calc(100dvh-2rem)] will-change-transform`}
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerEnd}
-        onPointerCancel={handlePointerEnd}
-      >
-        <div 
-          className="relative flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-4"
-          style={{
-            transform: `translateX(${dragX}px) rotate(${dragX / 22}deg)`,
-            transition: isDragging ? 'none' : 'transform 220ms ease',
-            touchAction: 'pan-y',
-          }}
+    <AnimatePresence>
+      {open && (
+        <motion.div
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
         >
-          <div className="bg-card border-2 border-accent/50 shadow-[0_0_40px_oklch(0.75_0.15_85_/_0.3)] rounded-xl p-6 flex flex-col max-h-[calc(100dvh-2rem)] relative">
-            <DialogHeader className="flex-shrink-0">
-              {/* Hero Score - Top Right */}
-              {stock.scores && (
-                <div className="absolute top-4 right-12 flex flex-col items-center">
-                  <div className={`text-5xl font-bold font-mono ${getScoreColor(stock.scores.composite)}`}>
-                    {stock.scores.composite.toFixed(1)}
-                  </div>
-                  <div className="text-xs text-muted-foreground uppercase tracking-wide">
-                    Overall
-                  </div>
-                  <div className="text-[10px] text-muted-foreground">
-                    / 10
-                  </div>
-                </div>
-              )}
-              
-              <div className="flex items-center gap-3 mb-2">
-                {/* Image Placeholder */}
-                <div className="relative w-16 h-16 rounded-lg bg-gradient-to-br from-accent/20 to-accent/10 border-2 border-accent/30 overflow-hidden flex-shrink-0">
-                  {stock.image_url && !imageError ? (
-                    <img 
-                      src={stock.image_url} 
-                      alt={stock.name}
-                      className="w-full h-full object-cover"
-                      onError={() => setImageError(true)}
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-xs text-muted-foreground">
-                      LOGO
-                    </div>
-                  )}
-                </div>
-                
-                <div className="flex-1 pr-24">
-                  <Badge variant="outline" className="text-xs font-mono uppercase bg-accent/20 text-accent border-accent/50 mb-2">
-                    {stock.category}
-                  </Badge>
-                  {/* NEW: Label Badges in Header */}
-                  {stock.risk_label && (
-                    <Badge className={`text-xs px-2 py-1 border ml-2 ${getRiskLabelColor(stock.risk_label)}`}>
-                      {stock.risk_label}
-                    </Badge>
-                  )}
-                </div>
-              </div>
-              <DialogTitle className="text-2xl font-bold text-accent">{stock.name}</DialogTitle>
-              <DialogDescription className="text-base text-foreground/80 mt-2">
-                {stock.description}
-              </DialogDescription>
-            </DialogHeader>
+          {/* Backdrop */}
+          <motion.div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={handlePass}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          />
 
-            <div className="flex-1 overflow-y-auto min-h-0">
-              <div className="py-4 space-y-4">
-              <div className="flex items-baseline gap-2">
-                <div className="text-sm text-muted-foreground">Current Price:</div>
-                <div className="text-2xl font-bold font-mono text-foreground">
-                  ${stock.price.toFixed(2)}
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Coins size={16} className="text-accent" />
-                Available Cash: <span className="font-mono text-foreground">${cash.toLocaleString()}</span>
-              </div>
-
-              {showInsights && (
-                <div className="bg-accent/10 border-2 border-accent/30 rounded-lg p-4 space-y-2">
-                  <div className="text-sm font-semibold text-accent flex items-center gap-2">
-                    🔍 Stock Insights
-                  </div>
-                  <div className="grid grid-cols-2 gap-3 text-sm">
-                    <div>
-                      <div className="text-muted-foreground">P/E Ratio</div>
-                      <div className="font-mono text-foreground">
-                        {(Math.random() * 30 + 10).toFixed(1)}
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-muted-foreground">Analyst Rating</div>
-                      <div className="font-mono text-foreground">
-                        {['Buy', 'Strong Buy', 'Hold'][Math.floor(Math.random() * 3)]}
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-muted-foreground">Dividend Yield</div>
-                      <div className="font-mono text-foreground">
-                        {(Math.random() * 3).toFixed(2)}%
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-muted-foreground">Market Cap</div>
-                      <div className="font-mono text-foreground">
-                        ${(Math.random() * 100 + 10).toFixed(1)}B
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              <div>
-                <Button
-                  className="w-full bg-blue-500/90 text-white hover:bg-blue-500"
-                  onClick={() => setMobileProtoolsOpen((prev) => !prev)}
-                  aria-expanded={mobileProtoolsOpen}
-                  aria-controls="protools-insight-panel"
-                >
-                  Stock Analysis &amp; Insights
-                </Button>
-                {mobileProtoolsOpen && (
-                  <div
-                    id="protools-insight-panel"
-                    className="mt-3 rounded-lg border border-blue-500/30 bg-blue-500/10 p-4 space-y-4"
-                  >
-                    {/* Moved sections from main view */}
-                    {/* Universe Scores Section */}
-                    {stock.scores && (
-                      <div className="bg-accent/10 border-2 border-accent/30 rounded-lg p-4 space-y-3">
-                        <div className="text-sm font-semibold text-accent flex items-center gap-2 mb-3">
-                          📊 Stock Analysis Scores
-                        </div>
-                        
-                        <div className="grid grid-cols-3 gap-3">
-                          {/* Quality Score */}
-                          <div className={`rounded-lg p-3 border ${getScoreBgColor(stock.scores.quality)}`}>
-                            <div className="flex items-center gap-2 mb-1">
-                              <ShieldCheck size={16} className={getScoreColor(stock.scores.quality)} weight="bold" />
-                              <div className="text-xs text-muted-foreground font-semibold">Quality</div>
-                            </div>
-                            <div className={`text-2xl font-bold font-mono ${getScoreColor(stock.scores.quality)}`}>
-                              {stock.scores.quality.toFixed(1)}
-                            </div>
-                            <div className="text-xs text-muted-foreground mt-1">Business Quality</div>
-                          </div>
-
-                          {/* Risk Score */}
-                          <div className={`rounded-lg p-3 border ${getScoreBgColor(stock.scores.risk, true)}`}>
-                            <div className="flex items-center gap-2 mb-1">
-                              <TrendUp size={16} className={getScoreColor(stock.scores.risk, true)} weight="bold" />
-                              <div className="text-xs text-muted-foreground font-semibold">Risk</div>
-                            </div>
-                            <div className={`text-2xl font-bold font-mono ${getScoreColor(stock.scores.risk, true)}`}>
-                              {getRiskLabel(stock.scores.risk)}
-                            </div>
-                            <div className="text-xs text-muted-foreground mt-1">Risk Level ({stock.scores.risk.toFixed(1)})</div>
-                          </div>
-
-                          {/* Timing Score */}
-                          <div className={`rounded-lg p-3 border ${getScoreBgColor(stock.scores.timing)}`}>
-                            <div className="flex items-center gap-2 mb-1">
-                              <Speedometer size={16} className={getScoreColor(stock.scores.timing)} weight="bold" />
-                              <div className="text-xs text-muted-foreground font-semibold">Timing</div>
-                            </div>
-                            <div className={`text-2xl font-bold font-mono ${getScoreColor(stock.scores.timing)}`}>
-                              {stock.scores.timing.toFixed(1)}
-                            </div>
-                            <div className="text-xs text-muted-foreground mt-1">Market Timing</div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Quality/Timing Label Badges */}
-                    {(stock.quality_label || stock.timing_label) && (
-                      <div className="flex flex-wrap gap-2">
-                        {stock.quality_label && (
-                          <Badge className={`text-xs px-3 py-1.5 border ${getQualityLabelColor(stock.quality_label)}`}>
-                            ⭐ Quality: {stock.quality_label}
-                          </Badge>
-                        )}
-                        {stock.timing_label && (
-                          <Badge className={`text-xs px-3 py-1.5 border ${getTimingLabelColor(stock.timing_label)}`}>
-                            ⏰ Timing: {stock.timing_label}
-                          </Badge>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Warning Flags Section */}
-                    {stock.addon_flags && getWarningFlags(stock.addon_flags).length > 0 && (
-                      <div className="bg-orange-500/10 border-2 border-orange-500/30 rounded-lg p-4 space-y-2">
-                        <div className="text-sm font-semibold text-orange-700 flex items-center gap-2 mb-2">
-                          <WarningCircle size={18} weight="fill" />
-                          Risk Warnings
-                        </div>
-                        <div className="space-y-2">
-                          {getWarningFlags(stock.addon_flags).map((warning, index) => (
-                            <div
-                              key={index}
-                              className={`flex items-center gap-2 p-2 rounded-lg border text-sm ${warning.color}`}
-                            >
-                              <span className="text-lg">{warning.icon}</span>
-                              <span className="font-semibold">{warning.label}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Stock Intelligence Section */}
-                    {(stock.ai_model || stock.analyzed_at) && (
-                      <div className="bg-accent/10 border-2 border-accent/30 rounded-lg p-4 space-y-2">
-                        <div className="text-sm font-semibold text-accent flex items-center gap-2">
-                          <Sparkle size={18} weight="fill" />
-                          Stock Intelligence
-                        </div>
-                        <div className="space-y-2 text-sm">
-                          {stock.ai_model && (
-                            <div className="flex items-center gap-2">
-                              <CheckCircle size={16} className="text-accent" weight="fill" />
-                              <span className="text-muted-foreground">AI Model:</span>
-                              <span className="font-mono font-semibold text-foreground">{stock.ai_model}</span>
-                            </div>
-                          )}
-                          {stock.analyzed_at && (
-                            <div className="flex items-center gap-2">
-                              <Clock size={16} className="text-accent" weight="bold" />
-                              <span className="text-muted-foreground">Analyzed:</span>
-                              <span className="font-semibold text-foreground">{formatRelativeTime(stock.analyzed_at)}</span>
-                            </div>
-                          )}
-                          {stock.analyzed_at && (
-                            <div className="mt-2 pt-2 border-t border-accent/20">
-                              <div className="flex items-center gap-2 text-xs">
-                                {(() => {
-                                  const diffDays = Math.floor((Date.now() - new Date(stock.analyzed_at).getTime()) / (1000 * 60 * 60 * 24))
-                                  if (diffDays <= 1) {
-                                    return (
-                                      <>
-                                        <CheckCircle size={14} className="text-green-500" weight="fill" />
-                                        <span className="text-green-700 font-semibold">Fresh Analysis</span>
-                                      </>
-                                    )
-                                  } else if (diffDays <= 7) {
-                                    return (
-                                      <>
-                                        <CheckCircle size={14} className="text-yellow-500" weight="fill" />
-                                        <span className="text-yellow-700 font-semibold">Recent Analysis</span>
-                                      </>
-                                    )
-                                  } else {
-                                    return (
-                                      <>
-                                        <WarningCircle size={14} className="text-orange-500" weight="fill" />
-                                        <span className="text-orange-700 font-semibold">Older Analysis - Consider Updating</span>
-                                      </>
-                                    )
-                                  }
-                                })()}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Original Protools content */}
-                    <div className="text-sm text-blue-100">
-                      <div className="flex items-center gap-2 text-blue-200 font-semibold">
-                        <LockKey size={18} weight="fill" />
-                        Protools Stock Insight
-                      </div>
-                      <p className="mt-2 text-blue-200/80">
-                        Unlock premium insight cards, deeper risk scanning, and personalized catalysts before you invest.
-                      </p>
-                      <ul className="mt-3 space-y-2 text-blue-100/80">
-                        <li>• AI sentiment summary and trend momentum</li>
-                        <li>• Key catalysts, earnings signals, and alerts</li>
-                        <li>• Suggested entry & exit ranges</li>
-                        <li>• Watchlist-quality score boost</li>
-                      </ul>
-                      <Button
-                        className="mt-4 w-full bg-blue-500 text-white hover:bg-blue-400"
-                        onClick={() => {
-                          window.location.href = 'https://www.alphastocks.ai/?proTools=1'
+          {/* Modal */}
+          <motion.div
+            className="relative w-full max-w-sm mx-4 bg-gradient-to-b from-gray-900 to-gray-950 
+                       rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden"
+            initial={{ y: '100%', opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: '100%', opacity: 0 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            drag="y"
+            dragConstraints={{ top: 0, bottom: 0 }}
+            dragElastic={0.2}
+            onDragEnd={(_, info) => {
+              // Swipe down = Pass
+              if (info.offset.y > 100) {
+                handlePass()
+              }
+            }}
+          >
+            {/* Compact Header */}
+            <div className="p-4 pb-2">
+              {/* Top row: Logo + Ticker + Score */}
+              <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center text-2xl">
+                    {stock.image_url ? (
+                      <img 
+                        src={stock.image_url} 
+                        alt={stock.name}
+                        className="w-full h-full object-cover rounded-xl"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none'
+                          e.currentTarget.parentElement!.textContent = '📈'
                         }}
-                      >
-                        Unlock with Protools
-                      </Button>
-                    </div>
+                      />
+                    ) : '📈'}
                   </div>
-                )}
-              </div>
-
-              <div className="grid grid-cols-3 gap-3 pt-4">
-                <div className="space-y-2">
-                  <Button
-                    onClick={() => onBuy(0.5)}
-                    onPointerUp={handlePenPointerUp(() => onBuy(0.5))}
-                    disabled={cash < smallCost}
-                    className="w-full bg-secondary hover:bg-secondary/80 text-secondary-foreground"
-                    size="lg"
-                  >
-                    Buy Small
-                  </Button>
-                  <div className="text-xs text-center text-muted-foreground font-mono">
-                    {Math.floor(baseShares * 0.5)} shares
-                    <br />${smallCost.toLocaleString()}
+                  <div>
+                    <div className="text-xl font-bold text-white">{stock.ticker}</div>
+                    <div className="text-sm text-gray-400 truncate max-w-[180px]">{stock.name}</div>
                   </div>
                 </div>
-
-                <div className="space-y-2">
-                  <Button
-                    onClick={() => onBuy(1)}
-                    onPointerUp={handlePenPointerUp(() => onBuy(1))}
-                    disabled={cash < normalCost}
-                    className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
-                    size="lg"
-                  >
-                    Buy Normal
-                  </Button>
-                  <div className="text-xs text-center text-muted-foreground font-mono">
-                    {baseShares} shares
-                    <br />${normalCost.toLocaleString()}
+                <div className="text-right">
+                  <div className="text-2xl font-bold text-green-400">
+                    {(stock.scores?.composite ?? 5).toFixed(1)}
                   </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Button
-                    onClick={() => onBuy(2)}
-                    onPointerUp={handlePenPointerUp(() => onBuy(2))}
-                    disabled={cash < highCost}
-                    className="w-full bg-accent hover:bg-accent/90 text-accent-foreground border-2 border-accent"
-                    size="lg"
-                  >
-                    High Conviction
-                  </Button>
-                  <div className="text-xs text-center text-muted-foreground font-mono">
-                    {baseShares * 2} shares
-                    <br />${highCost.toLocaleString()}
-                  </div>
+                  <div className="text-xs text-yellow-400">{starDisplay}</div>
                 </div>
               </div>
 
-              <Button
-                onClick={() => onOpenChange(false)}
-                onPointerUp={handlePenPointerUp(() => onOpenChange(false))}
-                variant="outline"
-                className="w-full mt-4"
-              >
-                Pass
-              </Button>
-              <div className="mt-3 flex items-center justify-between gap-3 text-xs uppercase tracking-[0.3em] text-muted-foreground">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => triggerSwipeAction('left')}
-                  className="h-9 gap-2 text-rose-200 hover:text-rose-100"
-                  aria-label="Pass this stock"
-                >
-                  <ArrowLeft size={14} />
-                  Pass
-                </Button>
-                <span className="text-[10px] tracking-[0.4em] text-muted-foreground/80">Swipe</span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => triggerSwipeAction('right')}
-                  className="h-9 gap-2 text-emerald-200 hover:text-emerald-100"
-                  aria-label="Invest in this stock"
-                >
-                  Invest
-                  <ArrowRight size={14} />
-                </Button>
+              {/* Divider */}
+              <div className="h-px bg-gradient-to-r from-transparent via-gray-600 to-transparent my-3" />
+
+              {/* Price Display */}
+              <div className="text-center mb-2">
+                <div className="text-2xl font-bold text-white">
+                  ${stock.price.toLocaleString()}
+                </div>
+                <div className="text-xs text-gray-400">Current Price</div>
               </div>
 
-              <div className="mt-4 pt-4 border-t border-border/50">
-                <Button
-                  onClick={handleViewFullAnalysis}
-                  variant="outline"
-                  className="w-full flex items-center justify-center gap-2 bg-accent/10 hover:bg-accent/20 border-accent/30 text-accent font-medium"
-                >
-                  View Full Analysis Report
-                </Button>
-              </div>
-            </div>
-          </div>
-
-            <div className="pointer-events-none absolute inset-x-6 top-24 flex justify-between text-xs font-semibold uppercase tracking-[0.35em]">
-              <span
-                className="rounded-full border border-emerald-400/40 bg-emerald-400/10 px-3 py-1 text-emerald-200"
-                style={{
-                  opacity: dragX > 0 ? Math.min(1, Math.abs(dragX) / swipeThreshold) : 0,
-                  transform: `scale(${dragX > 0 ? 0.9 + Math.min(1, Math.abs(dragX) / swipeThreshold) * 0.1 : 0.9})`,
-                }}
-              >
-                Invest
-              </span>
-              <span
-                className="rounded-full border border-rose-400/40 bg-rose-400/10 px-3 py-1 text-rose-200"
-                style={{
-                  opacity: dragX < 0 ? Math.min(1, Math.abs(dragX) / swipeThreshold) : 0,
-                  transform: `scale(${dragX < 0 ? 0.9 + Math.min(1, Math.abs(dragX) / swipeThreshold) * 0.1 : 0.9})`,
-                }}
-              >
-                Pass
-              </span>
-            </div>
-          </div>
-
-          <div className="hidden md:flex md:flex-col bg-card border-2 border-blue-500/30 shadow-[0_0_40px_oklch(0.75_0.15_85_/_0.3)] rounded-xl p-6 max-h-[calc(100dvh-2rem)]">
-            <div
-              className={`flex-1 rounded-xl border border-blue-400/20 bg-blue-500/10 p-4 text-blue-100 transition-opacity duration-200 ${shouldDimProtools ? 'opacity-60' : 'opacity-100'}`}
-              onMouseEnter={() => setProtoolsHovered(true)}
-              onMouseLeave={() => setProtoolsHovered(false)}
-              onFocus={() => setProtoolsActive(true)}
-              onBlur={() => setProtoolsActive(false)}
-              onClick={() => setProtoolsActive(true)}
-              role="button"
-              tabIndex={0}
-            >
-              <div className="flex items-center gap-2 text-blue-200 font-semibold">
-                <LockKey size={18} weight="fill" />
-                Protools Stock Insight
-              </div>
-              <p className="mt-2 text-sm text-blue-200/80">
-                Unlock a second insight card with deeper signals before you buy.
+              {/* One-line hook */}
+              <p className="text-sm text-gray-300 italic text-center mb-3">
+                "{stockHook}"
               </p>
-              <div className="mt-3 space-y-2 text-sm max-h-[320px] overflow-y-auto pr-1">
-                <div className="rounded-lg border border-blue-400/20 bg-blue-900/30 p-3">
-                  <div className="text-xs uppercase tracking-widest text-blue-300">Momentum & Sentiment</div>
-                  <p className="mt-1 text-blue-100/80">
-                    AI sentiment trend, sector strength, and crowd positioning.
-                  </p>
-                </div>
-                <div className="rounded-lg border border-blue-400/20 bg-blue-900/30 p-3">
-                  <div className="text-xs uppercase tracking-widest text-blue-300">Risk & Catalysts</div>
-                  <p className="mt-1 text-blue-100/80">
-                    Upcoming earnings, news triggers, and downside warnings.
-                  </p>
-                </div>
-                <div className="rounded-lg border border-blue-400/20 bg-blue-900/30 p-3">
-                  <div className="text-xs uppercase tracking-widest text-blue-300">Entry Guidance</div>
-                  <p className="mt-1 text-blue-100/80">
-                    Suggested entry zones, watchlist priority, and exit ranges.
-                  </p>
-                </div>
+
+              {/* Mini score bars */}
+              <div className="space-y-2 text-xs">
+                <ScoreMiniBar label="Quality" value={qualityScore} />
+                <ScoreMiniBar label="Risk" value={10 - riskScore} />
+                <ScoreMiniBar label="Timing" value={timingScore} />
               </div>
-              <Button
-                className="mt-4 w-full bg-blue-500 text-white hover:bg-blue-400"
-                onClick={() => {
-                  window.location.href = 'https://www.alphastocks.ai/?proTools=1'
-                }}
-              >
-                Unlock with Protools
-              </Button>
+
+              {/* Ring multiplier badge */}
+              {multiplier > 1 && (
+                <div className="mt-3 text-center">
+                  <span className={`
+                    inline-block px-3 py-1 rounded-full text-sm font-bold
+                    ${ringNumber === 3 
+                      ? 'bg-purple-500/20 text-purple-300 border border-purple-500/50' 
+                      : 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/50'
+                    }
+                  `}>
+                    Ring {ringNumber} — {multiplier}× Rewards!
+                  </span>
+                </div>
+              )}
             </div>
-          </div>
-        </div>
-      </DialogContent>
-    </Dialog>
+
+            {/* HUGE Buttons Section */}
+            <div className="p-4 pt-2 pb-8 flex gap-3">
+              {/* PASS Button */}
+              <motion.button
+                className={`
+                  flex-1 py-6 rounded-2xl font-bold text-xl
+                  bg-gradient-to-b from-gray-700 to-gray-800
+                  border-2 border-gray-600
+                  text-gray-300
+                  flex flex-col items-center justify-center gap-1
+                  active:scale-95 transition-transform
+                  ${passPressed ? 'scale-95' : ''}
+                `}
+                whileTap={{ scale: 0.95 }}
+                onClick={handlePass}
+              >
+                <span className="text-3xl">👋</span>
+                <span>PASS</span>
+              </motion.button>
+
+              {/* BUY Button */}
+              <motion.button
+                className={`
+                  flex-[1.5] py-6 rounded-2xl font-bold text-xl
+                  relative overflow-hidden
+                  ${canAfford 
+                    ? 'bg-gradient-to-b from-green-500 to-green-700 border-2 border-green-400 text-white' 
+                    : 'bg-gradient-to-b from-gray-600 to-gray-700 border-2 border-gray-500 text-gray-400'
+                  }
+                  flex flex-col items-center justify-center gap-1
+                  ${buyPressed ? 'scale-95' : ''}
+                `}
+                whileTap={canAfford ? { scale: 0.92 } : {}}
+                onClick={handleBuy}
+                disabled={!canAfford}
+              >
+                {/* Glow effect */}
+                {canAfford && (
+                  <motion.div
+                    className="absolute inset-0 bg-green-400/20"
+                    animate={{
+                      opacity: [0.2, 0.4, 0.2],
+                    }}
+                    transition={{
+                      duration: 1.5,
+                      repeat: Infinity,
+                      ease: 'easeInOut',
+                    }}
+                  />
+                )}
+
+                {/* Particle burst on click */}
+                {showParticles && <BuyParticles />}
+
+                <span className="text-3xl relative z-10">
+                  {canAfford ? '💰🚀' : '🔒'}
+                </span>
+                <span className="relative z-10">
+                  {canAfford ? 'BUY!' : "Can't Afford"}
+                </span>
+                <span className="text-sm opacity-80 relative z-10">
+                  ${stock.price.toLocaleString()}
+                </span>
+              </motion.button>
+            </div>
+
+            {/* Swipe hint for mobile */}
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2">
+              <div className="w-12 h-1 bg-gray-600 rounded-full" />
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   )
 }
