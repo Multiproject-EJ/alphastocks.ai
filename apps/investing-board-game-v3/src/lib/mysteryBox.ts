@@ -73,5 +73,10 @@ export function openMysteryBox(ringNumber: RingNumber): MysteryBoxReward {
         description: `JACKPOT! ${coins}🪙 + ${stars}⭐ + $${cash.toLocaleString()}💵 + Premium Item!` 
       }
     }
+    default: {
+      // Fallback to common reward
+      const amount = Math.floor((50 + Math.random() * 150) * multiplier)
+      return { rarity: 'common', type: 'currency', currencyType: 'coins', amount, emoji: '🪙', description: `${amount} Coins` }
+    }
   }
 }
