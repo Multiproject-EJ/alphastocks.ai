@@ -20,6 +20,7 @@ export interface QuickRewardConfig {
   glowColor: string
 }
 
+// EXPONENTIAL: Coins(1x) < Stars(10x) < Cash(100x)
 export const QUICK_REWARD_CONFIG: Record<QuickRewardType, QuickRewardConfig> = {
   'cash': {
     type: 'cash',
@@ -35,8 +36,8 @@ export const QUICK_REWARD_CONFIG: Record<QuickRewardType, QuickRewardConfig> = {
     type: 'stars',
     emoji: '⭐',
     label: 'Star Shower',
-    minReward: 10,
-    maxReward: 50,
+    minReward: 5,
+    maxReward: 20,
     celebrationEmoji: '⭐',
     color: 'from-yellow-500 to-amber-700',
     glowColor: 'rgba(234, 179, 8, 0.6)',
@@ -45,8 +46,8 @@ export const QUICK_REWARD_CONFIG: Record<QuickRewardType, QuickRewardConfig> = {
     type: 'coins',
     emoji: '🪙',
     label: 'Coin Drop',
-    minReward: 20,
-    maxReward: 100,
+    minReward: 10,
+    maxReward: 50,
     celebrationEmoji: '🪙',
     color: 'from-amber-500 to-orange-700',
     glowColor: 'rgba(245, 158, 11, 0.6)',
@@ -65,8 +66,8 @@ export const QUICK_REWARD_CONFIG: Record<QuickRewardType, QuickRewardConfig> = {
     type: 'xp',
     emoji: '⚡',
     label: 'XP Boost',
-    minReward: 25,
-    maxReward: 100,
+    minReward: 15,
+    maxReward: 50,
     celebrationEmoji: '⚡',
     color: 'from-blue-500 to-blue-700',
     glowColor: 'rgba(59, 130, 246, 0.6)',
@@ -75,8 +76,8 @@ export const QUICK_REWARD_CONFIG: Record<QuickRewardType, QuickRewardConfig> = {
     type: 'mystery',
     emoji: '🎁',
     label: 'Mystery Box',
-    minReward: 1, // Multiplier for random reward
-    maxReward: 3,
+    minReward: 1,
+    maxReward: 1,
     celebrationEmoji: '🎁',
     color: 'from-pink-500 to-purple-700',
     glowColor: 'rgba(236, 72, 153, 0.6)',

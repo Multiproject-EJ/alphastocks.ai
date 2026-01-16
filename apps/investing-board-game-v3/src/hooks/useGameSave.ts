@@ -44,6 +44,13 @@ interface BoardGameProfile {
   daily_dividend_day?: number
   daily_dividend_last_collection?: string
   daily_dividend_total_collected?: number
+  // Lifetime stats
+  lifetime_cash_earned?: number
+  lifetime_stars_earned?: number
+  lifetime_coins_earned?: number
+  lifetime_xp_earned?: number
+  mystery_boxes_opened?: number
+  legendary_items_found?: number
   created_at: string
   updated_at: string
 }
@@ -126,6 +133,13 @@ export function useGameSave(): UseGameSaveReturn {
       totalDoubles: profile.total_doubles ?? 0,
       // Jackpot system
       jackpot: profile.jackpot ?? 0,
+      // Lifetime stats
+      lifetimeCashEarned: profile.lifetime_cash_earned ? Number(profile.lifetime_cash_earned) : 0,
+      lifetimeStarsEarned: profile.lifetime_stars_earned ?? 0,
+      lifetimeCoinsEarned: profile.lifetime_coins_earned ?? 0,
+      lifetimeXpEarned: profile.lifetime_xp_earned ?? 0,
+      mysteryBoxesOpened: profile.mystery_boxes_opened ?? 0,
+      legendaryItemsFound: profile.legendary_items_found ?? 0,
     }
   }, [])
 
@@ -238,6 +252,13 @@ export function useGameSave(): UseGameSaveReturn {
           total_doubles: gameState.totalDoubles ?? 0,
           // Jackpot system
           jackpot: gameState.jackpot ?? 0,
+          // Lifetime stats
+          lifetime_cash_earned: gameState.lifetimeCashEarned ?? 0,
+          lifetime_stars_earned: gameState.lifetimeStarsEarned ?? 0,
+          lifetime_coins_earned: gameState.lifetimeCoinsEarned ?? 0,
+          lifetime_xp_earned: gameState.lifetimeXpEarned ?? 0,
+          mystery_boxes_opened: gameState.mysteryBoxesOpened ?? 0,
+          legendary_items_found: gameState.legendaryItemsFound ?? 0,
         }
 
         const { error: upsertError } = await supabaseClient
