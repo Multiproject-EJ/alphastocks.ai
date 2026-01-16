@@ -47,6 +47,25 @@ This is an interactive UI prototype with dice rolling, tile navigation, modal in
 - **Progression**: Mouse down on HUD → Drag to new position → Release → HUD stays in new location
 - **Success criteria**: Smooth drag interaction, HUD stays within board bounds, position persists during session
 
+### Currency Economy System
+- **Functionality**: Three-tier currency system with exponential value relationships, exchange mechanics, and mystery box rewards
+- **Purpose**: Create engaging economy with clear value hierarchies and exchange opportunities
+- **Currencies**:
+  - **Coins (🪙)**: Base currency (1x) - Convenience items, consumables, quick boosts
+  - **Stars (⭐)**: Mid-tier (10x) - Cosmetic items, themes, skins
+  - **Cash (💵)**: Premium (100x) - Stock investments, premium items, VIP status
+- **Exchange Rates**: 100 coins = 10 stars = $1,000 cash (with 5% fee)
+- **Shop Categories**:
+  - Coins Shop: Dice rerolls, event skips, peek ahead, shields, lucky charms
+  - Stars Shop: Dice skins, trails, themes, avatar frames
+  - Cash Shop: Premium pass, ring skips, stock packs, VIP status
+- **Mystery Box System**:
+  - Rarity tiers: Common (60%), Uncommon (25%), Rare (12%), Epic (2.5%), Legendary (0.5%)
+  - Ring multipliers: Ring 1 (1x), Ring 2 (3x), Ring 3 (10x)
+  - Rewards: Currency (common-rare), Free items (epic), Jackpot (legendary)
+- **Lifetime Stats**: Track total cash/stars/coins/XP earned, mystery boxes opened, legendary items found
+- **Success criteria**: Currency balances persist, exchanges calculate correctly, mystery box probabilities work as designed
+
 ## Edge Case Handling
 
 - **Board overflow** - Position wraps using modulo to stay within tile count
