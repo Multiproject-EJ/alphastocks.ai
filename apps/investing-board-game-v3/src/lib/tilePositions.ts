@@ -179,12 +179,12 @@ export function calculateAllRingPositions(
   const baseRadius = outerRadius ?? Math.min(boardSize.width, boardSize.height) * 0.38
   
   return {
-    // Ring 1: Outer ring - 27 tiles at 100% radius
-    ring1: calculateTilePositions(boardSize, 27, baseRadius, false),
-    // Ring 2: Middle ring - 18 tiles at 65% of outer radius
-    ring2: calculateTilePositions(boardSize, 18, baseRadius * 0.65, false),
-    // Ring 3: Inner ring - 9 tiles at 35% of outer radius
-    ring3: calculateTilePositions(boardSize, 9, baseRadius * 0.35, false),
+    // Ring 1: Outer ring - 35 tiles at 100% radius
+    ring1: calculateTilePositions(boardSize, 35, baseRadius, false),
+    // Ring 2: Middle ring - 24 tiles at 65% of outer radius
+    ring2: calculateTilePositions(boardSize, 24, baseRadius * 0.65, false),
+    // Ring 3: Inner ring - 7 tiles at 35% of outer radius
+    ring3: calculateTilePositions(boardSize, 7, baseRadius * 0.35, false),
     // Throne: Center point
     thronePosition: {
       x: boardSize.width / 2,
