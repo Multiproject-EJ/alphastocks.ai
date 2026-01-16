@@ -152,7 +152,8 @@ export const RING_2_TILES: Tile[] = [
 ]
 
 // Ring 3: Elite Circle (9 tiles, IDs 300-309)
-// Last 3 tiles before Start (307-309) are PREMIUM with 200× multiplier
+// Tiles are positioned in a circle: 300 (Start), 301, 302, 303, 304, 305, 306, 307, 308, 309, back to 300
+// Last 3 tiles (307-309) positioned just before reaching Start (300) are PREMIUM with 200× multiplier
 export const RING_3_TILES: Tile[] = [
   // Tile 0: Start/Portal (Inner Sanctum)
   { 

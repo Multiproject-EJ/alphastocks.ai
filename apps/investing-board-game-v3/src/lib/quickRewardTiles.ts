@@ -246,10 +246,11 @@ export function calculatePremiumReward(
     Math.random() * (config.maxReward - config.minReward + 1) + config.minReward
   )
   
-  // Apply premium 200× multiplier (except for bonus-roll)
-  const finalAmount = type === 'bonus-roll' 
-    ? baseAmount 
-    : baseAmount * PREMIUM_TILE_CONFIG.multiplier
+  // Bonus rolls don't get multiplied
+  const shouldMultiply = type !== 'bonus-roll'
+  const finalAmount = shouldMultiply 
+    ? baseAmount * PREMIUM_TILE_CONFIG.multiplier
+    : baseAmount
   
   return {
     amount: finalAmount,

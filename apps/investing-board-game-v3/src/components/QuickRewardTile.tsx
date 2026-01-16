@@ -49,14 +49,8 @@ export function QuickRewardTile({
           `0 0 30px ${config.glowColor}`,
           `0 0 20px ${config.glowColor}`,
         ],
-      } : isPremium ? {
-        boxShadow: [
-          '0 0 20px rgba(234, 179, 8, 0.5)',
-          '0 0 40px rgba(234, 179, 8, 0.7)',
-          '0 0 20px rgba(234, 179, 8, 0.5)',
-        ],
       } : {}}
-      transition={{ duration: isPremium ? 1.5 : 0.3, repeat: isPremium ? Infinity : 0 }}
+      transition={{ duration: 0.3 }}
     >
       {/* Colorful gradient overlay - this makes Quick Reward tiles distinct */}
       <div 
@@ -86,7 +80,7 @@ export function QuickRewardTile({
       {/* Content layer - above the gradient */}
       <div className="relative z-10 flex flex-col items-center justify-center">
         {/* Large emoji - drop shadow for depth */}
-        <span className="text-2xl sm:text-3xl drop-shadow-md">{isPremium ? styles.emoji : config.emoji}</span>
+        <span className="text-2xl sm:text-3xl drop-shadow-md">{styles.emoji}</span>
         
         {/* Label - white with drop shadow for readability */}
         <span className="text-[10px] sm:text-xs font-semibold text-white text-center leading-tight mt-1 drop-shadow-sm">
