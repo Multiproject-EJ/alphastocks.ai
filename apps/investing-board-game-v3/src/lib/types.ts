@@ -257,6 +257,13 @@ export interface GameState {
   // Ring 3 reveal tracking
   ring3Revealed?: boolean  // Has the player ever reached Ring 3?
   ring3RevealedAt?: Date  // When was Ring 3 first revealed?
+  // Lifetime stats tracking
+  lifetimeCashEarned?: number
+  lifetimeStarsEarned?: number
+  lifetimeCoinsEarned?: number
+  lifetimeXpEarned?: number
+  mysteryBoxesOpened?: number
+  legendaryItemsFound?: number
 }
 
 export interface BiasQuizQuestion {
