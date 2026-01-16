@@ -1275,3 +1275,39 @@ h1, h2, h3, h4, h5, h6 {
 .pass-button:active {
   transform: scale(0.95);
 }
+
+/* Quick Reward Tile - Mobile First */
+.quick-reward-tile {
+  /* Large touch target */
+  min-width: 44px;
+  min-height: 44px;
+  
+  /* Prevent text selection on rapid taps */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  
+  /* Smooth touch feedback */
+  touch-action: manipulation;
+}
+
+/* Quick reward glow animation */
+@keyframes quickRewardGlow {
+  0%, 100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.2);
+  }
+}
+
+.quick-reward-tile-pulse {
+  animation: quickRewardGlow 2s ease-in-out infinite;
+}
+
+/* Toast position for mobile */
+@media (max-width: 640px) {
+  [data-sonner-toaster] {
+    top: 60px !important; /* Below header */
+  }
+}

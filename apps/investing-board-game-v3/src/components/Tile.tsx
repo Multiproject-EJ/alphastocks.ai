@@ -4,6 +4,8 @@ import { Badge } from '@/components/ui/badge'
 import { Tile as TileType } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { useHaptics } from '@/hooks/useHaptics'
+import { QuickRewardTile } from './QuickRewardTile'
+import { QuickRewardType } from '@/lib/quickRewardTiles'
 
 interface TileProps {
   tile: TileType
@@ -84,6 +86,18 @@ const TileComponent = ({ tile, isActive, isHopping, isLanded, onClick, side, has
   }
 
   const isCorner = tile.type === 'corner'
+
+  // Handle quick reward tiles
+  if (tile.type === 'quick-reward' && tile.quickRewardType) {
+    return (
+      <QuickRewardTile
+        type={tile.quickRewardType as QuickRewardType}
+        isActive={isActive}
+        isLanded={isLanded}
+        onClick={handleClick}
+      />
+    )
+  }
 
   // For circular layout, we use a simpler border system
   // Category tiles get their category color, others get default/accent

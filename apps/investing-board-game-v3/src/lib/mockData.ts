@@ -1,44 +1,84 @@
 import { Tile, Stock, ThriftyChallenge, BiasCaseStudy, TileCategory, AIPlayer } from './types'
 
+// Ring 1: Street Level - 35 tiles
+// Stock tiles: 7 (positions: 3, 8, 13, 18, 23, 28, 33) - 20% of ring
+// Quick reward tiles: 16 - 46% of ring
+// Event tiles: 6 - 17% of ring
+// Corner tiles: 4 - 11% of ring
+// Special tiles: 2 - 6% of ring
 export const BOARD_TILES: Tile[] = [
+  // Corner - Start
   { id: 0, type: 'corner', title: 'Start / ThriftyPath' },
-  { id: 1, type: 'category', title: 'Turnarounds', category: 'turnarounds', colorBorder: 'oklch(0.60 0.20 330)' },
-  { id: 2, type: 'event', title: 'Market Event' },
-  { id: 3, type: 'category', title: 'Turnarounds', category: 'turnarounds', colorBorder: 'oklch(0.60 0.20 330)' },
-  { id: 4, type: 'category', title: 'Dividends', category: 'dividends', colorBorder: 'oklch(0.65 0.20 200)' },
-  { id: 5, type: 'event', title: 'Quiz' },
-  { id: 6, type: 'category', title: 'Dividends', category: 'dividends', colorBorder: 'oklch(0.65 0.20 200)' },
+  
+  // Quick rewards
+  { id: 1, type: 'quick-reward', title: 'Cash Bonus', quickRewardType: 'cash' },
+  { id: 2, type: 'quick-reward', title: 'Star Shower', quickRewardType: 'stars' },
+  
+  // Stock tile
+  { id: 3, type: 'category', title: 'Value Vault', category: 'value', colorBorder: 'oklch(0.80 0.18 85)' },
+  
+  // Quick rewards
+  { id: 4, type: 'quick-reward', title: 'Coin Drop', quickRewardType: 'coins' },
+  { id: 5, type: 'quick-reward', title: 'XP Boost', quickRewardType: 'xp' },
+  { id: 6, type: 'event', title: 'Market Event' },
+  
+  // Corner - Casino
   { id: 7, type: 'corner', title: 'Casino' },
-
-  { id: 8, type: 'category', title: 'Growth', category: 'growth', colorBorder: 'oklch(0.70 0.18 25)' },
-  { id: 9, type: 'event', title: 'Wildcard' },
-  { id: 10, type: 'event', title: 'Thrift Path' },
-  { id: 11, type: 'category', title: 'Growth', category: 'growth', colorBorder: 'oklch(0.70 0.18 25)' },
+  
+  // Stock tile
+  { id: 8, type: 'category', title: 'Dividend Lane', category: 'dividends', colorBorder: 'oklch(0.70 0.25 200)' },
+  
+  // Quick rewards
+  { id: 9, type: 'quick-reward', title: 'Mystery Box', quickRewardType: 'mystery' },
+  { id: 10, type: 'quick-reward', title: 'Star Shower', quickRewardType: 'stars' },
+  { id: 11, type: 'quick-reward', title: 'Bonus Roll', quickRewardType: 'bonus-roll' },
   { id: 12, type: 'event', title: 'Quiz' },
+  
+  // Corner - Court of Capital
   { id: 13, type: 'corner', title: 'Court of Capital' },
-
-  { id: 14, type: 'event', title: '?' },
-  { id: 15, type: 'event', title: '?' },
-  { id: 16, type: 'category', title: 'Value', category: 'value', colorBorder: 'oklch(0.75 0.15 85)' },
-  { id: 17, type: 'category', title: 'Value', category: 'value', colorBorder: 'oklch(0.75 0.15 85)' },
-  { id: 18, type: 'category', title: 'Value', category: 'value', colorBorder: 'oklch(0.75 0.15 85)' },
-  { id: 19, type: 'event', title: 'Market Event' },
-  { id: 20, type: 'category', title: 'Value', category: 'value', colorBorder: 'oklch(0.75 0.15 85)' },
+  
+  // Stock tile
+  { id: 14, type: 'category', title: 'Growth Garden', category: 'growth', colorBorder: 'oklch(0.75 0.22 25)' },
+  
+  // Quick rewards
+  { id: 15, type: 'quick-reward', title: 'Cash Bonus', quickRewardType: 'cash' },
+  { id: 16, type: 'quick-reward', title: 'Coin Drop', quickRewardType: 'coins' },
+  { id: 17, type: 'quick-reward', title: 'Chameleon', quickRewardType: 'chameleon' },
+  
+  // Stock tile  
+  { id: 18, type: 'category', title: 'Moat Masters', category: 'moats', colorBorder: 'oklch(0.60 0.27 15)' },
+  
+  // Quick rewards
+  { id: 19, type: 'event', title: 'Wildcard' },
+  { id: 20, type: 'quick-reward', title: 'XP Boost', quickRewardType: 'xp' },
+  
+  // Corner - Bias Sanctuary
   { id: 21, type: 'corner', title: 'Bias Sanctuary' },
-
-  { id: 22, type: 'category', title: 'Moats', category: 'moats', colorBorder: 'oklch(0.55 0.22 15)' },
-  { id: 23, type: 'event', title: 'Wildcard' },
-  { id: 24, type: 'category', title: 'Moats', category: 'moats', colorBorder: 'oklch(0.55 0.22 15)' },
-  { id: 25, type: 'event', title: '?' },
-  { id: 26, type: 'event', title: 'Quiz' },
-  { id: 27, type: 'category', title: 'Value Picks', category: 'value', colorBorder: 'oklch(0.80 0.18 85)' },
-  { id: 28, type: 'event', title: 'News Flash' },
-  { id: 29, type: 'category', title: 'Growth Stars', category: 'growth', colorBorder: 'oklch(0.75 0.22 25)' },
-  { id: 30, type: 'category', title: 'Dividend Yield', category: 'dividends', colorBorder: 'oklch(0.70 0.25 200)' },
-  { id: 31, type: 'event', title: 'Market Rumor' },
-  { id: 32, type: 'category', title: 'Moat Masters', category: 'moats', colorBorder: 'oklch(0.60 0.27 15)' },
-  { id: 33, type: 'category', title: 'Turnaround Play', category: 'turnarounds', colorBorder: 'oklch(0.65 0.25 330)' },
-  { id: 34, type: 'event', title: 'Analyst Call' },
+  
+  // Stock tile
+  { id: 22, type: 'category', title: 'Turnaround Town', category: 'turnarounds', colorBorder: 'oklch(0.65 0.25 330)' },
+  
+  // Quick rewards
+  { id: 23, type: 'quick-reward', title: 'Star Shower', quickRewardType: 'stars' },
+  { id: 24, type: 'event', title: 'Wildcard' },
+  { id: 25, type: 'quick-reward', title: 'Cash Bonus', quickRewardType: 'cash' },
+  { id: 26, type: 'quick-reward', title: 'Mystery Box', quickRewardType: 'mystery' },
+  { id: 27, type: 'quick-reward', title: 'Coin Drop', quickRewardType: 'coins' },
+  
+  // Stock tile
+  { id: 28, type: 'category', title: 'Value Picks', category: 'value', colorBorder: 'oklch(0.80 0.18 85)' },
+  
+  // Quick rewards
+  { id: 29, type: 'event', title: 'Market Event' },
+  { id: 30, type: 'quick-reward', title: 'Bonus Roll', quickRewardType: 'bonus-roll' },
+  { id: 31, type: 'quick-reward', title: 'Star Shower', quickRewardType: 'stars' },
+  { id: 32, type: 'event', title: 'Quiz' },
+  
+  // Stock tile
+  { id: 33, type: 'category', title: 'Dividend Dreams', category: 'dividends', colorBorder: 'oklch(0.70 0.25 200)' },
+  
+  // Quick rewards to finish lap
+  { id: 34, type: 'quick-reward', title: 'XP Boost', quickRewardType: 'xp' },
 ]
 
 // Inner Express Track - Mystery cards that change color based on dice rolls
@@ -49,32 +89,68 @@ export const INNER_TRACK_TILES: Tile[] = Array.from({ length: 12 }, (_, i) => ({
   colorBorder: 'oklch(0.35 0.02 250)', // neutral gray default
 }))
 
-// Ring 2: Executive Floor (24 tiles, IDs 200-223)
+// Ring 2: Executive Floor - 24 tiles
+// Stock tiles: 5 (positions: 202, 207, 212, 217, 222) - 21% of ring
+// Quick reward tiles: 11 - 46% of ring
+// Event tiles: 4 - 17% of ring
+// Corner tiles: 3 - 12% of ring
+// Special tiles: 1 - 4% of ring
 export const RING_2_TILES: Tile[] = [
+  // Corner - Ascension Gate
   { id: 200, type: 'corner', title: 'Ascension Gate' },
-  { id: 201, type: 'category', title: 'Premium Turnarounds', category: 'turnarounds', colorBorder: 'oklch(0.65 0.25 330)' },
-  { id: 202, type: 'event', title: 'Executive Event' },
-  { id: 203, type: 'category', title: 'Premium Turnarounds', category: 'turnarounds', colorBorder: 'oklch(0.65 0.25 330)' },
-  { id: 204, type: 'category', title: 'Premium Dividends', category: 'dividends', colorBorder: 'oklch(0.70 0.25 200)' },
+  
+  // Quick rewards (3× multiplier on Ring 2!)
+  { id: 201, type: 'quick-reward', title: 'Premium Cash', quickRewardType: 'cash' },
+  
+  // Stock tile
+  { id: 202, type: 'category', title: 'Premium Value', category: 'value', colorBorder: 'oklch(0.80 0.18 85)' },
+  
+  // Quick rewards
+  { id: 203, type: 'quick-reward', title: 'Star Storm', quickRewardType: 'stars' },
+  { id: 204, type: 'quick-reward', title: 'Gold Coins', quickRewardType: 'coins' },
+  
+  // Corner - Elevator
   { id: 205, type: 'corner', title: 'Elevator 🛗' },
-  { id: 206, type: 'category', title: 'Premium Dividends', category: 'dividends', colorBorder: 'oklch(0.70 0.25 200)' },
-  { id: 207, type: 'category', title: 'Premium Growth', category: 'growth', colorBorder: 'oklch(0.75 0.22 25)' },
-  { id: 208, type: 'event', title: 'Insider Quiz' },
-  { id: 209, type: 'category', title: 'Premium Growth', category: 'growth', colorBorder: 'oklch(0.75 0.22 25)' },
+  
+  // Quick rewards
+  { id: 206, type: 'quick-reward', title: 'XP Surge', quickRewardType: 'xp' },
+  
+  // Stock tile
+  { id: 207, type: 'category', title: 'Premium Dividends', category: 'dividends', colorBorder: 'oklch(0.70 0.25 200)' },
+  
+  // Quick rewards
+  { id: 208, type: 'event', title: 'Executive Event' },
+  { id: 209, type: 'quick-reward', title: 'Premium Cash', quickRewardType: 'cash' },
+  
+  // Corner - High Roller Casino
   { id: 210, type: 'corner', title: 'High Roller Casino' },
-  { id: 211, type: 'category', title: 'Premium Value', category: 'value', colorBorder: 'oklch(0.80 0.18 85)' },
-  { id: 212, type: 'event', title: 'Market Shock' },
-  { id: 213, type: 'category', title: 'Premium Value', category: 'value', colorBorder: 'oklch(0.80 0.18 85)' },
-  { id: 214, type: 'category', title: 'Premium Moats', category: 'moats', colorBorder: 'oklch(0.60 0.27 15)' },
-  { id: 215, type: 'event', title: 'Wildcard' },
-  { id: 216, type: 'category', title: 'Premium Moats', category: 'moats', colorBorder: 'oklch(0.60 0.27 15)' },
-  { id: 217, type: 'corner', title: 'Merger Room' },
-  { id: 218, type: 'category', title: 'Premium Growth', category: 'growth', colorBorder: 'oklch(0.75 0.22 25)' },
-  { id: 219, type: 'event', title: 'Board Meeting' },
-  { id: 220, type: 'category', title: 'Premium Dividends', category: 'dividends', colorBorder: 'oklch(0.70 0.25 200)' },
-  { id: 221, type: 'category', title: 'Premium Value', category: 'value', colorBorder: 'oklch(0.80 0.18 85)' },
-  { id: 222, type: 'event', title: 'Earnings Surprise' },
-  { id: 223, type: 'category', title: 'Premium Moats', category: 'moats', colorBorder: 'oklch(0.60 0.27 15)' },
+  
+  // Quick rewards
+  { id: 211, type: 'quick-reward', title: 'Bonus Roll', quickRewardType: 'bonus-roll' },
+  
+  // Stock tile
+  { id: 212, type: 'category', title: 'Premium Growth', category: 'growth', colorBorder: 'oklch(0.75 0.22 25)' },
+  
+  // Quick rewards
+  { id: 213, type: 'quick-reward', title: 'Star Storm', quickRewardType: 'stars' },
+  { id: 214, type: 'quick-reward', title: 'Chameleon', quickRewardType: 'chameleon' },
+  { id: 215, type: 'event', title: 'Insider Quiz' },
+  { id: 216, type: 'quick-reward', title: 'Mystery Vault', quickRewardType: 'mystery' },
+  
+  // Stock tile
+  { id: 217, type: 'category', title: 'Premium Moats', category: 'moats', colorBorder: 'oklch(0.60 0.27 15)' },
+  
+  // Quick rewards
+  { id: 218, type: 'event', title: 'Market Shock' },
+  { id: 219, type: 'quick-reward', title: 'Gold Coins', quickRewardType: 'coins' },
+  { id: 220, type: 'quick-reward', title: 'XP Surge', quickRewardType: 'xp' },
+  { id: 221, type: 'event', title: 'Wildcard' },
+  
+  // Stock tile
+  { id: 222, type: 'category', title: 'Premium Turnarounds', category: 'turnarounds', colorBorder: 'oklch(0.65 0.25 330)' },
+  
+  // Quick rewards
+  { id: 223, type: 'quick-reward', title: 'Premium Cash', quickRewardType: 'cash' },
 ]
 
 // Ring 3: Elite Circle (7 tiles, IDs 300-306)
