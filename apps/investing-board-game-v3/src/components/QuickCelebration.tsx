@@ -29,7 +29,7 @@ export function QuickCelebration({
       return
     }
 
-    // Generate particles for burst (PR 3 will increase to 200)
+    // Generate particles for burst
     const newParticles = Array.from({ length: 30 }, (_, i) => ({
       id: i,
       angle: (360 / 30) * i + Math.random() * 10,

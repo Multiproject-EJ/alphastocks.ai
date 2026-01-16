@@ -71,7 +71,7 @@ if (import.meta.env.DEV || import.meta.env.VITE_DEVTOOLS === '1') {
   })
 }
 
-import { GameState, Stock, BiasCaseStudy, WildcardEvent, PortalTransition, RingNumber } from '@/lib/types'
+import { GameState, Stock, BiasCaseStudy, WildcardEvent, PortalTransition, RingNumber, Tile as TileType } from '@/lib/types'
 import { RealMoneyRollsPack } from '@/components/OutOfRollsModal'
 import {
   BOARD_TILES,
@@ -2136,7 +2136,7 @@ function App() {
   }, [playSound, handleRingTransition])
 
   // Handle landing on quick reward tile - AUTO COLLECT, NO POPUP
-  const handleQuickRewardTile = (tile: any) => {
+  const handleQuickRewardTile = (tile: TileType) => {
     if (tile.type !== 'quick-reward' || !tile.quickRewardType) return
 
     let rewardType = tile.quickRewardType as QuickRewardType
@@ -2201,9 +2201,6 @@ function App() {
     })
 
     // Haptic feedback
-    if (navigator.vibrate) {
-      navigator.vibrate(30)
-    }
     lightTap()
 
     // Play sound

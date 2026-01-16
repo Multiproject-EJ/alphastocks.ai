@@ -45,7 +45,7 @@ export interface Tile {
   description?: string
   colorBorder?: string
   // Quick reward properties
-  quickRewardType?: string // QuickRewardType from quickRewardTiles.ts
+  quickRewardType?: 'cash' | 'stars' | 'coins' | 'bonus-roll' | 'xp' | 'mystery' | 'chameleon'
   // Ring 3 specific properties
   ring3Reward?: number
   isWinTile?: boolean
