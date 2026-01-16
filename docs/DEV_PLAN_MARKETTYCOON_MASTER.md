@@ -309,6 +309,10 @@ The Start tile on each ring acts as a **portal** that determines whether players
 | Thrift Path | ✅ Complete | Challenge-based financial discipline |
 | Portal System | ✅ Complete | `App.tsx`, `PortalAnimation.tsx` |
 | Portal Animations | ✅ Complete | `PortalAnimation.tsx` |
+| Ring Multipliers (3×, 10×) | ✅ Complete | `rewardMultiplier.ts`, `App.tsx` |
+| Mini-Games Catalog | ✅ Complete | `DEV_PLAN_MARKETTYCOON_MASTER.md` |
+| Event Calendar Integration | ✅ Complete | `miniGameSchedule.ts`, `useMiniGames.ts` |
+| Focus Mechanics | ✅ Complete | `useMiniGames.ts` |
 
 ### 🚧 In Progress
 
@@ -323,7 +327,6 @@ The Start tile on each ring acts as a **portal** that determines whether players
 
 | System | Priority | Description |
 |--------|----------|-------------|
-| Ring Multipliers | P0 | Apply 3× and 10× reward multipliers |
 | Elite Stock Mechanics | P1 | Special behaviors for elite stocks |
 | Throne Victory Sequence | P1 | Epic celebration for reaching center |
 | Ring-based Leaderboards | P2 | Track who reaches Ring 3 most |
@@ -581,6 +584,201 @@ If a mechanic would feel unfair in a $20 premium game, it's exploitative in a F2
 
 ---
 
+## Mini-Games Catalog
+
+This section documents all mini-games in MarketTycoon, their availability, and rotation schedule. The goal is to create **focused engagement** rather than overwhelming players with options.
+
+### Design Principles
+
+1. **Scarcity Creates Value**: Not all games available all the time
+2. **Focus Over Breadth**: Max 3-4 active event games at once
+3. **Return Motivation**: "Come back at 6pm for Happy Hour!"
+4. **Daily Limits**: Prevent burnout and addiction patterns
+5. **Event Windows**: Create urgency without manipulation
+
+### Game Categories
+
+#### 🟢 Always Available (Core Games)
+These games are always accessible but have daily limits to prevent abuse.
+
+| Game | Description | Daily Limit | Cooldown | Rewards |
+|------|-------------|-------------|----------|---------|
+| **Scratchcard** | 3-match instant win game | 3 plays | 1 hour | 50-500 coins |
+| **Quiz Challenge** | Investment knowledge questions | 5 plays | None | 25-100 stars + XP |
+| **Bias Sanctuary** | Cognitive bias case studies | 3 studies | None | 50 stars + insight |
+| **Stock Purchase** | Buy stocks on category tiles | Unlimited | None | Portfolio growth |
+| **Daily Dividends** | 7-day collection streak | 1 per day | 24 hours | Dice rolls, cash |
+
+#### 🟡 Scheduled Events (Rotating)
+These games appear on a predictable schedule, creating anticipation.
+
+| Game | Schedule | Duration | Rewards | Status |
+|------|----------|----------|---------|--------|
+| **Happy Hour Wheel** | Daily 6-9pm | 3 hours | Random prizes | 🚧 Planned |
+| **Stock Rush** | 9am, 1pm, 6pm | 2 hours each | Discounted stocks | 🚧 Planned |
+| **Double XP** | Weekends | 48 hours | 2× XP on all actions | ✅ Exists |
+| **Casino Happy Hour** | Fridays 6pm | 3 hours | Guaranteed scratchcard win | ✅ Exists |
+| **Thrifty Thursday** | Thursdays | 24 hours | 2× Thrifty Path stars | ✅ Exists |
+| **Roll Fest Sunday** | Sundays | 24 hours | +5 bonus dice rolls | ✅ Exists |
+
+#### 🔴 Special Events (Rare)
+These are limited-time events that create excitement and FOMO.
+
+| Game | Schedule | Duration | Rewards | Status |
+|------|----------|----------|---------|--------|
+| **Vault Heist** | Saturdays 2pm | 1 hour | Big coin prizes | 🚧 Planned |
+| **Mega Jackpot** | Monthly (1st Saturday) | 24 hours | Massive star pool | 🚧 Planned |
+| **Market Mayhem** | Random (2-3x/month) | 4 hours | Rapid trading bonuses | 🚧 Planned |
+| **Holiday Events** | Seasonal | 3-7 days | Themed rewards | 🚧 Planned |
+| **New Year Celebration** | Jan 1 | 24 hours | 3× stars and XP | ✅ Exists |
+
+### Planned Mini-Games (Specs)
+
+#### 1. Wheel of Fortune 🎡
+**Type:** Scheduled Event (Happy Hour)
+**Availability:** Daily 6-9pm
+**Mechanic:**
+- Player spins a wheel with 8-12 segments
+- Segments contain: Stars, Coins, Dice Rolls, Stock Discounts, Bonus XP, "Spin Again", and one "Jackpot"
+- One free spin per Happy Hour, additional spins cost 50 coins
+- Ring multiplier applies to wheel prizes
+
+**UI:**
+- Full-screen wheel with physics-based spin
+- Anticipation: Wheel slows down dramatically near prizes
+- Celebration: Confetti on jackpot
+
+#### 2. Stock Rush 📈
+**Type:** Scheduled Event (3x daily)
+**Availability:** 9am, 1pm, 6pm — 2 hours each
+**Mechanic:**
+- During Stock Rush, all stocks are 20% cheaper
+- Limited stock available (first come, first served feel)
+- Countdown timer creates urgency
+- Bonus stars for buying during rush
+
+**UI:**
+- Flashing "RUSH" indicator on stock tiles
+- Countdown timer in corner
+- "X stocks claimed" social proof
+
+#### 3. Vault Heist 🏦
+**Type:** Special Event (Weekly)
+**Availability:** Saturdays 2pm — 1 hour only
+**Mechanic:**
+- Player attempts to "crack" 3 vault doors
+- Each door: Mini-game (pattern match, quick math, memory)
+- Success: Advance to next vault (bigger prizes)
+- Failure: Keep current winnings and exit
+- Risk/reward: Go for Vault 3 or take safe Vault 1 prize?
+
+**UI:**
+- Bank vault aesthetic
+- Tension music
+- Dramatic door opening animations
+- Vault 3: Epic celebration with massive confetti
+
+#### 4. Market Mayhem 📊
+**Type:** Special Event (Random)
+**Availability:** 2-3 times per month, 4 hours
+**Mechanic:**
+- Rapid-fire buy/sell decisions
+- Stocks flash with temporary bonuses/penalties
+- Player must decide quickly (5 second timer per stock)
+- Good decisions: Bonus stars
+- Bad decisions: Lose coins (small amount)
+
+**UI:**
+- Trading floor aesthetic
+- Ticker tape animations
+- Quick decision UI (big Buy/Sell/Skip buttons)
+- Leaderboard: Who made best decisions?
+
+#### 5. Portfolio Poker 🃏
+**Type:** Scheduled Event (Future)
+**Availability:** TBD
+**Mechanic:**
+- Card game where cards represent stocks
+- Build "hands" based on stock categories (e.g., "Dividend Flush", "Growth Straight")
+- Play against AI opponents
+- Win: Earn actual stocks for your portfolio
+
+**UI:**
+- Classic poker table
+- Cards show stock logos and scores
+- Hand rankings based on investing concepts
+
+#### 6. Dividend Derby 🏇
+**Type:** Special Event (Future)
+**Availability:** Monthly
+**Mechanic:**
+- Pick 3 stocks from your portfolio
+- Stocks "race" based on real simulated performance
+- Winning stock earns bonus dividends
+- Encourages diversified portfolio
+
+**UI:**
+- Horse racing aesthetic but with stock logos
+- Commentary: "AAPL is pulling ahead!"
+- Photo finish moments
+
+### Focus Mechanics
+
+#### Maximum Active Games
+At any given time, players see a **focused selection** of games:
+
+| Category | Max Visible | Notes |
+|----------|-------------|-------|
+| Always Available | All 5 | Core gameplay, always shown |
+| Scheduled Events | 2-3 | Only currently active or "starting soon" |
+| Special Events | 1 | Rare, high visibility when active |
+
+#### Event Queue Display
+
+Show players what's coming:
+
+```
+NOW PLAYING:
+🟢 Quiz Challenge (always)
+🟢 Scratchcard (2 left today)
+🟡 Happy Hour Wheel (ends in 47 min)
+
+COMING UP:
+⏰ Stock Rush — starts in 2h 15m
+⏰ Vault Heist — Saturday 2pm
+
+ENDED TODAY:
+⬛ Morning Stock Rush — ended 3h ago
+```
+
+#### Notification Strategy
+
+| Trigger | Notification |
+|---------|--------------|
+| Event starting in 15 min | Push: "Happy Hour Wheel starts soon!" |
+| Event just started | In-app banner + sound |
+| Event ending in 5 min | Banner: "5 minutes left!" |
+| Daily limit reached | Toast: "Come back tomorrow for more!" |
+| New special event announced | Push + in-app modal |
+
+### Mini-Game Implementation Status
+
+| Game | Status | Priority | Files |
+|------|--------|----------|-------|
+| Scratchcard | ✅ Complete | — | `ScratchcardModal.tsx` |
+| Quiz Challenge | ✅ Complete | — | `EventModal.tsx` |
+| Bias Sanctuary | ✅ Complete | — | `BiasSanctuaryModal.tsx` |
+| Daily Dividends | ✅ Complete | — | `DailyDividendsModal.tsx` |
+| Slot Machine | ✅ Complete | — | `CasinoModal.tsx` |
+| Wheel of Fortune | 🚧 Planned | P1 | — |
+| Stock Rush | 🚧 Planned | P1 | — |
+| Vault Heist | 🚧 Planned | P2 | — |
+| Market Mayhem | 🚧 Planned | P2 | — |
+| Portfolio Poker | 🚧 Planned | P3 | — |
+| Dividend Derby | 🚧 Planned | P3 | — |
+
+---
+
 ## Priority Roadmap
 
 ### P0: Core Gameplay (Must Have for V1)
@@ -594,11 +792,11 @@ If a mechanic would feel unfair in a $20 premium game, it's exploitative in a F2
 - [ ] Ring transition animations
 
 ### P1: Retention Features (Launch Week)
-- [ ] Ring multipliers (3× and 10×)
+- [x] Ring multipliers (3× and 10×)
 - [ ] Elite stock special behaviors
 - [ ] Throne victory sequence
-- [ ] Daily login rewards
-- [ ] Weekly challenges
+- [x] Daily login rewards
+- [x] Weekly challenges
 - [ ] Social features (leaderboard)
 
 ### P2: Depth & Engagement (Month 1)
