@@ -32,6 +32,25 @@ export interface SoundSettings {
 }
 
 /**
+ * Reward sound thresholds
+ */
+const REWARD_SOUND_THRESHOLDS = {
+  cash: {
+    megaJackpot: 100000,  // $100K+
+    bigWin: 10000,        // $10K+
+    chaChingMin: 1000,    // $1K+
+  },
+  stars: {
+    bigWin: 1000,         // 1000+ stars
+    chaChingMin: 100,     // 100+ stars
+  },
+  coins: {
+    chaChingMin: 2000,    // 2000+ coins
+    starCollectMin: 500,  // 500+ coins
+  },
+}
+
+/**
  * Get the appropriate reward sound based on reward type and amount
  */
 export function getRewardSound(
@@ -39,22 +58,22 @@ export function getRewardSound(
   amount: number
 ): SoundType {
   if (type === 'cash') {
-    if (amount >= 100000) return 'mega-jackpot'  // $100K+ (premium tiles)
-    if (amount >= 10000) return 'big-win'        // $10K+
-    if (amount >= 1000) return 'cha-ching'       // $1K+
-    return 'cash-collect'                         // < $1K
+    if (amount >= REWARD_SOUND_THRESHOLDS.cash.megaJackpot) return 'mega-jackpot'
+    if (amount >= REWARD_SOUND_THRESHOLDS.cash.bigWin) return 'big-win'
+    if (amount >= REWARD_SOUND_THRESHOLDS.cash.chaChingMin) return 'cha-ching'
+    return 'cash-collect'
   }
   
   if (type === 'stars') {
-    if (amount >= 1000) return 'big-win'         // 1000+ stars
-    if (amount >= 100) return 'cha-ching'        // 100+ stars
-    return 'star-collect'                         // < 100 stars
+    if (amount >= REWARD_SOUND_THRESHOLDS.stars.bigWin) return 'big-win'
+    if (amount >= REWARD_SOUND_THRESHOLDS.stars.chaChingMin) return 'cha-ching'
+    return 'star-collect'
   }
   
   if (type === 'coins') {
-    if (amount >= 2000) return 'cha-ching'       // 2000+ coins
-    if (amount >= 500) return 'star-collect'     // 500+ coins
-    return 'coin-collect'                         // < 500 coins
+    if (amount >= REWARD_SOUND_THRESHOLDS.coins.chaChingMin) return 'cha-ching'
+    if (amount >= REWARD_SOUND_THRESHOLDS.coins.starCollectMin) return 'star-collect'
+    return 'coin-collect'
   }
   
   return 'coin-collect' // Default for XP and other
