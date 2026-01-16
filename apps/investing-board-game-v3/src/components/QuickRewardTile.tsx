@@ -23,12 +23,13 @@ export function QuickRewardTile({
         flex flex-col items-center justify-center
         cursor-pointer select-none
         bg-gradient-to-br ${config.color}
-        border-2 border-white/20
+        border-2 border-white/30
+        shadow-lg
         ${isActive ? 'ring-2 ring-white ring-offset-2 ring-offset-black' : ''}
         ${isLanded ? 'scale-110' : ''}
       `}
       style={{
-        boxShadow: isActive ? `0 0 20px ${config.glowColor}` : 'none',
+        boxShadow: isActive ? `0 0 20px ${config.glowColor}` : '0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.3)',
       }}
       whileTap={{ scale: 0.95 }}
       onClick={onClick}
@@ -46,7 +47,7 @@ export function QuickRewardTile({
       <span className="text-3xl sm:text-4xl mb-1">{config.emoji}</span>
       
       {/* Label - Compact for mobile */}
-      <span className="text-[10px] sm:text-xs text-white/80 font-medium text-center px-1 leading-tight">
+      <span className="text-[10px] sm:text-xs text-white/90 font-bold text-center px-1 leading-tight">
         {config.label}
       </span>
 
