@@ -1,7 +1,7 @@
 # MarketTycoon Master Development Plan
 
-**Version:** 1.0  
-**Created:** 2026-01-15  
+**Version:** 2.0  
+**Last Updated:** 2026-01-16  
 **Purpose:** Comprehensive guide for AI agents (Copilot/Codex) and developers implementing the MarketTycoon investing board game
 
 ---
@@ -24,6 +24,11 @@
 15. [Ethical Hard Line](#ethical-hard-line)
 16. [Priority Roadmap](#priority-roadmap)
 17. [How to Use This Document](#how-to-use-this-document)
+18. [Stock Modal Redesign](#stock-modal-redesign)
+19. [Quick Reward Tiles](#quick-reward-tiles)
+20. [Currency Economy System](#currency-economy-system)
+21. [Celebration System](#celebration-system)
+22. [Recent Implementation Log](#recent-implementation-log)
 
 ---
 
@@ -313,6 +318,15 @@ The Start tile on each ring acts as a **portal** that determines whether players
 | Mini-Games Catalog | ✅ Complete | `DEV_PLAN_MARKETTYCOON_MASTER.md` |
 | Event Calendar Integration | ✅ Complete | `miniGameSchedule.ts`, `useMiniGames.ts` |
 | Focus Mechanics | ✅ Complete | `useMiniGames.ts` |
+| Stock Modal Redesign | ✅ Complete | `StockModal.tsx` |
+| Quick Reward Tiles | ✅ Complete | `quickRewardTiles.ts`, `QuickRewardTile.tsx` |
+| Currency Economy | ✅ Complete | `currencyConfig.ts`, `mysteryBox.ts`, `029_currency_economy.sql` |
+| Currency Exchange UI | ✅ Complete | `CurrencyExchange.tsx` |
+| Epic Celebration | ✅ Complete | `EpicCelebration.tsx`, `useCelebration.ts` |
+| Shop Items (Coins) | ✅ Complete | `shop_items` table |
+| Shop Items (Stars) | ✅ Complete | `shop_items` table |
+| Shop Items (Cash) | ✅ Complete | `shop_items` table |
+| Mystery Box System | ✅ Complete | `mysteryBox.ts` |
 
 ### 🚧 In Progress
 
@@ -322,13 +336,19 @@ The Start tile on each ring acts as a **portal** that determines whether players
 | Elevator Mechanic | 🚧 In Progress | Implement roll logic and ring transitions |
 | Ring Transition Animations | 🚧 In Progress | Visual feedback when ascending/falling |
 | Wealth Throne Center | 🚧 In Progress | Center tile UI and victory sequence |
+| Portal Animation | 🚧 In Progress | Glow → Fade → Materialize |
+| Ring 3 Implementation | 🚧 In Progress | $20K rewards, Black Swan |
 
 ### 📋 Planned
 
 | System | Priority | Description |
 |--------|----------|-------------|
+| Wheel of Fortune | P1 | Happy Hour mini-game |
+| Stock Rush | P1 | Timed discount event |
 | Elite Stock Mechanics | P1 | Special behaviors for elite stocks |
 | Throne Victory Sequence | P1 | Epic celebration for reaching center |
+| Vault Heist | P2 | Weekly special event |
+| Sound Effects | P2 | Audio for all actions |
 | Ring-based Leaderboards | P2 | Track who reaches Ring 3 most |
 | Ring History Tracking | P2 | Show player's ring progression over time |
 
@@ -779,6 +799,324 @@ ENDED TODAY:
 
 ---
 
+## Stock Modal Redesign
+
+### Problem
+The original stock modal showed too much information, making decisions slow. Players want quick, snappy interactions.
+
+### Solution: Compact Info + HUGE Buttons
+
+#### New Layout
+
+```
+┌─────────────────────────────────────┐
+│  🍎 AAPL                    8.5 ⭐  │  ← Logo + Ticker + Score
+│  Apple Inc.                 $185    │  ← Name + Price  
+│  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ │
+│  "Tech giant with unmatched moat"   │  ← One-line hook
+│                                     │
+│  Quality ████████░░ 8.2             │  ← Mini progress bars
+│  Value   ██████░░░░ 6.5             │
+│  Growth  █████████░ 9.1             │
+├─────────────────────────────────────┤
+│                                     │
+│  ┌─────────────┐  ┌───────────────┐ │
+│  │             │  │               │ │
+│  │    PASS     │  │     BUY!      │ │  ← HUGE buttons
+│  │     👋      │  │    💰🚀       │ │
+│  │             │  │   $1,250      │ │
+│  │             │  │               │ │
+│  └─────────────┘  └───────────────┘ │
+│                                     │
+└─────────────────────────────────────┘
+```
+
+#### Features
+
+| Feature | Description |
+|---------|-------------|
+| Compact Header | Logo + Ticker + Score in one glance |
+| One-Line Hook | Catchy summary per stock category |
+| Mini Score Bars | Visual Quality/Value/Growth indicators |
+| HUGE BUY Button | 1.5× larger than Pass, green glow, pulsing |
+| Particle Burst | 20 emojis explode on buy click |
+| Haptic Feedback | Phone vibrates on button press |
+| Swipe to Dismiss | Swipe down = Pass (mobile friendly) |
+| Ring Multiplier Badge | Shows "3× Rewards!" on Ring 2/3 |
+
+#### Stock Hook Categories
+
+```typescript
+const hooks = {
+  growth: ["Rocket ship ready for liftoff", "Growth machine that keeps delivering"],
+  value: ["Hidden gem at a discount", "Wall Street's sleeping on this one"],
+  dividends: ["Passive income on autopilot", "Cash flow that never sleeps"],
+  moats: ["Competition can't touch this", "Fortress business model"],
+  turnarounds: ["Comeback story in progress", "The phoenix is rising"],
+  elite: ["The crown jewel of investing", "Legendary wealth builder"],
+}
+```
+
+#### Implementation Files
+- `apps/investing-board-game-v3/src/components/StockModal.tsx`
+- `apps/investing-board-game-v3/src/index.css` (button animations)
+
+---
+
+## Quick Reward Tiles
+
+### Problem
+Too many stock tiles (65%+) made gameplay slow and decision-heavy. Players wanted faster, more varied rewards.
+
+### Solution: Replace 65% of Stock Tiles
+
+#### New Tile Distribution
+
+| Ring 1 (35 tiles) | Count | Percentage |
+|-------------------|-------|------------|
+| 💰⭐🪙🎲⚡🎁🔄 Quick Reward | 16 | 46% |
+| 📈 Stock Tiles | 7 | 20% |
+| 📰 Event Tiles | 6 | 17% |
+| 🏠 Corner Tiles | 4 | 11% |
+| ✨ Special | 2 | 6% |
+
+| Ring 2 (24 tiles) | Count | Percentage |
+|-------------------|-------|------------|
+| Quick Reward | 11 | 46% |
+| Stock Tiles | 5 | 21% |
+| Event Tiles | 4 | 17% |
+| Corner Tiles | 3 | 12% |
+| Special | 1 | 4% |
+
+#### Quick Reward Tile Types
+
+| Type | Emoji | Base Reward | Ring 2 (3×) | Ring 3 (10×) | Rarity |
+|------|-------|-------------|-------------|--------------|--------|
+| Coin Drop | 🪙 | 10-50 | 30-150 | 100-500 | Common |
+| Star Shower | ⭐ | 5-20 | 15-60 | 50-200 | Common |
+| Cash Bonus | 💰 | $500-$2000 | $1.5K-$6K | $5K-$20K | Uncommon |
+| XP Boost | ⚡ | 15-50 | 45-150 | 150-500 | Common |
+| Bonus Roll | 🎲 | +1-2 rolls | +1-2 rolls | +1-2 rolls | Rare |
+| Mystery Box | 🎁 | Random! | Random ×3 | Random ×10 | Uncommon |
+| Chameleon | 🔄 | Changes each lap | — | — | Uncommon |
+
+#### Auto-Collection Flow (NO POPUPS!)
+
+```
+Land on tile → Burst animation (30 emojis) → "+Amount" floats up 
+→ Balance updates → Brief toast → Ready for next roll (~0.8s total)
+```
+
+#### Mobile-First Design
+- 44px minimum touch targets
+- Large readable emojis (3xl-4xl)
+- Compact labels
+- Haptic feedback on collection
+- No text selection on rapid taps
+- Smooth 60fps animations
+
+#### Implementation Files
+- `apps/investing-board-game-v3/src/lib/quickRewardTiles.ts`
+- `apps/investing-board-game-v3/src/components/QuickRewardTile.tsx`
+- `apps/investing-board-game-v3/src/lib/mockData.ts` (updated tile distribution)
+
+---
+
+## Currency Economy System
+
+### Currency Hierarchy (Exponential Value)
+
+```
+🪙 Coins (1×)  →  ⭐ Stars (10×)  →  💵 Cash (100×)
+
+100 Coins = 10 Stars = $1,000 Cash
+```
+
+| Currency | Emoji | Base Value | Primary Use |
+|----------|-------|------------|-------------|
+| Coins | 🪙 | 1 (base) | Convenience items, rerolls, skips |
+| Stars | ⭐ | 10 | Cosmetics, themes, trails, dice skins |
+| Cash | 💵 | 100 | Stocks, premium items, VIP status |
+| XP | ⚡ | N/A | Leveling (not exchangeable) |
+
+### Exchange System
+
+#### Exchange Rates (5% fee on all exchanges)
+
+| From | To | Rate | Minimum |
+|------|----|------|---------|
+| 100 🪙 Coins | 10 ⭐ Stars | 10:1 | 100 coins |
+| 100 ⭐ Stars | $10,000 💵 | 100:1 | 10 stars |
+| $1,000 💵 | 100 ⭐ Stars | 1:10 | $1,000 |
+| $1,000 💵 | 100 🪙 Coins | 1:100 | $1,000 |
+
+### Shop Categories
+
+#### 🪙 Coins Shop (Convenience Items)
+
+| Item | Price | Effect |
+|------|-------|--------|
+| Dice Reroll | 100 🪙 | Reroll dice once |
+| Event Skip | 150 🪙 | Skip unwanted event |
+| Peek Ahead | 75 🪙 | See next 3 tiles |
+| Extra Roll | 200 🪙 | +1 daily roll |
+| Star Boost (1hr) | 300 🪙 | 2× stars for 1 hour |
+| Shield | 250 🪙 | Block 1 negative event |
+| Lucky Charm | 400 🪙 | +10% rewards for 30 min |
+| Teleport Token | 500 🪙 | Move to any tile on ring |
+
+#### ⭐ Stars Shop (Cosmetics)
+
+| Item | Price | Effect |
+|------|-------|--------|
+| Golden Dice | 500 ⭐ | Dice skin |
+| Diamond Dice | 1000 ⭐ | Dice skin |
+| Sparkle Trail | 300 ⭐ | Movement trail |
+| Rainbow Trail | 600 ⭐ | Movement trail |
+| Dark Theme | 400 ⭐ | Board theme |
+| Neon Theme | 600 ⭐ | Board theme |
+| Gold Avatar Frame | 800 ⭐ | Profile decoration |
+| Diamond Avatar Frame | 2000 ⭐ | Profile decoration |
+
+#### 💵 Cash Shop (Premium)
+
+| Item | Price | Effect |
+|------|-------|--------|
+| Premium Season Pass | $50,000 | Unlock premium rewards |
+| Ring Skip Ticket | $25,000 | Jump to Ring 2 |
+| Starter Stock Pack | $10,000 | 3 random stocks (6+ score) |
+| VIP Status (30 days) | $100,000 | +50% all rewards |
+
+### Mystery Box Rewards
+
+| Rarity | Chance | Reward | Ring Multiplier |
+|--------|--------|--------|-----------------|
+| ⚪ Common | 60% | 50-200 🪙 Coins | Yes |
+| 🟢 Uncommon | 25% | 20-50 ⭐ Stars | Yes |
+| 🔵 Rare | 12% | $1,000-$5,000 💵 | Yes |
+| 🟣 Epic | 2.5% | Random Shop Item | No |
+| 🌟 LEGENDARY | 0.5% | JACKPOT! All currencies + Premium item | Yes |
+
+### Database Tables
+
+```sql
+-- Currency exchange history
+currency_exchanges (id, profile_id, from_currency, to_currency, from_amount, to_amount, exchange_rate, created_at)
+
+-- Shop items catalog
+shop_items (id, name, description, category, currency, price, rarity, is_consumable, icon, effect_data, is_active)
+
+-- Mystery box history
+mystery_box_history (id, profile_id, box_type, rarity_rolled, reward_type, reward_amount, reward_item_id, ring_multiplier)
+
+-- Added to board_game_profiles:
+lifetime_cash_earned, lifetime_stars_earned, lifetime_coins_earned, lifetime_xp_earned, mystery_boxes_opened, legendary_items_found
+```
+
+#### Implementation Files
+- `supabase/patches/029_currency_economy.sql`
+- `apps/investing-board-game-v3/src/lib/currencyConfig.ts`
+- `apps/investing-board-game-v3/src/lib/mysteryBox.ts`
+- `apps/investing-board-game-v3/src/components/CurrencyExchange.tsx`
+
+---
+
+## Celebration System
+
+### Epic 200-Emoji Fireworks
+
+When collecting rewards, a satisfying multi-phase animation plays.
+
+#### Animation Sequence (1.5s total)
+
+```
+PHASE 1: BURST (0.4s)
+- 200 emojis explode outward from tile
+- 360° spread with varied distances (30-150px)
+- Staggered delays for wave effect
+- Amount text pops up (+150 🪙)
+
+PHASE 2: SWIRL (0.6s)
+- Emojis spiral inward
+- Quarter rotation creates vortex effect
+- Emojis cluster together
+
+PHASE 3: FLOW (0.5s)
+- Emojis stream toward currency counter (top-left)
+- Bezier curve path for natural motion
+- Emojis fade as they approach target
+
+PHASE 4: PULSE
+- Counter glows and scales (1.15×)
+- Number increments with animation
+- Ring ripple effect expands outward
+- Haptic feedback on mobile
+```
+
+#### Celebration Configuration
+
+| Reward Type | Emoji | Particle Count | Burst Radius |
+|-------------|-------|----------------|--------------|
+| Coins | 🪙 | 200 | 150px |
+| Stars | ⭐ | 200 | 150px |
+| Cash | 💵 | 200 | 150px |
+| XP | ⚡ | 150 | 120px |
+| Mystery Box | 🎁✨🌟 | 250 | 180px |
+| Legendary | 🌟💎👑 | 300 | 200px |
+
+#### Counter Animation
+
+```typescript
+// Counter pulse effect on reward collection
+{
+  scale: [1, 1.15, 1.05, 1],
+  boxShadow: ['0 0 0px', '0 0 30px gold', '0 0 15px gold', '0 0 0px'],
+}
+```
+
+#### Performance Considerations
+- Use CSS transforms (GPU accelerated)
+- Limit to 60fps with requestAnimationFrame
+- Reduce particles on low-end devices
+- Respect `prefers-reduced-motion`
+
+#### Implementation Files
+- `apps/investing-board-game-v3/src/components/EpicCelebration.tsx`
+- `apps/investing-board-game-v3/src/components/CurrencyCounter.tsx`
+- `apps/investing-board-game-v3/src/hooks/useCelebration.ts`
+
+---
+
+## Recent Implementation Log
+
+### Sprint: January 2026
+
+| PR | Title | Status | Description |
+|----|-------|--------|-------------|
+| PR 1 | Stock Modal Redesign | ✅ Submitted | Compact info + HUGE buttons |
+| PR 2 | Quick Reward Tiles | ✅ Submitted | 65% less stocks, fast rewards |
+| PR 2.5 | Currency Economy | ✅ Merged | Exchange, shops, mystery box |
+| PR 3 | Epic Celebration | ✅ Submitted | 200-emoji fireworks + flow |
+
+### SQL Migrations Applied
+
+| Patch | Description | Date Applied |
+|-------|-------------|--------------|
+| 029_currency_economy.sql | Currency exchange, shop items, mystery box | 2026-01-16 |
+
+### Upcoming PRs (Planned)
+
+| Priority | Feature | Description |
+|----------|---------|-------------|
+| P0 | Portal Animation | Glow → Fade → Materialize sequence |
+| P0 | Ring 3 Victory Lap | $20K rewards, Black Swan danger |
+| P1 | Wheel of Fortune | First mini-game implementation |
+| P1 | Ring Transition Polish | Smooth ascend/descend animations |
+| P2 | Throne Victory | Epic final celebration sequence |
+| P2 | Sound Effects | Audio feedback for all actions |
+
+---
+
 ## Priority Roadmap
 
 ### P0: Core Gameplay (Must Have for V1)
@@ -787,12 +1125,20 @@ ENDED TODAY:
 - [x] Stock purchase system
 - [x] Quiz and casino mechanics
 - [x] Net Worth tier progression
+- [x] **Stock Modal Redesign**
+- [x] **Quick Reward Tiles**
+- [x] **Currency Economy System**
+- [x] **Epic Celebration System**
 - [ ] Multi-ring UI rendering
-- [ ] Elevator mechanic implementation
+- [ ] Portal animation polish
 - [ ] Ring transition animations
 
 ### P1: Retention Features (Launch Week)
 - [x] Ring multipliers (3× and 10×)
+- [x] **Currency Exchange**
+- [x] **Mystery Box System**
+- [x] **Shop Items**
+- [ ] Wheel of Fortune mini-game
 - [ ] Elite stock special behaviors
 - [ ] Throne victory sequence
 - [x] Daily login rewards
@@ -802,6 +1148,7 @@ ENDED TODAY:
 ### P2: Depth & Engagement (Month 1)
 - [ ] Ring-based leaderboards
 - [ ] Ring history tracking
+- [ ] Sound effects system
 - [ ] Advanced portfolio analytics
 - [ ] Event system (limited-time events)
 - [ ] Seasonal battle pass
