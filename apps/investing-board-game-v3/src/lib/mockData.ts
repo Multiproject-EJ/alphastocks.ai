@@ -1,11 +1,10 @@
 import { Tile, Stock, ThriftyChallenge, BiasCaseStudy, TileCategory, AIPlayer } from './types'
 
 // Ring 1: Street Level - 35 tiles
-// Stock tiles: 7 (positions: 3, 8, 13, 18, 23, 28, 33) - 20% of ring
+// Stock tiles: 7 (positions: 3, 8, 14, 18, 22, 28, 33) - 20% of ring
 // Quick reward tiles: 16 - 46% of ring
-// Event tiles: 6 - 17% of ring
+// Event tiles: 8 - 23% of ring
 // Corner tiles: 4 - 11% of ring
-// Special tiles: 2 - 6% of ring
 export const BOARD_TILES: Tile[] = [
   // Corner - Start
   { id: 0, type: 'corner', title: 'Start / ThriftyPath' },
@@ -63,7 +62,7 @@ export const BOARD_TILES: Tile[] = [
   { id: 24, type: 'event', title: 'Wildcard' },
   { id: 25, type: 'quick-reward', title: 'Cash Bonus', quickRewardType: 'cash' },
   { id: 26, type: 'quick-reward', title: 'Mystery Box', quickRewardType: 'mystery' },
-  { id: 27, type: 'quick-reward', title: 'Coin Drop', quickRewardType: 'coins' },
+  { id: 27, type: 'event', title: 'Analyst Call' },
   
   // Stock tile
   { id: 28, type: 'category', title: 'Value Picks', category: 'value', colorBorder: 'oklch(0.80 0.18 85)' },
@@ -71,7 +70,7 @@ export const BOARD_TILES: Tile[] = [
   // Quick rewards
   { id: 29, type: 'event', title: 'Market Event' },
   { id: 30, type: 'quick-reward', title: 'Bonus Roll', quickRewardType: 'bonus-roll' },
-  { id: 31, type: 'quick-reward', title: 'Star Shower', quickRewardType: 'stars' },
+  { id: 31, type: 'event', title: 'News Flash' },
   { id: 32, type: 'event', title: 'Quiz' },
   
   // Stock tile
@@ -92,9 +91,8 @@ export const INNER_TRACK_TILES: Tile[] = Array.from({ length: 12 }, (_, i) => ({
 // Ring 2: Executive Floor - 24 tiles
 // Stock tiles: 5 (positions: 202, 207, 212, 217, 222) - 21% of ring
 // Quick reward tiles: 11 - 46% of ring
-// Event tiles: 4 - 17% of ring
+// Event tiles: 5 - 21% of ring
 // Corner tiles: 3 - 12% of ring
-// Special tiles: 1 - 4% of ring
 export const RING_2_TILES: Tile[] = [
   // Corner - Ascension Gate
   { id: 200, type: 'corner', title: 'Ascension Gate' },
@@ -143,7 +141,7 @@ export const RING_2_TILES: Tile[] = [
   // Quick rewards
   { id: 218, type: 'event', title: 'Market Shock' },
   { id: 219, type: 'quick-reward', title: 'Gold Coins', quickRewardType: 'coins' },
-  { id: 220, type: 'quick-reward', title: 'XP Surge', quickRewardType: 'xp' },
+  { id: 220, type: 'event', title: 'Board Meeting' },
   { id: 221, type: 'event', title: 'Wildcard' },
   
   // Stock tile
