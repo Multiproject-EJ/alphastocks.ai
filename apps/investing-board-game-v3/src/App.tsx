@@ -116,6 +116,7 @@ import { useUniverseStocks } from '@/hooks/useUniverseStocks'
 import { useGameSave } from '@/hooks/useGameSave'
 import { useAuth } from '@/context/AuthContext'
 import { useSound } from '@/hooks/useSound'
+import { getRewardSound, SoundType } from '@/lib/sounds'
 import { useShopInventory } from '@/hooks/useShopInventory'
 import { useAchievements } from '@/hooks/useAchievements'
 import { useChallenges } from '@/hooks/useChallenges'
@@ -2206,8 +2207,23 @@ function App() {
     // Haptic feedback
     lightTap()
 
-    // Play sound
-    playSound('cash-register')
+    // Play sound based on reward type and amount
+    let soundType: SoundType = 'coin-collect'
+    if (rewardType === 'bonus-roll') {
+      soundType = 'star-collect'
+    } else if (rewardType === 'xp') {
+      soundType = 'coin-collect'
+    } else if (rewardType === 'cash' || rewardType === 'stars' || rewardType === 'coins') {
+      // Use reward-based sound selection for cash, stars, coins
+      soundType = getRewardSound(rewardType, amount)
+    }
+    
+    // Premium tiles always use big sounds
+    if (tile.isPremium) {
+      soundType = 'mega-jackpot'
+    }
+    
+    playSound(soundType)
 
     // Auto-continue to next phase after brief delay
     setTimeout(() => {
@@ -2289,7 +2305,8 @@ function App() {
             netWorth: prev.netWorth + cashReward,
           }))
           
-          playSound('cash-register')
+          // Play reward sound based on amount
+          playSound(getRewardSound('cash', cashReward))
           hapticSuccess()
           triggerTileCelebration(position, ['💰', '💵'])
           
@@ -2634,8 +2651,8 @@ function App() {
       netWorth: prev.netWorth + winAmount,
     }))
 
-    // Play celebration sound
-    playSound('cash-register')
+    // Play celebration sound based on reward amount
+    playSound(getRewardSound('cash', winAmount))
     hapticSuccess()
 
     // Show toast
