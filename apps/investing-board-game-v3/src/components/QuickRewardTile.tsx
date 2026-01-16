@@ -32,6 +32,7 @@ export function QuickRewardTile({
         boxShadow: isActive ? `0 0 20px ${config.glowColor}` : '0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.3)',
       }}
       whileTap={{ scale: 0.95 }}
+      whileHover={{ scale: 1.05 }}
       onClick={onClick}
       animate={isLanded ? {
         scale: [1, 1.1, 1.05],
