@@ -1,6 +1,9 @@
 import { motion } from 'framer-motion'
 import { QUICK_REWARD_CONFIG, QUICK_REWARD_TILE_STYLES, QuickRewardType } from '../lib/quickRewardTiles'
 
+// Trapezoid shape matching all board tiles
+const TILE_CLIP_PATH = 'polygon(0% 0%, 100% 0%, 86% 100%, 14% 100%)'
+
 interface QuickRewardTileProps {
   type: QuickRewardType
   isActive: boolean
@@ -20,7 +23,7 @@ export function QuickRewardTile({
   return (
     <motion.div
       className={`
-        relative w-full h-full rounded-md overflow-visible
+        relative w-full h-full rounded-md overflow-hidden
         flex flex-col items-center justify-center
         cursor-pointer select-none touch-target touch-feedback no-select
         bg-black/70 backdrop-blur-xl
@@ -31,7 +34,7 @@ export function QuickRewardTile({
         ${isLanded ? 'scale-110' : ''}
       `}
       style={{
-        clipPath: 'polygon(0% 0%, 100% 0%, 86% 100%, 14% 100%)',
+        clipPath: TILE_CLIP_PATH,
       }}
       whileTap={{ scale: 0.98 }}
       whileHover={{ scale: 1.02 }}
@@ -50,7 +53,7 @@ export function QuickRewardTile({
       <div 
         className={`absolute inset-0 bg-gradient-to-br ${styles.gradient} opacity-60 pointer-events-none`}
         style={{
-          clipPath: 'polygon(0% 0%, 100% 0%, 86% 100%, 14% 100%)',
+          clipPath: TILE_CLIP_PATH,
         }}
       />
 
@@ -58,7 +61,7 @@ export function QuickRewardTile({
       <div 
         className={`absolute inset-0 shadow-lg ${styles.shadowColor} opacity-40 pointer-events-none`}
         style={{
-          clipPath: 'polygon(0% 0%, 100% 0%, 86% 100%, 14% 100%)',
+          clipPath: TILE_CLIP_PATH,
         }}
       />
 
@@ -77,7 +80,7 @@ export function QuickRewardTile({
       <div 
         className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent pointer-events-none"
         style={{
-          clipPath: 'polygon(0% 0%, 100% 0%, 86% 100%, 14% 100%)',
+          clipPath: TILE_CLIP_PATH,
         }}
       />
     </motion.div>
