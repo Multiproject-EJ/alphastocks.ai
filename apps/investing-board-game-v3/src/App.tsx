@@ -96,6 +96,7 @@ import { rollDice, DOUBLES_BONUS } from '@/lib/dice'
 import { getResetRollsAmount, ENERGY_CONFIG } from '@/lib/energy'
 import { calculateTilePositions, calculateAllRingPositions } from '@/lib/tilePositions'
 import { isJackpotWeek } from '@/lib/events'
+import { applyRingMultiplier, getMultiplierDisplay } from '@/lib/rewardMultiplier'
 import { useUniverseStocks } from '@/hooks/useUniverseStocks'
 import { useGameSave } from '@/hooks/useGameSave'
 import { useAuth } from '@/context/AuthContext'
@@ -1882,7 +1883,9 @@ function App() {
       const currentAmount = prev.eventCurrency?.eventId === eventId ? prev.eventCurrency.amount : 0
       const updatedAmount = currentAmount + earnOnMarketEvent
       goalsHit = Math.floor(updatedAmount / goal)
-      starsAwarded = goalsHit * rewardStars
+      const baseStarsAwarded = goalsHit * rewardStars
+      // Apply ring multiplier to event rewards
+      starsAwarded = applyRingMultiplier(baseStarsAwarded, prev.currentRing)
       const remainder = updatedAmount % goal
 
       return {
@@ -1901,8 +1904,9 @@ function App() {
     triggerCelebrationFromLastTile([emoji])
 
     if (goalsHit > 0) {
+      const multiplierText = getMultiplierDisplay(gameState.currentRing)
       toast.success(`${currentActiveEvent.title} prize unlocked!`, {
-        description: `Earned ${starsAwarded.toLocaleString()} ⭐`,
+        description: `Earned ${starsAwarded.toLocaleString()} ⭐${multiplierText ? ` (${multiplierText})` : ''}`,
       })
       triggerCelebrationFromLastTile(['⭐', '✨'])
     }
@@ -2414,13 +2418,17 @@ function App() {
       starsToAward = Math.floor(starsToAward * thriftPathStatus.benefits.starMultiplier)
     }
     
+    // Apply ring multiplier
+    starsToAward = applyRingMultiplier(starsToAward, gameState.currentRing)
+    
     setGameState((prev) => ({
       ...prev,
       stars: prev.stars + starsToAward,
     }))
 
+    const multiplierText = getMultiplierDisplay(gameState.currentRing)
     toast.success(`Challenge accepted: ${challenge.title}`, {
-      description: `Earned ${starsToAward} stars! ⭐`,
+      description: `Earned ${starsToAward} stars! ⭐${multiplierText ? ` (Ring ${gameState.currentRing} ${multiplierText})` : ''}`,
     })
 
     debugGame('Challenge chosen - checking if stock modal should open')
@@ -2446,6 +2454,9 @@ function App() {
     
     // Apply star multiplier upgrade if owned
     starsEarned = applyStarMultiplier(starsEarned)
+    
+    // Apply ring multiplier
+    starsEarned = applyRingMultiplier(starsEarned, gameState.currentRing)
 
     playSound('celebration')
     setGameState((prev) => ({
@@ -2453,8 +2464,9 @@ function App() {
       stars: prev.stars + starsEarned,
     }))
 
+    const multiplierText = getMultiplierDisplay(gameState.currentRing)
     toast.success(`Quiz complete: ${correct}/${total} correct`, {
-      description: `Earned ${starsEarned} stars! ⭐ ${percentage >= 100 ? 'Perfect score!' : ''}`,
+      description: `Earned ${starsEarned} stars! ⭐ ${multiplierText ? `(Ring ${gameState.currentRing} ${multiplierText}) ` : ''}${percentage >= 100 ? 'Perfect score!' : ''}`,
     })
     triggerCelebrationFromLastTile(['⭐', '✨'])
   }
@@ -2508,15 +2520,20 @@ function App() {
       
       // Apply stars effect
       if (event.effect.stars !== undefined) {
-        if (event.effect.stars > 0) {
-          newStars = prev.stars + event.effect.stars
+        const baseStars = event.effect.stars
+        // Apply ring multiplier to positive star rewards
+        const starsAmount = baseStars > 0 ? applyRingMultiplier(baseStars, prev.currentRing) : baseStars
+        
+        if (starsAmount > 0) {
+          newStars = prev.stars + starsAmount
+          const multiplierText = getMultiplierDisplay(prev.currentRing)
           toast.success(`${event.title}`, {
-            description: `Gained ${event.effect.stars} stars! ⭐`,
+            description: `Gained ${starsAmount} stars! ⭐${multiplierText ? ` (${multiplierText})` : ''}`,
           })
         } else {
-          newStars = Math.max(0, prev.stars + event.effect.stars)
+          newStars = Math.max(0, prev.stars + starsAmount)
           toast.error(`${event.title}`, {
-            description: `Lost ${Math.abs(event.effect.stars)} stars`,
+            description: `Lost ${Math.abs(starsAmount)} stars`,
           })
         }
       }
