@@ -95,7 +95,7 @@ import {
 import { rollDice, DOUBLES_BONUS } from '@/lib/dice'
 import { getResetRollsAmount, ENERGY_CONFIG } from '@/lib/energy'
 import { calculateTilePositions, calculateAllRingPositions } from '@/lib/tilePositions'
-import { calculateMovement, getHoppingTiles } from '@/lib/movementEngine'
+import { calculateMovement, getHoppingTiles, getPortalConfigForRing } from '@/lib/movementEngine'
 import { isJackpotWeek } from '@/lib/events'
 import { applyRingMultiplier, getMultiplierDisplay } from '@/lib/rewardMultiplier'
 import { useUniverseStocks } from '@/hooks/useUniverseStocks'
@@ -1671,7 +1671,7 @@ function App() {
     // Check if player will pass Start (position 0) - only on Ring 1
     const startPosition = gameState.position
     const ringConfig = RING_CONFIG[gameState.currentRing]
-    const portalConfig = PORTAL_CONFIG[`ring${gameState.currentRing}` as keyof typeof PORTAL_CONFIG]
+    const portalConfig = getPortalConfigForRing(gameState.currentRing)
     const finalPosition = (startPosition + totalMovement) % ringConfig.tiles
     const willPassStart = gameState.currentRing === 1 && startPosition + totalMovement >= ringConfig.tiles
     const willLandOnStart = finalPosition === 0
