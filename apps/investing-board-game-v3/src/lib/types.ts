@@ -1,4 +1,4 @@
-export type TileType = 'corner' | 'category' | 'event' | 'mystery'
+export type TileType = 'corner' | 'category' | 'event' | 'mystery' | 'quick-reward' | 'special'
 
 export type TileCategory = 'turnarounds' | 'dividends' | 'growth' | 'moats' | 'value' | 'ipo' | 'meme' | 'crypto' | 'penny' | 'leverage' | 'options' | 'elite'
 
@@ -44,6 +44,8 @@ export interface Tile {
   category?: TileCategory
   description?: string
   colorBorder?: string
+  // Quick reward properties
+  quickRewardType?: 'cash' | 'stars' | 'coins' | 'bonus-roll' | 'xp' | 'mystery' | 'chameleon'
   // Ring 3 specific properties
   ring3Reward?: number
   isWinTile?: boolean

@@ -36,6 +36,7 @@ import { PortalAnimation } from '@/components/PortalAnimation'
 import { PortalTeleportAnimation } from '@/components/PortalTeleportAnimation'
 import { MoneyCelebration } from '@/components/MoneyCelebration'
 import { BlackSwanAnimation } from '@/components/BlackSwanAnimation'
+import { QuickCelebration } from '@/components/QuickCelebration'
 
 // Mobile-first components
 import { MobileGameLayout } from '@/components/MobileGameLayout'
@@ -70,7 +71,7 @@ if (import.meta.env.DEV || import.meta.env.VITE_DEVTOOLS === '1') {
   })
 }
 
-import { GameState, Stock, BiasCaseStudy, WildcardEvent, PortalTransition, RingNumber } from '@/lib/types'
+import { GameState, Stock, BiasCaseStudy, WildcardEvent, PortalTransition, RingNumber, Tile as TileType } from '@/lib/types'
 import { RealMoneyRollsPack } from '@/components/OutOfRollsModal'
 import {
   BOARD_TILES,
@@ -98,6 +99,13 @@ import {
   calculateCategoryOwnershipReward,
 } from '@/lib/constants'
 import { rollDice, DOUBLES_BONUS } from '@/lib/dice'
+import { 
+  calculateQuickReward, 
+  getMysteryReward, 
+  getChameleonType,
+  QUICK_REWARD_CONFIG,
+  QuickRewardType 
+} from '@/lib/quickRewardTiles'
 import { getResetRollsAmount, ENERGY_CONFIG } from '@/lib/energy'
 import { calculateTilePositions, calculateAllRingPositions } from '@/lib/tilePositions'
 import { calculateMovement, getHoppingTiles, getPortalConfigForRing } from '@/lib/movementEngine'
@@ -293,6 +301,14 @@ function App() {
   const [blackSwanAnimation, setBlackSwanAnimation] = useState<{
     active: boolean
     consolationReward: { type: 'stars' | 'coins'; amount: number }
+  } | null>(null)
+
+  // Quick Reward celebration state
+  const [quickCelebration, setQuickCelebration] = useState<{
+    active: boolean
+    emoji: string
+    amount: number
+    position: { x: number; y: number }
   } | null>(null)
 
   // Ring focus system state
@@ -2119,6 +2135,83 @@ function App() {
     }, 1500) // Animation duration
   }, [playSound, handleRingTransition])
 
+  // Handle landing on quick reward tile - AUTO COLLECT, NO POPUP
+  const handleQuickRewardTile = (tile: TileType) => {
+    if (tile.type !== 'quick-reward' || !tile.quickRewardType) return
+
+    let rewardType = tile.quickRewardType as QuickRewardType
+    
+    // Handle special types
+    if (rewardType === 'mystery') {
+      rewardType = getMysteryReward()
+    } else if (rewardType === 'chameleon') {
+      rewardType = getChameleonType(gameState.ring1LapsCompleted)
+    }
+
+    // Calculate reward with ring multiplier
+    const { amount, emoji } = calculateQuickReward(rewardType, gameState.currentRing)
+    const config = QUICK_REWARD_CONFIG[rewardType]
+
+    // Get tile position for celebration animation (center of screen as approximation)
+    const tilePosition = { 
+      x: window.innerWidth / 2, 
+      y: window.innerHeight / 2 
+    }
+
+    // Trigger celebration animation
+    setQuickCelebration({
+      active: true,
+      emoji,
+      amount,
+      position: tilePosition,
+    })
+
+    // Apply reward immediately
+    setGameState(prev => {
+      switch (rewardType) {
+        case 'cash':
+          return { 
+            ...prev, 
+            cash: prev.cash + amount,
+            netWorth: prev.netWorth + amount,
+          }
+        case 'stars':
+          return { ...prev, stars: prev.stars + amount }
+        case 'coins':
+          return { ...prev, coins: prev.coins + amount }
+        case 'xp':
+          return { ...prev, xp: prev.xp + amount }
+        case 'bonus-roll':
+          // Handle via setRollsRemaining below
+          return prev
+        default:
+          return prev
+      }
+    })
+
+    // Handle bonus roll separately
+    if (rewardType === 'bonus-roll') {
+      setRollsRemaining(prev => prev + amount)
+    }
+
+    // Quick toast (non-blocking)
+    toast.success(`${emoji} +${amount.toLocaleString()} ${config.label}!`, {
+      duration: 1500,
+      position: 'top-center',
+    })
+
+    // Haptic feedback
+    lightTap()
+
+    // Play sound
+    playSound('cash-register')
+
+    // Auto-continue to next phase after brief delay
+    setTimeout(() => {
+      setPhase('idle')
+    }, 800) // Short delay for celebration to play
+  }
+
   const handleTileLanding = (position: number, passedStart = false) => {
     // Check if this is a Ring 3 tile (IDs 300-306)
     if (position >= 300 && position < 400 && gameState.currentRing === 3) {
@@ -2139,6 +2232,12 @@ function App() {
     setLastLandedTileId(position)
     setIsStockSpinning(false)
     if (stockSpinTimeoutRef.current) clearTimeout(stockSpinTimeoutRef.current)
+
+    // Quick reward tiles - auto-collect, no popup
+    if (tile.type === 'quick-reward') {
+      handleQuickRewardTile(tile)
+      return // Don't show any modal
+    }
 
     addEventTrackPoints(
       pointsForTileLanding(tile),
@@ -3651,6 +3750,17 @@ function App() {
           destinationPosition={{ x: window.innerWidth / 2, y: window.innerHeight / 2 }}
           consolationReward={blackSwanAnimation.consolationReward}
           onComplete={() => setBlackSwanAnimation(null)}
+        />
+      )}
+
+      {/* Quick Reward Celebration */}
+      {quickCelebration && (
+        <QuickCelebration
+          isActive={quickCelebration.active}
+          emoji={quickCelebration.emoji}
+          amount={quickCelebration.amount}
+          position={quickCelebration.position}
+          onComplete={() => setQuickCelebration(null)}
         />
       )}
 
