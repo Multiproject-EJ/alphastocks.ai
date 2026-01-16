@@ -79,13 +79,62 @@ export const RING_2_TILES: Tile[] = [
 
 // Ring 3: Elite Circle (7 tiles, IDs 300-306)
 export const RING_3_TILES: Tile[] = [
-  { id: 300, type: 'corner', title: 'Inner Sanctum' },
-  { id: 301, type: 'category', title: 'Elite Blue Chips', category: 'elite', colorBorder: 'oklch(0.85 0.30 45)' },
-  { id: 302, type: 'event', title: 'Black Swan' },
-  { id: 303, type: 'category', title: 'Elite Legends', category: 'elite', colorBorder: 'oklch(0.85 0.30 45)' },
-  { id: 304, type: 'corner', title: 'Final Elevator 🛗' },
-  { id: 305, type: 'category', title: 'Elite Dynasty', category: 'elite', colorBorder: 'oklch(0.85 0.30 45)' },
-  { id: 306, type: 'event', title: 'Oracle Vision' },
+  { 
+    id: 300, 
+    type: 'corner', 
+    title: 'Inner Sanctum',
+    ring3Reward: 20000,
+    isWinTile: true,
+  },
+  { 
+    id: 301, 
+    type: 'category', 
+    title: 'Elite Blue Chips', 
+    category: 'elite', 
+    colorBorder: 'oklch(0.85 0.30 45)',
+    ring3Reward: 20000,
+    isWinTile: true,
+  },
+  { 
+    id: 302, 
+    type: 'event', 
+    title: 'Black Swan 🦢',
+    isBlackSwan: true,
+    isWinTile: false,
+    consolationReward: { type: 'random', stars: 50, coins: 50 },
+  },
+  { 
+    id: 303, 
+    type: 'category', 
+    title: 'Elite Legends', 
+    category: 'elite', 
+    colorBorder: 'oklch(0.85 0.30 45)',
+    ring3Reward: 20000,
+    isWinTile: true,
+  },
+  { 
+    id: 304, 
+    type: 'corner', 
+    title: 'Final Elevator 🛗',
+    ring3Reward: 20000,
+    isWinTile: true,
+  },
+  { 
+    id: 305, 
+    type: 'category', 
+    title: 'Elite Dynasty', 
+    category: 'elite', 
+    colorBorder: 'oklch(0.85 0.30 45)',
+    ring3Reward: 20000,
+    isWinTile: true,
+  },
+  { 
+    id: 306, 
+    type: 'event', 
+    title: 'Oracle Vision',
+    ring3Reward: 20000,
+    isWinTile: true,
+  },
 ]
 
 // Ring Configuration
@@ -93,6 +142,18 @@ export const RING_CONFIG = {
   1: { name: 'Street Level', tiles: 35, rewardMultiplier: 1, riskMultiplier: 1 },
   2: { name: 'Executive Floor', tiles: 24, rewardMultiplier: 3, riskMultiplier: 3 },
   3: { name: 'Elite Circle', tiles: 7, rewardMultiplier: 10, riskMultiplier: 10 },
+} as const
+
+// Ring 3 Configuration
+export const RING_3_CONFIG = {
+  maxRolls: 1,  // Only 1 dice roll allowed
+  rewardPerWinTile: 20000,  // $20,000 per winning tile
+  minStockScore: 8.0,  // Only show 8.0+ composite score stocks
+  blackSwanTileId: 302,
+  consolationReward: {
+    stars: 50,
+    coins: 50,
+  },
 } as const
 
 // Portal configuration for each ring's start tile
@@ -565,3 +626,12 @@ export const AI_PLAYERS = [
     },
   },
 ]
+
+// Elite Stock Filter for Ring 3
+export function getEliteStocksForRing3(): Stock[] {
+  return MOCK_STOCKS.elite.filter(stock => {
+    // Only stocks with 8.0+ composite score
+    const compositeScore = stock.scores?.composite ?? 0
+    return compositeScore >= RING_3_CONFIG.minStockScore
+  })
+}

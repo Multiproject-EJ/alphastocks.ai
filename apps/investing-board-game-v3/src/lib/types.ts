@@ -44,6 +44,15 @@ export interface Tile {
   category?: TileCategory
   description?: string
   colorBorder?: string
+  // Ring 3 specific properties
+  ring3Reward?: number
+  isWinTile?: boolean
+  isBlackSwan?: boolean
+  consolationReward?: {
+    type: 'random' | 'stars' | 'coins'
+    stars?: number
+    coins?: number
+  }
 }
 
 export interface Stock {
