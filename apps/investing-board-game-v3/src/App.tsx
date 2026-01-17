@@ -3727,6 +3727,54 @@ function App() {
         )}
       </div>
 
+      {/* Mobile Quick Action Buttons - Only show on phone/mobile */}
+      {(isPhone || isMobile) && (
+        <div className="fixed bottom-20 left-0 right-0 z-30 px-4">
+          <div className="flex items-center justify-center gap-2">
+            {/* Shop Button */}
+            <button 
+              onClick={openShopOverlay}
+              className="flex items-center gap-1 px-3 py-2 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full text-white text-sm font-semibold shadow-lg hover:shadow-xl transition-all"
+            >
+              🏪 Shop
+            </button>
+            
+            {/* Stock Exchange Builder Button */}
+            <button 
+              onClick={openStockExchangeOverlay}
+              className="flex items-center gap-1 px-3 py-2 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full text-white text-sm font-semibold shadow-lg hover:shadow-xl transition-all"
+            >
+              📊 Exchanges
+            </button>
+            
+            {/* Right Now Button */}
+            <button 
+              onClick={openEventCalendar}
+              className="flex items-center gap-1 px-3 py-2 bg-gradient-to-r from-yellow-500 to-amber-500 rounded-full text-white text-sm font-semibold shadow-lg hover:shadow-xl transition-all"
+            >
+              ⏰ Now
+            </button>
+            
+            {/* Portfolio Button */}
+            <button 
+              onClick={() => {
+                showOverlay({
+                  id: 'portfolio',
+                  component: PortfolioModal,
+                  props: {
+                    gameState,
+                  },
+                  priority: 'normal',
+                })
+              }}
+              className="flex items-center gap-1 px-3 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full text-white text-sm font-semibold shadow-lg hover:shadow-xl transition-all"
+            >
+              📈
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Mobile Bottom Navigation - Only show on non-phone devices */}
       {!isPhone && (
         <BottomNav
@@ -3734,7 +3782,7 @@ function App() {
           activeSection={activeSection}
           badges={{
             challenges: dailyChallenges?.filter(c => !c.completed).length || 0,
-            shop: 0, // Could add new shop items count here
+            shop: 0, // Could add new shop items count here,
           }}
           dice1={dice1}
           dice2={dice2}
