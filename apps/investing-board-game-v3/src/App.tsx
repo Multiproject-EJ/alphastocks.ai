@@ -3727,51 +3727,37 @@ function App() {
         )}
       </div>
 
-      {/* Mobile Quick Action Buttons - Only show on phone/mobile */}
-      {(isPhone || isMobile) && (
-        <div className="fixed bottom-20 left-0 right-0 z-30 px-4">
-          <div className="flex items-center justify-center gap-2">
-            {/* Shop Button */}
-            <button 
-              onClick={openShopOverlay}
-              className="flex items-center gap-1 px-3 py-2 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full text-white text-sm font-semibold shadow-lg hover:shadow-xl transition-all"
-            >
-              🏪 Shop
-            </button>
-            
-            {/* Stock Exchange Builder Button */}
-            <button 
-              onClick={openStockExchangeOverlay}
-              className="flex items-center gap-1 px-3 py-2 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full text-white text-sm font-semibold shadow-lg hover:shadow-xl transition-all"
-            >
-              📊 Exchanges
-            </button>
-            
-            {/* Right Now Button */}
-            <button 
-              onClick={openEventCalendar}
-              className="flex items-center gap-1 px-3 py-2 bg-gradient-to-r from-yellow-500 to-amber-500 rounded-full text-white text-sm font-semibold shadow-lg hover:shadow-xl transition-all"
-            >
-              ⏰ Now
-            </button>
-            
-            {/* Portfolio Button */}
-            <button 
-              onClick={() => {
-                showOverlay({
-                  id: 'portfolio',
-                  component: PortfolioModal,
-                  props: {
-                    gameState,
-                  },
-                  priority: 'normal',
-                })
-              }}
-              className="flex items-center gap-1 px-3 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full text-white text-sm font-semibold shadow-lg hover:shadow-xl transition-all"
-            >
-              📈
-            </button>
-          </div>
+      {/* Mobile Quick Action Buttons - BOTTOM-LEFT positioned, above dice area - Only show on isMobile (not phone) */}
+      {isMobile && !isPhone && (
+        <div className="fixed bottom-[200px] left-4 z-40 flex flex-col gap-2">
+          {/* Shop Button */}
+          <button 
+            onClick={openShopOverlay}
+            className="flex items-center justify-center rounded-full bg-transparent p-0 shadow-lg hover:shadow-xl transition-all"
+            aria-label="Open Shop"
+          >
+            <span className="text-3xl">🏪</span>
+          </button>
+          
+          {/* Stock Exchange Builder Button - green pill */}
+          <button 
+            onClick={openStockExchangeOverlay}
+            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full text-white font-semibold shadow-lg"
+            aria-label="Open Exchanges"
+          >
+            📈 Exchanges
+          </button>
+          
+          {/* Right Now Button - orange pill with notification dot */}
+          <button 
+            onClick={openEventCalendar}
+            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full text-white font-semibold shadow-lg relative"
+            aria-label="Open Right Now"
+          >
+            ⏰ Right Now
+            {/* Red notification dot */}
+            <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full" />
+          </button>
         </div>
       )}
 
