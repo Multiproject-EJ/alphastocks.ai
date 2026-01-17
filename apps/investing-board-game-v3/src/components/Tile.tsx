@@ -85,6 +85,24 @@ const TileComponent = ({ tile, isActive, isHopping, isLanded, onClick, side, has
     }
   }
 
+  // Get tile type-specific gradient overlay
+  const getTileGradient = () => {
+    switch (tile.type) {
+      case 'category':
+        return 'from-slate-700 to-slate-900'
+      case 'event':
+        return 'from-purple-700 to-purple-900'
+      case 'corner':
+        return 'from-emerald-600 to-green-800'
+      case 'mystery':
+        return 'from-indigo-600 to-violet-800'
+      case 'special':
+        return 'from-amber-500 to-orange-600'
+      default:
+        return 'from-gray-700 to-gray-900'
+    }
+  }
+
   const isCorner = tile.type === 'corner'
 
   // Handle quick reward tiles
@@ -147,6 +165,14 @@ const TileComponent = ({ tile, isActive, isHopping, isLanded, onClick, side, has
           : { duration: 0.3 }
       }}
     >
+      {/* Colorful gradient overlay based on tile type */}
+      <div 
+        className={`absolute inset-0 bg-gradient-to-br ${getTileGradient()} opacity-50 pointer-events-none`}
+        style={{
+          clipPath: 'polygon(0% 0%, 100% 0%, 86% 100%, 14% 100%)',
+        }}
+      />
+
       {isActive && (
         <motion.div
           className="absolute inset-0 flex items-center justify-center z-30 pointer-events-none"
@@ -180,7 +206,7 @@ const TileComponent = ({ tile, isActive, isHopping, isLanded, onClick, side, has
 
       <Badge
         variant="outline"
-        className="absolute -top-2 left-2 text-[10px] font-mono uppercase tracking-wider bg-background/80 backdrop-blur-sm"
+        className="absolute -top-2 left-2 text-[10px] font-mono uppercase tracking-wider bg-background/80 backdrop-blur-sm z-10"
       >
         {tile.type}
       </Badge>
@@ -188,7 +214,7 @@ const TileComponent = ({ tile, isActive, isHopping, isLanded, onClick, side, has
       {/* Ownership indicator for category tiles */}
       {hasOwnership && tile.type === 'category' && (
         <div 
-          className="absolute -top-2 right-2 w-5 h-5 rounded-full bg-green-500 flex items-center justify-center shadow-md border border-white/30"
+          className="absolute -top-2 right-2 w-5 h-5 rounded-full bg-green-500 flex items-center justify-center shadow-md border border-white/30 z-10"
           role="img"
           aria-label="You own stocks in this category"
         >
@@ -198,19 +224,19 @@ const TileComponent = ({ tile, isActive, isHopping, isLanded, onClick, side, has
 
       {/* Ring 3 locked content - show mystery */}
       {shouldShowMysteryContent ? (
-        <div className="flex items-center justify-center w-full h-full">
+        <div className="flex items-center justify-center w-full h-full relative z-10">
           <span className="text-4xl opacity-50">?</span>
         </div>
       ) : TILE_IMAGES[tile.title] ? (
         <img
           src={`${import.meta.env.BASE_URL}${TILE_IMAGES[tile.title].src}`}
           alt={TILE_IMAGES[tile.title].alt}
-          className="w-full h-full object-contain absolute inset-0 pt-4 px-2 pb-1"
+          className="w-full h-full object-contain absolute inset-0 pt-4 px-2 pb-1 z-10"
           loading="lazy"
         />
       ) : (
         <div className={cn(
-          'text-center px-3 font-semibold',
+          'text-center px-3 font-semibold relative z-10',
           isCorner ? 'text-base' : 'text-xs',
           getTypeColor()
         )}>
