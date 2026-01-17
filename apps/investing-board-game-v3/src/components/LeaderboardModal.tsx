@@ -18,9 +18,11 @@ interface LeaderboardModalProps {
   onOpenChange: (open: boolean) => void
   globalLeaderboard: LeaderboardEntry[]
   weeklyLeaderboard: LeaderboardEntry[]
+  ringLeaders: LeaderboardEntry[]
   playerRank: number | null
   loading: boolean
   fetchLeaderboard: (type: 'global' | 'weekly' | 'seasonal', sortBy?: string) => Promise<void>
+  fetchRingLeaders: () => Promise<void>
   currentUserId?: string
 }
 
@@ -29,22 +31,28 @@ export function LeaderboardModal({
   onOpenChange,
   globalLeaderboard,
   weeklyLeaderboard,
+  ringLeaders,
   playerRank,
   loading,
   fetchLeaderboard,
+  fetchRingLeaders,
   currentUserId,
 }: LeaderboardModalProps) {
   const dialogClass = useResponsiveDialogClass('large')
-  const [activeTab, setActiveTab] = useState<'global' | 'weekly' | 'seasonal'>('global')
+  const [activeTab, setActiveTab] = useState<'global' | 'weekly' | 'seasonal' | 'rings' | 'thrones'>('global')
   const [sortBy, setSortBy] = useState<'net_worth' | 'level' | 'season_tier' | 'stars'>('net_worth')
   const parentRef = useRef<HTMLDivElement>(null)
 
   // Fetch leaderboard when modal opens or tab changes
   useEffect(() => {
     if (open) {
-      fetchLeaderboard(activeTab, sortBy)
+      if (activeTab === 'rings' || activeTab === 'thrones') {
+        fetchRingLeaders()
+      } else {
+        fetchLeaderboard(activeTab as 'global' | 'weekly' | 'seasonal', sortBy)
+      }
     }
-  }, [open, activeTab, sortBy, fetchLeaderboard])
+  }, [open, activeTab, sortBy, fetchLeaderboard, fetchRingLeaders])
 
   const renderRankIcon = (rank: number) => {
     if (rank === 1) return <Crown className="text-yellow-400" size={24} weight="fill" />
@@ -54,8 +62,15 @@ export function LeaderboardModal({
   }
 
   const LeaderboardRow = ({ entry, index }: { entry: LeaderboardEntry; index: number }) => {
-    const isCurrentUser = entry.userId === currentUserId
+    const isCurrentUser = entry.userId === currentUserId || entry.isCurrentUser
     const rank = entry.rank || index + 1
+
+    // Ring badge configuration
+    const ringBadge = {
+      1: { bg: 'bg-slate-600', text: 'Ring 1', icon: '🏠' },
+      2: { bg: 'bg-blue-600', text: 'Ring 2', icon: '🏢' },
+      3: { bg: 'bg-purple-600', text: 'Ring 3', icon: '👑' },
+    }[entry.currentRing] || { bg: 'bg-slate-600', text: 'Ring 1', icon: '🏠' }
 
     return (
       <motion.div
@@ -63,32 +78,58 @@ export function LeaderboardModal({
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: Math.min(index * 0.05, 0.5) }}
         className={`
-          flex items-center gap-4 p-4 rounded-lg border-2 transition-all
+          flex items-center gap-3 p-3 rounded-xl border-2 transition-all
           ${isCurrentUser 
-            ? 'bg-accent/20 border-accent shadow-lg' 
+            ? 'bg-gradient-to-r from-accent/20 to-accent/10 border-accent shadow-lg shadow-accent/20' 
             : 'bg-card/50 border-border hover:bg-card'
           }
         `}
       >
         {/* Rank */}
-        <div className="w-12 flex items-center justify-center">
+        <div className="w-10 flex items-center justify-center">
           {renderRankIcon(rank)}
         </div>
 
-        {/* Username */}
-        <div className="flex-1">
-          <div className={`font-bold ${isCurrentUser ? 'text-accent' : 'text-foreground'}`}>
-            {entry.username}
-            {isCurrentUser && <span className="ml-2 text-xs text-accent">(You)</span>}
+        {/* Avatar */}
+        <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center overflow-hidden">
+          {entry.avatarUrl ? (
+            <img src={entry.avatarUrl} alt={`${entry.username} avatar`} className="w-full h-full object-cover" />
+          ) : (
+            <span className="text-lg">👤</span>
+          )}
+        </div>
+
+        {/* Info */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <span className={`font-semibold truncate ${isCurrentUser ? 'text-accent' : ''}`}>
+              {entry.username}
+            </span>
+            {entry.throneCount > 0 && (
+              <span className="text-yellow-400" title={`Reached throne ${entry.throneCount} time(s)`}>
+                👑{entry.throneCount > 1 ? `×${entry.throneCount}` : ''}
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <span className={`px-1.5 py-0.5 rounded text-white text-[10px] ${ringBadge.bg}`}>
+              {ringBadge.icon} {ringBadge.text}
+            </span>
+            <span>Lv.{entry.level}</span>
           </div>
         </div>
 
         {/* Stats */}
-        <div className="text-right space-y-1">
+        <div className="text-right">
           {sortBy === 'net_worth' && (
-            <div className="font-mono font-bold text-green-400">
-              ${entry.netWorth.toLocaleString()}
-            </div>
+            <>
+              <div className="font-bold text-accent">
+                ${(entry.netWorth / 1000).toFixed(0)}K
+              </div>
+              <div className="text-xs text-muted-foreground">
+                {entry.totalStarsEarned.toLocaleString()} ⭐
+              </div>
+            </>
           )}
           {sortBy === 'level' && (
             <div className="font-mono font-bold text-purple-400">
@@ -179,14 +220,16 @@ export function LeaderboardModal({
         </DialogHeader>
 
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="flex-1 flex flex-col">
-          <TabsList className="grid grid-cols-3 w-full">
-            <TabsTrigger value="global">Global</TabsTrigger>
-            <TabsTrigger value="weekly">Weekly</TabsTrigger>
-            <TabsTrigger value="seasonal">Seasonal</TabsTrigger>
+          <TabsList className="grid grid-cols-5 w-full">
+            <TabsTrigger value="global">🌍 Global</TabsTrigger>
+            <TabsTrigger value="weekly">📅 Weekly</TabsTrigger>
+            <TabsTrigger value="seasonal">🏆 Seasonal</TabsTrigger>
+            <TabsTrigger value="rings">🎯 Ring Leaders</TabsTrigger>
+            <TabsTrigger value="thrones">👑 Hall of Fame</TabsTrigger>
           </TabsList>
 
           {/* Sort options (for global/seasonal) */}
-          {activeTab !== 'weekly' && (
+          {(activeTab === 'global' || activeTab === 'seasonal') && (
             <div className="flex gap-2 mt-3 flex-wrap">
               <Button
                 size="sm"
@@ -248,17 +291,87 @@ export function LeaderboardModal({
               <VirtualLeaderboard data={globalLeaderboard.filter(e => e.seasonTier > 0)} />
             )}
           </TabsContent>
+
+          <TabsContent value="rings" className="flex-1 mt-4">
+            {loading ? (
+              <div className="flex items-center justify-center h-full">
+                <div className="text-muted-foreground">Loading...</div>
+              </div>
+            ) : (
+              <VirtualLeaderboard data={ringLeaders} />
+            )}
+          </TabsContent>
+
+          <TabsContent value="thrones" className="flex-1 mt-4">
+            {loading ? (
+              <div className="flex items-center justify-center h-full">
+                <div className="text-muted-foreground">Loading...</div>
+              </div>
+            ) : (
+              <VirtualLeaderboard data={ringLeaders.filter(e => e.throneCount > 0).sort((a, b) => b.throneCount - a.throneCount)} />
+            )}
+          </TabsContent>
         </Tabs>
 
-        {/* Player rank display */}
-        {playerRank && playerRank > 100 && (
-          <div className="mt-4 p-3 bg-accent/10 border border-accent/30 rounded-lg">
-            <div className="text-sm text-center">
-              <span className="text-muted-foreground">Your Rank: </span>
-              <span className="font-bold text-accent">#{playerRank}</span>
+        {/* Current user's position - sticky footer */}
+        {currentUserId && (() => {
+          const currentUserEntry = 
+            activeTab === 'rings' || activeTab === 'thrones'
+              ? ringLeaders.find(e => e.userId === currentUserId)
+              : activeTab === 'weekly'
+              ? weeklyLeaderboard.find(e => e.userId === currentUserId)
+              : globalLeaderboard.find(e => e.userId === currentUserId)
+          
+          if (!currentUserEntry) return null
+
+          const ringBadges = {
+            1: { bg: 'bg-slate-600', text: 'Ring 1', icon: '🏠' },
+            2: { bg: 'bg-blue-600', text: 'Ring 2', icon: '🏢' },
+            3: { bg: 'bg-purple-600', text: 'Ring 3', icon: '👑' },
+          }
+          const currentRingBadge = ringBadges[currentUserEntry.currentRing] || ringBadges[1]
+
+          return (
+            <div className="sticky bottom-0 mt-4 p-3 bg-card/95 backdrop-blur-sm border-t-2 border-accent rounded-t-xl">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl font-bold text-accent">
+                    #{currentUserEntry.rank || playerRank || '?'}
+                  </span>
+                  <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center overflow-hidden">
+                    {currentUserEntry.avatarUrl ? (
+                      <img src={currentUserEntry.avatarUrl} alt={`${currentUserEntry.username} avatar`} className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-lg">👤</span>
+                    )}
+                  </div>
+                  <div>
+                    <div className="font-semibold">You</div>
+                    <div className="text-xs text-muted-foreground flex items-center gap-1">
+                      <span className={`px-1.5 py-0.5 rounded text-white text-[10px] ${currentRingBadge.bg}`}>
+                        {currentRingBadge.icon} {currentRingBadge.text}
+                      </span>
+                      <span>• Lv.{currentUserEntry.level}</span>
+                      {currentUserEntry.throneCount > 0 && (
+                        <span className="text-yellow-400">
+                          • 👑×{currentUserEntry.throneCount}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="font-bold text-accent">
+                    ${(currentUserEntry.netWorth / 1000).toFixed(0)}K
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {currentUserEntry.totalStarsEarned.toLocaleString()} ⭐
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-        )}
+          )
+        })()}
       </DialogContent>
     </Dialog>
   )
