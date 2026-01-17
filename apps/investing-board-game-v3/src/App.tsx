@@ -38,6 +38,7 @@ import { MoneyCelebration } from '@/components/MoneyCelebration'
 import { BlackSwanAnimation } from '@/components/BlackSwanAnimation'
 import { QuickCelebration } from '@/components/QuickCelebration'
 import { WheelOfFortuneModal } from '@/components/WheelOfFortuneModal'
+import { ThroneVictoryModal } from '@/components/ThroneVictoryModal'
 
 // Mobile-first components
 import { MobileGameLayout } from '@/components/MobileGameLayout'
@@ -321,6 +322,9 @@ function App() {
   // Portal state for ring transitions
   const [portalTransition, setPortalTransition] = useState<PortalTransition | null>(null)
   const [isPortalAnimating, setIsPortalAnimating] = useState(false)
+
+  // Throne victory modal state
+  const [showThroneVictory, setShowThroneVictory] = useState(false)
 
   // Overlay manager for coordinated modal display
   const { show: showOverlay, wasRecentlyShown, getCurrentOverlay, closeCurrent } = useOverlayManager()
@@ -2111,15 +2115,20 @@ function App() {
     
     // After animation, update game state
     setTimeout(() => {
+      // Check if throne is reached
+      const isThroneReached = transition.toRing === 0
+      
       setGameState(prev => ({
         ...prev,
         // Only update currentRing if not going to throne (toRing !== 0)
         ...(transition.toRing !== 0 && { currentRing: transition.toRing as RingNumber }),
         position: transition.toTile,
-        // Track throne if reached
-        ...(transition.toRing === 0 && {
+        // Track throne if reached and award rewards
+        ...(isThroneReached && {
           hasReachedThrone: true,
           throneCount: (prev.throneCount || 0) + 1,
+          stars: prev.stars + 10000,  // Award 10K stars
+          cash: prev.cash + 100000,    // Award $100K cash
         }),
       }))
       
@@ -2128,11 +2137,11 @@ function App() {
       
       // Show toast message
       if (transition.direction === 'up') {
-        if (transition.toRing === 0) {
-          toast.success('👑 THRONE REACHED!', {
-            description: 'You have conquered the Wealth Spiral!',
-            duration: 5000,
-          })
+        if (isThroneReached) {
+          // Show throne victory modal instead of just a toast
+          setTimeout(() => {
+            setShowThroneVictory(true)
+          }, 500)
         } else {
           toast.success(`⬆️ PORTAL UP!`, {
             description: `Welcome to Ring ${transition.toRing}: ${RING_CONFIG[transition.toRing as RingNumber].name}!`,
@@ -3850,6 +3859,34 @@ function App() {
             return true
           }
           return false
+        }}
+        playSound={playSound}
+      />
+
+      {/* Throne Victory Modal */}
+      <ThroneVictoryModal
+        isOpen={showThroneVictory}
+        onClose={() => setShowThroneVictory(false)}
+        onPlayAgain={() => {
+          // Reset to Ring 1, position 0
+          setGameState(prev => ({
+            ...prev,
+            currentRing: 1,
+            position: 0,
+          }))
+          setShowThroneVictory(false)
+        }}
+        journeyStats={{
+          turnsTaken: gameState.stats.totalRolls,
+          stocksCollected: gameState.stats.stocksPurchased,
+          timesFallen: 0, // TODO: Track this if needed
+          timePlayed: '0m', // TODO: Calculate actual play time if needed
+          throneCount: gameState.throneCount,
+        }}
+        rewards={{
+          stars: 10000,
+          cash: 100000,
+          badge: 'Tycoon',
         }}
         playSound={playSound}
       />
