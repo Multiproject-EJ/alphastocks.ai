@@ -5,7 +5,7 @@ BEGIN;
 
 -- Add new columns to leaderboard table
 ALTER TABLE public.leaderboard 
-ADD COLUMN IF NOT EXISTS current_ring INTEGER DEFAULT 1 CHECK (current_ring >= 1 AND current_ring <= 3),
+ADD COLUMN IF NOT EXISTS current_ring INTEGER DEFAULT 1 CHECK (current_ring >= 1 AND current_ring <= 3), -- NOTE: Hardcoded to 3 rings. Update if game expands.
 ADD COLUMN IF NOT EXISTS throne_count INTEGER DEFAULT 0,
 ADD COLUMN IF NOT EXISTS highest_ring_reached INTEGER DEFAULT 1,
 ADD COLUMN IF NOT EXISTS avatar_url TEXT;

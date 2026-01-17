@@ -91,7 +91,10 @@ export function useLeaderboard({ gameState }: UseLeaderboardProps): UseLeaderboa
         total_stars_earned: gameState.stats?.totalStarsEarned || 0,
         current_ring: gameState.currentRing || 1,
         throne_count: gameState.throneCount || 0,
-        highest_ring_reached: gameState.highestRingReached || gameState.currentRing || 1,
+        highest_ring_reached: Math.max(
+          gameState.highestRingReached || 1,
+          gameState.currentRing || 1
+        ),
       }
 
       const { error } = await supabaseClient
