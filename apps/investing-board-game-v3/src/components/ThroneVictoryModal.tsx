@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import confetti from 'canvas-confetti'
+import { SoundType } from '@/lib/sounds'
 
 interface ThroneVictoryModalProps {
   isOpen: boolean
@@ -19,7 +20,7 @@ interface ThroneVictoryModalProps {
     cash: number
     badge: string
   }
-  playSound: (sound: string) => void
+  playSound: (sound: SoundType) => void
 }
 
 const VICTORY_PHASES = {

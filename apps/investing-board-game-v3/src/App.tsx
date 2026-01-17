@@ -3782,7 +3782,7 @@ function App() {
           activeSection={activeSection}
           badges={{
             challenges: dailyChallenges?.filter(c => !c.completed).length || 0,
-            shop: 0, // Could add new shop items count here,
+            shop: 0, // Could add new shop items count here
           }}
           dice1={dice1}
           dice2={dice2}
