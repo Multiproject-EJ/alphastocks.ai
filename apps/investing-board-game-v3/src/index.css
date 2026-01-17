@@ -1311,3 +1311,37 @@ h1, h2, h3, h4, h5, h6 {
     top: 60px !important; /* Below header */
   }
 }
+
+/* Portal Animation Utilities */
+.bg-gradient-radial {
+  background: radial-gradient(circle, var(--tw-gradient-stops));
+}
+
+/* Portal animation keyframes */
+@keyframes portal-pulse {
+  0%, 100% { 
+    transform: scale(1); 
+    opacity: 0.8; 
+  }
+  50% { 
+    transform: scale(1.1); 
+    opacity: 1; 
+  }
+}
+
+@keyframes portal-spin {
+  from { 
+    transform: rotate(0deg); 
+  }
+  to { 
+    transform: rotate(360deg); 
+  }
+}
+
+.animate-portal-pulse {
+  animation: portal-pulse 0.8s ease-in-out infinite;
+}
+
+.animate-portal-spin {
+  animation: portal-spin 2s linear infinite;
+}
