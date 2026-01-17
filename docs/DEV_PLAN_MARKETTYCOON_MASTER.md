@@ -1,6 +1,6 @@
 # MarketTycoon Master Development Plan
 
-**Version:** 2.0  
+**Version:** 2.1  
 **Last Updated:** 2026-01-16  
 **Purpose:** Comprehensive guide for AI agents (Copilot/Codex) and developers implementing the MarketTycoon investing board game
 
@@ -23,12 +23,13 @@
 14. [Monetization Guidelines](#monetization-guidelines)
 15. [Ethical Hard Line](#ethical-hard-line)
 16. [Priority Roadmap](#priority-roadmap)
-17. [How to Use This Document](#how-to-use-this-document)
-18. [Stock Modal Redesign](#stock-modal-redesign)
-19. [Quick Reward Tiles](#quick-reward-tiles)
-20. [Currency Economy System](#currency-economy-system)
-21. [Celebration System](#celebration-system)
-22. [Recent Implementation Log](#recent-implementation-log)
+17. [Codebase Verification](#codebase-verification-required-for-ai-agents)
+18. [How to Use This Document](#how-to-use-this-document)
+19. [Stock Modal Redesign](#stock-modal-redesign)
+20. [Quick Reward Tiles](#quick-reward-tiles)
+21. [Currency Economy System](#currency-economy-system)
+22. [Celebration System](#celebration-system)
+23. [Recent Implementation Log](#recent-implementation-log)
 
 ---
 
@@ -327,17 +328,25 @@ The Start tile on each ring acts as a **portal** that determines whether players
 | Shop Items (Stars) | ✅ Complete | `shop_items` table |
 | Shop Items (Cash) | ✅ Complete | `shop_items` table |
 | Mystery Box System | ✅ Complete | `mysteryBox.ts` |
+| Daily Dividends | ✅ Complete | `DailyDividendsModal.tsx`, `useDailyDividends.ts` |
+| Coins Currency | ✅ Complete | `types.ts`, `App.tsx` |
+| Thrift Path Status | ✅ Complete | `ThriftPathStatus.tsx`, `useThriftPath.ts` |
+| Daily Challenges | ✅ Complete | `lib/challenges.ts`, `useChallenges.ts` |
+| Events System | ✅ Complete | `lib/events.ts`, `useEvents.ts` |
+| Camera System (Mobile) | ✅ Complete | `App.tsx`, `CAMERA_IMPLEMENTATION.md` |
+| Event Track | ✅ Complete | `EventTrackModal.tsx` |
+| Premium Tiles (200×) | ✅ Complete | `mockData.ts`, `App.tsx` |
+| ProTools Integration | ✅ Complete | `App.tsx` |
 
 ### 🚧 In Progress
 
 | System | Status | Next Steps |
 |--------|--------|------------|
-| Multi-Ring UI | 🚧 In Progress | Render Ring 2 and Ring 3 tiles on board |
+| Multi-Ring UI | 🚧 In Progress | Render Ring 2 and Ring 3 tiles visually |
 | Elevator Mechanic | 🚧 In Progress | Implement roll logic and ring transitions |
-| Ring Transition Animations | 🚧 In Progress | Visual feedback when ascending/falling |
+| Ring Transition Animations | 🚧 In Progress | Polish ascend/descend visual feedback |
 | Wealth Throne Center | 🚧 In Progress | Center tile UI and victory sequence |
-| Portal Animation | 🚧 In Progress | Glow → Fade → Materialize |
-| Ring 3 Implementation | 🚧 In Progress | $20K rewards, Black Swan |
+| Soothing Sound System | 🚧 In Progress | Upgrade harsh oscillators to pleasant tones |
 
 ### 📋 Planned
 
@@ -1164,29 +1173,121 @@ PHASE 4: PULSE
 
 ---
 
+## Codebase Verification (REQUIRED for AI Agents)
+
+**⚠️ CRITICAL: Before implementing ANY feature, AI agents MUST verify the current codebase state.**
+
+### Step 1: Check Key Files
+
+These files contain the current game state and should be reviewed first:
+
+| File | Contains |
+|------|----------|
+| `apps/investing-board-game-v3/src/App.tsx` | Main game loop, state management, all integrations |
+| `apps/investing-board-game-v3/src/lib/types.ts` | Type definitions (GameState, Tile, Stock, Currency, etc.) |
+| `apps/investing-board-game-v3/src/lib/mockData.ts` | Board tiles, stocks, events, ring configs, rewards |
+| `apps/investing-board-game-v3/src/lib/sounds.ts` | Sound system and audio feedback |
+| `apps/investing-board-game-v3/src/components/` | All UI components (modals, overlays, widgets) |
+| `apps/investing-board-game-v3/src/hooks/` | Custom React hooks (game save, challenges, dividends, etc.) |
+
+### Step 2: Search Before Implementing
+
+Before writing new code, search the codebase:
+
+```bash
+# Example: Check if "wheel of fortune" exists
+Search for: "wheel" OR "fortune" OR "WheelModal"
+
+# If found → Read existing implementation, extend or modify
+# If not found → Safe to implement from scratch
+```
+
+**Search targets:**
+- Feature name (e.g., "portal", "elevator", "wheel")
+- Component names (e.g., "Modal", "Animation")
+- Function names (e.g., "playSound", "handleReward")
+- Type names (e.g., "SoundType", "TileType")
+
+### Step 3: Check Related Documentation
+
+The repo contains implementation summaries for major features:
+
+| Document | Feature |
+|----------|---------|
+| `apps/investing-board-game-v3/CAMERA_IMPLEMENTATION.md` | 3D camera system, mobile immersive mode |
+| `apps/investing-board-game-v3/CHALLENGES_EVENTS_IMPLEMENTATION.md` | Daily/weekly challenges, event system |
+| `apps/investing-board-game-v3/PHASE_7_README.md` | Coins currency, Thrift Path status |
+| `apps/investing-board-game-v3/DAILY_DIVIDENDS_SUMMARY.md` | Daily login rewards system |
+| `apps/investing-board-game-v3/DAILY_DIVIDENDS_GUIDE.md` | Testing guide for dividends |
+| `IMPLEMENTATION_SUMMARY.md` | AI backend integration |
+| `AI_IMPLEMENTATION.md` | Stock analysis API |
+
+### Step 4: Review Recent Pull Requests
+
+Check recent merged PRs for context on new features:
+
+**URL:** https://github.com/Multiproject-EJ/alphastocks.ai/pulls?q=is%3Apr+is%3Amerged
+
+Recent PRs may have added features not yet documented in this Master Plan. Always check:
+- PR title and description
+- Files changed
+- Any new components or hooks added
+
+### Step 5: Verify Implementation Status
+
+Cross-reference this document's Implementation Status tables with actual code:
+
+```
+1. Read the "Implementation Status" section below
+2. For any item marked "✅ Complete", verify the file exists
+3. For any item marked "🚧 In Progress", check current state
+4. If you find discrepancies, update this document FIRST
+```
+
+### Example Verification Workflow
+
+```
+User Request: "Add portal animation"
+
+1. Search codebase for "portal" → Find PortalAnimation.tsx exists
+2. Check App.tsx → Find portal logic already implemented
+3. Check CAMERA_IMPLEMENTATION.md → Find camera follows portal
+4. Check Implementation Status → Says "✅ Complete"
+5. Conclusion: Portal EXISTS, user wants enhancement/polish, not new implementation
+6. Action: Read existing code, propose specific improvements
+```
+
+---
+
 ## How to Use This Document
 
 ### For AI Agents (Copilot/Codex)
 
 **When implementing a feature:**
 
-1. **Search this document first** for relevant sections
-2. **Read the Core Principles** to understand design philosophy
-3. **Check Implementation Status** to see what's already done
-4. **Run Boring Detection Check** before writing code
-5. **Reference this doc in commit messages**
+1. **⚠️ VERIFY CODEBASE FIRST** — See [Codebase Verification](#codebase-verification-required-for-ai-agents)
+2. **Search this document** for relevant sections
+3. **Read the Core Principles** to understand design philosophy
+4. **Check Implementation Status** to see what's already done
+5. **Run Boring Detection Check** before writing code
+6. **Reference this doc in commit messages**
 
 **Example workflow:**
 
 ```
 1. User requests: "Add elevator mechanic"
-2. Search doc for "elevator" → Find Multi-Ring Board System section
-3. Check Implementation Status → See it's marked "In Progress"
-4. Read Elevator Mechanic spec → Understand dice roll odds
-5. Check Hard Stop Rule → No blockers apply
-6. Implement feature following spec
-7. Run Boring Detection Check → Confirm it's fun
-8. Commit with reference to this doc
+2. ⚠️ VERIFY CODEBASE: Search for "elevator" in code
+   → Found in mockData.ts (ELEVATOR_ODDS constant)
+   → Found in App.tsx (partial implementation)
+3. Search doc for "elevator" → Find Multi-Ring Board System section
+4. Check Implementation Status → See it's marked "In Progress"
+5. Read existing code → Understand current state
+6. Read Elevator Mechanic spec → Understand full requirements
+7. Identify GAP between current code and spec
+8. Check Hard Stop Rule → No blockers apply
+9. Implement ONLY the missing parts
+10. Run Boring Detection Check → Confirm it's fun
+11. Commit with reference to this doc
 ```
 
 ### For Human Developers
