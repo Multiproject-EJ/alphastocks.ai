@@ -352,9 +352,9 @@ export interface LeaderboardEntry {
   rank?: number
   change?: 'up' | 'down' | 'same'
   // Ring and throne tracking
-  currentRing: 1 | 2 | 3
+  currentRing: RingNumber
   throneCount: number
-  highestRingReached: 1 | 2 | 3
+  highestRingReached: RingNumber
   avatarUrl?: string
   // Computed
   isCurrentUser?: boolean

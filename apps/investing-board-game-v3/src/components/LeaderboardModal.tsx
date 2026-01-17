@@ -93,7 +93,7 @@ export function LeaderboardModal({
         {/* Avatar */}
         <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center overflow-hidden">
           {entry.avatarUrl ? (
-            <img src={entry.avatarUrl} alt="" className="w-full h-full object-cover" />
+            <img src={entry.avatarUrl} alt={`${entry.username} avatar`} className="w-full h-full object-cover" />
           ) : (
             <span className="text-lg">👤</span>
           )}
@@ -220,9 +220,10 @@ export function LeaderboardModal({
         </DialogHeader>
 
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="flex-1 flex flex-col">
-          <TabsList className="grid grid-cols-4 w-full">
+          <TabsList className="grid grid-cols-5 w-full">
             <TabsTrigger value="global">🌍 Global</TabsTrigger>
             <TabsTrigger value="weekly">📅 Weekly</TabsTrigger>
+            <TabsTrigger value="seasonal">🏆 Seasonal</TabsTrigger>
             <TabsTrigger value="rings">🎯 Ring Leaders</TabsTrigger>
             <TabsTrigger value="thrones">👑 Hall of Fame</TabsTrigger>
           </TabsList>
@@ -339,7 +340,7 @@ export function LeaderboardModal({
                   </span>
                   <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center overflow-hidden">
                     {currentUserEntry.avatarUrl ? (
-                      <img src={currentUserEntry.avatarUrl} alt="" className="w-full h-full object-cover" />
+                      <img src={currentUserEntry.avatarUrl} alt={`${currentUserEntry.username} avatar`} className="w-full h-full object-cover" />
                     ) : (
                       <span className="text-lg">👤</span>
                     )}

@@ -4,7 +4,7 @@
  */
 
 import { useState, useCallback, useEffect, useRef } from 'react'
-import { LeaderboardEntry } from '@/lib/types'
+import { LeaderboardEntry, RingNumber } from '@/lib/types'
 import { supabaseClient, hasSupabaseConfig } from '@/lib/supabaseClient'
 import { useAuth } from '@/context/AuthContext'
 import { toast } from 'sonner'
@@ -57,9 +57,9 @@ export function useLeaderboard({ gameState }: UseLeaderboardProps): UseLeaderboa
     level: row.level || 1,
     seasonTier: row.season_tier || 0,
     totalStarsEarned: row.total_stars_earned || 0,
-    currentRing: (row.current_ring || 1) as 1 | 2 | 3,
+    currentRing: (row.current_ring || 1) as RingNumber,
     throneCount: row.throne_count || 0,
-    highestRingReached: (row.highest_ring_reached || 1) as 1 | 2 | 3,
+    highestRingReached: (row.highest_ring_reached || 1) as RingNumber,
     avatarUrl: row.avatar_url,
     rank: index !== undefined ? index + 1 : row.rank,
     isCurrentUser: user ? row.user_id === user.id : false,
@@ -138,9 +138,9 @@ export function useLeaderboard({ gameState }: UseLeaderboardProps): UseLeaderboa
               level: 0,
               seasonTier: 0,
               totalStarsEarned: row.stars_earned_this_week || 0,
-              currentRing: (row.current_ring || 1) as 1 | 2 | 3,
+              currentRing: (row.current_ring || 1) as RingNumber,
               throneCount: 0,
-              highestRingReached: (row.current_ring || 1) as 1 | 2 | 3,
+              highestRingReached: (row.current_ring || 1) as RingNumber, // Weekly table only has current_ring
               rank: index + 1,
               isCurrentUser: user ? row.user_id === user.id : false,
             }))
