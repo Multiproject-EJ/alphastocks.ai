@@ -174,7 +174,7 @@ export function WheelOfFortuneModal({
               className="w-full h-full rounded-full relative"
               style={{
                 background: `conic-gradient(${WHEEL_SEGMENTS.map((seg, i) => 
-                  `${seg.color} ${i * (360/12)}deg ${(i+1) * (360/12)}deg`
+                  `${seg.color} ${i * (360/WHEEL_SEGMENTS.length)}deg ${(i+1) * (360/WHEEL_SEGMENTS.length)}deg`
                 ).join(', ')})`,
                 boxShadow: '0 0 30px rgba(139, 92, 246, 0.5), inset 0 0 20px rgba(0,0,0,0.3)',
               }}
@@ -186,7 +186,8 @@ export function WheelOfFortuneModal({
             >
               {/* Segment Labels */}
               {WHEEL_SEGMENTS.map((segment, i) => {
-                const angle = (i * 30) + 15 // 30° per segment, offset to center
+                const segmentAngle = 360 / WHEEL_SEGMENTS.length
+                const angle = (i * segmentAngle) + (segmentAngle / 2) // Offset to center
                 const radius = 100 // px from center
                 const x = Math.cos((angle - 90) * Math.PI / 180) * radius
                 const y = Math.sin((angle - 90) * Math.PI / 180) * radius

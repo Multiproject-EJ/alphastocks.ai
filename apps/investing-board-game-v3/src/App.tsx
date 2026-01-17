@@ -2832,7 +2832,7 @@ function App() {
     triggerCelebrationFromLastTile(['💰', '🪙'])
   }
 
-  const handleWheelSpinComplete = useCallback((prize: any, value: number) => {
+  const handleWheelSpinComplete = useCallback((prize: { id: string, type: string, value: number }, value: number) => {
     switch (prize.type) {
       case 'coins':
         addCoins(value, 'Wheel of Fortune')
@@ -2899,12 +2899,7 @@ function App() {
         triggerCelebrationFromLastTile(['🎡', '🎉', '✨'])
         break
     }
-    
-    // Use free spin if available
-    if (freeWheelSpins > 0) {
-      setFreeWheelSpins(prev => Math.max(0, prev - 1))
-    }
-  }, [addCoins, setGameState, setRollsRemaining, showToast, freeWheelSpins, triggerCelebrationFromLastTile])
+  }, [addCoins, setGameState, setRollsRemaining, showToast, triggerCelebrationFromLastTile])
 
   const handleWildcardEvent = (event: WildcardEvent) => {
     debugGame('Applying wildcard event:', event.id)
@@ -3841,8 +3836,17 @@ function App() {
         freeSpinsRemaining={freeWheelSpins}
         onSpinComplete={handleWheelSpinComplete}
         onSpendCoins={(amount) => {
-          if (gameState.coins >= amount) {
-            setGameState(prev => ({ ...prev, coins: prev.coins - amount }))
+          // If spending coins (not free), proceed with coin deduction
+          if (amount > 0) {
+            if (gameState.coins >= amount) {
+              setGameState(prev => ({ ...prev, coins: prev.coins - amount }))
+              return true
+            }
+            return false
+          }
+          // Free spin - decrement free spins counter
+          if (freeWheelSpins > 0) {
+            setFreeWheelSpins(prev => prev - 1)
             return true
           }
           return false
