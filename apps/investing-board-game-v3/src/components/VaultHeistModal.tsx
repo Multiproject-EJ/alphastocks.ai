@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { X } from 'lucide-react'
 
 interface VaultPrize {
@@ -229,7 +229,16 @@ export function VaultHeistModal({
                 {vault.state === 'opened' && vault.prize && (
                   <>
                     <span className="text-2xl">{vault.prize.emoji}</span>
-                    <span className="text-[10px] text-white">{vault.prize.type === 'cash' ? `$${(vault.prize.amount * ringMultiplier).toLocaleString()}` : vault.prize.label}</span>
+                    <span className="text-[10px] text-white">
+                      {vault.prize.type === 'cash' 
+                        ? `$${(vault.prize.amount * ringMultiplier).toLocaleString()}` 
+                        : vault.prize.type === 'stars'
+                        ? `${(vault.prize.amount * ringMultiplier).toLocaleString()}`
+                        : vault.prize.type === 'coins'
+                        ? `${(vault.prize.amount * ringMultiplier).toLocaleString()}`
+                        : vault.prize.label
+                      }
+                    </span>
                   </>
                 )}
                 {vault.state === 'alarm' && (

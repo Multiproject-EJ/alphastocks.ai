@@ -2930,8 +2930,8 @@ function App() {
       // Mystery boxes handled separately if needed
     }))
     
-    // Decrement free picks (they'll be tracked per week)
-    setFreeVaultPicks(prev => Math.max(0, prev - 3))
+    // Decrement free game sessions (one session = 3 picks)
+    setFreeVaultPicks(prev => Math.max(0, prev - 1))
     
     playSound('celebration')
     showToast('success', '💼 Vault Heist Complete!', {
