@@ -37,6 +37,7 @@ import { PortalTeleportAnimation } from '@/components/PortalTeleportAnimation'
 import { MoneyCelebration } from '@/components/MoneyCelebration'
 import { BlackSwanAnimation } from '@/components/BlackSwanAnimation'
 import { QuickCelebration } from '@/components/QuickCelebration'
+import { WheelOfFortuneModal } from '@/components/WheelOfFortuneModal'
 
 // Mobile-first components
 import { MobileGameLayout } from '@/components/MobileGameLayout'
@@ -376,6 +377,10 @@ function App() {
   // ProTools overlay state (separate from overlay manager)
   const [proToolsOpen, setProToolsOpen] = useState(false)
 
+  // Wheel of Fortune state
+  const [isWheelOpen, setIsWheelOpen] = useState(false)
+  const [freeWheelSpins, setFreeWheelSpins] = useState(1)
+
   // Mobile UI states
   const [activeSection, setActiveSection] = useState<'home' | 'challenges' | 'shop' | 'leaderboard' | 'settings'>('home')
   const [isLoading, setIsLoading] = useState(true)
@@ -442,6 +447,12 @@ function App() {
     window.addEventListener('resize', updateRadius)
     return () => window.removeEventListener('resize', updateRadius)
   }, [calculateFittingRadius])
+
+  // Check if Happy Hour is active (6pm - 9pm)
+  const isHappyHour = useMemo(() => {
+    const hour = new Date().getHours()
+    return hour >= 18 && hour < 21
+  }, [])
 
   // Safe area insets
   const safeArea = useSafeArea()
@@ -2821,6 +2832,75 @@ function App() {
     triggerCelebrationFromLastTile(['💰', '🪙'])
   }
 
+  const handleWheelSpinComplete = useCallback((prize: { id: string, type: string, value: number }, value: number) => {
+    switch (prize.type) {
+      case 'coins':
+        addCoins(value, 'Wheel of Fortune')
+        showToast('success', `🎡 Wheel Win!`, {
+          description: `+${value.toLocaleString()} coins!`
+        })
+        break
+      case 'stars':
+        setGameState(prev => ({ ...prev, stars: prev.stars + value }))
+        showToast('success', `🎡 Wheel Win!`, {
+          description: `+${value.toLocaleString()} stars! ⭐`
+        })
+        break
+      case 'cash':
+        setGameState(prev => ({ 
+          ...prev, 
+          cash: prev.cash + value,
+          netWorth: prev.netWorth + value,
+        }))
+        showToast('success', `🎡 Wheel Win!`, {
+          description: `+$${value.toLocaleString()}! 💵`
+        })
+        break
+      case 'rolls':
+        setRollsRemaining(prev => prev + value)
+        showToast('success', `🎡 Wheel Win!`, {
+          description: `+${value} dice rolls! 🎲`
+        })
+        break
+      case 'xp':
+        // Add XP (for now just show toast, can be enhanced later)
+        showToast('success', `🎡 Wheel Win!`, {
+          description: `+${value} XP! ⚡`
+        })
+        break
+      case 'spin-again':
+        setFreeWheelSpins(prev => prev + 1)
+        showToast('success', `🎡 Wheel Win!`, {
+          description: `Free spin awarded! 🔄`
+        })
+        break
+      case 'mystery':
+        // Trigger mystery box (for now just show toast)
+        showToast('success', `🎡 Wheel Win!`, {
+          description: `Mystery box unlocked! 💎`
+        })
+        break
+      case 'jackpot':
+        if (prize.id === 'jackpot-stars') {
+          setGameState(prev => ({ ...prev, stars: prev.stars + value }))
+          showToast('success', `🎉 JACKPOT! 🎉`, {
+            description: `+${value.toLocaleString()} stars! 👑`
+          })
+        } else {
+          setGameState(prev => ({ 
+            ...prev, 
+            cash: prev.cash + value,
+            netWorth: prev.netWorth + value,
+          }))
+          showToast('success', `🎉 MEGA JACKPOT! 🎉`, {
+            description: `+$${value.toLocaleString()}! 💰`
+          })
+        }
+        triggerCelebrationFromLastTile(['🎡', '🎉', '✨'])
+        break
+    }
+  }, [addCoins, setGameState, setRollsRemaining, showToast, triggerCelebrationFromLastTile])
+
   const handleWildcardEvent = (event: WildcardEvent) => {
     debugGame('Applying wildcard event:', event.id)
     playSound('button-click')
@@ -3747,11 +3827,49 @@ function App() {
         getAchievementProgress={getAchievementProgress}
       />
 
+      {/* Wheel of Fortune Modal */}
+      <WheelOfFortuneModal
+        isOpen={isWheelOpen}
+        onClose={() => setIsWheelOpen(false)}
+        coins={gameState.coins}
+        currentRing={gameState.currentRing as 1 | 2 | 3}
+        freeSpinsRemaining={freeWheelSpins}
+        onSpinComplete={handleWheelSpinComplete}
+        onSpendCoins={(amount) => {
+          // If spending coins (not free), proceed with coin deduction
+          if (amount > 0) {
+            if (gameState.coins >= amount) {
+              setGameState(prev => ({ ...prev, coins: prev.coins - amount }))
+              return true
+            }
+            return false
+          }
+          // Free spin - decrement free spins counter
+          if (freeWheelSpins > 0) {
+            setFreeWheelSpins(prev => prev - 1)
+            return true
+          }
+          return false
+        }}
+        playSound={playSound}
+      />
+
       {/* Portal Animation */}
       <PortalAnimation 
         transition={portalTransition}
         isAnimating={isPortalAnimating}
       />
+
+      {/* Happy Hour Wheel Button */}
+      {isHappyHour && (
+        <button
+          onClick={() => setIsWheelOpen(true)}
+          className="fixed bottom-24 right-4 p-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full shadow-lg animate-bounce hover:scale-110 transition-transform z-50"
+          aria-label="Open Wheel of Fortune"
+        >
+          <span className="text-3xl">🎡</span>
+        </button>
+      )}
 
       {/* Money Celebration for Ring 3 wins */}
       {moneyCelebration && (
