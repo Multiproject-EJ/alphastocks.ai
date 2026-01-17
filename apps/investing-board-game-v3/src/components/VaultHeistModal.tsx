@@ -107,8 +107,8 @@ export function VaultHeistModal({
 
       if (isAlarm) {
         playSound('error')
-        // Alarm steals a pick but doesn't count as used pick
-        setPicksUsed(prev => Math.min(prev + 2, maxPicks)) // Lose extra pick
+        // Alarm doesn't give a prize, but still uses a pick
+        // No need to add extra picks - just the normal increment below will happen
       } else {
         // Apply multiplier and add to haul
         const multipliedAmount = prize.type === 'mystery' ? prize.amount : prize.amount * ringMultiplier

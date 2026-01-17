@@ -2930,16 +2930,14 @@ function App() {
       // Mystery boxes handled separately if needed
     }))
     
-    // Use free picks
-    if (freeVaultPicks > 0) {
-      setFreeVaultPicks(prev => Math.max(0, prev - 3))
-    }
+    // Decrement free picks (they'll be tracked per week)
+    setFreeVaultPicks(prev => Math.max(0, prev - 3))
     
     playSound('celebration')
     showToast('success', '💼 Vault Heist Complete!', {
       description: `You got away with $${haul.cash.toLocaleString()}, ${haul.stars} ⭐, ${haul.coins} 🪙, and ${haul.mysteryBoxes} 💎!`
     })
-  }, [freeVaultPicks, playSound, showToast])
+  }, [playSound, showToast])
 
   const handleWildcardEvent = (event: WildcardEvent) => {
     debugGame('Applying wildcard event:', event.id)
