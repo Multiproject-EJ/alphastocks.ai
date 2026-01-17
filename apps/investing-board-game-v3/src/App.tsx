@@ -2920,7 +2920,10 @@ function App() {
     }
   }, [addCoins, setGameState, setRollsRemaining, showToast, triggerCelebrationFromLastTile])
 
-  const handleVaultHeistComplete = useCallback((prizes: { type: string, amount: number }[], haul: { cash: number; stars: number; coins: number; mysteryBoxes: number }) => {
+  const handleVaultHeistComplete = useCallback((
+    prizes: Array<{ type: 'cash' | 'stars' | 'coins' | 'mystery' | 'alarm', amount: number, emoji: string, label: string }>, 
+    haul: { cash: number; stars: number; coins: number; mysteryBoxes: number }
+  ) => {
     setGameState(prev => ({
       ...prev,
       cash: prev.cash + haul.cash,

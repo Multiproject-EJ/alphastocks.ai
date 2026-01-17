@@ -107,8 +107,8 @@ export function VaultHeistModal({
 
       if (isAlarm) {
         playSound('error')
-        // Alarm doesn't give a prize, but still uses a pick
-        // No need to add extra picks - just the normal increment below will happen
+        // Alarm doesn't give a prize but still consumes a pick
+        // The pick counter will be incremented below (line 132) regardless of alarm
       } else {
         // Apply multiplier and add to haul
         const multipliedAmount = prize.type === 'mystery' ? prize.amount : prize.amount * ringMultiplier
