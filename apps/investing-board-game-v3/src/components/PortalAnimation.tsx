@@ -20,12 +20,13 @@ export function PortalAnimation({ transition, isAnimating }: PortalAnimationProp
     // Start animation sequence
     const isAscending = transition.direction === 'up'
     const totalDuration = isAscending ? 1500 : 1200
+    const materializeDelay = isAscending ? 700 : 700
     
     setPhase('glow')
     
     const timers = [
       setTimeout(() => setPhase('fade'), isAscending ? 400 : 300),
-      setTimeout(() => setPhase('materialize'), isAscending ? 700 : 700),
+      setTimeout(() => setPhase('materialize'), materializeDelay),
       setTimeout(() => setPhase('celebrate'), isAscending ? 1200 : 900),
       setTimeout(() => {
         setPhase('idle')
@@ -119,12 +120,14 @@ function getRingName(ring: RingNumber | 0): string {
     case 1: return RING_CONFIG[1].name
     case 2: return RING_CONFIG[2].name
     case 3: return RING_CONFIG[3].name
+    default: return 'Unknown Ring'
   }
 }
 
 function PortalParticles({ direction, phase, isThrone }: { direction: 'up' | 'down', phase: string, isThrone: boolean }) {
   const count = phase === 'celebrate' ? 80 : 30
   const isAscending = direction === 'up'
+  const viewportHeight = typeof window !== 'undefined' ? window.innerHeight : 800
   
   return (
     <div className="fixed inset-0 z-50 pointer-events-none overflow-hidden">
@@ -149,7 +152,7 @@ function PortalParticles({ direction, phase, isThrone }: { direction: 'up' | 'do
           animate={{ 
             opacity: [0, 1, 1, 0],
             scale: [0, 1, 1, 0],
-            y: isAscending ? -window.innerHeight * 1.2 : window.innerHeight * 1.2,
+            y: isAscending ? -viewportHeight * 1.2 : viewportHeight * 1.2,
             x: (Math.random() - 0.5) * 200,
             rotate: Math.random() * 360,
           }}
