@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils'
 import { useHaptics } from '@/hooks/useHaptics'
 import { QuickRewardTile } from './QuickRewardTile'
 import { QuickRewardType } from '@/lib/quickRewardTiles'
+import { TILE_WIDTH, TILE_HEIGHT } from '@/lib/constants'
 
 interface TileProps {
   tile: TileType
@@ -135,7 +136,7 @@ const TileComponent = ({ tile, isActive, isHopping, isLanded, onClick, side, has
       className={cn(
         'relative flex flex-col items-center justify-center rounded-md cursor-pointer transition-all touch-target touch-feedback no-select',
         'bg-black/70 backdrop-blur-xl flex-shrink-0 overflow-visible shadow-[inset_0_1px_0_rgba(255,255,255,0.08),_0_25px_45px_rgba(0,0,0,0.55)]',
-        'w-[112px] h-[128px] border-[3px]',
+        'border-[3px]',
         isActive
           ? 'shadow-[0_0_20px_oklch(0.75_0.15_85_/_0.5)]'
           : 'hover:bg-card/70',
@@ -144,6 +145,8 @@ const TileComponent = ({ tile, isActive, isHopping, isLanded, onClick, side, has
       style={{
         ...borderStyles,
         clipPath: 'polygon(0% 0%, 100% 0%, 86% 100%, 14% 100%)',
+        width: `${TILE_WIDTH}px`,
+        height: `${TILE_HEIGHT}px`,
       }}
       onClick={handleClick}
       whileHover={{ scale: 1.02 }}

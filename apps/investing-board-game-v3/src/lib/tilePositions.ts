@@ -132,13 +132,17 @@ export function calculateTilePositions(
  * @param tileId - The ID of the tile to position
  * @param boardSize - The dimensions of the board container
  * @param customRadius - Optional custom radius override for viewport-aware scaling
+ * @param tileCount - Number of tiles in the ring (default: 35, which is Ring 1's count)
+ * @param isInnerTrack - Whether this is the inner express track (smaller radius)
  */
 export function getTilePosition(
   tileId: number,
   boardSize: { width: number; height: number },
-  customRadius?: number
+  customRadius?: number,
+  tileCount: number = 35,
+  isInnerTrack: boolean = false
 ): TilePosition | undefined {
-  const positions = calculateTilePositions(boardSize, 27, customRadius)
+  const positions = calculateTilePositions(boardSize, tileCount, customRadius, isInnerTrack)
   return positions.find(pos => pos.id === tileId)
 }
 

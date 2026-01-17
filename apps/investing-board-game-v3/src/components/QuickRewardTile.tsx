@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import { QUICK_REWARD_CONFIG, QUICK_REWARD_TILE_STYLES, QuickRewardType, getPremiumTileStyle, PREMIUM_TILE_CONFIG } from '../lib/quickRewardTiles'
+import { TILE_WIDTH, TILE_HEIGHT } from '../lib/constants'
 
 // Trapezoid shape matching all board tiles
 const TILE_CLIP_PATH = 'polygon(0% 0%, 100% 0%, 86% 100%, 14% 100%)'
@@ -25,7 +26,7 @@ export function QuickRewardTile({
   return (
     <motion.div
       className={`
-        relative w-full h-full rounded-md overflow-hidden
+        relative rounded-md overflow-hidden
         flex flex-col items-center justify-center
         cursor-pointer select-none touch-target touch-feedback no-select
         bg-black/70 backdrop-blur-xl
@@ -38,6 +39,8 @@ export function QuickRewardTile({
       `}
       style={{
         clipPath: TILE_CLIP_PATH,
+        width: `${TILE_WIDTH}px`,
+        height: `${TILE_HEIGHT}px`,
       }}
       whileTap={{ scale: 0.98 }}
       whileHover={{ scale: 1.02 }}

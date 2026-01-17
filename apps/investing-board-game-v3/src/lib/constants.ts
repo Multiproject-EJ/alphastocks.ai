@@ -31,6 +31,10 @@ export const JACKPOT_PASS_START_AMOUNT = 10000
 /** Maximum cash reward for owning 100% of a category in portfolio */
 export const CATEGORY_OWNERSHIP_MAX_REWARD = 100000
 
+/** Tile dimensions for board tiles */
+export const TILE_WIDTH = 112
+export const TILE_HEIGHT = 128
+
 /**
  * Calculate cash reward for landing on a category tile where player owns stock
  * @param ownershipPercent - Percentage of portfolio in this category (0-100)
