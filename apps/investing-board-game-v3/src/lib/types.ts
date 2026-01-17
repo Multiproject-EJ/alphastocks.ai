@@ -131,6 +131,7 @@ export interface GameState {
   ring1LapsCompleted: number
   hasReachedThrone: boolean
   throneCount: number
+  highestRingReached?: RingNumber  // Highest ring ever reached by player
   eventCurrency?: {
     eventId: string | null
     amount: number
@@ -350,6 +351,14 @@ export interface LeaderboardEntry {
   totalStarsEarned: number
   rank?: number
   change?: 'up' | 'down' | 'same'
+  // Ring and throne tracking
+  currentRing: 1 | 2 | 3
+  throneCount: number
+  highestRingReached: 1 | 2 | 3
+  avatarUrl?: string
+  // Computed
+  isCurrentUser?: boolean
+  rankChange?: 'up' | 'down' | 'same'
 }
 
 export interface RollsPack {

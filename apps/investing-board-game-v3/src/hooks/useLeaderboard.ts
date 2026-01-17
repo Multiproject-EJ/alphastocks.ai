@@ -14,6 +14,9 @@ interface UseLeaderboardProps {
     netWorth: number
     level: number
     currentSeasonTier: number
+    currentRing?: number
+    throneCount?: number
+    highestRingReached?: number
     stats?: { totalStarsEarned?: number }
   }
 }
@@ -21,9 +24,11 @@ interface UseLeaderboardProps {
 interface UseLeaderboardReturn {
   globalLeaderboard: LeaderboardEntry[]
   weeklyLeaderboard: LeaderboardEntry[]
+  ringLeaders: LeaderboardEntry[]
   playerRank: number | null
   loading: boolean
   fetchLeaderboard: (type: 'global' | 'weekly' | 'seasonal', sortBy?: 'net_worth' | 'level' | 'season_tier' | 'stars') => Promise<void>
+  fetchRingLeaders: () => Promise<void>
   updatePlayerStats: () => Promise<void>
   refreshLeaderboard: () => Promise<void>
 }
@@ -32,6 +37,7 @@ export function useLeaderboard({ gameState }: UseLeaderboardProps): UseLeaderboa
   const { user, isAuthenticated } = useAuth()
   const [globalLeaderboard, setGlobalLeaderboard] = useState<LeaderboardEntry[]>([])
   const [weeklyLeaderboard, setWeeklyLeaderboard] = useState<LeaderboardEntry[]>([])
+  const [ringLeaders, setRingLeaders] = useState<LeaderboardEntry[]>([])
   const [playerRank, setPlayerRank] = useState<number | null>(null)
   const [loading, setLoading] = useState(false)
   const lastUpdateRef = useRef<Date | null>(null)
@@ -42,6 +48,22 @@ export function useLeaderboard({ gameState }: UseLeaderboardProps): UseLeaderboa
     const timeSince = Date.now() - lastUpdateRef.current.getTime()
     return timeSince >= 30000 // 30 seconds
   }, [])
+
+  // Helper function to map database row to LeaderboardEntry
+  const mapToLeaderboardEntry = useCallback((row: any, index?: number): LeaderboardEntry => ({
+    userId: row.user_id,
+    username: row.username,
+    netWorth: row.net_worth || 0,
+    level: row.level || 1,
+    seasonTier: row.season_tier || 0,
+    totalStarsEarned: row.total_stars_earned || 0,
+    currentRing: (row.current_ring || 1) as 1 | 2 | 3,
+    throneCount: row.throne_count || 0,
+    highestRingReached: (row.highest_ring_reached || 1) as 1 | 2 | 3,
+    avatarUrl: row.avatar_url,
+    rank: index !== undefined ? index + 1 : row.rank,
+    isCurrentUser: user ? row.user_id === user.id : false,
+  }), [user])
 
   // Update player stats to leaderboard
   const updatePlayerStats = useCallback(async () => {
@@ -67,6 +89,9 @@ export function useLeaderboard({ gameState }: UseLeaderboardProps): UseLeaderboa
         level: gameState.level,
         season_tier: gameState.currentSeasonTier,
         total_stars_earned: gameState.stats?.totalStarsEarned || 0,
+        current_ring: gameState.currentRing || 1,
+        throne_count: gameState.throneCount || 0,
+        highest_ring_reached: gameState.highestRingReached || gameState.currentRing || 1,
       }
 
       const { error } = await supabaseClient
@@ -113,7 +138,11 @@ export function useLeaderboard({ gameState }: UseLeaderboardProps): UseLeaderboa
               level: 0,
               seasonTier: 0,
               totalStarsEarned: row.stars_earned_this_week || 0,
+              currentRing: (row.current_ring || 1) as 1 | 2 | 3,
+              throneCount: 0,
+              highestRingReached: (row.current_ring || 1) as 1 | 2 | 3,
               rank: index + 1,
+              isCurrentUser: user ? row.user_id === user.id : false,
             }))
 
             setWeeklyLeaderboard(entries)
@@ -145,15 +174,7 @@ export function useLeaderboard({ gameState }: UseLeaderboardProps): UseLeaderboa
           }
 
           if (data) {
-            const entries: LeaderboardEntry[] = data.map((row: any, index: number) => ({
-              userId: row.user_id,
-              username: row.username,
-              netWorth: row.net_worth || 0,
-              level: row.level || 1,
-              seasonTier: row.season_tier || 0,
-              totalStarsEarned: row.total_stars_earned || 0,
-              rank: index + 1,
-            }))
+            const entries: LeaderboardEntry[] = data.map((row: any, index: number) => mapToLeaderboardEntry(row, index))
 
             setGlobalLeaderboard(entries)
 
@@ -188,13 +209,35 @@ export function useLeaderboard({ gameState }: UseLeaderboardProps): UseLeaderboa
         setLoading(false)
       }
     },
-    [user]
+    [user, mapToLeaderboardEntry]
   )
 
   // Refresh leaderboard (convenience method)
   const refreshLeaderboard = useCallback(async () => {
     await fetchLeaderboard('global', 'net_worth')
   }, [fetchLeaderboard])
+
+  // Fetch Ring Leaders (Ring 2 and 3 players)
+  const fetchRingLeaders = useCallback(async () => {
+    if (!supabaseClient || !hasSupabaseConfig) return
+    
+    try {
+      const { data, error } = await supabaseClient
+        .from('leaderboard')
+        .select('*')
+        .gte('current_ring', 2)  // Ring 2 and 3 players
+        .order('current_ring', { ascending: false })
+        .order('throne_count', { ascending: false })
+        .order('net_worth', { ascending: false })
+        .limit(50)
+      
+      if (!error && data) {
+        setRingLeaders(data.map((row: any, index: number) => mapToLeaderboardEntry(row, index)))
+      }
+    } catch (err) {
+      console.error('Error fetching ring leaders:', err)
+    }
+  }, [mapToLeaderboardEntry])
 
   // Auto-update player stats when game state changes (debounced)
   useEffect(() => {
@@ -210,9 +253,11 @@ export function useLeaderboard({ gameState }: UseLeaderboardProps): UseLeaderboa
   return {
     globalLeaderboard,
     weeklyLeaderboard,
+    ringLeaders,
     playerRank,
     loading,
     fetchLeaderboard,
+    fetchRingLeaders,
     updatePlayerStats,
     refreshLeaderboard,
   }
