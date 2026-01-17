@@ -25,7 +25,7 @@ export function QuickRewardTile({
   return (
     <motion.div
       className={`
-        relative w-full h-full rounded-md overflow-hidden
+        relative w-[112px] h-[128px] rounded-md overflow-hidden
         flex flex-col items-center justify-center
         cursor-pointer select-none touch-target touch-feedback no-select
         bg-black/70 backdrop-blur-xl

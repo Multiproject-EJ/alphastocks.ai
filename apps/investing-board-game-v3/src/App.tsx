@@ -1984,7 +1984,7 @@ function App() {
 
   const getTileCelebrationPosition = useCallback((tileId: number) => {
     const tileBoardSize = { width: boardSize, height: boardSize }
-    const tilePositions = calculateTilePositions(tileBoardSize, 27, boardOuterRadius, false)
+    const tilePositions = calculateTilePositions(tileBoardSize, 35, boardOuterRadius, false)
     const position = tilePositions.find(p => p.id === tileId)
     if (!position) return null
     return {
@@ -3446,8 +3446,8 @@ function App() {
                   const tileBoardSize = { width: boardSize, height: boardSize }
                   const innerPositions = calculateTilePositions(tileBoardSize, 12, boardOuterRadius, true)
                   
-                  // Mobile scaling adjustment
-                  const mobileScale = isPhone ? 0.6 : 0.75
+                  // Mobile scaling adjustment - slightly larger for better visibility
+                  const mobileScale = isPhone ? 0.65 : 0.75
                   
                   return INNER_TRACK_TILES.map((tile, index) => {
                     const position = innerPositions[index]
@@ -3646,8 +3646,8 @@ function App() {
         />
         </div>
 
-        {/* Right Column - Action buttons (desktop/tablet only) */}
-        {!isPhone && (
+        {/* Right Column - Action buttons (desktop only) */}
+        {!isPhone && !isMobile && (
           <div className={`absolute right-4 top-1/2 -translate-y-1/2 flex flex-col gap-4 items-center justify-center transition-opacity duration-500 flex-shrink-0 z-20 ${
             isLogoPanel ? 'opacity-0 pointer-events-none' : 'opacity-100'
           }`}>
