@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback, lazy, Suspense, useMemo } from 'react'
 import { Toaster, toast } from 'sonner'
 import { Button } from '@/components/ui/button'
-import { Star, ChartLine, Trophy, CalendarBlank, Crown, GearSix } from '@phosphor-icons/react'
+import { Star, ChartLine, Trophy, CalendarBlank, Crown, GearSix, Gamepad } from '@phosphor-icons/react'
 import { Tile } from '@/components/Tile'
 import { DiceHUD } from '@/components/DiceHUD'
 import { HubModal } from '@/components/HubModal'
@@ -60,6 +60,7 @@ const ChallengesModal = lazy(() => import('@/components/ChallengesModal'))
 const EventCalendar = lazy(() => import('@/components/EventCalendar'))
 const SettingsModal = lazy(() => import('@/components/SettingsModal'))
 const StockExchangeBuilderModal = lazy(() => import('@/components/StockExchangeBuilderModal'))
+const GamesHub = lazy(() => import('@/pages/GamesHub').then(m => ({ default: m.GamesHub })))
 
 // DevTools components (only in dev mode)
 const TapTestOverlay = import.meta.env.DEV || import.meta.env.VITE_DEVTOOLS === '1' 
@@ -3260,6 +3261,23 @@ function App() {
               >
                 <Star size={20} weight="fill" />
                 Stars
+              </Button>
+              <Button
+                onClick={() => {
+                  showOverlay({
+                    id: 'gamesHub',
+                    component: GamesHub,
+                    props: {
+                      onBack: () => closeCurrent(),
+                    },
+                    priority: 'normal',
+                  })
+                }}
+                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white shadow-lg hover:shadow-xl transition-all backdrop-blur-sm rounded-full h-14 px-6 text-base font-semibold flex items-center gap-2"
+                aria-label="Open Mini-Games Hub"
+              >
+                <Gamepad size={20} weight="fill" />
+                Games
               </Button>
               <Button
                 onClick={() => {
