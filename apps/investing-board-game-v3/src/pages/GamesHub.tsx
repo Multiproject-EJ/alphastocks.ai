@@ -74,7 +74,11 @@ export function GamesHub({ onBack }: GamesHubProps) {
           </div>
 
           {/* Games Grid */}
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div 
+            className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+            role="grid"
+            aria-label="Mini-games collection"
+          >
             {GAMES_CONFIG.map((game) => (
               <GameCard
                 key={game.id}

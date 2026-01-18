@@ -40,6 +40,16 @@ export function GameOverlay({ isOpen, onClose, children }: GameOverlayProps) {
     },
   }
 
+  const handleBackdropClick = () => {
+    onClose()
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      onClose()
+    }
+  }
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -51,8 +61,11 @@ export function GameOverlay({ isOpen, onClose, children }: GameOverlayProps) {
             exit={{ opacity: 0 }}
             transition={{ duration: prefersReducedMotion ? 0.1 : 0.2 }}
             className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
-            onClick={onClose}
-            aria-hidden="true"
+            onClick={handleBackdropClick}
+            onKeyDown={handleKeyDown}
+            role="button"
+            tabIndex={0}
+            aria-label="Close game overlay"
           />
 
           {/* Overlay Content */}
@@ -74,7 +87,11 @@ export function GameOverlay({ isOpen, onClose, children }: GameOverlayProps) {
               </Button>
 
               {/* Game Content */}
-              <div className="h-full w-full overflow-auto rounded-2xl bg-gradient-to-br from-slate-900 to-slate-950 shadow-2xl">
+              <div 
+                className="h-full w-full overflow-auto rounded-2xl bg-gradient-to-br from-slate-900 to-slate-950 shadow-2xl"
+                role="dialog"
+                aria-label="Game content"
+              >
                 {children}
               </div>
             </div>

@@ -19,6 +19,13 @@ export function GameCard({ game, onClick }: GameCardProps) {
 
   const isPlayable = game.status === 'playable'
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      onClick()
+    }
+  }
+
   return (
     <motion.div
       whileHover={prefersReducedMotion ? {} : { scale: 1.05, y: -5 }}
@@ -37,6 +44,10 @@ export function GameCard({ game, onClick }: GameCardProps) {
           }
         `}
         onClick={onClick}
+        onKeyDown={handleKeyDown}
+        role="button"
+        tabIndex={0}
+        aria-label={`${game.name} - ${game.description} - ${game.counter}`}
       >
         {/* Counter Badge */}
         <div className="absolute right-4 top-4">
