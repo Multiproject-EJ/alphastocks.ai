@@ -13,6 +13,7 @@ const BOTTOM_NAV_HEIGHT = 90;   // pixels (updated to match new nav height)
 interface PhoneLayoutProps {
   children: ReactNode;
   currentPosition: number;
+  currentRing?: number; // Current ring player is on (1, 2, or 3)
   gameState: {
     cash: number;
     netWorth: number;
@@ -44,6 +45,7 @@ interface PhoneLayoutProps {
 export function PhoneLayout({ 
   children, 
   currentPosition,
+  currentRing = 1,
   gameState, 
   onRollDice, 
   multiplier,
@@ -144,6 +146,7 @@ export function PhoneLayout({
         >
           <MobileBoard3D
             currentPosition={currentPosition}
+            currentRing={currentRing}
             totalTiles={40}
             boardSize={1200}
             leftOffset={leftUIOffset}

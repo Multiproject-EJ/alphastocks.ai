@@ -4071,6 +4071,7 @@ function App() {
       <>
         <PhoneLayout
           currentPosition={gameState.position}
+          currentRing={gameState.currentRing}
           gameState={{
             cash: gameState.cash,
             netWorth: gameState.netWorth,
