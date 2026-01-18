@@ -5,6 +5,7 @@ import { calculateTilePositions } from '@/lib/tilePositions';
 interface MobileBoard3DProps {
   children: React.ReactNode;
   currentPosition: number;
+  currentRing?: number; // Current ring player is on (1, 2, or 3)
   totalTiles?: number;
   boardSize?: number;
   leftOffset?: number;   // Width of left UI elements (buttons, panels)
@@ -12,7 +13,7 @@ interface MobileBoard3DProps {
 }
 
 /**
- * Mobile 3D Board - Circular Layout
+ * Mobile 3D Board - Circular Layout with Multi-Ring Support
  * 
  * Creates a tilted view of the circular board that:
  * - Tilts the board on X axis for 3D perspective
@@ -20,10 +21,13 @@ interface MobileBoard3DProps {
  * - Centers on the player's current position
  * - Smoothly animates when player moves
  * - Supports touch pan gestures
+ * - Handles camera zoom for different rings (Ring 2 is 20% more zoomed in)
+ * - Smooth, slow transitions when teleporting between rings
  */
 export function MobileBoard3D({
   children,
   currentPosition,
+  currentRing = 1,
   totalTiles = 27,
   boardSize = 1200,
   leftOffset = 0,
@@ -55,10 +59,58 @@ export function MobileBoard3D({
     return () => observer.disconnect();
   }, []);
 
+  // Determine which ring's tile positions to use based on current position
+  const getRingFromPosition = (position: number): number => {
+    if (position >= 0 && position < 100) return 1
+    if (position >= 200 && position < 300) return 2
+    if (position >= 300 && position < 400) return 3
+    return 1 // default to ring 1
+  }
+
+  const actualRing = currentRing || getRingFromPosition(currentPosition);
+
+  // Get tile count for the current ring (matches RING_CONFIG)
+  const getTileCountForRing = (ring: number): number => {
+    if (ring === 1) return 35 // Ring 1: Street Level
+    if (ring === 2) return 24 // Ring 2: Executive Floor
+    if (ring === 3) return 9  // Ring 3: Elite Circle
+    return 35
+  }
+
+  // Get the normalized position index within the ring (0-based)
+  const getNormalizedPosition = (position: number, ring: number): number => {
+    if (ring === 1) return position % 35
+    if (ring === 2) return (position - 200) % 24
+    if (ring === 3) return (position - 300) % 9
+    return position % 35
+  }
+
+  const ringTileCount = getTileCountForRing(actualRing);
+  const normalizedPosition = getNormalizedPosition(currentPosition, actualRing);
+
+  // Constants for ring radius calculations
+  const RING_2_RADIUS_FACTOR = 0.5  // Ring 2 uses 50% of outer radius
+  const RING_3_INNER_SCALE = 0.6    // Ring 3 is 60% of Ring 2's radius
+  const BASE_RADIUS_SCALE = 0.38    // Base board radius scale
+
   // Calculate where player is on the circular board
   const playerPosition = useMemo(() => {
-    const tilePositions = calculateTilePositions({ width: boardSize, height: boardSize })
-    const currentTile = tilePositions.find(t => t.id === currentPosition)
+    // For ring 2 and 3, use inner track positioning
+    const isInnerTrack = actualRing === 2
+    const isInnermost = actualRing === 3
+    
+    let tilePositions;
+    if (isInnermost) {
+      // Ring 3 uses smaller radius (60% of Ring 2's radius)
+      const ring2Positions = calculateTilePositions({ width: boardSize, height: boardSize }, 24, undefined, true)
+      const ring2Radius = Math.min(boardSize, boardSize) * BASE_RADIUS_SCALE * RING_2_RADIUS_FACTOR
+      const ring3Radius = ring2Radius * RING_3_INNER_SCALE
+      tilePositions = calculateTilePositions({ width: boardSize, height: boardSize }, ringTileCount, ring3Radius, false)
+    } else {
+      tilePositions = calculateTilePositions({ width: boardSize, height: boardSize }, ringTileCount, undefined, isInnerTrack)
+    }
+    
+    const currentTile = tilePositions.find(t => t.id === normalizedPosition)
     
     if (!currentTile) {
       return { x: 0, y: 0, offsetX: 0, offsetY: 0 }
@@ -70,18 +122,38 @@ export function MobileBoard3D({
     const x = currentTile.x - centerX
     const y = currentTile.y - centerY
     
+    // Dampen the camera movement to reduce oval effect
+    // Instead of following the full circular path, reduce movement to keep camera closer to center
+    const CAMERA_DAMPING_FACTOR = 0.6 // 0 = no movement, 1 = full circular path
+    
     // Negate to move board opposite direction (centers player)
-    return { x, y, offsetX: -x, offsetY: -y }
-  }, [currentPosition, boardSize]);
+    return { x, y, offsetX: -x * CAMERA_DAMPING_FACTOR, offsetY: -y * CAMERA_DAMPING_FACTOR }
+  }, [currentPosition, boardSize, actualRing, ringTileCount, normalizedPosition]);
 
-  const verticalOffset = useMemo(() => -boardSize * 0.12, [boardSize]);
+  const verticalOffset = useMemo(() => -boardSize * 0.05, [boardSize]);
 
-  // Static camera settings - increased scale for better tile visibility
+  // Base camera settings
+  const BASE_SCALE = 0.75;
+  const RING_2_ZOOM_MULTIPLIER = 1.2; // 20% more zoom for Ring 2
+  const RING_3_ZOOM_MULTIPLIER = 1.4; // 40% more zoom for Ring 3 (relative to Ring 1)
+  
+  // Calculate scale based on current ring
+  const targetScale = useMemo(() => {
+    if (actualRing === 2) return BASE_SCALE * RING_2_ZOOM_MULTIPLIER;
+    if (actualRing === 3) return BASE_SCALE * RING_3_ZOOM_MULTIPLIER;
+    return BASE_SCALE;
+  }, [actualRing]);
+
+  // Camera configuration constants
+  const CAMERA_PERSPECTIVE = 1000;
+  const CAMERA_ROTATE_X = 45;
+
+  // Static camera settings - reduced tilt to minimize oval effect
   const camera = useMemo(() => ({
-    perspective: 800,
-    rotateX: 55,        // Tilt forward for 3D effect
-    scale: 0.75,        // Increased from 0.62 for larger, more visible tiles
-  }), []);
+    perspective: CAMERA_PERSPECTIVE,
+    rotateX: CAMERA_ROTATE_X,
+    scale: targetScale, // Dynamic scale based on ring
+  }), [targetScale]);
 
   const clampedTranslation = useMemo(() => {
     const { width, height } = viewportSize;
@@ -155,8 +227,9 @@ export function MobileBoard3D({
           `,
           transformStyle: 'preserve-3d',
           transformOrigin: 'center center',
-          // Smooth animation when moving
-          transition: 'transform 0.6s ease-out',
+          // Smooth, SLOW animation when moving or transitioning between rings
+          // Use longer duration (1.5s) for ring transitions to be smooth and not snappy
+          transition: 'transform 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
           // Prevent flicker
           backfaceVisibility: 'hidden',
           willChange: 'transform',

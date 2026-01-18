@@ -1,6 +1,10 @@
 import { useState } from 'react';
-import { ChevronDown, ChevronUp, Bell, BellOff, Sparkles, Star } from 'lucide-react';
-import { useNotificationPreferences } from '@/hooks/useNotificationPreferences';
+import { ChevronDown, ChevronUp, Sparkles, Star, Volume2, VolumeX } from 'lucide-react';
+import { useSound } from '@/hooks/useSound';
+
+// Z-index constants for layering
+const Z_INDEX_HUD = 50
+const Z_INDEX_HUD_EXPANDED = 60 // Higher than event tracker (40)
 
 interface CompactHUDProps {
   cash: number;
@@ -28,76 +32,82 @@ export function CompactHUD({
   onToggleSpaceBackground = () => {},
 }: CompactHUDProps) {
   const [isExpanded, setIsExpanded] = useState(false);
-  const { enabled: notificationsEnabled, toggleNotifications } = useNotificationPreferences();
+  const { muted, toggleMute } = useSound();
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 safe-top">
-      {/* Collapsed view - single row */}
+    <div className={`fixed top-0 left-0 right-0 safe-top`} style={{ zIndex: Z_INDEX_HUD }}>
+      {/* Collapsed view - single row with all controls */}
       <div 
-        className="flex items-center justify-between px-4 py-2 bg-background/90 backdrop-blur-sm border-b"
+        className="flex items-center justify-between gap-2 px-3 py-2 bg-background/95 backdrop-blur-md border-b shadow-sm"
       >
-        <div className="flex items-center gap-3">
-          <span className="text-sm font-bold text-green-500">
+        {/* Left side: Money, Level, Stars */}
+        <div className="flex items-center gap-2 min-w-0 flex-shrink">
+          <span className="text-xs font-bold text-green-500 truncate">
             ${cash.toLocaleString()}
           </span>
-          <span className="text-xs text-muted-foreground">
+          <span className="text-[10px] text-muted-foreground whitespace-nowrap">
             Lv.{level}
           </span>
           {/* Stars display */}
-          <div className="flex items-center gap-1">
-            <Star size={14} className="text-yellow-500 fill-yellow-500" />
-            <span className="text-sm font-medium">{stars}</span>
+          <div className="flex items-center gap-0.5">
+            <Star size={12} className="text-yellow-500 fill-yellow-500" />
+            <span className="text-xs font-medium">{stars}</span>
           </div>
         </div>
         
-        <div className="flex items-center gap-3">
+        {/* Right side: Controls - Background, Sound, Dice, Expand */}
+        <div className="flex items-center gap-2 flex-shrink-0">
+          {/* Background toggle */}
           <button
             onClick={(e) => {
               e.stopPropagation();
               onToggleSpaceBackground();
             }}
-            className={`p-1.5 rounded-md transition-colors ${spaceBackgroundEnabled ? 'bg-indigo-500/20 text-indigo-200' : 'hover:bg-accent/20 text-muted-foreground'}`}
+            className={`p-1 rounded-md transition-colors ${spaceBackgroundEnabled ? 'bg-indigo-500/20 text-indigo-200' : 'hover:bg-accent/20 text-muted-foreground'}`}
             aria-label={spaceBackgroundEnabled ? 'Disable space background' : 'Enable space background'}
             aria-pressed={spaceBackgroundEnabled}
-            title={spaceBackgroundEnabled ? 'Space background on' : 'Space background off'}
+            title={spaceBackgroundEnabled ? 'Background on' : 'Background off'}
           >
-            <Sparkles size={16} />
+            <Sparkles size={14} />
           </button>
-          {/* Notification Toggle Button */}
+          
+          {/* Sound Toggle Button */}
           <button
             onClick={(e) => {
               e.stopPropagation();
-              toggleNotifications();
+              toggleMute();
             }}
-            className="p-1.5 rounded-md hover:bg-accent/20 transition-colors"
-            aria-label={notificationsEnabled ? 'Disable notifications' : 'Enable notifications'}
-            title={notificationsEnabled ? 'Notifications on' : 'Notifications off'}
+            className={`p-1 rounded-md transition-colors ${!muted ? 'text-primary' : 'hover:bg-accent/20 text-muted-foreground'}`}
+            aria-label={muted ? 'Unmute sound' : 'Mute sound'}
+            title={muted ? 'Sound off' : 'Sound on'}
           >
-            {notificationsEnabled ? (
-              <Bell size={16} className="text-primary" />
+            {muted ? (
+              <VolumeX size={14} />
             ) : (
-              <BellOff size={16} className="text-muted-foreground" />
+              <Volume2 size={14} />
             )}
           </button>
           
-          <div className="flex items-center gap-1">
-            <span className="text-sm">🎲</span>
-            <span className="text-sm font-medium">{rolls}</span>
+          {/* Dice display */}
+          <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-accent/10">
+            <span className="text-xs">🎲</span>
+            <span className="text-xs font-medium">{rolls}</span>
           </div>
           
+          {/* Expand/Collapse arrow */}
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="p-1"
+            className="p-1 hover:bg-accent/20 rounded-md transition-colors"
             aria-label={isExpanded ? 'Collapse HUD' : 'Expand HUD'}
           >
-            {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+            {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
           </button>
         </div>
       </div>
 
-      {/* Expanded view - full stats */}
+      {/* Expanded view - full stats - HIGHER Z-INDEX to overlay event tracker */}
       {isExpanded && (
-        <div className="px-4 py-3 bg-background/95 backdrop-blur-sm border-b space-y-2">
+        <div className="relative px-4 py-3 bg-background/98 backdrop-blur-md border-b shadow-lg space-y-2" style={{ zIndex: Z_INDEX_HUD_EXPANDED }}>
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Net Worth</span>
             <span className="font-medium">${netWorth.toLocaleString()}</span>
