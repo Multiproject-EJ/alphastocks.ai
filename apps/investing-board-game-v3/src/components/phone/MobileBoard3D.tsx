@@ -37,7 +37,6 @@ export function MobileBoard3D({
   const { panOffset, handlers } = useBoardPan();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [viewportSize, setViewportSize] = useState({ width: 0, height: 0 });
-  const previousRingRef = useRef(currentRing);
 
   useEffect(() => {
     if (!containerRef.current) {
@@ -60,11 +59,6 @@ export function MobileBoard3D({
     return () => observer.disconnect();
   }, []);
 
-  // Detect ring changes for smooth transitions
-  useEffect(() => {
-    previousRingRef.current = currentRing;
-  }, [currentRing]);
-
   // Determine which ring's tile positions to use based on current position
   const getRingFromPosition = (position: number): number => {
     if (position >= 0 && position < 100) return 1
@@ -75,24 +69,29 @@ export function MobileBoard3D({
 
   const actualRing = currentRing || getRingFromPosition(currentPosition);
 
-  // Get tile count for the current ring
+  // Get tile count for the current ring (matches RING_CONFIG)
   const getTileCountForRing = (ring: number): number => {
-    if (ring === 1) return 27
-    if (ring === 2) return 24
-    if (ring === 3) return 7
-    return 27
+    if (ring === 1) return 35 // Ring 1: Street Level
+    if (ring === 2) return 24 // Ring 2: Executive Floor
+    if (ring === 3) return 9  // Ring 3: Elite Circle
+    return 35
   }
 
   // Get the normalized position index within the ring (0-based)
   const getNormalizedPosition = (position: number, ring: number): number => {
-    if (ring === 1) return position % 27
+    if (ring === 1) return position % 35
     if (ring === 2) return (position - 200) % 24
-    if (ring === 3) return (position - 300) % 7
-    return position % 27
+    if (ring === 3) return (position - 300) % 9
+    return position % 35
   }
 
   const ringTileCount = getTileCountForRing(actualRing);
   const normalizedPosition = getNormalizedPosition(currentPosition, actualRing);
+
+  // Constants for ring radius calculations
+  const RING_2_RADIUS_FACTOR = 0.5  // Ring 2 uses 50% of outer radius
+  const RING_3_INNER_SCALE = 0.6    // Ring 3 is 60% of Ring 2's radius
+  const BASE_RADIUS_SCALE = 0.38    // Base board radius scale
 
   // Calculate where player is on the circular board
   const playerPosition = useMemo(() => {
@@ -102,10 +101,10 @@ export function MobileBoard3D({
     
     let tilePositions;
     if (isInnermost) {
-      // Ring 3 uses 30% of outer radius (50% of ring 2's radius)
+      // Ring 3 uses smaller radius (60% of Ring 2's radius)
       const ring2Positions = calculateTilePositions({ width: boardSize, height: boardSize }, 24, undefined, true)
-      const ring2Radius = Math.min(boardSize, boardSize) * 0.38 * 0.5
-      const ring3Radius = ring2Radius * 0.6
+      const ring2Radius = Math.min(boardSize, boardSize) * BASE_RADIUS_SCALE * RING_2_RADIUS_FACTOR
+      const ring3Radius = ring2Radius * RING_3_INNER_SCALE
       tilePositions = calculateTilePositions({ width: boardSize, height: boardSize }, ringTileCount, ring3Radius, false)
     } else {
       tilePositions = calculateTilePositions({ width: boardSize, height: boardSize }, ringTileCount, undefined, isInnerTrack)
@@ -145,10 +144,14 @@ export function MobileBoard3D({
     return BASE_SCALE;
   }, [actualRing]);
 
+  // Camera configuration constants
+  const CAMERA_PERSPECTIVE = 1000;
+  const CAMERA_ROTATE_X = 45;
+
   // Static camera settings - reduced tilt to minimize oval effect
   const camera = useMemo(() => ({
-    perspective: 1000,  // Increased for less dramatic perspective
-    rotateX: 45,        // Reduced from 55 to minimize oval distortion
+    perspective: CAMERA_PERSPECTIVE,
+    rotateX: CAMERA_ROTATE_X,
     scale: targetScale, // Dynamic scale based on ring
   }), [targetScale]);
 
