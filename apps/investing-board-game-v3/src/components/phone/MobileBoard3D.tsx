@@ -71,11 +71,11 @@ export function MobileBoard3D({
     const y = currentTile.y - centerY
     
     // Dampen the camera movement to reduce oval effect
-    // Instead of following the full circular path, reduce movement by 40%
-    const dampingFactor = 0.6
+    // Instead of following the full circular path, reduce movement to keep camera closer to center
+    const CAMERA_DAMPING_FACTOR = 0.6 // 0 = no movement, 1 = full circular path
     
     // Negate to move board opposite direction (centers player)
-    return { x, y, offsetX: -x * dampingFactor, offsetY: -y * dampingFactor }
+    return { x, y, offsetX: -x * CAMERA_DAMPING_FACTOR, offsetY: -y * CAMERA_DAMPING_FACTOR }
   }, [currentPosition, boardSize]);
 
   const verticalOffset = useMemo(() => -boardSize * 0.05, [boardSize]);

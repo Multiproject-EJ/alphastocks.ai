@@ -2,6 +2,10 @@ import { useState } from 'react';
 import { ChevronDown, ChevronUp, Sparkles, Star, Volume2, VolumeX } from 'lucide-react';
 import { useSound } from '@/hooks/useSound';
 
+// Z-index constants for layering
+const Z_INDEX_HUD = 50
+const Z_INDEX_HUD_EXPANDED = 60 // Higher than event tracker (40)
+
 interface CompactHUDProps {
   cash: number;
   netWorth: number;
@@ -31,7 +35,7 @@ export function CompactHUD({
   const { muted, toggleMute } = useSound();
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 safe-top">
+    <div className={`fixed top-0 left-0 right-0 safe-top`} style={{ zIndex: Z_INDEX_HUD }}>
       {/* Collapsed view - single row with all controls */}
       <div 
         className="flex items-center justify-between gap-2 px-3 py-2 bg-background/95 backdrop-blur-md border-b shadow-sm"
@@ -103,7 +107,7 @@ export function CompactHUD({
 
       {/* Expanded view - full stats - HIGHER Z-INDEX to overlay event tracker */}
       {isExpanded && (
-        <div className="relative z-[60] px-4 py-3 bg-background/98 backdrop-blur-md border-b shadow-lg space-y-2">
+        <div className="relative px-4 py-3 bg-background/98 backdrop-blur-md border-b shadow-lg space-y-2" style={{ zIndex: Z_INDEX_HUD_EXPANDED }}>
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Net Worth</span>
             <span className="font-medium">${netWorth.toLocaleString()}</span>
