@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback, lazy, Suspense, useMemo } from 'react'
 import { Toaster, toast } from 'sonner'
 import { Button } from '@/components/ui/button'
-import { Star, ChartLine, Trophy, CalendarBlank, Crown, GearSix, Gamepad } from '@phosphor-icons/react'
+import { Star, ChartLine, Trophy, CalendarBlank, Crown, GearSix, GameController } from '@phosphor-icons/react'
 import { Tile } from '@/components/Tile'
 import { DiceHUD } from '@/components/DiceHUD'
 import { HubModal } from '@/components/HubModal'
@@ -3276,7 +3276,7 @@ function App() {
                 className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white shadow-lg hover:shadow-xl transition-all backdrop-blur-sm rounded-full h-14 px-6 text-base font-semibold flex items-center gap-2"
                 aria-label="Open Mini-Games Hub"
               >
-                <Gamepad size={20} weight="fill" />
+                <GameController size={20} weight="fill" />
                 Games
               </Button>
               <Button

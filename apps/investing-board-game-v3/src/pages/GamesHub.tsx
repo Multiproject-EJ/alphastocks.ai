@@ -3,7 +3,7 @@
  * Central hub for all mini-games with grid layout
  */
 
-import { ArrowLeft, Gamepad } from '@phosphor-icons/react'
+import { ArrowLeft, GameController } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { GameCard } from '@/components/games/GameCard'
 import { GameOverlay } from '@/components/games/GameOverlay'
@@ -64,7 +64,7 @@ export function GamesHub({ onBack }: GamesHubProps) {
               </Button>
             )}
             <div className="flex items-center gap-4">
-              <Gamepad size={48} weight="fill" className="text-purple-500" />
+              <GameController size={48} weight="fill" className="text-purple-500" />
               <div>
                 <h1 className="text-4xl font-bold text-white">Mini-Games Hub</h1>
                 <p className="text-slate-400">Choose a game to play</p>
