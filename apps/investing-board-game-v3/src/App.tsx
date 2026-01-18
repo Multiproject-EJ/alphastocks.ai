@@ -38,6 +38,7 @@ import { MoneyCelebration } from '@/components/MoneyCelebration'
 import { BlackSwanAnimation } from '@/components/BlackSwanAnimation'
 import { QuickCelebration } from '@/components/QuickCelebration'
 import { WheelOfFortuneModal } from '@/components/WheelOfFortuneModal'
+import { VaultHeistModal } from '@/components/VaultHeistModal'
 import { ThroneVictoryModal } from '@/components/ThroneVictoryModal'
 
 // Mobile-first components
@@ -385,6 +386,10 @@ function App() {
   const [isWheelOpen, setIsWheelOpen] = useState(false)
   const [freeWheelSpins, setFreeWheelSpins] = useState(1)
 
+  // Vault Heist state
+  const [showVaultHeist, setShowVaultHeist] = useState(false)
+  const [freeVaultPicks, setFreeVaultPicks] = useState(3)
+
   // Mobile UI states
   const [activeSection, setActiveSection] = useState<'home' | 'challenges' | 'shop' | 'leaderboard' | 'settings'>('home')
   const [isLoading, setIsLoading] = useState(true)
@@ -456,6 +461,11 @@ function App() {
   const isHappyHour = useMemo(() => {
     const hour = new Date().getHours()
     return hour >= 18 && hour < 21
+  }, [])
+
+  // Check if Saturday
+  const isSaturday = useMemo(() => {
+    return new Date().getDay() === 6
   }, [])
 
   // Safe area insets
@@ -2910,6 +2920,28 @@ function App() {
     }
   }, [addCoins, setGameState, setRollsRemaining, showToast, triggerCelebrationFromLastTile])
 
+  const handleVaultHeistComplete = useCallback((
+    prizes: Array<{ type: 'cash' | 'stars' | 'coins' | 'mystery' | 'alarm', amount: number, emoji: string, label: string }>, 
+    haul: { cash: number; stars: number; coins: number; mysteryBoxes: number }
+  ) => {
+    setGameState(prev => ({
+      ...prev,
+      cash: prev.cash + haul.cash,
+      netWorth: prev.netWorth + haul.cash,
+      stars: prev.stars + haul.stars,
+      coins: prev.coins + haul.coins,
+      // Mystery boxes handled separately if needed
+    }))
+    
+    // Decrement free game sessions (one session = 3 picks)
+    setFreeVaultPicks(prev => Math.max(0, prev - 1))
+    
+    playSound('celebration')
+    showToast('success', '💼 Vault Heist Complete!', {
+      description: `You got away with $${haul.cash.toLocaleString()}, ${haul.stars} ⭐, ${haul.coins} 🪙, and ${haul.mysteryBoxes} 💎!`
+    })
+  }, [playSound, showToast])
+
   const handleWildcardEvent = (event: WildcardEvent) => {
     debugGame('Applying wildcard event:', event.id)
     playSound('button-click')
@@ -3897,6 +3929,24 @@ function App() {
         playSound={playSound}
       />
 
+      {/* Vault Heist Modal */}
+      <VaultHeistModal
+        isOpen={showVaultHeist}
+        onClose={() => setShowVaultHeist(false)}
+        currentRing={gameState.currentRing as 1 | 2 | 3}
+        freePicksRemaining={freeVaultPicks}
+        coins={gameState.coins}
+        onPickComplete={handleVaultHeistComplete}
+        onSpendCoins={(amount) => {
+          if (gameState.coins >= amount) {
+            setGameState(prev => ({ ...prev, coins: prev.coins - amount }))
+            return true
+          }
+          return false
+        }}
+        playSound={playSound}
+      />
+
       {/* Throne Victory Modal */}
       <ThroneVictoryModal
         isOpen={showThroneVictory}
@@ -3939,6 +3989,17 @@ function App() {
           aria-label="Open Wheel of Fortune"
         >
           <span className="text-3xl">🎡</span>
+        </button>
+      )}
+
+      {/* Saturday Vault Heist Button */}
+      {isSaturday && (
+        <button
+          onClick={() => setShowVaultHeist(true)}
+          className="fixed bottom-24 right-20 p-4 bg-gradient-to-r from-amber-600 to-yellow-600 rounded-full shadow-lg animate-bounce hover:scale-110 transition-transform z-50"
+          aria-label="Open Vault Heist"
+        >
+          <span className="text-3xl">🏦</span>
         </button>
       )}
 
