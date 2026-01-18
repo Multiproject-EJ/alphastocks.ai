@@ -70,17 +70,21 @@ export function MobileBoard3D({
     const x = currentTile.x - centerX
     const y = currentTile.y - centerY
     
+    // Dampen the camera movement to reduce oval effect
+    // Instead of following the full circular path, reduce movement by 40%
+    const dampingFactor = 0.6
+    
     // Negate to move board opposite direction (centers player)
-    return { x, y, offsetX: -x, offsetY: -y }
+    return { x, y, offsetX: -x * dampingFactor, offsetY: -y * dampingFactor }
   }, [currentPosition, boardSize]);
 
-  const verticalOffset = useMemo(() => -boardSize * 0.12, [boardSize]);
+  const verticalOffset = useMemo(() => -boardSize * 0.05, [boardSize]);
 
-  // Static camera settings - increased scale for better tile visibility
+  // Static camera settings - reduced tilt to minimize oval effect
   const camera = useMemo(() => ({
-    perspective: 800,
-    rotateX: 55,        // Tilt forward for 3D effect
-    scale: 0.75,        // Increased from 0.62 for larger, more visible tiles
+    perspective: 1000,  // Increased for less dramatic perspective
+    rotateX: 45,        // Reduced from 55 to minimize oval distortion
+    scale: 0.75,        // Keep scale for good tile visibility
   }), []);
 
   const clampedTranslation = useMemo(() => {
