@@ -5,6 +5,8 @@ import { PhoneBottomNav } from './PhoneBottomNav';
 import { MobileBoard3D } from './MobileBoard3D';
 import { BoardDebugOverlay } from './BoardDebugOverlay';
 import { useUIMode } from '@/hooks/useUIMode';
+import { useAuth } from '@/context/AuthContext';
+import { Button } from '@/components/ui/button';
 
 // Layout constants for consistent sizing
 const COMPACT_HUD_HEIGHT = 48;  // pixels
@@ -73,6 +75,7 @@ export function PhoneLayout({
   const [spaceBackgroundEnabled, setSpaceBackgroundEnabled] = useState(false);
   const hideFloatingActions = isRolling;
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const { isAuthenticated, loading: authLoading } = useAuth();
   
   const camera = {
     perspective: 800,
@@ -254,6 +257,30 @@ export function PhoneLayout({
           dice2={dice2}
         />
       </div>
+
+      {!authLoading && !isAuthenticated && (
+        <div
+          className="fixed left-3 right-3 z-[70] rounded-2xl border border-white/15 bg-black/60 p-3 text-white shadow-lg backdrop-blur"
+          style={{ bottom: `${BOTTOM_NAV_HEIGHT + 16}px` }}
+          role="status"
+        >
+          <div className="flex items-center justify-between gap-3">
+            <div className="text-xs">
+              <p className="font-semibold">Sign in to save your progress.</p>
+              <p className="text-[11px] text-white/70">Sync across desktop, tablet, and mobile.</p>
+            </div>
+            <Button
+              size="sm"
+              className="shrink-0"
+              onClick={() => {
+                window.location.href = 'https://www.alphastocks.ai/?proTools=1';
+              }}
+            >
+              Sign in
+            </Button>
+          </div>
+        </div>
+      )}
       
       {/* Layer 100: Modal and Toast Portal - OUTSIDE board transform */}
       {/* This div serves as a container for portals that need to escape the 3D transform */}
