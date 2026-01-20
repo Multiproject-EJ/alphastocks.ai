@@ -3,8 +3,8 @@ import { ChevronDown, ChevronUp, Sparkles, Star, Volume2, VolumeX } from 'lucide
 import { useSound } from '@/hooks/useSound';
 
 // Z-index constants for layering
-const Z_INDEX_HUD = 50
-const Z_INDEX_HUD_EXPANDED = 60 // Higher than event tracker (40)
+const Z_INDEX_HUD = 120
+const Z_INDEX_HUD_EXPANDED = 130 // Higher than event tracker (40)
 
 interface CompactHUDProps {
   cash: number;
