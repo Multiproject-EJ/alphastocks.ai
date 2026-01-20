@@ -121,6 +121,7 @@ export function ShopModal({
           <MobileShop 
             cash={gameState.cash}
             onPurchase={handleMobilePurchase}
+            onClose={() => onOpenChange(false)}
           />
         </DialogContent>
       </Dialog>

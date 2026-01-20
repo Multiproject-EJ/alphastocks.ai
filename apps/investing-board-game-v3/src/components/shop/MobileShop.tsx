@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { X } from '@phosphor-icons/react';
 import { ShopTabs } from './ShopTabs';
 import { ShopItem } from './ShopItem';
 import { PropertyVault } from './PropertyVault';
@@ -8,9 +9,10 @@ import { SHOP_ITEMS, ShopCategory } from '@/lib/shopItems';
 interface MobileShopProps {
   cash: number;
   onPurchase: (itemId: string, cost: number) => void;
+  onClose?: () => void;
 }
 
-export function MobileShop({ cash, onPurchase }: MobileShopProps) {
+export function MobileShop({ cash, onPurchase, onClose }: MobileShopProps) {
   const [activeTab, setActiveTab] = useState<ShopCategory>('utilities');
   const { purchase, isPurchasing } = usePurchase();
 
@@ -28,18 +30,28 @@ export function MobileShop({ cash, onPurchase }: MobileShopProps) {
   return (
     <div className="mobile-shop flex flex-col h-full">
       {/* Header with balance */}
-      <div className="shop-header flex items-center justify-between px-4 py-3 border-b">
-        <h1 className="text-xl font-bold">🛒 Shop</h1>
-        <div className="text-green-500 font-bold">${cash.toLocaleString()}</div>
+      <div className="shop-header flex items-center justify-between px-3 py-2 border-b">
+        <h1 className="text-lg font-bold">🛒 Shop</h1>
+        <div className="flex items-center gap-2">
+          <div className="text-sm font-semibold text-green-500">${cash.toLocaleString()}</div>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close shop"
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-border/60 bg-background/80 text-foreground shadow-sm transition hover:bg-accent/20 touch-target"
+          >
+            <X size={18} weight="bold" />
+          </button>
+        </div>
       </div>
 
       {/* Swipeable category tabs */}
       <ShopTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
       {/* Item grid - 2 columns */}
-      <div className="shop-grid flex-1 overflow-y-auto p-4">
+      <div className="shop-grid flex-1 overflow-y-auto p-3">
         {activeTab === 'utilities' ? (
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-2.5">
             {items.map((item) => (
               <ShopItem
                 key={item.id}

@@ -163,6 +163,7 @@ export function useGameSave(): UseGameSaveReturn {
         // Table might not exist yet - this is okay
         if (queryError.code === '42P01') {
           console.warn('board_game_profiles table does not exist yet. Run the SQL patch to enable game saving.')
+          setError('Game save table not found. Run the Supabase board_game_profiles SQL patch to enable cloud saves.')
           return
         }
         throw queryError
@@ -269,6 +270,7 @@ export function useGameSave(): UseGameSaveReturn {
           // Table might not exist yet
           if (upsertError.code === '42P01') {
             console.warn('board_game_profiles table does not exist yet. Run the SQL patch to enable game saving.')
+            setError('Game save table not found. Run the Supabase board_game_profiles SQL patch to enable cloud saves.')
             return
           }
           throw upsertError

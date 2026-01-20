@@ -1308,10 +1308,20 @@ function App() {
   const {
     loading: saveLoading,
     saving,
+    error: saveError,
     savedGameState,
     savedRolls,
     saveGame,
+    clearError: clearSaveError,
   } = useGameSave()
+
+  useEffect(() => {
+    if (!saveError) return
+    toast.error('Cloud save unavailable', {
+      description: saveError,
+    })
+    clearSaveError()
+  }, [saveError, clearSaveError])
 
   const {
     definition: eventTrackDefinition,
