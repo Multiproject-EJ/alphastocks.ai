@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ShopTabs } from './ShopTabs';
 import { ShopItem } from './ShopItem';
+import { PropertyVault } from './PropertyVault';
 import { usePurchase } from '@/hooks/usePurchase';
 import { SHOP_ITEMS, ShopCategory } from '@/lib/shopItems';
 
@@ -10,7 +11,7 @@ interface MobileShopProps {
 }
 
 export function MobileShop({ cash, onPurchase }: MobileShopProps) {
-  const [activeTab, setActiveTab] = useState<ShopCategory>('dice');
+  const [activeTab, setActiveTab] = useState<ShopCategory>('utilities');
   const { purchase, isPurchasing } = usePurchase();
 
   const items = SHOP_ITEMS.filter(item => item.category === activeTab);
@@ -37,17 +38,25 @@ export function MobileShop({ cash, onPurchase }: MobileShopProps) {
 
       {/* Item grid - 2 columns */}
       <div className="shop-grid flex-1 overflow-y-auto p-4">
-        <div className="grid grid-cols-2 gap-3">
-          {items.map((item) => (
-            <ShopItem
-              key={item.id}
-              item={item}
-              canAfford={cash >= item.price}
-              onBuy={() => handleBuy(item.id, item.price)}
-              isPurchasing={isPurchasing === item.id}
-            />
-          ))}
-        </div>
+        {activeTab === 'utilities' ? (
+          <div className="grid grid-cols-2 gap-3">
+            {items.map((item) => (
+              <ShopItem
+                key={item.id}
+                item={item}
+                canAfford={cash >= item.price}
+                onBuy={() => handleBuy(item.id, item.price)}
+                isPurchasing={isPurchasing === item.id}
+              />
+            ))}
+          </div>
+        ) : (
+          <PropertyVault
+            cash={cash}
+            isPurchasing={isPurchasing}
+            onBuy={handleBuy}
+          />
+        )}
       </div>
 
       {/* Footer info */}
