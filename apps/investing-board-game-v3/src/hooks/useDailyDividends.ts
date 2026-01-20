@@ -211,7 +211,11 @@ export function useDailyDividends(): UseDailyDividendsReturn {
         .eq('profile_id', user.id)
 
       if (updateError) {
-        throw updateError
+        if (updateError.code === POSTGRES_ERROR_UNDEFINED_COLUMN) {
+          console.warn('Daily dividends columns do not exist yet. Run migration 028_daily_dividends.sql')
+        } else {
+          throw updateError
+        }
       }
 
       // Update local state
