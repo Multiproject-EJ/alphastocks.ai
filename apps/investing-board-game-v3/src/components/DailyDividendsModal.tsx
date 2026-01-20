@@ -117,6 +117,7 @@ export function DailyDividendsModal({
   const DayCard = ({ day, size = 'normal' }: { day: number; size?: 'normal' | 'large' }) => {
     const isCurrentDay = day === status.currentDay
     const isCollected = day < status.currentDay || (day === 7 && status.currentDay === 1 && status.totalCollected > 0)
+    const isLockedToday = isCurrentDay && !status.canCollect
     const reward = getRewardPreviewForDay(day)
 
     const cardSize = size === 'large'
@@ -130,6 +131,8 @@ export function DailyDividendsModal({
         className={`${cardSize} relative rounded-xl border-2 transition-all ${
           isCurrentDay && status.canCollect
             ? 'border-emerald-500 bg-gradient-to-br from-emerald-500/20 to-green-500/20 shadow-lg shadow-emerald-500/50 cursor-pointer hover:scale-105'
+            : isLockedToday
+            ? 'border-emerald-700/40 bg-gradient-to-br from-slate-700/50 to-slate-800/60 opacity-80'
             : isCollected
             ? 'border-emerald-700/40 bg-gradient-to-br from-slate-700/40 to-slate-800/40'
             : 'border-slate-600/40 bg-gradient-to-br from-slate-700/20 to-slate-800/20'
@@ -159,8 +162,10 @@ export function DailyDividendsModal({
         <div className="flex h-full flex-col items-center justify-center gap-1 p-2">
           {isCurrentDay && !revealed ? (
             <>
-              <div className="text-2xl sm:text-3xl">?</div>
-              <div className="text-[10px] text-center text-slate-300 font-medium">Tap to Reveal</div>
+              <div className="text-2xl sm:text-3xl">{isLockedToday ? '🔒' : '?'}</div>
+              <div className="text-[10px] text-center font-medium text-slate-300">
+                {isLockedToday ? 'Come back tomorrow' : 'Tap to Reveal'}
+              </div>
             </>
           ) : (
             <>
