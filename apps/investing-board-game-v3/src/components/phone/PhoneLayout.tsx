@@ -200,7 +200,7 @@ export function PhoneLayout({
       )}
       
       {/* Layer 30: Compact HUD */}
-      <div className="relative z-30">
+      <div className="relative z-[60]">
         <CompactHUD
           {...gameState}
           spaceBackgroundEnabled={spaceBackgroundEnabled}
