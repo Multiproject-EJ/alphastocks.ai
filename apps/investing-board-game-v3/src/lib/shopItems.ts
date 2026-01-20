@@ -3,7 +3,7 @@
  * Defines all purchasable items: power-ups, upgrades, cosmetics, and currency packs
  */
 
-export type ShopCategory = 'dice' | 'powerups' | 'cosmetics';
+export type ShopCategory = 'utilities' | 'vault';
 
 export interface ShopItemData {
   id: string;
@@ -18,6 +18,102 @@ export interface ShopItemData {
     duration?: number;  // Number of rolls/uses
   };
 }
+
+export interface PropertyVaultItem {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  price: number;
+  image?: string;
+  isComplete?: boolean;
+}
+
+export const PROPERTY_VAULT_PROGRESS = {
+  current: 92,
+  total: 161,
+  timeLeft: '17d 23h',
+};
+
+export const PROPERTY_VAULT_REWARDS = [
+  { id: 'reward-cash', label: '1M', icon: '🪙' },
+  { id: 'reward-bonus', label: '50B', icon: '💰' },
+];
+
+export const PROPERTY_VAULT_ITEMS: PropertyVaultItem[] = [
+  {
+    id: 'vault-residential',
+    name: 'Residential',
+    description: 'Starter neighborhoods',
+    icon: '🏡',
+    price: 1500,
+    isComplete: true,
+  },
+  {
+    id: 'vault-luxury-malls',
+    name: 'Luxury Malls',
+    description: 'Premium retail hubs',
+    icon: '🏬',
+    price: 2200,
+    isComplete: false,
+  },
+  {
+    id: 'vault-fine-dining',
+    name: 'Fine Dining',
+    description: 'Elite restaurants',
+    icon: '🍽️',
+    price: 1800,
+    isComplete: false,
+  },
+  {
+    id: 'vault-offices',
+    name: 'Offices',
+    description: 'Corporate towers',
+    icon: '🏢',
+    price: 2100,
+    isComplete: true,
+  },
+  {
+    id: 'vault-resorts',
+    name: 'Resorts',
+    description: 'Luxury escapes',
+    icon: '🏝️',
+    price: 2400,
+    isComplete: false,
+  },
+  {
+    id: 'vault-skyscrapers',
+    name: 'Skyscrapers',
+    description: 'Skyline icons',
+    icon: '🏙️',
+    price: 3000,
+    isComplete: false,
+  },
+  {
+    id: 'vault-boutiques',
+    name: 'Designer Boutiques',
+    description: 'Fashion districts',
+    icon: '👜',
+    price: 1900,
+    isComplete: false,
+  },
+  {
+    id: 'vault-yachts',
+    name: 'Yachts',
+    description: 'Luxury marinas',
+    icon: '🛥️',
+    price: 3200,
+    isComplete: true,
+  },
+  {
+    id: 'vault-landmarks',
+    name: 'Landmarks',
+    description: 'World wonders',
+    icon: '🗼',
+    price: 2800,
+    isComplete: false,
+  },
+];
 
 // Legacy interface for backwards compatibility
 export interface ShopItem {
@@ -320,7 +416,7 @@ export const SHOP_ITEMS: ShopItemData[] = [
     description: 'Small dice pack',
     icon: '🎲',
     price: 500,
-    category: 'dice',
+    category: 'utilities',
     effect: { type: 'dice', value: 5 },
   },
   {
@@ -329,7 +425,7 @@ export const SHOP_ITEMS: ShopItemData[] = [
     description: 'Medium dice pack',
     icon: '🎲',
     price: 900,
-    category: 'dice',
+    category: 'utilities',
     effect: { type: 'dice', value: 10 },
   },
   {
@@ -338,7 +434,7 @@ export const SHOP_ITEMS: ShopItemData[] = [
     description: 'Large dice pack',
     icon: '🎲',
     price: 2000,
-    category: 'dice',
+    category: 'utilities',
     effect: { type: 'dice', value: 30 },
   },
   {
@@ -347,7 +443,7 @@ export const SHOP_ITEMS: ShopItemData[] = [
     description: 'Mega dice pack',
     icon: '🎲',
     price: 5000,
-    category: 'dice',
+    category: 'utilities',
     effect: { type: 'dice', value: 100 },
   },
 
@@ -358,7 +454,7 @@ export const SHOP_ITEMS: ShopItemData[] = [
     description: 'Double cash for 3 rolls',
     icon: '📈',
     price: 2000,
-    category: 'powerups',
+    category: 'utilities',
     effect: { type: 'multiplier', value: 2, duration: 3 },
   },
   {
@@ -367,7 +463,7 @@ export const SHOP_ITEMS: ShopItemData[] = [
     description: 'Block 1 penalty',
     icon: '🛡️',
     price: 3000,
-    category: 'powerups',
+    category: 'utilities',
     effect: { type: 'shield', value: 1, duration: 1 },
   },
   {
@@ -376,7 +472,7 @@ export const SHOP_ITEMS: ShopItemData[] = [
     description: 'Move forward 3 spaces',
     icon: '🚀',
     price: 1500,
-    category: 'powerups',
+    category: 'utilities',
     effect: { type: 'move', value: 3 },
   },
   {
@@ -385,7 +481,7 @@ export const SHOP_ITEMS: ShopItemData[] = [
     description: 'Roll 2 dice, pick higher',
     icon: '🎰',
     price: 2500,
-    category: 'powerups',
+    category: 'utilities',
     effect: { type: 'multiplier', value: 'double-roll', duration: 1 },
   },
 
@@ -396,7 +492,7 @@ export const SHOP_ITEMS: ShopItemData[] = [
     description: 'Shiny gold piece',
     icon: '👑',
     price: 5000,
-    category: 'cosmetics',
+    category: 'utilities',
     effect: { type: 'cosmetic', value: 'player-gold' },
   },
   {
@@ -405,7 +501,7 @@ export const SHOP_ITEMS: ShopItemData[] = [
     description: 'Colorful dice skin',
     icon: '🌈',
     price: 3000,
-    category: 'cosmetics',
+    category: 'utilities',
     effect: { type: 'cosmetic', value: 'dice-rainbow' },
   },
   {
@@ -414,7 +510,7 @@ export const SHOP_ITEMS: ShopItemData[] = [
     description: 'Dark board theme',
     icon: '🌙',
     price: 4000,
-    category: 'cosmetics',
+    category: 'utilities',
     effect: { type: 'cosmetic', value: 'theme-night' },
   },
   {
@@ -423,7 +519,7 @@ export const SHOP_ITEMS: ShopItemData[] = [
     description: 'Luxurious board',
     icon: '✨',
     price: 6000,
-    category: 'cosmetics',
+    category: 'utilities',
     effect: { type: 'cosmetic', value: 'theme-gold' },
   },
 ];

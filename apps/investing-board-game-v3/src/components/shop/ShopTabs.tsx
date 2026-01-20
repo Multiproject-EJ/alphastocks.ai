@@ -7,9 +7,8 @@ interface ShopTabsProps {
 }
 
 const TABS: Array<{ id: ShopCategory; label: string; icon: string }> = [
-  { id: 'dice', label: 'Dice', icon: '🎲' },
-  { id: 'powerups', label: 'Power-ups', icon: '⚡' },
-  { id: 'cosmetics', label: 'Cosmetics', icon: '⭐' },
+  { id: 'utilities', label: 'Utilities', icon: '🧰' },
+  { id: 'vault', label: 'Property Vault', icon: '🏛️' },
 ];
 
 export function ShopTabs({ activeTab, onTabChange }: ShopTabsProps) {
