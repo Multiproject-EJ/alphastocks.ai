@@ -11,6 +11,10 @@ interface QuickRewardTileProps {
   isLanded: boolean
   onClick: () => void
   isPremium?: boolean
+  ringNumber?: 1 | 2 | 3
+  isRing3Revealed?: boolean
+  isRing3Revealing?: boolean
+  isTeleporting?: boolean
 }
 
 export function QuickRewardTile({
@@ -19,9 +23,26 @@ export function QuickRewardTile({
   isLanded,
   onClick,
   isPremium = false,
+  ringNumber,
+  isRing3Revealed = false,
+  isRing3Revealing = false,
+  isTeleporting = false,
 }: QuickRewardTileProps) {
   const config = QUICK_REWARD_CONFIG[type]
   const styles = isPremium ? getPremiumTileStyle() : QUICK_REWARD_TILE_STYLES[type]
+  const ringClass = !ringNumber || ringNumber === 1
+    ? 'ring-1-tile'
+    : ringNumber === 2
+      ? 'ring-2-tile'
+      : isRing3Revealing
+        ? 'ring-3-tile ring-3-tile--revealing'
+        : isRing3Revealed
+          ? 'ring-3-tile ring-3-tile--revealed'
+          : 'ring-3-tile ring-3-tile--locked'
+  const ringTint =
+    ringNumber === 2 || ringNumber === 3
+      ? 'from-sky-500/30 via-amber-400/25 to-slate-900/40'
+      : null
 
   return (
     <motion.div
@@ -36,6 +57,7 @@ export function QuickRewardTile({
         ${isActive ? 'shadow-[0_0_20px_oklch(0.75_0.15_85_/_0.5)]' : 'hover:bg-card/70'}
         ${isLanded ? 'scale-110' : ''}
         ${isPremium ? 'animate-pulse' : ''}
+        ${ringClass}
       `}
       style={{
         clipPath: TILE_CLIP_PATH,
@@ -63,6 +85,15 @@ export function QuickRewardTile({
         }}
       />
 
+      {ringTint && (
+        <div
+          className={`absolute inset-0 bg-gradient-to-br ${ringTint} opacity-50 pointer-events-none`}
+          style={{
+            clipPath: TILE_CLIP_PATH,
+          }}
+        />
+      )}
+
       {/* Glow effect for the specific reward type */}
       <div 
         className={`absolute inset-0 shadow-lg ${styles.shadowColor} ${isPremium ? 'opacity-70' : 'opacity-40'} pointer-events-none`}
@@ -70,6 +101,16 @@ export function QuickRewardTile({
           clipPath: TILE_CLIP_PATH,
         }}
       />
+
+      {isTeleporting && (
+        <div
+          className="absolute inset-[-10px] teleport-flash-ring pointer-events-none"
+          style={{
+            clipPath: TILE_CLIP_PATH,
+          }}
+          aria-hidden
+        />
+      )}
 
       {/* Premium badge */}
       {isPremium && (

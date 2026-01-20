@@ -19,6 +19,7 @@ interface TileProps {
   ringNumber?: 1 | 2 | 3  // NEW: Which ring this tile belongs to
   isRing3Revealed?: boolean  // NEW: Whether Ring 3 has been unlocked
   isRing3Revealing?: boolean  // NEW: Whether Ring 3 is currently revealing
+  isTeleporting?: boolean
 }
 
 // Configuration for corner tiles and event tiles that use images instead of text
@@ -45,7 +46,7 @@ const TILE_IMAGES: Record<string, { src: string; alt: string }> = {
   },
 }
 
-const TileComponent = ({ tile, isActive, isHopping, isLanded, onClick, side, hasOwnership = false, ringNumber, isRing3Revealed = false, isRing3Revealing = false }: TileProps) => {
+const TileComponent = ({ tile, isActive, isHopping, isLanded, onClick, side, hasOwnership = false, ringNumber, isRing3Revealed = false, isRing3Revealing = false, isTeleporting = false }: TileProps) => {
   const { lightTap } = useHaptics();
 
   const handleClick = useCallback(() => {
@@ -88,6 +89,22 @@ const TileComponent = ({ tile, isActive, isHopping, isLanded, onClick, side, has
 
   // Get tile type-specific gradient overlay
   const getTileGradient = () => {
+    if (ringNumber === 2 || ringNumber === 3) {
+      switch (tile.type) {
+        case 'category':
+          return 'from-sky-700 to-slate-900'
+        case 'event':
+          return 'from-blue-700 to-indigo-900'
+        case 'corner':
+          return 'from-amber-500 to-yellow-700'
+        case 'mystery':
+          return 'from-blue-700 to-cyan-900'
+        case 'special':
+          return 'from-amber-500 to-yellow-600'
+        default:
+          return 'from-slate-700 to-slate-900'
+      }
+    }
     switch (tile.type) {
       case 'category':
         return 'from-slate-700 to-slate-900'
@@ -115,6 +132,10 @@ const TileComponent = ({ tile, isActive, isHopping, isLanded, onClick, side, has
         isLanded={isLanded}
         onClick={handleClick}
         isPremium={tile.isPremium}
+        ringNumber={ringNumber}
+        isRing3Revealed={isRing3Revealed}
+        isRing3Revealing={isRing3Revealing}
+        isTeleporting={isTeleporting}
       />
     )
   }
@@ -175,6 +196,16 @@ const TileComponent = ({ tile, isActive, isHopping, isLanded, onClick, side, has
           clipPath: 'polygon(0% 0%, 100% 0%, 86% 100%, 14% 100%)',
         }}
       />
+
+      {isTeleporting && (
+        <div
+          className="absolute inset-[-10px] teleport-flash-ring pointer-events-none"
+          style={{
+            clipPath: 'polygon(0% 0%, 100% 0%, 86% 100%, 14% 100%)',
+          }}
+          aria-hidden
+        />
+      )}
 
       {isActive && (
         <motion.div
@@ -262,6 +293,7 @@ export const Tile = memo(TileComponent, (prevProps, nextProps) => {
     prevProps.hasOwnership === nextProps.hasOwnership &&
     prevProps.ringNumber === nextProps.ringNumber &&
     prevProps.isRing3Revealed === nextProps.isRing3Revealed &&
-    prevProps.isRing3Revealing === nextProps.isRing3Revealing
+    prevProps.isRing3Revealing === nextProps.isRing3Revealing &&
+    prevProps.isTeleporting === nextProps.isTeleporting
   );
 });
