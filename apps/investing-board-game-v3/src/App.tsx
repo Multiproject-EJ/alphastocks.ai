@@ -1102,24 +1102,31 @@ function App() {
             onCollect: async () => {
               const reward = await collectDailyReward()
               if (reward) {
+                const baseCash = reward.base.type === 'cash' ? reward.base.amount : 0
+                const totalCash = baseCash + reward.bonusCash
+
                 // Add rewards to user's balance
-                if (reward.type === 'dice') {
-                  setRollsRemaining(prev => prev + reward.amount)
+                if (reward.base.type === 'dice') {
+                  setRollsRemaining(prev => prev + reward.base.amount + reward.mysteryGift)
                   setGameState(prev => ({
                     ...prev,
-                    energyRolls: (prev.energyRolls ?? DAILY_ROLL_LIMIT) + reward.amount,
+                    energyRolls: (prev.energyRolls ?? DAILY_ROLL_LIMIT) + reward.base.amount + reward.mysteryGift,
+                    cash: prev.cash + reward.bonusCash,
+                    netWorth: prev.netWorth + reward.bonusCash,
                   }))
                   toast.success(`Daily Dividend Collected!`, {
-                    description: `+${reward.amount} dice rolls added to your balance`,
+                    description: `+${reward.base.amount} rolls, +${reward.mysteryGift} mystery rolls, +$${reward.bonusCash.toLocaleString()} bonus cash`,
                   })
-                } else if (reward.type === 'cash') {
+                } else if (reward.base.type === 'cash') {
+                  setRollsRemaining(prev => prev + reward.mysteryGift)
                   setGameState(prev => ({
                     ...prev,
-                    cash: prev.cash + reward.amount,
-                    netWorth: prev.netWorth + reward.amount,
+                    energyRolls: (prev.energyRolls ?? DAILY_ROLL_LIMIT) + reward.mysteryGift,
+                    cash: prev.cash + totalCash,
+                    netWorth: prev.netWorth + totalCash,
                   }))
                   toast.success(`Daily Dividend Collected!`, {
-                    description: `+$${reward.amount.toLocaleString()} cash added to your balance`,
+                    description: `+$${reward.base.amount.toLocaleString()} cash, +$${reward.bonusCash.toLocaleString()} bonus cash, +${reward.mysteryGift} mystery rolls`,
                   })
                 }
                 
@@ -1129,6 +1136,7 @@ function App() {
                 // Refresh status
                 await refreshDividendStatus()
               }
+              return reward
             },
           },
           priority: 'high', // Show early but after critical modals

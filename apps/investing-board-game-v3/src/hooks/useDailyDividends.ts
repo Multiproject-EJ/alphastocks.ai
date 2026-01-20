@@ -12,13 +12,19 @@ export interface DailyDividendStatus {
   totalCollected: number
 }
 
-export interface DailyDividendReward {
+export interface DailyDividendBaseReward {
   type: 'dice' | 'cash'
   amount: number
 }
 
+export interface DailyDividendReward {
+  base: DailyDividendBaseReward
+  bonusCash: number
+  mysteryGift: number
+}
+
 // Reward pattern: alternating dice rolls and cash
-const REWARD_PATTERN: DailyDividendReward[] = [
+const REWARD_PATTERN: DailyDividendBaseReward[] = [
   { type: 'dice', amount: 10 },  // Day 1
   { type: 'cash', amount: 1000 }, // Day 2
   { type: 'dice', amount: 10 },  // Day 3
@@ -28,9 +34,49 @@ const REWARD_PATTERN: DailyDividendReward[] = [
   { type: 'dice', amount: 10 },  // Day 7
 ]
 
-export function getRewardForDay(day: number): DailyDividendReward {
+const BONUS_CASH_BASE = 250
+const BONUS_CASH_GROWTH = 1.6
+
+const MYSTERY_GIFT_TABLE = [
+  { amount: 10, weight: 400 },
+  { amount: 15, weight: 250 },
+  { amount: 20, weight: 150 },
+  { amount: 30, weight: 100 },
+  { amount: 50, weight: 60 },
+  { amount: 100, weight: 30 },
+  { amount: 200, weight: 9 },
+  { amount: 1000, weight: 1 },
+]
+
+export function getRewardPreviewForDay(day: number) {
   const index = (day - 1) % 7
-  return REWARD_PATTERN[index]
+  const base = REWARD_PATTERN[index]
+  const bonusCash = Math.round(BONUS_CASH_BASE * Math.pow(BONUS_CASH_GROWTH, day - 1))
+
+  return {
+    base,
+    bonusCash,
+  }
+}
+
+const rollMysteryGift = (): number => {
+  const totalWeight = MYSTERY_GIFT_TABLE.reduce((sum, entry) => sum + entry.weight, 0)
+  let roll = Math.random() * totalWeight
+
+  for (const entry of MYSTERY_GIFT_TABLE) {
+    if (roll < entry.weight) return entry.amount
+    roll -= entry.weight
+  }
+
+  return MYSTERY_GIFT_TABLE[MYSTERY_GIFT_TABLE.length - 1].amount
+}
+
+export function getRewardForDay(day: number): DailyDividendReward {
+  const preview = getRewardPreviewForDay(day)
+  return {
+    ...preview,
+    mysteryGift: rollMysteryGift(),
+  }
 }
 
 interface UseDailyDividendsReturn {
