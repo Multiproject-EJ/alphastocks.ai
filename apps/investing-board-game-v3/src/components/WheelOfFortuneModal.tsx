@@ -148,11 +148,11 @@ export function WheelOfFortuneModal({
             <X className="w-5 h-5 text-white/70" />
           </button>
           <h2 className="text-2xl font-bold text-white flex items-center justify-center gap-2">
-            🎡 Happy Hour Wheel 🎡
+            🎡 Daily Spin 🎡
           </h2>
           <div className="flex items-center justify-center gap-1 text-purple-300 text-sm mt-1">
             <Clock className="w-4 h-4" />
-            <span>Ends in 2h 34m</span>
+            <span>Come back tomorrow for another spin.</span>
           </div>
           {ringMultiplier > 1 && (
             <div className="mt-2 inline-block px-3 py-1 bg-yellow-500/20 rounded-full text-yellow-300 text-sm font-bold">
