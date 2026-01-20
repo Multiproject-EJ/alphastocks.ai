@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { X } from '@phosphor-icons/react';
 import { ShopTabs } from './ShopTabs';
 import { ShopItem } from './ShopItem';
 import { PropertyVault } from './PropertyVault';
@@ -8,9 +9,10 @@ import { SHOP_ITEMS, ShopCategory } from '@/lib/shopItems';
 interface MobileShopProps {
   cash: number;
   onPurchase: (itemId: string, cost: number) => void;
+  onClose?: () => void;
 }
 
-export function MobileShop({ cash, onPurchase }: MobileShopProps) {
+export function MobileShop({ cash, onPurchase, onClose }: MobileShopProps) {
   const [activeTab, setActiveTab] = useState<ShopCategory>('utilities');
   const { purchase, isPurchasing } = usePurchase();
 
@@ -30,7 +32,17 @@ export function MobileShop({ cash, onPurchase }: MobileShopProps) {
       {/* Header with balance */}
       <div className="shop-header flex items-center justify-between px-3 py-2 border-b">
         <h1 className="text-lg font-bold">🛒 Shop</h1>
-        <div className="text-sm font-semibold text-green-500">${cash.toLocaleString()}</div>
+        <div className="flex items-center gap-2">
+          <div className="text-sm font-semibold text-green-500">${cash.toLocaleString()}</div>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close shop"
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-border/60 bg-background/80 text-foreground shadow-sm transition hover:bg-accent/20 touch-target"
+          >
+            <X size={18} weight="bold" />
+          </button>
+        </div>
       </div>
 
       {/* Swipeable category tabs */}
