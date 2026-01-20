@@ -39,6 +39,8 @@ interface PhoneLayoutProps {
   onOpenShop?: () => void;
   onOpenStockExchangeBuilder?: () => void;
   onOpenRightNow?: () => void;
+  dailySpinAvailable?: boolean;
+  onOpenDailySpin?: () => void;
   eventTrackNode?: ReactNode;
 }
 
@@ -61,6 +63,8 @@ export function PhoneLayout({
   onOpenShop = () => {},
   onOpenStockExchangeBuilder = () => {},
   onOpenRightNow = () => {},
+  dailySpinAvailable = false,
+  onOpenDailySpin = () => {},
   eventTrackNode,
 }: PhoneLayoutProps) {
   const { mode } = useUIMode();
@@ -197,6 +201,23 @@ export function PhoneLayout({
             </button>
           </div>
         </>
+      )}
+
+      {/* Right side floating Daily Spin button */}
+      {mode === 'board' && dailySpinAvailable && (
+        <div
+          className={`fixed right-4 z-40 transition-opacity ${hideFloatingActions ? 'pointer-events-none opacity-0' : 'opacity-100'}`}
+          style={{ bottom: `${BOTTOM_NAV_HEIGHT + 20}px` }}
+          aria-hidden={hideFloatingActions}
+        >
+          <button
+            onClick={onOpenDailySpin}
+            className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/30 transition-all hover:scale-105 hover:shadow-xl"
+            aria-label="Open Daily Spin"
+          >
+            <span className="text-2xl">🎡</span>
+          </button>
+        </div>
       )}
       
       {/* Layer 30: Compact HUD */}

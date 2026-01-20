@@ -75,6 +75,9 @@ if (import.meta.env.DEV || import.meta.env.VITE_DEVTOOLS === '1') {
   })
 }
 
+const DAILY_SPIN_STORAGE_KEY = 'dailySpinDate'
+const getTodayKey = () => new Date().toLocaleDateString('en-CA')
+
 import { GameState, Stock, BiasCaseStudy, WildcardEvent, PortalTransition, RingNumber, Tile as TileType } from '@/lib/types'
 import { RealMoneyRollsPack } from '@/components/OutOfRollsModal'
 import {
@@ -396,6 +399,8 @@ function App() {
   // Wheel of Fortune state
   const [isWheelOpen, setIsWheelOpen] = useState(false)
   const [freeWheelSpins, setFreeWheelSpins] = useState(1)
+  const [lastDailySpinDate, setLastDailySpinDate] = useState<string | null>(null)
+  const [todayKey, setTodayKey] = useState(() => getTodayKey())
 
   // Vault Heist state
   const [showVaultHeist, setShowVaultHeist] = useState(false)
@@ -406,6 +411,37 @@ function App() {
   const [isLoading, setIsLoading] = useState(true)
   const [isMobile, setIsMobile] = useState(false)
   const [dynamicRadius, setDynamicRadius] = useState<number | undefined>(undefined)
+
+  useEffect(() => {
+    try {
+      const storedDate = localStorage.getItem(DAILY_SPIN_STORAGE_KEY)
+      if (storedDate) {
+        setLastDailySpinDate(storedDate)
+      }
+    } catch {
+      // Ignore storage access errors
+    }
+  }, [])
+
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      const nextKey = getTodayKey()
+      setTodayKey(prev => (prev === nextKey ? prev : nextKey))
+    }, 60_000)
+
+    return () => window.clearInterval(interval)
+  }, [])
+
+  const dailySpinAvailable = lastDailySpinDate !== todayKey
+
+  const markDailySpinUsed = useCallback(() => {
+    setLastDailySpinDate(todayKey)
+    try {
+      localStorage.setItem(DAILY_SPIN_STORAGE_KEY, todayKey)
+    } catch {
+      // Ignore storage access errors
+    }
+  }, [todayKey])
 
   // Calculate viewport-aware radius for desktop to fit all tiles
   const calculateFittingRadius = useCallback(() => {
@@ -467,12 +503,6 @@ function App() {
     window.addEventListener('resize', updateRadius)
     return () => window.removeEventListener('resize', updateRadius)
   }, [calculateFittingRadius])
-
-  // Check if Happy Hour is active (6pm - 9pm)
-  const isHappyHour = useMemo(() => {
-    const hour = new Date().getHours()
-    return hour >= 18 && hour < 21
-  }, [])
 
   // Check if Saturday
   const isSaturday = useMemo(() => {
@@ -2999,7 +3029,8 @@ function App() {
         triggerCelebrationFromLastTile(['🎡', '🎉', '✨'])
         break
     }
-  }, [addCoins, setGameState, setRollsRemaining, showToast, triggerCelebrationFromLastTile])
+    markDailySpinUsed()
+  }, [addCoins, markDailySpinUsed, setGameState, setRollsRemaining, showToast, triggerCelebrationFromLastTile])
 
   const handleVaultHeistComplete = useCallback((
     prizes: Array<{ type: 'cash' | 'stars' | 'coins' | 'mystery' | 'alarm', amount: number, emoji: string, label: string }>, 
@@ -4083,12 +4114,12 @@ function App() {
         isAnimating={isPortalAnimating}
       />
 
-      {/* Happy Hour Wheel Button */}
-      {isHappyHour && (
+      {/* Daily Spin Button */}
+      {!isPhone && dailySpinAvailable && (
         <button
           onClick={() => setIsWheelOpen(true)}
           className="fixed bottom-24 right-4 p-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full shadow-lg animate-bounce hover:scale-110 transition-transform z-50"
-          aria-label="Open Wheel of Fortune"
+          aria-label="Open Daily Spin"
         >
           <span className="text-3xl">🎡</span>
         </button>
@@ -4194,6 +4225,8 @@ function App() {
           onOpenShop={openShopOverlay}
           onOpenStockExchangeBuilder={openStockExchangeOverlay}
           onOpenRightNow={openEventCalendar}
+          dailySpinAvailable={dailySpinAvailable}
+          onOpenDailySpin={() => setIsWheelOpen(true)}
           eventTrackNode={(
             <EventTrackBar
               definition={eventTrackDefinition}
