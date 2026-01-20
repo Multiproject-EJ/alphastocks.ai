@@ -12,8 +12,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Check, TrendUp, CurrencyDollar } from '@phosphor-icons/react'
-import { DailyDividendStatus, getRewardForDay } from '@/hooks/useDailyDividends'
+import { Check, TrendUp } from '@phosphor-icons/react'
+import {
+  DailyDividendReward,
+  DailyDividendStatus,
+  getRewardPreviewForDay,
+} from '@/hooks/useDailyDividends'
 import { useSound } from '@/hooks/useSound'
 import { useHaptics } from '@/hooks/useHaptics'
 import confetti from 'canvas-confetti'
@@ -22,7 +26,7 @@ interface DailyDividendsModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   status: DailyDividendStatus
-  onCollect: () => Promise<void>
+  onCollect: () => Promise<DailyDividendReward | null>
 }
 
 // Confetti celebration effect
@@ -79,8 +83,7 @@ export function DailyDividendsModal({
   const { success: hapticSuccess } = useHaptics()
   const [collecting, setCollecting] = useState(false)
   const [revealed, setRevealed] = useState(false)
-
-  const currentReward = getRewardForDay(status.currentDay)
+  const [revealedReward, setRevealedReward] = useState<DailyDividendReward | null>(null)
 
   const handleCollect = async () => {
     if (collecting || !status.canCollect) return
@@ -89,34 +92,36 @@ export function DailyDividendsModal({
     playSound('cash-register')
     hapticSuccess()
 
-    // Reveal animation
-    setRevealed(true)
-
-    // Trigger confetti
-    setTimeout(() => {
-      triggerConfetti()
-    }, 300)
-
-    // Collect reward
     setTimeout(async () => {
-      await onCollect()
-      
+      const reward = await onCollect()
+      if (!reward) {
+        setCollecting(false)
+        return
+      }
+
+      setRevealedReward(reward)
+      setRevealed(true)
+      triggerConfetti()
+
       // Close modal after celebration
       setTimeout(() => {
         onOpenChange(false)
         setRevealed(false)
+        setRevealedReward(null)
         setCollecting(false)
       }, 2000)
-    }, 500)
+    }, 350)
   }
 
   // Render day card
   const DayCard = ({ day, size = 'normal' }: { day: number; size?: 'normal' | 'large' }) => {
     const isCurrentDay = day === status.currentDay
     const isCollected = day < status.currentDay || (day === 7 && status.currentDay === 1 && status.totalCollected > 0)
-    const reward = getRewardForDay(day)
-    
-    const cardSize = size === 'large' ? 'w-32 h-40' : 'w-24 h-32'
+    const reward = getRewardPreviewForDay(day)
+
+    const cardSize = size === 'large'
+      ? 'w-28 h-36 sm:w-32 sm:h-40'
+      : 'w-20 h-28 sm:w-24 sm:h-32'
     
     return (
       <motion.button
@@ -151,24 +156,27 @@ export function DailyDividendsModal({
         )}
 
         {/* Reward display */}
-        <div className="flex h-full flex-col items-center justify-center gap-2 p-2">
+        <div className="flex h-full flex-col items-center justify-center gap-1 p-2">
           {isCurrentDay && !revealed ? (
             <>
-              <div className="text-3xl">?</div>
-              <div className="text-xs text-center text-slate-300 font-medium">Tap to Reveal</div>
+              <div className="text-2xl sm:text-3xl">?</div>
+              <div className="text-[10px] text-center text-slate-300 font-medium">Tap to Reveal</div>
             </>
           ) : (
             <>
-              <div className={`text-2xl ${size === 'large' ? 'text-4xl' : ''}`}>
-                {reward.type === 'dice' ? '🎲' : '💵'}
+              <div className={`text-2xl ${size === 'large' ? 'text-3xl sm:text-4xl' : ''}`}>
+                {reward.base.type === 'dice' ? '🎲' : '💵'}
               </div>
-              <div className={`text-xs text-center font-bold ${
+              <div className={`text-[10px] sm:text-xs text-center font-bold ${
                 isCurrentDay ? 'text-emerald-300' : isCollected ? 'text-emerald-600' : 'text-slate-400'
               }`}>
-                {reward.type === 'dice' 
-                  ? `${reward.amount} Rolls`
-                  : `$${reward.amount.toLocaleString()}`
+                {reward.base.type === 'dice' 
+                  ? `${reward.base.amount} Rolls`
+                  : `$${reward.base.amount.toLocaleString()}`
                 }
+              </div>
+              <div className="text-[10px] sm:text-[11px] text-center text-emerald-200/80">
+                +$${reward.bonusCash.toLocaleString()} bonus
               </div>
             </>
           )}
@@ -195,25 +203,25 @@ export function DailyDividendsModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md p-0 overflow-hidden border-2 border-emerald-500/50 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+      <DialogContent className="max-w-[90vw] sm:max-w-md p-0 overflow-hidden border-2 border-emerald-500/50 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
         {/* Header */}
-        <DialogHeader className="px-6 pt-6 pb-4 bg-gradient-to-b from-emerald-900/40 to-transparent">
-          <DialogTitle className="flex items-center gap-3 text-2xl font-bold text-white">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500">
-              <TrendUp size={24} weight="bold" />
+        <DialogHeader className="px-4 pt-5 pb-3 sm:px-6 sm:pt-6 sm:pb-4 bg-gradient-to-b from-emerald-900/40 to-transparent">
+          <DialogTitle className="flex items-center gap-3 text-xl sm:text-2xl font-bold text-white">
+            <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-emerald-500">
+              <TrendUp size={20} weight="bold" />
             </div>
             <span>Daily Dividends</span>
           </DialogTitle>
-          <p className="text-sm text-emerald-200/80 mt-2">
+          <p className="text-xs sm:text-sm text-emerald-200/80 mt-2">
             Visit daily to collect your rewards! Progress through all 7 days to maximize your gains.
           </p>
         </DialogHeader>
 
         {/* Content */}
-        <div className="px-6 pb-6">
+        <div className="px-4 pb-4 sm:px-6 sm:pb-6">
           {/* Days 1-3: Top row */}
-          <div className="mb-4">
-            <div className="flex justify-center gap-3 mb-2">
+          <div className="mb-3 sm:mb-4">
+            <div className="flex justify-center gap-2 sm:gap-3 mb-2">
               <DayCard day={1} />
               <DayCard day={2} />
               <DayCard day={3} />
@@ -221,8 +229,8 @@ export function DailyDividendsModal({
           </div>
 
           {/* Days 4-6: Middle row */}
-          <div className="mb-4">
-            <div className="flex justify-center gap-3 mb-2">
+          <div className="mb-3 sm:mb-4">
+            <div className="flex justify-center gap-2 sm:gap-3 mb-2">
               <DayCard day={4} />
               <DayCard day={5} />
               <DayCard day={6} />
@@ -235,7 +243,7 @@ export function DailyDividendsModal({
           </div>
 
           {/* Progress indicator */}
-          <div className="mt-6 rounded-lg bg-slate-800/50 p-4">
+          <div className="mt-4 sm:mt-6 rounded-lg bg-slate-800/50 p-3 sm:p-4">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs text-slate-300">Progress</span>
               <span className="text-xs text-emerald-400 font-bold">
@@ -250,7 +258,7 @@ export function DailyDividendsModal({
                 transition={{ duration: 0.5, ease: "easeOut" }}
               />
             </div>
-            <p className="text-xs text-slate-400 mt-2 text-center">
+            <p className="text-[11px] sm:text-xs text-slate-400 mt-2 text-center">
               {status.currentDay === 7 
                 ? 'Complete Day 7 to restart the cycle!' 
                 : 'Keep your streak going!'}
@@ -258,25 +266,25 @@ export function DailyDividendsModal({
           </div>
 
           {/* Stats */}
-          <div className="mt-4 grid grid-cols-2 gap-3">
-            <div className="rounded-lg bg-slate-800/50 p-3 text-center">
-              <div className="text-lg font-bold text-emerald-400">
+          <div className="mt-3 sm:mt-4 grid grid-cols-2 gap-2 sm:gap-3">
+            <div className="rounded-lg bg-slate-800/50 p-2 sm:p-3 text-center">
+              <div className="text-base sm:text-lg font-bold text-emerald-400">
                 {status.totalCollected}
               </div>
-              <div className="text-xs text-slate-400">Total Collected</div>
+              <div className="text-[11px] sm:text-xs text-slate-400">Total Collected</div>
             </div>
-            <div className="rounded-lg bg-slate-800/50 p-3 text-center">
-              <div className="text-lg font-bold text-emerald-400">
+            <div className="rounded-lg bg-slate-800/50 p-2 sm:p-3 text-center">
+              <div className="text-base sm:text-lg font-bold text-emerald-400">
                 Day {status.currentDay}
               </div>
-              <div className="text-xs text-slate-400">Current Day</div>
+              <div className="text-[11px] sm:text-xs text-slate-400">Current Day</div>
             </div>
           </div>
         </div>
 
         {/* Celebration overlay */}
         <AnimatePresence>
-          {revealed && (
+          {revealed && revealedReward && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -289,16 +297,22 @@ export function DailyDividendsModal({
                 transition={{ type: "spring", duration: 0.6 }}
                 className="text-center"
               >
-                <div className="text-6xl mb-4">
-                  {currentReward.type === 'dice' ? '🎲' : '💵'}
+                <div className="text-5xl sm:text-6xl mb-3 sm:mb-4">
+                  {revealedReward.base.type === 'dice' ? '🎲' : '💵'}
                 </div>
-                <div className="text-3xl font-bold text-white mb-2">
-                  {currentReward.type === 'dice' 
-                    ? `+${currentReward.amount} Rolls!`
-                    : `+$${currentReward.amount.toLocaleString()}!`
+                <div className="text-2xl sm:text-3xl font-bold text-white mb-2">
+                  {revealedReward.base.type === 'dice' 
+                    ? `+${revealedReward.base.amount} Rolls!`
+                    : `+$${revealedReward.base.amount.toLocaleString()}!`
                   }
                 </div>
-                <div className="text-emerald-400 text-lg">Reward Collected!</div>
+                <div className="text-base sm:text-lg text-emerald-300">
+                  +$${revealedReward.bonusCash.toLocaleString()} bonus cash
+                </div>
+                <div className="text-base sm:text-lg text-emerald-200">
+                  +{revealedReward.mysteryGift} mystery rolls
+                </div>
+                <div className="text-emerald-400 text-base sm:text-lg mt-2">Reward Collected!</div>
               </motion.div>
             </motion.div>
           )}
