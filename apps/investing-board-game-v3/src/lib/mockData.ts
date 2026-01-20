@@ -101,7 +101,7 @@ export const RING_2_TILES: Tile[] = [
   { id: 201, type: 'quick-reward', title: 'Premium Cash', quickRewardType: 'cash' },
   
   // Stock tile
-  { id: 202, type: 'category', title: 'Premium Value', category: 'value', colorBorder: 'oklch(0.80 0.18 85)' },
+  { id: 202, type: 'category', title: 'Premium Value', category: 'value', colorBorder: 'oklch(0.82 0.18 85)' },
   
   // Quick rewards
   { id: 203, type: 'quick-reward', title: 'Star Storm', quickRewardType: 'stars' },
@@ -114,7 +114,7 @@ export const RING_2_TILES: Tile[] = [
   { id: 206, type: 'quick-reward', title: 'XP Surge', quickRewardType: 'xp' },
   
   // Stock tile
-  { id: 207, type: 'category', title: 'Premium Dividends', category: 'dividends', colorBorder: 'oklch(0.70 0.25 200)' },
+  { id: 207, type: 'category', title: 'Premium Dividends', category: 'dividends', colorBorder: 'oklch(0.74 0.20 220)' },
   
   // Quick rewards
   { id: 208, type: 'event', title: 'Executive Event' },
@@ -127,7 +127,7 @@ export const RING_2_TILES: Tile[] = [
   { id: 211, type: 'quick-reward', title: 'Bonus Roll', quickRewardType: 'bonus-roll' },
   
   // Stock tile
-  { id: 212, type: 'category', title: 'Premium Growth', category: 'growth', colorBorder: 'oklch(0.75 0.22 25)' },
+  { id: 212, type: 'category', title: 'Premium Growth', category: 'growth', colorBorder: 'oklch(0.80 0.18 90)' },
   
   // Quick rewards
   { id: 213, type: 'quick-reward', title: 'Star Storm', quickRewardType: 'stars' },
@@ -136,7 +136,7 @@ export const RING_2_TILES: Tile[] = [
   { id: 216, type: 'quick-reward', title: 'Mystery Vault', quickRewardType: 'mystery' },
   
   // Stock tile
-  { id: 217, type: 'category', title: 'Premium Moats', category: 'moats', colorBorder: 'oklch(0.60 0.27 15)' },
+  { id: 217, type: 'category', title: 'Premium Moats', category: 'moats', colorBorder: 'oklch(0.70 0.19 235)' },
   
   // Quick rewards
   { id: 218, type: 'event', title: 'Market Shock' },
@@ -145,7 +145,7 @@ export const RING_2_TILES: Tile[] = [
   { id: 221, type: 'event', title: 'Wildcard' },
   
   // Stock tile
-  { id: 222, type: 'category', title: 'Premium Turnarounds', category: 'turnarounds', colorBorder: 'oklch(0.65 0.25 330)' },
+  { id: 222, type: 'category', title: 'Premium Turnarounds', category: 'turnarounds', colorBorder: 'oklch(0.78 0.18 95)' },
   
   // Quick rewards
   { id: 223, type: 'quick-reward', title: 'Premium Cash', quickRewardType: 'cash' },
@@ -169,7 +169,7 @@ export const RING_3_TILES: Tile[] = [
     type: 'category', 
     title: 'Elite Blue Chips', 
     category: 'elite', 
-    colorBorder: 'oklch(0.85 0.30 45)',
+    colorBorder: 'oklch(0.80 0.18 235)',
     ring3Reward: 20000,
     isWinTile: true,
   },
@@ -186,7 +186,7 @@ export const RING_3_TILES: Tile[] = [
     type: 'category', 
     title: 'Elite Legends', 
     category: 'elite', 
-    colorBorder: 'oklch(0.85 0.30 45)',
+    colorBorder: 'oklch(0.84 0.18 90)',
     ring3Reward: 20000,
     isWinTile: true,
   },
@@ -202,7 +202,7 @@ export const RING_3_TILES: Tile[] = [
     type: 'category', 
     title: 'Elite Dynasty', 
     category: 'elite', 
-    colorBorder: 'oklch(0.85 0.30 45)',
+    colorBorder: 'oklch(0.80 0.18 235)',
     ring3Reward: 20000,
     isWinTile: true,
   },
