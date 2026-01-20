@@ -82,12 +82,14 @@ export function DailyDividendsModal({
   const { play: playSound } = useSound()
   const { success: hapticSuccess } = useHaptics()
   const [collecting, setCollecting] = useState(false)
+  const [collectError, setCollectError] = useState<string | null>(null)
   const [revealed, setRevealed] = useState(false)
   const [revealedReward, setRevealedReward] = useState<DailyDividendReward | null>(null)
 
   const handleCollect = async () => {
     if (collecting || !status.canCollect) return
 
+    setCollectError(null)
     setCollecting(true)
     playSound('cash-register')
     hapticSuccess()
@@ -96,6 +98,7 @@ export function DailyDividendsModal({
       const reward = await onCollect()
       if (!reward) {
         setCollecting(false)
+        setCollectError('Unable to collect right now. Please try again.')
         return
       }
 
@@ -284,6 +287,31 @@ export function DailyDividendsModal({
               </div>
               <div className="text-[11px] sm:text-xs text-slate-400">Current Day</div>
             </div>
+          </div>
+
+          {/* Collect action */}
+          <div className="mt-4 sm:mt-5">
+            <button
+              type="button"
+              onClick={handleCollect}
+              disabled={!status.canCollect || collecting}
+              className={`w-full rounded-lg px-4 py-3 text-sm font-semibold transition-all ${
+                status.canCollect && !collecting
+                  ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/30 hover:bg-emerald-400'
+                  : 'bg-slate-700/60 text-slate-300'
+              }`}
+            >
+              {collecting
+                ? 'Collecting...'
+                : status.canCollect
+                ? 'Collect Today’s Reward'
+                : 'Come back tomorrow'}
+            </button>
+            {collectError && (
+              <p className="mt-2 text-[11px] sm:text-xs text-rose-300 text-center">
+                {collectError}
+              </p>
+            )}
           </div>
         </div>
 
