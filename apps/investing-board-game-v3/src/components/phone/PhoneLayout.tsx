@@ -24,6 +24,8 @@ interface PhoneLayoutProps {
     xpToNext: number;
     rolls: number;
     stars?: number; // Add stars
+    coins?: number;
+    seasonPoints?: number;
     cityLevel?: number; // Optional city level for backward compatibility
   };
   onRollDice: (multiplier: number) => void;

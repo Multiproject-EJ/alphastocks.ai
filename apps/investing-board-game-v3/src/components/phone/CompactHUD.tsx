@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { ChevronDown, ChevronUp, Sparkles, Star, Volume2, VolumeX } from 'lucide-react';
 import { useSound } from '@/hooks/useSound';
+import { formatCoins } from '@/lib/coins';
 
 // Z-index constants for layering
 const Z_INDEX_HUD = 120
@@ -14,6 +15,8 @@ interface CompactHUDProps {
   xpToNext: number;
   rolls: number;
   stars?: number; // Add stars to the HUD
+  coins?: number;
+  seasonPoints?: number;
   cityLevel?: number; // Optional city level for backward compatibility
   spaceBackgroundEnabled?: boolean;
   onToggleSpaceBackground?: () => void;
@@ -27,12 +30,29 @@ export function CompactHUD({
   xpToNext,
   rolls,
   stars = 0,
+  coins = 0,
+  seasonPoints = 0,
   cityLevel = 1,
   spaceBackgroundEnabled = false,
   onToggleSpaceBackground = () => {},
 }: CompactHUDProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const { muted, toggleMute } = useSound();
+  const xpGoal = Math.max(xpToNext, 1);
+  const xpProgress = Math.min((xp / xpGoal) * 100, 100);
+
+  const expandedStats = useMemo(() => ({
+    primary: [
+      { label: 'Cash', value: `$${cash.toLocaleString()}`, icon: '💵', accent: 'text-green-500' },
+      { label: 'Stars', value: stars.toLocaleString(), icon: '⭐', accent: 'text-yellow-400' },
+      { label: 'Coins', value: formatCoins(coins), icon: '🪙', accent: 'text-amber-500' },
+      { label: 'Season Points', value: `${seasonPoints.toLocaleString()} SP`, icon: '🏆', accent: 'text-purple-300' },
+      { label: 'Rolls', value: rolls.toLocaleString(), icon: '🎲', accent: 'text-blue-300' },
+    ],
+    secondary: [
+      { label: 'Net Worth', value: `$${netWorth.toLocaleString()}`, icon: '📈', accent: 'text-emerald-300' },
+    ],
+  }), [cash, coins, netWorth, rolls, seasonPoints, stars]);
 
   return (
     <div className={`fixed top-0 left-0 right-0 safe-top`} style={{ zIndex: Z_INDEX_HUD }}>
@@ -108,21 +128,38 @@ export function CompactHUD({
       {/* Expanded view - full stats - HIGHER Z-INDEX to overlay event tracker */}
       {isExpanded && (
         <div className="relative px-4 py-3 bg-background/98 backdrop-blur-md border-b shadow-lg space-y-2" style={{ zIndex: Z_INDEX_HUD_EXPANDED }}>
-          <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Net Worth</span>
-            <span className="font-medium">${netWorth.toLocaleString()}</span>
+          <div className="grid gap-2 text-sm">
+            {expandedStats.primary.map((stat) => (
+              <div key={stat.label} className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <span className="text-base">{stat.icon}</span>
+                  <span>{stat.label}</span>
+                </div>
+                <span className={`font-medium ${stat.accent}`}>{stat.value}</span>
+              </div>
+            ))}
           </div>
-          <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">XP</span>
-            <span className="font-medium">{xp} / {xpToNext}</span>
+          <div className="rounded-lg border border-white/10 bg-muted/30 px-3 py-2 text-sm">
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">XP Progress</span>
+              <span className="font-medium">{xp} / {xpGoal}</span>
+            </div>
+            <div className="mt-2 h-1.5 bg-muted rounded-full overflow-hidden">
+              <div
+                className="h-full bg-primary rounded-full transition-all"
+                style={{ width: `${xpProgress}%` }}
+              />
+            </div>
           </div>
-          {/* XP progress bar */}
-          <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-            <div 
-              className="h-full bg-primary rounded-full transition-all"
-              style={{ width: `${(xp / xpToNext) * 100}%` }}
-            />
-          </div>
+          {expandedStats.secondary.map((stat) => (
+            <div key={stat.label} className="flex items-center justify-between text-sm">
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <span className="text-base">{stat.icon}</span>
+                <span>{stat.label}</span>
+              </div>
+              <span className={`font-medium ${stat.accent}`}>{stat.value}</span>
+            </div>
+          ))}
         </div>
       )}
     </div>
