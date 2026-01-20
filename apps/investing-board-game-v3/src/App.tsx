@@ -172,6 +172,15 @@ const BOARD_CONTAINER_BASE_CLASSES = "relative bg-gradient-to-br from-white/15 v
 // Total animation time: 800ms + (9 tiles × 100ms stagger) = 1700ms, rounded to 1600ms for safety
 const RING_3_REVEAL_DURATION = 1600
 
+const getTileTitleForRing = (ring: RingNumber | 0, tileId: number) => {
+  if (ring === 0) {
+    return 'Throne'
+  }
+
+  const tiles = ring === 1 ? BOARD_TILES : ring === 2 ? RING_2_TILES : RING_3_TILES
+  return tiles.find(tile => tile.id === tileId)?.title ?? `Tile ${tileId}`
+}
+
 const formatEventCountdown = (target: Date, now: Date) => {
   const diffMs = target.getTime() - now.getTime()
   if (diffMs <= 0) return 'now'
@@ -286,6 +295,7 @@ function App() {
   const [rollsRemaining, setRollsRemaining] = useState(DAILY_ROLL_LIMIT)
   const [nextResetTime, setNextResetTime] = useState(getNextMidnight())
   const [hoppingTiles, setHoppingTiles] = useState<number[]>([])
+  const [landingTilePreview, setLandingTilePreview] = useState<string | null>(null)
   const [lastSavedTime, setLastSavedTime] = useState<Date | null>(null)
   const [achievementsOpen, setAchievementsOpen] = useState(false)
   
@@ -1488,6 +1498,39 @@ function App() {
     }
   }, [phase, uiMode, uiPhase, setUIPhase])
 
+  useEffect(() => {
+    if (phase === 'idle' || phase === 'rolling') {
+      setLandingTilePreview(null)
+    }
+  }, [phase])
+
+  const currentTileTitle = useMemo(
+    () => getTileTitleForRing(gameState.currentRing, gameState.position),
+    [gameState.currentRing, gameState.position]
+  )
+
+  const eventTrackCommentary = useMemo(() => {
+    if (phase === 'moving') {
+      if (landingTilePreview) {
+        return `Landing on ${landingTilePreview}`
+      }
+      if (lastRoll !== null) {
+        return `Moving ${lastRoll} tiles`
+      }
+      return 'Moving...'
+    }
+
+    if (phase === 'rolling') {
+      return 'Rolling...'
+    }
+
+    if (phase === 'landed') {
+      return `Landed on ${currentTileTitle}`
+    }
+
+    return `On ${currentTileTitle}`
+  }, [currentTileTitle, landingTilePreview, lastRoll, phase])
+
   // Helper function to check extra dice roll power-up
   useEffect(() => {
     // Check if we have the power-up and haven't processed it yet
@@ -1693,6 +1736,7 @@ function App() {
 
     // clear any lingering timers from a previous roll to keep movement predictable
     clearAllTimers()
+    setLandingTilePreview(null)
 
     // Mark Ring 3 roll as used
     if (gameState.currentRing === 3) {
@@ -1887,6 +1931,9 @@ function App() {
           } else {
             if (hopIntervalRef.current) clearInterval(hopIntervalRef.current)
             setHoppingTiles([])
+            setLandingTilePreview(
+              getTileTitleForRing(movementResult.finalRing, movementResult.finalTileId)
+            )
 
             landingTimeoutRef.current = setTimeout(() => {
               const newPosition = movementResult.finalTileId
@@ -3214,6 +3261,7 @@ function App() {
                   onCTA={purchaseCTA}
                   ctaLabel={eventTrackCTA?.label ?? null}
                   ctaDisabled={!eventTrackCTA}
+                  commentary={eventTrackCommentary}
                 />
               </div>
             </div>
@@ -4119,6 +4167,7 @@ function App() {
               ctaLabel={eventTrackCTA?.label ?? null}
               ctaDisabled={!eventTrackCTA}
               compactByDefault
+              commentary={eventTrackCommentary}
             />
           )}
         >

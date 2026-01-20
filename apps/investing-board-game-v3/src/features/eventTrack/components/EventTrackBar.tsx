@@ -13,6 +13,7 @@ interface EventTrackBarProps {
   ctaLabel?: string | null
   ctaDisabled?: boolean
   compactByDefault?: boolean
+  commentary?: string | null
 }
 
 export function EventTrackBar({
@@ -23,6 +24,7 @@ export function EventTrackBar({
   ctaLabel,
   ctaDisabled = false,
   compactByDefault = false,
+  commentary = null,
 }: EventTrackBarProps) {
   const prefersReducedMotion = useReducedMotion()
   const [userReducedMotion, setUserReducedMotion] = useState(false)
@@ -67,8 +69,11 @@ export function EventTrackBar({
         onClick={() => setIsExpanded(true)}
         aria-label="Expand event reward track"
       >
-        <div className="flex items-center justify-between text-xs text-white/80">
+        <div className="grid grid-cols-[auto,1fr,auto] items-center gap-2 text-xs text-white/80">
           <span>{progress.points} / {definition.pointsMax} pts</span>
+          <span className="truncate text-center text-[11px] font-semibold text-sky-100/90">
+            {commentary ?? 'Rolling on...'}
+          </span>
           <span>{definition.isActive ? 'Keep rolling!' : 'Event ended'}</span>
         </div>
         <div className="mt-2 flex items-center gap-2">
@@ -133,6 +138,11 @@ export function EventTrackBar({
           <span>{progress.points} / {definition.pointsMax} pts</span>
           <span>{definition.isActive ? 'Keep rolling!' : 'Event ended'}</span>
         </div>
+        {commentary && (
+          <div className="mt-2 text-center text-xs font-semibold text-sky-100/90">
+            {commentary}
+          </div>
+        )}
         <div className="mt-2 h-2 w-full rounded-full bg-white/10">
           <div
             className="h-full rounded-full bg-gradient-to-r from-emerald-400 via-green-400 to-lime-300 transition-all duration-500"
