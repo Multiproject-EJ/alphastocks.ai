@@ -75,6 +75,11 @@ export function PhoneLayout({
   const showDebug = import.meta.env.DEV;
   const [currentHour, setCurrentHour] = useState(() => new Date().getHours());
   const [spaceBackgroundEnabled, setSpaceBackgroundEnabled] = useState(false);
+  const [backgroundChoice, setBackgroundChoice] = useState<'cycle' | 'finance-board'>(() => {
+    if (typeof window === 'undefined') return 'cycle';
+    const savedChoice = localStorage.getItem('alphastocks_phone_background');
+    return savedChoice === 'finance-board' ? 'finance-board' : 'cycle';
+  });
   const hideFloatingActions = isRolling;
   const containerRef = useRef<HTMLDivElement | null>(null);
   const { isAuthenticated, loading: authLoading } = useAuth();
@@ -94,7 +99,24 @@ export function PhoneLayout({
     return () => window.clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    const handleBackgroundChange = () => {
+      const savedChoice = localStorage.getItem('alphastocks_phone_background');
+      setBackgroundChoice(savedChoice === 'finance-board' ? 'finance-board' : 'cycle');
+    };
+
+    window.addEventListener('phone-background-changed', handleBackgroundChange);
+    window.addEventListener('storage', handleBackgroundChange);
+    return () => {
+      window.removeEventListener('phone-background-changed', handleBackgroundChange);
+      window.removeEventListener('storage', handleBackgroundChange);
+    };
+  }, []);
+
   const phoneBackground = useMemo(() => {
+    if (backgroundChoice === 'finance-board') {
+      return '75A329D1-5D37-4EB7-B69E-9BA1D000C6DB 2.webp';
+    }
     if (currentHour >= 0 && currentHour <= 4) return 'Phonebgdeepnight.webp';
     if (currentHour <= 6) return 'Phonebgdawnsunrise.webp';
     if (currentHour <= 8) return 'Phonebglatesunrise.webp';
@@ -102,7 +124,7 @@ export function PhoneLayout({
     if (currentHour <= 18) return 'Phonebgsunset.webp';
     if (currentHour <= 20) return 'Phonebgearlynight.webp';
     return 'Phonebgdeepnight.webp';
-  }, [currentHour]);
+  }, [backgroundChoice, currentHour]);
 
   const backgroundUrl = `${import.meta.env.BASE_URL}${phoneBackground}`;
 

@@ -19,6 +19,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
   const [autoSave, setAutoSave] = useState(true)
   const [cameraMode, setCameraMode] = useState<'classic' | 'immersive'>('classic')
   const [tutorialEnabled, setTutorialEnabled] = useState(false)
+  const [backgroundChoice, setBackgroundChoice] = useState<'cycle' | 'finance-board'>('cycle')
   const [isMobile, setIsMobile] = useState(false)
   const { enabled: notificationsEnabled, setNotificationsEnabled } = useNotificationPreferences()
   const { volume, muted, setVolume, setMuted } = useSound()
@@ -44,11 +45,15 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
     const savedAutoSave = localStorage.getItem('autoSave')
     const savedCameraMode = localStorage.getItem('alphastocks_camera_mode')
     const savedTutorialEnabled = localStorage.getItem('tutorialEnabled')
+    const savedBackgroundChoice = localStorage.getItem('alphastocks_phone_background')
 
     if (savedHapticsEnabled !== null) setHapticsEnabled(savedHapticsEnabled === 'true')
     if (savedReducedMotion !== null) setReducedMotion(savedReducedMotion === 'true')
     if (savedAutoSave !== null) setAutoSave(savedAutoSave === 'true')
     if (savedTutorialEnabled !== null) setTutorialEnabled(savedTutorialEnabled === 'true')
+    if (savedBackgroundChoice === 'cycle' || savedBackgroundChoice === 'finance-board') {
+      setBackgroundChoice(savedBackgroundChoice)
+    }
     if (savedCameraMode === 'classic' || savedCameraMode === 'immersive') {
       setCameraMode(savedCameraMode)
     } else {
@@ -97,6 +102,12 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
     localStorage.setItem('alphastocks_camera_mode', newMode)
     // Reload to apply camera changes
     window.location.reload()
+  }
+
+  const handleBackgroundChoiceChange = (value: 'cycle' | 'finance-board') => {
+    setBackgroundChoice(value)
+    localStorage.setItem('alphastocks_phone_background', value)
+    window.dispatchEvent(new Event('phone-background-changed'))
   }
 
   const handleResetTutorial = () => {
@@ -263,6 +274,60 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
           </div>
 
           <Separator />
+
+          {/* Background Settings (Mobile only) */}
+          {isMobile && (
+            <>
+              <div className="space-y-4">
+                <h3 className="font-semibold text-sm">Background</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => handleBackgroundChoiceChange('cycle')}
+                    className={`relative flex min-h-[96px] flex-col justify-between rounded-lg border px-3 py-2 text-left transition ${
+                      backgroundChoice === 'cycle'
+                        ? 'border-emerald-400 bg-emerald-500/10 shadow-sm'
+                        : 'border-border bg-background/60 hover:border-emerald-300/60'
+                    }`}
+                    aria-pressed={backgroundChoice === 'cycle'}
+                  >
+                    <div className="text-sm font-semibold">24 Hour Cycle</div>
+                    <div className="text-xs text-muted-foreground">
+                      Auto changes with the time of day.
+                    </div>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleBackgroundChoiceChange('finance-board')}
+                    className={`relative flex min-h-[96px] flex-col justify-between overflow-hidden rounded-lg border px-3 py-2 text-left transition ${
+                      backgroundChoice === 'finance-board'
+                        ? 'border-emerald-400 bg-emerald-500/10 shadow-sm'
+                        : 'border-border bg-background/60 hover:border-emerald-300/60'
+                    }`}
+                    aria-pressed={backgroundChoice === 'finance-board'}
+                  >
+                    <div className="text-sm font-semibold">Finance Board</div>
+                    <div className="text-xs text-muted-foreground">
+                      Deep focus trading vibe.
+                    </div>
+                  </button>
+                  {Array.from({ length: 5 }).map((_, index) => (
+                    <div
+                      key={`background-placeholder-${index}`}
+                      className="flex min-h-[96px] flex-col justify-between rounded-lg border border-dashed border-border/70 bg-muted/40 px-3 py-2 text-left text-xs text-muted-foreground"
+                      aria-disabled="true"
+                    >
+                      <div className="text-sm font-semibold text-muted-foreground/70">
+                        Coming Soon
+                      </div>
+                      <div>Placeholder</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <Separator />
+            </>
+          )}
 
           {/* Actions */}
           <div className="space-y-3">
