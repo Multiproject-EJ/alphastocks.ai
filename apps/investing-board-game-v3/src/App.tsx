@@ -213,6 +213,13 @@ function App() {
   const processedPowerUpsRef = useRef<Set<string>>(new Set())
   const currentRewardMultiplierRef = useRef<number>(1) // Track reward multiplier for current roll
   const eventTrackPointsRef = useRef<(amount: number, source?: string) => void>(() => {})
+  const currencySnapshotRef = useRef({
+    cash: 0,
+    stars: 0,
+    coins: 0,
+    xp: 0,
+  })
+  const currencySnapshotInitializedRef = useRef(false)
 
   // Default initial game state
   const defaultGameState: GameState = {
@@ -262,6 +269,10 @@ function App() {
       totalStarsEarned: 0,
       roll6Streak: 0,
     },
+    lifetimeCashEarned: 0,
+    lifetimeStarsEarned: 0,
+    lifetimeCoinsEarned: 0,
+    lifetimeXpEarned: 0,
     // Energy regeneration fields
     lastEnergyCheck: new Date(),
     energyRolls: 10,
@@ -1080,6 +1091,40 @@ function App() {
       })
     }
   }, [coins])
+
+  useEffect(() => {
+    const snapshot = {
+      cash: gameState.cash,
+      stars: gameState.stars,
+      coins: gameState.coins,
+      xp: gameState.xp,
+    }
+
+    if (!currencySnapshotInitializedRef.current) {
+      currencySnapshotInitializedRef.current = true
+      currencySnapshotRef.current = snapshot
+      return
+    }
+
+    const cashDelta = Math.max(0, snapshot.cash - currencySnapshotRef.current.cash)
+    const starsDelta = Math.max(0, snapshot.stars - currencySnapshotRef.current.stars)
+    const coinsDelta = Math.max(0, snapshot.coins - currencySnapshotRef.current.coins)
+    const xpDelta = Math.max(0, snapshot.xp - currencySnapshotRef.current.xp)
+
+    currencySnapshotRef.current = snapshot
+
+    if (cashDelta === 0 && starsDelta === 0 && coinsDelta === 0 && xpDelta === 0) {
+      return
+    }
+
+    setGameState(prev => ({
+      ...prev,
+      lifetimeCashEarned: (prev.lifetimeCashEarned ?? 0) + cashDelta,
+      lifetimeStarsEarned: (prev.lifetimeStarsEarned ?? 0) + starsDelta,
+      lifetimeCoinsEarned: (prev.lifetimeCoinsEarned ?? 0) + coinsDelta,
+      lifetimeXpEarned: (prev.lifetimeXpEarned ?? 0) + xpDelta,
+    }))
+  }, [gameState.cash, gameState.coins, gameState.stars, gameState.xp])
 
   // Sync thriftPath state to gameState
   useEffect(() => {
@@ -4205,6 +4250,8 @@ function App() {
             xpToNext: xpForNextLevel,
             rolls: rollsRemaining,
             stars: gameState.stars, // Pass stars to CompactHUD
+            coins: gameState.coins,
+            seasonPoints: gameState.seasonPoints,
             cityLevel: gameState.cityLevel ?? 1, // Defensive fallback to 1
           }}
           onRollDice={(multiplier) => handleRoll(multiplier)}
