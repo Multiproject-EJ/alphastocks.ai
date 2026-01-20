@@ -24,7 +24,7 @@ export function ShopItem({ item, canAfford, onBuy, isPurchasing }: ShopItemProps
   return (
     <div
       className={cn(
-        'shop-item flex flex-col items-center p-4 rounded-xl border-2',
+        'shop-item flex flex-col items-center p-3 rounded-xl border-2',
         'transition-all duration-200',
         'touch-target touch-feedback',
         canAfford 
@@ -34,13 +34,13 @@ export function ShopItem({ item, canAfford, onBuy, isPurchasing }: ShopItemProps
       )}
     >
       {/* Icon */}
-      <div className="text-4xl mb-2">{item.icon}</div>
+      <div className="text-3xl mb-1.5">{item.icon}</div>
       
       {/* Name */}
-      <div className="font-semibold text-sm text-center">{item.name}</div>
+      <div className="text-xs font-semibold text-center">{item.name}</div>
       
       {/* Description */}
-      <div className="text-xs text-muted-foreground text-center mt-1">
+      <div className="mt-1 text-[11px] text-muted-foreground text-center">
         {item.description}
       </div>
       
@@ -49,7 +49,7 @@ export function ShopItem({ item, canAfford, onBuy, isPurchasing }: ShopItemProps
         onClick={handleClick}
         disabled={!canAfford || isPurchasing}
         className={cn(
-          'mt-3 w-full py-2 px-4 rounded-lg font-bold text-sm',
+          'mt-2.5 w-full rounded-lg px-3 py-1.5 text-xs font-bold',
           'transition-colors',
           'touch-target',
           canAfford

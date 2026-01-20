@@ -20,8 +20,8 @@ export function ShopTabs({ activeTab, onTabChange }: ShopTabsProps) {
           onClick={() => onTabChange(tab.id)}
           className={cn(
             'flex-1 flex items-center justify-center gap-2',
-            'py-3 px-4 min-w-[100px]',
-            'text-sm font-medium',
+            'py-2.5 px-3 min-w-[92px]',
+            'text-xs font-medium',
             'transition-colors',
             'touch-target',
             activeTab === tab.id
