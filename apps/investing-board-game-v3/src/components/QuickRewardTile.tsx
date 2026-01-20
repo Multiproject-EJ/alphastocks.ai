@@ -103,6 +103,33 @@ export function QuickRewardTile({
           clipPath: TILE_CLIP_PATH,
         }}
       />
+
+      {isActive && (
+        <motion.div
+          className="absolute inset-0 flex items-center justify-center z-30 pointer-events-none"
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{
+            scale: 1,
+            opacity: 1,
+            y: isLanded ? -6 : -2,
+          }}
+          transition={{ type: 'spring', stiffness: 260, damping: 18 }}
+        >
+          <div className="relative">
+            <div
+              className="absolute inset-0 rounded-full blur-lg bg-accent/40 animate-[pulse_2s_ease-in-out_infinite]"
+              aria-hidden
+            />
+            <div
+              className={`w-10 h-10 rounded-full bg-accent flex items-center justify-center text-accent-foreground text-sm font-bold shadow-[0_10px_25px_oklch(0.75_0.15_85_/_0.35)] ${
+                isLanded ? 'ring-4 ring-accent/60' : 'ring-2 ring-accent/40'
+              }`}
+            >
+              ●
+            </div>
+          </div>
+        </motion.div>
+      )}
     </motion.div>
   )
 }
