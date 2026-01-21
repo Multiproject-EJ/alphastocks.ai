@@ -69,30 +69,31 @@ export function EventTrackBar({
         onClick={() => setIsExpanded(true)}
         aria-label="Expand event reward track"
       >
-        <div className="grid grid-cols-[auto,1fr,auto] items-center gap-2 text-xs text-white/80">
-          <span>{progress.points} / {definition.pointsMax} pts</span>
-          <span className="truncate text-center text-[11px] font-semibold text-sky-100/90">
-            {commentary ?? 'Rolling on...'}
-          </span>
-          <span>{definition.isActive ? 'Keep rolling!' : 'Event ended'}</span>
-        </div>
-        <div className="mt-2 flex items-center gap-2">
+        <div className="flex items-center gap-2">
           {/* Left: Goal circle */}
           <div className="w-8 h-8 rounded-full bg-gray-700 border-2 border-gray-500 flex items-center justify-center flex-shrink-0">
             <span className="text-sm">🎯</span>
           </div>
-          
-          {/* Progress bar */}
-          <div className="flex-1 h-2 rounded-full bg-white/10">
-            <div
-              className="h-full rounded-full bg-gradient-to-r from-emerald-400 via-green-400 to-lime-300 transition-all duration-500"
-              style={{ width: `${progressPercent}%` }}
-            />
+
+          {/* Progress bar + centered status */}
+          <div className="flex-1">
+            <span className="block truncate text-center text-[11px] font-semibold text-sky-100/90">
+              {commentary ?? 'Rolling on...'}
+            </span>
+            <div className="mt-1 h-2 rounded-full bg-white/10">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-emerald-400 via-green-400 to-lime-300 transition-all duration-500"
+                style={{ width: `${progressPercent}%` }}
+              />
+            </div>
           </div>
-          
-          {/* Right: Star circle */}
-          <div className="w-8 h-8 rounded-full bg-yellow-500/20 border-2 border-yellow-500 flex items-center justify-center flex-shrink-0">
+
+          {/* Right: Star circle with points overlay */}
+          <div className="relative w-8 h-8 rounded-full bg-yellow-500/20 border-2 border-yellow-500 flex items-center justify-center flex-shrink-0">
             <span className="text-sm">⭐</span>
+            <span className="absolute inset-0 flex items-center justify-center text-[8px] font-semibold text-yellow-100 drop-shadow">
+              {progress.points}/{definition.pointsMax}
+            </span>
           </div>
         </div>
       </button>
