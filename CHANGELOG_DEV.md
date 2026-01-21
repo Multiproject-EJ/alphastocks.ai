@@ -110,3 +110,18 @@
 
 **How to test:**  
 1) No runtime changes (docs only).
+
+**Date:** 2026-01-21  
+**Slice:** M5.0 (shop audit)  
+**Summary:**  
+- Audited the existing shop experience (desktop stars vs mobile cash + Property Vault) and documented the decision to ship Shop 2.0 as a feature-flagged parallel flow.
+
+**Files changed:**  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md
+
+**SQL migrations:**  
+- (none)
+
+**How to test:**  
+1) No runtime changes (docs only).
