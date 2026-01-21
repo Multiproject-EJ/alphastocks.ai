@@ -135,6 +135,7 @@ export function useDailyDividends(): UseDailyDividendsReturn {
         // Table might not have dividend columns yet
         if (queryError.code === POSTGRES_ERROR_UNDEFINED_COLUMN) {
           console.warn('Daily dividends columns do not exist yet. Run migration 028_daily_dividends.sql')
+          setError('Daily dividends columns not found. Run migration 028_daily_dividends.sql.')
           setStatus({
             currentDay: 1,
             lastCollectionDate: null,
@@ -203,16 +204,18 @@ export function useDailyDividends(): UseDailyDividendsReturn {
       // Update database
       const { error: updateError } = await supabaseClient
         .from('board_game_profiles')
-        .update({
+        .upsert({
+          profile_id: user.id,
           daily_dividend_day: nextDay,
           daily_dividend_last_collection: now.toISOString(),
           daily_dividend_total_collected: status.totalCollected + 1,
-        })
-        .eq('profile_id', user.id)
+        }, { onConflict: 'profile_id' })
 
       if (updateError) {
         if (updateError.code === POSTGRES_ERROR_UNDEFINED_COLUMN) {
           console.warn('Daily dividends columns do not exist yet. Run migration 028_daily_dividends.sql')
+          setError('Daily dividends columns not found. Run migration 028_daily_dividends.sql.')
+          return null
         } else {
           throw updateError
         }

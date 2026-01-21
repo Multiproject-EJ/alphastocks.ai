@@ -27,6 +27,7 @@ interface DailyDividendsModalProps {
   onOpenChange: (open: boolean) => void
   status: DailyDividendStatus
   onCollect: () => Promise<DailyDividendReward | null>
+  errorMessage?: string | null
 }
 
 // Confetti celebration effect
@@ -78,16 +79,19 @@ export function DailyDividendsModal({
   onOpenChange,
   status,
   onCollect,
+  errorMessage,
 }: DailyDividendsModalProps) {
   const { play: playSound } = useSound()
   const { success: hapticSuccess } = useHaptics()
   const [collecting, setCollecting] = useState(false)
+  const [collectError, setCollectError] = useState<string | null>(null)
   const [revealed, setRevealed] = useState(false)
   const [revealedReward, setRevealedReward] = useState<DailyDividendReward | null>(null)
 
   const handleCollect = async () => {
     if (collecting || !status.canCollect) return
 
+    setCollectError(null)
     setCollecting(true)
     playSound('cash-register')
     hapticSuccess()
@@ -96,6 +100,7 @@ export function DailyDividendsModal({
       const reward = await onCollect()
       if (!reward) {
         setCollecting(false)
+        setCollectError(errorMessage || 'Unable to collect right now. Please try again.')
         return
       }
 
@@ -134,7 +139,7 @@ export function DailyDividendsModal({
             : isLockedToday
             ? 'border-emerald-700/40 bg-gradient-to-br from-slate-700/50 to-slate-800/60 opacity-80'
             : isCollected
-            ? 'border-emerald-700/40 bg-gradient-to-br from-slate-700/40 to-slate-800/40'
+            ? 'border-slate-200 bg-white/95 shadow-inner'
             : 'border-slate-600/40 bg-gradient-to-br from-slate-700/20 to-slate-800/20'
         }`}
         whileHover={isCurrentDay && status.canCollect ? { scale: 1.05 } : undefined}
@@ -173,14 +178,16 @@ export function DailyDividendsModal({
                 {reward.base.type === 'dice' ? '🎲' : '💵'}
               </div>
               <div className={`text-[10px] sm:text-xs text-center font-bold ${
-                isCurrentDay ? 'text-emerald-300' : isCollected ? 'text-emerald-600' : 'text-slate-400'
+                isCurrentDay ? 'text-emerald-300' : isCollected ? 'text-slate-900' : 'text-slate-400'
               }`}>
                 {reward.base.type === 'dice' 
                   ? `${reward.base.amount} Rolls`
                   : `$${reward.base.amount.toLocaleString()}`
                 }
               </div>
-              <div className="text-[10px] sm:text-[11px] text-center text-emerald-200/80">
+              <div className={`text-[10px] sm:text-[11px] text-center ${
+                isCollected ? 'text-slate-600' : 'text-emerald-200/80'
+              }`}>
                 +$${reward.bonusCash.toLocaleString()} bonus
               </div>
             </>
@@ -284,6 +291,31 @@ export function DailyDividendsModal({
               </div>
               <div className="text-[11px] sm:text-xs text-slate-400">Current Day</div>
             </div>
+          </div>
+
+          {/* Collect action */}
+          <div className="mt-4 sm:mt-5">
+            <button
+              type="button"
+              onClick={handleCollect}
+              disabled={!status.canCollect || collecting}
+              className={`w-full rounded-lg px-4 py-3 text-sm font-semibold transition-all ${
+                status.canCollect && !collecting
+                  ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/30 hover:bg-emerald-400'
+                  : 'bg-slate-700/60 text-slate-300'
+              }`}
+            >
+              {collecting
+                ? 'Collecting...'
+                : status.canCollect
+                ? 'Collect Today’s Reward'
+                : 'Come back tomorrow'}
+            </button>
+            {collectError && (
+              <p className="mt-2 text-[11px] sm:text-xs text-rose-300 text-center">
+                {collectError}
+              </p>
+            )}
           </div>
         </div>
 

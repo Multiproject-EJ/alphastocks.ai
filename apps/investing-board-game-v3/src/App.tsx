@@ -671,6 +671,7 @@ function App() {
   const {
     status: dailyDividendStatus,
     loading: dividendsLoading,
+    error: dailyDividendError,
     canShowPopup: canShowDividendsPopup,
     collectReward: collectDailyReward,
     refreshStatus: refreshDividendStatus,
@@ -1180,6 +1181,7 @@ function App() {
           component: DailyDividendsModal,
           props: {
             status: dailyDividendStatus,
+            errorMessage: dailyDividendError,
             onCollect: async () => {
               const reward = await collectDailyReward()
               if (reward) {
@@ -1230,6 +1232,7 @@ function App() {
     isLoading,
     dividendsLoading,
     dailyDividendStatus,
+    dailyDividendError,
     canShowDividendsPopup,
     wasRecentlyShown,
     showOverlay,
