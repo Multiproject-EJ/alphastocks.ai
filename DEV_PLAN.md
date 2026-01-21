@@ -54,7 +54,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 - **Routing system:** No router; UI mode/state machine in `apps/investing-board-game-v3/src/lib/uiModeStateMachine.ts` + context `src/context/UIModeContext.tsx`
 - **State management/store:** Local React state in `src/App.tsx` plus contexts in `src/context/*` (Auth, Overlay, UI Mode); custom hooks in `src/hooks/*`
 - **Game loop entry:** `src/App.tsx` (dice roll → `calculateMovement` in `src/lib/movementEngine.ts`), board data in `src/lib/mockData.ts`
-- **UI components:** `src/components/*` (board, modals, overlays), shop UI in `src/components/ShopModal.tsx` + `src/components/shop/*`
+- **UI components:** `src/components/*` (board, modals, overlays), shop UI in `src/components/ShopModal.tsx` + `src/components/shop/*` (mobile shop shell, property vault album cards)
 - **Animation utilities:** `src/lib/animations.ts`, `src/hooks/useBoardCamera.ts`, `src/hooks/useCameraAnimation.ts`
 
 #### PWA
@@ -88,7 +88,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 - **Free roll regen:** `src/lib/energy.ts` + usage in `src/App.tsx` and persistence in `src/hooks/useGameSave.ts`
 - **Dice/energy caps:** `src/lib/constants.ts` and `src/lib/energy.ts`
 - **Multipliers/leverage:** `src/lib/constants.ts` (`MULTIPLIERS`) + ring multipliers in `src/lib/rewardMultiplier.ts`
-- **Shop/estate logic:** `src/hooks/useShopInventory.ts`, `src/lib/shopItems.ts`, and city builder in `src/lib/cityBuilder.ts` + `src/hooks/useCityBuilder.ts`
+- **Shop/estate logic:** `src/hooks/useShopInventory.ts` (stars-based purchases), `src/hooks/usePurchase.ts` (mobile cash purchases), `src/lib/shopItems.ts` (legacy + vault data), and city builder in `src/lib/cityBuilder.ts` + `src/hooks/useCityBuilder.ts`
 - **Events/timers:** `src/lib/events.ts`, `src/hooks/useEvents.ts`, `src/lib/miniGameSchedule.ts`, `src/hooks/useDailyDividends.ts`
 
 #### ProTools (read-only)
@@ -159,7 +159,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **M4.4** Graphic templates + animations
 
 ### M5 — Vault Album Shop (Shop 2.0)
-- **M5.0** Audit existing shop & decide flag vs in-place
+- **M5.0** ✅ Audit existing shop & decide flag vs in-place
 - **M5.1** Shop2 feature flag + routes
 - **M5.2** Supabase schema for seasons/sets/items/progress
 - **M5.3** Vault overview UI
@@ -216,4 +216,14 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **M5.0 — Shop audit** (determine feature-flag vs in-place upgrade and document decision).
+**Recommended next slice:** **M5.1 — Shop2 feature flag + routes** (stand up the flag + entry point without removing legacy shop).
+
+---
+
+## M5.0 Audit Notes (Shop 2.0 decision)
+**Current shop surfaces:**
+- **Desktop/tablet:** `ShopModal` uses stars-based inventory with categories (powerups/upgrades/cosmetics/currency) and confirmation flow.
+- **Mobile:** `MobileShop` swaps to cash-based purchases with a two-tab layout: utilities items + a **Property Vault** album grid.
+- **Data sources:** `shopItems.ts` holds both legacy stars items and a separate vault data set; mobile uses `usePurchase` (no inventory persistence yet).
+
+**Decision:** Implement Shop 2.0 as a **feature-flagged, parallel flow** that can reuse the existing Property Vault UI patterns while keeping the legacy stars shop intact. This avoids regressions and preserves the dual-currency split until Shop 2.0 is fully wired.
