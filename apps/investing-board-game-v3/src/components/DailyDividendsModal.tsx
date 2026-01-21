@@ -4,7 +4,7 @@
  * Mobile-first design that fits phone screen without scrolling
  */
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Dialog,
@@ -87,6 +87,12 @@ export function DailyDividendsModal({
   const [collectError, setCollectError] = useState<string | null>(null)
   const [revealed, setRevealed] = useState(false)
   const [revealedReward, setRevealedReward] = useState<DailyDividendReward | null>(null)
+
+  useEffect(() => {
+    if (errorMessage) {
+      setCollectError(errorMessage)
+    }
+  }, [errorMessage])
 
   const handleCollect = async () => {
     if (collecting || !status.canCollect) return

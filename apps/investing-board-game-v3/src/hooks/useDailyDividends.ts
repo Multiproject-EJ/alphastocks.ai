@@ -117,6 +117,9 @@ export function useDailyDividends(): UseDailyDividendsReturn {
   // Load dividend status from database
   const refreshStatus = useCallback(async () => {
     if (!supabaseClient || !hasSupabaseConfig || !isAuthenticated || !user) {
+      setStatus(null)
+      setCanShowPopup(false)
+      setError(null)
       setLoading(false)
       return
     }
@@ -187,7 +190,18 @@ export function useDailyDividends(): UseDailyDividendsReturn {
 
   // Collect today's reward
   const collectReward = useCallback(async (): Promise<DailyDividendReward | null> => {
-    if (!supabaseClient || !hasSupabaseConfig || !isAuthenticated || !user || !status) {
+    if (!supabaseClient || !hasSupabaseConfig) {
+      setError('Daily dividends are unavailable because Supabase is not configured.')
+      return null
+    }
+
+    if (!isAuthenticated || !user) {
+      setError('Please sign in again to collect daily dividends.')
+      return null
+    }
+
+    if (!status) {
+      setError('Daily dividend status is unavailable. Please reload and try again.')
       return null
     }
 
@@ -197,6 +211,7 @@ export function useDailyDividends(): UseDailyDividendsReturn {
     }
 
     try {
+      setError(null)
       const reward = getRewardForDay(status.currentDay)
       const nextDay = status.currentDay === 7 ? 1 : status.currentDay + 1
       const now = new Date()
