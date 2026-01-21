@@ -4,7 +4,7 @@
  * Mobile-first design that fits phone screen without scrolling
  */
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Dialog,
@@ -26,7 +26,7 @@ interface DailyDividendsModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   status: DailyDividendStatus
-  onCollect: () => Promise<DailyDividendReward | null>
+  onCollect: () => Promise<{ reward: DailyDividendReward | null; error?: string }>
   errorMessage?: string | null
 }
 
@@ -88,6 +88,12 @@ export function DailyDividendsModal({
   const [revealed, setRevealed] = useState(false)
   const [revealedReward, setRevealedReward] = useState<DailyDividendReward | null>(null)
 
+  useEffect(() => {
+    if (errorMessage) {
+      setCollectError(errorMessage)
+    }
+  }, [errorMessage])
+
   const handleCollect = async () => {
     if (collecting || !status.canCollect) return
 
@@ -97,10 +103,10 @@ export function DailyDividendsModal({
     hapticSuccess()
 
     setTimeout(async () => {
-      const reward = await onCollect()
+      const { reward, error } = await onCollect()
       if (!reward) {
         setCollecting(false)
-        setCollectError(errorMessage || 'Unable to collect right now. Please try again.')
+        setCollectError(error || errorMessage || 'Unable to collect right now. Please try again.')
         return
       }
 
