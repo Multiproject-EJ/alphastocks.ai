@@ -27,6 +27,7 @@ interface DailyDividendsModalProps {
   onOpenChange: (open: boolean) => void
   status: DailyDividendStatus
   onCollect: () => Promise<DailyDividendReward | null>
+  errorMessage?: string | null
 }
 
 // Confetti celebration effect
@@ -78,6 +79,7 @@ export function DailyDividendsModal({
   onOpenChange,
   status,
   onCollect,
+  errorMessage,
 }: DailyDividendsModalProps) {
   const { play: playSound } = useSound()
   const { success: hapticSuccess } = useHaptics()
@@ -98,7 +100,7 @@ export function DailyDividendsModal({
       const reward = await onCollect()
       if (!reward) {
         setCollecting(false)
-        setCollectError('Unable to collect right now. Please try again.')
+        setCollectError(errorMessage || 'Unable to collect right now. Please try again.')
         return
       }
 
@@ -137,7 +139,7 @@ export function DailyDividendsModal({
             : isLockedToday
             ? 'border-emerald-700/40 bg-gradient-to-br from-slate-700/50 to-slate-800/60 opacity-80'
             : isCollected
-            ? 'border-emerald-700/40 bg-gradient-to-br from-slate-700/40 to-slate-800/40'
+            ? 'border-slate-200 bg-white/95 shadow-inner'
             : 'border-slate-600/40 bg-gradient-to-br from-slate-700/20 to-slate-800/20'
         }`}
         whileHover={isCurrentDay && status.canCollect ? { scale: 1.05 } : undefined}
@@ -176,14 +178,16 @@ export function DailyDividendsModal({
                 {reward.base.type === 'dice' ? '🎲' : '💵'}
               </div>
               <div className={`text-[10px] sm:text-xs text-center font-bold ${
-                isCurrentDay ? 'text-emerald-300' : isCollected ? 'text-emerald-600' : 'text-slate-400'
+                isCurrentDay ? 'text-emerald-300' : isCollected ? 'text-slate-900' : 'text-slate-400'
               }`}>
                 {reward.base.type === 'dice' 
                   ? `${reward.base.amount} Rolls`
                   : `$${reward.base.amount.toLocaleString()}`
                 }
               </div>
-              <div className="text-[10px] sm:text-[11px] text-center text-emerald-200/80">
+              <div className={`text-[10px] sm:text-[11px] text-center ${
+                isCollected ? 'text-slate-600' : 'text-emerald-200/80'
+              }`}>
                 +$${reward.bonusCash.toLocaleString()} bonus
               </div>
             </>
