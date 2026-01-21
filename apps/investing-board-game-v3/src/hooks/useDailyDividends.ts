@@ -84,8 +84,28 @@ interface UseDailyDividendsReturn {
   loading: boolean
   error: string | null
   canShowPopup: boolean
-  collectReward: () => Promise<DailyDividendReward | null>
+  collectReward: () => Promise<{ reward: DailyDividendReward | null; error?: string }>
   refreshStatus: () => Promise<void>
+}
+
+interface SupabaseError {
+  code?: string
+  message?: string
+  details?: string
+}
+
+const RLS_ERROR_CODE = '42501'
+
+const formatSupabaseError = (err: SupabaseError, fallback: string) => {
+  if (err.code === POSTGRES_ERROR_UNDEFINED_COLUMN) {
+    return 'Daily dividends columns not found. Run migration 028_daily_dividends.sql.'
+  }
+
+  if (err.code === RLS_ERROR_CODE || err.message?.toLowerCase().includes('row-level security')) {
+    return 'Daily dividends are blocked by Row Level Security. Verify board_game_profiles policies allow select/upsert for auth.uid().'
+  }
+
+  return err.message || fallback
 }
 
 /**
@@ -135,7 +155,6 @@ export function useDailyDividends(): UseDailyDividendsReturn {
         .maybeSingle()
 
       if (queryError) {
-        // Table might not have dividend columns yet
         if (queryError.code === POSTGRES_ERROR_UNDEFINED_COLUMN) {
           console.warn('Daily dividends columns do not exist yet. Run migration 028_daily_dividends.sql')
           setError('Daily dividends columns not found. Run migration 028_daily_dividends.sql.')
@@ -148,7 +167,11 @@ export function useDailyDividends(): UseDailyDividendsReturn {
           setCanShowPopup(true)
           return
         }
-        throw queryError
+
+        setError(formatSupabaseError(queryError, 'Failed to load dividend status'))
+        setStatus(null)
+        setCanShowPopup(false)
+        return
       }
 
       if (data) {
@@ -189,25 +212,28 @@ export function useDailyDividends(): UseDailyDividendsReturn {
   }, [isAuthenticated, user, canCollectToday])
 
   // Collect today's reward
-  const collectReward = useCallback(async (): Promise<DailyDividendReward | null> => {
+  const collectReward = useCallback(async (): Promise<{ reward: DailyDividendReward | null; error?: string }> => {
     if (!supabaseClient || !hasSupabaseConfig) {
-      setError('Daily dividends are unavailable because Supabase is not configured.')
-      return null
+      const message = 'Daily dividends are unavailable because Supabase is not configured.'
+      setError(message)
+      return { reward: null, error: message }
     }
 
     if (!isAuthenticated || !user) {
-      setError('Please sign in again to collect daily dividends.')
-      return null
+      const message = 'Please sign in again to collect daily dividends.'
+      setError(message)
+      return { reward: null, error: message }
     }
 
     if (!status) {
-      setError('Daily dividend status is unavailable. Please reload and try again.')
-      return null
+      const message = 'Daily dividend status is unavailable. Please reload and try again.'
+      setError(message)
+      return { reward: null, error: message }
     }
 
     if (!status.canCollect) {
       console.warn('Cannot collect reward - already collected today')
-      return null
+      return { reward: null, error: 'Daily dividends already collected today.' }
     }
 
     try {
@@ -229,11 +255,14 @@ export function useDailyDividends(): UseDailyDividendsReturn {
       if (updateError) {
         if (updateError.code === POSTGRES_ERROR_UNDEFINED_COLUMN) {
           console.warn('Daily dividends columns do not exist yet. Run migration 028_daily_dividends.sql')
-          setError('Daily dividends columns not found. Run migration 028_daily_dividends.sql.')
-          return null
-        } else {
-          throw updateError
+          const message = 'Daily dividends columns not found. Run migration 028_daily_dividends.sql.'
+          setError(message)
+          return { reward: null, error: message }
         }
+
+        const message = formatSupabaseError(updateError, 'Failed to collect dividend')
+        setError(message)
+        return { reward: null, error: message }
       }
 
       // Update local state
@@ -246,11 +275,12 @@ export function useDailyDividends(): UseDailyDividendsReturn {
 
       setCanShowPopup(false)
 
-      return reward
+      return { reward }
     } catch (err) {
       console.error('Failed to collect dividend:', err)
-      setError(err instanceof Error ? err.message : 'Failed to collect dividend')
-      return null
+      const message = err instanceof Error ? err.message : 'Failed to collect dividend'
+      setError(message)
+      return { reward: null, error: message }
     }
   }, [isAuthenticated, user, status])
 

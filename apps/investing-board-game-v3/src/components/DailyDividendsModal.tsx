@@ -26,7 +26,7 @@ interface DailyDividendsModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   status: DailyDividendStatus
-  onCollect: () => Promise<DailyDividendReward | null>
+  onCollect: () => Promise<{ reward: DailyDividendReward | null; error?: string }>
   errorMessage?: string | null
 }
 
@@ -103,10 +103,10 @@ export function DailyDividendsModal({
     hapticSuccess()
 
     setTimeout(async () => {
-      const reward = await onCollect()
+      const { reward, error } = await onCollect()
       if (!reward) {
         setCollecting(false)
-        setCollectError(errorMessage || 'Unable to collect right now. Please try again.')
+        setCollectError(error || errorMessage || 'Unable to collect right now. Please try again.')
         return
       }
 

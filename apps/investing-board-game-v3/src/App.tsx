@@ -1185,7 +1185,7 @@ function App() {
             status: dailyDividendStatus,
             errorMessage: dailyDividendError,
             onCollect: async () => {
-              const reward = await collectDailyReward()
+              const { reward, error } = await collectDailyReward()
               if (reward) {
                 const baseCash = reward.base.type === 'cash' ? reward.base.amount : 0
                 const totalCash = baseCash + reward.bonusCash
@@ -1221,7 +1221,7 @@ function App() {
                 // Refresh status
                 await refreshDividendStatus()
               }
-              return reward
+              return { reward, error }
             },
           },
           priority: 'high', // Show early but after critical modals
