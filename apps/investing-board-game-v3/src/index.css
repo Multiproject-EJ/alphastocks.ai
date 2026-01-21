@@ -1017,6 +1017,39 @@ h1, h2, h3, h4, h5, h6 {
     0 0 85px rgba(250, 204, 21, 0.4);
 }
 
+.ring-rotation-layer {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 50%;
+}
+
+.ring3-spin-cw {
+  animation: ringSpinCw 2.2s linear infinite;
+}
+
+.ring3-spin-ccw {
+  animation: ringSpinCcw 2.2s linear infinite;
+}
+
+.ring3-celebration-screen .ring3-ui-flash {
+  animation: ring3UiFlash 0.32s ease-in-out infinite, ring3UiShake 0.36s ease-in-out infinite;
+  box-shadow: 0 0 24px rgba(255, 214, 102, 0.35);
+  border-radius: 18px;
+}
+
+.ring3-celebration-beams {
+  position: absolute;
+  inset: 0;
+  z-index: 15;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  background:
+    linear-gradient(120deg, rgba(255, 215, 0, 0.22), transparent 45%),
+    linear-gradient(300deg, rgba(56, 189, 248, 0.18), transparent 40%),
+    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.25), transparent 60%);
+  animation: ring3Beams 0.4s ease-in-out infinite;
+}
+
 /* Floating animation for Ring 3 */
 @keyframes ring3Float {
   0%, 100% {
@@ -1040,6 +1073,57 @@ h1, h2, h3, h4, h5, h6 {
       0 15px 30px rgba(0, 0, 0, 0.4),
       0 0 55px rgba(56, 189, 248, 0.75),
       0 0 85px rgba(250, 204, 21, 0.45);
+  }
+}
+
+@keyframes ringSpinCw {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes ringSpinCcw {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+@keyframes ring3UiFlash {
+  0%,
+  100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.35);
+  }
+}
+
+@keyframes ring3UiShake {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  25% {
+    transform: translate3d(1px, -1px, 0);
+  }
+  75% {
+    transform: translate3d(-1px, 1px, 0);
+  }
+}
+
+@keyframes ring3Beams {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.9;
   }
 }
 
@@ -1090,6 +1174,12 @@ h1, h2, h3, h4, h5, h6 {
   .ring-3-tile--revealing {
     animation: none;
     transform: scale(1) rotateY(0deg) translateY(-25px);
+  }
+  .ring3-spin-cw,
+  .ring3-spin-ccw,
+  .ring3-celebration-screen .ring3-ui-flash,
+  .ring3-celebration-beams {
+    animation: none;
   }
 }
 
