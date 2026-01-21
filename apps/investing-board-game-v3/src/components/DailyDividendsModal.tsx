@@ -223,7 +223,7 @@ export function DailyDividendsModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[90vw] sm:max-w-md p-0 overflow-hidden border-2 border-emerald-500/50 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
         {/* Header */}
-        <DialogHeader className="px-4 pt-5 pb-3 sm:px-6 sm:pt-6 sm:pb-4 bg-gradient-to-b from-emerald-900/40 to-transparent">
+        <DialogHeader className="px-4 pt-10 pb-3 sm:px-6 sm:pt-12 sm:pb-4 bg-gradient-to-b from-emerald-900/40 to-transparent">
           <DialogTitle className="flex items-center gap-3 text-xl sm:text-2xl font-bold text-white">
             <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-emerald-500">
               <TrendUp size={20} weight="bold" />
