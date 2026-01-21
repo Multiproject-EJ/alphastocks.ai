@@ -320,6 +320,8 @@ function App() {
   // Ring 3 reveal state
   const [ring3Revealed, setRing3Revealed] = useState(false)
   const [ring3Revealing, setRing3Revealing] = useState(false)
+  const [ring3CelebrationActive, setRing3CelebrationActive] = useState(false)
+  const ring3CelebrationTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   // Ring 3 roll tracking and animations
   const [ring3RollUsed, setRing3RollUsed] = useState(false)
@@ -1764,6 +1766,14 @@ function App() {
   const revealRing3 = useCallback(() => {
     if (ring3Revealed) return // Already revealed
     
+    if (ring3CelebrationTimeoutRef.current) {
+      clearTimeout(ring3CelebrationTimeoutRef.current)
+    }
+    setRing3CelebrationActive(true)
+    ring3CelebrationTimeoutRef.current = setTimeout(() => {
+      setRing3CelebrationActive(false)
+    }, 2400)
+
     setRing3Revealing(true)
     playSound('level-up') // Using level-up sound for epic reveal
     
@@ -1789,6 +1799,14 @@ function App() {
       }))
     }, RING_3_REVEAL_DURATION)
   }, [ring3Revealed, playSound, showToast])
+
+  useEffect(() => {
+    return () => {
+      if (ring3CelebrationTimeoutRef.current) {
+        clearTimeout(ring3CelebrationTimeoutRef.current)
+      }
+    }
+  }, [])
 
   // Trigger Ring 3 reveal when player reaches Ring 3 for the first time
   useEffect(() => {
@@ -3267,7 +3285,9 @@ function App() {
   const mainContent = (
     <div 
       ref={containerRef} 
-      className={`relative isolate game-board ${isPhone ? 'h-full w-full p-0' : 'min-h-screen bg-background p-8 overflow-hidden'}`}
+      className={`relative isolate game-board ${isPhone ? 'h-full w-full p-0' : 'min-h-screen bg-background p-8 overflow-hidden'} ${
+        ring3CelebrationActive ? 'ring3-celebration-screen' : ''
+      }`}
     >
       <LoadingScreen show={isLoading} />
         
@@ -3278,10 +3298,13 @@ function App() {
             aria-hidden="true"
           />
         )}
+        {ring3CelebrationActive && (
+          <div className="ring3-celebration-beams" aria-hidden="true" />
+        )}
 
         {/* Hide DiceHUD on mobile - shown in BottomNav instead */}
         {!isMobile && (
-          <div data-tutorial="dice">
+          <div data-tutorial="dice" className={ring3CelebrationActive ? 'ring3-ui-flash' : ''}>
             <DiceHUD
               onRoll={handleRoll}
               lastRoll={lastRoll}
@@ -3302,10 +3325,12 @@ function App() {
         
         {/* Event Banner - Shows active events at top */}
         {!isPhone && (
-          <EventBanner
-            events={activeEvents}
-            onOpenCalendar={openEventCalendar}
-          />
+          <div className={ring3CelebrationActive ? 'ring3-ui-flash' : ''}>
+            <EventBanner
+              events={activeEvents}
+              onOpenCalendar={openEventCalendar}
+            />
+          </div>
         )}
 
       {/* Layout wrapper - Three column layout for non-phone, regular for phone */}
@@ -3326,7 +3351,7 @@ function App() {
         {!isPhone && (
           <div className={`absolute left-4 top-4 flex flex-col gap-6 items-start justify-start pt-4 transition-opacity duration-500 flex-shrink-0 z-20 ${
             isLogoPanel ? 'opacity-0 pointer-events-none' : 'opacity-100'
-          }`}>
+          } ${ring3CelebrationActive ? 'ring3-ui-flash' : ''}`}>
             <div className="flex flex-col items-start gap-3">
               <UserIndicator 
                 saving={saving} 
@@ -3507,7 +3532,7 @@ function App() {
         {!isPhone && (
           <div className={`absolute right-4 top-4 z-30 transition-opacity duration-500 ${
             isLogoPanel ? 'opacity-0 pointer-events-none' : 'opacity-100'
-          }`}>
+          } ${ring3CelebrationActive ? 'ring3-ui-flash' : ''}`}>
             <Button
               onClick={() => handleBottomNavigation('settings')}
               className="h-12 w-12 rounded-full border border-white/15 bg-slate-900/80 text-white shadow-lg backdrop-blur hover:bg-slate-900"
@@ -3609,9 +3634,11 @@ function App() {
                   
                   return (
                     <div 
-                      className={`transition-all duration-500 ${
+                      className={`ring-rotation-layer transition-all duration-500 ${
                         revealingRing === 1 ? 'ring-revealing' : ''
-                      } ${fadingRing === 1 ? 'ring-fading' : ''}`}
+                      } ${fadingRing === 1 ? 'ring-fading' : ''} ${
+                        ring3CelebrationActive ? 'ring3-spin-cw' : ''
+                      }`}
                       style={{
                         opacity: getRingOpacity(1),
                         filter: getRingFilter(1),
@@ -3715,9 +3742,11 @@ function App() {
                     <>
                       {/* Ring 2 - Executive Floor (24 tiles) */}
                       <div 
-                        className={`transition-all duration-500 ${
+                        className={`ring-rotation-layer transition-all duration-500 ${
                           revealingRing === 2 ? 'ring-revealing' : ''
-                        } ${fadingRing === 2 ? 'ring-fading' : ''}`}
+                        } ${fadingRing === 2 ? 'ring-fading' : ''} ${
+                          ring3CelebrationActive ? 'ring3-spin-ccw' : ''
+                        }`}
                         style={{
                           opacity: getRingOpacity(2),
                           filter: getRingFilter(2),
