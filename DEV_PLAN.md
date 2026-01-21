@@ -3,6 +3,10 @@
 ## Purpose
 This is the **single master dev plan** for the board game work. Every run updates this file and `CHANGELOG_DEV.md` (and `ENV_NOTES.md`/`MIGRATIONS_LOG.md` only when applicable).
 
+## Key start prompt (short, reusable)
+Use this exact prompt to kick off a run and keep the plan in scope:
+> **“Follow `DEV_PLAN.md` (one slice, mobile-first, repo-first). Update `DEV_PLAN.md` + `CHANGELOG_DEV.md` every run.”**
+
 ## Existing Master Plan Reference (do not duplicate)
 There is a broader, long-form master plan already in the repo. Keep this file as the **run-by-run execution plan** and cross‑reference the long plan instead of rewriting it:
 - `docs/DEV_PLAN_MARKETTYCOON_MASTER.md` (core vision, loop, ethics, ring overview). Align slices here with that doc to avoid drift.

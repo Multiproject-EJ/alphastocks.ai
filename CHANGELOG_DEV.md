@@ -95,3 +95,18 @@
 
 **How to test:**  
 1) No runtime changes (docs only).
+
+**Date:** 2026-01-21  
+**Slice:** M0.1 (key start prompt)  
+**Summary:**  
+- Added a short, reusable key start prompt to keep runs aligned to the master plan.
+
+**Files changed:**  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md
+
+**SQL migrations:**  
+- (none)
+
+**How to test:**  
+1) No runtime changes (docs only).
