@@ -121,6 +121,7 @@ export function PhoneBottomNav({
         const isActive = item.id !== 'proTools' && mode === item.id;
         const Icon = item.icon;
         const isBuildItem = item.id === 'stockExchangeBuilder';
+        const isNearDice = item.id === 'stockExchangeBuilder';
         const handleClick = () => {
           if (item.id === 'proTools') {
             onOpenProTools();
@@ -140,6 +141,7 @@ export function PhoneBottomNav({
               'touch-target',
               'cursor-pointer',
               'transition-[color,box-shadow,transform] duration-200',
+              isNearDice && '-translate-y-6',
               isActive
                 ? 'text-primary shadow-[0_0_12px_hsl(var(--primary)/0.45)]'
                 : 'text-muted-foreground',
@@ -203,6 +205,7 @@ export function PhoneBottomNav({
       {NAV_ITEMS_RIGHT.map((item) => {
         const isActive = mode === item.id;
         const Icon = item.icon;
+        const isNearDice = item.id === 'shop';
         
         return (
           <button
@@ -215,6 +218,7 @@ export function PhoneBottomNav({
               'touch-target',
               'cursor-pointer',
               'transition-[color,box-shadow,transform] duration-200',
+              isNearDice && '-translate-y-6',
               isActive
                 ? 'text-primary shadow-[0_0_12px_hsl(var(--primary)/0.45)]'
                 : 'text-muted-foreground',

@@ -71,7 +71,7 @@ export function DiceButton({
         className={cn(
           'dice-button',
           'phone-dice-button',
-          'w-[136px] h-[136px] rounded-full',
+          'w-[150px] h-[150px] rounded-full',
           'flex flex-col items-center justify-center',
           'font-bold text-white',
           'shadow-lg',
@@ -146,14 +146,14 @@ export function DiceButton({
             isRolling={isRolling}
             isMoving={false}
             isDoubles={isDoubles}
-            className={cn('scale-90', isRolling && 'animate-dice-shake')}
+            className={cn('scale-[0.99]', isRolling && 'animate-dice-shake')}
           />
           <AnimatedDice
             value={dice2}
             isRolling={isRolling}
             isMoving={false}
             isDoubles={isDoubles}
-            className={cn('scale-90', isRolling && 'animate-dice-shake')}
+            className={cn('scale-[0.99]', isRolling && 'animate-dice-shake')}
           />
         </span>
         <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 flex-col items-center text-white">
