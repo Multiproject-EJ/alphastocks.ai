@@ -4,7 +4,7 @@
  * Mobile-first design that fits phone screen without scrolling
  */
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Dialog,
@@ -26,7 +26,7 @@ interface DailyDividendsModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   status: DailyDividendStatus
-  onCollect: () => Promise<DailyDividendReward | null>
+  onCollect: () => Promise<{ reward: DailyDividendReward | null; error?: string }>
   errorMessage?: string | null
 }
 
@@ -88,6 +88,12 @@ export function DailyDividendsModal({
   const [revealed, setRevealed] = useState(false)
   const [revealedReward, setRevealedReward] = useState<DailyDividendReward | null>(null)
 
+  useEffect(() => {
+    if (errorMessage) {
+      setCollectError(errorMessage)
+    }
+  }, [errorMessage])
+
   const handleCollect = async () => {
     if (collecting || !status.canCollect) return
 
@@ -97,10 +103,10 @@ export function DailyDividendsModal({
     hapticSuccess()
 
     setTimeout(async () => {
-      const reward = await onCollect()
+      const { reward, error } = await onCollect()
       if (!reward) {
         setCollecting(false)
-        setCollectError(errorMessage || 'Unable to collect right now. Please try again.')
+        setCollectError(error || errorMessage || 'Unable to collect right now. Please try again.')
         return
       }
 
@@ -217,7 +223,7 @@ export function DailyDividendsModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[90vw] sm:max-w-md p-0 overflow-hidden border-2 border-emerald-500/50 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
         {/* Header */}
-        <DialogHeader className="px-4 pt-5 pb-3 sm:px-6 sm:pt-6 sm:pb-4 bg-gradient-to-b from-emerald-900/40 to-transparent">
+        <DialogHeader className="px-4 pt-10 pb-3 sm:px-6 sm:pt-12 sm:pb-4 bg-gradient-to-b from-emerald-900/40 to-transparent">
           <DialogTitle className="flex items-center gap-3 text-xl sm:text-2xl font-bold text-white">
             <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-emerald-500">
               <TrendUp size={20} weight="bold" />

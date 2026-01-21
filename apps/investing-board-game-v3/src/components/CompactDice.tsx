@@ -36,14 +36,14 @@ export function CompactDice({
           isRolling={isRolling}
           isMoving={false}
           isDoubles={isDoubles}
-          className="scale-75"
+          className="scale-[0.825]"
         />
         <AnimatedDice
           value={dice2}
           isRolling={isRolling}
           isMoving={false}
           isDoubles={isDoubles}
-          className="scale-75"
+          className="scale-[0.825]"
         />
       </div>
 
