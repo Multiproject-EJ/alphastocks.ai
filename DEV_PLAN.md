@@ -179,7 +179,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **M5.8** ✅ Window integration (discounts, flash)
 
 ### M6 — Vault Leveling + Permanent Perks
-- **M6.1** Audit free roll regen (current formula)
+- **M6.1** ✅ Audit free roll regen (current formula)
 - **M6.2** Vault progress tables + UI meter
 - **M6.3** Increment XP on purchase (atomic)
 - **M6.4** Level-up detection + claim records
@@ -225,7 +225,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **M6.1 — Audit free roll regen (current formula)**.
+**Recommended next slice:** **M6.2 — Vault progress tables + UI meter**.
 
 ---
 
@@ -265,3 +265,8 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ## M5.8 Slice Notes (Window integration — discounts, flash)
 - Wired active event shop discounts into Shop 2.0 pricing so vault items respect flash window savings.
 - Added a mobile-first Shop 2.0 flash window banner that highlights live discounts.
+
+## M6.1 Slice Notes (Audit free roll regen)
+- Energy regen uses a 2-hour reset that sets rolls to 30 (capped at 50) via `getResetRollsAmount` and `ENERGY_CONFIG` in `energy.ts`, with checks running every minute in `App.tsx`.
+- Daily rolls remain separate: `DAILY_ROLL_LIMIT` (10) resets at midnight using `rolls_reset_at` in `useGameSave`, while `energy_rolls` persists the per-session regen count.
+- Noted config mismatch: `ENERGY_REGEN_MINUTES` in `constants.ts` is 30 but not used by the regen logic (which is 120 minutes), so future regen perks should standardize on one config source.

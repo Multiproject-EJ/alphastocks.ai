@@ -310,3 +310,19 @@
 1) `cd apps/investing-board-game-v3`  
 2) `VITE_SHOP2=1 npm run dev`  
 3) Trigger a shop discount event (or temporarily set `shopEventDiscount` to a non-zero value) and confirm Shop 2.0 shows the flash window banner and discounted prices.
+
+**Date:** 2026-01-25  
+**Slice:** M6.1 (audit free roll regen)  
+**Summary:**  
+- Audited the current free roll regeneration system, including 2-hour energy resets and daily midnight roll resets.  
+- Captured config mismatches and data flow notes to inform the upcoming regen perk work.  
+
+**Files changed:**  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+1) No runtime changes (documentation-only slice).
