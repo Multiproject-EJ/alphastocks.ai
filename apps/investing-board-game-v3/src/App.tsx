@@ -10,7 +10,6 @@ import { StockModal } from '@/components/StockModal'
 import { EventModal } from '@/components/EventModal'
 import { ThriftyPathModal } from '@/components/ThriftyPathModal'
 import { WildcardEventModal } from '@/components/WildcardEventModal'
-import { PortfolioModal } from '@/components/PortfolioModal'
 import { ProToolsOverlay } from '@/components/ProToolsOverlay'
 import { BiasSanctuaryModal } from '@/components/BiasSanctuaryModal'
 import { CenterCarousel } from '@/components/CenterCarousel'
@@ -60,6 +59,7 @@ const ShopModal = lazy(() => import('@/components/ShopModal'))
 const Shop2Modal = lazy(() => import('@/components/Shop2Modal'))
 const ChallengesModal = lazy(() => import('@/components/ChallengesModal'))
 const EventCalendar = lazy(() => import('@/components/EventCalendar'))
+const PortfolioModal = lazy(() => import('@/components/PortfolioModal'))
 const SettingsModal = lazy(() => import('@/components/SettingsModal'))
 const StockExchangeBuilderModal = lazy(() => import('@/components/StockExchangeBuilderModal'))
 const GamesHub = lazy(() => import('@/pages/GamesHub').then(m => ({ default: m.GamesHub })))

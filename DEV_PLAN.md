@@ -139,6 +139,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **M0.1** ✅ Repo audit (this run)
 - **M0.2** Instrumentation hooks (optional logging, no behavior change)
 - **M0.3** ✅ Wheel of Fortune daily spin cap + reward consistency
+- **M0.4** ✅ Lazy-load Portfolio charts to prevent app boot errors
 
 ### M1 — 3‑Ring Board Rules (Outer/Middle/Inner)
 - **M1.1** Audit ring movement + portal behavior
@@ -279,3 +280,6 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ## M6.3 Slice Notes (Increment XP on purchase)
 - Updated the Shop 2.0 vault purchase RPC to add XP gains per purchase using a price-based formula.
 - Added a shared vault XP helper and wired Shop 2.0 preview purchases to increment local XP alongside ownership.
+
+## M0.4 Slice Notes (Lazy-load Portfolio charts)
+- Lazy-loaded the Portfolio modal so chart dependencies no longer block initial app startup.
