@@ -58,6 +58,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 - **Shop 2.0 entry:** `src/components/Shop2Modal.tsx` (feature-flagged Shop 2.0 preview shell)
 - **Shop 2.0 vault data:** `src/hooks/useShopVaultOverview.ts` + `src/lib/shopVaultFixtures.ts` (season/set overview + fallback fixtures)
 - **Shop 2.0 purchases:** `src/hooks/useShopVaultPurchase.ts` (atomic vault buy + currency spend)
+- **Shop 2.0 windows/discounts:** `src/components/Shop2Modal.tsx` + `src/hooks/useShopVaultPurchase.ts` (event window discount pricing + purchase spend)
 - **Shop 2.0 unlock rules:** `src/hooks/useShopVaultOverview.ts` (set completion gating for the next set)
 - **Animation utilities:** `src/lib/animations.ts`, `src/hooks/useBoardCamera.ts`, `src/hooks/useCameraAnimation.ts`
 
@@ -173,7 +174,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **M5.5** ✅ Atomic purchase function
 - **M5.6** ✅ Set completion + unlock next set
 - **M5.7** ✅ Album completion + mega reward
-- **M5.8** Window integration (discounts, flash)
+- **M5.8** ✅ Window integration (discounts, flash)
 
 ### M6 — Vault Leveling + Permanent Perks
 - **M6.1** Audit free roll regen (current formula)
@@ -222,7 +223,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **M5.8 — Window integration (discounts, flash)**.
+**Recommended next slice:** **M6.1 — Audit free roll regen (current formula)**.
 
 ---
 
@@ -258,3 +259,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ## M5.7 Slice Notes (Album completion + mega reward)
 - Added season-level album completion status to the Shop 2.0 overview data.
 - Surfaced a mega reward callout per season that unlocks once all sets are complete.
+
+## M5.8 Slice Notes (Window integration — discounts, flash)
+- Wired active event shop discounts into Shop 2.0 pricing so vault items respect flash window savings.
+- Added a mobile-first Shop 2.0 flash window banner that highlights live discounts.

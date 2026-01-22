@@ -11,6 +11,12 @@ type UseShopVaultPurchaseParams = {
   setGameState: Dispatch<SetStateAction<GameState>>
 }
 
+const getDiscountedPrice = (price: number, discountPercent: number) => {
+  if (discountPercent <= 0) return price
+  const discounted = price * (1 - discountPercent / 100)
+  return Math.max(1, Math.ceil(discounted))
+}
+
 const formatCurrencyLabel = (currency: VaultItemSummary['currency']) => {
   if (currency === 'cash') return 'cash'
   if (currency === 'stars') return 'stars'
@@ -22,7 +28,7 @@ export function useShopVaultPurchase({ gameState, setGameState }: UseShopVaultPu
   const [isPurchasing, setIsPurchasing] = useState(false)
 
   const purchaseVaultItem = useCallback(
-    async (item: VaultItemSummary): Promise<boolean> => {
+    async (item: VaultItemSummary, discountPercent = 0): Promise<boolean> => {
       if (item.isOwned) {
         toast.info('Already owned', {
           description: `${item.name} is already in your collection.`,
@@ -30,15 +36,17 @@ export function useShopVaultPurchase({ gameState, setGameState }: UseShopVaultPu
         return false
       }
 
+      const finalPrice = getDiscountedPrice(item.price, discountPercent)
+
       const balance = item.currency === 'cash'
         ? gameState.cash
         : item.currency === 'stars'
         ? gameState.stars
         : gameState.coins
 
-      if (balance < item.price) {
+      if (balance < finalPrice) {
         toast.error(`Not enough ${formatCurrencyLabel(item.currency)}`, {
-          description: `You need ${item.price.toLocaleString()} ${formatCurrencyLabel(item.currency)}.`,
+          description: `You need ${finalPrice.toLocaleString()} ${formatCurrencyLabel(item.currency)}.`,
         })
         return false
       }
@@ -65,16 +73,18 @@ export function useShopVaultPurchase({ gameState, setGameState }: UseShopVaultPu
 
         setGameState((prev) => {
           if (item.currency === 'cash') {
-            return { ...prev, cash: prev.cash - item.price }
+            return { ...prev, cash: prev.cash - finalPrice }
           }
           if (item.currency === 'stars') {
-            return { ...prev, stars: prev.stars - item.price }
+            return { ...prev, stars: prev.stars - finalPrice }
           }
-          return { ...prev, coins: prev.coins - item.price }
+          return { ...prev, coins: prev.coins - finalPrice }
         })
 
         toast.success('Vault item secured!', {
-          description: `${item.name} has been added to your vault.`,
+          description: discountPercent > 0
+            ? `${item.name} has been added to your vault with ${discountPercent}% off.`
+            : `${item.name} has been added to your vault.`,
         })
         return true
       } catch (err) {
