@@ -172,7 +172,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **M5.4** ✅ Set detail UI (4×3)
 - **M5.5** ✅ Atomic purchase function
 - **M5.6** ✅ Set completion + unlock next set
-- **M5.7** Album completion + mega reward
+- **M5.7** ✅ Album completion + mega reward
 - **M5.8** Window integration (discounts, flash)
 
 ### M6 — Vault Leveling + Permanent Perks
@@ -222,7 +222,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **M5.7 — Album completion + mega reward**.
+**Recommended next slice:** **M5.8 — Window integration (discounts, flash)**.
 
 ---
 
@@ -254,3 +254,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ## M5.6 Slice Notes (Set completion + unlock next set)
 - Added sequential unlock logic so each Vault set opens after the prior set completes.
 - Updated the Shop 2.0 UI to surface locked sets, default to the next available set, and block purchases on locked collections.
+
+## M5.7 Slice Notes (Album completion + mega reward)
+- Added season-level album completion status to the Shop 2.0 overview data.
+- Surfaced a mega reward callout per season that unlocks once all sets are complete.

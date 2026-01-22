@@ -52,6 +52,7 @@ export type VaultSeasonSummary = {
   isActive: boolean
   setsTotal: number
   setsCompleted: number
+  isComplete: boolean
   sets: VaultSetSummary[]
 }
 
@@ -220,6 +221,7 @@ const buildOverview = (
       })
       const setsTotal = seasonSets.length
       const setsCompleted = seasonSets.filter((set) => set.isComplete).length
+      const isComplete = setsTotal > 0 && setsCompleted >= setsTotal
       return {
         id: season.id,
         code: season.code,
@@ -229,6 +231,7 @@ const buildOverview = (
         isActive: season.isActive,
         setsTotal,
         setsCompleted,
+        isComplete,
         sets: seasonSets,
       }
     })
