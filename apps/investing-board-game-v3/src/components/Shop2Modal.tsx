@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useState } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { useResponsiveDialogClass } from '@/hooks/useResponsiveDialogClass'
@@ -12,7 +13,23 @@ interface Shop2ModalProps {
 
 export function Shop2Modal({ open, onOpenChange, gameState }: Shop2ModalProps) {
   const dialogClass = useResponsiveDialogClass('full')
-  const { seasons, loading, error, source } = useShopVaultOverview()
+  const { seasons, loading, error, source, setDetails } = useShopVaultOverview()
+  const [selectedSetId, setSelectedSetId] = useState<string | null>(null)
+
+  const defaultSetId = useMemo(() => seasons[0]?.sets[0]?.id ?? null, [seasons])
+  const selectedSet = selectedSetId ? setDetails[selectedSetId] : null
+
+  useEffect(() => {
+    if (!selectedSetId && defaultSetId) {
+      setSelectedSetId(defaultSetId)
+    }
+  }, [defaultSetId, selectedSetId])
+
+  const formatCurrency = (currency: string) => {
+    if (currency === 'cash') return '$'
+    if (currency === 'stars') return '⭐'
+    return '🪙'
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -119,9 +136,15 @@ export function Shop2Modal({ open, onOpenChange, gameState }: Shop2ModalProps) {
                                   ? Math.round((set.itemsOwned / set.itemsTotal) * 100)
                                   : 0
                               return (
-                                <div
+                                <button
+                                  type="button"
                                   key={set.id}
-                                  className="rounded-xl border border-border/70 bg-muted/30 p-3"
+                                  onClick={() => setSelectedSetId(set.id)}
+                                  className={`rounded-xl border p-3 text-left transition ${
+                                    selectedSetId === set.id
+                                      ? 'border-accent bg-accent/10 shadow-sm'
+                                      : 'border-border/70 bg-muted/30 hover:border-accent/60'
+                                  }`}
                                 >
                                   <div className="flex items-center justify-between gap-2">
                                     <div>
@@ -146,7 +169,7 @@ export function Shop2Modal({ open, onOpenChange, gameState }: Shop2ModalProps) {
                                     <span>{setProgress}% collected</span>
                                     <span>{set.isComplete ? 'Set complete' : 'In progress'}</span>
                                   </div>
-                                </div>
+                                </button>
                               )
                             })}
                           </div>
@@ -156,6 +179,57 @@ export function Shop2Modal({ open, onOpenChange, gameState }: Shop2ModalProps) {
                   </div>
                 )}
               </div>
+
+              {selectedSet && (
+                <div className="rounded-2xl border border-border bg-background/70 p-4">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <div className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                        {selectedSet.code} Set Detail
+                      </div>
+                      <h3 className="mt-2 text-lg font-semibold text-foreground">
+                        {selectedSet.name}
+                      </h3>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        {selectedSet.description}
+                      </p>
+                    </div>
+                    <span className="rounded-full bg-accent/15 px-2 py-1 text-[11px] font-semibold text-accent">
+                      {selectedSet.itemsOwned}/{selectedSet.itemsTotal} collected
+                    </span>
+                  </div>
+
+                  <div className="mt-4 grid grid-cols-4 gap-2">
+                    {selectedSet.items.map((item) => (
+                      <div
+                        key={item.id}
+                        className={`rounded-xl border p-2 text-center text-[10px] ${
+                          item.isOwned
+                            ? 'border-accent/60 bg-accent/10'
+                            : 'border-border/70 bg-muted/30'
+                        }`}
+                      >
+                        <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-lg bg-background/80 text-lg">
+                          {item.icon}
+                        </div>
+                        <div className="mt-2 font-semibold text-foreground truncate">
+                          {item.name}
+                        </div>
+                        <div className="mt-1 text-[10px] text-muted-foreground">
+                          {formatCurrency(item.currency)}
+                          {item.price.toLocaleString()}
+                        </div>
+                        <div className="mt-1 text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
+                          {item.rarity}
+                        </div>
+                        <div className="mt-1 text-[10px] font-semibold text-accent">
+                          {item.isOwned ? 'Owned' : 'Missing'}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <div className="rounded-2xl border border-border bg-muted/40 p-4">
                 <h3 className="text-base font-semibold text-foreground">Stars Balance</h3>

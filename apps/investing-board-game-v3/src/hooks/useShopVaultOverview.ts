@@ -19,6 +19,28 @@ export type VaultSetSummary = {
   isComplete: boolean
 }
 
+export type VaultItemSummary = {
+  id: string
+  name: string
+  description: string
+  icon: string
+  price: number
+  currency: 'cash' | 'stars' | 'coins'
+  rarity: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary'
+  isOwned: boolean
+}
+
+export type VaultSetDetail = {
+  id: string
+  code: string
+  name: string
+  description: string
+  itemsTotal: number
+  itemsOwned: number
+  isComplete: boolean
+  items: VaultItemSummary[]
+}
+
 export type VaultSeasonSummary = {
   id: string
   code: string
@@ -33,6 +55,7 @@ export type VaultSeasonSummary = {
 
 type VaultOverview = {
   seasons: VaultSeasonSummary[]
+  setDetails: Record<string, VaultSetDetail>
   loading: boolean
   error: string | null
   source: 'supabase' | 'mock'
@@ -163,9 +186,52 @@ const buildOverview = (
     })
 }
 
+const buildSetDetails = (
+  sets: VaultSetRecord[],
+  items: VaultItemRecord[],
+  ownership: VaultOwnershipRecord[]
+): Record<string, VaultSetDetail> => {
+  const ownedSet = new Set(ownership.map((record) => record.itemId))
+  const itemsBySet = items
+    .filter((item) => item.isActive)
+    .reduce<Record<string, VaultItemRecord[]>>((acc, item) => {
+      acc[item.setId] = acc[item.setId] ? [...acc[item.setId], item] : [item]
+      return acc
+    }, {})
+
+  return sets
+    .filter((set) => set.isActive)
+    .reduce<Record<string, VaultSetDetail>>((acc, set) => {
+      const setItems = itemsBySet[set.id] ?? []
+      const itemsOwned = setItems.filter((item) => ownedSet.has(item.id)).length
+      const itemsTotal = setItems.length
+      acc[set.id] = {
+        id: set.id,
+        code: set.code,
+        name: set.name,
+        description: set.description,
+        itemsTotal,
+        itemsOwned,
+        isComplete: itemsTotal > 0 && itemsOwned >= itemsTotal,
+        items: setItems.map((item) => ({
+          id: item.id,
+          name: item.name,
+          description: item.description,
+          icon: item.icon,
+          price: item.price,
+          currency: item.currency,
+          rarity: item.rarity,
+          isOwned: ownedSet.has(item.id),
+        })),
+      }
+      return acc
+    }, {})
+}
+
 export function useShopVaultOverview(): VaultOverview {
   const { user } = useAuth()
   const [seasons, setSeasons] = useState<VaultSeasonSummary[]>([])
+  const [setDetails, setSetDetails] = useState<Record<string, VaultSetDetail>>({})
   const [loading, setLoading] = useState<boolean>(hasSupabaseConfig)
   const [error, setError] = useState<string | null>(null)
   const [source, setSource] = useState<'supabase' | 'mock'>(hasSupabaseConfig ? 'supabase' : 'mock')
@@ -179,11 +245,20 @@ export function useShopVaultOverview(): VaultOverview {
     )
   }, [])
 
+  const fixtureSetDetails = useMemo(() => {
+    return buildSetDetails(
+      VAULT_FIXTURE_DATA.sets,
+      VAULT_FIXTURE_DATA.items,
+      VAULT_FIXTURE_DATA.ownership
+    )
+  }, [])
+
   useEffect(() => {
     if (!supabaseClient || !hasSupabaseConfig) {
       setLoading(false)
       setSource('mock')
       setSeasons(fixtureOverview)
+      setSetDetails(fixtureSetDetails)
       return
     }
 
@@ -226,6 +301,7 @@ export function useShopVaultOverview(): VaultOverview {
         )
         setSource('mock')
         setSeasons(fixtureOverview)
+        setSetDetails(fixtureSetDetails)
         setLoading(false)
         return
       }
@@ -238,7 +314,9 @@ export function useShopVaultOverview(): VaultOverview {
       }))
 
       const overview = buildOverview(normalizedSeasons, normalizedSets, normalizedItems, normalizedOwnership)
+      const details = buildSetDetails(normalizedSets, normalizedItems, normalizedOwnership)
       setSeasons(overview.length > 0 ? overview : fixtureOverview)
+      setSetDetails(Object.keys(details).length > 0 ? details : fixtureSetDetails)
       setSource(overview.length > 0 ? 'supabase' : 'mock')
       setLoading(false)
     }
@@ -248,10 +326,11 @@ export function useShopVaultOverview(): VaultOverview {
     return () => {
       isActive = false
     }
-  }, [fixtureOverview, user])
+  }, [fixtureOverview, fixtureSetDetails, user])
 
   return {
     seasons,
+    setDetails,
     loading,
     error,
     source,

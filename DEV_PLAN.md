@@ -166,7 +166,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **M5.1** ✅ Shop2 feature flag + routes
 - **M5.2** ✅ Supabase schema for seasons/sets/items/progress
 - **M5.3** ✅ Vault overview UI
-- **M5.4** Set detail UI (4×3)
+- **M5.4** ✅ Set detail UI (4×3)
 - **M5.5** Atomic purchase function
 - **M5.6** Set completion + unlock next set
 - **M5.7** Album completion + mega reward
@@ -219,7 +219,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **M5.4 — Set detail UI (4×3)**.
+**Recommended next slice:** **M5.5 — Atomic purchase function**.
 
 ---
 
@@ -239,3 +239,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ## M5.3 Slice Notes (Vault overview UI)
 - Wired the Shop 2.0 modal to show seasons, sets, and collection progress using live Supabase data with fixture fallback.
 - Added season/set progress cards that stay mobile-first and preview-ready when Supabase isn’t configured.
+
+## M5.4 Slice Notes (Set detail UI)
+- Added a set detail panel with a 4×3 item grid to preview collectible tiles, ownership status, rarity, and pricing.
+- Updated Shop 2.0 selection flow to highlight the active set and keep a default selection when data loads.

@@ -186,3 +186,23 @@
 1) `cd apps/investing-board-game-v3`  
 2) `VITE_SHOP2=1 npm run dev`  
 3) Open the Shop overlay and verify the Vault Overview card renders seasons and sets.
+
+**Date:** 2026-01-22  
+**Slice:** M5.4 (set detail UI)  
+**Summary:**  
+- Added a Shop 2.0 set detail panel with a 4×3 item grid, ownership status, rarity, and pricing callouts.  
+- Updated the Shop 2.0 preview flow to highlight and persist the selected set once data loads.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/components/Shop2Modal.tsx  
+- apps/investing-board-game-v3/src/hooks/useShopVaultOverview.ts  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+1) `cd apps/investing-board-game-v3`  
+2) `VITE_SHOP2=1 npm run dev`  
+3) Open the Shop overlay and select a set; confirm the 4×3 grid appears with owned vs missing states.
