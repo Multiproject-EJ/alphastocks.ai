@@ -55,6 +55,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 - **State management/store:** Local React state in `src/App.tsx` plus contexts in `src/context/*` (Auth, Overlay, UI Mode); custom hooks in `src/hooks/*`
 - **Game loop entry:** `src/App.tsx` (dice roll → `calculateMovement` in `src/lib/movementEngine.ts`), board data in `src/lib/mockData.ts`
 - **UI components:** `src/components/*` (board, modals, overlays), shop UI in `src/components/ShopModal.tsx` + `src/components/shop/*` (mobile shop shell, property vault album cards)
+- **Shop 2.0 entry:** `src/components/Shop2Modal.tsx` (feature-flagged Shop 2.0 preview shell)
 - **Animation utilities:** `src/lib/animations.ts`, `src/hooks/useBoardCamera.ts`, `src/hooks/useCameraAnimation.ts`
 
 #### PWA
@@ -160,7 +161,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 
 ### M5 — Vault Album Shop (Shop 2.0)
 - **M5.0** ✅ Audit existing shop & decide flag vs in-place
-- **M5.1** Shop2 feature flag + routes
+- **M5.1** ✅ Shop2 feature flag + routes
 - **M5.2** Supabase schema for seasons/sets/items/progress
 - **M5.3** Vault overview UI
 - **M5.4** Set detail UI (4×3)
@@ -216,7 +217,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **M5.1 — Shop2 feature flag + routes** (stand up the flag + entry point without removing legacy shop).
+**Recommended next slice:** **M5.2 — Supabase schema for seasons/sets/items/progress** (define Shop 2.0 data tables).
 
 ---
 

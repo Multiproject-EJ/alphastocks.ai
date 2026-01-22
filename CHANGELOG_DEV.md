@@ -3,6 +3,28 @@
 ## Unreleased
 
 **Date:** 2026-01-21  
+**Slice:** M5.1 (Shop2 feature flag + routes)  
+**Summary:**  
+- Added a Shop 2.0 feature flag and wired shop overlays to route to the new Shop2 modal when enabled.  
+- Introduced the Shop 2.0 preview modal shell and registered it in the overlay registry.  
+- Updated the DEV_PLAN repo map and next-slice guidance for Shop 2.0 follow-up work.
+
+**Files changed:**  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+- apps/investing-board-game-v3/src/App.tsx  
+- apps/investing-board-game-v3/src/components/Shop2Modal.tsx  
+- apps/investing-board-game-v3/src/components/UIModeOverlayBridge.tsx  
+- apps/investing-board-game-v3/src/lib/featureFlags.ts  
+- apps/investing-board-game-v3/src/lib/overlayRegistry.ts
+
+**SQL migrations:**  
+- (none)
+
+**How to test:**  
+1) Not run (not requested).
+
+**Date:** 2026-01-21  
 **Slice:** M0.1  
 **Summary:**  
 - Completed repo audit and captured a master DEV_PLAN with repo map, current-vs-target, and next-slice guidance.

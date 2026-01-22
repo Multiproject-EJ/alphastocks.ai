@@ -9,10 +9,10 @@ import { useEffect, useRef, lazy } from 'react'
 import { useUIMode } from '@/hooks/useUIMode'
 import { useOverlayManager } from '@/hooks/useOverlayManager'
 import type { UIMode } from '@/lib/uiModeStateMachine'
+import { SHOP2_ENABLED } from '@/lib/featureFlags'
 
 // Map UI modes to overlay IDs
 const MODE_TO_OVERLAY_MAP: Partial<Record<UIMode, string>> = {
-  shop: 'shop',
   stockExchangeBuilder: 'stockExchangeBuilder',
   gallery: 'netWorthGallery',
   leaderboard: 'leaderboard',
@@ -23,6 +23,13 @@ const MODE_TO_OVERLAY_MAP: Partial<Record<UIMode, string>> = {
   portfolio: 'portfolio',
   hub: 'hub',
   // board mode doesn't have an overlay
+}
+
+const getOverlayIdForMode = (mode: UIMode): string | undefined => {
+  if (mode === 'shop') {
+    return SHOP2_ENABLED ? 'shop2' : 'shop'
+  }
+  return MODE_TO_OVERLAY_MAP[mode]
 }
 
 interface UIModeOverlayBridgeProps {
@@ -69,7 +76,7 @@ export function UIModeOverlayBridge({
     }
 
     // Get overlay ID for this mode
-    const overlayId = MODE_TO_OVERLAY_MAP[mode]
+    const overlayId = getOverlayIdForMode(mode)
     if (!overlayId) {
       console.warn('[UIModeOverlayBridge] No overlay mapping for mode:', mode)
       return
@@ -91,7 +98,9 @@ export function UIModeOverlayBridge({
 
     switch (mode) {
       case 'shop':
-        component = lazy(() => import('@/components/ShopModal'))
+        component = SHOP2_ENABLED
+          ? lazy(() => import('@/components/Shop2Modal'))
+          : lazy(() => import('@/components/ShopModal'))
         props = shopProps || {}
         break
       case 'stockExchangeBuilder':

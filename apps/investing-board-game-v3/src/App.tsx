@@ -40,6 +40,7 @@ import { QuickCelebration } from '@/components/QuickCelebration'
 import { WheelOfFortuneModal } from '@/components/WheelOfFortuneModal'
 import { VaultHeistModal } from '@/components/VaultHeistModal'
 import { ThroneVictoryModal } from '@/components/ThroneVictoryModal'
+import { SHOP2_ENABLED } from '@/lib/featureFlags'
 
 // Mobile-first components
 import { MobileGameLayout } from '@/components/MobileGameLayout'
@@ -56,11 +57,15 @@ import { PhoneLayout } from '@/components/phone/PhoneLayout'
 
 // Lazy load heavy modals for better performance
 const ShopModal = lazy(() => import('@/components/ShopModal'))
+const Shop2Modal = lazy(() => import('@/components/Shop2Modal'))
 const ChallengesModal = lazy(() => import('@/components/ChallengesModal'))
 const EventCalendar = lazy(() => import('@/components/EventCalendar'))
 const SettingsModal = lazy(() => import('@/components/SettingsModal'))
 const StockExchangeBuilderModal = lazy(() => import('@/components/StockExchangeBuilderModal'))
 const GamesHub = lazy(() => import('@/pages/GamesHub').then(m => ({ default: m.GamesHub })))
+
+const SHOP_OVERLAY_ID = SHOP2_ENABLED ? 'shop2' : 'shop'
+const SHOP_OVERLAY_COMPONENT = SHOP2_ENABLED ? Shop2Modal : ShopModal
 
 // DevTools components (only in dev mode)
 const TapTestOverlay = import.meta.env.DEV || import.meta.env.VITE_DEVTOOLS === '1' 
@@ -940,8 +945,8 @@ function App() {
 
   const openShopOverlay = useCallback(() => {
     showOverlay({
-      id: 'shop',
-      component: lazy(() => import('@/components/ShopModal')),
+      id: SHOP_OVERLAY_ID,
+      component: SHOP_OVERLAY_COMPONENT,
       props: {
         gameState,
         onPurchase: purchaseItem,
@@ -1296,10 +1301,10 @@ function App() {
           }
         })
       } else if (section === 'shop') {
-        logEvent?.('modal_opened', { modal: 'shop' })
+        logEvent?.('modal_opened', { modal: SHOP_OVERLAY_ID })
         showOverlay({
-          id: 'shop',
-          component: lazy(() => import('@/components/ShopModal')),
+          id: SHOP_OVERLAY_ID,
+          component: SHOP_OVERLAY_COMPONENT,
           props: {
             gameState,
             onPurchase: purchaseItem,
@@ -1312,7 +1317,7 @@ function App() {
           },
           priority: 'normal',
           onClose: () => {
-            logEvent?.('modal_closed', { modal: 'shop' })
+            logEvent?.('modal_closed', { modal: SHOP_OVERLAY_ID })
             // Return to board mode when closing
             transitionUIMode('board')
           }

@@ -22,6 +22,7 @@ import { AchievementNotification } from '@/components/AchievementNotification'
 
 // Lazy-loaded modals for better performance
 const ShopModal = lazy(() => import('@/components/ShopModal'))
+const Shop2Modal = lazy(() => import('@/components/Shop2Modal'))
 const ChallengesModal = lazy(() => import('@/components/ChallengesModal'))
 const EventCalendar = lazy(() => import('@/components/EventCalendar'))
 const SettingsModal = lazy(() => import('@/components/SettingsModal'))
@@ -38,6 +39,7 @@ export const OVERLAY_REGISTRY = {
   'biasSanctuary': BiasSanctuaryModal,
   'casino': CasinoModal,
   'shop': ShopModal,
+  'shop2': Shop2Modal,
   'challenges': ChallengesModal,
   'eventCalendar': EventCalendar,
   'netWorthGallery': NetWorthGalleryModal,
