@@ -2,6 +2,24 @@
 
 ## Unreleased
 
+**Date:** 2026-01-22  
+**Slice:** M0.3 (Wheel of Fortune daily spin cap + reward consistency)  
+**Summary:**  
+- Added a 3–5 spin daily cap for the Wheel of Fortune, with per-day persistence and UI feedback on remaining spins.  
+- Ensured wheel rewards always apply to game currencies (rolls, XP, cash, stars, coins) and mystery spins resolve into a concrete reward.  
+
+**Files changed:**  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+- apps/investing-board-game-v3/src/App.tsx  
+- apps/investing-board-game-v3/src/components/WheelOfFortuneModal.tsx  
+
+**SQL migrations:**  
+- (none)
+
+**How to test:**  
+1) Not run (not requested).  
+
 **Date:** 2026-01-21  
 **Slice:** M5.2 (Shop 2.0 Supabase schema)  
 **Summary:**  

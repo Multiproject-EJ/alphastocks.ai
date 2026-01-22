@@ -32,6 +32,8 @@ interface WheelOfFortuneModalProps {
   onClose: () => void
   coins: number
   currentRing: 1 | 2 | 3
+  spinsRemaining: number
+  spinsLimit: number
   freeSpinsRemaining: number
   onSpinComplete: (prize: WheelSegment, multipliedValue: number) => void
   onSpendCoins: (amount: number) => boolean
@@ -43,6 +45,8 @@ export function WheelOfFortuneModal({
   onClose,
   coins,
   currentRing,
+  spinsRemaining,
+  spinsLimit,
   freeSpinsRemaining,
   onSpinComplete,
   onSpendCoins,
@@ -55,6 +59,31 @@ export function WheelOfFortuneModal({
 
   const ringMultiplier = currentRing === 3 ? 10 : currentRing === 2 ? 3 : 1
   const spinCost = freeSpinsRemaining > 0 ? 0 : 50
+
+  const resolveMysteryReward = useCallback((): WheelSegment => {
+    const options: Array<Pick<WheelSegment, 'type' | 'value' | 'emoji' | 'label'>> = [
+      { type: 'coins', value: 50, label: '50', emoji: '🪙' },
+      { type: 'stars', value: 25, label: '25', emoji: '⭐' },
+      { type: 'cash', value: 500, label: '$500', emoji: '💵' },
+      { type: 'coins', value: 100, label: '100', emoji: '🪙' },
+      { type: 'xp', value: 50, label: '50', emoji: '⚡' },
+      { type: 'stars', value: 50, label: '50', emoji: '⭐' },
+      { type: 'rolls', value: 2, label: '+2', emoji: '🎲' },
+      { type: 'cash', value: 1000, label: '$1K', emoji: '💵' },
+    ]
+
+    const selection = options[Math.floor(Math.random() * options.length)]
+
+    return {
+      id: `mystery-${selection.type}-${selection.value}`,
+      label: selection.label,
+      emoji: selection.emoji,
+      value: selection.value,
+      type: selection.type,
+      color: '#EC4899',
+      weight: 0,
+    }
+  }, [])
 
   const selectWinningSegment = useCallback((): WheelSegment => {
     const totalWeight = WHEEL_SEGMENTS.reduce((sum, seg) => sum + seg.weight, 0)
@@ -70,6 +99,11 @@ export function WheelOfFortuneModal({
   const handleSpin = useCallback(() => {
     if (isSpinning) return
     
+    if (spinsRemaining <= 0) {
+      playSound('error')
+      return
+    }
+
     // Check if player can afford spin
     if (spinCost > 0 && !onSpendCoins(spinCost)) {
       playSound('error')
@@ -97,18 +131,18 @@ export function WheelOfFortuneModal({
     setTimeout(() => {
       setIsSpinning(false)
       
-      // Calculate multiplied prize
-      const multipliedValue = winner.type === 'spin-again' || winner.type === 'mystery'
-        ? winner.value
-        : winner.value * ringMultiplier
+      const resolvedSegment = winner.type === 'mystery' ? resolveMysteryReward() : winner
+      const multipliedValue = resolvedSegment.type === 'spin-again' || resolvedSegment.type === 'mystery'
+        ? resolvedSegment.value
+        : resolvedSegment.value * ringMultiplier
 
-      setLastWin({ segment: winner, value: multipliedValue })
+      setLastWin({ segment: resolvedSegment, value: multipliedValue })
       setShowWinCelebration(true)
 
       // Play appropriate sound
       if (winner.type === 'jackpot') {
         playSound('mega-jackpot')
-      } else if (winner.value >= 100 || winner.type === 'mystery') {
+      } else if (resolvedSegment.value >= 100 || resolvedSegment.type === 'mystery') {
         playSound('big-win')
       } else {
         playSound('cha-ching')
@@ -119,9 +153,9 @@ export function WheelOfFortuneModal({
         // Give free spin - handled by parent
       }
 
-      onSpinComplete(winner, multipliedValue)
+      onSpinComplete(resolvedSegment, multipliedValue)
     }, spinDuration)
-  }, [isSpinning, spinCost, onSpendCoins, selectWinningSegment, ringMultiplier, playSound, onSpinComplete])
+  }, [isSpinning, spinsRemaining, spinCost, onSpendCoins, selectWinningSegment, ringMultiplier, playSound, onSpinComplete, resolveMysteryReward])
 
   if (!isOpen) return null
 
@@ -152,7 +186,7 @@ export function WheelOfFortuneModal({
           </h2>
           <div className="flex items-center justify-center gap-1 text-purple-300 text-sm mt-1">
             <Clock className="w-4 h-4" />
-            <span>Come back tomorrow for another spin.</span>
+            <span>{spinsRemaining} of {spinsLimit} spins left today.</span>
           </div>
           {ringMultiplier > 1 && (
             <div className="mt-2 inline-block px-3 py-1 bg-yellow-500/20 rounded-full text-yellow-300 text-sm font-bold">
@@ -261,17 +295,21 @@ export function WheelOfFortuneModal({
         <div className="p-4 border-t border-purple-500/30">
           <button
             onClick={handleSpin}
-            disabled={isSpinning || (spinCost > 0 && coins < spinCost)}
+            disabled={isSpinning || spinsRemaining <= 0 || (spinCost > 0 && coins < spinCost)}
             className={`w-full py-4 rounded-xl font-bold text-xl transition-all transform
               ${isSpinning 
                 ? 'bg-gray-600 text-gray-400 cursor-not-allowed' 
-                : spinCost > 0 && coins < spinCost
+                : spinsRemaining <= 0
+                  ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                  : spinCost > 0 && coins < spinCost
                   ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
                   : 'bg-gradient-to-r from-yellow-400 to-amber-500 text-black hover:scale-105 hover:shadow-lg active:scale-95'
               }`}
           >
             {isSpinning ? (
               '🎡 Spinning...'
+            ) : spinsRemaining <= 0 ? (
+              '⏳ Spins Refill Tomorrow'
             ) : freeSpinsRemaining > 0 ? (
               `🎰 SPIN FREE! (${freeSpinsRemaining} left)`
             ) : (

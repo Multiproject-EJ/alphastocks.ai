@@ -80,8 +80,14 @@ if (import.meta.env.DEV || import.meta.env.VITE_DEVTOOLS === '1') {
   })
 }
 
-const DAILY_SPIN_STORAGE_KEY = 'dailySpinDate'
+const DAILY_WHEEL_SPIN_DATE_KEY = 'dailyWheelSpinDate'
+const DAILY_WHEEL_SPIN_LIMIT_KEY = 'dailyWheelSpinLimit'
+const DAILY_WHEEL_SPIN_USED_KEY = 'dailyWheelSpinUsed'
+const DAILY_WHEEL_SPIN_MIN = 3
+const DAILY_WHEEL_SPIN_MAX = 5
 const getTodayKey = () => new Date().toLocaleDateString('en-CA')
+const getRandomDailyWheelSpinLimit = () =>
+  Math.floor(Math.random() * (DAILY_WHEEL_SPIN_MAX - DAILY_WHEEL_SPIN_MIN + 1)) + DAILY_WHEEL_SPIN_MIN
 
 import { GameState, Stock, BiasCaseStudy, WildcardEvent, PortalTransition, RingNumber, Tile as TileType } from '@/lib/types'
 import { RealMoneyRollsPack } from '@/components/OutOfRollsModal'
@@ -419,7 +425,8 @@ function App() {
   // Wheel of Fortune state
   const [isWheelOpen, setIsWheelOpen] = useState(false)
   const [freeWheelSpins, setFreeWheelSpins] = useState(1)
-  const [lastDailySpinDate, setLastDailySpinDate] = useState<string | null>(null)
+  const [dailyWheelSpinLimit, setDailyWheelSpinLimit] = useState(DAILY_WHEEL_SPIN_MIN)
+  const [dailyWheelSpinsUsed, setDailyWheelSpinsUsed] = useState(0)
   const [todayKey, setTodayKey] = useState(() => getTodayKey())
 
   // Vault Heist state
@@ -432,16 +439,42 @@ function App() {
   const [isMobile, setIsMobile] = useState(false)
   const [dynamicRadius, setDynamicRadius] = useState<number | undefined>(undefined)
 
-  useEffect(() => {
+  const resetDailyWheelSpins = useCallback((dateKey: string) => {
+    const newLimit = getRandomDailyWheelSpinLimit()
+    setDailyWheelSpinLimit(newLimit)
+    setDailyWheelSpinsUsed(0)
+    setFreeWheelSpins(1)
     try {
-      const storedDate = localStorage.getItem(DAILY_SPIN_STORAGE_KEY)
-      if (storedDate) {
-        setLastDailySpinDate(storedDate)
-      }
+      localStorage.setItem(DAILY_WHEEL_SPIN_DATE_KEY, dateKey)
+      localStorage.setItem(DAILY_WHEEL_SPIN_LIMIT_KEY, String(newLimit))
+      localStorage.setItem(DAILY_WHEEL_SPIN_USED_KEY, '0')
     } catch {
       // Ignore storage access errors
     }
   }, [])
+
+  useEffect(() => {
+    try {
+      const storedDate = localStorage.getItem(DAILY_WHEEL_SPIN_DATE_KEY)
+      const storedLimit = Number(localStorage.getItem(DAILY_WHEEL_SPIN_LIMIT_KEY))
+      const storedUsed = Number(localStorage.getItem(DAILY_WHEEL_SPIN_USED_KEY))
+      const hasValidLimit = Number.isFinite(storedLimit)
+        && storedLimit >= DAILY_WHEEL_SPIN_MIN
+        && storedLimit <= DAILY_WHEEL_SPIN_MAX
+
+      if (storedDate === todayKey && hasValidLimit) {
+        const safeUsed = Number.isFinite(storedUsed)
+          ? Math.min(Math.max(storedUsed, 0), storedLimit)
+          : 0
+        setDailyWheelSpinLimit(storedLimit)
+        setDailyWheelSpinsUsed(safeUsed)
+      } else {
+        resetDailyWheelSpins(todayKey)
+      }
+    } catch {
+      resetDailyWheelSpins(todayKey)
+    }
+  }, [todayKey, resetDailyWheelSpins])
 
   useEffect(() => {
     const interval = window.setInterval(() => {
@@ -452,16 +485,22 @@ function App() {
     return () => window.clearInterval(interval)
   }, [])
 
-  const dailySpinAvailable = lastDailySpinDate !== todayKey
+  const dailyWheelSpinsRemaining = Math.max(0, dailyWheelSpinLimit - dailyWheelSpinsUsed)
+  const dailySpinAvailable = dailyWheelSpinsRemaining > 0
 
   const markDailySpinUsed = useCallback(() => {
-    setLastDailySpinDate(todayKey)
-    try {
-      localStorage.setItem(DAILY_SPIN_STORAGE_KEY, todayKey)
-    } catch {
-      // Ignore storage access errors
-    }
-  }, [todayKey])
+    setDailyWheelSpinsUsed(prev => {
+      const next = Math.min(prev + 1, dailyWheelSpinLimit)
+      try {
+        localStorage.setItem(DAILY_WHEEL_SPIN_DATE_KEY, todayKey)
+        localStorage.setItem(DAILY_WHEEL_SPIN_LIMIT_KEY, String(dailyWheelSpinLimit))
+        localStorage.setItem(DAILY_WHEEL_SPIN_USED_KEY, String(next))
+      } catch {
+        // Ignore storage access errors
+      }
+      return next
+    })
+  }, [dailyWheelSpinLimit, todayKey])
 
   // Calculate viewport-aware radius for desktop to fit all tiles
   const calculateFittingRadius = useCallback(() => {
@@ -3109,13 +3148,20 @@ function App() {
         })
         break
       case 'rolls':
-        setRollsRemaining(prev => prev + value)
+        setRollsRemaining(prev => Math.min(prev + value, ENERGY_MAX))
+        setGameState(prev => ({
+          ...prev,
+          energyRolls: Math.min((prev.energyRolls ?? DAILY_ROLL_LIMIT) + value, ENERGY_MAX)
+        }))
         showToast('success', `🎡 Wheel Win!`, {
           description: `+${value} dice rolls! 🎲`
         })
         break
       case 'xp':
-        // Add XP (for now just show toast, can be enhanced later)
+        setGameState(prev => ({
+          ...prev,
+          xp: (prev.xp ?? 0) + value,
+        }))
         showToast('success', `🎡 Wheel Win!`, {
           description: `+${value} XP! ⚡`
         })
@@ -3124,12 +3170,6 @@ function App() {
         setFreeWheelSpins(prev => prev + 1)
         showToast('success', `🎡 Wheel Win!`, {
           description: `Free spin awarded! 🔄`
-        })
-        break
-      case 'mystery':
-        // Trigger mystery box (for now just show toast)
-        showToast('success', `🎡 Wheel Win!`, {
-          description: `Mystery box unlocked! 💎`
         })
         break
       case 'jackpot':
@@ -4179,9 +4219,14 @@ function App() {
         onClose={() => setIsWheelOpen(false)}
         coins={gameState.coins}
         currentRing={gameState.currentRing as 1 | 2 | 3}
+        spinsRemaining={dailyWheelSpinsRemaining}
+        spinsLimit={dailyWheelSpinLimit}
         freeSpinsRemaining={freeWheelSpins}
         onSpinComplete={handleWheelSpinComplete}
         onSpendCoins={(amount) => {
+          if (dailyWheelSpinsRemaining <= 0) {
+            return false
+          }
           // If spending coins (not free), proceed with coin deduction
           if (amount > 0) {
             if (gameState.coins >= amount) {
