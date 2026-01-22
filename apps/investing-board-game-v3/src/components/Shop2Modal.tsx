@@ -26,7 +26,13 @@ export function Shop2Modal({
   const [selectedSetId, setSelectedSetId] = useState<string | null>(null)
   const [pendingItemId, setPendingItemId] = useState<string | null>(null)
 
-  const defaultSetId = useMemo(() => seasons[0]?.sets[0]?.id ?? null, [seasons])
+  const defaultSetId = useMemo(() => {
+    for (const season of seasons) {
+      const unlockedSet = season.sets.find((set) => set.isUnlocked)
+      if (unlockedSet) return unlockedSet.id
+    }
+    return seasons[0]?.sets[0]?.id ?? null
+  }, [seasons])
   const selectedSet = selectedSetId ? setDetails[selectedSetId] : null
 
   useEffect(() => {
@@ -34,6 +40,12 @@ export function Shop2Modal({
       setSelectedSetId(defaultSetId)
     }
   }, [defaultSetId, selectedSetId])
+
+  useEffect(() => {
+    if (selectedSetId && selectedSet && !selectedSet.isUnlocked && defaultSetId) {
+      setSelectedSetId(defaultSetId)
+    }
+  }, [defaultSetId, selectedSet, selectedSetId])
 
   const formatCurrency = (currency: string) => {
     if (currency === 'cash') return '$'
@@ -156,13 +168,17 @@ export function Shop2Modal({
                                 set.itemsTotal > 0
                                   ? Math.round((set.itemsOwned / set.itemsTotal) * 100)
                                   : 0
+                              const isLocked = !set.isUnlocked
                               return (
                                 <button
                                   type="button"
                                   key={set.id}
                                   onClick={() => setSelectedSetId(set.id)}
+                                  disabled={isLocked}
                                   className={`rounded-xl border p-3 text-left transition ${
-                                    selectedSetId === set.id
+                                    isLocked
+                                      ? 'border-border/40 bg-muted/10 text-muted-foreground'
+                                      : selectedSetId === set.id
                                       ? 'border-accent bg-accent/10 shadow-sm'
                                       : 'border-border/70 bg-muted/30 hover:border-accent/60'
                                   }`}
@@ -177,7 +193,7 @@ export function Shop2Modal({
                                       </p>
                                     </div>
                                     <span className="text-xs font-semibold text-accent">
-                                      {set.itemsOwned}/{set.itemsTotal}
+                                      {isLocked ? 'Locked' : `${set.itemsOwned}/${set.itemsTotal}`}
                                     </span>
                                   </div>
                                   <div className="mt-2 h-1.5 w-full rounded-full bg-background/60">
@@ -188,7 +204,13 @@ export function Shop2Modal({
                                   </div>
                                   <div className="mt-2 flex items-center justify-between text-[11px] text-muted-foreground">
                                     <span>{setProgress}% collected</span>
-                                    <span>{set.isComplete ? 'Set complete' : 'In progress'}</span>
+                                    <span>
+                                      {isLocked
+                                        ? 'Complete previous set'
+                                        : set.isComplete
+                                        ? 'Set complete'
+                                        : 'In progress'}
+                                    </span>
                                   </div>
                                 </button>
                               )
@@ -219,6 +241,11 @@ export function Shop2Modal({
                       {selectedSet.itemsOwned}/{selectedSet.itemsTotal} collected
                     </span>
                   </div>
+                  {!selectedSet.isUnlocked && (
+                    <div className="mt-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-700">
+                      Complete the previous set to unlock this collection.
+                    </div>
+                  )}
 
                   <div className="mt-4 grid grid-cols-4 gap-2">
                     {selectedSet.items.map((item) => {
@@ -252,7 +279,12 @@ export function Shop2Modal({
                           <Button
                             size="sm"
                             className="mt-2 h-7 w-full text-[10px]"
-                            disabled={!onVaultPurchase || isOwned || isVaultPurchasing}
+                            disabled={
+                              !onVaultPurchase ||
+                              isOwned ||
+                              isVaultPurchasing ||
+                              !selectedSet.isUnlocked
+                            }
                             onClick={() => handlePurchase(item)}
                           >
                             {isOwned

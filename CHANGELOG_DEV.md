@@ -231,3 +231,23 @@
 1) `cd apps/investing-board-game-v3`  
 2) `VITE_SHOP2=1 npm run dev`  
 3) Open the Shop overlay, tap a missing vault item, and confirm the purchase button completes and marks the item as owned.
+
+**Date:** 2026-01-22  
+**Slice:** M5.6 (set completion + unlock next set)  
+**Summary:**  
+- Added sequential unlock logic so Vault sets open only after completing the prior set in the season.  
+- Updated the Shop 2.0 overview and detail panels to show locked sets, steer selection to unlocked sets, and block purchases until unlocked.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/components/Shop2Modal.tsx  
+- apps/investing-board-game-v3/src/hooks/useShopVaultOverview.ts  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+1) `cd apps/investing-board-game-v3`  
+2) `VITE_SHOP2=1 npm run dev`  
+3) Open the Shop 2.0 preview, confirm only the first set is selectable, then purchase items until completion to unlock the next set.

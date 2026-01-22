@@ -17,6 +17,7 @@ export type VaultSetSummary = {
   itemsTotal: number
   itemsOwned: number
   isComplete: boolean
+  isUnlocked: boolean
 }
 
 export type VaultItemSummary = {
@@ -38,6 +39,7 @@ export type VaultSetDetail = {
   itemsTotal: number
   itemsOwned: number
   isComplete: boolean
+  isUnlocked: boolean
   items: VaultItemSummary[]
 }
 
@@ -131,12 +133,19 @@ const normalizeItems = (rows: VaultItemRow[]): VaultItemRecord[] =>
     isActive: row.is_active,
   }))
 
-const buildOverview = (
+type VaultSetProgress = {
+  itemsTotal: number
+  itemsOwned: number
+  isComplete: boolean
+  isUnlocked: boolean
+}
+
+const buildSetProgress = (
   seasons: VaultSeasonRecord[],
   sets: VaultSetRecord[],
   items: VaultItemRecord[],
   ownership: VaultOwnershipRecord[]
-): VaultSeasonSummary[] => {
+): Record<string, VaultSetProgress> => {
   const ownedSet = new Set(ownership.map((record) => record.itemId))
   const itemsBySet = items
     .filter((item) => item.isActive)
@@ -145,21 +154,59 @@ const buildOverview = (
       return acc
     }, {})
 
+  return seasons.reduce<Record<string, VaultSetProgress>>((acc, season) => {
+    const seasonSets = sets
+      .filter((set) => set.isActive && set.seasonId === season.id)
+      .sort((a, b) => a.sortOrder - b.sortOrder)
+    let previousComplete = false
+
+    seasonSets.forEach((set, index) => {
+      const setItems = itemsBySet[set.id] ?? []
+      const itemsOwned = setItems.filter((item) => ownedSet.has(item.id)).length
+      const itemsTotal = setItems.length
+      const isComplete = itemsTotal > 0 && itemsOwned >= itemsTotal
+      const isUnlocked = season.isActive && (index === 0 || previousComplete)
+
+      acc[set.id] = {
+        itemsTotal,
+        itemsOwned,
+        isComplete,
+        isUnlocked,
+      }
+      previousComplete = isComplete
+    })
+
+    return acc
+  }, {})
+}
+
+const buildOverview = (
+  seasons: VaultSeasonRecord[],
+  sets: VaultSetRecord[],
+  items: VaultItemRecord[],
+  ownership: VaultOwnershipRecord[]
+): VaultSeasonSummary[] => {
+  const setProgress = buildSetProgress(seasons, sets, items, ownership)
+
   const setSummaries = sets
     .filter((set) => set.isActive)
     .sort((a, b) => a.sortOrder - b.sortOrder)
     .map<VaultSetSummary>((set) => {
-      const setItems = itemsBySet[set.id] ?? []
-      const itemsOwned = setItems.filter((item) => ownedSet.has(item.id)).length
-      const itemsTotal = setItems.length
+      const progress = setProgress[set.id] ?? {
+        itemsOwned: 0,
+        itemsTotal: 0,
+        isComplete: false,
+        isUnlocked: false,
+      }
       return {
         id: set.id,
         code: set.code,
         name: set.name,
         description: set.description,
-        itemsTotal,
-        itemsOwned,
-        isComplete: itemsTotal > 0 && itemsOwned >= itemsTotal,
+        itemsTotal: progress.itemsTotal,
+        itemsOwned: progress.itemsOwned,
+        isComplete: progress.isComplete,
+        isUnlocked: progress.isUnlocked,
       }
     })
 
@@ -188,10 +235,12 @@ const buildOverview = (
 }
 
 const buildSetDetails = (
+  seasons: VaultSeasonRecord[],
   sets: VaultSetRecord[],
   items: VaultItemRecord[],
   ownership: VaultOwnershipRecord[]
 ): Record<string, VaultSetDetail> => {
+  const setProgress = buildSetProgress(seasons, sets, items, ownership)
   const ownedSet = new Set(ownership.map((record) => record.itemId))
   const itemsBySet = items
     .filter((item) => item.isActive)
@@ -204,16 +253,21 @@ const buildSetDetails = (
     .filter((set) => set.isActive)
     .reduce<Record<string, VaultSetDetail>>((acc, set) => {
       const setItems = itemsBySet[set.id] ?? []
-      const itemsOwned = setItems.filter((item) => ownedSet.has(item.id)).length
-      const itemsTotal = setItems.length
+      const progress = setProgress[set.id] ?? {
+        itemsOwned: 0,
+        itemsTotal: 0,
+        isComplete: false,
+        isUnlocked: false,
+      }
       acc[set.id] = {
         id: set.id,
         code: set.code,
         name: set.name,
         description: set.description,
-        itemsTotal,
-        itemsOwned,
-        isComplete: itemsTotal > 0 && itemsOwned >= itemsTotal,
+        itemsTotal: progress.itemsTotal,
+        itemsOwned: progress.itemsOwned,
+        isComplete: progress.isComplete,
+        isUnlocked: progress.isUnlocked,
         items: setItems.map((item) => ({
           id: item.id,
           name: item.name,
@@ -254,7 +308,7 @@ export function useShopVaultOverview(): VaultOverview {
   )
 
   const setDetails = useMemo(
-    () => buildSetDetails(records.sets, records.items, records.ownership),
+    () => buildSetDetails(records.seasons, records.sets, records.items, records.ownership),
     [records]
   )
 
