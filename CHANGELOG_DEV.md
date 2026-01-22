@@ -3,6 +3,24 @@
 ## Unreleased
 
 **Date:** 2026-01-21  
+**Slice:** M5.2 (Shop 2.0 Supabase schema)  
+**Summary:**  
+- Added Shop 2.0 vault schema tables for seasons, sets, items, and player progress/ownership.  
+- Documented the new schema in DEV_PLAN and logged the migration details.  
+
+**Files changed:**  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+- MIGRATIONS_LOG.md  
+- supabase/patches/032_shop_vault_schema.sql  
+
+**SQL migrations:**  
+- supabase/patches/032_shop_vault_schema.sql  
+
+**How to test:**  
+1) Not run (schema-only change).  
+
+**Date:** 2026-01-21  
 **Slice:** M5.1 (Shop2 feature flag + routes)  
 **Summary:**  
 - Added a Shop 2.0 feature flag and wired shop overlays to route to the new Shop2 modal when enabled.  
