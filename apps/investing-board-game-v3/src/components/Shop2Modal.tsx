@@ -3,18 +3,28 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button'
 import { useResponsiveDialogClass } from '@/hooks/useResponsiveDialogClass'
 import { useShopVaultOverview } from '@/hooks/useShopVaultOverview'
+import type { VaultItemSummary } from '@/hooks/useShopVaultOverview'
 import type { GameState } from '@/lib/types'
 
 interface Shop2ModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   gameState: GameState
+  onVaultPurchase?: (item: VaultItemSummary) => Promise<boolean>
+  isVaultPurchasing?: boolean
 }
 
-export function Shop2Modal({ open, onOpenChange, gameState }: Shop2ModalProps) {
+export function Shop2Modal({
+  open,
+  onOpenChange,
+  gameState,
+  onVaultPurchase,
+  isVaultPurchasing,
+}: Shop2ModalProps) {
   const dialogClass = useResponsiveDialogClass('full')
-  const { seasons, loading, error, source, setDetails } = useShopVaultOverview()
+  const { seasons, loading, error, source, setDetails, registerOwnership } = useShopVaultOverview()
   const [selectedSetId, setSelectedSetId] = useState<string | null>(null)
+  const [pendingItemId, setPendingItemId] = useState<string | null>(null)
 
   const defaultSetId = useMemo(() => seasons[0]?.sets[0]?.id ?? null, [seasons])
   const selectedSet = selectedSetId ? setDetails[selectedSetId] : null
@@ -29,6 +39,17 @@ export function Shop2Modal({ open, onOpenChange, gameState }: Shop2ModalProps) {
     if (currency === 'cash') return '$'
     if (currency === 'stars') return '⭐'
     return '🪙'
+  }
+
+  const handlePurchase = async (item: VaultItemSummary) => {
+    if (!onVaultPurchase) return
+
+    setPendingItemId(item.id)
+    const success = await onVaultPurchase(item)
+    if (success) {
+      registerOwnership(item.id)
+    }
+    setPendingItemId(null)
   }
 
   return (
@@ -200,33 +221,49 @@ export function Shop2Modal({ open, onOpenChange, gameState }: Shop2ModalProps) {
                   </div>
 
                   <div className="mt-4 grid grid-cols-4 gap-2">
-                    {selectedSet.items.map((item) => (
-                      <div
-                        key={item.id}
-                        className={`rounded-xl border p-2 text-center text-[10px] ${
-                          item.isOwned
-                            ? 'border-accent/60 bg-accent/10'
-                            : 'border-border/70 bg-muted/30'
-                        }`}
-                      >
-                        <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-lg bg-background/80 text-lg">
-                          {item.icon}
+                    {selectedSet.items.map((item) => {
+                      const isPending = isVaultPurchasing && pendingItemId === item.id
+                      const isOwned = item.isOwned
+                      return (
+                        <div
+                          key={item.id}
+                          className={`rounded-xl border p-2 text-center text-[10px] ${
+                            isOwned
+                              ? 'border-accent/60 bg-accent/10'
+                              : 'border-border/70 bg-muted/30'
+                          }`}
+                        >
+                          <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-lg bg-background/80 text-lg">
+                            {item.icon}
+                          </div>
+                          <div className="mt-2 font-semibold text-foreground truncate">
+                            {item.name}
+                          </div>
+                          <div className="mt-1 text-[10px] text-muted-foreground">
+                            {formatCurrency(item.currency)}
+                            {item.price.toLocaleString()}
+                          </div>
+                          <div className="mt-1 text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
+                            {item.rarity}
+                          </div>
+                          <div className="mt-1 text-[10px] font-semibold text-accent">
+                            {isOwned ? 'Owned' : 'Missing'}
+                          </div>
+                          <Button
+                            size="sm"
+                            className="mt-2 h-7 w-full text-[10px]"
+                            disabled={!onVaultPurchase || isOwned || isVaultPurchasing}
+                            onClick={() => handlePurchase(item)}
+                          >
+                            {isOwned
+                              ? 'Owned'
+                              : isPending
+                              ? 'Purchasing...'
+                              : `Buy ${formatCurrency(item.currency)}${item.price.toLocaleString()}`}
+                          </Button>
                         </div>
-                        <div className="mt-2 font-semibold text-foreground truncate">
-                          {item.name}
-                        </div>
-                        <div className="mt-1 text-[10px] text-muted-foreground">
-                          {formatCurrency(item.currency)}
-                          {item.price.toLocaleString()}
-                        </div>
-                        <div className="mt-1 text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
-                          {item.rarity}
-                        </div>
-                        <div className="mt-1 text-[10px] font-semibold text-accent">
-                          {item.isOwned ? 'Owned' : 'Missing'}
-                        </div>
-                      </div>
-                    ))}
+                      )
+                    })}
                   </div>
                 </div>
               )}

@@ -23,3 +23,12 @@
     - `SELECT 1 FROM public.shop_vault_sets LIMIT 1;`
     - `SELECT 1 FROM public.shop_vault_items LIMIT 1;`
   - Required for prod: No (feature-flagged Shop 2.0).
+
+- `033_shop_vault_purchase.sql`
+  - Purpose: Add atomic Shop 2.0 vault purchase function to insert ownership and update set/season progress.
+  - Depends on: `032_shop_vault_schema.sql`.
+  - Safe rerun: Yes (CREATE OR REPLACE FUNCTION).
+  - Rollback: Drop `public.shop_vault_purchase` function.
+  - Verify:
+    - `SELECT proname FROM pg_proc WHERE proname = 'shop_vault_purchase';`
+  - Required for prod: No (feature-flagged Shop 2.0).
