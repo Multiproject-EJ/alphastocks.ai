@@ -55,6 +55,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 - **State management/store:** Local React state in `src/App.tsx` plus contexts in `src/context/*` (Auth, Overlay, UI Mode); custom hooks in `src/hooks/*`
 - **Game loop entry:** `src/App.tsx` (dice roll → `calculateMovement` in `src/lib/movementEngine.ts`), board data in `src/lib/mockData.ts`
 - **UI components:** `src/components/*` (board, modals, overlays), shop UI in `src/components/ShopModal.tsx` + `src/components/shop/*` (mobile shop shell, property vault album cards)
+- **Wheel of Fortune rewards + daily spin caps:** `src/App.tsx` + `src/components/WheelOfFortuneModal.tsx`
 - **Shop 2.0 entry:** `src/components/Shop2Modal.tsx` (feature-flagged Shop 2.0 preview shell)
 - **Shop 2.0 vault data:** `src/hooks/useShopVaultOverview.ts` + `src/lib/shopVaultFixtures.ts` (season/set overview + fallback fixtures)
 - **Shop 2.0 purchases:** `src/hooks/useShopVaultPurchase.ts` (atomic vault buy + currency spend)
@@ -136,6 +137,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 ### M0 — Audit & Baseline
 - **M0.1** ✅ Repo audit (this run)
 - **M0.2** Instrumentation hooks (optional logging, no behavior change)
+- **M0.3** ✅ Wheel of Fortune daily spin cap + reward consistency
 
 ### M1 — 3‑Ring Board Rules (Outer/Middle/Inner)
 - **M1.1** Audit ring movement + portal behavior
