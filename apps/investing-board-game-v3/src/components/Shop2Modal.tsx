@@ -5,6 +5,7 @@ import { useResponsiveDialogClass } from '@/hooks/useResponsiveDialogClass'
 import { useShopVaultOverview } from '@/hooks/useShopVaultOverview'
 import type { VaultItemSummary } from '@/hooks/useShopVaultOverview'
 import type { GameState } from '@/lib/types'
+import { getVaultPurchaseXp } from '@/lib/shopVaultXp'
 
 interface Shop2ModalProps {
   open: boolean
@@ -28,7 +29,7 @@ export function Shop2Modal({
   shopEventIcon,
 }: Shop2ModalProps) {
   const dialogClass = useResponsiveDialogClass('full')
-  const { seasons, loading, error, source, setDetails, registerOwnership, vaultProgress } =
+  const { seasons, loading, error, source, setDetails, registerPurchase, vaultProgress } =
     useShopVaultOverview()
   const [selectedSetId, setSelectedSetId] = useState<string | null>(null)
   const [pendingItemId, setPendingItemId] = useState<string | null>(null)
@@ -76,7 +77,7 @@ export function Shop2Modal({
     setPendingItemId(item.id)
     const success = await onVaultPurchase(item)
     if (success) {
-      registerOwnership(item.id)
+      registerPurchase(item.id, getVaultPurchaseXp(item.price))
     }
     setPendingItemId(null)
   }

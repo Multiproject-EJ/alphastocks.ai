@@ -71,6 +71,7 @@ type VaultOverview = {
   error: string | null
   source: 'supabase' | 'mock'
   registerOwnership: (itemId: string) => void
+  registerPurchase: (itemId: string, xpEarned: number) => void
 }
 
 type VaultSeasonRow = {
@@ -361,6 +362,23 @@ export function useShopVaultOverview(): VaultOverview {
     })
   }, [])
 
+  const registerPurchase = useCallback((itemId: string, xpEarned: number) => {
+    setRecords((prev) => {
+      if (prev.ownership.some((record) => record.itemId === itemId)) {
+        return prev
+      }
+      const safeXpEarned = Math.max(0, xpEarned)
+      return {
+        ...prev,
+        ownership: [...prev.ownership, { itemId }],
+        progress: {
+          ...prev.progress,
+          xp: prev.progress.xp + safeXpEarned,
+        },
+      }
+    })
+  }, [])
+
   useEffect(() => {
     if (!supabaseClient || !hasSupabaseConfig) {
       setLoading(false)
@@ -470,5 +488,6 @@ export function useShopVaultOverview(): VaultOverview {
     error,
     source,
     registerOwnership,
+    registerPurchase,
   }
 }
