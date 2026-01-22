@@ -128,6 +128,11 @@ export function Shop2Modal({
                     style={{ width: `${vaultProgressPercent}%` }}
                   />
                 </div>
+                {vaultProgress.pendingClaims > 0 && (
+                  <div className="mt-2 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-2 py-1 text-[11px] font-semibold text-emerald-700">
+                    {vaultProgress.pendingClaims} level reward{vaultProgress.pendingClaims === 1 ? '' : 's'} ready to claim
+                  </div>
+                )}
                 <div className="mt-1 text-xs text-muted-foreground">
                   Unlock perks as you collect vault drops.
                 </div>

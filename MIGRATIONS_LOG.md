@@ -50,3 +50,13 @@
   - Verify:
     - `SELECT proname FROM pg_proc WHERE proname = 'shop_vault_purchase';`
   - Required for prod: No (feature-flagged Shop 2.0).
+
+- `036_shop_vault_level_claims.sql`
+  - Purpose: Track Shop 2.0 vault level-up claims and update purchase RPC to handle leveling.
+  - Depends on: `032_shop_vault_schema.sql`, `034_shop_vault_profile_progress.sql`.
+  - Safe rerun: Yes (CREATE OR REPLACE FUNCTION, IF NOT EXISTS table/index/trigger).
+  - Rollback: Drop `public.shop_vault_level_claims` table and revert `public.shop_vault_purchase`.
+  - Verify:
+    - `SELECT 1 FROM public.shop_vault_level_claims LIMIT 1;`
+    - `SELECT proname FROM pg_proc WHERE proname = 'shop_vault_purchase';`
+  - Required for prod: No (feature-flagged Shop 2.0).

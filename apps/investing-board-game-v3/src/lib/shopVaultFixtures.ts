@@ -41,6 +41,11 @@ export type VaultProgressRecord = {
   xpToNext: number
 }
 
+export type VaultLevelClaimRecord = {
+  level: number
+  claimedAt: string | null
+}
+
 const SEASON_NEON_ID = 'season-neon'
 const SEASON_LUXE_ID = 'season-luxe'
 
@@ -183,8 +188,10 @@ export const VAULT_FIXTURE_OWNERSHIP: VaultOwnershipRecord[] = [
 export const VAULT_FIXTURE_PROGRESS: VaultProgressRecord = {
   level: 2,
   xp: 420,
-  xpToNext: 1000,
+  xpToNext: 1250,
 }
+
+export const VAULT_FIXTURE_LEVEL_CLAIMS: VaultLevelClaimRecord[] = []
 
 export const VAULT_FIXTURE_DATA = {
   seasons: VAULT_FIXTURE_SEASONS,
@@ -192,4 +199,5 @@ export const VAULT_FIXTURE_DATA = {
   items: VAULT_FIXTURE_ITEMS,
   ownership: VAULT_FIXTURE_OWNERSHIP,
   progress: VAULT_FIXTURE_PROGRESS,
+  claims: VAULT_FIXTURE_LEVEL_CLAIMS,
 }

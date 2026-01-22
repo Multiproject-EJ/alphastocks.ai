@@ -3,6 +3,30 @@
 ## Unreleased
 
 **Date:** 2026-01-22  
+**Slice:** M6.4 (Level-up detection + claim records)  
+**Summary:**  
+- Added vault level-up claim tracking and extended the Shop 2.0 purchase RPC to handle level progression.  
+- Updated Shop 2.0 vault XP handling to surface pending level rewards in the UI.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/components/Shop2Modal.tsx  
+- apps/investing-board-game-v3/src/hooks/useShopVaultOverview.ts  
+- apps/investing-board-game-v3/src/lib/shopVaultFixtures.ts  
+- apps/investing-board-game-v3/src/lib/shopVaultXp.ts  
+- supabase/patches/036_shop_vault_level_claims.sql  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+- MIGRATIONS_LOG.md  
+
+**SQL migrations:**  
+- supabase/patches/036_shop_vault_level_claims.sql  
+
+**How to test:**  
+1) `cd apps/investing-board-game-v3`  
+2) `VITE_SHOP2=1 npm run dev`  
+3) Open Shop 2.0, purchase a vault item, and confirm the vault XP meter levels up and shows a pending reward when you cross a threshold.  
+
+**Date:** 2026-01-22  
 **Slice:** M0.3 (Wheel of Fortune daily spin cap + reward consistency)  
 **Summary:**  
 - Added a 3–5 spin daily cap for the Wheel of Fortune, with per-day persistence and UI feedback on remaining spins.  
