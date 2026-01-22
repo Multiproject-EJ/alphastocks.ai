@@ -68,6 +68,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 - **Supabase client:** `apps/investing-board-game-v3/src/lib/supabaseClient.ts`
 - **Migrations/patches:** `/supabase/patches/*` (e.g., `022_board_game_profiles.sql`, `023_shop_inventory.sql`, `028_daily_dividends.sql`, `029_currency_economy.sql`)
 - **Economy-related tables:** `board_game_profiles`, `shop_inventory`, `daily_dividends`, `leaderboard` (by patch naming)
+- **Vault Shop 2.0 tables:** `shop_vault_seasons`, `shop_vault_sets`, `shop_vault_items`, `shop_vault_item_ownership`, `shop_vault_set_progress`, `shop_vault_season_progress` (added in `supabase/patches/032_shop_vault_schema.sql`)
 - **RPCs / Edge Functions:** none found in repo
 - **Auth usage:** `src/context/AuthContext.tsx` uses Supabase auth sessions (shared with ProTools)
 - **Storage buckets:** not defined in repo (assume external configuration)
@@ -162,7 +163,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 ### M5 — Vault Album Shop (Shop 2.0)
 - **M5.0** ✅ Audit existing shop & decide flag vs in-place
 - **M5.1** ✅ Shop2 feature flag + routes
-- **M5.2** Supabase schema for seasons/sets/items/progress
+- **M5.2** ✅ Supabase schema for seasons/sets/items/progress
 - **M5.3** Vault overview UI
 - **M5.4** Set detail UI (4×3)
 - **M5.5** Atomic purchase function
@@ -217,7 +218,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **M5.2 — Supabase schema for seasons/sets/items/progress** (define Shop 2.0 data tables).
+**Recommended next slice:** **M5.3 — Vault overview UI** (wire Shop 2.0 to read vault seasons/sets and show progress).
 
 ---
 
@@ -228,3 +229,8 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - **Data sources:** `shopItems.ts` holds both legacy stars items and a separate vault data set; mobile uses `usePurchase` (no inventory persistence yet).
 
 **Decision:** Implement Shop 2.0 as a **feature-flagged, parallel flow** that can reuse the existing Property Vault UI patterns while keeping the legacy stars shop intact. This avoids regressions and preserves the dual-currency split until Shop 2.0 is fully wired.
+
+## M5.2 Slice Notes (Supabase Shop 2.0 schema)
+- Added vault catalog tables for seasons, sets, and items, plus ownership and progress tracking tables for players.
+- Enabled RLS with public read access for catalog tables and per-user access for progress/ownership rows.
+- Added updated_at triggers for season/set/progress records to keep UI sync-friendly.
