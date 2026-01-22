@@ -165,3 +165,24 @@
 
 **How to test:**  
 1) No runtime changes (docs only).
+
+**Date:** 2026-01-21  
+**Slice:** M5.3 (vault overview UI)  
+**Summary:**  
+- Implemented the Shop 2.0 vault overview with season/set progress cards and mobile-first layout.  
+- Added Supabase-backed vault catalog loading with fixture fallback data for preview mode.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/components/Shop2Modal.tsx  
+- apps/investing-board-game-v3/src/hooks/useShopVaultOverview.ts  
+- apps/investing-board-game-v3/src/lib/shopVaultFixtures.ts  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+1) `cd apps/investing-board-game-v3`  
+2) `VITE_SHOP2=1 npm run dev`  
+3) Open the Shop overlay and verify the Vault Overview card renders seasons and sets.
