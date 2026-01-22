@@ -1,6 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { useResponsiveDialogClass } from '@/hooks/useResponsiveDialogClass'
+import { useShopVaultOverview } from '@/hooks/useShopVaultOverview'
 import type { GameState } from '@/lib/types'
 
 interface Shop2ModalProps {
@@ -11,6 +12,7 @@ interface Shop2ModalProps {
 
 export function Shop2Modal({ open, onOpenChange, gameState }: Shop2ModalProps) {
   const dialogClass = useResponsiveDialogClass('full')
+  const { seasons, loading, error, source } = useShopVaultOverview()
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -43,14 +45,116 @@ export function Shop2Modal({ open, onOpenChange, gameState }: Shop2ModalProps) {
               </div>
 
               <div className="rounded-2xl border border-border bg-background/60 p-4">
-                <h3 className="text-base font-semibold text-foreground">
-                  Coming in Shop 2.0
-                </h3>
-                <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
-                  <li>• Season vaults with collectible 4×3 sets</li>
-                  <li>• Completion rewards and unlock chains</li>
-                  <li>• Flash discounts tied to economy windows</li>
-                </ul>
+                <div className="flex items-center justify-between">
+                  <h3 className="text-base font-semibold text-foreground">
+                    Vault Overview
+                  </h3>
+                  <span className="text-xs text-muted-foreground">
+                    {source === 'supabase' ? 'Live catalog' : 'Preview data'}
+                  </span>
+                </div>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  Track seasons, finish collectible sets, and unlock perks as you complete the
+                  album.
+                </p>
+
+                {loading ? (
+                  <div className="mt-4 space-y-3">
+                    <div className="h-20 rounded-xl bg-muted/50 animate-pulse" />
+                    <div className="h-20 rounded-xl bg-muted/50 animate-pulse" />
+                  </div>
+                ) : (
+                  <div className="mt-4 space-y-4">
+                    {error && (
+                      <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive">
+                        {error}
+                      </div>
+                    )}
+                    {seasons.map((season) => {
+                      const seasonProgress =
+                        season.setsTotal > 0
+                          ? Math.round((season.setsCompleted / season.setsTotal) * 100)
+                          : 0
+                      return (
+                        <div
+                          key={season.id}
+                          className="rounded-2xl border border-border bg-background/70 p-4"
+                        >
+                          <div className="flex items-start justify-between gap-3">
+                            <div>
+                              <div className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                                {season.code} • {season.theme}
+                              </div>
+                              <h4 className="mt-2 text-lg font-semibold text-foreground">
+                                {season.name}
+                              </h4>
+                              <p className="mt-1 text-sm text-muted-foreground">
+                                {season.description}
+                              </p>
+                            </div>
+                            <span className="rounded-full bg-accent/15 px-2 py-1 text-[11px] font-semibold text-accent">
+                              {season.isActive ? 'Active' : 'Upcoming'}
+                            </span>
+                          </div>
+
+                          <div className="mt-4">
+                            <div className="flex items-center justify-between text-xs text-muted-foreground">
+                              <span>
+                                {season.setsCompleted}/{season.setsTotal} sets complete
+                              </span>
+                              <span>{seasonProgress}%</span>
+                            </div>
+                            <div className="mt-2 h-2 w-full rounded-full bg-muted/60">
+                              <div
+                                className="h-2 rounded-full bg-accent transition-all"
+                                style={{ width: `${seasonProgress}%` }}
+                              />
+                            </div>
+                          </div>
+
+                          <div className="mt-4 grid gap-3">
+                            {season.sets.map((set) => {
+                              const setProgress =
+                                set.itemsTotal > 0
+                                  ? Math.round((set.itemsOwned / set.itemsTotal) * 100)
+                                  : 0
+                              return (
+                                <div
+                                  key={set.id}
+                                  className="rounded-xl border border-border/70 bg-muted/30 p-3"
+                                >
+                                  <div className="flex items-center justify-between gap-2">
+                                    <div>
+                                      <p className="text-sm font-semibold text-foreground">
+                                        {set.name}
+                                      </p>
+                                      <p className="text-xs text-muted-foreground">
+                                        {set.description}
+                                      </p>
+                                    </div>
+                                    <span className="text-xs font-semibold text-accent">
+                                      {set.itemsOwned}/{set.itemsTotal}
+                                    </span>
+                                  </div>
+                                  <div className="mt-2 h-1.5 w-full rounded-full bg-background/60">
+                                    <div
+                                      className="h-1.5 rounded-full bg-accent"
+                                      style={{ width: `${setProgress}%` }}
+                                    />
+                                  </div>
+                                  <div className="mt-2 flex items-center justify-between text-[11px] text-muted-foreground">
+                                    <span>{setProgress}% collected</span>
+                                    <span>{set.isComplete ? 'Set complete' : 'In progress'}</span>
+                                  </div>
+                                </div>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
               </div>
 
               <div className="rounded-2xl border border-border bg-muted/40 p-4">

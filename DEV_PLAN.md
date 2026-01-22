@@ -56,6 +56,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 - **Game loop entry:** `src/App.tsx` (dice roll → `calculateMovement` in `src/lib/movementEngine.ts`), board data in `src/lib/mockData.ts`
 - **UI components:** `src/components/*` (board, modals, overlays), shop UI in `src/components/ShopModal.tsx` + `src/components/shop/*` (mobile shop shell, property vault album cards)
 - **Shop 2.0 entry:** `src/components/Shop2Modal.tsx` (feature-flagged Shop 2.0 preview shell)
+- **Shop 2.0 vault data:** `src/hooks/useShopVaultOverview.ts` + `src/lib/shopVaultFixtures.ts` (season/set overview + fallback fixtures)
 - **Animation utilities:** `src/lib/animations.ts`, `src/hooks/useBoardCamera.ts`, `src/hooks/useCameraAnimation.ts`
 
 #### PWA
@@ -164,7 +165,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **M5.0** ✅ Audit existing shop & decide flag vs in-place
 - **M5.1** ✅ Shop2 feature flag + routes
 - **M5.2** ✅ Supabase schema for seasons/sets/items/progress
-- **M5.3** Vault overview UI
+- **M5.3** ✅ Vault overview UI
 - **M5.4** Set detail UI (4×3)
 - **M5.5** Atomic purchase function
 - **M5.6** Set completion + unlock next set
@@ -218,7 +219,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **M5.3 — Vault overview UI** (wire Shop 2.0 to read vault seasons/sets and show progress).
+**Recommended next slice:** **M5.4 — Set detail UI (4×3)**.
 
 ---
 
@@ -234,3 +235,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Added vault catalog tables for seasons, sets, and items, plus ownership and progress tracking tables for players.
 - Enabled RLS with public read access for catalog tables and per-user access for progress/ownership rows.
 - Added updated_at triggers for season/set/progress records to keep UI sync-friendly.
+
+## M5.3 Slice Notes (Vault overview UI)
+- Wired the Shop 2.0 modal to show seasons, sets, and collection progress using live Supabase data with fixture fallback.
+- Added season/set progress cards that stay mobile-first and preview-ready when Supabase isn’t configured.
