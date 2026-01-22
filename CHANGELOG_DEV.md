@@ -271,3 +271,24 @@
 1) `cd apps/investing-board-game-v3`  
 2) `VITE_SHOP2=1 npm run dev`  
 3) Open the Shop 2.0 preview and verify the mega reward callout switches to unlocked when all sets show as complete.
+
+**Date:** 2026-01-24  
+**Slice:** M5.8 (window integration — discounts, flash)  
+**Summary:**  
+- Applied event-based shop window discounts to Shop 2.0 vault pricing and purchase spend logic.  
+- Added a flash window callout in the Shop 2.0 UI to surface live discount events.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/App.tsx  
+- apps/investing-board-game-v3/src/components/Shop2Modal.tsx  
+- apps/investing-board-game-v3/src/hooks/useShopVaultPurchase.ts  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+1) `cd apps/investing-board-game-v3`  
+2) `VITE_SHOP2=1 npm run dev`  
+3) Trigger a shop discount event (or temporarily set `shopEventDiscount` to a non-zero value) and confirm Shop 2.0 shows the flash window banner and discounted prices.

@@ -12,6 +12,9 @@ interface Shop2ModalProps {
   gameState: GameState
   onVaultPurchase?: (item: VaultItemSummary) => Promise<boolean>
   isVaultPurchasing?: boolean
+  shopEventDiscount?: number
+  shopEventLabel?: string
+  shopEventIcon?: string
 }
 
 export function Shop2Modal({
@@ -20,11 +23,15 @@ export function Shop2Modal({
   gameState,
   onVaultPurchase,
   isVaultPurchasing,
+  shopEventDiscount = 0,
+  shopEventLabel,
+  shopEventIcon,
 }: Shop2ModalProps) {
   const dialogClass = useResponsiveDialogClass('full')
   const { seasons, loading, error, source, setDetails, registerOwnership } = useShopVaultOverview()
   const [selectedSetId, setSelectedSetId] = useState<string | null>(null)
   const [pendingItemId, setPendingItemId] = useState<string | null>(null)
+  const sanitizedDiscount = Math.max(0, Math.min(100, shopEventDiscount))
 
   const defaultSetId = useMemo(() => {
     for (const season of seasons) {
@@ -51,6 +58,11 @@ export function Shop2Modal({
     if (currency === 'cash') return '$'
     if (currency === 'stars') return '⭐'
     return '🪙'
+  }
+
+  const getDiscountedPrice = (price: number) => {
+    if (sanitizedDiscount <= 0) return price
+    return Math.max(1, Math.ceil(price * (1 - sanitizedDiscount / 100)))
   }
 
   const handlePurchase = async (item: VaultItemSummary) => {
@@ -93,6 +105,23 @@ export function Shop2Modal({
                   Cash available for Shop 2.0 drops
                 </div>
               </div>
+
+              {sanitizedDiscount > 0 && (
+                <div className="rounded-2xl border border-emerald-500/40 bg-emerald-500/10 p-4 animate-pulse">
+                  <div className="flex items-center justify-between gap-2 text-[11px] uppercase tracking-[0.3em] text-emerald-700">
+                    <span>{shopEventIcon ? `${shopEventIcon} Flash Window` : 'Flash Window'}</span>
+                    <span className="rounded-full bg-emerald-500/20 px-2 py-1 text-[11px] font-semibold">
+                      {sanitizedDiscount}% off
+                    </span>
+                  </div>
+                  <p className="mt-2 text-sm font-semibold text-foreground">
+                    {shopEventLabel ?? 'Vault savings are live right now.'}
+                  </p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Discounts apply automatically to Shop 2.0 vault drops.
+                  </p>
+                </div>
+              )}
 
               <div className="rounded-2xl border border-border bg-background/60 p-4">
                 <div className="flex items-center justify-between">
@@ -274,6 +303,8 @@ export function Shop2Modal({
                     {selectedSet.items.map((item) => {
                       const isPending = isVaultPurchasing && pendingItemId === item.id
                       const isOwned = item.isOwned
+                      const discountedPrice = getDiscountedPrice(item.price)
+                      const hasDiscount = sanitizedDiscount > 0 && discountedPrice < item.price
                       return (
                         <div
                           key={item.id}
@@ -290,8 +321,16 @@ export function Shop2Modal({
                             {item.name}
                           </div>
                           <div className="mt-1 text-[10px] text-muted-foreground">
-                            {formatCurrency(item.currency)}
-                            {item.price.toLocaleString()}
+                            {hasDiscount && (
+                              <span className="mr-1 line-through opacity-70">
+                                {formatCurrency(item.currency)}
+                                {item.price.toLocaleString()}
+                              </span>
+                            )}
+                            <span className={hasDiscount ? 'font-semibold text-foreground' : undefined}>
+                              {formatCurrency(item.currency)}
+                              {discountedPrice.toLocaleString()}
+                            </span>
                           </div>
                           <div className="mt-1 text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
                             {item.rarity}
@@ -314,7 +353,7 @@ export function Shop2Modal({
                               ? 'Owned'
                               : isPending
                               ? 'Purchasing...'
-                              : `Buy ${formatCurrency(item.currency)}${item.price.toLocaleString()}`}
+                              : `Buy ${formatCurrency(item.currency)}${discountedPrice.toLocaleString()}`}
                           </Button>
                         </div>
                       )

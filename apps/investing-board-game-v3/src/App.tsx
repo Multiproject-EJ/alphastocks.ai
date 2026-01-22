@@ -131,6 +131,7 @@ import { useSound } from '@/hooks/useSound'
 import { getRewardSound, SoundType } from '@/lib/sounds'
 import { useShopInventory } from '@/hooks/useShopInventory'
 import { useShopVaultPurchase } from '@/hooks/useShopVaultPurchase'
+import type { VaultItemSummary } from '@/hooks/useShopVaultOverview'
 import { useAchievements } from '@/hooks/useAchievements'
 import { useChallenges } from '@/hooks/useChallenges'
 import { useEvents } from '@/hooks/useEvents'
@@ -805,6 +806,11 @@ function App() {
     setGameState,
   })
 
+  const handleVaultPurchase = useCallback(
+    (item: VaultItemSummary) => purchaseVaultItem(item, shopWindow.discount),
+    [purchaseVaultItem, shopWindow.discount]
+  )
+
   // Mobile shop purchase handler (uses cash instead of stars)
   const handleMobileShopPurchase = useCallback((itemId: string) => {
     const item = SHOP_ITEMS.find(i => i.id === itemId)
@@ -926,9 +932,23 @@ function App() {
     getActiveMultipliers,
     hasGuaranteedCasinoWin,
     getRollsBonus,
-    getShopDiscount,
     getCustomEffects,
   } = useEvents({ playSound })
+
+  const shopWindow = useMemo(() => {
+    let topDiscount = 0
+    let topEvent: (typeof activeEvents)[number] | null = null
+
+    activeEvents.forEach((event) => {
+      const discount = event.effects.shopDiscount ?? 0
+      if (discount > topDiscount) {
+        topDiscount = discount
+        topEvent = event
+      }
+    })
+
+    return { discount: topDiscount, event: topEvent }
+  }, [activeEvents])
 
   const [rightNowTick, setRightNowTick] = useState(() => new Date())
 
@@ -962,6 +982,11 @@ function App() {
         onEquipCosmetic: equipCosmetic,
         getFinalPrice,
         shopDiscount,
+        onVaultPurchase: handleVaultPurchase,
+        isVaultPurchasing,
+        shopEventDiscount: shopWindow.discount,
+        shopEventLabel: shopWindow.event?.title,
+        shopEventIcon: shopWindow.event?.icon,
       },
       priority: 'normal',
     })
@@ -975,6 +1000,11 @@ function App() {
     equipCosmetic,
     getFinalPrice,
     shopDiscount,
+    handleVaultPurchase,
+    isVaultPurchasing,
+    shopWindow.discount,
+    shopWindow.event?.icon,
+    shopWindow.event?.title,
   ])
 
   const openStockExchangeOverlay = useCallback(() => {
@@ -1320,6 +1350,11 @@ function App() {
             onEquipCosmetic: equipCosmetic,
             getFinalPrice,
             shopDiscount,
+            onVaultPurchase: handleVaultPurchase,
+            isVaultPurchasing,
+            shopEventDiscount: shopWindow.discount,
+            shopEventLabel: shopWindow.event?.title,
+            shopEventIcon: shopWindow.event?.icon,
           },
           priority: 'normal',
           onClose: () => {
@@ -4082,10 +4117,13 @@ function App() {
           canAfford,
           onEquipCosmetic: equipCosmetic,
           getFinalPrice,
-        shopDiscount,
-        onVaultPurchase: purchaseVaultItem,
-        isVaultPurchasing,
-      }}
+          shopDiscount,
+          onVaultPurchase: handleVaultPurchase,
+          isVaultPurchasing,
+          shopEventDiscount: shopWindow.discount,
+          shopEventLabel: shopWindow.event?.title,
+          shopEventIcon: shopWindow.event?.icon,
+        }}
         stockExchangeBuilderProps={{
           exchanges: stockExchanges,
           progress: stockExchangeState.exchanges,
