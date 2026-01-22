@@ -4,11 +4,13 @@ import { useAuth } from '@/context/AuthContext'
 import {
   VAULT_FIXTURE_DATA,
   VaultItemRecord,
+  VaultLevelClaimRecord,
   VaultOwnershipRecord,
   VaultProgressRecord,
   VaultSeasonRecord,
   VaultSetRecord,
 } from '@/lib/shopVaultFixtures'
+import { applyVaultXpGain, getVaultXpToNext } from '@/lib/shopVaultXp'
 
 export type VaultSetSummary = {
   id: string
@@ -61,6 +63,7 @@ export type VaultProgressSummary = {
   level: number
   xp: number
   xpToNext: number
+  pendingClaims: number
 }
 
 type VaultOverview = {
@@ -111,6 +114,11 @@ type VaultProgressRow = {
   level: number | null
   xp: number | null
   xp_to_next: number | null
+}
+
+type VaultClaimRow = {
+  level: number
+  claimed_at: string | null
 }
 
 const normalizeSeasons = (rows: VaultSeasonRow[]): VaultSeasonRecord[] =>
@@ -307,6 +315,7 @@ type VaultRecords = {
   items: VaultItemRecord[]
   ownership: VaultOwnershipRecord[]
   progress: VaultProgressRecord
+  claims: VaultLevelClaimRecord[]
 }
 
 export function useShopVaultOverview(): VaultOverview {
@@ -317,6 +326,7 @@ export function useShopVaultOverview(): VaultOverview {
     items: VAULT_FIXTURE_DATA.items,
     ownership: VAULT_FIXTURE_DATA.ownership,
     progress: VAULT_FIXTURE_DATA.progress,
+    claims: VAULT_FIXTURE_DATA.claims,
   })
   const [loading, setLoading] = useState<boolean>(hasSupabaseConfig)
   const [error, setError] = useState<string | null>(null)
@@ -333,13 +343,15 @@ export function useShopVaultOverview(): VaultOverview {
   )
 
   const vaultProgress = useMemo<VaultProgressSummary>(() => {
+    const pendingClaims = records.claims.filter((claim) => !claim.claimedAt).length
     const xpToNext = records.progress.xpToNext
     return {
       level: records.progress.level,
       xp: records.progress.xp,
       xpToNext,
+      pendingClaims,
     }
-  }, [records.progress])
+  }, [records.claims, records.progress])
 
   const applyRecords = useCallback(
     (nextRecords: VaultRecords, nextSource: 'supabase' | 'mock') => {
@@ -367,14 +379,23 @@ export function useShopVaultOverview(): VaultOverview {
       if (prev.ownership.some((record) => record.itemId === itemId)) {
         return prev
       }
-      const safeXpEarned = Math.max(0, xpEarned)
+      const nextProgress = applyVaultXpGain(prev.progress, xpEarned)
+      const newlyEarnedClaims =
+        nextProgress.levelsGained > 0
+          ? Array.from({ length: nextProgress.levelsGained }, (_value, index) => ({
+              level: prev.progress.level + index + 1,
+              claimedAt: null,
+            }))
+          : []
       return {
         ...prev,
         ownership: [...prev.ownership, { itemId }],
         progress: {
-          ...prev.progress,
-          xp: prev.progress.xp + safeXpEarned,
+          level: nextProgress.level,
+          xp: nextProgress.xp,
+          xpToNext: nextProgress.xpToNext,
         },
+        claims: [...prev.claims, ...newlyEarnedClaims],
       }
     })
   }, [])
@@ -419,6 +440,12 @@ export function useShopVaultOverview(): VaultOverview {
             .select('item_id')
             .eq('profile_id', user.id)
         : { data: [], error: null }
+      const claimsResponse = user
+        ? await supabaseClient
+            .from('shop_vault_level_claims')
+            .select('level, claimed_at')
+            .eq('profile_id', user.id)
+        : { data: [], error: null }
 
       if (!isActive) return
 
@@ -427,7 +454,8 @@ export function useShopVaultOverview(): VaultOverview {
         setsResponse.error ||
         itemsResponse.error ||
         ownershipResponse.error ||
-        progressResponse.error
+        progressResponse.error ||
+        claimsResponse.error
       ) {
         setError(
           seasonsResponse.error?.message ||
@@ -435,6 +463,7 @@ export function useShopVaultOverview(): VaultOverview {
             itemsResponse.error?.message ||
             ownershipResponse.error?.message ||
             progressResponse.error?.message ||
+            claimsResponse.error?.message ||
             'Unable to load vault catalog.'
         )
         applyRecords(VAULT_FIXTURE_DATA, 'mock')
@@ -447,13 +476,18 @@ export function useShopVaultOverview(): VaultOverview {
       const normalizedOwnership: VaultOwnershipRecord[] = (ownershipResponse.data ?? []).map((record) => ({
         itemId: record.item_id as string,
       }))
+      const progressLevel = progressResponse.data ? (progressResponse.data as VaultProgressRow).level ?? 1 : 1
       const normalizedProgress: VaultProgressRecord = progressResponse.data
         ? {
-            level: (progressResponse.data as VaultProgressRow).level ?? 1,
+            level: progressLevel,
             xp: (progressResponse.data as VaultProgressRow).xp ?? 0,
-            xpToNext: (progressResponse.data as VaultProgressRow).xp_to_next ?? 1000,
+            xpToNext: (progressResponse.data as VaultProgressRow).xp_to_next ?? getVaultXpToNext(progressLevel),
           }
         : VAULT_FIXTURE_DATA.progress
+      const normalizedClaims: VaultLevelClaimRecord[] = (claimsResponse.data ?? []).map((record) => ({
+        level: record.level,
+        claimedAt: record.claimed_at,
+      }))
 
       if (normalizedSeasons.length === 0 || normalizedSets.length === 0 || normalizedItems.length === 0) {
         applyRecords(VAULT_FIXTURE_DATA, 'mock')
@@ -468,6 +502,7 @@ export function useShopVaultOverview(): VaultOverview {
           items: normalizedItems,
           ownership: normalizedOwnership,
           progress: normalizedProgress,
+          claims: normalizedClaims,
         },
         'supabase'
       )

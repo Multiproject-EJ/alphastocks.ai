@@ -845,11 +845,6 @@ function App() {
     setGameState,
   })
 
-  const handleVaultPurchase = useCallback(
-    (item: VaultItemSummary) => purchaseVaultItem(item, shopWindow.discount),
-    [purchaseVaultItem, shopWindow.discount]
-  )
-
   // Mobile shop purchase handler (uses cash instead of stars)
   const handleMobileShopPurchase = useCallback((itemId: string) => {
     const item = SHOP_ITEMS.find(i => i.id === itemId)
@@ -988,6 +983,11 @@ function App() {
 
     return { discount: topDiscount, event: topEvent }
   }, [activeEvents])
+
+  const handleVaultPurchase = useCallback(
+    (item: VaultItemSummary) => purchaseVaultItem(item, shopWindow.discount),
+    [purchaseVaultItem, shopWindow.discount]
+  )
 
   const [rightNowTick, setRightNowTick] = useState(() => new Date())
 
