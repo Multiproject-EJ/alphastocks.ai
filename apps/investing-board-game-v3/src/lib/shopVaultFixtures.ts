@@ -35,6 +35,12 @@ export type VaultOwnershipRecord = {
   itemId: string
 }
 
+export type VaultProgressRecord = {
+  level: number
+  xp: number
+  xpToNext: number
+}
+
 const SEASON_NEON_ID = 'season-neon'
 const SEASON_LUXE_ID = 'season-luxe'
 
@@ -174,9 +180,16 @@ export const VAULT_FIXTURE_OWNERSHIP: VaultOwnershipRecord[] = [
   { itemId: `${SET_LUXE_ART_ID}-2` },
 ]
 
+export const VAULT_FIXTURE_PROGRESS: VaultProgressRecord = {
+  level: 2,
+  xp: 420,
+  xpToNext: 1000,
+}
+
 export const VAULT_FIXTURE_DATA = {
   seasons: VAULT_FIXTURE_SEASONS,
   sets: VAULT_FIXTURE_SETS,
   items: VAULT_FIXTURE_ITEMS,
   ownership: VAULT_FIXTURE_OWNERSHIP,
+  progress: VAULT_FIXTURE_PROGRESS,
 }

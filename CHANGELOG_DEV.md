@@ -326,3 +326,27 @@
 
 **How to test:**  
 1) No runtime changes (documentation-only slice).
+
+**Date:** 2026-01-26  
+**Slice:** M6.2 (vault progress tables + UI meter)  
+**Summary:**  
+- Added a Shop 2.0 vault profile progress table for per-player XP and level tracking.  
+- Updated the vault overview hook and fixtures to load vault XP/level progress with Supabase fallback.  
+- Added a mobile-first vault level meter to the Shop 2.0 preview UI.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/components/Shop2Modal.tsx  
+- apps/investing-board-game-v3/src/hooks/useShopVaultOverview.ts  
+- apps/investing-board-game-v3/src/lib/shopVaultFixtures.ts  
+- supabase/patches/034_shop_vault_profile_progress.sql  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+- MIGRATIONS_LOG.md  
+
+**SQL migrations:**  
+- supabase/patches/034_shop_vault_profile_progress.sql  
+
+**How to test:**  
+1) `cd apps/investing-board-game-v3`  
+2) `VITE_SHOP2=1 npm run dev`  
+3) Open Shop 2.0 and confirm the Vault Level meter displays XP progress and level text.
