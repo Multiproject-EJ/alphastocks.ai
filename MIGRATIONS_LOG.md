@@ -41,3 +41,12 @@
   - Verify:
     - `SELECT 1 FROM public.shop_vault_profile_progress LIMIT 1;`
   - Required for prod: No (feature-flagged Shop 2.0).
+
+- `035_shop_vault_purchase_xp.sql`
+  - Purpose: Update the Shop 2.0 vault purchase RPC to grant vault XP on each purchase.
+  - Depends on: `033_shop_vault_purchase.sql`, `034_shop_vault_profile_progress.sql`.
+  - Safe rerun: Yes (CREATE OR REPLACE FUNCTION).
+  - Rollback: Revert to previous `public.shop_vault_purchase` function definition.
+  - Verify:
+    - `SELECT proname FROM pg_proc WHERE proname = 'shop_vault_purchase';`
+  - Required for prod: No (feature-flagged Shop 2.0).

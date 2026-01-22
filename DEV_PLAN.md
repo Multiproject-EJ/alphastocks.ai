@@ -182,7 +182,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 ### M6 — Vault Leveling + Permanent Perks
 - **M6.1** ✅ Audit free roll regen (current formula)
 - **M6.2** ✅ Vault progress tables + UI meter
-- **M6.3** Increment XP on purchase (atomic)
+- **M6.3** ✅ Increment XP on purchase (atomic)
 - **M6.4** Level-up detection + claim records
 - **M6.5** Apply roll regen boost perk (based on existing regen)
 
@@ -226,7 +226,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **M6.3 — Increment XP on purchase (atomic)**.
+**Recommended next slice:** **M6.4 — Level-up detection + claim records**.
 
 ---
 
@@ -275,3 +275,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ## M6.2 Slice Notes (Vault progress tables + UI meter)
 - Added a Shop 2.0 vault profile progress table to store per-player vault XP/level data with RLS and updated_at triggers.
 - Wired the Shop 2.0 overview hook to fetch vault progress (with fixture fallback) and surfaced a mobile-first vault level meter in the Shop 2.0 UI.
+
+## M6.3 Slice Notes (Increment XP on purchase)
+- Updated the Shop 2.0 vault purchase RPC to add XP gains per purchase using a price-based formula.
+- Added a shared vault XP helper and wired Shop 2.0 preview purchases to increment local XP alongside ownership.

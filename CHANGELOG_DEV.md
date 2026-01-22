@@ -350,3 +350,26 @@
 1) `cd apps/investing-board-game-v3`  
 2) `VITE_SHOP2=1 npm run dev`  
 3) Open Shop 2.0 and confirm the Vault Level meter displays XP progress and level text.
+
+**Date:** 2026-01-27  
+**Slice:** M6.3 (increment XP on purchase)  
+**Summary:**  
+- Added XP gain handling to the Shop 2.0 vault purchase RPC so purchases grant vault XP atomically.  
+- Added a shared vault XP helper and wired Shop 2.0 preview purchases to update local XP.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/components/Shop2Modal.tsx  
+- apps/investing-board-game-v3/src/hooks/useShopVaultOverview.ts  
+- apps/investing-board-game-v3/src/lib/shopVaultXp.ts  
+- supabase/patches/035_shop_vault_purchase_xp.sql  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+- MIGRATIONS_LOG.md  
+
+**SQL migrations:**  
+- supabase/patches/035_shop_vault_purchase_xp.sql  
+
+**How to test:**  
+1) `cd apps/investing-board-game-v3`  
+2) `VITE_SHOP2=1 npm run dev`  
+3) Open Shop 2.0, purchase a vault item, and confirm XP increases.
