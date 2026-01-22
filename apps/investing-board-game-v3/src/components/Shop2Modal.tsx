@@ -125,6 +125,7 @@ export function Shop2Modal({
                         season.setsTotal > 0
                           ? Math.round((season.setsCompleted / season.setsTotal) * 100)
                           : 0
+                      const rewardReady = season.isComplete
                       return (
                         <div
                           key={season.id}
@@ -215,6 +216,28 @@ export function Shop2Modal({
                                 </button>
                               )
                             })}
+                          </div>
+
+                          <div
+                            className={`mt-4 rounded-xl border p-3 text-xs ${
+                              rewardReady
+                                ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-700'
+                                : 'border-border/60 bg-muted/40 text-muted-foreground'
+                            }`}
+                          >
+                            <div className="text-[11px] uppercase tracking-[0.2em]">
+                              Mega Reward
+                            </div>
+                            <p className="mt-2 text-sm font-semibold text-foreground">
+                              {rewardReady
+                                ? 'Album complete — mega reward unlocked!'
+                                : 'Finish every set to unlock the mega reward.'}
+                            </p>
+                            <p className="mt-1 text-xs">
+                              {rewardReady
+                                ? 'Expect a vault-sized bonus drop with a premium perk.'
+                                : 'Complete the season album to claim the vault-sized bonus.'}
+                            </p>
                           </div>
                         </div>
                       )

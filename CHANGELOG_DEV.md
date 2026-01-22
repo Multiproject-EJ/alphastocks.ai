@@ -251,3 +251,23 @@
 1) `cd apps/investing-board-game-v3`  
 2) `VITE_SHOP2=1 npm run dev`  
 3) Open the Shop 2.0 preview, confirm only the first set is selectable, then purchase items until completion to unlock the next set.
+
+**Date:** 2026-01-23  
+**Slice:** M5.7 (album completion + mega reward)  
+**Summary:**  
+- Added season-level album completion tracking for Shop 2.0 Vault data.  
+- Added a mega reward callout to the Shop 2.0 overview that unlocks when all sets are complete.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/components/Shop2Modal.tsx  
+- apps/investing-board-game-v3/src/hooks/useShopVaultOverview.ts  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+1) `cd apps/investing-board-game-v3`  
+2) `VITE_SHOP2=1 npm run dev`  
+3) Open the Shop 2.0 preview and verify the mega reward callout switches to unlocked when all sets show as complete.
