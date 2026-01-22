@@ -125,7 +125,7 @@ import {
   QUICK_REWARD_CONFIG,
   QuickRewardType 
 } from '@/lib/quickRewardTiles'
-import { getResetRollsAmount, ENERGY_CONFIG } from '@/lib/energy'
+import { getEnergyResetAmount, getResetRollsAmount, getVaultRegenBonusRolls, ENERGY_CONFIG } from '@/lib/energy'
 import { calculateTilePositions, calculateAllRingPositions } from '@/lib/tilePositions'
 import { calculateMovement, getHoppingTiles, getPortalConfigForRing } from '@/lib/movementEngine'
 import { isJackpotWeek } from '@/lib/events'
@@ -137,6 +137,7 @@ import { useSound } from '@/hooks/useSound'
 import { getRewardSound, SoundType } from '@/lib/sounds'
 import { useShopInventory } from '@/hooks/useShopInventory'
 import { useShopVaultPurchase } from '@/hooks/useShopVaultPurchase'
+import { useShopVaultOverview } from '@/hooks/useShopVaultOverview'
 import type { VaultItemSummary } from '@/hooks/useShopVaultOverview'
 import { useAchievements } from '@/hooks/useAchievements'
 import { useChallenges } from '@/hooks/useChallenges'
@@ -844,6 +845,15 @@ function App() {
     gameState,
     setGameState,
   })
+  const { vaultProgress } = useShopVaultOverview()
+  const vaultRegenBonus = useMemo(
+    () => getVaultRegenBonusRolls(vaultProgress.level),
+    [vaultProgress.level]
+  )
+  const energyResetAmount = useMemo(
+    () => getEnergyResetAmount(vaultProgress.level),
+    [vaultProgress.level]
+  )
 
   // Mobile shop purchase handler (uses cash instead of stars)
   const handleMobileShopPurchase = useCallback((itemId: string) => {
@@ -1775,7 +1785,7 @@ function App() {
       }
       
       // Check if 2 hours have passed since last reset
-      const resetAmount = getResetRollsAmount(currentCheck)
+      const resetAmount = getResetRollsAmount(currentCheck, vaultRegenBonus)
       
       if (resetAmount !== null) {
         // Reset to 30 dice (capped at MAX_ROLLS)
@@ -1806,7 +1816,7 @@ function App() {
     const interval = setInterval(checkEnergyReset, 60000)
     
     return () => clearInterval(interval)
-  }, [authLoading, saveLoading])  // Remove gameState dependencies!
+  }, [authLoading, saveLoading, vaultRegenBonus])  // Remove gameState dependencies!
 
   // Auto-roll effect - Monopoly GO style
   useEffect(() => {
@@ -1932,6 +1942,9 @@ function App() {
         props: {
           onPurchase: handlePurchaseRolls,
           lastEnergyCheck: gameState.lastEnergyCheck,
+          energyResetAmount,
+          vaultRegenBonus,
+          vaultLevel: vaultProgress.level,
         },
         priority: 'high',
       })

@@ -435,3 +435,24 @@
 1) `cd apps/investing-board-game-v3`  
 2) `npm run dev`  
 3) Load the app to confirm it opens without the initialization error, then open Portfolio to verify charts render.
+
+**Date:** 2026-01-29  
+**Slice:** M6.5 (roll regen boost perk)  
+**Summary:**  
+- Added vault-level regen bonus helpers and applied the bonus to the 2-hour dice reset amount.  
+- Updated the out-of-rolls modal messaging to reflect the boosted reset perk.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/App.tsx  
+- apps/investing-board-game-v3/src/components/OutOfRollsModal.tsx  
+- apps/investing-board-game-v3/src/lib/energy.ts  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+1) `cd apps/investing-board-game-v3`  
+2) `npm run dev`  
+3) Use a vault level high enough to see the bonus, run down dice, and confirm the out-of-rolls modal shows the boosted reset amount.

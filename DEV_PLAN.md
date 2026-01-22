@@ -95,6 +95,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 
 #### Economy (existing)
 - **Free roll regen:** `src/lib/energy.ts` + usage in `src/App.tsx` and persistence in `src/hooks/useGameSave.ts`
+- **Vault regen perk bonus:** `src/lib/energy.ts` (vault bonus helpers) + `src/App.tsx` (reset boost) + `src/components/OutOfRollsModal.tsx` (perk messaging)
 - **Dice/energy caps:** `src/lib/constants.ts` and `src/lib/energy.ts`
 - **Multipliers/leverage:** `src/lib/constants.ts` (`MULTIPLIERS`) + ring multipliers in `src/lib/rewardMultiplier.ts`
 - **Shop/estate logic:** `src/hooks/useShopInventory.ts` (stars-based purchases), `src/hooks/usePurchase.ts` (mobile cash purchases), `src/lib/shopItems.ts` (legacy + vault data), and city builder in `src/lib/cityBuilder.ts` + `src/hooks/useCityBuilder.ts`
@@ -185,7 +186,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **M6.2** ✅ Vault progress tables + UI meter
 - **M6.3** ✅ Increment XP on purchase (atomic)
 - **M6.4** ✅ Level-up detection + claim records
-- **M6.5** Apply roll regen boost perk (based on existing regen)
+- **M6.5** ✅ Apply roll regen boost perk (based on existing regen)
 
 ### M7 — Tile Price Pop Labels
 - **M7.1** Audit board renderer + tile overlays
@@ -227,7 +228,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **M6.5 — Apply roll regen boost perk (based on existing regen)**.
+**Recommended next slice:** **M1.2 — Start behavior: land-only ring transitions**.
 
 ---
 
@@ -285,6 +286,10 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Added vault level-up claim tracking and updated the purchase RPC to handle level progression.
 - Updated Shop 2.0 vault progress calculations to surface pending level rewards in the UI.
 - Fixed a Shop 2.0 discount callback ordering issue that caused a "shopWindow" initialization error in the app.
+
+## M6.5 Slice Notes (Apply roll regen boost perk)
+- Added vault-level regen bonus helpers and hooked the bonus into the 2-hour dice reset amount.
+- Surfaced the vault perk bonus in the out-of-rolls modal so players can see their boosted reset amount.
 
 ## M0.4 Slice Notes (Lazy-load Portfolio charts)
 - Lazy-loaded the Portfolio modal so chart dependencies no longer block initial app startup.
