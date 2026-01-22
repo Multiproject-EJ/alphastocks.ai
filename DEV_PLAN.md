@@ -58,6 +58,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 - **Shop 2.0 entry:** `src/components/Shop2Modal.tsx` (feature-flagged Shop 2.0 preview shell)
 - **Shop 2.0 vault data:** `src/hooks/useShopVaultOverview.ts` + `src/lib/shopVaultFixtures.ts` (season/set overview + fallback fixtures)
 - **Shop 2.0 purchases:** `src/hooks/useShopVaultPurchase.ts` (atomic vault buy + currency spend)
+- **Shop 2.0 unlock rules:** `src/hooks/useShopVaultOverview.ts` (set completion gating for the next set)
 - **Animation utilities:** `src/lib/animations.ts`, `src/hooks/useBoardCamera.ts`, `src/hooks/useCameraAnimation.ts`
 
 #### PWA
@@ -170,7 +171,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **M5.3** ✅ Vault overview UI
 - **M5.4** ✅ Set detail UI (4×3)
 - **M5.5** ✅ Atomic purchase function
-- **M5.6** Set completion + unlock next set
+- **M5.6** ✅ Set completion + unlock next set
 - **M5.7** Album completion + mega reward
 - **M5.8** Window integration (discounts, flash)
 
@@ -221,7 +222,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **M5.6 — Set completion + unlock next set**.
+**Recommended next slice:** **M5.7 — Album completion + mega reward**.
 
 ---
 
@@ -249,3 +250,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ## M5.5 Slice Notes (Atomic purchase function)
 - Added an atomic vault purchase RPC to insert ownership records and update set/season progress in a single transaction.
 - Wired Shop 2.0 set detail cards with purchase buttons that spend currency and mark items as owned.
+
+## M5.6 Slice Notes (Set completion + unlock next set)
+- Added sequential unlock logic so each Vault set opens after the prior set completes.
+- Updated the Shop 2.0 UI to surface locked sets, default to the next available set, and block purchases on locked collections.
