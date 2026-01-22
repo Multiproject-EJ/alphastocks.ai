@@ -74,6 +74,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 - **Migrations/patches:** `/supabase/patches/*` (e.g., `022_board_game_profiles.sql`, `023_shop_inventory.sql`, `028_daily_dividends.sql`, `029_currency_economy.sql`)
 - **Economy-related tables:** `board_game_profiles`, `shop_inventory`, `daily_dividends`, `leaderboard` (by patch naming)
 - **Vault Shop 2.0 tables:** `shop_vault_seasons`, `shop_vault_sets`, `shop_vault_items`, `shop_vault_item_ownership`, `shop_vault_set_progress`, `shop_vault_season_progress` (added in `supabase/patches/032_shop_vault_schema.sql`)
+- **Vault Shop 2.0 leveling table:** `shop_vault_profile_progress` (added in `supabase/patches/034_shop_vault_profile_progress.sql`)
 - **Vault Shop 2.0 RPC:** `shop_vault_purchase` (atomic ownership + progress update in `supabase/patches/033_shop_vault_purchase.sql`)
 - **RPCs / Edge Functions:** none found in repo
 - **Auth usage:** `src/context/AuthContext.tsx` uses Supabase auth sessions (shared with ProTools)
@@ -180,7 +181,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 
 ### M6 — Vault Leveling + Permanent Perks
 - **M6.1** ✅ Audit free roll regen (current formula)
-- **M6.2** Vault progress tables + UI meter
+- **M6.2** ✅ Vault progress tables + UI meter
 - **M6.3** Increment XP on purchase (atomic)
 - **M6.4** Level-up detection + claim records
 - **M6.5** Apply roll regen boost perk (based on existing regen)
@@ -225,7 +226,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **M6.2 — Vault progress tables + UI meter**.
+**Recommended next slice:** **M6.3 — Increment XP on purchase (atomic)**.
 
 ---
 
@@ -270,3 +271,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Energy regen uses a 2-hour reset that sets rolls to 30 (capped at 50) via `getResetRollsAmount` and `ENERGY_CONFIG` in `energy.ts`, with checks running every minute in `App.tsx`.
 - Daily rolls remain separate: `DAILY_ROLL_LIMIT` (10) resets at midnight using `rolls_reset_at` in `useGameSave`, while `energy_rolls` persists the per-session regen count.
 - Noted config mismatch: `ENERGY_REGEN_MINUTES` in `constants.ts` is 30 but not used by the regen logic (which is 120 minutes), so future regen perks should standardize on one config source.
+
+## M6.2 Slice Notes (Vault progress tables + UI meter)
+- Added a Shop 2.0 vault profile progress table to store per-player vault XP/level data with RLS and updated_at triggers.
+- Wired the Shop 2.0 overview hook to fetch vault progress (with fixture fallback) and surfaced a mobile-first vault level meter in the Shop 2.0 UI.

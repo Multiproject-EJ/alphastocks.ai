@@ -28,10 +28,15 @@ export function Shop2Modal({
   shopEventIcon,
 }: Shop2ModalProps) {
   const dialogClass = useResponsiveDialogClass('full')
-  const { seasons, loading, error, source, setDetails, registerOwnership } = useShopVaultOverview()
+  const { seasons, loading, error, source, setDetails, registerOwnership, vaultProgress } =
+    useShopVaultOverview()
   const [selectedSetId, setSelectedSetId] = useState<string | null>(null)
   const [pendingItemId, setPendingItemId] = useState<string | null>(null)
   const sanitizedDiscount = Math.max(0, Math.min(100, shopEventDiscount))
+  const vaultProgressPercent =
+    vaultProgress.xpToNext > 0
+      ? Math.min(100, Math.round((vaultProgress.xp / vaultProgress.xpToNext) * 100))
+      : 0
 
   const defaultSetId = useMemo(() => {
     for (const season of seasons) {
@@ -103,6 +108,27 @@ export function Shop2Modal({
                 </div>
                 <div className="mt-1 text-xs text-muted-foreground">
                   Cash available for Shop 2.0 drops
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-border bg-background/60 p-4">
+                <div className="flex items-center justify-between text-sm uppercase tracking-[0.2em] text-muted-foreground">
+                  <span>Vault Level</span>
+                  <span className="text-xs font-semibold text-accent">
+                    Lv. {vaultProgress.level}
+                  </span>
+                </div>
+                <div className="mt-2 text-sm font-semibold text-foreground">
+                  {vaultProgress.xp.toLocaleString()} / {vaultProgress.xpToNext.toLocaleString()} XP
+                </div>
+                <div className="mt-2 h-2 w-full rounded-full bg-muted/60">
+                  <div
+                    className="h-2 rounded-full bg-accent transition-all"
+                    style={{ width: `${vaultProgressPercent}%` }}
+                  />
+                </div>
+                <div className="mt-1 text-xs text-muted-foreground">
+                  Unlock perks as you collect vault drops.
                 </div>
               </div>
 

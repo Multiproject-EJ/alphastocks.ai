@@ -32,3 +32,12 @@
   - Verify:
     - `SELECT proname FROM pg_proc WHERE proname = 'shop_vault_purchase';`
   - Required for prod: No (feature-flagged Shop 2.0).
+
+- `034_shop_vault_profile_progress.sql`
+  - Purpose: Add per-player Shop 2.0 vault XP + level progress tracking table.
+  - Depends on: `022_board_game_profiles.sql` (auth users for profile_id references).
+  - Safe rerun: Yes (uses IF NOT EXISTS where possible).
+  - Rollback: Drop `public.shop_vault_profile_progress` table and trigger.
+  - Verify:
+    - `SELECT 1 FROM public.shop_vault_profile_progress LIMIT 1;`
+  - Required for prod: No (feature-flagged Shop 2.0).
