@@ -184,7 +184,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **M6.1** ✅ Audit free roll regen (current formula)
 - **M6.2** ✅ Vault progress tables + UI meter
 - **M6.3** ✅ Increment XP on purchase (atomic)
-- **M6.4** Level-up detection + claim records
+- **M6.4** ✅ Level-up detection + claim records
 - **M6.5** Apply roll regen boost perk (based on existing regen)
 
 ### M7 — Tile Price Pop Labels
@@ -227,7 +227,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **M6.4 — Level-up detection + claim records**.
+**Recommended next slice:** **M6.5 — Apply roll regen boost perk (based on existing regen)**.
 
 ---
 
@@ -280,6 +280,10 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ## M6.3 Slice Notes (Increment XP on purchase)
 - Updated the Shop 2.0 vault purchase RPC to add XP gains per purchase using a price-based formula.
 - Added a shared vault XP helper and wired Shop 2.0 preview purchases to increment local XP alongside ownership.
+
+## M6.4 Slice Notes (Level-up detection + claim records)
+- Added vault level-up claim tracking and updated the purchase RPC to handle level progression.
+- Updated Shop 2.0 vault progress calculations to surface pending level rewards in the UI.
 
 ## M0.4 Slice Notes (Lazy-load Portfolio charts)
 - Lazy-loaded the Portfolio modal so chart dependencies no longer block initial app startup.
