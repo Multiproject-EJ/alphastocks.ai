@@ -5,6 +5,24 @@
 **Date:** 2026-01-22  
 **Slice:** M6.4 (Level-up detection + claim records)  
 **Summary:**  
+- Fixed the Shop 2.0 vault purchase handler to avoid referencing `shopWindow` before initialization.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/App.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+1) `cd apps/investing-board-game-v3`  
+2) `VITE_SHOP2=1 npm run dev`  
+3) Open Shop 2.0 and confirm the app loads without the initialization error.  
+
+**Date:** 2026-01-22  
+**Slice:** M6.4 (Level-up detection + claim records)  
+**Summary:**  
 - Added vault level-up claim tracking and extended the Shop 2.0 purchase RPC to handle level progression.  
 - Updated Shop 2.0 vault XP handling to surface pending level rewards in the UI.  
 

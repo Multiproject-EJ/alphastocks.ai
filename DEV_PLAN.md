@@ -284,6 +284,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ## M6.4 Slice Notes (Level-up detection + claim records)
 - Added vault level-up claim tracking and updated the purchase RPC to handle level progression.
 - Updated Shop 2.0 vault progress calculations to surface pending level rewards in the UI.
+- Fixed a Shop 2.0 discount callback ordering issue that caused a "shopWindow" initialization error in the app.
 
 ## M0.4 Slice Notes (Lazy-load Portfolio charts)
 - Lazy-loaded the Portfolio modal so chart dependencies no longer block initial app startup.
