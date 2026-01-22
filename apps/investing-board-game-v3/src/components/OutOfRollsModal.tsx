@@ -43,6 +43,9 @@ interface OutOfRollsModalProps {
   onPurchase?: (pack: RealMoneyRollsPack) => void
   nextResetTime?: Date
   lastEnergyCheck?: Date
+  energyResetAmount?: number
+  vaultRegenBonus?: number
+  vaultLevel?: number
 }
 
 export function OutOfRollsModal({
@@ -51,9 +54,14 @@ export function OutOfRollsModal({
   onPurchase,
   nextResetTime,
   lastEnergyCheck,
+  energyResetAmount,
+  vaultRegenBonus = 0,
+  vaultLevel,
 }: OutOfRollsModalProps) {
   const dialogClass = useResponsiveDialogClass('small')
   const [timeUntilReset, setTimeUntilReset] = useState('')
+  const effectiveResetAmount = energyResetAmount ?? ENERGY_CONFIG.RESET_AMOUNT
+  const safeVaultBonus = Math.max(0, vaultRegenBonus)
 
   // Update countdown timer for next 2-hour reset
   useEffect(() => {
@@ -175,9 +183,14 @@ export function OutOfRollsModal({
           </div>
 
           <p className="text-sm text-muted-foreground text-center px-4">
-            💡 <strong>{ENERGY_CONFIG.RESET_AMOUNT} free dice rolls</strong> are reset every{' '}
+            💡 <strong>{effectiveResetAmount} free dice rolls</strong> are reset every{' '}
             <strong>{Math.round(ENERGY_CONFIG.REGEN_INTERVAL_MINUTES / 60)} hours</strong>
           </p>
+          {safeVaultBonus > 0 && (
+            <p className="text-sm text-muted-foreground text-center px-4">
+              Vault perk: +{safeVaultBonus} rolls per reset{vaultLevel ? ` (Vault Lv. ${vaultLevel})` : ''}.
+            </p>
+          )}
         </div>
 
         <DialogFooter className="mt-4">
