@@ -130,6 +130,7 @@ import { useAuth } from '@/context/AuthContext'
 import { useSound } from '@/hooks/useSound'
 import { getRewardSound, SoundType } from '@/lib/sounds'
 import { useShopInventory } from '@/hooks/useShopInventory'
+import { useShopVaultPurchase } from '@/hooks/useShopVaultPurchase'
 import { useAchievements } from '@/hooks/useAchievements'
 import { useChallenges } from '@/hooks/useChallenges'
 import { useEvents } from '@/hooks/useEvents'
@@ -797,6 +798,11 @@ function App() {
     onAddRolls: (amount) => {
       setRollsRemaining((prev) => Math.min(prev + amount, ENERGY_MAX))
     },
+  })
+
+  const { purchaseVaultItem, isPurchasing: isVaultPurchasing } = useShopVaultPurchase({
+    gameState,
+    setGameState,
   })
 
   // Mobile shop purchase handler (uses cash instead of stars)
@@ -4076,8 +4082,10 @@ function App() {
           canAfford,
           onEquipCosmetic: equipCosmetic,
           getFinalPrice,
-          shopDiscount,
-        }}
+        shopDiscount,
+        onVaultPurchase: purchaseVaultItem,
+        isVaultPurchasing,
+      }}
         stockExchangeBuilderProps={{
           exchanges: stockExchanges,
           progress: stockExchangeState.exchanges,

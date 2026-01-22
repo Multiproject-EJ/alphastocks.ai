@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { supabaseClient, hasSupabaseConfig } from '@/lib/supabaseClient'
 import { useAuth } from '@/context/AuthContext'
 import {
@@ -59,6 +59,7 @@ type VaultOverview = {
   loading: boolean
   error: string | null
   source: 'supabase' | 'mock'
+  registerOwnership: (itemId: string) => void
 }
 
 type VaultSeasonRow = {
@@ -228,37 +229,60 @@ const buildSetDetails = (
     }, {})
 }
 
+type VaultRecords = {
+  seasons: VaultSeasonRecord[]
+  sets: VaultSetRecord[]
+  items: VaultItemRecord[]
+  ownership: VaultOwnershipRecord[]
+}
+
 export function useShopVaultOverview(): VaultOverview {
   const { user } = useAuth()
-  const [seasons, setSeasons] = useState<VaultSeasonSummary[]>([])
-  const [setDetails, setSetDetails] = useState<Record<string, VaultSetDetail>>({})
+  const [records, setRecords] = useState<VaultRecords>({
+    seasons: VAULT_FIXTURE_DATA.seasons,
+    sets: VAULT_FIXTURE_DATA.sets,
+    items: VAULT_FIXTURE_DATA.items,
+    ownership: VAULT_FIXTURE_DATA.ownership,
+  })
   const [loading, setLoading] = useState<boolean>(hasSupabaseConfig)
   const [error, setError] = useState<string | null>(null)
   const [source, setSource] = useState<'supabase' | 'mock'>(hasSupabaseConfig ? 'supabase' : 'mock')
 
-  const fixtureOverview = useMemo(() => {
-    return buildOverview(
-      VAULT_FIXTURE_DATA.seasons,
-      VAULT_FIXTURE_DATA.sets,
-      VAULT_FIXTURE_DATA.items,
-      VAULT_FIXTURE_DATA.ownership
-    )
-  }, [])
+  const seasons = useMemo(
+    () => buildOverview(records.seasons, records.sets, records.items, records.ownership),
+    [records]
+  )
 
-  const fixtureSetDetails = useMemo(() => {
-    return buildSetDetails(
-      VAULT_FIXTURE_DATA.sets,
-      VAULT_FIXTURE_DATA.items,
-      VAULT_FIXTURE_DATA.ownership
-    )
+  const setDetails = useMemo(
+    () => buildSetDetails(records.sets, records.items, records.ownership),
+    [records]
+  )
+
+  const applyRecords = useCallback(
+    (nextRecords: VaultRecords, nextSource: 'supabase' | 'mock') => {
+      setRecords(nextRecords)
+      setSource(nextSource)
+      setLoading(false)
+    },
+    []
+  )
+
+  const registerOwnership = useCallback((itemId: string) => {
+    setRecords((prev) => {
+      if (prev.ownership.some((record) => record.itemId === itemId)) {
+        return prev
+      }
+      return {
+        ...prev,
+        ownership: [...prev.ownership, { itemId }],
+      }
+    })
   }, [])
 
   useEffect(() => {
     if (!supabaseClient || !hasSupabaseConfig) {
       setLoading(false)
-      setSource('mock')
-      setSeasons(fixtureOverview)
-      setSetDetails(fixtureSetDetails)
+      applyRecords(VAULT_FIXTURE_DATA, 'mock')
       return
     }
 
@@ -299,26 +323,32 @@ export function useShopVaultOverview(): VaultOverview {
             ownershipResponse.error?.message ||
             'Unable to load vault catalog.'
         )
-        setSource('mock')
-        setSeasons(fixtureOverview)
-        setSetDetails(fixtureSetDetails)
-        setLoading(false)
+        applyRecords(VAULT_FIXTURE_DATA, 'mock')
         return
       }
 
       const normalizedSeasons = normalizeSeasons((seasonsResponse.data ?? []) as VaultSeasonRow[])
       const normalizedSets = normalizeSets((setsResponse.data ?? []) as VaultSetRow[])
       const normalizedItems = normalizeItems((itemsResponse.data ?? []) as VaultItemRow[])
-      const normalizedOwnership = (ownershipResponse.data ?? []).map((record) => ({
+      const normalizedOwnership: VaultOwnershipRecord[] = (ownershipResponse.data ?? []).map((record) => ({
         itemId: record.item_id as string,
       }))
 
-      const overview = buildOverview(normalizedSeasons, normalizedSets, normalizedItems, normalizedOwnership)
-      const details = buildSetDetails(normalizedSets, normalizedItems, normalizedOwnership)
-      setSeasons(overview.length > 0 ? overview : fixtureOverview)
-      setSetDetails(Object.keys(details).length > 0 ? details : fixtureSetDetails)
-      setSource(overview.length > 0 ? 'supabase' : 'mock')
-      setLoading(false)
+      if (normalizedSeasons.length === 0 || normalizedSets.length === 0 || normalizedItems.length === 0) {
+        applyRecords(VAULT_FIXTURE_DATA, 'mock')
+        return
+      }
+
+      setError(null)
+      applyRecords(
+        {
+          seasons: normalizedSeasons,
+          sets: normalizedSets,
+          items: normalizedItems,
+          ownership: normalizedOwnership,
+        },
+        'supabase'
+      )
     }
 
     fetchVault()
@@ -326,7 +356,7 @@ export function useShopVaultOverview(): VaultOverview {
     return () => {
       isActive = false
     }
-  }, [fixtureOverview, fixtureSetDetails, user])
+  }, [applyRecords, user])
 
   return {
     seasons,
@@ -334,5 +364,6 @@ export function useShopVaultOverview(): VaultOverview {
     loading,
     error,
     source,
+    registerOwnership,
   }
 }

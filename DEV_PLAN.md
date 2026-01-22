@@ -57,6 +57,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 - **UI components:** `src/components/*` (board, modals, overlays), shop UI in `src/components/ShopModal.tsx` + `src/components/shop/*` (mobile shop shell, property vault album cards)
 - **Shop 2.0 entry:** `src/components/Shop2Modal.tsx` (feature-flagged Shop 2.0 preview shell)
 - **Shop 2.0 vault data:** `src/hooks/useShopVaultOverview.ts` + `src/lib/shopVaultFixtures.ts` (season/set overview + fallback fixtures)
+- **Shop 2.0 purchases:** `src/hooks/useShopVaultPurchase.ts` (atomic vault buy + currency spend)
 - **Animation utilities:** `src/lib/animations.ts`, `src/hooks/useBoardCamera.ts`, `src/hooks/useCameraAnimation.ts`
 
 #### PWA
@@ -70,6 +71,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 - **Migrations/patches:** `/supabase/patches/*` (e.g., `022_board_game_profiles.sql`, `023_shop_inventory.sql`, `028_daily_dividends.sql`, `029_currency_economy.sql`)
 - **Economy-related tables:** `board_game_profiles`, `shop_inventory`, `daily_dividends`, `leaderboard` (by patch naming)
 - **Vault Shop 2.0 tables:** `shop_vault_seasons`, `shop_vault_sets`, `shop_vault_items`, `shop_vault_item_ownership`, `shop_vault_set_progress`, `shop_vault_season_progress` (added in `supabase/patches/032_shop_vault_schema.sql`)
+- **Vault Shop 2.0 RPC:** `shop_vault_purchase` (atomic ownership + progress update in `supabase/patches/033_shop_vault_purchase.sql`)
 - **RPCs / Edge Functions:** none found in repo
 - **Auth usage:** `src/context/AuthContext.tsx` uses Supabase auth sessions (shared with ProTools)
 - **Storage buckets:** not defined in repo (assume external configuration)
@@ -167,7 +169,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **M5.2** ✅ Supabase schema for seasons/sets/items/progress
 - **M5.3** ✅ Vault overview UI
 - **M5.4** ✅ Set detail UI (4×3)
-- **M5.5** Atomic purchase function
+- **M5.5** ✅ Atomic purchase function
 - **M5.6** Set completion + unlock next set
 - **M5.7** Album completion + mega reward
 - **M5.8** Window integration (discounts, flash)
@@ -219,7 +221,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **M5.5 — Atomic purchase function**.
+**Recommended next slice:** **M5.6 — Set completion + unlock next set**.
 
 ---
 
@@ -243,3 +245,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ## M5.4 Slice Notes (Set detail UI)
 - Added a set detail panel with a 4×3 item grid to preview collectible tiles, ownership status, rarity, and pricing.
 - Updated Shop 2.0 selection flow to highlight the active set and keep a default selection when data loads.
+
+## M5.5 Slice Notes (Atomic purchase function)
+- Added an atomic vault purchase RPC to insert ownership records and update set/season progress in a single transaction.
+- Wired Shop 2.0 set detail cards with purchase buttons that spend currency and mark items as owned.

@@ -206,3 +206,28 @@
 1) `cd apps/investing-board-game-v3`  
 2) `VITE_SHOP2=1 npm run dev`  
 3) Open the Shop overlay and select a set; confirm the 4×3 grid appears with owned vs missing states.
+
+**Date:** 2026-01-23  
+**Slice:** M5.5 (atomic purchase function)  
+**Summary:**  
+- Added an atomic Shop 2.0 purchase RPC that records vault ownership and updates set/season progress in one transaction.  
+- Wired the Shop 2.0 set detail grid with buy buttons, preview-mode purchases, and local ownership updates.  
+- Introduced a Shop 2.0 purchase hook to deduct currency and call the vault purchase RPC.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/App.tsx  
+- apps/investing-board-game-v3/src/components/Shop2Modal.tsx  
+- apps/investing-board-game-v3/src/hooks/useShopVaultOverview.ts  
+- apps/investing-board-game-v3/src/hooks/useShopVaultPurchase.ts  
+- supabase/patches/033_shop_vault_purchase.sql  
+- MIGRATIONS_LOG.md  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- supabase/patches/033_shop_vault_purchase.sql  
+
+**How to test:**  
+1) `cd apps/investing-board-game-v3`  
+2) `VITE_SHOP2=1 npm run dev`  
+3) Open the Shop overlay, tap a missing vault item, and confirm the purchase button completes and marks the item as owned.
