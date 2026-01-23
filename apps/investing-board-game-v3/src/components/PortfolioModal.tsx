@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Separator } from '@/components/ui/separator'
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts'
@@ -8,6 +8,7 @@ interface PortfolioModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   gameState: GameState
+  onTradeHolding?: (holdingIndex: number, action: 'buy' | 'sell', shares: number) => void
 }
 
 // Category color mapping
@@ -29,7 +30,14 @@ const CATEGORY_LABELS: Partial<Record<TileCategory, string>> = {
   elite: 'Elite',
 }
 
-export function PortfolioModal({ open, onOpenChange, gameState }: PortfolioModalProps) {
+export function PortfolioModal({
+  open,
+  onOpenChange,
+  gameState,
+  onTradeHolding,
+}: PortfolioModalProps) {
+  const [tradeShares, setTradeShares] = useState<Record<number, string>>({})
+
   // Calculate category allocation data for pie chart
   const categoryData = useMemo(() => {
     if (gameState.holdings.length === 0) return []
@@ -180,7 +188,7 @@ export function PortfolioModal({ open, onOpenChange, gameState }: PortfolioModal
                 You don't own any stocks yet. Land on a category tile to buy stocks!
               </p>
             ) : (
-              <div className="space-y-2 max-h-[200px] overflow-y-auto pr-1">
+              <div className="space-y-2 max-h-[220px] overflow-y-auto pr-1">
                 {gameState.holdings.map((holding, idx) => (
                   <div 
                     key={idx} 
@@ -209,6 +217,41 @@ export function PortfolioModal({ open, onOpenChange, gameState }: PortfolioModal
                       <span className="capitalize">{CATEGORY_LABELS[holding.stock.category]}</span>
                       <span>@${holding.stock.price.toLocaleString()}/share</span>
                     </div>
+                    {onTradeHolding && (
+                      <div className="flex flex-wrap items-center gap-2 pt-2">
+                        <input
+                          type="number"
+                          min="1"
+                          step="1"
+                          className="w-16 rounded border border-border bg-background px-2 py-1 text-xs text-foreground"
+                          value={tradeShares[idx] ?? '1'}
+                          onChange={(event) =>
+                            setTradeShares((prev) => ({ ...prev, [idx]: event.target.value }))
+                          }
+                          aria-label={`Shares to trade for ${holding.stock.ticker}`}
+                        />
+                        <button
+                          type="button"
+                          className="rounded bg-accent px-2 py-1 text-xs font-semibold text-accent-foreground"
+                          onClick={() => {
+                            const shares = Math.max(1, Number(tradeShares[idx] ?? 1))
+                            onTradeHolding(idx, 'buy', shares)
+                          }}
+                        >
+                          Buy
+                        </button>
+                        <button
+                          type="button"
+                          className="rounded border border-border px-2 py-1 text-xs font-semibold text-foreground"
+                          onClick={() => {
+                            const shares = Math.max(1, Number(tradeShares[idx] ?? 1))
+                            onTradeHolding(idx, 'sell', shares)
+                          }}
+                        >
+                          Sell
+                        </button>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

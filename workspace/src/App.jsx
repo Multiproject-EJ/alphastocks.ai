@@ -869,6 +869,8 @@ const App = () => {
     focusList,
     portfolioSummary,
     boardGamePortfolioSummary,
+    boardGameProfile,
+    boardGamePositions,
     ledgerHighlights,
     eventsScope,
     setEventsScope,
@@ -877,12 +879,24 @@ const App = () => {
     eventsDigest,
     latestJournal,
     analysisSummary,
-    loadError: dashboardError
+    loadError: dashboardError,
+    refreshBoardGamePortfolio
   } = useDashboardData({
     dataService,
     profileId: activeProfile?.id ?? user?.id,
     defaultFocusList: DEFAULT_FOCUS_LIST
   });
+  const [boardGameTradeForm, setBoardGameTradeForm] = useState({
+    action: 'buy',
+    symbol: '',
+    name: '',
+    category: 'growth',
+    price: '',
+    shares: ''
+  });
+  const [boardGameTradeError, setBoardGameTradeError] = useState(null);
+  const [boardGameTradeStatus, setBoardGameTradeStatus] = useState(null);
+  const [isBoardGameTradeSubmitting, setIsBoardGameTradeSubmitting] = useState(false);
   const morningNewsAlert = alertSettings[MORNING_NEWS_ALERT_ID];
   const hasMorningNewsPing = Boolean(
     morningNewsAlert?.enabled && morningNewsAlert?.triggered && morningNewsAlert?.unread
@@ -982,6 +996,179 @@ const App = () => {
   useEffect(() => {
     loadReadDeepDiveIds();
   }, [loadReadDeepDiveIds]);
+  const handleBoardGameTradeSubmit = useCallback(
+    async (event) => {
+      event.preventDefault();
+      setBoardGameTradeError(null);
+      setBoardGameTradeStatus(null);
+
+      if (!boardGameProfile) {
+        setBoardGameTradeError('No board game profile found yet. Play a game session to create one.');
+        return;
+      }
+
+      if (typeof dataService?.updateRows !== 'function') {
+        setBoardGameTradeError('Trade actions are unavailable in this environment.');
+        return;
+      }
+
+      const symbol = boardGameTradeForm.symbol.trim().toUpperCase();
+      const action = boardGameTradeForm.action;
+      const shares = Number(boardGameTradeForm.shares);
+      const priceInput = Number(boardGameTradeForm.price);
+
+      if (!symbol) {
+        setBoardGameTradeError('Enter a stock symbol to trade.');
+        return;
+      }
+
+      if (!Number.isFinite(shares) || shares <= 0) {
+        setBoardGameTradeError('Enter a valid share count greater than 0.');
+        return;
+      }
+
+      const holdings = Array.isArray(boardGameProfile.holdings)
+        ? boardGameProfile.holdings.map((holding) => ({
+          ...holding,
+          stock: { ...holding.stock }
+        }))
+        : [];
+      const holdingIndex = holdings.findIndex((holding) => holding?.stock?.ticker === symbol);
+
+      let nextCash = Number(boardGameProfile.cash ?? 0);
+
+      let tradePrice = priceInput;
+
+      if (action === 'buy') {
+        if (!Number.isFinite(priceInput) || priceInput <= 0) {
+          setBoardGameTradeError('Enter a valid price for the buy order.');
+          return;
+        }
+
+        const totalCost = shares * tradePrice;
+
+        if (nextCash < totalCost) {
+          setBoardGameTradeError('Insufficient cash for this purchase.');
+          return;
+        }
+
+        const updatedHolding = {
+          stock: {
+            ticker: symbol,
+            name: boardGameTradeForm.name.trim() || symbol,
+            category: boardGameTradeForm.category,
+            price: tradePrice
+          },
+          shares,
+          totalCost
+        };
+
+        if (holdingIndex >= 0) {
+          const existing = holdings[holdingIndex];
+          const combinedShares = Number(existing.shares ?? 0) + shares;
+          const combinedTotalCost = Number(existing.totalCost ?? 0) + totalCost;
+          holdings[holdingIndex] = {
+            stock: {
+              ...existing.stock,
+              ...updatedHolding.stock
+            },
+            shares: combinedShares,
+            totalCost: combinedTotalCost
+          };
+        } else {
+          holdings.push(updatedHolding);
+        }
+
+        nextCash -= totalCost;
+      } else if (action === 'sell') {
+        if (holdingIndex < 0) {
+          setBoardGameTradeError(`No holdings found for ${symbol}.`);
+          return;
+        }
+
+        const existing = holdings[holdingIndex];
+        const existingShares = Number(existing.shares ?? 0);
+
+        if (shares > existingShares) {
+          setBoardGameTradeError(`You only have ${existingShares} shares to sell.`);
+          return;
+        }
+
+        const fallbackPrice = Number(existing.stock?.price ?? 0);
+        tradePrice = priceInput > 0 ? priceInput : fallbackPrice;
+
+        if (!Number.isFinite(tradePrice) || tradePrice <= 0) {
+          setBoardGameTradeError('Enter a valid price to sell.');
+          return;
+        }
+
+        const remainingShares = existingShares - shares;
+        const costPerShare = existingShares > 0 ? Number(existing.totalCost ?? 0) / existingShares : 0;
+        const nextTotalCost = costPerShare * remainingShares;
+
+        if (remainingShares <= 0) {
+          holdings.splice(holdingIndex, 1);
+        } else {
+          holdings[holdingIndex] = {
+            ...existing,
+            stock: {
+              ...existing.stock,
+              price: tradePrice
+            },
+            shares: remainingShares,
+            totalCost: nextTotalCost
+          };
+        }
+
+        nextCash += shares * tradePrice;
+      } else {
+        setBoardGameTradeError('Select a valid trade action.');
+        return;
+      }
+
+      const nextPortfolioValue = holdings.reduce(
+        (total, holding) => total + Number(holding?.shares ?? 0) * Number(holding?.stock?.price ?? 0),
+        0
+      );
+      const nextNetWorth = nextCash + nextPortfolioValue;
+
+      setIsBoardGameTradeSubmitting(true);
+      try {
+        await dataService.updateRows(
+          'board_game_profiles',
+          { profile_id: boardGameProfile.profile_id },
+          {
+            cash: nextCash,
+            portfolio_value: nextPortfolioValue,
+            net_worth: nextNetWorth,
+            holdings
+          }
+        );
+
+        setBoardGameTradeStatus(
+          `${action === 'buy' ? 'Bought' : 'Sold'} ${shares} ${symbol} @ $${Number(tradePrice || 0).toLocaleString()}`
+        );
+        setBoardGameTradeForm((prev) => ({
+          ...prev,
+          shares: '',
+          price: '',
+          name: action === 'buy' ? prev.name : '',
+          category: action === 'buy' ? prev.category : 'growth'
+        }));
+        refreshBoardGamePortfolio();
+      } catch (error) {
+        setBoardGameTradeError(error?.message || 'Unable to update board game portfolio right now.');
+      } finally {
+        setIsBoardGameTradeSubmitting(false);
+      }
+    },
+    [
+      boardGameProfile,
+      boardGameTradeForm,
+      dataService,
+      refreshBoardGamePortfolio
+    ]
+  );
   const universeViewDisplay = useMemo(() => {
     const fallbackName = 'Anora Group Oyj';
     const fallbackTicker = 'ANORA';
@@ -2297,6 +2484,147 @@ const App = () => {
           </p>
         )
       });
+
+      if (effectiveView === 'boardgame') {
+        cards.push({
+          title: 'Holdings detail',
+          body: boardGamePositions.length ? (
+            <div className="detail-list">
+              {boardGamePositions.map((position) => (
+                <div key={position.symbol} className="detail-card">
+                  <strong>{position.symbol}</strong> — {position.name}
+                  <div className="detail-meta">
+                    {position.shares} shares · ${position.currentValue.toLocaleString()} value
+                    {` · ${position.unrealizedGainLoss >= 0 ? '+' : ''}$${position.unrealizedGainLoss.toLocaleString()} (${position.unrealizedGainLossPct.toFixed(1)}%)`}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p>No holdings yet. Make a trade in the board game to see positions here.</p>
+          )
+        });
+
+        cards.push({
+          title: 'Trade board game portfolio',
+          body: (
+            <form onSubmit={handleBoardGameTradeSubmit} className="detail-form">
+              <p className="detail-meta">
+                Cash available: ${Number(boardGameProfile?.cash ?? 0).toLocaleString()}
+              </p>
+              <div style="display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));">
+                <label style="display: grid; gap: 6px;">
+                  Action
+                  <select
+                    value={boardGameTradeForm.action}
+                    onChange={(event) =>
+                      setBoardGameTradeForm((prev) => ({ ...prev, action: event.target.value }))
+                    }
+                  >
+                    <option value="buy">Buy</option>
+                    <option value="sell">Sell</option>
+                  </select>
+                </label>
+                <label style="display: grid; gap: 6px;">
+                  Symbol
+                  <input
+                    value={boardGameTradeForm.symbol}
+                    onChange={(event) =>
+                      setBoardGameTradeForm((prev) => ({ ...prev, symbol: event.target.value }))
+                    }
+                    placeholder="AAPL"
+                    required
+                  />
+                </label>
+                <label style="display: grid; gap: 6px;">
+                  Shares
+                  <input
+                    type="number"
+                    min="0"
+                    step="1"
+                    value={boardGameTradeForm.shares}
+                    onChange={(event) =>
+                      setBoardGameTradeForm((prev) => ({ ...prev, shares: event.target.value }))
+                    }
+                    placeholder="10"
+                    required
+                  />
+                </label>
+                <label style="display: grid; gap: 6px;">
+                  Price
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={boardGameTradeForm.price}
+                    onChange={(event) =>
+                      setBoardGameTradeForm((prev) => ({ ...prev, price: event.target.value }))
+                    }
+                    placeholder={boardGameTradeForm.action === 'sell' ? 'Use current price' : '150'}
+                  />
+                </label>
+                <label style="display: grid; gap: 6px;">
+                  Company name
+                  <input
+                    value={boardGameTradeForm.name}
+                    onChange={(event) =>
+                      setBoardGameTradeForm((prev) => ({ ...prev, name: event.target.value }))
+                    }
+                    placeholder="Apple Inc."
+                    disabled={boardGameTradeForm.action === 'sell'}
+                  />
+                </label>
+                <label style="display: grid; gap: 6px;">
+                  Category
+                  <select
+                    value={boardGameTradeForm.category}
+                    onChange={(event) =>
+                      setBoardGameTradeForm((prev) => ({ ...prev, category: event.target.value }))
+                    }
+                    disabled={boardGameTradeForm.action === 'sell'}
+                  >
+                    <option value="growth">Growth</option>
+                    <option value="value">Value</option>
+                    <option value="dividends">Dividends</option>
+                    <option value="moats">Moats</option>
+                    <option value="turnarounds">Turnarounds</option>
+                    <option value="elite">Elite</option>
+                  </select>
+                </label>
+              </div>
+              <div style="margin-top: 12px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+                <button type="submit" className="btn-primary" disabled={isBoardGameTradeSubmitting}>
+                  {isBoardGameTradeSubmitting ? 'Updating...' : 'Submit trade'}
+                </button>
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  onClick={() => {
+                    setBoardGameTradeForm({
+                      action: 'buy',
+                      symbol: '',
+                      name: '',
+                      category: 'growth',
+                      price: '',
+                      shares: ''
+                    });
+                    setBoardGameTradeError(null);
+                    setBoardGameTradeStatus(null);
+                  }}
+                >
+                  Reset
+                </button>
+              </div>
+              {boardGameTradeError && (
+                <p className="detail-meta" style="color: var(--status-red);">{boardGameTradeError}</p>
+              )}
+              {boardGameTradeStatus && (
+                <p className="detail-meta" style="color: var(--status-green);">{boardGameTradeStatus}</p>
+              )}
+            </form>
+          )
+        });
+      }
       
       // Add ledger highlights only for protools view
       if (effectiveView === 'protools') {
@@ -2347,6 +2675,13 @@ const App = () => {
     morningNewsAlert,
     portfolioSummary,
     boardGamePortfolioSummary,
+    boardGamePositions,
+    boardGameProfile,
+    boardGameTradeForm,
+    boardGameTradeError,
+    boardGameTradeStatus,
+    isBoardGameTradeSubmitting,
+    handleBoardGameTradeSubmit,
     portfolioView,
     hasMorningNewsPing,
     dashboardTitle,

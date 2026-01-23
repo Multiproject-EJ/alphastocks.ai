@@ -3042,6 +3042,83 @@ function App() {
     }, 500)
   }
 
+  const handlePortfolioTrade = useCallback(
+    (holdingIndex: number, action: 'buy' | 'sell', shares: number) => {
+      const quantity = Math.max(1, Math.floor(shares))
+
+      setGameState((prev) => {
+        const holding = prev.holdings[holdingIndex]
+        if (!holding) {
+          return prev
+        }
+
+        const tradeValue = holding.stock.price * quantity
+        let nextCash = prev.cash
+        const nextHoldings = [...prev.holdings]
+
+        if (action === 'buy') {
+          if (nextCash < tradeValue) {
+            toast.error('Insufficient funds', {
+              description: `You need $${tradeValue.toLocaleString()} but only have $${nextCash.toLocaleString()}`,
+            })
+            return prev
+          }
+
+          nextCash -= tradeValue
+          nextHoldings[holdingIndex] = {
+            ...holding,
+            shares: holding.shares + quantity,
+            totalCost: holding.totalCost + tradeValue,
+          }
+          toast.success(`Bought ${quantity} shares of ${holding.stock.ticker}`, {
+            description: `Total cost: $${tradeValue.toLocaleString()}`,
+          })
+        } else {
+          if (quantity > holding.shares) {
+            toast.error('Not enough shares', {
+              description: `You only have ${holding.shares} shares of ${holding.stock.ticker}`,
+            })
+            return prev
+          }
+
+          const avgCostPerShare = holding.shares > 0 ? holding.totalCost / holding.shares : 0
+          const remainingShares = holding.shares - quantity
+          const remainingCost = avgCostPerShare * remainingShares
+
+          nextCash += tradeValue
+
+          if (remainingShares <= 0) {
+            nextHoldings.splice(holdingIndex, 1)
+          } else {
+            nextHoldings[holdingIndex] = {
+              ...holding,
+              shares: remainingShares,
+              totalCost: remainingCost,
+            }
+          }
+
+          toast.success(`Sold ${quantity} shares of ${holding.stock.ticker}`, {
+            description: `Proceeds: $${tradeValue.toLocaleString()}`,
+          })
+        }
+
+        const nextPortfolioValue = nextHoldings.reduce(
+          (sum, item) => sum + item.shares * item.stock.price,
+          0
+        )
+
+        return {
+          ...prev,
+          cash: nextCash,
+          portfolioValue: nextPortfolioValue,
+          netWorth: nextCash + nextPortfolioValue,
+          holdings: nextHoldings,
+        }
+      })
+    },
+    []
+  )
+
   const handleChooseChallenge = (challenge: typeof THRIFTY_CHALLENGES[0]) => {
     playSound('celebration')
     
@@ -3580,6 +3657,7 @@ function App() {
                     component: PortfolioModal,
                     props: {
                       gameState,
+                      onTradeHolding: handlePortfolioTrade,
                     },
                     priority: 'normal',
                   })
@@ -4204,11 +4282,13 @@ function App() {
           },
         }}
         portfolioProps={{
+          gameState,
           portfolio: gameState.portfolio,
           totalInvested: gameState.totalInvested,
           onViewStock: (symbol) => {
             logEvent?.('stock_viewed_from_portfolio', { symbol })
           },
+          onTradeHolding: handlePortfolioTrade,
         }}
       />
 
@@ -4410,6 +4490,7 @@ function App() {
               component: PortfolioModal,
               props: {
                 gameState,
+                onTradeHolding: handlePortfolioTrade,
               },
               priority: 'normal',
             })
@@ -4420,6 +4501,7 @@ function App() {
               window.location.href = proToolsUrl
             }
           }}
+          onOpenSettings={() => handleBottomNavigation('settings')}
           onOpenShop={openShopOverlay}
           onOpenStockExchangeBuilder={openStockExchangeOverlay}
           onOpenRightNow={openEventCalendar}
