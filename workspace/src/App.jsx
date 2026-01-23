@@ -3169,7 +3169,7 @@ const App = () => {
                 aria-label={isProToolsOpen ? 'Close Pro Tools workspace' : 'Open Pro Tools workspace'}
               >
                 <span className="pro-toggle__indicator" aria-hidden="true" />
-                <span className="pro-toggle__label">Pro Tools</span>
+                <span className="pro-toggle__label">{isMobileView ? 'PLAY🎲' : 'Pro Tools'}</span>
               </button>
 
               {!isMobileView && (
