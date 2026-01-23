@@ -474,3 +474,24 @@
 1) `cd apps/investing-board-game-v3`  
 2) `npm run dev`  
 3) Roll past a portal start tile to confirm no ring transition, then land exactly on it to confirm the transition triggers.
+
+**Date:** 2026-01-23  
+**Slice:** M1.3 (Bull Market window → ring 2 quick entry)  
+**Summary:**  
+- Added a Bull Run Rally event effect that triggers a Bull Market window for quick ring entry.  
+- Allowed passing Ring 1 start to ascend into Ring 2 when the Bull Market window is active.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/App.tsx  
+- apps/investing-board-game-v3/src/lib/events.ts  
+- apps/investing-board-game-v3/src/lib/movementEngine.ts  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+1) `cd apps/investing-board-game-v3`  
+2) `npm run dev`  
+3) Ensure the Bull Run Rally event is active, roll to pass Start on Ring 1, and confirm you ascend to Ring 2 without landing exactly on the portal.

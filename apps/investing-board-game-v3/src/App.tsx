@@ -2007,11 +2007,26 @@ function App() {
     
     const totalMovement = diceResult.total
     
+    const customEffects = getCustomEffects()
+    const isBullMarketWindow = customEffects.includes('bull_market_window')
+    const portalOverrides = isBullMarketWindow
+      ? {
+          1: {
+            onPass: {
+              action: 'ascend',
+              targetRing: 2,
+              targetTile: getPortalConfigForRing(2).startTileId,
+            },
+          },
+        }
+      : undefined
+
     // Use new movement engine to calculate cross-ring movement
     const movementResult = calculateMovement(
       gameState.currentRing,
       gameState.position,
-      totalMovement
+      totalMovement,
+      { portalOverrides }
     )
     
     // Calculate base rewards (will be multiplied)
