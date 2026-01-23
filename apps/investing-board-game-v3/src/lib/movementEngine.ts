@@ -4,6 +4,21 @@ import type { RingNumber, Tile } from './types'
 // Constants
 const RING_START_INDEX = 0
 
+type PortalAction = {
+  action: 'ascend' | 'descend' | 'stay' | 'throne'
+  targetRing: RingNumber | 0
+  targetTile: number
+}
+
+interface PortalOverrideConfig {
+  onPass?: PortalAction
+  onLand?: PortalAction
+}
+
+export interface MovementOptions {
+  portalOverrides?: Partial<Record<RingNumber, PortalOverrideConfig>>
+}
+
 export interface MovementResult {
   path: Array<{ ring: RingNumber; tileId: number }>
   finalRing: RingNumber
@@ -60,7 +75,8 @@ export function getPortalConfigForRing(ring: RingNumber) {
 export function calculateMovement(
   startRing: RingNumber,
   startPosition: number,
-  diceRoll: number
+  diceRoll: number,
+  options?: MovementOptions
 ): MovementResult {
   const path: Array<{ ring: RingNumber; tileId: number }> = []
   
@@ -75,6 +91,7 @@ export function calculateMovement(
   while (remainingSteps > 0) {
     const ringConfig = RING_CONFIG[currentRing]
     const portalConfig = getPortalConfig(currentRing)
+    const portalOverrides = options?.portalOverrides?.[currentRing]
     const totalTiles = ringConfig.tiles
     const portalIndex = portalConfig.startTileId - getRingOffset(currentRing)
     
@@ -91,7 +108,9 @@ export function calculateMovement(
       landedExactlyOnPortal = isExactLanding
       
       // Determine portal action
-      const action = isExactLanding ? portalConfig.onLand : portalConfig.onPass
+      const action = isExactLanding
+        ? (portalOverrides?.onLand ?? portalConfig.onLand)
+        : (portalOverrides?.onPass ?? portalConfig.onPass)
       
       if (action.action === 'ascend') {
         portalTriggered = true

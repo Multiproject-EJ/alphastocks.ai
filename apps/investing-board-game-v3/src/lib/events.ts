@@ -289,9 +289,9 @@ const ROTATION_EVENT_TEMPLATES: Array<Omit<GameEvent, 'startDate' | 'endDate' | 
   },
   {
     title: 'Bull Run Rally',
-    description: 'Bonus rolls and 1.5x XP.',
+    description: 'Bonus rolls, 1.5x XP, and a quick entry to Ring 2.',
     type: 'special',
-    effects: { rollsBonus: 3, xpMultiplier: 1.5 },
+    effects: { rollsBonus: 3, xpMultiplier: 1.5, customEffect: 'bull_market_window' },
     icon: '🐂',
     currency: createCurrencyRules('🐂', 6, 30, 600),
   },
