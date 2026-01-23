@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 
 // Layout constants for consistent sizing
 const COMPACT_HUD_HEIGHT = 48;  // pixels
-const BOTTOM_NAV_HEIGHT = 90;   // pixels (updated to match new nav height)
+const BOTTOM_NAV_HEIGHT = 105;   // pixels (increased for more spacing)
 
 interface PhoneLayoutProps {
   children: ReactNode;

@@ -109,11 +109,11 @@ export function PhoneBottomNav({
         'safe-bottom',
       )}
       style={{
-        height: 90,
+        height: 105,
         display: 'flex',
         alignItems: 'flex-end',
         justifyContent: 'space-around',
-        paddingBottom: 8,
+        paddingBottom: 16,
       }}
     >
       {/* Left navigation items */}
@@ -129,6 +129,7 @@ export function PhoneBottomNav({
           }
           handleNavClick(item.id);
         };
+        const isProTools = item.id === 'proTools';
         
         return (
           <button
@@ -142,6 +143,7 @@ export function PhoneBottomNav({
               'cursor-pointer',
               'transition-[color,box-shadow,transform] duration-200',
               isNearDice && '-translate-y-6',
+              isProTools && 'px-3', // Extra horizontal padding for ProTools
               isActive
                 ? 'text-primary shadow-[0_0_12px_hsl(var(--primary)/0.45)]'
                 : 'text-muted-foreground',

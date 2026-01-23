@@ -262,3 +262,6 @@ export function PortfolioModal({
     </Dialog>
   )
 }
+
+// Default export for lazy loading
+export default PortfolioModal
