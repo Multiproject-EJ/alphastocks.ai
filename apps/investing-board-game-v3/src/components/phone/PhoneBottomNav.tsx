@@ -19,7 +19,7 @@ type NavItem = {
 
 const NAV_ITEMS: ReadonlyArray<NavItem> = [
   { id: 'proTools', icon: Wrench, label: 'ProTools' },
-  { id: 'stockExchangeBuilder', icon: Building2, label: 'Exchange' },
+  { id: 'stockExchangeBuilder', icon: Building2, label: 'Stocks' },
 ] as const;
 
 const NAV_ITEMS_RIGHT: ReadonlyArray<{ id: UIMode; icon?: typeof Gamepad2; label: string }> = [
@@ -156,7 +156,7 @@ export function PhoneBottomNav({
                 src={`${import.meta.env.BASE_URL}Build.webp`}
                 alt="Build"
                 className={cn(
-                  'h-[3.15rem] w-[3.15rem] mb-0.5 object-contain',
+                  'h-[4.4rem] w-[4.4rem] mb-0.5 object-contain',
                   isActive && 'scale-110 transition-transform'
                 )}
               />
@@ -234,7 +234,7 @@ export function PhoneBottomNav({
                 src={`${import.meta.env.BASE_URL}Shop.webp`}
                 alt="Shop"
                 className={cn(
-                  'h-[3.15rem] w-[3.15rem] mb-0.5 object-contain',
+                  'h-[4.4rem] w-[4.4rem] mb-0.5 object-contain',
                   isActive && 'scale-110 transition-transform'
                 )}
               />
