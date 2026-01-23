@@ -43,6 +43,7 @@ interface PhoneLayoutProps {
   onOpenShop?: () => void;
   onOpenStockExchangeBuilder?: () => void;
   onOpenRightNow?: () => void;
+  onOpenSettings?: () => void;
   dailySpinAvailable?: boolean;
   onOpenDailySpin?: () => void;
   eventTrackNode?: ReactNode;
@@ -67,11 +68,12 @@ export function PhoneLayout({
   onOpenShop = () => {},
   onOpenStockExchangeBuilder = () => {},
   onOpenRightNow = () => {},
+  onOpenSettings,
   dailySpinAvailable = false,
   onOpenDailySpin = () => {},
   eventTrackNode,
 }: PhoneLayoutProps) {
-  const { mode } = useUIMode();
+  const { mode, transitionTo } = useUIMode();
   const showDebug = import.meta.env.DEV;
   const [currentHour, setCurrentHour] = useState(() => new Date().getHours());
   const [spaceBackgroundEnabled, setSpaceBackgroundEnabled] = useState(false);
@@ -83,6 +85,11 @@ export function PhoneLayout({
   const hideFloatingActions = isRolling;
   const containerRef = useRef<HTMLDivElement | null>(null);
   const { isAuthenticated, loading: authLoading } = useAuth();
+  const handleOpenSettings = onOpenSettings
+    ? onOpenSettings
+    : () => {
+        transitionTo('settings');
+      };
   
   const camera = {
     perspective: 800,
@@ -253,6 +260,7 @@ export function PhoneLayout({
           {...gameState}
           spaceBackgroundEnabled={spaceBackgroundEnabled}
           onToggleSpaceBackground={() => setSpaceBackgroundEnabled((enabled) => !enabled)}
+          onOpenSettings={handleOpenSettings}
         />
       </div>
 

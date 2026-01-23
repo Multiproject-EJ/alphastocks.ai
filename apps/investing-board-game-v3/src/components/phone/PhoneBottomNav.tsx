@@ -4,9 +4,9 @@ import { cn } from '@/lib/utils';
 import type { UIMode } from '@/lib/uiModeStateMachine';
 import { getTimeUntilNextRegen } from '@/lib/energy';
 import { 
-  Gamepad2, 
+  Briefcase,
   Building2, 
-  Settings,
+  Gamepad2,
   Wrench,
 } from 'lucide-react';
 import { DiceButton } from './DiceButton';
@@ -24,7 +24,7 @@ const NAV_ITEMS: ReadonlyArray<NavItem> = [
 
 const NAV_ITEMS_RIGHT: ReadonlyArray<{ id: UIMode; icon?: typeof Gamepad2; label: string }> = [
   { id: 'shop', label: 'Shop' },
-  { id: 'settings', icon: Settings, label: 'Settings' },
+  { id: 'portfolio', icon: Briefcase, label: 'Portfolio' },
 ] as const;
 
 interface PhoneBottomNavProps {

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { ChevronDown, ChevronUp, Sparkles, Star, Volume2, VolumeX } from 'lucide-react';
+import { ChevronDown, ChevronUp, Settings, Sparkles, Star, Volume2, VolumeX } from 'lucide-react';
 import { useSound } from '@/hooks/useSound';
 import { formatCoins } from '@/lib/coins';
 
@@ -20,6 +20,7 @@ interface CompactHUDProps {
   cityLevel?: number; // Optional city level for backward compatibility
   spaceBackgroundEnabled?: boolean;
   onToggleSpaceBackground?: () => void;
+  onOpenSettings?: () => void;
 }
 
 export function CompactHUD({
@@ -35,6 +36,7 @@ export function CompactHUD({
   cityLevel = 1,
   spaceBackgroundEnabled = false,
   onToggleSpaceBackground = () => {},
+  onOpenSettings = () => {},
 }: CompactHUDProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const { muted, toggleMute } = useSound();
@@ -113,6 +115,19 @@ export function CompactHUD({
             <span className="text-xs">🎲</span>
             <span className="text-xs font-medium">{rolls}</span>
           </div>
+
+          {/* Settings Button */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpenSettings();
+            }}
+            className="p-1 rounded-md transition-colors hover:bg-accent/20 text-muted-foreground"
+            aria-label="Open settings"
+            title="Settings"
+          >
+            <Settings size={14} />
+          </button>
           
           {/* Expand/Collapse arrow */}
           <button
