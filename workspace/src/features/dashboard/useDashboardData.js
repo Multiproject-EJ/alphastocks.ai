@@ -7,18 +7,30 @@ import {
   pickLatestJournalEntry,
   summarizeAnalysisQueue
 } from './dashboardUtils.js';
-import { getBoardGamePortfolio, transformBoardGamePortfolioSummary } from '../../services/boardGamePortfolioSync.js';
+import {
+  getBoardGamePortfolio,
+  transformBoardGamePortfolioSummary,
+  transformBoardGamePositions
+} from '../../services/boardGamePortfolioSync.js';
 
 export const useDashboardData = ({ dataService, profileId, defaultFocusList = [] }) => {
   const [focusList, setFocusList] = useState(defaultFocusList);
   const [portfolioSummary, setPortfolioSummary] = useState(null);
   const [boardGamePortfolioSummary, setBoardGamePortfolioSummary] = useState(null);
+  const [boardGameProfile, setBoardGameProfile] = useState(null);
+  const [boardGamePositions, setBoardGamePositions] = useState([]);
   const [ledgerHighlights, setLedgerHighlights] = useState([]);
   const [eventsRows, setEventsRows] = useState([]);
   const [eventsScope, setEventsScope] = useState('personal');
   const [latestJournal, setLatestJournal] = useState(null);
   const [analysisSummary, setAnalysisSummary] = useState(null);
   const [loadError, setLoadError] = useState(null);
+  const [reloadToken, setReloadToken] = useState(0);
+
+  const refreshBoardGamePortfolio = useMemo(
+    () => () => setReloadToken((prev) => prev + 1),
+    []
+  );
 
   useEffect(() => {
     setFocusList(defaultFocusList);
@@ -85,7 +97,9 @@ export const useDashboardData = ({ dataService, profileId, defaultFocusList = []
         const focus = buildFocusListFromWatchlist(watchlist.rows);
         setFocusList(focus?.length ? focus : defaultFocusList);
         setPortfolioSummary(computePortfolioSummary(snapshots.rows, positions.rows, portfolios.rows));
+        setBoardGameProfile(boardGameProfile);
         setBoardGamePortfolioSummary(transformBoardGamePortfolioSummary(boardGameProfile));
+        setBoardGamePositions(transformBoardGamePositions(boardGameProfile?.holdings));
         setLedgerHighlights(computeLedgerHighlights(transactions.rows, portfolios.rows));
         setEventsRows(events.rows ?? []);
         setLatestJournal(pickLatestJournalEntry(journals.rows));
@@ -104,7 +118,7 @@ export const useDashboardData = ({ dataService, profileId, defaultFocusList = []
     return () => {
       cancelled = true;
     };
-  }, [dataService, defaultFocusList, profileId]);
+  }, [dataService, defaultFocusList, profileId, reloadToken]);
 
   const hasGlobalEvents = useMemo(() => eventsRows.some((event) => !event?.profile_id), [eventsRows]);
   const hasPersonalEvents = useMemo(
@@ -142,6 +156,8 @@ export const useDashboardData = ({ dataService, profileId, defaultFocusList = []
     focusList,
     portfolioSummary,
     boardGamePortfolioSummary,
+    boardGameProfile,
+    boardGamePositions,
     ledgerHighlights,
     eventsScope,
     setEventsScope,
@@ -150,6 +166,7 @@ export const useDashboardData = ({ dataService, profileId, defaultFocusList = []
     eventsDigest,
     latestJournal,
     analysisSummary,
-    loadError
+    loadError,
+    refreshBoardGamePortfolio
   };
 };
