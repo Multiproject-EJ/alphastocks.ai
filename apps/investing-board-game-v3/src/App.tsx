@@ -4282,11 +4282,13 @@ function App() {
           },
         }}
         portfolioProps={{
+          gameState,
           portfolio: gameState.portfolio,
           totalInvested: gameState.totalInvested,
           onViewStock: (symbol) => {
             logEvent?.('stock_viewed_from_portfolio', { symbol })
           },
+          onTradeHolding: handlePortfolioTrade,
         }}
       />
 
