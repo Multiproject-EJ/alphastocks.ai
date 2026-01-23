@@ -265,19 +265,19 @@ export const PORTAL_CONFIG = {
   ring1: {
     startTileId: 0,
     totalTiles: 35,
-    onPass: { action: 'ascend', targetRing: 2, targetTile: 200 },
-    onLand: { action: 'ascend', targetRing: 2, targetTile: 200 }, // Same as pass for Ring 1
+    onPass: { action: 'stay', targetRing: 1, targetTile: 0 },
+    onLand: { action: 'ascend', targetRing: 2, targetTile: 200 },
   },
   ring2: {
     startTileId: 200,
     totalTiles: 24,
-    onPass: { action: 'descend', targetRing: 1, targetTile: 0 },
+    onPass: { action: 'stay', targetRing: 2, targetTile: 200 },
     onLand: { action: 'ascend', targetRing: 3, targetTile: 300 },
   },
   ring3: {
     startTileId: 300,
     totalTiles: 7,
-    onPass: { action: 'descend', targetRing: 1, targetTile: 0 },
+    onPass: { action: 'stay', targetRing: 3, targetTile: 300 },
     onLand: { action: 'throne', targetRing: 0, targetTile: -1 }, // -1 = Throne center
   },
 } as const

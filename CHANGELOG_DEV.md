@@ -456,3 +456,21 @@
 1) `cd apps/investing-board-game-v3`  
 2) `npm run dev`  
 3) Use a vault level high enough to see the bonus, run down dice, and confirm the out-of-rolls modal shows the boosted reset amount.
+
+**Date:** 2026-01-30  
+**Slice:** M1.2 (start behavior: land-only ring transitions)  
+**Summary:**  
+- Updated portal start tiles so ring transitions only trigger on exact landings, not on pass-through.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/lib/mockData.ts  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+1) `cd apps/investing-board-game-v3`  
+2) `npm run dev`  
+3) Roll past a portal start tile to confirm no ring transition, then land exactly on it to confirm the transition triggers.
