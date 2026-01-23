@@ -48,6 +48,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 - `AI_IMPLEMENTATION.md`, `IMPLEMENTATION_SUMMARY.md`, `DEVLOG.md` (project-wide status/context)
 
 ### Repo Map (paths verified)
+_Last reviewed: 2026-01-30 (no changes)_
 #### Frontend
 - **Legacy static pages entry:** `/index.html`, `/about.html`, `/faq.html`, `/monthly/`, `/weekly/`, `/superinvestor/`
 - **Vite + Preact app:** `/apps/investing-board-game-v3` (built into `/public/board-game-v3` via `npm run build:board-game-v3`)
@@ -144,7 +145,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 
 ### M1 — 3‑Ring Board Rules (Outer/Middle/Inner)
 - **M1.1** Audit ring movement + portal behavior
-- **M1.2** Start behavior: land-only ring transitions
+- **M1.2** ✅ Start behavior: land-only ring transitions
 - **M1.3** Bull Market window → ring 2 quick entry
 - **M1.4** Middle-ring wildcard outcomes (fraud vs hidden gem)
 
@@ -228,7 +229,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **M1.2 — Start behavior: land-only ring transitions**.
+**Recommended next slice:** **M1.3 — Bull Market window → ring 2 quick entry**.
 
 ---
 
@@ -293,3 +294,6 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 
 ## M0.4 Slice Notes (Lazy-load Portfolio charts)
 - Lazy-loaded the Portfolio modal so chart dependencies no longer block initial app startup.
+
+## M1.2 Slice Notes (Start behavior: land-only ring transitions)
+- Updated start tile portal behavior so passing the portal no longer triggers ring transitions; only exact landings move between rings or reach the throne.
