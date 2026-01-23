@@ -163,6 +163,8 @@ export function PhoneLayout({
         className={`absolute inset-0 z-0 bg-cover bg-center pointer-events-none phone-background-3d ${spaceBackgroundEnabled ? 'phone-background-space' : ''}`}
         style={{ 
           backgroundImage: spaceBackgroundEnabled ? 'none' : `url('${backgroundUrl}')`,
+          backgroundSize: 'auto 100%',
+          backgroundPosition: 'center top',
           WebkitBackfaceVisibility: 'hidden',
           backfaceVisibility: 'hidden'
         }}

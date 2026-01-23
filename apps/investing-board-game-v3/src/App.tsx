@@ -3470,7 +3470,7 @@ function App() {
         {/* Background - only show if not in phone layout (phone layout has its own) */}
         {!isPhone && (
           <div
-            className="absolute inset-0 z-0 bg-[url('/board-game-v3/BG.webp')] bg-cover bg-center opacity-60 pointer-events-none"
+            className="absolute inset-0 z-0 bg-[url('/board-game-v3/BG.webp')] bg-[length:auto_100%] bg-top opacity-60 pointer-events-none"
             aria-hidden="true"
           />
         )}

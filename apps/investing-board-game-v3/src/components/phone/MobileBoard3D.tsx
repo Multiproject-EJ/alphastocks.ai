@@ -190,6 +190,22 @@ export function MobileBoard3D({
     };
   }, [camera.scale, panOffset.x, panOffset.y, playerPosition, verticalOffset, viewportSize, leftOffset, rightOffset]);
 
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) {
+      return;
+    }
+
+    const layoutRoot = container.closest<HTMLElement>('.phone-layout');
+    if (!layoutRoot) {
+      return;
+    }
+
+    const PARALLAX_FACTOR = 0.18;
+    layoutRoot.style.setProperty('--parallax-x', `${clampedTranslation.x * PARALLAX_FACTOR}px`);
+    layoutRoot.style.setProperty('--parallax-y', `${clampedTranslation.y * PARALLAX_FACTOR}px`);
+  }, [clampedTranslation.x, clampedTranslation.y]);
+
   return (
     <div 
       className="mobile-board-3d-container"
