@@ -829,8 +829,10 @@ h1, h2, h3, h4, h5, h6 {
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
   /* Use fixed background size to prevent stretching artifacts */
-  background-size: cover !important;
-  background-position: center !important;
+  background-size: var(--phone-bg-size, auto 100%);
+  background-position: var(--phone-bg-position, center top);
+  transform: translate3d(var(--parallax-x, 0px), var(--parallax-y, 0px), 0);
+  transition: transform 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .phone-background-space {
