@@ -200,7 +200,7 @@ export function PhoneLayout({
       {/* Layer 20: Floating Action Buttons - BOTTOM positioned, above dice area */}
       {mode === 'board' && (
         <>
-          {/* Left side floating buttons - Shop, Exchanges, Right Now */}
+          {/* Left side floating buttons - Shop, Right Now */}
           <div
             className={`fixed left-4 z-40 flex flex-col gap-2 transition-opacity ${hideFloatingActions ? 'pointer-events-none opacity-0' : 'opacity-100'}`}
             style={{ bottom: `${BOTTOM_NAV_HEIGHT + 20}px` }}
@@ -216,13 +216,6 @@ export function PhoneLayout({
                 alt="Shop"
                 className="h-14 w-14 object-contain"
               />
-            </button>
-            <button
-              onClick={onOpenStockExchangeBuilder}
-              className="flex items-center gap-2 rounded-full bg-gradient-to-r from-green-500 to-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-lg backdrop-blur-sm transition-all hover:shadow-xl"
-              aria-label="Open Stock Exchange Builder"
-            >
-              📈 Exchanges
             </button>
             <button
               onClick={onOpenRightNow}
@@ -263,6 +256,7 @@ export function PhoneLayout({
           spaceBackgroundEnabled={spaceBackgroundEnabled}
           onToggleSpaceBackground={() => setSpaceBackgroundEnabled((enabled) => !enabled)}
           onOpenSettings={handleOpenSettings}
+          onOpenStocks={onOpenStockExchangeBuilder}
         />
       </div>
 

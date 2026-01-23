@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { ChevronDown, ChevronUp, Settings, Sparkles, Star, Volume2, VolumeX } from 'lucide-react';
+import { Building2, ChevronDown, ChevronUp, Settings, Sparkles, Star, Volume2, VolumeX } from 'lucide-react';
 import { useSound } from '@/hooks/useSound';
 import { formatCoins } from '@/lib/coins';
 
@@ -21,6 +21,7 @@ interface CompactHUDProps {
   spaceBackgroundEnabled?: boolean;
   onToggleSpaceBackground?: () => void;
   onOpenSettings?: () => void;
+  onOpenStocks?: () => void;
 }
 
 export function CompactHUD({
@@ -37,6 +38,7 @@ export function CompactHUD({
   spaceBackgroundEnabled = false,
   onToggleSpaceBackground = () => {},
   onOpenSettings = () => {},
+  onOpenStocks = () => {},
 }: CompactHUDProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const { muted, toggleMute } = useSound();
@@ -77,7 +79,7 @@ export function CompactHUD({
           </div>
         </div>
         
-        {/* Right side: Controls - Background, Sound, Dice, Expand */}
+        {/* Right side: Controls - Background, Sound, Dice, Stocks, Expand */}
         <div className="flex items-center gap-2 flex-shrink-0">
           {/* Background toggle */}
           <button
@@ -127,6 +129,19 @@ export function CompactHUD({
             title="Settings"
           >
             <Settings size={14} />
+          </button>
+
+          {/* Stocks Quick Access */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpenStocks();
+            }}
+            className="p-1 rounded-md transition-colors hover:bg-accent/20 text-muted-foreground"
+            aria-label="Open stocks"
+            title="Stocks"
+          >
+            <Building2 size={14} />
           </button>
           
           {/* Expand/Collapse arrow */}

@@ -4172,9 +4172,9 @@ function App() {
           <button 
             onClick={openStockExchangeOverlay}
             className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full text-white font-semibold shadow-lg"
-            aria-label="Open Exchanges"
+            aria-label="Open Stocks"
           >
-            📈 Exchanges
+            📈 Stocks
           </button>
           
           {/* Right Now Button - orange pill with notification dot */}
