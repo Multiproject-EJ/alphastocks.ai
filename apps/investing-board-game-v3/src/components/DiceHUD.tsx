@@ -30,6 +30,10 @@ interface DiceHUDProps {
   leverageLevel?: number
   momentum?: number
   momentumMax?: number
+  economyWindowLabel?: string | null
+  economyWindowEndsAt?: string | null
+  economyWindowStarsMultiplier?: number
+  economyWindowXpMultiplier?: number
 }
 
 export function DiceHUD({ 
@@ -49,9 +53,14 @@ export function DiceHUD({
   leverageLevel = 0,
   momentum = 0,
   momentumMax = 100,
+  economyWindowLabel = null,
+  economyWindowEndsAt = null,
+  economyWindowStarsMultiplier = 1,
+  economyWindowXpMultiplier = 1,
 }: DiceHUDProps) {
   const [timeUntilReset, setTimeUntilReset] = useState('')
   const [energyRegenTime, setEnergyRegenTime] = useState('')
+  const [economyWindowRemaining, setEconomyWindowRemaining] = useState('')
   const [dice1, setDice1] = useState(propDice1 || 1)
   const [dice2, setDice2] = useState(propDice2 || 1)
   const [isExpanded, setIsExpanded] = useState(false)
@@ -108,6 +117,34 @@ export function DiceHUD({
     return () => clearInterval(interval)
   }, [lastEnergyCheck])
 
+  useEffect(() => {
+    if (!economyWindowEndsAt || !economyWindowLabel) {
+      setEconomyWindowRemaining('')
+      return
+    }
+
+    const endAt = new Date(economyWindowEndsAt)
+    if (Number.isNaN(endAt.getTime())) {
+      setEconomyWindowRemaining('')
+      return
+    }
+
+    const updateWindowTimer = () => {
+      const diff = endAt.getTime() - Date.now()
+      if (diff <= 0) {
+        setEconomyWindowRemaining('Ending...')
+        return
+      }
+      const minutes = Math.floor(diff / (1000 * 60))
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000)
+      setEconomyWindowRemaining(`${minutes}m ${seconds}s`)
+    }
+
+    updateWindowTimer()
+    const interval = setInterval(updateWindowTimer, 1000)
+    return () => clearInterval(interval)
+  }, [economyWindowEndsAt, economyWindowLabel])
+
   const handleCompactRoll = (event: MouseEvent<HTMLDivElement>) => {
     event.stopPropagation()
     if (autoRollActive) {
@@ -163,6 +200,9 @@ export function DiceHUD({
   const unlockedMultipliers = getUnlockedMultipliers(leverageLevel)
   const safeMomentumMax = momentumMax > 0 ? momentumMax : 100
   const momentumPercent = Math.max(0, Math.min(100, Math.round((momentum / safeMomentumMax) * 100)))
+  const hasEconomyWindow = Boolean(economyWindowLabel && economyWindowEndsAt)
+  const windowStarsBonus = Math.max(0, Math.round((economyWindowStarsMultiplier - 1) * 100))
+  const windowXpBonus = Math.max(0, Math.round((economyWindowXpMultiplier - 1) * 100))
 
   const handleMultiplierToggle = () => {
     const currentIndex = unlockedMultipliers.indexOf(selectedMultiplier as (typeof unlockedMultipliers)[number])
@@ -407,6 +447,21 @@ export function DiceHUD({
                           {roll.total}
                         </div>
                       ))}
+                    </div>
+                  </div>
+                )}
+
+                {hasEconomyWindow && (
+                  <div className="rounded-xl border border-emerald-400/40 bg-emerald-500/10 p-3 text-xs text-emerald-100">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-semibold uppercase tracking-[0.12em] text-emerald-200/90">
+                        {economyWindowLabel}
+                      </span>
+                      <span className="font-mono text-emerald-200">{economyWindowRemaining}</span>
+                    </div>
+                    <div className="mt-1 flex items-center gap-3 text-[11px] text-emerald-100/90">
+                      <span>⭐ +{windowStarsBonus}%</span>
+                      <span>XP +{windowXpBonus}%</span>
                     </div>
                   </div>
                 )}

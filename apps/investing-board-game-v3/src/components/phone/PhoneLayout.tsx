@@ -34,6 +34,10 @@ interface PhoneLayoutProps {
   leverageLevel?: number;
   momentum?: number;
   momentumMax?: number;
+  economyWindowLabel?: string | null;
+  economyWindowEndsAt?: string | null;
+  economyWindowStarsMultiplier?: number;
+  economyWindowXpMultiplier?: number;
   isRolling: boolean;
   isAutoRolling?: boolean;
   onToggleAutoRoll?: () => void;
@@ -63,6 +67,10 @@ export function PhoneLayout({
   leverageLevel = 0,
   momentum = 0,
   momentumMax = 100,
+  economyWindowLabel = null,
+  economyWindowEndsAt = null,
+  economyWindowStarsMultiplier = 1,
+  economyWindowXpMultiplier = 1,
   isRolling,
   isAutoRolling = false,
   onToggleAutoRoll = () => {},
@@ -284,6 +292,10 @@ export function PhoneLayout({
           leverageLevel={leverageLevel}
           momentum={momentum}
           momentumMax={momentumMax}
+          economyWindowLabel={economyWindowLabel}
+          economyWindowEndsAt={economyWindowEndsAt}
+          economyWindowStarsMultiplier={economyWindowStarsMultiplier}
+          economyWindowXpMultiplier={economyWindowXpMultiplier}
           rollsRemaining={gameState.rolls}
           isRolling={isRolling}
           isAutoRolling={isAutoRolling}

@@ -34,6 +34,10 @@ interface PhoneBottomNavProps {
   leverageLevel?: number;
   momentum?: number;
   momentumMax?: number;
+  economyWindowLabel?: string | null;
+  economyWindowEndsAt?: string | null;
+  economyWindowStarsMultiplier?: number;
+  economyWindowXpMultiplier?: number;
   rollsRemaining: number;
   isRolling: boolean;
   isAutoRolling: boolean;
@@ -51,6 +55,10 @@ export function PhoneBottomNav({
   leverageLevel = 0,
   momentum = 0,
   momentumMax = 100,
+  economyWindowLabel = null,
+  economyWindowEndsAt = null,
+  economyWindowStarsMultiplier = 1,
+  economyWindowXpMultiplier = 1,
   rollsRemaining,
   isRolling,
   isAutoRolling,
@@ -196,6 +204,10 @@ export function PhoneBottomNav({
             leverageLevel={leverageLevel}
             momentum={momentum}
             momentumMax={momentumMax}
+            economyWindowLabel={economyWindowLabel}
+            economyWindowEndsAt={economyWindowEndsAt}
+            economyWindowStarsMultiplier={economyWindowStarsMultiplier}
+            economyWindowXpMultiplier={economyWindowXpMultiplier}
             rollsRemaining={rollsRemaining}
             isRolling={isRolling}
             isAutoRolling={isAutoRolling}

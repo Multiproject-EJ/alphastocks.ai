@@ -127,6 +127,20 @@ export interface EconomyState {
   momentumFloor: number
   momentumPeak: number
   lastUpdatedAt: string
+  activeWindow: {
+    id: string
+    type: 'momentum_surge' | 'breakout_run' | 'volatility_spike'
+    label: string
+    startAt: string
+    endAt: string
+    durationMinutes: number
+    starsMultiplier: number
+    xpMultiplier: number
+    triggerMomentum: number
+    triggerLeverage: number
+  } | null
+  lastWindowStartedAt: string | null
+  lastWindowEndedAt: string | null
 }
 
 export interface GameState {

@@ -1,4 +1,4 @@
-import { useState, useCallback, type MouseEvent } from 'react';
+import { useState, useCallback, useEffect, type MouseEvent } from 'react';
 import { AnimatedDice } from '@/components/AnimatedDice';
 import { MULTIPLIERS } from '@/lib/constants';
 import { getUnlockedMultipliers } from '@/lib/leverage';
@@ -12,6 +12,10 @@ interface DiceButtonProps {
   leverageLevel?: number;
   momentum?: number;
   momentumMax?: number;
+  economyWindowLabel?: string | null;
+  economyWindowEndsAt?: string | null;
+  economyWindowStarsMultiplier?: number;
+  economyWindowXpMultiplier?: number;
   rollsRemaining: number;
   isRolling: boolean;
   isAutoRolling: boolean;
@@ -27,6 +31,10 @@ export function DiceButton({
   leverageLevel = 0,
   momentum = 0,
   momentumMax = 100,
+  economyWindowLabel = null,
+  economyWindowEndsAt = null,
+  economyWindowStarsMultiplier = 1,
+  economyWindowXpMultiplier = 1,
   rollsRemaining,
   isRolling,
   isAutoRolling,
@@ -36,11 +44,43 @@ export function DiceButton({
   const [isPressed, setIsPressed] = useState(false);
   const [isTapAnimating, setIsTapAnimating] = useState(false);
   const [autoRollFlash, setAutoRollFlash] = useState(false);
+  const [economyWindowRemaining, setEconomyWindowRemaining] = useState('');
   const isDoubles = dice1 === dice2;
   const unlockedMultipliers = getUnlockedMultipliers(leverageLevel);
   const nextLockedMultiplier = MULTIPLIERS[unlockedMultipliers.length];
   const safeMomentumMax = momentumMax > 0 ? momentumMax : 100;
   const momentumPercent = Math.max(0, Math.min(100, Math.round((momentum / safeMomentumMax) * 100)));
+  const hasEconomyWindow = Boolean(economyWindowLabel && economyWindowEndsAt);
+  const windowStarsBonus = Math.max(0, Math.round((economyWindowStarsMultiplier - 1) * 100));
+  const windowXpBonus = Math.max(0, Math.round((economyWindowXpMultiplier - 1) * 100));
+
+  useEffect(() => {
+    if (!hasEconomyWindow || !economyWindowEndsAt) {
+      setEconomyWindowRemaining('');
+      return;
+    }
+
+    const endAt = new Date(economyWindowEndsAt);
+    if (Number.isNaN(endAt.getTime())) {
+      setEconomyWindowRemaining('');
+      return;
+    }
+
+    const updateWindowTimer = () => {
+      const diff = endAt.getTime() - Date.now();
+      if (diff <= 0) {
+        setEconomyWindowRemaining('Ending...');
+        return;
+      }
+      const minutes = Math.floor(diff / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+      setEconomyWindowRemaining(`${minutes}m ${seconds}s`);
+    };
+
+    updateWindowTimer();
+    const interval = window.setInterval(updateWindowTimer, 1000);
+    return () => window.clearInterval(interval);
+  }, [economyWindowEndsAt, hasEconomyWindow]);
 
   const triggerAutoRollFlash = () => {
     setAutoRollFlash(true);
@@ -78,6 +118,18 @@ export function DiceButton({
 
   return (
     <div className="relative flex items-center justify-center">
+      {hasEconomyWindow && (
+        <div className="pointer-events-none absolute -top-16 left-1/2 z-20 flex w-[210px] -translate-x-1/2 flex-col gap-1 rounded-2xl border border-emerald-300/50 bg-emerald-500/15 px-3 py-2 text-[11px] text-emerald-50 shadow-[0_10px_25px_rgba(16,185,129,0.25)] backdrop-blur-sm">
+          <div className="flex items-center justify-between gap-2 text-[10px] uppercase tracking-[0.2em] text-emerald-100/90">
+            <span className="font-semibold">{economyWindowLabel}</span>
+            <span className="font-mono">{economyWindowRemaining}</span>
+          </div>
+          <div className="flex items-center gap-3 text-[11px] text-emerald-100/90">
+            <span>⭐ +{windowStarsBonus}%</span>
+            <span>XP +{windowXpBonus}%</span>
+          </div>
+        </div>
+      )}
       <button
         onClick={handleDiceClick}
         className={cn(
