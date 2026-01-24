@@ -3151,12 +3151,11 @@ function App() {
     }, 1500)
   }
 
-  const handleBuyStock = (multiplier: number) => {
+  const handleBuyStock = (sharesToBuy: number) => {
     if (!currentStock) return
 
-    const baseShares = 10
-    const shares = Math.floor(baseShares * multiplier)
-    let totalCost = currentStock.price * shares
+    const shares = Math.max(1, Math.floor(sharesToBuy))
+    const totalCost = currentStock.price * shares
     
     // Apply Portfolio Booster upgrade if owned (increases portfolio value by 10%)
     const hasPortfolioBooster = isPermanentOwned('portfolio-booster')
@@ -3181,20 +3180,40 @@ function App() {
       const portfolioValueIncrease = hasPortfolioBooster ? totalCost * 1.1 : totalCost
       const newPortfolioValue = prev.portfolioValue + portfolioValueIncrease
       const newNetWorth = newCash + newPortfolioValue
+      const existingHoldingIndex = prev.holdings.findIndex(
+        (holding) => holding.stock.ticker === currentStock.ticker
+      )
+      const nextHoldings = [...prev.holdings]
+
+      if (existingHoldingIndex >= 0) {
+        const existingHolding = nextHoldings[existingHoldingIndex]
+        nextHoldings[existingHoldingIndex] = {
+          ...existingHolding,
+          shares: existingHolding.shares + shares,
+          totalCost: existingHolding.totalCost + totalCost,
+        }
+      } else {
+        nextHoldings.push({
+          stock: currentStock,
+          shares,
+          totalCost,
+        })
+      }
+
+      const alreadyOwned = existingHoldingIndex >= 0
+      const updatedStats = {
+        ...prev.stats,
+        stocksPurchased: (prev.stats?.stocksPurchased || 0) + 1,
+        uniqueStocks: (prev.stats?.uniqueStocks || 0) + (alreadyOwned ? 0 : 1),
+      }
 
       return {
         ...prev,
         cash: newCash,
         portfolioValue: newPortfolioValue,
         netWorth: newNetWorth,
-        holdings: [
-          ...prev.holdings,
-          {
-            stock: currentStock,
-            shares,
-            totalCost,
-          },
-        ],
+        holdings: nextHoldings,
+        stats: updatedStats,
       }
     })
 
