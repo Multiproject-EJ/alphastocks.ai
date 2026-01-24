@@ -277,7 +277,7 @@ export function PhoneLayout({
       {eventTrackNode && (
         <div
           className="fixed left-3 right-3 z-40"
-          style={{ top: `calc(${COMPACT_HUD_HEIGHT}px + 12px + var(--safe-area-top))` }}
+          style={{ top: `calc(${COMPACT_HUD_HEIGHT}px + 12px + var(--safe-area-top-padding))` }}
         >
           {eventTrackNode}
         </div>
