@@ -163,7 +163,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 ### M3 — Real Stock Tiles + Portfolio Rewards
 - **M3.1** ✅ Audit stock tile modal system
 - **M3.2** ✅ Portfolio readout panel
-- **M3.3** Stock tile buy action (paper trading)
+- **M3.3** ✅ Stock tile buy action (paper trading)
 - **M3.4** Portfolio reward hooks (soft positive buffs)
 - **M3.5** Price data strategy (with fallback)
 
@@ -231,7 +231,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **M3.3 — Stock tile buy action (paper trading).**
+**Recommended next slice:** **M3.4 — Portfolio reward hooks (soft positive buffs).**
 
 ---
 
@@ -284,6 +284,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ## M3.2 Slice Notes (Portfolio readout panel)
 - Added a mobile-first portfolio readout panel to summarize net worth, cash vs portfolio value, top holdings, and category mix at a glance.
 - Placed the new readout panel into the center carousel so it is always available without leaving the board flow.
+
+## M3.3 Slice Notes (Stock tile buy action — paper trading)
+- Updated the stock modal buy flow to purchase a ring-scaled bundle of shares with accurate affordability checks and total cost messaging.
+- Merged new stock purchases into existing holdings to keep the portfolio list tidy while retaining total cost basis for average pricing.
+- Incremented stock purchase stats (total and unique) so achievements can track paper trades reliably.
 
 ---
 

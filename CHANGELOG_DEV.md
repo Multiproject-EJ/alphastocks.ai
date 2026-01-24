@@ -720,3 +720,21 @@
 
 **How to test:**  
 - (manual) Open the board, swipe the center carousel to the first panel, and confirm the portfolio readout renders on mobile and desktop.  
+
+**Date:** 2026-01-24  
+**Slice:** M3.3 (stock tile buy action — paper trading)  
+**Summary:**  
+- Updated the stock modal purchase flow to buy ring-scaled share bundles with correct affordability checks and total cost display.  
+- Merged stock purchases into existing holdings and tracked total/unique stock purchase stats for achievements.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/components/StockModal.tsx  
+- apps/investing-board-game-v3/src/App.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Land on a stock tile, confirm the buy button shows the ring-scaled bundle cost, purchase once, and verify holdings + stats update.  

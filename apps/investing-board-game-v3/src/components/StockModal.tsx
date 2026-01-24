@@ -145,11 +145,13 @@ export function StockModal({
 
   if (!stock) return null
 
-  const canAfford = cash >= stock.price
   const multiplier = ringNumber === 3 ? 10 : ringNumber === 2 ? 3 : 1
+  const sharesToBuy = 10 * multiplier
+  const totalCost = stock.price * sharesToBuy
+  const canAffordBundle = cash >= totalCost
 
   const handleBuy = () => {
-    if (!canAfford) {
+    if (!canAffordBundle) {
       playSound?.('error')
       triggerHaptic('light')
       return
@@ -161,7 +163,7 @@ export function StockModal({
     setShowParticles(true)
     
     setTimeout(() => {
-      onBuy(1) // Buy 10 shares (multiplier = 1)
+      onBuy(sharesToBuy)
       setBuyPressed(false)
       setShowParticles(false)
       onOpenChange(false)
@@ -336,19 +338,19 @@ export function StockModal({
                 className={`
                   flex-[1.5] py-6 rounded-2xl font-bold text-xl
                   relative overflow-hidden
-                  ${canAfford 
+                  ${canAffordBundle 
                     ? 'bg-gradient-to-b from-green-500 to-green-700 border-2 border-green-400 text-white' 
                     : 'bg-gradient-to-b from-gray-600 to-gray-700 border-2 border-gray-500 text-gray-400'
                   }
                   flex flex-col items-center justify-center gap-1
                   ${buyPressed ? 'scale-95' : ''}
                 `}
-                whileTap={canAfford ? { scale: 0.92 } : {}}
+                whileTap={canAffordBundle ? { scale: 0.92 } : {}}
                 onClick={handleBuy}
-                disabled={!canAfford}
+                disabled={!canAffordBundle}
               >
                 {/* Glow effect */}
-                {canAfford && (
+                {canAffordBundle && (
                   <motion.div
                     className="absolute inset-0 bg-green-400/20"
                     animate={{
@@ -366,13 +368,13 @@ export function StockModal({
                 {showParticles && <BuyParticles />}
 
                 <span className="text-3xl relative z-10">
-                  {canAfford ? '💰🚀' : '🔒'}
+                  {canAffordBundle ? '💰🚀' : '🔒'}
                 </span>
                 <span className="relative z-10">
-                  {canAfford ? 'BUY!' : "Can't Afford"}
+                  {canAffordBundle ? `BUY ${sharesToBuy} SHARES` : "Can't Afford"}
                 </span>
                 <span className="text-sm opacity-80 relative z-10">
-                  ${stock.price.toLocaleString()}
+                  ${totalCost.toLocaleString()}
                 </span>
               </motion.button>
             </div>
