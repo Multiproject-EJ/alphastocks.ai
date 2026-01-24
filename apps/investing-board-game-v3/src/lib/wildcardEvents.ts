@@ -1,4 +1,4 @@
-import { WildcardEvent } from './types'
+import { RingNumber, WildcardEvent } from './types'
 
 // Special constant for percentage-based penalties
 export const CASH_PERCENTAGE_PENALTY = -0.1 // Represents 10% loss
@@ -151,10 +151,47 @@ export const WILDCARD_EVENTS: WildcardEvent[] = [
   }
 ]
 
+const MIDDLE_RING_WILDCARD_EVENTS: Array<{ event: WildcardEvent; weight: number }> = [
+  {
+    event: {
+      id: 'hidden-gem',
+      title: 'Hidden Gem',
+      description: 'You uncover an overlooked winner. Take the profit and the prestige.',
+      type: 'mixed',
+      effect: { cash: 20000, stars: 20 },
+      icon: '💎'
+    },
+    weight: 0.2,
+  },
+  {
+    event: {
+      id: 'fraud-alert',
+      title: 'Fraud Alert',
+      description: 'The opportunity was a trap. Losses hit before you can exit.',
+      type: 'penalty',
+      effect: { cash: -15000, stars: -10 },
+      icon: '🚨'
+    },
+    weight: 0.8,
+  }
+]
+
 /**
  * Get a random wildcard event from the pool
  */
-export function getRandomWildcardEvent(): WildcardEvent {
+export function getRandomWildcardEvent(ringNumber?: RingNumber): WildcardEvent {
+  if (ringNumber === 2) {
+    const roll = Math.random()
+    let threshold = 0
+    for (const { event, weight } of MIDDLE_RING_WILDCARD_EVENTS) {
+      threshold += weight
+      if (roll <= threshold) {
+        return event
+      }
+    }
+    return MIDDLE_RING_WILDCARD_EVENTS[0].event
+  }
+
   const randomIndex = Math.floor(Math.random() * WILDCARD_EVENTS.length)
   return WILDCARD_EVENTS[randomIndex]
 }

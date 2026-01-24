@@ -2,6 +2,26 @@
 
 ## Unreleased
 
+**Date:** 2026-01-23  
+**Slice:** M1.4 (Middle-ring wildcard outcomes)  
+**Summary:**  
+- Added a Ring 2-only wildcard outcome split with 80% Fraud Alert vs 20% Hidden Gem.  
+- Left the existing wildcard pool in place for Rings 1 and 3.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/App.tsx  
+- apps/investing-board-game-v3/src/lib/wildcardEvents.ts  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+1) `cd apps/investing-board-game-v3`  
+2) `npm run dev`  
+3) Trigger a wildcard event on Ring 2 and confirm it produces only Fraud Alert or Hidden Gem outcomes (roughly 80/20 over multiple trials).  
+
 **Date:** 2026-01-22  
 **Slice:** M6.4 (Level-up detection + claim records)  
 **Summary:**  
