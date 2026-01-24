@@ -339,6 +339,52 @@ const ROTATION_EVENT_TEMPLATES: Array<Omit<GameEvent, 'startDate' | 'endDate' | 
 
 const ROTATION_DURATIONS_DAYS = [2, 3, 1, 4, 2, 1, 3, 2, 4, 1, 2]
 const ROTATION_GAP_AFTER_INDEX = new Set([2, 6])
+const ALPHA_DAY_QUARTER_MONTHS = [0, 3, 6, 9]
+const ALPHA_DAY_DURATION_HOURS = 24
+
+function getAlphaDayStartForMonth(year: number, month: number): Date {
+  const start = new Date(year, month, 1, 0, 0, 0, 0)
+  const dayOfWeek = start.getDay()
+  const daysUntilMonday = (1 - dayOfWeek + 7) % 7
+  start.setDate(start.getDate() + daysUntilMonday)
+  return start
+}
+
+function getAlphaDayWindow(now: Date): { start: Date; end: Date } {
+  const candidates = [
+    ...ALPHA_DAY_QUARTER_MONTHS.map(month => getAlphaDayStartForMonth(now.getFullYear(), month)),
+    ...ALPHA_DAY_QUARTER_MONTHS.map(month => getAlphaDayStartForMonth(now.getFullYear() + 1, month)),
+  ].sort((a, b) => a.getTime() - b.getTime())
+
+  for (const start of candidates) {
+    const end = new Date(start)
+    end.setHours(end.getHours() + ALPHA_DAY_DURATION_HOURS)
+    if (end > now) {
+      return { start, end }
+    }
+  }
+
+  const fallbackStart = getAlphaDayStartForMonth(now.getFullYear() + 1, ALPHA_DAY_QUARTER_MONTHS[0])
+  const fallbackEnd = new Date(fallbackStart)
+  fallbackEnd.setHours(fallbackEnd.getHours() + ALPHA_DAY_DURATION_HOURS)
+  return { start: fallbackStart, end: fallbackEnd }
+}
+
+function getAlphaDayEvent(now: Date = new Date()): GameEvent {
+  const { start, end } = getAlphaDayWindow(now)
+  return {
+    id: `alpha-day-${start.getFullYear()}-${start.getMonth() + 1}`,
+    title: 'Alpha Day',
+    description: 'Rare quarterly surge: 2x stars and 1.75x XP for 24 hours.',
+    type: 'special',
+    startDate: start,
+    endDate: end,
+    isActive: false,
+    effects: { starsMultiplier: 2, xpMultiplier: 1.75 },
+    icon: '🚀',
+    currency: createCurrencyRules('🚀', 7, 28, 800),
+  }
+}
 
 function generateMonthlyRotationEvents(now: Date = new Date()): GameEvent[] {
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0)
@@ -415,7 +461,9 @@ export function getAllEvents(): GameEvent[] {
     ...SPECIAL_EVENTS,
     ...generateMonthlyRotationEvents(),
   ]
-  
+
+  events.push(getAlphaDayEvent())
+
   // Add Jackpot Week event if active
   const jackpotEvent = getJackpotWeekEvent()
   if (jackpotEvent) {

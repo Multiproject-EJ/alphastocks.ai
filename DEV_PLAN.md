@@ -48,7 +48,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 - `AI_IMPLEMENTATION.md`, `IMPLEMENTATION_SUMMARY.md`, `DEVLOG.md` (project-wide status/context)
 
 ### Repo Map (paths verified)
-_Last reviewed: 2026-01-25 (M2.6 soft throttle dampening)_
+_Last reviewed: 2026-01-24 (M2.7 Alpha Day scheduler)_
 #### Frontend
 - **Legacy static pages entry:** `/index.html`, `/about.html`, `/faq.html`, `/monthly/`, `/weekly/`, `/superinvestor/`
 - **Vite + Preact app:** `/apps/investing-board-game-v3` (built into `/public/board-game-v3` via `npm run build:board-game-v3`)
@@ -157,7 +157,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **M2.4** ✅ Windows engine (5–25 min)
 - **M2.5** ✅ Trigger rules: “rich & hot”
 - **M2.6** ✅ Soft throttle (post big-win dampening)
-- **M2.7** Alpha Day scheduler (rare)
+- **M2.7** ✅ Alpha Day scheduler (rare)
 
 ### M3 — Real Stock Tiles + Portfolio Rewards
 - **M3.1** Audit stock tile modal system
@@ -230,7 +230,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **M2.7 — Alpha Day scheduler (rare).**
+**Recommended next slice:** **M3.1 — Audit stock tile modal system.**
 
 ---
 
@@ -243,6 +243,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Added a soft throttle helper that flags big net-worth spikes and applies a temporary reward dampener for stars/XP multipliers.
 - Persisted throttle metadata alongside the canonical economy state and ensured throttle windows expire deterministically on the minute tick.
 - Wired the throttle multiplier into existing economy multiplier aggregation without altering other reward pipelines.
+
+## M2.7 Slice Notes (Alpha Day scheduler)
+- Added a deterministic quarterly “Alpha Day” special event so the event system can surface a rare 24-hour multiplier surge.
+- Scheduled Alpha Day using a predictable first-Monday rule for each quarter month, ensuring the next occurrence is always discoverable in upcoming events.
+- Wired the Alpha Day event into the global events list without altering existing recurring or rotation events.
 
 ## M2.4 Slice Notes (Windows engine + mobile-first HUD banner)
 - Added a dedicated `economyWindows` engine that deterministically starts 5–25 minute windows based on leverage + momentum thresholds, with cooldown handling and persisted timestamps.
