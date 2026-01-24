@@ -48,7 +48,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 - `AI_IMPLEMENTATION.md`, `IMPLEMENTATION_SUMMARY.md`, `DEVLOG.md` (project-wide status/context)
 
 ### Repo Map (paths verified)
-_Last reviewed: 2026-01-24 (M2.2 leverage ladder + UI gating)_
+_Last reviewed: 2026-01-24 (M2.3 momentum meter + decay)_
 #### Frontend
 - **Legacy static pages entry:** `/index.html`, `/about.html`, `/faq.html`, `/monthly/`, `/weekly/`, `/superinvestor/`
 - **Vite + Preact app:** `/apps/investing-board-game-v3` (built into `/public/board-game-v3` via `npm run build:board-game-v3`)
@@ -152,7 +152,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 ### M2 — Timeline Economy Core (Leverage, Momentum, Windows)
 - **M2.1** ✅ Canonical economy state shape + persistence
 - **M2.2** ✅ Leverage ladder + UI gating
-- **M2.3** Momentum meter (gain/decay)
+- **M2.3** ✅ Momentum meter (gain/decay)
 - **M2.4** Windows engine (5–25 min)
 - **M2.5** Trigger rules: “rich & hot”
 - **M2.6** Soft throttle (post big-win dampening)
@@ -229,7 +229,14 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **M2.3 — Momentum meter (gain/decay)**.
+**Recommended next slice:** **M2.4 — Windows engine (5–25 min)**.
+
+---
+
+## M2.3 Slice Notes (Momentum meter + decay)
+- Added a dedicated momentum helper module that decays momentum based on elapsed minutes and applies gain from positive net-worth deltas.
+- Wired momentum updates into `App.tsx` using net-worth change tracking plus a minute-based decay interval so momentum persists deterministically across refreshes.
+- Surfaced a mobile-first momentum meter on both the phone dice button and the expanded Dice HUD to preview the new economy signal without disrupting existing flows.
 
 ---
 

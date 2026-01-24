@@ -32,6 +32,8 @@ interface PhoneLayoutProps {
   multiplier: number;
   onCycleMultiplier: () => void;
   leverageLevel?: number;
+  momentum?: number;
+  momentumMax?: number;
   isRolling: boolean;
   isAutoRolling?: boolean;
   onToggleAutoRoll?: () => void;
@@ -59,6 +61,8 @@ export function PhoneLayout({
   multiplier,
   onCycleMultiplier,
   leverageLevel = 0,
+  momentum = 0,
+  momentumMax = 100,
   isRolling,
   isAutoRolling = false,
   onToggleAutoRoll = () => {},
@@ -278,6 +282,8 @@ export function PhoneLayout({
           multiplier={multiplier}
           onCycleMultiplier={onCycleMultiplier}
           leverageLevel={leverageLevel}
+          momentum={momentum}
+          momentumMax={momentumMax}
           rollsRemaining={gameState.rolls}
           isRolling={isRolling}
           isAutoRolling={isAutoRolling}

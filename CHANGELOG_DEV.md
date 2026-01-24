@@ -3,6 +3,32 @@
 ## Unreleased
 
 **Date:** 2026-01-24  
+**Slice:** M2.3 (Momentum meter + gain/decay)  
+**Summary:**  
+- Added a momentum helper module that decays momentum based on elapsed minutes and applies gain from positive net-worth deltas.  
+- Tracked net-worth deltas in `App.tsx` to update momentum deterministically and added a minute interval to apply passive decay.  
+- Added a mobile-first momentum meter to the phone dice button and the expanded Dice HUD so players can see the new signal without leaving the roll surface.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/lib/momentum.ts  
+- apps/investing-board-game-v3/src/lib/economyState.ts  
+- apps/investing-board-game-v3/src/App.tsx  
+- apps/investing-board-game-v3/src/components/DiceHUD.tsx  
+- apps/investing-board-game-v3/src/components/phone/DiceButton.tsx  
+- apps/investing-board-game-v3/src/components/phone/PhoneBottomNav.tsx  
+- apps/investing-board-game-v3/src/components/phone/PhoneLayout.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+1) `cd apps/investing-board-game-v3`  
+2) `npm run dev -- --host --port 5000`  
+3) Land on a cash-positive tile (or trigger a reward) and confirm the momentum bar increases, then wait a minute and confirm it decays.  
+
+**Date:** 2026-01-24  
 **Slice:** M2.1 (Canonical economy state shape + persistence)  
 **Summary:**  
 - Added a canonical economy state shape with normalization helpers to stabilize upcoming leverage and momentum features.  

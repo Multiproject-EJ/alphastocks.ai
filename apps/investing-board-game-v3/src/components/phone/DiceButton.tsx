@@ -10,6 +10,8 @@ interface DiceButtonProps {
   onCycleMultiplier: () => void;
   multiplier: number;
   leverageLevel?: number;
+  momentum?: number;
+  momentumMax?: number;
   rollsRemaining: number;
   isRolling: boolean;
   isAutoRolling: boolean;
@@ -23,6 +25,8 @@ export function DiceButton({
   onCycleMultiplier,
   multiplier,
   leverageLevel = 0,
+  momentum = 0,
+  momentumMax = 100,
   rollsRemaining,
   isRolling,
   isAutoRolling,
@@ -35,6 +39,8 @@ export function DiceButton({
   const isDoubles = dice1 === dice2;
   const unlockedMultipliers = getUnlockedMultipliers(leverageLevel);
   const nextLockedMultiplier = MULTIPLIERS[unlockedMultipliers.length];
+  const safeMomentumMax = momentumMax > 0 ? momentumMax : 100;
+  const momentumPercent = Math.max(0, Math.min(100, Math.round((momentum / safeMomentumMax) * 100)));
 
   const triggerAutoRollFlash = () => {
     setAutoRollFlash(true);
@@ -167,9 +173,21 @@ export function DiceButton({
             className={cn('scale-[0.99]', isRolling && 'animate-dice-shake')}
           />
         </span>
-        <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 flex-col items-center text-white">
-          <span className="text-[10px] uppercase tracking-[0.2em] text-white/70">Rolls</span>
-          <span className="text-lg font-bold">{rollsRemaining}</span>
+        <div className="absolute bottom-3 left-1/2 flex w-[138px] -translate-x-1/2 flex-col items-center gap-1 text-white">
+          <div className="flex w-full items-center justify-between text-[8px] uppercase tracking-[0.24em] text-white/70">
+            <span>Momentum</span>
+            <span className="font-mono text-white">{momentumPercent}%</span>
+          </div>
+          <div className="h-1.5 w-full overflow-hidden rounded-full border border-white/20 bg-black/25">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-300 transition-all duration-500"
+              style={{ width: `${momentumPercent}%` }}
+            />
+          </div>
+          <div className="flex flex-col items-center text-white">
+            <span className="text-[10px] uppercase tracking-[0.2em] text-white/70">Rolls</span>
+            <span className="text-lg font-bold">{rollsRemaining}</span>
+          </div>
         </div>
       </button>
     </div>

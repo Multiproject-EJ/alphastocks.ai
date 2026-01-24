@@ -137,6 +137,7 @@ import {
   normalizeEconomyState,
 } from '@/lib/economyState'
 import { clampMultiplierToLeverage, getUnlockedMultipliers } from '@/lib/leverage'
+import { MOMENTUM_MAX, applyMomentumDecay, applyMomentumFromNetWorthChange } from '@/lib/momentum'
 import { useUniverseStocks } from '@/hooks/useUniverseStocks'
 import { useGameSave } from '@/hooks/useGameSave'
 import { useAuth } from '@/context/AuthContext'
@@ -188,6 +189,8 @@ const debugGame = (...args: unknown[]) => {
 // Constants
 const LOGO_PANEL_INDEX = 1  // 2nd panel (0-indexed)
 const BOARD_CONTAINER_BASE_CLASSES = "relative bg-gradient-to-br from-white/15 via-white/8 to-white/12 backdrop-blur-2xl rounded-2xl border border-white/25 shadow-[inset_0_0_70px_rgba(255,255,255,0.08),_0_20px_80px_rgba(0,0,0,0.35)] p-8 min-h-[900px] transition-opacity duration-700"
+
+const BASE_NET_WORTH = 100000
 
 // Ring 3 reveal animation timing (in milliseconds)
 // Animation duration per tile: 800ms
@@ -326,6 +329,7 @@ function App() {
 
   const economyLoadedFromLocalRef = useRef(false)
   const lastEconomySerializedRef = useRef<string | null>(null)
+  const lastNetWorthRef = useRef<number | null>(null)
 
   const [phase, setPhase] = useState<Phase>('idle')
   const [lastRoll, setLastRoll] = useState<number | null>(null)
@@ -341,7 +345,9 @@ function App() {
   // Auto-roll state for Monopoly GO style continuous rolling
   const [isAutoRolling, setIsAutoRolling] = useState(false)
   const [mobileMultiplier, setMobileMultiplier] = useState<RollMultiplier>(1)
-  const leverageLevel = extractEconomyState(gameState).leverageLevel
+  const economyState = extractEconomyState(gameState)
+  const leverageLevel = economyState.leverageLevel
+  const momentum = economyState.momentum
   const unlockedMultipliers = useMemo(() => getUnlockedMultipliers(leverageLevel), [leverageLevel])
 
   // Ring 3 reveal state
@@ -1532,6 +1538,54 @@ function App() {
     const tierMultiplier = 1 + tierStarBonus
     return Math.floor(baseStars * shopMultiplier * starsMultiplier * tierMultiplier)
   }, [isPermanentOwned, getActiveMultipliers, activeBenefits])
+
+  useEffect(() => {
+    if (lastNetWorthRef.current === null) {
+      lastNetWorthRef.current = gameState.netWorth
+    }
+  }, [gameState.netWorth])
+
+  useEffect(() => {
+    if (lastNetWorthRef.current === null) {
+      lastNetWorthRef.current = gameState.netWorth
+      return
+    }
+
+    const deltaNetWorth = gameState.netWorth - lastNetWorthRef.current
+    if (deltaNetWorth === 0) return
+
+    const baseNetWorth = Math.max(lastNetWorthRef.current, BASE_NET_WORTH)
+    const now = new Date()
+
+    setGameState((prev) => {
+      const economy = extractEconomyState(prev)
+      const updatedEconomy = applyMomentumFromNetWorthChange(economy, deltaNetWorth, now, baseNetWorth)
+      if (updatedEconomy === economy) return prev
+      return {
+        ...prev,
+        economy: updatedEconomy,
+      }
+    })
+
+    lastNetWorthRef.current = gameState.netWorth
+  }, [gameState.netWorth])
+
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      const now = new Date()
+      setGameState((prev) => {
+        const economy = extractEconomyState(prev)
+        const decayedEconomy = applyMomentumDecay(economy, now)
+        if (decayedEconomy === economy) return prev
+        return {
+          ...prev,
+          economy: decayedEconomy,
+        }
+      })
+    }, 60 * 1000)
+
+    return () => window.clearInterval(interval)
+  }, [])
 
   // Hydrate canonical economy state from local storage when Supabase data isn't ready yet
   useEffect(() => {
@@ -3566,6 +3620,8 @@ function App() {
               lastEnergyCheck={gameState.lastEnergyCheck}
               rollHistory={gameState.rollHistory}
               leverageLevel={leverageLevel}
+              momentum={momentum}
+              momentumMax={MOMENTUM_MAX}
             />
           </div>
         )}
@@ -4550,6 +4606,8 @@ function App() {
           multiplier={mobileMultiplier}
           onCycleMultiplier={cycleMobileMultiplier}
           leverageLevel={leverageLevel}
+          momentum={momentum}
+          momentumMax={MOMENTUM_MAX}
           isRolling={phase === 'rolling'}
           isAutoRolling={isAutoRolling}
           onToggleAutoRoll={toggleAutoRoll}
