@@ -590,3 +590,32 @@
 3) `npm run dev`  
 4) With leverage level 0, verify only 1x is selectable and higher multipliers show as locked.  
 5) Increase `gameState.economy.leverageLevel` in local state (devtools) and confirm new multipliers unlock progressively and the cycle button only rotates through unlocked values.
+
+**Date:** 2026-01-24  
+**Slice:** M2.4 (windows engine + mobile-first HUD banner)  
+**Summary:**  
+- Added a deterministic economy windows engine that opens 5–25 minute buff windows based on momentum and leverage thresholds with cooldown handling.  
+- Expanded the canonical economy state to persist active window metadata and last window start/end timestamps so windows survive refreshes safely.  
+- Combined economy window multipliers with active event multipliers for roll rewards and star calculations, and surfaced the active window as a banner on both the phone dice button and desktop Dice HUD.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/lib/economyWindows.ts  
+- apps/investing-board-game-v3/src/lib/economyState.ts  
+- apps/investing-board-game-v3/src/lib/types.ts  
+- apps/investing-board-game-v3/src/App.tsx  
+- apps/investing-board-game-v3/src/components/DiceHUD.tsx  
+- apps/investing-board-game-v3/src/components/phone/PhoneLayout.tsx  
+- apps/investing-board-game-v3/src/components/phone/PhoneBottomNav.tsx  
+- apps/investing-board-game-v3/src/components/phone/DiceButton.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+1) `cd apps/investing-board-game-v3`  
+2) `npm run dev`  
+3) In devtools, raise `gameState.economy.momentum` to at least 35 and `gameState.economy.leverageLevel` to at least 1.  
+4) Wait for the next minute tick (or trigger a net worth increase) and confirm an economy window banner appears above the dice button/HUD with a countdown and bonus percentages.  
+5) Roll the dice during the window and confirm the roll toast shows larger star/XP gains versus the same roll without a window.

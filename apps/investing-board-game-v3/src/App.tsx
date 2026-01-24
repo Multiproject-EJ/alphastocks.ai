@@ -138,6 +138,7 @@ import {
 } from '@/lib/economyState'
 import { clampMultiplierToLeverage, getUnlockedMultipliers } from '@/lib/leverage'
 import { MOMENTUM_MAX, applyMomentumDecay, applyMomentumFromNetWorthChange } from '@/lib/momentum'
+import { getActiveEconomyWindow, getEconomyWindowMultipliers, tickEconomyWindows } from '@/lib/economyWindows'
 import { useUniverseStocks } from '@/hooks/useUniverseStocks'
 import { useGameSave } from '@/hooks/useGameSave'
 import { useAuth } from '@/context/AuthContext'
@@ -1025,6 +1026,24 @@ function App() {
     return () => clearInterval(interval)
   }, [])
 
+  const activeEconomyWindow = useMemo(
+    () => getActiveEconomyWindow(economyState, rightNowTick),
+    [economyState, rightNowTick]
+  )
+
+  const economyWindowMultipliers = useMemo(
+    () => getEconomyWindowMultipliers(economyState, rightNowTick),
+    [economyState, rightNowTick]
+  )
+
+  const getEconomyMultipliers = useCallback(() => {
+    const eventMultipliers = getActiveMultipliers()
+    return {
+      starsMultiplier: eventMultipliers.starsMultiplier * economyWindowMultipliers.starsMultiplier,
+      xpMultiplier: eventMultipliers.xpMultiplier * economyWindowMultipliers.xpMultiplier,
+    }
+  }, [economyWindowMultipliers, getActiveMultipliers])
+
   const openEventCalendar = useCallback(() => {
     showOverlay({
       id: 'eventCalendar',
@@ -1533,11 +1552,11 @@ function App() {
   const applyStarMultiplier = useCallback((baseStars: number): number => {
     const hasStarMultiplier = isPermanentOwned('star-multiplier')
     const shopMultiplier = hasStarMultiplier ? 1.5 : 1
-    const { starsMultiplier } = getActiveMultipliers()
+    const { starsMultiplier } = getEconomyMultipliers()
     const tierStarBonus = activeBenefits.get('star_bonus') || 0
     const tierMultiplier = 1 + tierStarBonus
     return Math.floor(baseStars * shopMultiplier * starsMultiplier * tierMultiplier)
-  }, [isPermanentOwned, getActiveMultipliers, activeBenefits])
+  }, [isPermanentOwned, getEconomyMultipliers, activeBenefits])
 
   useEffect(() => {
     if (lastNetWorthRef.current === null) {
@@ -1559,7 +1578,8 @@ function App() {
 
     setGameState((prev) => {
       const economy = extractEconomyState(prev)
-      const updatedEconomy = applyMomentumFromNetWorthChange(economy, deltaNetWorth, now, baseNetWorth)
+      const updatedMomentum = applyMomentumFromNetWorthChange(economy, deltaNetWorth, now, baseNetWorth)
+      const updatedEconomy = tickEconomyWindows(updatedMomentum, now)
       if (updatedEconomy === economy) return prev
       return {
         ...prev,
@@ -1576,10 +1596,11 @@ function App() {
       setGameState((prev) => {
         const economy = extractEconomyState(prev)
         const decayedEconomy = applyMomentumDecay(economy, now)
-        if (decayedEconomy === economy) return prev
+        const updatedEconomy = tickEconomyWindows(decayedEconomy, now)
+        if (updatedEconomy === economy) return prev
         return {
           ...prev,
-          economy: decayedEconomy,
+          economy: updatedEconomy,
         }
       })
     }, 60 * 1000)
@@ -2168,13 +2189,16 @@ function App() {
     
     // Process roll after dice animation
     setTimeout(() => {
+      const { starsMultiplier: economyStarsMultiplier, xpMultiplier: economyXpMultiplier } = getEconomyMultipliers()
       // Apply multiplier to rewards
-      const finalStars = baseStars * multiplier
+      const finalStars = Math.floor(baseStars * multiplier * economyStarsMultiplier)
       const finalCoins = baseCoins * multiplier
-      const finalXP = baseXP * multiplier
+      const finalXP = Math.floor(baseXP * multiplier * economyXpMultiplier)
       
       debugGame('Multiplied rewards', { 
         multiplier,
+        economyStarsMultiplier,
+        economyXpMultiplier,
         baseStars, finalStars, 
         baseCoins, finalCoins, 
         baseXP, finalXP 
@@ -3622,6 +3646,10 @@ function App() {
               leverageLevel={leverageLevel}
               momentum={momentum}
               momentumMax={MOMENTUM_MAX}
+              economyWindowLabel={activeEconomyWindow?.label ?? null}
+              economyWindowEndsAt={activeEconomyWindow?.endAt ?? null}
+              economyWindowStarsMultiplier={economyWindowMultipliers.starsMultiplier}
+              economyWindowXpMultiplier={economyWindowMultipliers.xpMultiplier}
             />
           </div>
         )}
@@ -4608,6 +4636,10 @@ function App() {
           leverageLevel={leverageLevel}
           momentum={momentum}
           momentumMax={MOMENTUM_MAX}
+          economyWindowLabel={activeEconomyWindow?.label ?? null}
+          economyWindowEndsAt={activeEconomyWindow?.endAt ?? null}
+          economyWindowStarsMultiplier={economyWindowMultipliers.starsMultiplier}
+          economyWindowXpMultiplier={economyWindowMultipliers.xpMultiplier}
           isRolling={phase === 'rolling'}
           isAutoRolling={isAutoRolling}
           onToggleAutoRoll={toggleAutoRoll}

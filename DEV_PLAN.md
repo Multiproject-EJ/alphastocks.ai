@@ -48,7 +48,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 - `AI_IMPLEMENTATION.md`, `IMPLEMENTATION_SUMMARY.md`, `DEVLOG.md` (project-wide status/context)
 
 ### Repo Map (paths verified)
-_Last reviewed: 2026-01-24 (M2.3 momentum meter + decay)_
+_Last reviewed: 2026-01-24 (M2.4 windows engine + HUD banner)_
 #### Frontend
 - **Legacy static pages entry:** `/index.html`, `/about.html`, `/faq.html`, `/monthly/`, `/weekly/`, `/superinvestor/`
 - **Vite + Preact app:** `/apps/investing-board-game-v3` (built into `/public/board-game-v3` via `npm run build:board-game-v3`)
@@ -153,7 +153,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **M2.1** ✅ Canonical economy state shape + persistence
 - **M2.2** ✅ Leverage ladder + UI gating
 - **M2.3** ✅ Momentum meter (gain/decay)
-- **M2.4** Windows engine (5–25 min)
+- **M2.4** ✅ Windows engine (5–25 min)
 - **M2.5** Trigger rules: “rich & hot”
 - **M2.6** Soft throttle (post big-win dampening)
 - **M2.7** Alpha Day scheduler (rare)
@@ -229,7 +229,14 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **M2.4 — Windows engine (5–25 min)**.
+**Recommended next slice:** **M2.5 — Trigger rules: “rich & hot.”**
+
+---
+
+## M2.4 Slice Notes (Windows engine + mobile-first HUD banner)
+- Added a dedicated `economyWindows` engine that deterministically starts 5–25 minute windows based on leverage + momentum thresholds, with cooldown handling and persisted timestamps.
+- Extended the canonical economy state shape to include active window metadata and last window start/end markers so windows survive refreshes safely.
+- Combined event multipliers with active window multipliers for roll rewards and star calculations, and surfaced the active window as a mobile-first banner on the phone dice button plus the expanded Dice HUD.
 
 ---
 
