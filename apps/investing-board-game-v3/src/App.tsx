@@ -136,6 +136,11 @@ import {
   extractEconomyState,
   normalizeEconomyState,
 } from '@/lib/economyState'
+import {
+  applySoftThrottleFromNetWorthChange,
+  getSoftThrottleMultiplier,
+  tickEconomyThrottle,
+} from '@/lib/economyThrottle'
 import { clampMultiplierToLeverage, getUnlockedMultipliers } from '@/lib/leverage'
 import { MOMENTUM_MAX, applyMomentumDecay, applyMomentumFromNetWorthChange } from '@/lib/momentum'
 import { getActiveEconomyWindow, getEconomyWindowMultipliers, tickEconomyWindows } from '@/lib/economyWindows'
@@ -1036,13 +1041,20 @@ function App() {
     [economyState, rightNowTick]
   )
 
+  const economyThrottleMultiplier = useMemo(
+    () => getSoftThrottleMultiplier(economyState, rightNowTick),
+    [economyState, rightNowTick]
+  )
+
   const getEconomyMultipliers = useCallback(() => {
     const eventMultipliers = getActiveMultipliers()
     return {
-      starsMultiplier: eventMultipliers.starsMultiplier * economyWindowMultipliers.starsMultiplier,
-      xpMultiplier: eventMultipliers.xpMultiplier * economyWindowMultipliers.xpMultiplier,
+      starsMultiplier:
+        eventMultipliers.starsMultiplier * economyWindowMultipliers.starsMultiplier * economyThrottleMultiplier,
+      xpMultiplier:
+        eventMultipliers.xpMultiplier * economyWindowMultipliers.xpMultiplier * economyThrottleMultiplier,
     }
-  }, [economyWindowMultipliers, getActiveMultipliers])
+  }, [economyWindowMultipliers, economyThrottleMultiplier, getActiveMultipliers])
 
   const openEventCalendar = useCallback(() => {
     showOverlay({
@@ -1579,11 +1591,18 @@ function App() {
     setGameState((prev) => {
       const economy = extractEconomyState(prev)
       const updatedMomentum = applyMomentumFromNetWorthChange(economy, deltaNetWorth, now, baseNetWorth)
-      const updatedEconomy = tickEconomyWindows(updatedMomentum, now)
-      if (updatedEconomy === economy) return prev
+      const throttledEconomy = applySoftThrottleFromNetWorthChange(
+        updatedMomentum,
+        deltaNetWorth,
+        now,
+        baseNetWorth
+      )
+      const updatedEconomy = tickEconomyWindows(throttledEconomy, now)
+      const finalEconomy = tickEconomyThrottle(updatedEconomy, now)
+      if (finalEconomy === economy) return prev
       return {
         ...prev,
-        economy: updatedEconomy,
+        economy: finalEconomy,
       }
     })
 
@@ -1597,10 +1616,11 @@ function App() {
         const economy = extractEconomyState(prev)
         const decayedEconomy = applyMomentumDecay(economy, now)
         const updatedEconomy = tickEconomyWindows(decayedEconomy, now)
-        if (updatedEconomy === economy) return prev
+        const finalEconomy = tickEconomyThrottle(updatedEconomy, now)
+        if (finalEconomy === economy) return prev
         return {
           ...prev,
-          economy: updatedEconomy,
+          economy: finalEconomy,
         }
       })
     }, 60 * 1000)
