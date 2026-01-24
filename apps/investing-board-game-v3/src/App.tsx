@@ -130,6 +130,12 @@ import { calculateTilePositions, calculateAllRingPositions } from '@/lib/tilePos
 import { calculateMovement, getHoppingTiles, getPortalConfigForRing } from '@/lib/movementEngine'
 import { isJackpotWeek } from '@/lib/events'
 import { applyRingMultiplier, getMultiplierDisplay } from '@/lib/rewardMultiplier'
+import {
+  ECONOMY_LOCAL_STORAGE_KEY,
+  createInitialEconomyState,
+  extractEconomyState,
+  normalizeEconomyState,
+} from '@/lib/economyState'
 import { useUniverseStocks } from '@/hooks/useUniverseStocks'
 import { useGameSave } from '@/hooks/useGameSave'
 import { useAuth } from '@/context/AuthContext'
@@ -252,6 +258,7 @@ function App() {
       amount: 0,
     },
     eventTrack: createEventTrackProgress(null),
+    economy: createInitialEconomyState(),
     holdings: [],
     inventory: [],
     activeEffects: [],
@@ -315,6 +322,9 @@ function App() {
   }
 
   const [gameState, setGameState] = useState<GameState>(defaultGameState)
+
+  const economyLoadedFromLocalRef = useRef(false)
+  const lastEconomySerializedRef = useRef<string | null>(null)
 
   const [phase, setPhase] = useState<Phase>('idle')
   const [lastRoll, setLastRoll] = useState<number | null>(null)
@@ -1520,6 +1530,42 @@ function App() {
     return Math.floor(baseStars * shopMultiplier * starsMultiplier * tierMultiplier)
   }, [isPermanentOwned, getActiveMultipliers, activeBenefits])
 
+  // Hydrate canonical economy state from local storage when Supabase data isn't ready yet
+  useEffect(() => {
+    if (economyLoadedFromLocalRef.current) return
+    if (savedGameState && isAuthenticated) return
+    if (typeof window === 'undefined') return
+
+    economyLoadedFromLocalRef.current = true
+
+    const storedEconomy = window.localStorage.getItem(ECONOMY_LOCAL_STORAGE_KEY)
+    if (!storedEconomy) return
+
+    try {
+      const parsed = JSON.parse(storedEconomy)
+      const normalized = normalizeEconomyState(parsed)
+      lastEconomySerializedRef.current = JSON.stringify(normalized)
+      setGameState(prev => ({
+        ...prev,
+        economy: normalized,
+      }))
+    } catch (error) {
+      console.warn('Failed to parse stored economy state:', error)
+    }
+  }, [savedGameState, isAuthenticated])
+
+  // Persist canonical economy state locally so it survives refresh when Supabase is unavailable
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    const economyState = extractEconomyState(gameState)
+    const serialized = JSON.stringify(economyState)
+    if (lastEconomySerializedRef.current === serialized) return
+
+    window.localStorage.setItem(ECONOMY_LOCAL_STORAGE_KEY, serialized)
+    lastEconomySerializedRef.current = serialized
+  }, [gameState])
+
   // Load saved game state when available
   useEffect(() => {
     if (saveLoading || authLoading || gameLoadedFromSave.current) return
@@ -1535,6 +1581,7 @@ function App() {
           amount: 0,
         },
         eventTrack: savedGameState.eventTrack ?? createEventTrackProgress(currentActiveEvent?.id ?? null),
+        economy: normalizeEconomyState(savedGameState.economy),
       }
       setGameState(loadedState)
       // Initialize Ring 3 revealed state

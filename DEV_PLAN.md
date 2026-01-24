@@ -48,7 +48,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 - `AI_IMPLEMENTATION.md`, `IMPLEMENTATION_SUMMARY.md`, `DEVLOG.md` (project-wide status/context)
 
 ### Repo Map (paths verified)
-_Last reviewed: 2026-01-23 (ring 2 wildcard weighting)_
+_Last reviewed: 2026-01-24 (M2.1 economy state shape + local persistence)_
 #### Frontend
 - **Legacy static pages entry:** `/index.html`, `/about.html`, `/faq.html`, `/monthly/`, `/weekly/`, `/superinvestor/`
 - **Vite + Preact app:** `/apps/investing-board-game-v3` (built into `/public/board-game-v3` via `npm run build:board-game-v3`)
@@ -150,7 +150,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **M1.4** ✅ Middle-ring wildcard outcomes (fraud vs hidden gem)
 
 ### M2 — Timeline Economy Core (Leverage, Momentum, Windows)
-- **M2.1** Canonical economy state shape + persistence
+- **M2.1** ✅ Canonical economy state shape + persistence
 - **M2.2** Leverage ladder + UI gating
 - **M2.3** Momentum meter (gain/decay)
 - **M2.4** Windows engine (5–25 min)
@@ -229,7 +229,14 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **M2.1 — Canonical economy state shape + persistence**.
+**Recommended next slice:** **M2.2 — Leverage ladder + UI gating**.
+
+---
+
+## M2.1 Slice Notes (Canonical economy state shape + persistence)
+- Added a canonical `EconomyState` type and normalization helpers to make upcoming leverage/momentum work deterministic.
+- Hydrated economy state from local storage when Supabase is unavailable and persisted it on change to survive refreshes.
+- Normalized economy state when loading saved games so older saves receive the new defaults safely.
 
 ---
 

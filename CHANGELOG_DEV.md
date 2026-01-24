@@ -2,6 +2,28 @@
 
 ## Unreleased
 
+**Date:** 2026-01-24  
+**Slice:** M2.1 (Canonical economy state shape + persistence)  
+**Summary:**  
+- Added a canonical economy state shape with normalization helpers to stabilize upcoming leverage and momentum features.  
+- Hydrated and persisted economy state via local storage so refreshes work when Supabase is not configured.  
+- Normalized economy state during saved-game load to backfill defaults safely.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/lib/economyState.ts  
+- apps/investing-board-game-v3/src/lib/types.ts  
+- apps/investing-board-game-v3/src/App.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+1) `cd apps/investing-board-game-v3`  
+2) `npm run dev`  
+3) Play a few turns, refresh the page, and confirm the app boots without errors and retains the economy state in local storage even without Supabase configured.  
+
 **Date:** 2026-01-23  
 **Slice:** M1.4 (Middle-ring wildcard outcomes)  
 **Summary:**  
