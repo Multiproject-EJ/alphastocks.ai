@@ -5,7 +5,7 @@ import {
   type EconomyWindowState,
 } from '@/lib/economyWindows'
 
-export const ECONOMY_STATE_VERSION = 2
+export const ECONOMY_STATE_VERSION = 3
 export const ECONOMY_LOCAL_STORAGE_KEY = 'board-game-economy-state'
 const MOMENTUM_MIN = 0
 const MOMENTUM_MAX = 100
@@ -17,6 +17,8 @@ export interface EconomyState {
   momentumFloor: number
   momentumPeak: number
   lastUpdatedAt: string
+  throttleMultiplier: number
+  throttleUntil: string | null
   activeWindow: EconomyWindowState | null
   lastWindowStartedAt: string | null
   lastWindowEndedAt: string | null
@@ -36,6 +38,19 @@ function clampDurationMinutes(value: number): number {
 function clampMultiplier(value: number): number {
   if (!Number.isFinite(value) || value < 1) return 1
   return Math.min(3, Math.round(value * 100) / 100)
+}
+
+function clampThrottleMultiplier(value: number): number {
+  if (!Number.isFinite(value)) return 1
+  return Math.min(1, Math.max(0.6, Math.round(value * 100) / 100))
+}
+
+function normalizeThrottleUntil(value: string | null | undefined, now: Date): string | null {
+  if (typeof value !== 'string') return null
+  const parsed = new Date(value)
+  if (Number.isNaN(parsed.getTime())) return null
+  if (parsed.getTime() <= now.getTime()) return null
+  return parsed.toISOString()
 }
 
 function normalizeWindow(window: EconomyWindowState | null | undefined): EconomyWindowState | null {
@@ -64,6 +79,8 @@ export function createInitialEconomyState(now: Date = new Date()): EconomyState 
     momentumFloor: 0,
     momentumPeak: 0,
     lastUpdatedAt: isoNow,
+    throttleMultiplier: 1,
+    throttleUntil: null,
     activeWindow: null,
     lastWindowStartedAt: null,
     lastWindowEndedAt: null,
@@ -89,6 +106,10 @@ export function normalizeEconomyState(
     : Math.max(base.momentumPeak, momentum)
   const momentumFloor = clampMomentum(Math.min(momentum, rawMomentumFloor))
   const momentumPeak = clampMomentum(Math.max(momentum, rawMomentumPeak))
+  const throttleUntil = normalizeThrottleUntil(state.throttleUntil, now)
+  const throttleMultiplier = throttleUntil
+    ? clampThrottleMultiplier(Number.isFinite(state.throttleMultiplier) ? Number(state.throttleMultiplier) : 1)
+    : 1
 
   return {
     version: ECONOMY_STATE_VERSION,
@@ -97,6 +118,8 @@ export function normalizeEconomyState(
     momentumFloor,
     momentumPeak,
     lastUpdatedAt: typeof state.lastUpdatedAt === 'string' ? state.lastUpdatedAt : base.lastUpdatedAt,
+    throttleMultiplier,
+    throttleUntil,
     activeWindow: normalizeWindow(state.activeWindow),
     lastWindowStartedAt: typeof state.lastWindowStartedAt === 'string' ? state.lastWindowStartedAt : null,
     lastWindowEndedAt: typeof state.lastWindowEndedAt === 'string' ? state.lastWindowEndedAt : null,

@@ -48,7 +48,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 - `AI_IMPLEMENTATION.md`, `IMPLEMENTATION_SUMMARY.md`, `DEVLOG.md` (project-wide status/context)
 
 ### Repo Map (paths verified)
-_Last reviewed: 2026-01-24 (M2.5 rich & hot trigger rules)_
+_Last reviewed: 2026-01-25 (M2.6 soft throttle dampening)_
 #### Frontend
 - **Legacy static pages entry:** `/index.html`, `/about.html`, `/faq.html`, `/monthly/`, `/weekly/`, `/superinvestor/`
 - **Vite + Preact app:** `/apps/investing-board-game-v3` (built into `/public/board-game-v3` via `npm run build:board-game-v3`)
@@ -101,6 +101,7 @@ _Last reviewed: 2026-01-24 (M2.5 rich & hot trigger rules)_
 - **Multipliers/leverage:** `src/lib/constants.ts` (`MULTIPLIERS`) + ring multipliers in `src/lib/rewardMultiplier.ts`
 - **Shop/estate logic:** `src/hooks/useShopInventory.ts` (stars-based purchases), `src/hooks/usePurchase.ts` (mobile cash purchases), `src/lib/shopItems.ts` (legacy + vault data), and city builder in `src/lib/cityBuilder.ts` + `src/hooks/useCityBuilder.ts`
 - **Events/timers:** `src/lib/events.ts`, `src/hooks/useEvents.ts`, `src/lib/miniGameSchedule.ts`, `src/hooks/useDailyDividends.ts`
+- **Soft throttle dampening:** `src/lib/economyThrottle.ts` + reward multiplier wiring in `src/App.tsx`
 
 #### ProTools (read-only)
 - **Integration docs:** `apps/investing-board-game-v3/PRO_TOOLS_INTEGRATION.md`
@@ -155,7 +156,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **M2.3** ✅ Momentum meter (gain/decay)
 - **M2.4** ✅ Windows engine (5–25 min)
 - **M2.5** ✅ Trigger rules: “rich & hot”
-- **M2.6** Soft throttle (post big-win dampening)
+- **M2.6** ✅ Soft throttle (post big-win dampening)
 - **M2.7** Alpha Day scheduler (rare)
 
 ### M3 — Real Stock Tiles + Portfolio Rewards
@@ -229,7 +230,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **M2.6 — Soft throttle (post big-win dampening).**
+**Recommended next slice:** **M2.7 — Alpha Day scheduler (rare).**
 
 ---
 
@@ -237,6 +238,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Tightened window start gating so meeting minimum leverage + momentum is no longer sufficient on its own; the economy must now be both “rich” (leverage level 2+) and “hot.”
 - Defined “hot” using the existing canonical economy signals: momentum must clear a higher band, be meaningfully above the recorded floor, and remain close to the current peak to reward active streaks instead of stale highs.
 - Kept the change repo-first by implementing it entirely within `economyWindows.ts` without reshaping upstream state, UI wiring, or persistence.
+
+## M2.6 Slice Notes (Soft throttle: post big-win dampening)
+- Added a soft throttle helper that flags big net-worth spikes and applies a temporary reward dampener for stars/XP multipliers.
+- Persisted throttle metadata alongside the canonical economy state and ensured throttle windows expire deterministically on the minute tick.
+- Wired the throttle multiplier into existing economy multiplier aggregation without altering other reward pipelines.
 
 ## M2.4 Slice Notes (Windows engine + mobile-first HUD banner)
 - Added a dedicated `economyWindows` engine that deterministically starts 5–25 minute windows based on leverage + momentum thresholds, with cooldown handling and persisted timestamps.

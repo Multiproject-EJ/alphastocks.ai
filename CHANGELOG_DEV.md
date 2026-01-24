@@ -2,6 +2,29 @@
 
 ## Unreleased
 
+**Date:** 2026-01-25  
+**Slice:** M2.6 (Soft throttle: post big-win dampening)  
+**Summary:**  
+- Added a soft throttle helper that detects big net-worth spikes and applies a temporary reward dampener to stars/XP multipliers.  
+- Persisted throttle metadata in the canonical economy state and expired it deterministically on minute ticks.  
+- Wired throttle into the existing economy multiplier aggregation without rewriting other reward flows.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/lib/economyThrottle.ts  
+- apps/investing-board-game-v3/src/lib/economyState.ts  
+- apps/investing-board-game-v3/src/App.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+1) `cd apps/investing-board-game-v3`  
+2) `npm run dev`  
+3) In React devtools, bump `gameState.netWorth` by ~15%+ and confirm `gameState.economy.throttleUntil` is set with a `throttleMultiplier` below 1.  
+4) Roll the dice and confirm the reward toast shows reduced stars/XP compared to the same roll with `throttleUntil` cleared.  
+
 **Date:** 2026-01-24  
 **Slice:** M2.3 (Momentum meter + gain/decay)  
 **Summary:**  
