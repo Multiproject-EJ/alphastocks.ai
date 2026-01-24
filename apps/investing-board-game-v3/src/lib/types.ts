@@ -120,6 +120,15 @@ export interface ActiveEffect {
   activated: boolean
 }
 
+export interface EconomyState {
+  version: number
+  leverageLevel: number
+  momentum: number
+  momentumFloor: number
+  momentumPeak: number
+  lastUpdatedAt: string
+}
+
 export interface GameState {
   cash: number
   position: number
@@ -143,6 +152,7 @@ export interface GameState {
     premiumPurchased: boolean
     lastUpdated: string | null
   }
+  economy?: EconomyState
   holdings: Array<{
     stock: Stock
     shares: number
