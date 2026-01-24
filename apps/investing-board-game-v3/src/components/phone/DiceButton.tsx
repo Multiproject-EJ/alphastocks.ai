@@ -1,5 +1,7 @@
 import { useState, useCallback, type MouseEvent } from 'react';
 import { AnimatedDice } from '@/components/AnimatedDice';
+import { MULTIPLIERS } from '@/lib/constants';
+import { getUnlockedMultipliers } from '@/lib/leverage';
 import { cn } from '@/lib/utils';
 
 interface DiceButtonProps {
@@ -7,6 +9,7 @@ interface DiceButtonProps {
   onToggleAutoRoll: () => void;
   onCycleMultiplier: () => void;
   multiplier: number;
+  leverageLevel?: number;
   rollsRemaining: number;
   isRolling: boolean;
   isAutoRolling: boolean;
@@ -19,6 +22,7 @@ export function DiceButton({
   onToggleAutoRoll,
   onCycleMultiplier,
   multiplier,
+  leverageLevel = 0,
   rollsRemaining,
   isRolling,
   isAutoRolling,
@@ -29,6 +33,8 @@ export function DiceButton({
   const [isTapAnimating, setIsTapAnimating] = useState(false);
   const [autoRollFlash, setAutoRollFlash] = useState(false);
   const isDoubles = dice1 === dice2;
+  const unlockedMultipliers = getUnlockedMultipliers(leverageLevel);
+  const nextLockedMultiplier = MULTIPLIERS[unlockedMultipliers.length];
 
   const triggerAutoRollFlash = () => {
     setAutoRollFlash(true);
@@ -121,6 +127,11 @@ export function DiceButton({
             <path d="M4 17.5h16" />
           </svg>
           Leverage {multiplier}x
+          {nextLockedMultiplier && (
+            <span className="text-[8px] tracking-[0.2em] text-yellow-200/80">
+              Next {nextLockedMultiplier}x
+            </span>
+          )}
         </button>
         <button
           type="button"

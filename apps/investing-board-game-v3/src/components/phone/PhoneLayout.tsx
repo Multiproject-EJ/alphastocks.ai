@@ -31,6 +31,7 @@ interface PhoneLayoutProps {
   onRollDice: (multiplier: number) => void;
   multiplier: number;
   onCycleMultiplier: () => void;
+  leverageLevel?: number;
   isRolling: boolean;
   isAutoRolling?: boolean;
   onToggleAutoRoll?: () => void;
@@ -57,6 +58,7 @@ export function PhoneLayout({
   onRollDice, 
   multiplier,
   onCycleMultiplier,
+  leverageLevel = 0,
   isRolling,
   isAutoRolling = false,
   onToggleAutoRoll = () => {},
@@ -275,6 +277,7 @@ export function PhoneLayout({
           onRollDice={onRollDice}
           multiplier={multiplier}
           onCycleMultiplier={onCycleMultiplier}
+          leverageLevel={leverageLevel}
           rollsRemaining={gameState.rolls}
           isRolling={isRolling}
           isAutoRolling={isAutoRolling}

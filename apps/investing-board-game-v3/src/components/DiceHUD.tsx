@@ -8,6 +8,7 @@ import { AnimatedDice } from '@/components/AnimatedDice'
 import { COIN_COSTS } from '@/lib/coins'
 import { MULTIPLIERS } from '@/lib/constants'
 import { getTimeUntilNextRegen } from '@/lib/energy'
+import { clampMultiplierToLeverage, getUnlockedMultipliers, isMultiplierUnlocked } from '@/lib/leverage'
 import type { DiceRoll } from '@/lib/types'
 
 interface DiceHUDProps {
@@ -26,6 +27,7 @@ interface DiceHUDProps {
   energyRolls?: number
   lastEnergyCheck?: Date
   rollHistory?: DiceRoll[]
+  leverageLevel?: number
 }
 
 export function DiceHUD({ 
@@ -41,7 +43,8 @@ export function DiceHUD({
   dice2: propDice2,
   energyRolls = 10,
   lastEnergyCheck,
-  rollHistory = []
+  rollHistory = [],
+  leverageLevel = 0,
 }: DiceHUDProps) {
   const [timeUntilReset, setTimeUntilReset] = useState('')
   const [energyRegenTime, setEnergyRegenTime] = useState('')
@@ -153,10 +156,12 @@ export function DiceHUD({
     }
   }
 
+  const unlockedMultipliers = getUnlockedMultipliers(leverageLevel)
+
   const handleMultiplierToggle = () => {
-    const currentIndex = MULTIPLIERS.indexOf(selectedMultiplier)
-    const nextIndex = currentIndex === -1 ? 0 : (currentIndex + 1) % MULTIPLIERS.length
-    setSelectedMultiplier(MULTIPLIERS[nextIndex])
+    const currentIndex = unlockedMultipliers.indexOf(selectedMultiplier as (typeof unlockedMultipliers)[number])
+    const nextIndex = currentIndex === -1 ? 0 : (currentIndex + 1) % unlockedMultipliers.length
+    setSelectedMultiplier(unlockedMultipliers[nextIndex] ?? MULTIPLIERS[0])
   }
 
   const triggerAutoRollFlash = () => {
@@ -194,6 +199,10 @@ export function DiceHUD({
       setAutoRollActive(false)
     }
   }, [autoRollActive, rollsRemaining, selectedMultiplier])
+
+  useEffect(() => {
+    setSelectedMultiplier((prev) => clampMultiplierToLeverage(prev, leverageLevel))
+  }, [leverageLevel])
 
   const availableMultipliers = MULTIPLIERS
 
@@ -278,24 +287,41 @@ export function DiceHUD({
                 <div className="space-y-2">
                   <div className="text-xs text-muted-foreground text-center">Multiplier</div>
                   <div className="flex gap-1 justify-center">
-                    {availableMultipliers.map((multiplier) => (
-                      <Button
-                        key={multiplier}
-                        size="sm"
-                        variant={selectedMultiplier === multiplier ? 'default' : 'outline'}
-                        onClick={() => setSelectedMultiplier(multiplier)}
-                        disabled={rollsRemaining < multiplier}
-                        className="flex-1 text-xs"
-                      >
-                        {multiplier}x
-                      </Button>
-                    ))}
+                    {availableMultipliers.map((multiplier) => {
+                      const unlocked = isMultiplierUnlocked(multiplier, leverageLevel)
+                      const disabled = rollsRemaining < multiplier || !unlocked
+                      return (
+                        <Button
+                          key={multiplier}
+                          size="sm"
+                          variant={selectedMultiplier === multiplier ? 'default' : 'outline'}
+                          onClick={() => {
+                            if (!unlocked) return
+                            setSelectedMultiplier(multiplier)
+                          }}
+                          disabled={disabled}
+                          className="flex-1 text-xs"
+                          aria-label={
+                            unlocked
+                              ? `${multiplier}x multiplier`
+                              : `${multiplier}x multiplier locked`
+                          }
+                        >
+                          {multiplier}x{unlocked ? '' : ' 🔒'}
+                        </Button>
+                      )
+                    })}
                   </div>
+                  {!isMultiplierUnlocked(selectedMultiplier, leverageLevel) && (
+                    <div className="text-[11px] text-center text-yellow-200/90">
+                      Higher leverage unlocks stronger multipliers.
+                    </div>
+                  )}
                 </div>
 
                 <Button
                   onClick={() => onRoll(selectedMultiplier)}
-                  disabled={phase !== 'idle'}
+                  disabled={phase !== 'idle' || rollsRemaining < selectedMultiplier}
                   className="w-full gap-2 bg-accent text-accent-foreground hover:bg-accent/90 font-semibold"
                   size="lg"
                 >

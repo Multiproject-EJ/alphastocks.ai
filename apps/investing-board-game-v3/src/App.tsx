@@ -136,6 +136,7 @@ import {
   extractEconomyState,
   normalizeEconomyState,
 } from '@/lib/economyState'
+import { clampMultiplierToLeverage, getUnlockedMultipliers } from '@/lib/leverage'
 import { useUniverseStocks } from '@/hooks/useUniverseStocks'
 import { useGameSave } from '@/hooks/useGameSave'
 import { useAuth } from '@/context/AuthContext'
@@ -340,6 +341,8 @@ function App() {
   // Auto-roll state for Monopoly GO style continuous rolling
   const [isAutoRolling, setIsAutoRolling] = useState(false)
   const [mobileMultiplier, setMobileMultiplier] = useState<RollMultiplier>(1)
+  const leverageLevel = extractEconomyState(gameState).leverageLevel
+  const unlockedMultipliers = useMemo(() => getUnlockedMultipliers(leverageLevel), [leverageLevel])
 
   // Ring 3 reveal state
   const [ring3Revealed, setRing3Revealed] = useState(false)
@@ -1895,14 +1898,19 @@ function App() {
     if (navigator.vibrate) navigator.vibrate(100)
   }, [])
 
+  useEffect(() => {
+    setMobileMultiplier((prev) => clampMultiplierToLeverage(prev, leverageLevel))
+  }, [leverageLevel])
+
   const cycleMobileMultiplier = useCallback(() => {
     setMobileMultiplier((prev) => {
-      const currentIndex = MULTIPLIERS.indexOf(prev)
-      const nextIndex = currentIndex === -1 ? 0 : (currentIndex + 1) % MULTIPLIERS.length
-      return MULTIPLIERS[nextIndex]
+      const leverageSafePrev = clampMultiplierToLeverage(prev, leverageLevel)
+      const currentIndex = unlockedMultipliers.indexOf(leverageSafePrev)
+      const nextIndex = currentIndex === -1 ? 0 : (currentIndex + 1) % unlockedMultipliers.length
+      return unlockedMultipliers[nextIndex] ?? unlockedMultipliers[0]
     })
     if (navigator.vibrate) navigator.vibrate(50)
-  }, [])
+  }, [leverageLevel, unlockedMultipliers])
 
   // Function to trigger Ring 3 reveal animation
   const revealRing3 = useCallback(() => {
@@ -3557,6 +3565,7 @@ function App() {
               energyRolls={gameState.energyRolls ?? DAILY_ROLL_LIMIT}
               lastEnergyCheck={gameState.lastEnergyCheck}
               rollHistory={gameState.rollHistory}
+              leverageLevel={leverageLevel}
             />
           </div>
         )}
@@ -4540,6 +4549,7 @@ function App() {
           onRollDice={(multiplier) => handleRoll(multiplier)}
           multiplier={mobileMultiplier}
           onCycleMultiplier={cycleMobileMultiplier}
+          leverageLevel={leverageLevel}
           isRolling={phase === 'rolling'}
           isAutoRolling={isAutoRolling}
           onToggleAutoRoll={toggleAutoRoll}

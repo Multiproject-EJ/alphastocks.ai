@@ -48,7 +48,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 - `AI_IMPLEMENTATION.md`, `IMPLEMENTATION_SUMMARY.md`, `DEVLOG.md` (project-wide status/context)
 
 ### Repo Map (paths verified)
-_Last reviewed: 2026-01-24 (M2.1 economy state shape + local persistence)_
+_Last reviewed: 2026-01-24 (M2.2 leverage ladder + UI gating)_
 #### Frontend
 - **Legacy static pages entry:** `/index.html`, `/about.html`, `/faq.html`, `/monthly/`, `/weekly/`, `/superinvestor/`
 - **Vite + Preact app:** `/apps/investing-board-game-v3` (built into `/public/board-game-v3` via `npm run build:board-game-v3`)
@@ -151,7 +151,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 
 ### M2 — Timeline Economy Core (Leverage, Momentum, Windows)
 - **M2.1** ✅ Canonical economy state shape + persistence
-- **M2.2** Leverage ladder + UI gating
+- **M2.2** ✅ Leverage ladder + UI gating
 - **M2.3** Momentum meter (gain/decay)
 - **M2.4** Windows engine (5–25 min)
 - **M2.5** Trigger rules: “rich & hot”
@@ -229,7 +229,14 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **M2.2 — Leverage ladder + UI gating**.
+**Recommended next slice:** **M2.3 — Momentum meter (gain/decay)**.
+
+---
+
+## M2.2 Slice Notes (Leverage ladder + UI gating)
+- Added a leverage ladder helper that clamps leverage level and unlocks multipliers progressively from 1x through 100x.
+- Gated multiplier selection on both desktop (`DiceHUD`) and phone (`DiceButton`) so locked multipliers are visibly disabled.
+- Clamped mobile multiplier selection to the unlocked ladder and cycled only within unlocked multipliers to avoid invalid leverage states.
 
 ---
 
