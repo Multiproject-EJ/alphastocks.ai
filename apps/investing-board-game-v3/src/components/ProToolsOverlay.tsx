@@ -68,7 +68,7 @@ export function ProToolsOverlay({
       aria-labelledby="pro-tools-title"
     >
       {/* Header with ProTools logo */}
-      <div className="flex items-center justify-between px-8 py-6 border-b border-border bg-gradient-to-r from-accent/10 to-accent/5">
+      <div className="flex items-center justify-between px-8 py-6 border-b border-border bg-gradient-to-r from-accent/10 to-accent/5 safe-top">
         <div className="flex-1">
           <h1 
             id="pro-tools-title" 
@@ -92,7 +92,7 @@ export function ProToolsOverlay({
       </div>
 
       {/* Main Menu */}
-      <div className="flex-1 overflow-auto p-8">
+      <div className="flex-1 overflow-auto p-8 safe-bottom">
         <div className="max-w-5xl mx-auto">
           <div className="mb-8">
             <h2 className="text-2xl font-semibold mb-2">Main Menu</h2>

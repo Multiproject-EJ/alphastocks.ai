@@ -40,7 +40,7 @@ export function MobileGameLayout({ children, showBottomNav = true }: MobileGameL
         safe-top safe-x
       `}
       style={{
-        paddingBottom: isMobile && showBottomNav ? 'calc(5rem + var(--safe-area-bottom))' : undefined,
+        paddingBottom: isMobile && showBottomNav ? 'calc(5rem + var(--safe-area-bottom-padding))' : undefined,
       }}
       data-safe-area-enabled="true"
     >
