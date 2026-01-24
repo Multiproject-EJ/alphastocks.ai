@@ -2745,7 +2745,7 @@ function App() {
         })
       } else if (tile.title === '?') {
         debugGame('Opening Wildcard Event modal')
-        const wildcardEvent = getRandomWildcardEvent()
+        const wildcardEvent = getRandomWildcardEvent(gameState.currentRing)
         setCurrentWildcardEvent(wildcardEvent)
         showOverlay({
           id: 'wildcardEvent',

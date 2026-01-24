@@ -48,7 +48,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 - `AI_IMPLEMENTATION.md`, `IMPLEMENTATION_SUMMARY.md`, `DEVLOG.md` (project-wide status/context)
 
 ### Repo Map (paths verified)
-_Last reviewed: 2026-01-23 (no changes)_
+_Last reviewed: 2026-01-23 (ring 2 wildcard weighting)_
 #### Frontend
 - **Legacy static pages entry:** `/index.html`, `/about.html`, `/faq.html`, `/monthly/`, `/weekly/`, `/superinvestor/`
 - **Vite + Preact app:** `/apps/investing-board-game-v3` (built into `/public/board-game-v3` via `npm run build:board-game-v3`)
@@ -147,7 +147,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **M1.1** Audit ring movement + portal behavior
 - **M1.2** ✅ Start behavior: land-only ring transitions
 - **M1.3** ✅ Bull Market window → ring 2 quick entry
-- **M1.4** Middle-ring wildcard outcomes (fraud vs hidden gem)
+- **M1.4** ✅ Middle-ring wildcard outcomes (fraud vs hidden gem)
 
 ### M2 — Timeline Economy Core (Leverage, Momentum, Windows)
 - **M2.1** Canonical economy state shape + persistence
@@ -229,7 +229,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **M1.4 — Middle-ring wildcard outcomes (fraud vs hidden gem)**.
+**Recommended next slice:** **M2.1 — Canonical economy state shape + persistence**.
 
 ---
 
@@ -301,3 +301,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ## M1.3 Slice Notes (Bull Market window → ring 2 quick entry)
 - Added a Bull Run Rally event effect that opens a Bull Market window.
 - During the window, passing the Ring 1 start portal ascends directly to Ring 2 for quick entry.
+
+## M1.4 Slice Notes (Middle-ring wildcard outcomes)
+- Added a Ring 2 wildcard outcome split so "Hidden Gem" (20%) vs "Fraud Alert" (80%) fires on the middle ring.
+- Kept the existing wildcard pool for Rings 1 and 3.
