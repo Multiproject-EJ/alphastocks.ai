@@ -28,6 +28,8 @@ interface DiceHUDProps {
   lastEnergyCheck?: Date
   rollHistory?: DiceRoll[]
   leverageLevel?: number
+  momentum?: number
+  momentumMax?: number
 }
 
 export function DiceHUD({ 
@@ -45,6 +47,8 @@ export function DiceHUD({
   lastEnergyCheck,
   rollHistory = [],
   leverageLevel = 0,
+  momentum = 0,
+  momentumMax = 100,
 }: DiceHUDProps) {
   const [timeUntilReset, setTimeUntilReset] = useState('')
   const [energyRegenTime, setEnergyRegenTime] = useState('')
@@ -157,6 +161,8 @@ export function DiceHUD({
   }
 
   const unlockedMultipliers = getUnlockedMultipliers(leverageLevel)
+  const safeMomentumMax = momentumMax > 0 ? momentumMax : 100
+  const momentumPercent = Math.max(0, Math.min(100, Math.round((momentum / safeMomentumMax) * 100)))
 
   const handleMultiplierToggle = () => {
     const currentIndex = unlockedMultipliers.indexOf(selectedMultiplier as (typeof unlockedMultipliers)[number])
@@ -281,6 +287,20 @@ export function DiceHUD({
                     isMoving={phase === 'moving'}
                     isDoubles={isDoubles}
                   />
+                </div>
+
+                {/* Momentum Meter */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
+                    <span>Momentum</span>
+                    <span className="font-mono text-foreground">{momentumPercent}%</span>
+                  </div>
+                  <div className="h-2 w-full overflow-hidden rounded-full border border-white/15 bg-white/5">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-300 transition-all duration-500"
+                      style={{ width: `${momentumPercent}%` }}
+                    />
+                  </div>
                 </div>
 
                 {/* Multiplier Selection */}

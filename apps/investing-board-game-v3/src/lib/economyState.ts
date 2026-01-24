@@ -2,6 +2,8 @@ import { GameState } from '@/lib/types'
 
 export const ECONOMY_STATE_VERSION = 1
 export const ECONOMY_LOCAL_STORAGE_KEY = 'board-game-economy-state'
+const MOMENTUM_MIN = 0
+const MOMENTUM_MAX = 100
 
 export interface EconomyState {
   version: number
@@ -34,13 +36,16 @@ export function normalizeEconomyState(
   }
 
   const leverageLevel = Number.isFinite(state.leverageLevel) ? Number(state.leverageLevel) : base.leverageLevel
-  const momentum = Number.isFinite(state.momentum) ? Number(state.momentum) : base.momentum
-  const momentumFloor = Number.isFinite(state.momentumFloor)
+  const rawMomentum = Number.isFinite(state.momentum) ? Number(state.momentum) : base.momentum
+  const momentum = Math.min(MOMENTUM_MAX, Math.max(MOMENTUM_MIN, rawMomentum))
+  const rawMomentumFloor = Number.isFinite(state.momentumFloor)
     ? Number(state.momentumFloor)
     : Math.min(base.momentumFloor, momentum)
-  const momentumPeak = Number.isFinite(state.momentumPeak)
+  const rawMomentumPeak = Number.isFinite(state.momentumPeak)
     ? Number(state.momentumPeak)
     : Math.max(base.momentumPeak, momentum)
+  const momentumFloor = Math.min(momentum, Math.max(MOMENTUM_MIN, rawMomentumFloor))
+  const momentumPeak = Math.max(momentum, Math.min(MOMENTUM_MAX, rawMomentumPeak))
 
   return {
     version: ECONOMY_STATE_VERSION,
