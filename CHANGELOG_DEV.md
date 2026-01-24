@@ -537,3 +537,30 @@
 1) `cd apps/investing-board-game-v3`  
 2) `npm run dev`  
 3) Ensure the Bull Run Rally event is active, roll to pass Start on Ring 1, and confirm you ascend to Ring 2 without landing exactly on the portal.
+
+**Date:** 2026-01-24  
+**Slice:** M2.2 (leverage ladder + UI gating)  
+**Summary:**  
+- Added a leverage ladder helper that unlocks roll multipliers progressively by leverage level.  
+- Gated multiplier selection in both the desktop Dice HUD and phone dice button, with clear locked states.  
+- Clamped mobile multiplier cycling to unlocked multipliers so leverage gating remains deterministic.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/lib/leverage.ts  
+- apps/investing-board-game-v3/src/App.tsx  
+- apps/investing-board-game-v3/src/components/DiceHUD.tsx  
+- apps/investing-board-game-v3/src/components/phone/PhoneLayout.tsx  
+- apps/investing-board-game-v3/src/components/phone/PhoneBottomNav.tsx  
+- apps/investing-board-game-v3/src/components/phone/DiceButton.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+1) `npm run build:board-game-v3`  
+2) `cd apps/investing-board-game-v3`  
+3) `npm run dev`  
+4) With leverage level 0, verify only 1x is selectable and higher multipliers show as locked.  
+5) Increase `gameState.economy.leverageLevel` in local state (devtools) and confirm new multipliers unlock progressively and the cycle button only rotates through unlocked values.
