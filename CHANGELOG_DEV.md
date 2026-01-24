@@ -619,3 +619,25 @@
 3) In devtools, raise `gameState.economy.momentum` to at least 35 and `gameState.economy.leverageLevel` to at least 1.  
 4) Wait for the next minute tick (or trigger a net worth increase) and confirm an economy window banner appears above the dice button/HUD with a countdown and bonus percentages.  
 5) Roll the dice during the window and confirm the roll toast shows larger star/XP gains versus the same roll without a window.
+
+**Date:** 2026-01-24  
+**Slice:** M2.5 (trigger rules: rich & hot)  
+**Summary:**  
+- Tightened economy window start gating so the minimum thresholds alone no longer start a window.  
+- Implemented “rich” as leverage level 2+ and “hot” as momentum clearing a higher band while staying meaningfully above the recorded floor and close to the current peak.  
+- Kept the slice repo-first by limiting the change to the window engine without reshaping upstream economy state or UI wiring.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/lib/economyWindows.ts  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+1) `cd apps/investing-board-game-v3`  
+2) `npm run dev`  
+3) In devtools, set `gameState.economy.leverageLevel = 1` and `momentum = 70`; confirm no window starts on the next tick because leverage is not “rich.”  
+4) Raise `leverageLevel = 2`, keep `momentum = 70`, and set `momentumPeak = 70`, `momentumFloor = 40`; confirm a window can now start after cooldown.  
+5) Drop `momentum` to 50 (below the hot band) and confirm new windows do not start after the current one ends.

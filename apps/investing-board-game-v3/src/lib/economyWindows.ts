@@ -6,6 +6,10 @@ export const ECONOMY_WINDOW_MAX_MINUTES = 25
 export const ECONOMY_WINDOW_COOLDOWN_MINUTES = 15
 export const ECONOMY_WINDOW_MIN_MOMENTUM = 35
 export const ECONOMY_WINDOW_MIN_LEVERAGE = 1
+export const ECONOMY_WINDOW_RICH_LEVERAGE = 2
+export const ECONOMY_WINDOW_HOT_MOMENTUM = 55
+export const ECONOMY_WINDOW_HOT_STREAK_DELTA = 15
+export const ECONOMY_WINDOW_HOT_NEAR_PEAK_DELTA = 12
 
 export type EconomyWindowType = 'momentum_surge' | 'breakout_run' | 'volatility_spike'
 
@@ -145,8 +149,26 @@ function hasCooldownElapsed(economy: EconomyState, now: Date): boolean {
   return elapsedMinutes >= ECONOMY_WINDOW_COOLDOWN_MINUTES
 }
 
+function isRich(economy: EconomyState): boolean {
+  return economy.leverageLevel >= ECONOMY_WINDOW_RICH_LEVERAGE
+}
+
+function isHot(economy: EconomyState): boolean {
+  const { momentum, momentumFloor, momentumPeak } = economy
+  const streakDelta = momentum - momentumFloor
+  const nearPeakDelta = Math.max(0, momentumPeak - momentum)
+  return (
+    momentum >= ECONOMY_WINDOW_HOT_MOMENTUM &&
+    streakDelta >= ECONOMY_WINDOW_HOT_STREAK_DELTA &&
+    nearPeakDelta <= ECONOMY_WINDOW_HOT_NEAR_PEAK_DELTA
+  )
+}
+
 function shouldStartWindow(economy: EconomyState): boolean {
-  return economy.momentum >= ECONOMY_WINDOW_MIN_MOMENTUM && economy.leverageLevel >= ECONOMY_WINDOW_MIN_LEVERAGE
+  const meetsMinimums =
+    economy.momentum >= ECONOMY_WINDOW_MIN_MOMENTUM && economy.leverageLevel >= ECONOMY_WINDOW_MIN_LEVERAGE
+  if (!meetsMinimums) return false
+  return isRich(economy) && isHot(economy)
 }
 
 export function tickEconomyWindows(economy: EconomyState, now: Date): EconomyState {
