@@ -2,6 +2,27 @@
 
 ## Unreleased
 
+**Date:** 2026-01-24  
+**Slice:** M2.7 (Alpha Day scheduler)  
+**Summary:**  
+- Added a deterministic quarterly Alpha Day special event so the event system can surface a rare 24-hour multiplier surge.  
+- Scheduled Alpha Day using a first-Monday rule per quarter month to keep upcoming event previews predictable.  
+- Wired Alpha Day into the global events list without disrupting existing recurring or rotation events.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/lib/events.ts  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+1) `cd apps/investing-board-game-v3`  
+2) `npm run dev`  
+3) Temporarily set the system date to `2026-04-06T12:00:00` (first Monday of April) and refresh; verify the Events panel shows “Alpha Day” active.  
+4) Set the date to `2026-06-30T12:00:00` and confirm the upcoming events list includes the next Alpha Day on the first Monday of July.  
+
 **Date:** 2026-01-25  
 **Slice:** M2.6 (Soft throttle: post big-win dampening)  
 **Summary:**  
