@@ -4679,12 +4679,7 @@ function App() {
               priority: 'normal',
             })
           }}
-          onOpenProTools={() => {
-            const proToolsUrl = 'https://www.alphastocks.ai/?proTools=1'
-            if (typeof window !== 'undefined') {
-              window.location.href = proToolsUrl
-            }
-          }}
+          onOpenProTools={() => setProToolsOpen(true)}
           onOpenSettings={() => handleBottomNavigation('settings')}
           onOpenShop={openShopOverlay}
           onOpenStockExchangeBuilder={openStockExchangeOverlay}
