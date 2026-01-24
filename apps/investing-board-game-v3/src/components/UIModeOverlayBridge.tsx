@@ -120,7 +120,9 @@ export function UIModeOverlayBridge({
         props = challengesProps || {}
         break
       case 'portfolio':
-        component = lazy(() => import('@/components/PortfolioModal'))
+        component = lazy(() =>
+          import('@/components/PortfolioModal').then((module) => ({ default: module.PortfolioModal }))
+        )
         props = portfolioProps || {}
         break
       case 'settings':
