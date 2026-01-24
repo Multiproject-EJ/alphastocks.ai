@@ -55,7 +55,7 @@ _Last reviewed: 2026-01-24 (M2.7 Alpha Day scheduler)_
 - **Routing system:** No router; UI mode/state machine in `apps/investing-board-game-v3/src/lib/uiModeStateMachine.ts` + context `src/context/UIModeContext.tsx`
 - **State management/store:** Local React state in `src/App.tsx` plus contexts in `src/context/*` (Auth, Overlay, UI Mode); custom hooks in `src/hooks/*`
 - **Game loop entry:** `src/App.tsx` (dice roll → `calculateMovement` in `src/lib/movementEngine.ts`), board data in `src/lib/mockData.ts`
-- **UI components:** `src/components/*` (board, modals, overlays), shop UI in `src/components/ShopModal.tsx` + `src/components/shop/*` (mobile shop shell, property vault album cards)
+- **UI components:** `src/components/*` (board, modals, overlays, portfolio readout panel), shop UI in `src/components/ShopModal.tsx` + `src/components/shop/*` (mobile shop shell, property vault album cards)
 - **Stock tile modals:** `src/components/StockModal.tsx` via `src/lib/overlayRegistry.ts` and `src/hooks/useOverlayManager.ts`, triggered in `src/App.tsx` on category tile landings
 - **Wheel of Fortune rewards + daily spin caps:** `src/App.tsx` + `src/components/WheelOfFortuneModal.tsx`
 - **Shop 2.0 entry:** `src/components/Shop2Modal.tsx` (feature-flagged Shop 2.0 preview shell)
@@ -162,7 +162,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 
 ### M3 — Real Stock Tiles + Portfolio Rewards
 - **M3.1** ✅ Audit stock tile modal system
-- **M3.2** Portfolio readout panel
+- **M3.2** ✅ Portfolio readout panel
 - **M3.3** Stock tile buy action (paper trading)
 - **M3.4** Portfolio reward hooks (soft positive buffs)
 - **M3.5** Price data strategy (with fallback)
@@ -231,7 +231,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **M3.2 — Portfolio readout panel.**
+**Recommended next slice:** **M3.3 — Stock tile buy action (paper trading).**
 
 ---
 
@@ -280,6 +280,10 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Stock modal renders as an overlay (`StockModal`) with mobile-first layout, ring multiplier badge, and buy/pass actions; it uses on-demand hooks, haptics, and optional ProTools deep dive entry without altering ProTools art flow.
 - The modal is launched from `App.tsx` after category tile landings with a short preview spin, uses the overlay manager/registry system for lifecycle handling, and closes by resetting stock state + phase.
 - Stock data arrives through `useUniverseStocks`, which maps Supabase universe rows into `Stock` records (with category derivation, scores, and price normalization) and falls back to mock data when Supabase is absent.
+
+## M3.2 Slice Notes (Portfolio readout panel)
+- Added a mobile-first portfolio readout panel to summarize net worth, cash vs portfolio value, top holdings, and category mix at a glance.
+- Placed the new readout panel into the center carousel so it is always available without leaving the board flow.
 
 ---
 

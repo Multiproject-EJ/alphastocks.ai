@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { WealthThrone } from '@/components/WealthThrone'
 import { PortfolioWheel } from '@/components/PortfolioWheel'
+import { PortfolioReadoutPanel } from '@/components/PortfolioReadoutPanel'
 import {
   Carousel,
   CarouselContent,
@@ -71,10 +72,10 @@ export function CenterCarousel({
         className="w-full max-w-[600px] mx-auto pointer-events-auto"
       >
         <CarouselContent>
-          {/* Panel 1 - Empty default */}
+          {/* Panel 1 - Portfolio readout */}
           <CarouselItem>
             <div className="flex items-center justify-center">
-              <div className="h-56 w-full md:h-64" aria-hidden="true" />
+              <PortfolioReadoutPanel gameState={gameState} />
             </div>
           </CarouselItem>
 
