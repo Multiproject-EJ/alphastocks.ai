@@ -56,6 +56,7 @@ _Last reviewed: 2026-01-24 (M2.7 Alpha Day scheduler)_
 - **State management/store:** Local React state in `src/App.tsx` plus contexts in `src/context/*` (Auth, Overlay, UI Mode); custom hooks in `src/hooks/*`
 - **Game loop entry:** `src/App.tsx` (dice roll → `calculateMovement` in `src/lib/movementEngine.ts`), board data in `src/lib/mockData.ts`
 - **UI components:** `src/components/*` (board, modals, overlays), shop UI in `src/components/ShopModal.tsx` + `src/components/shop/*` (mobile shop shell, property vault album cards)
+- **Stock tile modals:** `src/components/StockModal.tsx` via `src/lib/overlayRegistry.ts` and `src/hooks/useOverlayManager.ts`, triggered in `src/App.tsx` on category tile landings
 - **Wheel of Fortune rewards + daily spin caps:** `src/App.tsx` + `src/components/WheelOfFortuneModal.tsx`
 - **Shop 2.0 entry:** `src/components/Shop2Modal.tsx` (feature-flagged Shop 2.0 preview shell)
 - **Shop 2.0 vault data:** `src/hooks/useShopVaultOverview.ts` + `src/lib/shopVaultFixtures.ts` (season/set overview + fallback fixtures)
@@ -160,7 +161,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **M2.7** ✅ Alpha Day scheduler (rare)
 
 ### M3 — Real Stock Tiles + Portfolio Rewards
-- **M3.1** Audit stock tile modal system
+- **M3.1** ✅ Audit stock tile modal system
 - **M3.2** Portfolio readout panel
 - **M3.3** Stock tile buy action (paper trading)
 - **M3.4** Portfolio reward hooks (soft positive buffs)
@@ -230,7 +231,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **M3.1 — Audit stock tile modal system.**
+**Recommended next slice:** **M3.2 — Portfolio readout panel.**
 
 ---
 
@@ -274,6 +275,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Added a canonical `EconomyState` type and normalization helpers to make upcoming leverage/momentum work deterministic.
 - Hydrated economy state from local storage when Supabase is unavailable and persisted it on change to survive refreshes.
 - Normalized economy state when loading saved games so older saves receive the new defaults safely.
+
+## M3.1 Slice Notes (Audit stock tile modal system)
+- Stock modal renders as an overlay (`StockModal`) with mobile-first layout, ring multiplier badge, and buy/pass actions; it uses on-demand hooks, haptics, and optional ProTools deep dive entry without altering ProTools art flow.
+- The modal is launched from `App.tsx` after category tile landings with a short preview spin, uses the overlay manager/registry system for lifecycle handling, and closes by resetting stock state + phase.
+- Stock data arrives through `useUniverseStocks`, which maps Supabase universe rows into `Stock` records (with category derivation, scores, and price normalization) and falls back to mock data when Supabase is absent.
 
 ---
 

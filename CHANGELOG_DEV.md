@@ -685,3 +685,20 @@
 3) In devtools, set `gameState.economy.leverageLevel = 1` and `momentum = 70`; confirm no window starts on the next tick because leverage is not “rich.”  
 4) Raise `leverageLevel = 2`, keep `momentum = 70`, and set `momentumPeak = 70`, `momentumFloor = 40`; confirm a window can now start after cooldown.  
 5) Drop `momentum` to 50 (below the hot band) and confirm new windows do not start after the current one ends.
+
+**Date:** 2026-01-24  
+**Slice:** M3.1 (audit stock tile modal system)  
+**Summary:**  
+- Audited the stock tile modal flow, including overlay lifecycle, preview timing, and ring reward messaging.  
+- Confirmed the universe stock data mapping and Supabase fallback path used by category tile landings.  
+- Captured findings in the master dev plan to guide the upcoming portfolio UI slice.  
+
+**Files changed:**  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (not applicable — documentation-only update)  
