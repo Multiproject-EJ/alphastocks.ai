@@ -702,3 +702,21 @@
 
 **How to test:**  
 - (not applicable — documentation-only update)  
+
+**Date:** 2026-01-24  
+**Slice:** M3.2 (portfolio readout panel)  
+**Summary:**  
+- Added a mobile-first portfolio readout panel summarizing net worth, cash vs portfolio value, top holdings, and category mix.  
+- Replaced the empty center carousel panel with the portfolio readout for quick in-board access.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/components/PortfolioReadoutPanel.tsx  
+- apps/investing-board-game-v3/src/components/CenterCarousel.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Open the board, swipe the center carousel to the first panel, and confirm the portfolio readout renders on mobile and desktop.  
