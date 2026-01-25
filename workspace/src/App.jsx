@@ -3542,6 +3542,40 @@ const App = () => {
                     <h2>Pro Tools</h2>
                   </div>
                 </header>
+                {isMobileView && (
+                  <nav className="mobile-bottom-nav" aria-label="Mobile primary navigation">
+                    {mobilePrimaryNavItems.map((item) => {
+                      const isActive = item.id !== 'more' && activeSection === item.id;
+                      const isMoreBtn = item.id === 'more';
+                      const hasOverflowActive = isMoreBtn && mobileOverflowNavItems.some(
+                        overflowItem => overflowItem.id === activeSection
+                      );
+
+                      const classNames = ['mobile-nav-item'];
+                      if (isActive) classNames.push('active');
+                      if (isMoreBtn) {
+                        classNames.push('mobile-nav-more-btn');
+                        if (hasOverflowActive) classNames.push('has-overflow');
+                      }
+
+                      return (
+                        <button
+                          key={item.id}
+                          type="button"
+                          className={classNames.join(' ')}
+                          onClick={() => handleMobileNavSelection(item.id)}
+                          aria-label={item.label}
+                          aria-current={isActive ? 'page' : undefined}
+                        >
+                          <span className="item-icon" aria-hidden="true">
+                            {item.icon}
+                          </span>
+                          <span className="item-label">{item.label}</span>
+                        </button>
+                      );
+                    })}
+                  </nav>
+                )}
                 <div className="pro-overlay__content">
                   <section className="app" aria-live="polite">
                     {runtimeConfig.isDemoMode && <DemoBanner />}
@@ -3702,39 +3736,6 @@ const App = () => {
               {/* Mobile Bottom Navigation (visible only on mobile) */}
               {isMobileView && (
                 <>
-                  <nav className="mobile-bottom-nav" aria-label="Mobile primary navigation">
-                    {mobilePrimaryNavItems.map((item) => {
-                      const isActive = item.id !== 'more' && activeSection === item.id;
-                      const isMoreBtn = item.id === 'more';
-                      const hasOverflowActive = isMoreBtn && mobileOverflowNavItems.some(
-                        overflowItem => overflowItem.id === activeSection
-                      );
-
-                      const classNames = ['mobile-nav-item'];
-                      if (isActive) classNames.push('active');
-                      if (isMoreBtn) {
-                        classNames.push('mobile-nav-more-btn');
-                        if (hasOverflowActive) classNames.push('has-overflow');
-                      }
-
-                      return (
-                        <button
-                          key={item.id}
-                          type="button"
-                          className={classNames.join(' ')}
-                          onClick={() => handleMobileNavSelection(item.id)}
-                          aria-label={item.label}
-                          aria-current={isActive ? 'page' : undefined}
-                        >
-                          <span className="item-icon" aria-hidden="true">
-                            {item.icon}
-                          </span>
-                          <span className="item-label">{item.label}</span>
-                        </button>
-                      );
-                    })}
-                  </nav>
-
                   {/* Mobile Navigation Drawer */}
                   <div
                     className={`mobile-nav-drawer-backdrop${isMobileNavDrawerOpen ? ' visible' : ''}`}
