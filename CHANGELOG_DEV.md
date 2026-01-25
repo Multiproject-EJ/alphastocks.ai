@@ -722,6 +722,25 @@
 - (not applicable — documentation-only update)  
 
 **Date:** 2026-01-24  
+**Slice:** M3.5 (price data strategy — with fallback)  
+**Summary:**  
+- Added a deterministic stock pricing helper that maps composite scores into stable price bands with a seeded jitter and fallback range.  
+- Updated Supabase universe mapping and demo stock selection to use the shared pricing resolver and avoid random price drift.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/lib/stockPricing.ts  
+- apps/investing-board-game-v3/src/hooks/useUniverseStocks.ts  
+- apps/investing-board-game-v3/src/lib/mockData.ts  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Land on stock tiles multiple times and confirm prices stay consistent per symbol between refreshes (Supabase and demo).  
+
+**Date:** 2026-01-24  
 **Slice:** M3.2 (portfolio readout panel)  
 **Summary:**  
 - Added a mobile-first portfolio readout panel summarizing net worth, cash vs portfolio value, top holdings, and category mix.  

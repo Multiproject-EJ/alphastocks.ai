@@ -232,7 +232,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **M3.5 — Price data strategy (with fallback).**
+**Recommended next slice:** **M4.1 — Tile taxonomy + renderer.**
 
 ---
 
@@ -295,6 +295,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Added a portfolio reward buff helper that grants a small multiplier when holdings span multiple categories.
 - Hooked the portfolio buff into star multipliers and quick-reward payouts for cash, stars, coins, and XP.
 - Surfaced the portfolio bonus in quick-reward toasts to keep the feedback loop clear.
+
+## M3.5 Slice Notes (Price data strategy — with fallback)
+- Added a deterministic stock price resolver that anchors pricing to composite scores with seeded jitter and a stable fallback range.
+- Wired Supabase universe mapping to the new price resolver so live cards get consistent, mobile-friendly price bands without mutating schema.
+- Updated demo/mock stock selection to reuse the shared price resolver and provide a safe placeholder when category lists are empty.
 
 ---
 

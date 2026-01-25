@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { supabaseClient, hasSupabaseConfig } from '@/lib/supabaseClient'
 import { getRandomStock } from '@/lib/mockData'
+import { resolveStockPrice } from '@/lib/stockPricing'
 import { Stock, TileCategory } from '@/lib/types'
 
 type UniverseRow = {
@@ -30,11 +31,8 @@ function deriveCategory(symbol: string, index: number): TileCategory {
   return CATEGORY_ORDER[Math.abs(total) % CATEGORY_ORDER.length]
 }
 
-function normalizePrice(score?: number | null): number {
-  if (typeof score === 'number' && Number.isFinite(score)) {
-    return Math.max(5, Math.round(score * 100))
-  }
-  return 100
+function normalizePrice(ticker: string, score?: number | null, seedIndex?: number): number {
+  return resolveStockPrice({ ticker, compositeScore: score, seedIndex })
 }
 
 /**
@@ -109,7 +107,7 @@ function mapUniverseRowToStock(row: UniverseRow, index: number): Stock {
     name: row.name?.trim() || row.symbol,
     ticker: row.symbol,
     category: deriveCategory(row.symbol, index),
-    price: normalizePrice(row.last_composite_score),
+    price: normalizePrice(row.symbol, row.last_composite_score, index),
     description: row.addon_summary?.trim() || 'Saved from your investment universe.',
     risk_label: row.last_risk_label,
     quality_label: row.last_quality_label,
