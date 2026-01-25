@@ -1286,6 +1286,29 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
+/* Portal tiles: continuous magical pulse */
+.portal-tile-magic {
+  box-shadow:
+    0 0 20px rgba(147, 51, 234, 0.55),
+    0 0 45px rgba(168, 85, 247, 0.35);
+  animation: portalMagicPulse 2.4s ease-in-out infinite;
+}
+
+@keyframes portalMagicPulse {
+  0%, 100% {
+    box-shadow:
+      0 0 18px rgba(147, 51, 234, 0.45),
+      0 0 35px rgba(168, 85, 247, 0.3);
+    filter: brightness(1);
+  }
+  50% {
+    box-shadow:
+      0 0 30px rgba(147, 51, 234, 0.75),
+      0 0 60px rgba(168, 85, 247, 0.5);
+    filter: brightness(1.15);
+  }
+}
+
 /* Player piece fade out */
 .player-teleporting-out {
   animation: playerFadeOut 0.4s ease-in forwards;

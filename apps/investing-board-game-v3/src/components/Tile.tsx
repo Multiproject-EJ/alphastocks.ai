@@ -20,6 +20,7 @@ interface TileProps {
   isRing3Revealed?: boolean  // NEW: Whether Ring 3 has been unlocked
   isRing3Revealing?: boolean  // NEW: Whether Ring 3 is currently revealing
   isTeleporting?: boolean
+  isPortal?: boolean
 }
 
 // Configuration for corner tiles and event tiles that use images instead of text
@@ -46,7 +47,7 @@ const TILE_IMAGES: Record<string, { src: string; alt: string }> = {
   },
 }
 
-const TileComponent = ({ tile, isActive, isHopping, isLanded, onClick, side, hasOwnership = false, ringNumber, isRing3Revealed = false, isRing3Revealing = false, isTeleporting = false }: TileProps) => {
+const TileComponent = ({ tile, isActive, isHopping, isLanded, onClick, side, hasOwnership = false, ringNumber, isRing3Revealed = false, isRing3Revealing = false, isTeleporting = false, isPortal = false }: TileProps) => {
   const { lightTap } = useHaptics();
 
   const handleClick = useCallback(() => {
@@ -143,14 +144,16 @@ const TileComponent = ({ tile, isActive, isHopping, isLanded, onClick, side, has
   // For circular layout, we use a simpler border system
   // Category tiles get their category color, others get default/accent
   const borderStyles = useMemo(() => {
-    const borderColor = isActive
+    const borderColor = isPortal
+      ? 'oklch(0.62 0.28 300)'
+      : isActive
       ? 'oklch(0.75 0.15 85)'
       : (tile.colorBorder || 'oklch(0.30 0.02 250)')
 
     return {
       borderColor,
     }
-  }, [isActive, tile.colorBorder]);
+  }, [isActive, tile.colorBorder, isPortal]);
 
   return (
     <motion.div
@@ -161,7 +164,8 @@ const TileComponent = ({ tile, isActive, isHopping, isLanded, onClick, side, has
         isActive
           ? 'shadow-[0_0_20px_oklch(0.75_0.15_85_/_0.5)]'
           : 'hover:bg-card/70',
-        getRingClasses()
+        getRingClasses(),
+        isPortal ? 'portal-tile-magic' : ''
       )}
       style={{
         ...borderStyles,
@@ -294,6 +298,7 @@ export const Tile = memo(TileComponent, (prevProps, nextProps) => {
     prevProps.ringNumber === nextProps.ringNumber &&
     prevProps.isRing3Revealed === nextProps.isRing3Revealed &&
     prevProps.isRing3Revealing === nextProps.isRing3Revealing &&
-    prevProps.isTeleporting === nextProps.isTeleporting
+    prevProps.isTeleporting === nextProps.isTeleporting &&
+    prevProps.isPortal === nextProps.isPortal
   );
 });
