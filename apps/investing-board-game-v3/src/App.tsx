@@ -118,6 +118,7 @@ import {
   JACKPOT_PASS_START_AMOUNT,
   calculateCategoryOwnershipReward,
 } from '@/lib/constants'
+import { getPortfolioRewardBuff } from '@/lib/portfolioRewards'
 import { rollDice, DOUBLES_BONUS } from '@/lib/dice'
 import { 
   calculateQuickReward, 
@@ -710,6 +711,11 @@ function App() {
     setShowTierUpModal,
     newTier
   } = useNetWorthTier(gameState.netWorth)
+
+  const portfolioRewardBuff = useMemo(
+    () => getPortfolioRewardBuff(gameState.holdings),
+    [gameState.holdings]
+  )
 
   // Coins and Thrift Path hooks
   const {
@@ -1569,8 +1575,9 @@ function App() {
     const { starsMultiplier } = getEconomyMultipliers()
     const tierStarBonus = activeBenefits.get('star_bonus') || 0
     const tierMultiplier = 1 + tierStarBonus
-    return Math.floor(baseStars * shopMultiplier * starsMultiplier * tierMultiplier)
-  }, [isPermanentOwned, getEconomyMultipliers, activeBenefits])
+    const portfolioMultiplier = portfolioRewardBuff.multiplier
+    return Math.floor(baseStars * shopMultiplier * starsMultiplier * tierMultiplier * portfolioMultiplier)
+  }, [isPermanentOwned, getEconomyMultipliers, activeBenefits, portfolioRewardBuff.multiplier])
 
   useEffect(() => {
     if (lastNetWorthRef.current === null) {
@@ -2640,6 +2647,12 @@ function App() {
       ? calculatePremiumReward(rewardType)
       : calculateQuickReward(rewardType, gameState.currentRing)
     const config = QUICK_REWARD_CONFIG[rewardType]
+    const shouldApplyPortfolioBuff = portfolioRewardBuff.multiplier > 1
+      && ['cash', 'stars', 'coins', 'xp'].includes(rewardType)
+    const rewardAmount = shouldApplyPortfolioBuff
+      ? Math.floor(amount * portfolioRewardBuff.multiplier)
+      : amount
+    const portfolioBonus = rewardAmount - amount
 
     // Get tile position for celebration animation (center of screen as approximation)
     const tilePosition = { 
@@ -2651,7 +2664,7 @@ function App() {
     setQuickCelebration({
       active: true,
       emoji,
-      amount,
+      amount: rewardAmount,
       position: tilePosition,
     })
 
@@ -2661,15 +2674,15 @@ function App() {
         case 'cash':
           return { 
             ...prev, 
-            cash: prev.cash + amount,
-            netWorth: prev.netWorth + amount,
+            cash: prev.cash + rewardAmount,
+            netWorth: prev.netWorth + rewardAmount,
           }
         case 'stars':
-          return { ...prev, stars: prev.stars + amount }
+          return { ...prev, stars: prev.stars + rewardAmount }
         case 'coins':
-          return { ...prev, coins: prev.coins + amount }
+          return { ...prev, coins: prev.coins + rewardAmount }
         case 'xp':
-          return { ...prev, xp: prev.xp + amount }
+          return { ...prev, xp: prev.xp + rewardAmount }
         case 'bonus-roll':
           // Handle via setRollsRemaining below
           return prev
@@ -2684,7 +2697,8 @@ function App() {
     }
 
     // Quick toast (non-blocking)
-    toast.success(`${emoji} +${amount.toLocaleString()} ${config.label}!`, {
+    toast.success(`${emoji} +${rewardAmount.toLocaleString()} ${config.label}!`, {
+      description: portfolioBonus > 0 ? `Portfolio bonus +${portfolioBonus.toLocaleString()}` : undefined,
       duration: 1500,
       position: 'top-center',
     })

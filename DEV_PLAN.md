@@ -48,7 +48,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 - `AI_IMPLEMENTATION.md`, `IMPLEMENTATION_SUMMARY.md`, `DEVLOG.md` (project-wide status/context)
 
 ### Repo Map (paths verified)
-_Last reviewed: 2026-01-24 (M2.7 Alpha Day scheduler)_
+_Last reviewed: 2026-01-24 (M3.4 portfolio reward hooks)_
 #### Frontend
 - **Legacy static pages entry:** `/index.html`, `/about.html`, `/faq.html`, `/monthly/`, `/weekly/`, `/superinvestor/`
 - **Vite + Preact app:** `/apps/investing-board-game-v3` (built into `/public/board-game-v3` via `npm run build:board-game-v3`)
@@ -100,6 +100,7 @@ _Last reviewed: 2026-01-24 (M2.7 Alpha Day scheduler)_
 - **Vault regen perk bonus:** `src/lib/energy.ts` (vault bonus helpers) + `src/App.tsx` (reset boost) + `src/components/OutOfRollsModal.tsx` (perk messaging)
 - **Dice/energy caps:** `src/lib/constants.ts` and `src/lib/energy.ts`
 - **Multipliers/leverage:** `src/lib/constants.ts` (`MULTIPLIERS`) + ring multipliers in `src/lib/rewardMultiplier.ts`
+- **Portfolio reward buffs:** `src/lib/portfolioRewards.ts` (diversification-based multipliers for reward payouts)
 - **Shop/estate logic:** `src/hooks/useShopInventory.ts` (stars-based purchases), `src/hooks/usePurchase.ts` (mobile cash purchases), `src/lib/shopItems.ts` (legacy + vault data), and city builder in `src/lib/cityBuilder.ts` + `src/hooks/useCityBuilder.ts`
 - **Events/timers:** `src/lib/events.ts`, `src/hooks/useEvents.ts`, `src/lib/miniGameSchedule.ts`, `src/hooks/useDailyDividends.ts`
 - **Soft throttle dampening:** `src/lib/economyThrottle.ts` + reward multiplier wiring in `src/App.tsx`
@@ -164,7 +165,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **M3.1** ✅ Audit stock tile modal system
 - **M3.2** ✅ Portfolio readout panel
 - **M3.3** ✅ Stock tile buy action (paper trading)
-- **M3.4** Portfolio reward hooks (soft positive buffs)
+- **M3.4** ✅ Portfolio reward hooks (soft positive buffs)
 - **M3.5** Price data strategy (with fallback)
 
 ### M4 — Micro‑Learning Tiles
@@ -231,7 +232,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **M3.4 — Portfolio reward hooks (soft positive buffs).**
+**Recommended next slice:** **M3.5 — Price data strategy (with fallback).**
 
 ---
 
@@ -289,6 +290,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Updated the stock modal buy flow to purchase a ring-scaled bundle of shares with accurate affordability checks and total cost messaging.
 - Merged new stock purchases into existing holdings to keep the portfolio list tidy while retaining total cost basis for average pricing.
 - Incremented stock purchase stats (total and unique) so achievements can track paper trades reliably.
+
+## M3.4 Slice Notes (Portfolio reward hooks — soft positive buffs)
+- Added a portfolio reward buff helper that grants a small multiplier when holdings span multiple categories.
+- Hooked the portfolio buff into star multipliers and quick-reward payouts for cash, stars, coins, and XP.
+- Surfaced the portfolio bonus in quick-reward toasts to keep the feedback loop clear.
 
 ---
 
