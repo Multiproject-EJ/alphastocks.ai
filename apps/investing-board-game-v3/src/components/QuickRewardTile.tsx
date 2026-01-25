@@ -124,7 +124,7 @@ export function QuickRewardTile({
       {/* Content layer - above the gradient */}
       <div className="relative z-10 flex flex-col items-center justify-center">
         {/* Large emoji - drop shadow for depth */}
-        <span className="text-2xl sm:text-3xl drop-shadow-md">{styles.emoji}</span>
+        <span className="text-[44px] sm:text-[52px] leading-none drop-shadow-md">{styles.emoji}</span>
         
         {/* Label - white with drop shadow for readability */}
         <span className="text-[10px] sm:text-xs font-semibold text-white text-center leading-tight mt-1 drop-shadow-sm">
