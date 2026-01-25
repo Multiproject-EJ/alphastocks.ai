@@ -450,6 +450,10 @@ function App() {
 
   // ProTools overlay state (separate from overlay manager)
   const [proToolsOpen, setProToolsOpen] = useState(false)
+  const [proToolsFallback, setProToolsFallback] = useState<{
+    type: 'login' | 'error'
+    code: string
+  } | null>(null)
 
   // Wheel of Fortune state
   const [isWheelOpen, setIsWheelOpen] = useState(false)
@@ -1518,6 +1522,39 @@ function App() {
     saveGame,
     clearError: clearSaveError,
   } = useGameSave()
+
+  const handleOpenProTools = useCallback(() => {
+    const proToolsUrl = 'https://www.alphastocks.ai/?proTools=1'
+    const fallbackType = isAuthenticated ? 'error' : 'login'
+
+    setProToolsFallback(null)
+
+    if (typeof window === 'undefined') {
+      setProToolsFallback({
+        type: fallbackType,
+        code: 'PROTOOLS_NO_WINDOW',
+      })
+      setProToolsOpen(true)
+      return
+    }
+
+    const newWindow = window.open(proToolsUrl, '_blank', 'noopener,noreferrer')
+    if (newWindow) {
+      newWindow.focus?.()
+      return
+    }
+
+    setProToolsFallback({
+      type: fallbackType,
+      code: isAuthenticated ? 'PROTOOLS_POPUP_BLOCKED' : 'PROTOOLS_LOGIN_REQUIRED',
+    })
+    setProToolsOpen(true)
+  }, [isAuthenticated])
+
+  const launchProToolsFromOverlay = useCallback(() => {
+    setProToolsOpen(false)
+    handleOpenProTools()
+  }, [handleOpenProTools])
 
   useEffect(() => {
     if (!saveError) return
@@ -2878,7 +2915,7 @@ function App() {
             cash: gameState.cash,
             ringNumber: gameState.currentRing,
             playSound,
-            onOpenProTools: () => setProToolsOpen(true),
+            onOpenProTools: handleOpenProTools,
           },
           priority: 'normal',
           onClose: () => {
@@ -3805,14 +3842,7 @@ function App() {
             <div className="flex flex-col gap-4 items-center justify-center">
               {/* ProTools Button */}
               <Button
-                onClick={() => {
-                  const proToolsUrl = 'https://www.alphastocks.ai/?proTools=1'
-                  if (typeof window !== 'undefined') {
-                    window.location.href = proToolsUrl
-                    return
-                  }
-                  setProToolsOpen(true)
-                }}
+                onClick={handleOpenProTools}
                 className="bg-accent/90 hover:bg-accent text-accent-foreground shadow-lg hover:shadow-xl transition-all backdrop-blur-sm rounded-full h-14 px-6 text-base font-semibold"
                 aria-label="Open Pro Tools"
               >
@@ -4511,8 +4541,14 @@ function App() {
       {/* ProToolsOverlay - kept separate as it's not a standard modal */}
       <ProToolsOverlay
         open={proToolsOpen}
-        onOpenChange={setProToolsOpen}
-        gameState={gameState}
+        onOpenChange={(open) => {
+          setProToolsOpen(open)
+          if (!open) {
+            setProToolsFallback(null)
+          }
+        }}
+        fallback={proToolsFallback ?? undefined}
+        onLaunchProTools={launchProToolsFromOverlay}
       />
 
       <AchievementsModal
@@ -4718,7 +4754,7 @@ function App() {
               priority: 'normal',
             })
           }}
-          onOpenProTools={() => setProToolsOpen(true)}
+          onOpenProTools={handleOpenProTools}
           onOpenSettings={() => handleBottomNavigation('settings')}
           onOpenShop={openShopOverlay}
           onOpenStockExchangeBuilder={openStockExchangeOverlay}

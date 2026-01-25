@@ -94,7 +94,8 @@ export function PhoneLayout({
   const [backgroundChoice, setBackgroundChoice] = useState<'cycle' | 'finance-board'>(() => {
     if (typeof window === 'undefined') return 'cycle';
     const savedChoice = localStorage.getItem('alphastocks_phone_background');
-    return savedChoice === 'finance-board' ? 'finance-board' : 'cycle';
+    if (savedChoice === 'finance-board') return savedChoice;
+    return 'cycle';
   });
   const hideFloatingActions = isRolling;
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -176,7 +177,8 @@ export function PhoneLayout({
       <div 
         className={`absolute inset-0 z-0 bg-cover bg-center pointer-events-none phone-background-3d ${spaceBackgroundEnabled ? 'phone-background-space' : ''}`}
         style={{ 
-          backgroundImage: spaceBackgroundEnabled ? 'none' : `url('${backgroundUrl}')`,
+          backgroundImage: spaceBackgroundEnabled ? `url('${backgroundUrl}')` : 'none',
+          backgroundColor: spaceBackgroundEnabled ? 'transparent' : '#000',
           backgroundSize: 'auto 100%',
           backgroundPosition: 'center top',
           WebkitBackfaceVisibility: 'hidden',
