@@ -3,6 +3,24 @@
 ## Unreleased
 
 **Date:** 2026-01-24  
+**Slice:** M3.4 (portfolio reward hooks — soft positive buffs)  
+**Summary:**  
+- Added a portfolio reward buff helper that grants small multipliers based on category diversification.  
+- Applied portfolio buffs to star multipliers and quick-reward payouts (cash, stars, coins, XP), with bonus callouts in toasts.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/App.tsx  
+- apps/investing-board-game-v3/src/lib/portfolioRewards.ts  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Load the board, buy stocks across 2+ categories, and land on a quick-reward tile to confirm the portfolio bonus toast and increased payout.  
+
+**Date:** 2026-01-24  
 **Slice:** M2.7 (Alpha Day scheduler)  
 **Summary:**  
 - Added a deterministic quarterly Alpha Day special event so the event system can surface a rare 24-hour multiplier surge.  
