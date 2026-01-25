@@ -123,6 +123,11 @@ const TileComponent = ({ tile, isActive, isHopping, isLanded, onClick, side, has
   }
 
   const isCorner = tile.type === 'corner'
+  const emojiMatch = tile.title.match(/\p{Extended_Pictographic}/u)
+  const titleEmoji = emojiMatch?.[0] ?? null
+  const titleText = titleEmoji
+    ? tile.title.replace(/\p{Extended_Pictographic}/gu, '').replace(/\s+/g, ' ').trim()
+    : tile.title
 
   // Handle quick reward tiles
   if (tile.type === 'quick-reward' && tile.quickRewardType) {
@@ -272,6 +277,20 @@ const TileComponent = ({ tile, isActive, isHopping, isLanded, onClick, side, has
           className="w-full h-full object-contain absolute inset-0 pt-4 px-2 pb-1 z-10"
           loading="lazy"
         />
+      ) : titleEmoji ? (
+        <div className="relative z-10 flex flex-col items-center justify-center text-center px-2">
+          <span className="text-[44px] sm:text-[52px] leading-none drop-shadow-md">{titleEmoji}</span>
+          {titleText && (
+            <span
+              className={cn(
+                'text-[10px] sm:text-xs font-semibold leading-tight mt-1 drop-shadow-sm',
+                getTypeColor()
+              )}
+            >
+              {titleText}
+            </span>
+          )}
+        </div>
       ) : (
         <div className={cn(
           'text-center px-3 font-semibold relative z-10',
