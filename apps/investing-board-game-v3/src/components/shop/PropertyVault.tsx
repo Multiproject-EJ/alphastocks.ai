@@ -9,10 +9,16 @@ import { cn } from '@/lib/utils';
 interface PropertyVaultProps {
   cash: number;
   isPurchasing: string | null;
+  items?: typeof PROPERTY_VAULT_ITEMS;
   onBuy: (itemId: string, cost: number) => void;
 }
 
-export function PropertyVault({ cash, isPurchasing, onBuy }: PropertyVaultProps) {
+export function PropertyVault({
+  cash,
+  isPurchasing,
+  items = PROPERTY_VAULT_ITEMS,
+  onBuy,
+}: PropertyVaultProps) {
   const { error } = useHaptics();
   const progressPercent = Math.round(
     (PROPERTY_VAULT_PROGRESS.current / PROPERTY_VAULT_PROGRESS.total) * 100,
@@ -66,7 +72,7 @@ export function PropertyVault({ cash, isPurchasing, onBuy }: PropertyVaultProps)
       </div>
 
       <div className="grid grid-cols-2 gap-3 pb-2">
-        {PROPERTY_VAULT_ITEMS.map((item) => (
+        {items.map((item) => (
           <div
             key={item.id}
             className="rounded-2xl border border-white/10 bg-[#231236] p-2.5 text-white shadow-[0_12px_24px_rgba(15,7,28,0.35)]"
