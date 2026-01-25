@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
 
 interface LoadingScreenProps {
@@ -19,45 +20,88 @@ const TIPS = [
 ]
 
 export function LoadingScreen({ show, tip }: LoadingScreenProps) {
-  const displayTip = tip || TIPS[Math.floor(Math.random() * TIPS.length)]
-  
+  const displayTip = useMemo(() => tip || TIPS[Math.floor(Math.random() * TIPS.length)], [tip])
+  const stages = useMemo(
+    () => [
+      'Warming up your trading desk…',
+      'Syncing market data…',
+      'Lining up today’s events…',
+      'Almost ready to roll…',
+    ],
+    []
+  )
+  const [stageIndex, setStageIndex] = useState(0)
+
+  useEffect(() => {
+    if (!show) return
+    const interval = window.setInterval(() => {
+      setStageIndex((prev) => (prev + 1) % stages.length)
+    }, 650)
+    return () => window.clearInterval(interval)
+  }, [show, stages.length])
+
   if (!show) return null
   
   return (
     <motion.div
       initial={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[100] bg-background flex items-center justify-center"
+      className="fixed inset-0 z-[100] bg-background flex items-center justify-center overflow-hidden"
     >
-      <div className="text-center space-y-6 px-6">
+      <div className="absolute inset-0 bg-gradient-to-br from-accent/5 via-background to-background" />
+      <motion.div
+        className="absolute inset-0 opacity-50"
+        animate={{ opacity: [0.35, 0.55, 0.35] }}
+        transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
+        style={{
+          background:
+            'radial-gradient(circle at 20% 20%, rgba(255,255,255,0.08), transparent 45%), radial-gradient(circle at 80% 30%, rgba(99,102,241,0.12), transparent 45%)',
+        }}
+      />
+
+      <div className="relative text-center space-y-6 px-6">
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.5 }}
-          className="text-4xl md:text-5xl font-bold text-accent"
+          transition={{ duration: 0.45, ease: 'easeOut' }}
+          className="text-4xl md:text-5xl font-bold text-accent drop-shadow-sm"
         >
           Investing Board Game
         </motion.div>
-        
-        <div className="w-48 h-1 bg-accent/20 rounded-full mx-auto overflow-hidden">
+
+        <motion.div
+          className="mx-auto w-64 rounded-full bg-accent/10 p-1"
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+        >
           <motion.div
-            className="h-full bg-accent"
+            className="h-2 rounded-full bg-accent"
             animate={{
-              x: ['-100%', '100%'],
+              width: ['20%', '65%', '85%', '100%'],
             }}
             transition={{
-              duration: 1.5,
+              duration: 1.8,
               repeat: Infinity,
-              ease: 'easeInOut',
+              ease: [0.16, 1, 0.3, 1],
             }}
-            style={{ width: '50%' }}
           />
-        </div>
-        
+        </motion.div>
+
+        <motion.p
+          key={stageIndex}
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35 }}
+          className="text-sm font-medium text-foreground/80"
+        >
+          {stages[stageIndex]}
+        </motion.p>
+
         <motion.p
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
+          transition={{ delay: 0.2 }}
           className="text-sm text-muted-foreground max-w-xs mx-auto"
         >
           {displayTip}
