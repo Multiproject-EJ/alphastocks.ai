@@ -636,6 +636,7 @@ function App() {
   } = useBoardCamera({
     isMobile,
     currentPosition: gameState.position,
+    currentRing: gameState.currentRing,
     boardSize: { width: 1200, height: 1200 },
   })
 
@@ -2216,6 +2217,107 @@ function App() {
     // Track challenge progress for rolling
     updateChallengeProgress('roll', diceResult.total)
     
+    const startMovement = () => {
+      debugGame('Movement started', { totalMovement, movementResult })
+      logEvent?.('move_started', { totalMovement, startPosition })
+      setPhase('moving')
+
+      // Get tiles to hop from movement engine
+      const tilesToHop = getHoppingTiles(movementResult)
+
+      // Check if player passes Start (position 0) without landing on it
+      const passedStart = willPassStart && !willLandOnStart
+
+      // Animate camera in immersive mode (mobile only)
+      if (isMobile && camera.mode === 'immersive') {
+        animateAlongPath(tilesToHop, () => {
+          debugGame('Camera animation completed')
+        })
+      }
+
+      let currentHop = 0
+      const hopDelayMs = 500
+      const teleportFlashDurationMs = 1000
+
+      const runHop = () => {
+        if (currentHop < tilesToHop.length) {
+          const currentStep = movementResult.path[currentHop]
+          const nextStep = movementResult.path[currentHop + 1]
+          const nextPosition = tilesToHop[currentHop]
+          setHoppingTiles([nextPosition])
+          
+          // Update position and ring as we hop
+          setGameState((prev) => ({ 
+            ...prev, 
+            position: nextPosition,
+            currentRing: currentStep.ring
+          }))
+          currentHop++
+
+          if (nextStep && nextStep.ring !== currentStep.ring) {
+            setTeleportFlash({ from: currentStep.tileId, to: nextStep.tileId })
+            if (hopIntervalRef.current) clearTimeout(hopIntervalRef.current)
+            hopIntervalRef.current = setTimeout(() => {
+              setTeleportFlash(null)
+              runHop()
+            }, teleportFlashDurationMs)
+            return
+          }
+
+          hopIntervalRef.current = setTimeout(runHop, hopDelayMs)
+          return
+        }
+
+        if (hopIntervalRef.current) clearTimeout(hopIntervalRef.current)
+        setHoppingTiles([])
+        setLandingTilePreview(
+          getTileTitleForRing(movementResult.finalRing, movementResult.finalTileId)
+        )
+
+        landingTimeoutRef.current = setTimeout(() => {
+          const newPosition = movementResult.finalTileId
+          const newRing = movementResult.finalRing
+          
+          debugGame('Landing on tile:', { position: newPosition, ring: newRing })
+          logEvent?.('move_ended', { newPosition, newRing, totalMovement })
+          setPhase('landed')
+          // Re-enable UI mode transitions after landing
+          setCanTransition(true)
+          
+          // Apply final position
+          setGameState(prev => ({
+            ...prev,
+            position: newPosition,
+            currentRing: newRing,
+          }))
+          
+          // Trigger landing event with current reward multiplier
+          handleTileLanding(newPosition, passedStart)
+          
+          // Handle portal animation if triggered
+          if (movementResult.portalTriggered && movementResult.portalDirection) {
+            const portalDirection = movementResult.portalDirection === 'throne' ? 'up' : movementResult.portalDirection
+            const transition: PortalTransition = {
+              direction: portalDirection,
+              fromRing: gameState.currentRing,
+              toRing: newRing,
+              fromTile: gameState.position,
+              toTile: newPosition,
+              triggeredBy: movementResult.landedExactlyOnPortal ? 'land' : 'pass',
+            }
+            
+            setTimeout(() => {
+              triggerPortalAnimation(transition)
+            }, 1000) // Delay to let tile landing complete
+          }
+        }, 200)
+      }
+
+      runHop()
+    }
+
+    startMovement()
+
     // Process roll after dice animation
     setTimeout(() => {
       const { starsMultiplier: economyStarsMultiplier, xpMultiplier: economyXpMultiplier } = getEconomyMultipliers()
@@ -2289,106 +2391,6 @@ function App() {
         multiplier > 1 ? `${multiplier}x Multiplier Active!` : 'Roll Complete!',
         { description }
       )
-      
-      // Move player after brief delay
-      setTimeout(() => {
-        debugGame('Movement started', { totalMovement, movementResult })
-        logEvent?.('move_started', { totalMovement, startPosition })
-        setPhase('moving')
-        
-        // Get tiles to hop from movement engine
-        const tilesToHop = getHoppingTiles(movementResult)
-
-        // Check if player passes Start (position 0) without landing on it
-        const passedStart = willPassStart && !willLandOnStart
-        
-        // Animate camera in immersive mode (mobile only)
-        if (isMobile && camera.mode === 'immersive') {
-          animateAlongPath(tilesToHop, () => {
-            debugGame('Camera animation completed')
-          })
-        }
-
-        let currentHop = 0
-        const hopDelayMs = 200
-        const teleportFlashDurationMs = 1000
-
-        const runHop = () => {
-          if (currentHop < tilesToHop.length) {
-            const currentStep = movementResult.path[currentHop]
-            const nextStep = movementResult.path[currentHop + 1]
-            const nextPosition = tilesToHop[currentHop]
-            setHoppingTiles([nextPosition])
-            
-            // Update position and ring as we hop
-            setGameState((prev) => ({ 
-              ...prev, 
-              position: nextPosition,
-              currentRing: currentStep.ring
-            }))
-            currentHop++
-
-            if (nextStep && nextStep.ring !== currentStep.ring) {
-              setTeleportFlash({ from: currentStep.tileId, to: nextStep.tileId })
-              if (hopIntervalRef.current) clearTimeout(hopIntervalRef.current)
-              hopIntervalRef.current = setTimeout(() => {
-                setTeleportFlash(null)
-                runHop()
-              }, teleportFlashDurationMs)
-              return
-            }
-
-            hopIntervalRef.current = setTimeout(runHop, hopDelayMs)
-            return
-          }
-
-          if (hopIntervalRef.current) clearTimeout(hopIntervalRef.current)
-          setHoppingTiles([])
-          setLandingTilePreview(
-            getTileTitleForRing(movementResult.finalRing, movementResult.finalTileId)
-          )
-
-          landingTimeoutRef.current = setTimeout(() => {
-            const newPosition = movementResult.finalTileId
-            const newRing = movementResult.finalRing
-            
-            debugGame('Landing on tile:', { position: newPosition, ring: newRing })
-            logEvent?.('move_ended', { newPosition, newRing, totalMovement })
-            setPhase('landed')
-            // Re-enable UI mode transitions after landing
-            setCanTransition(true)
-            
-            // Apply final position
-            setGameState(prev => ({
-              ...prev,
-              position: newPosition,
-              currentRing: newRing,
-            }))
-            
-            // Trigger landing event with current reward multiplier
-            handleTileLanding(newPosition, passedStart)
-            
-            // Handle portal animation if triggered
-            if (movementResult.portalTriggered && movementResult.portalDirection) {
-              const portalDirection = movementResult.portalDirection === 'throne' ? 'up' : movementResult.portalDirection
-              const transition: PortalTransition = {
-                direction: portalDirection,
-                fromRing: gameState.currentRing,
-                toRing: newRing,
-                fromTile: gameState.position,
-                toTile: newPosition,
-                triggeredBy: movementResult.landedExactlyOnPortal ? 'land' : 'pass',
-              }
-              
-              setTimeout(() => {
-                triggerPortalAnimation(transition)
-              }, 1000) // Delay to let tile landing complete
-            }
-          }, 200)
-        }
-
-        runHop()
-      }, 500)
     }, 800) // Dice roll animation duration
   }
 
@@ -2442,6 +2444,8 @@ function App() {
   const isCourtOfCapitalTile =
     phase === 'landed' && BOARD_TILES[gameState.position]?.title === 'Court of Capital'
   const isCategoryTileActive = phase === 'landed' && BOARD_TILES[gameState.position]?.type === 'category'
+  const ring1PortalTileId = getPortalConfigForRing(1).startTileId
+  const ring2PortalTileId = getPortalConfigForRing(2).startTileId
 
   // Compute which categories the player owns stocks in
   const ownedCategories = useMemo(() => {
@@ -4063,6 +4067,7 @@ function App() {
                           hasOwnership={tile.category ? ownedCategories.has(tile.category) : false}
                           ringNumber={1}
                           isTeleporting={isTeleportingTile(tile.id)}
+                          isPortal={tile.id === ring1PortalTileId}
                           onClick={() => {
                             if (phase === 'idle') {
                               handleTileLanding(tile.id)
@@ -4166,6 +4171,7 @@ function App() {
                               isLanded={false}
                               ringNumber={2}
                               isTeleporting={isTeleportingTile(tile.id)}
+                              isPortal={tile.id === ring2PortalTileId}
                               onClick={() => {
                                 if (phase === 'idle' && gameState.currentRing === 2) {
                                   handleTileLanding(tile.id)

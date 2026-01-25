@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
-import { calculateTilePositions, TilePosition } from '@/lib/tilePositions'
+import { calculateAllRingPositions, calculateTilePositions, TilePosition } from '@/lib/tilePositions'
 import { eventBus } from '@/devtools/eventBus'
+import { RING_CONFIG } from '@/lib/mockData'
+import type { RingNumber } from '@/lib/types'
 
 export type CameraMode = 'classic' | 'immersive'
 
@@ -22,6 +24,7 @@ export interface CameraState {
 export interface UseBoardCameraOptions {
   isMobile: boolean
   currentPosition: number
+  currentRing: RingNumber
   boardSize: { width: number; height: number }
   tilePositions?: TilePosition[] // optional pre-calculated positions
 }
@@ -92,15 +95,45 @@ const CLASSIC_DEFAULTS = {
 }
 
 const MOBILE_PLAYER_FOCUS_Y_RATIO = 0.6
+const CAMERA_LOOK_AHEAD_TILES = 10
+const RING_ID_OFFSETS: Record<RingNumber, number> = {
+  1: 0,
+  2: 200,
+  3: 300,
+}
+
+const getNormalizedTileId = (tileId: number, ring: RingNumber): number => {
+  const ringTileCount = RING_CONFIG[ring].tiles
+  const ringOffset = RING_ID_OFFSETS[ring]
+  return ((tileId - ringOffset) % ringTileCount + ringTileCount) % ringTileCount
+}
+
+const getLookAheadTileId = (tileId: number, ring: RingNumber): number => {
+  const ringTileCount = RING_CONFIG[ring].tiles
+  const ringOffset = RING_ID_OFFSETS[ring]
+  const normalizedTileId = getNormalizedTileId(tileId, ring)
+  const lookAheadTileId = (normalizedTileId + CAMERA_LOOK_AHEAD_TILES) % ringTileCount
+  return lookAheadTileId + ringOffset
+}
 
 export function useBoardCamera(options: UseBoardCameraOptions) {
-  const { isMobile, currentPosition, boardSize } = options
+  const { isMobile, currentPosition, currentRing, boardSize } = options
   
   // Calculate tile positions once
-  const tilePositions = useMemo(
-    () => options.tilePositions || calculateTilePositions(boardSize),
-    [boardSize, options.tilePositions]
-  )
+  const tilePositions = useMemo(() => {
+    if (options.tilePositions) {
+      return options.tilePositions
+    }
+
+    const { ring1, ring2, ring3 } = calculateAllRingPositions(boardSize)
+    if (currentRing === 2) {
+      return ring2
+    }
+    if (currentRing === 3) {
+      return ring3
+    }
+    return ring1
+  }, [boardSize, currentRing, options.tilePositions])
   
   // Load saved camera mode preference
   const getInitialMode = useCallback((): CameraMode => {
@@ -154,17 +187,19 @@ export function useBoardCamera(options: UseBoardCameraOptions) {
   
   // Get center position of a tile
   const getTileCenterPosition = useCallback((tileId: number): { x: number; y: number } => {
-    const tile = tilePositions.find(t => t.id === tileId)
+    const normalizedTileId = getNormalizedTileId(tileId, currentRing)
+    const tile = tilePositions.find(t => t.id === normalizedTileId)
     if (!tile) {
       // Fallback to board center if tile not found
       return { x: boardSize.width / 2, y: boardSize.height / 2 }
     }
     return { x: tile.x, y: tile.y }
-  }, [tilePositions, boardSize])
+  }, [tilePositions, boardSize, currentRing])
   
   // Calculate translation needed to center a tile in viewport
   const calculateTranslation = useCallback((tileId: number): { x: number; y: number } => {
-    const tilePos = getTileCenterPosition(tileId)
+    const lookAheadTileId = getLookAheadTileId(tileId, currentRing)
+    const tilePos = getTileCenterPosition(lookAheadTileId)
     
     // For classic mode or desktop, keep centered
     if (!isMobile || camera.mode === 'classic') {
@@ -183,7 +218,7 @@ export function useBoardCamera(options: UseBoardCameraOptions) {
     const offsetY = targetCenterY - tilePos.y
     
     return { x: offsetX, y: offsetY }
-  }, [getTileCenterPosition, isMobile, camera.mode, boardSize])
+  }, [getTileCenterPosition, isMobile, camera.mode, boardSize, currentRing])
   
   // Center camera on a specific tile
   const centerOnTile = useCallback((tileId: number, animate: boolean = true) => {
@@ -191,13 +226,14 @@ export function useBoardCamera(options: UseBoardCameraOptions) {
       return
     }
     
+    const lookAheadTileId = getLookAheadTileId(tileId, currentRing)
     const translation = calculateTranslation(tileId)
     
     setCamera(prev => ({
       ...prev,
       translateX: validateTranslate(translation.x),
       translateY: validateTranslate(translation.y),
-      targetTile: tileId,
+      targetTile: lookAheadTileId,
       isAnimating: animate,
     }))
     
@@ -210,7 +246,7 @@ export function useBoardCamera(options: UseBoardCameraOptions) {
         setCamera(prev => ({ ...prev, isAnimating: false }))
       }, 600) // Animation duration
     }
-  }, [isMobile, camera.mode, calculateTranslation])
+  }, [isMobile, camera.mode, calculateTranslation, currentRing])
   
   // Animate along a path of tiles
   const animateAlongPath = useCallback(async (tileIds: number[], onComplete?: () => void): Promise<void> => {
