@@ -1,4 +1,5 @@
 import { Tile, Stock, ThriftyChallenge, BiasCaseStudy, TileCategory, AIPlayer } from './types'
+import { resolveStockPrice } from './stockPricing'
 
 // Ring 1: Street Level - 35 tiles
 // Stock tiles: 7 (positions: 3, 8, 14, 18, 22, 28, 33) - 20% of ring
@@ -545,7 +546,23 @@ export const THRIFTY_CHALLENGES: ThriftyChallenge[] = [
 
 export function getRandomStock(category: TileCategory): Stock {
   const stocks = MOCK_STOCKS[category] || []
-  return stocks[Math.floor(Math.random() * stocks.length)]
+  const index = Math.floor(Math.random() * stocks.length)
+  const stock = stocks[index]
+  if (!stock) {
+    return {
+      name: 'Placeholder Holdings',
+      ticker: 'DEMO',
+      category,
+      price: resolveStockPrice({ ticker: 'DEMO', compositeScore: 5, seedIndex: index }),
+      description: 'Demo fallback stock while loading.',
+      scores: { composite: 5, quality: 5, risk: 5, timing: 5 },
+    }
+  }
+
+  return {
+    ...stock,
+    price: resolveStockPrice({ ticker: stock.ticker, compositeScore: stock.scores?.composite, seedIndex: index }),
+  }
 }
 
 export function getRandomMarketEvent(): string {
