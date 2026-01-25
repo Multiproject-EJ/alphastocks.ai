@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { useNotificationPreferences } from '@/hooks/useNotificationPreferences'
 import { useSound } from '@/hooks/useSound'
+import { useAuth } from '@/context/AuthContext'
+import { hasSupabaseConfig, supabaseClient } from '@/lib/supabaseClient'
 
 interface SettingsModalProps {
   open: boolean
@@ -21,8 +23,13 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
   const [tutorialEnabled, setTutorialEnabled] = useState(false)
   const [backgroundChoice, setBackgroundChoice] = useState<'cycle' | 'finance-board'>('cycle')
   const [isMobile, setIsMobile] = useState(false)
+  const [diagnosticsStatus, setDiagnosticsStatus] = useState<'idle' | 'running' | 'success' | 'error'>('idle')
+  const [diagnosticsSummary, setDiagnosticsSummary] = useState<string>('Run a quick check for Supabase connectivity.')
+  const [diagnosticsDetails, setDiagnosticsDetails] = useState<string[]>([])
+  const [diagnosticsCheckedAt, setDiagnosticsCheckedAt] = useState<string | null>(null)
   const { enabled: notificationsEnabled, setNotificationsEnabled } = useNotificationPreferences()
   const { volume, muted, setVolume, setMuted } = useSound()
+  const { user, session, loading: authLoading, isAuthenticated } = useAuth()
   const soundEnabled = !muted
   const soundVolume = Math.round(volume * 100)
   const toggleClassName =
@@ -126,9 +133,61 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
     }
   }
 
+  const runDiagnostics = async () => {
+    const details: string[] = []
+    let hasError = false
+
+    setDiagnosticsStatus('running')
+    setDiagnosticsSummary('Running diagnostics...')
+    setDiagnosticsDetails([])
+
+    if (!hasSupabaseConfig || !supabaseClient) {
+      details.push('Supabase is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.')
+      hasError = true
+    } else {
+      details.push('Supabase configuration detected.')
+      const tokenPresent = Boolean(localStorage.getItem('supabase.auth.token'))
+      details.push(`Shared login token in storage: ${tokenPresent ? 'found' : 'missing'}.`)
+      details.push(`Auth session loaded: ${isAuthenticated ? 'signed in' : authLoading ? 'checking' : 'signed out'}.`)
+      if (user?.email) {
+        details.push(`User email: ${user.email}.`)
+      } else if (session?.user?.id) {
+        details.push(`User id: ${session.user.id}.`)
+      }
+
+      try {
+        const { error } = await supabaseClient
+          .from('board_game_profiles')
+          .select('id', { head: true, count: 'exact' })
+          .limit(1)
+        if (error) {
+          details.push(`Database check failed: ${error.message}`)
+          hasError = true
+        } else {
+          details.push('Database reachable: board_game_profiles responded.')
+        }
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error'
+        details.push(`Database check threw an error: ${message}`)
+        hasError = true
+      }
+    }
+
+    const timestamp = new Date().toLocaleTimeString()
+    setDiagnosticsCheckedAt(timestamp)
+    setDiagnosticsDetails(details)
+    if (hasError) {
+      setDiagnosticsStatus('error')
+      setDiagnosticsSummary('Issues detected. Review details below.')
+    } else {
+      setDiagnosticsStatus('success')
+      setDiagnosticsSummary('All checks passed.')
+    }
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-md max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-md max-h-[70vh] sm:max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Settings</DialogTitle>
         </DialogHeader>
@@ -328,6 +387,42 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
               <Separator />
             </>
           )}
+
+          {/* Troubleshooting */}
+          <div className="space-y-4">
+            <h3 className="font-semibold text-sm">Troubleshooting</h3>
+            <p className="text-xs text-muted-foreground">
+              Run diagnostics to check Supabase connectivity and shared login status.
+            </p>
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={runDiagnostics}
+              disabled={diagnosticsStatus === 'running'}
+            >
+              {diagnosticsStatus === 'running' ? 'Running Diagnostics…' : 'Run Supabase Diagnostics'}
+            </Button>
+            <div className="space-y-2 text-xs text-muted-foreground">
+              <p>
+                Status:{' '}
+                <span className="font-semibold text-foreground">
+                  {diagnosticsSummary}
+                </span>
+              </p>
+              {diagnosticsCheckedAt && (
+                <p>Last checked: {diagnosticsCheckedAt}</p>
+              )}
+              {diagnosticsDetails.length > 0 && (
+                <ul className="list-disc space-y-1 pl-4">
+                  {diagnosticsDetails.map((detail) => (
+                    <li key={detail}>{detail}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+
+          <Separator />
 
           {/* Actions */}
           <div className="space-y-3">
