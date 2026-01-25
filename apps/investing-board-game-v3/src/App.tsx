@@ -2236,7 +2236,7 @@ function App() {
       }
 
       let currentHop = 0
-      const hopDelayMs = 500
+      const hopDelayMs = 350
       const teleportFlashDurationMs = 1000
 
       const runHop = () => {
