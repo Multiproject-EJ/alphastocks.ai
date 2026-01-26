@@ -3,6 +3,24 @@
 ## Unreleased
 
 **Date:** 2026-01-24  
+**Slice:** M0.5 (casino + scratchcard MD plan alignment)  
+**Summary:**  
+- Added documentation-only kickoff prompt guidance for MD plan work.  
+- Captured status snapshots and next-slice checklists for Casino Mode and Scratchcard evolution docs.  
+
+**Files changed:**  
+- DEV_PLAN.md  
+- apps/investing-board-game-v3/CASINO_MODE.md  
+- apps/investing-board-game-v3/SCRATCHCARD_EVOLUTION.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (none)  
+
+**Date:** 2026-01-24  
 **Slice:** M3.4 (portfolio reward hooks — soft positive buffs)  
 **Summary:**  
 - Added a portfolio reward buff helper that grants small multipliers based on category diversification.  

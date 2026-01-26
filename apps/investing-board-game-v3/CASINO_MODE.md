@@ -22,6 +22,17 @@
 - **Scope:** Ring 1 gameplay + casino entry tile behavior
 - **State:** Planning / Not started
 
+### Status Snapshot (2026-01-24)
+- **Documentation refresh:** Added an implementation-ready checklist + sequencing notes.
+- **Code status:** No casino mode state/visual layers implemented yet.
+- **Next slice focus:** Ship foundational state + ring masking + win overlay (see “Next Slice” below).
+
+### Next Slice (P0 Foundation)
+1. Add `casinoMode` + `casinoModePhase` to core game state.
+2. Implement ring-2/3 masking during casino mode (opacity 0 + pointer-events: none).
+3. Add a minimal `CasinoWinOverlay` to verify end-to-end loop and exit safety.
+4. Add a debug toggle to force Mode A/Mode B.
+
 ---
 
 ## 0.1 Context & Player Story

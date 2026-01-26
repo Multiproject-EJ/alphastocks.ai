@@ -7,6 +7,9 @@ This is the **single master dev plan** for the board game work. Every run update
 Use this exact prompt to kick off a run and keep the plan in scope:
 > **“Follow `DEV_PLAN.md` (one slice, mobile-first, repo-first). Update `DEV_PLAN.md` + `CHANGELOG_DEV.md` every run.”**
 
+**Alt prompt (documentation-only runs):**
+> **“Work on the MD plan (casino + scratchcard docs). Update `DEV_PLAN.md` + `CHANGELOG_DEV.md`.”**
+
 ## Existing Master Plan Reference (do not duplicate)
 There is a broader, long-form master plan already in the repo. Keep this file as the **run-by-run execution plan** and cross‑reference the long plan instead of rewriting it:
 - `docs/DEV_PLAN_MARKETTYCOON_MASTER.md` (core vision, loop, ethics, ring overview). Align slices here with that doc to avoid drift.
@@ -145,6 +148,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **M0.2** Instrumentation hooks (optional logging, no behavior change)
 - **M0.3** ✅ Wheel of Fortune daily spin cap + reward consistency
 - **M0.4** ✅ Lazy-load Portfolio charts to prevent app boot errors
+- **M0.5** ✅ Casino + scratchcard MD plan alignment (status snapshot + next-slice checklist)
 
 ### M1 — 3‑Ring Board Rules (Outer/Middle/Inner)
 - **M1.1** Audit ring movement + portal behavior
