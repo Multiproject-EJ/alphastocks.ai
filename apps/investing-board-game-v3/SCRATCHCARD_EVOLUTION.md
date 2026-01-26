@@ -8,6 +8,17 @@ The current scratchcard is a clean, simple win/lose minigame. This guide expands
 - **Entry point**: `src/components/CasinoModal.tsx`
 - **Economy hooks**: win payouts and XP/coin rewards are already wired through existing reward hooks and game state.
 
+## Status Snapshot (2026-01-24)
+- **Documentation refresh:** Tiered scratchcard plan clarified with a config-first approach.
+- **Code status:** Scratchcard is still the single win/lose flow; tier config and multi-prize logic are not implemented yet.
+- **Next slice focus:** Add tier config + refactor `ScratchcardGame` to consume it.
+
+## Next Slice (P0 Foundation)
+1. Create `scratchcardTiers` config with tier costs, odds, and prize pools.
+2. Update `ScratchcardGame` to accept a tier config and render a configurable grid.
+3. Replace the single “match 3” rule with win-pattern evaluation (rows/diagonals/bonus).
+4. Return a structured list of prizes so the modal can show a win summary.
+
 ## Experience goals
 1. **Make scratchcards feel like a real casino ticket** (multiple prizes, real reveal patterns).
 2. **Increase anticipation** with progressive reveals and small animations.
