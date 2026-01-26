@@ -1,5 +1,8 @@
 # DEV_PLAN.md — AlphaStocks / MarketTycoon
 
+**System source of truth:** See `docs/DEV_PLAN_MARKETTYCOON_MASTER.md` for the canonical MarketTycoon game systems, loop, and economy. If something here conflicts, update the master plan first.
+
+
 ## Purpose
 This is the **single master dev plan** for the board game work. Every run updates this file and `CHANGELOG_DEV.md` (and `ENV_NOTES.md`/`MIGRATIONS_LOG.md` only when applicable).
 

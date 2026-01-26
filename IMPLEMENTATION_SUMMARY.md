@@ -1,5 +1,8 @@
 # Unified AI Stock Analysis Backend - Implementation Summary
 
+**System source of truth:** See `docs/DEV_PLAN_MARKETTYCOON_MASTER.md` for the canonical MarketTycoon game systems, loop, and economy. If something here conflicts, update the master plan first.
+
+
 ## Overview
 
 This implementation adds a complete AI-powered stock analysis backend to the alphastocks.ai repository, supporting three AI providers through a single unified interface.

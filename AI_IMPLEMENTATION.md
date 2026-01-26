@@ -1,5 +1,8 @@
 # AI Stock Analysis Implementation
 
+**System source of truth:** See `docs/DEV_PLAN_MARKETTYCOON_MASTER.md` for the canonical MarketTycoon game systems, loop, and economy. If something here conflicts, update the master plan first.
+
+
 This document provides a complete overview of the unified AI backend implementation for stock analysis.
 
 ## Overview

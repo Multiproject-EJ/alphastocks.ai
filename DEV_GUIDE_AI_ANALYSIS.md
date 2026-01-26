@@ -1,5 +1,8 @@
 # AI Analysis Developer Guide
 
+**System source of truth:** See `docs/DEV_PLAN_MARKETTYCOON_MASTER.md` for the canonical MarketTycoon game systems, loop, and economy. If something here conflicts, update the master plan first.
+
+
 This document describes the architecture, endpoints, persistence, and extension points for the AI Analysis feature in AlphaStocks.ai.
 
 ## Overview

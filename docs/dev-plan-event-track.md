@@ -1,5 +1,8 @@
 # Event Reward Track / Progress Bar — Dev Plan
 
+**System source of truth:** See `docs/DEV_PLAN_MARKETTYCOON_MASTER.md` for the canonical MarketTycoon game systems, loop, and economy. If something here conflicts, update the master plan first.
+
+
 ## Repo Findings
 - Gameplay loop and UI orchestration live in `apps/investing-board-game-v3/src/App.tsx` with handlers like `handleRoll`, `handleTileLanding`, and the overlay system (`useOverlayManager`).
 - Game state is modeled in `apps/investing-board-game-v3/src/lib/types.ts` (`GameState`), saved via Supabase in `apps/investing-board-game-v3/src/hooks/useGameSave.ts`.

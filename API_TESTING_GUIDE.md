@@ -1,5 +1,8 @@
 # AI Stock Analysis API - Testing Guide
 
+**System source of truth:** See `docs/DEV_PLAN_MARKETTYCOON_MASTER.md` for the canonical MarketTycoon game systems, loop, and economy. If something here conflicts, update the master plan first.
+
+
 This guide shows how to test the unified AI stock analysis API with each provider.
 
 ## Endpoints
