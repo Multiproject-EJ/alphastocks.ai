@@ -168,6 +168,7 @@ export function useBoardCamera(options: UseBoardCameraOptions) {
   
   const animationTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const zoomOutTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const cameraResetInFlightRef = useRef(false)
   
   // Save mode preference to localStorage
   const setMode = useCallback((newMode: CameraMode) => {
@@ -354,21 +355,30 @@ export function useBoardCamera(options: UseBoardCameraOptions) {
   
   // Emergency fallback: detect invalid camera state and reset
   useEffect(() => {
-    if (
+    const isInvalid =
       isNaN(camera.scale) ||
       camera.scale === 0 ||
       camera.scale > 10 ||
       Math.abs(camera.translateX) > 5000 ||
       Math.abs(camera.translateY) > 5000
-    ) {
-      console.error('❌ Camera state invalid, resetting to classic mode:', {
-        scale: camera.scale,
-        translateX: camera.translateX,
-        translateY: camera.translateY,
-      })
-      setMode('classic')
-      resetCamera()
+
+    if (!isInvalid) {
+      cameraResetInFlightRef.current = false
+      return
     }
+
+    if (cameraResetInFlightRef.current) {
+      return
+    }
+
+    cameraResetInFlightRef.current = true
+    console.error('❌ Camera state invalid, resetting to classic mode:', {
+      scale: camera.scale,
+      translateX: camera.translateX,
+      translateY: camera.translateY,
+    })
+    setMode('classic')
+    resetCamera()
   }, [camera.scale, camera.translateX, camera.translateY, setMode, resetCamera])
   
   // Debug logging for camera state changes
