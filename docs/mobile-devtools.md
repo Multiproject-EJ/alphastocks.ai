@@ -1,5 +1,8 @@
 # Mobile DevTools Documentation
 
+**System source of truth:** See `docs/DEV_PLAN_MARKETTYCOON_MASTER.md` for the canonical MarketTycoon game systems, loop, and economy. If something here conflicts, update the master plan first.
+
+
 ## Overview
 
 The Mobile QA Harness provides comprehensive debugging and testing tools for the investing board game mobile experience. It includes a debug overlay, device preview, and automated screenshot capture.

@@ -1,5 +1,8 @@
 # ValueBot Add-On Engine (Module 7) — Notes
 
+**System source of truth:** See `docs/DEV_PLAN_MARKETTYCOON_MASTER.md` for the canonical MarketTycoon game systems, loop, and economy. If something here conflicts, update the master plan first.
+
+
 ## Current Deep-Dive Flow (Modules 0–6)
 - Server worker entrypoint: `api-lib/valuebot/runDeepDiveForConfig.js` (front-end mirror in `workspace/src/features/valuebot/runDeepDiveForConfig.ts`).
 - The worker chains Module 0–6 prompts via `/api/stock-analysis`, then derives score labels with `/api/valuebot?action=meta-summary`.

@@ -1,5 +1,8 @@
 # DEVLOG
 
+**System source of truth:** See `docs/DEV_PLAN_MARKETTYCOON_MASTER.md` for the canonical MarketTycoon game systems, loop, and economy. If something here conflicts, update the master plan first.
+
+
 ## Step 0 — Repository inspection & setup
 
 ### Scope

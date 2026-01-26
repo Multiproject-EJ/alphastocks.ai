@@ -1,5 +1,8 @@
 # Global Stock Universe Builder - Feature Summary
 
+**System source of truth:** See `docs/DEV_PLAN_MARKETTYCOON_MASTER.md` for the canonical MarketTycoon game systems, loop, and economy. If something here conflicts, update the master plan first.
+
+
 ## 🎯 What Was Built
 
 A comprehensive feature that systematically catalogs every stock from every exchange worldwide using AI-powered analysis. This creates the foundational stock list for ValueBot analysis and investment universe management.

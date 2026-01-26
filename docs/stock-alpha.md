@@ -1,5 +1,8 @@
 # Stock Alpha Workflow
 
+**System source of truth:** See `docs/DEV_PLAN_MARKETTYCOON_MASTER.md` for the canonical MarketTycoon game systems, loop, and economy. If something here conflicts, update the master plan first.
+
+
 The Stock Alpha pipeline converts raw screening outputs into research-ready entries in Supabase. Follow the checklist below to keep the flow consistent and reproducible.
 
 ## End-to-End Steps

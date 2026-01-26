@@ -1,5 +1,8 @@
 # alphastocks.ai
 
+**System source of truth:** See `docs/DEV_PLAN_MARKETTYCOON_MASTER.md` for the canonical MarketTycoon game systems, loop, and economy. If something here conflicts, update the master plan first.
+
+
 AlphaStocks.ai currently ships as a static HTML/CSS/JS prototype that previews the intended workspace UI. The goal is to evolve this codebase into a smooth Progressive Web App (PWA) that stays close to the existing structure while layering in real data, offline support, and AI-assisted workflows.
 
 ## Development Workflow

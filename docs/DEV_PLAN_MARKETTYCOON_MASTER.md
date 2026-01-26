@@ -1,5 +1,8 @@
 # MarketTycoon Master Development Plan
 
+**System source of truth:** This document is the canonical reference for MarketTycoon game systems, loop, and economy. Other docs should link here and defer to it on conflicts.
+
+
 **Version:** 2.1  
 **Last Updated:** 2026-01-16  
 **Purpose:** Comprehensive guide for AI agents (Copilot/Codex) and developers implementing the MarketTycoon investing board game

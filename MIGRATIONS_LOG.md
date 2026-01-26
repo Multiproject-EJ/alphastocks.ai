@@ -1,5 +1,8 @@
 # MIGRATIONS_LOG.md
 
+**System source of truth:** See `docs/DEV_PLAN_MARKETTYCOON_MASTER.md` for the canonical MarketTycoon game systems, loop, and economy. If something here conflicts, update the master plan first.
+
+
 ## SQL migrations / patches (append-only)
 > Add every migration here so EJ knows exactly what to run or rerun.
 
