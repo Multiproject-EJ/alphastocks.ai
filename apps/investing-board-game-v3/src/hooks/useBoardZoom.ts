@@ -192,12 +192,21 @@ export function useBoardZoom({
     const targetX = availableWidth / 2 - tilePos.x * currentScale
     const targetY = availableHeight / 2 - tilePos.y * currentScale
 
-    setZoom(prev => ({
-      ...prev,
-      scale: currentScale,
-      translateX: targetX,
-      translateY: targetY,
-    }))
+    setZoom(prev => {
+      if (
+        prev.scale === currentScale &&
+        prev.translateX === targetX &&
+        prev.translateY === targetY
+      ) {
+        return prev
+      }
+      return {
+        ...prev,
+        scale: currentScale,
+        translateX: targetX,
+        translateY: targetY,
+      }
+    })
   }, [isMobile, getTilePosition, zoomLimits, safeArea, zoom.scale])
 
   // Constrain translation to prevent board from going completely off-screen
