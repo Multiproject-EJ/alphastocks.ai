@@ -32,7 +32,7 @@ export const BOARD_TILES: Tile[] = [
   { id: 9, type: 'quick-reward', title: 'Mystery Box', quickRewardType: 'mystery' },
   { id: 10, type: 'quick-reward', title: 'Star Shower', quickRewardType: 'stars' },
   { id: 11, type: 'quick-reward', title: 'Bonus Roll', quickRewardType: 'bonus-roll' },
-  { id: 12, type: 'event', title: 'Quiz' },
+  { id: 12, type: 'learning', title: 'Quiz', learningId: 'quiz-fundamentals' },
   
   // Corner - Court of Capital
   { id: 13, type: 'corner', title: 'Court of Capital' },
@@ -72,7 +72,7 @@ export const BOARD_TILES: Tile[] = [
   { id: 29, type: 'event', title: 'Market Event' },
   { id: 30, type: 'quick-reward', title: 'Bonus Roll', quickRewardType: 'bonus-roll' },
   { id: 31, type: 'event', title: 'News Flash' },
-  { id: 32, type: 'event', title: 'Quiz' },
+  { id: 32, type: 'learning', title: 'Quiz', learningId: 'quiz-fundamentals' },
   
   // Stock tile
   { id: 33, type: 'category', title: 'Dividend Dreams', category: 'dividends', colorBorder: 'oklch(0.70 0.25 200)' },
@@ -133,7 +133,7 @@ export const RING_2_TILES: Tile[] = [
   // Quick rewards
   { id: 213, type: 'quick-reward', title: 'Star Storm', quickRewardType: 'stars' },
   { id: 214, type: 'quick-reward', title: 'Chameleon', quickRewardType: 'chameleon' },
-  { id: 215, type: 'event', title: 'Insider Quiz' },
+  { id: 215, type: 'learning', title: 'Insider Quiz', learningId: 'quiz-strategy' },
   { id: 216, type: 'quick-reward', title: 'Mystery Vault', quickRewardType: 'mystery' },
   
   // Stock tile

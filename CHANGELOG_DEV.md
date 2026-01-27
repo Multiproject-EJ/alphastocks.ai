@@ -6,6 +6,28 @@
 ## Unreleased
 
 **Date:** 2026-01-24  
+**Slice:** M4.1 (tile taxonomy + renderer)  
+**Summary:**  
+- Added a micro-learning tile taxonomy with categories, icons, and descriptions for quiz tiles.  
+- Updated quiz tiles to use the learning type and display a dedicated renderer treatment on the board.  
+- Added a landing fallback toast for learning tiles to keep the loop moving.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/lib/learningTiles.ts  
+- apps/investing-board-game-v3/src/lib/mockData.ts  
+- apps/investing-board-game-v3/src/lib/types.ts  
+- apps/investing-board-game-v3/src/components/Tile.tsx  
+- apps/investing-board-game-v3/src/App.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Land on a Quiz or Insider Quiz tile and confirm the learning renderer and toast appear.  
+
+**Date:** 2026-01-24  
 **Slice:** M0.5 (casino + scratchcard MD plan alignment)  
 **Summary:**  
 - Added documentation-only kickoff prompt guidance for MD plan work.  

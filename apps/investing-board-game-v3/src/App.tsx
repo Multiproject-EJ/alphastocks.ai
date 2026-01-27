@@ -133,6 +133,7 @@ import { calculateTilePositions, calculateAllRingPositions } from '@/lib/tilePos
 import { calculateMovement, getHoppingTiles, getPortalConfigForRing } from '@/lib/movementEngine'
 import { isJackpotWeek } from '@/lib/events'
 import { applyRingMultiplier, getMultiplierDisplay } from '@/lib/rewardMultiplier'
+import { getLearningTileDefinition } from '@/lib/learningTiles'
 import {
   ECONOMY_LOCAL_STORAGE_KEY,
   createInitialEconomyState,
@@ -2933,6 +2934,13 @@ function App() {
           }
         })
       }, stockSpinDuration + 2000)
+    } else if (tile.type === 'learning') {
+      const learningDefinition = getLearningTileDefinition(tile.learningId)
+      toast.info(learningDefinition?.title ?? tile.title, {
+        description: learningDefinition?.description ?? 'Micro-learning challenges are coming soon.',
+      })
+      debugGame('Phase transition: landed -> idle (learning tile)')
+      setPhase('idle')
     } else if (tile.type === 'event') {
       debugGame('Event tile:', tile.title)
       if (tile.title === 'Thrift Path') {
