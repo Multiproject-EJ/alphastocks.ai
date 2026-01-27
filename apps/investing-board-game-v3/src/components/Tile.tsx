@@ -7,6 +7,7 @@ import { useHaptics } from '@/hooks/useHaptics'
 import { QuickRewardTile } from './QuickRewardTile'
 import { QuickRewardType } from '@/lib/quickRewardTiles'
 import { TILE_WIDTH, TILE_HEIGHT } from '@/lib/constants'
+import { getLearningTileDefinition, LEARNING_CATEGORY_STYLES } from '@/lib/learningTiles'
 
 interface TileProps {
   tile: TileType
@@ -83,6 +84,8 @@ const TileComponent = ({ tile, isActive, isHopping, isLanded, onClick, side, has
         return 'text-blue-400'
       case 'event':
         return 'text-purple-400'
+      case 'learning':
+        return 'text-emerald-200'
       default:
         return 'text-foreground'
     }
@@ -102,6 +105,8 @@ const TileComponent = ({ tile, isActive, isHopping, isLanded, onClick, side, has
           return 'from-blue-700 to-cyan-900'
         case 'special':
           return 'from-amber-500 to-yellow-600'
+        case 'learning':
+          return 'from-emerald-700 to-slate-900'
         default:
           return 'from-slate-700 to-slate-900'
       }
@@ -117,6 +122,8 @@ const TileComponent = ({ tile, isActive, isHopping, isLanded, onClick, side, has
         return 'from-indigo-600 to-violet-800'
       case 'special':
         return 'from-amber-500 to-orange-600'
+      case 'learning':
+        return 'from-emerald-600 to-teal-800'
       default:
         return 'from-gray-700 to-gray-900'
     }
@@ -128,6 +135,10 @@ const TileComponent = ({ tile, isActive, isHopping, isLanded, onClick, side, has
   const titleText = titleEmoji
     ? tile.title.replace(/\p{Extended_Pictographic}/gu, '').replace(/\s+/g, ' ').trim()
     : tile.title
+  const learningDefinition = tile.type === 'learning' ? getLearningTileDefinition(tile.learningId) : null
+  const learningCategoryStyle = learningDefinition
+    ? LEARNING_CATEGORY_STYLES[learningDefinition.category]
+    : null
 
   // Handle quick reward tiles
   if (tile.type === 'quick-reward' && tile.quickRewardType) {
@@ -269,6 +280,27 @@ const TileComponent = ({ tile, isActive, isHopping, isLanded, onClick, side, has
       {shouldShowMysteryContent ? (
         <div className="flex items-center justify-center w-full h-full relative z-10">
           <span className="text-4xl opacity-50">?</span>
+        </div>
+      ) : learningDefinition ? (
+        <div className="relative z-10 flex flex-col items-center justify-center text-center px-2 gap-1">
+          <div className="relative">
+            <div
+              className={cn(
+                'absolute inset-0 rounded-full blur-md',
+                learningCategoryStyle?.glowClass ?? 'bg-emerald-400/30'
+              )}
+              aria-hidden
+            />
+            <span className="relative text-[42px] sm:text-[50px] leading-none drop-shadow-md">
+              {learningDefinition.icon}
+            </span>
+          </div>
+          <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-wide text-slate-100">
+            {learningDefinition.shortTitle}
+          </span>
+          <span className={cn('text-[10px] font-medium', learningCategoryStyle?.textClass)}>
+            {learningCategoryStyle?.label}
+          </span>
         </div>
       ) : TILE_IMAGES[tile.title] ? (
         <img
