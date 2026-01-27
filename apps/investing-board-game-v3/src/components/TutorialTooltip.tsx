@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { X } from '@phosphor-icons/react'
 import { useLayoutMode } from '@/hooks/useLayoutMode'
 import { useAuth } from '@/context/AuthContext'
+import { logProToolsDiagnostic } from '@/lib/proToolsDiagnostics'
 
 interface TutorialStep {
   target: string // CSS selector
@@ -359,6 +360,10 @@ export function TutorialTooltip() {
                   size="sm"
                   className="w-full"
                   onClick={() => {
+                    logProToolsDiagnostic({
+                      source: 'board-game-v3',
+                      action: 'tutorial_login_redirect',
+                    })
                     window.location.href = 'https://www.alphastocks.ai/?proTools=1'
                   }}
                 >

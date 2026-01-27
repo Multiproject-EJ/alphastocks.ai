@@ -40,6 +40,7 @@ import { WheelOfFortuneModal } from '@/components/WheelOfFortuneModal'
 import { VaultHeistModal } from '@/components/VaultHeistModal'
 import { ThroneVictoryModal } from '@/components/ThroneVictoryModal'
 import { SHOP2_ENABLED } from '@/lib/featureFlags'
+import { logProToolsDiagnostic } from '@/lib/proToolsDiagnostics'
 
 // Mobile-first components
 import { MobileGameLayout } from '@/components/MobileGameLayout'
@@ -1524,12 +1525,18 @@ function App() {
     saveGame,
     clearError: clearSaveError,
   } = useGameSave()
+  const proToolsOverlayInitialized = useRef(false)
 
   const handleOpenProTools = useCallback(() => {
     const proToolsUrl = 'https://www.alphastocks.ai/?proTools=1'
     const fallbackType = isAuthenticated ? 'error' : 'login'
 
     setProToolsFallback(null)
+    logProToolsDiagnostic({
+      source: 'board-game-v3',
+      action: 'open_attempt',
+      details: { url: proToolsUrl, isAuthenticated },
+    })
 
     if (typeof window === 'undefined') {
       setProToolsFallback({
@@ -1537,12 +1544,28 @@ function App() {
         code: 'PROTOOLS_NO_WINDOW',
       })
       setProToolsOpen(true)
+      logProToolsDiagnostic({
+        source: 'board-game-v3',
+        action: 'open_failed_no_window',
+      })
       return
     }
 
     const newWindow = window.open(proToolsUrl, '_blank', 'noopener,noreferrer')
     if (newWindow) {
       newWindow.focus?.()
+      logProToolsDiagnostic({
+        source: 'board-game-v3',
+        action: 'open_window_success',
+      })
+      window.setTimeout(() => {
+        if (newWindow.closed) {
+          logProToolsDiagnostic({
+            source: 'board-game-v3',
+            action: 'open_window_closed_fast',
+          })
+        }
+      }, 800)
       return
     }
 
@@ -1551,12 +1574,32 @@ function App() {
       code: isAuthenticated ? 'PROTOOLS_POPUP_BLOCKED' : 'PROTOOLS_LOGIN_REQUIRED',
     })
     setProToolsOpen(true)
+    logProToolsDiagnostic({
+      source: 'board-game-v3',
+      action: 'open_window_blocked',
+      details: { isAuthenticated },
+    })
   }, [isAuthenticated])
 
   const launchProToolsFromOverlay = useCallback(() => {
     setProToolsOpen(false)
+    logProToolsDiagnostic({
+      source: 'board-game-v3',
+      action: 'overlay_retry',
+    })
     handleOpenProTools()
   }, [handleOpenProTools])
+
+  useEffect(() => {
+    if (!proToolsOverlayInitialized.current) {
+      proToolsOverlayInitialized.current = true
+      return
+    }
+    logProToolsDiagnostic({
+      source: 'board-game-v3',
+      action: proToolsOpen ? 'overlay_open' : 'overlay_close',
+    })
+  }, [proToolsOpen])
 
   useEffect(() => {
     if (!saveError) return
@@ -1840,6 +1883,10 @@ function App() {
         setPhase('idle')
         // Clear any lingering timers
         clearAllTimers()
+        logProToolsDiagnostic({
+          source: 'board-game-v3',
+          action: 'visibility_visible',
+        })
       }
     }
     
