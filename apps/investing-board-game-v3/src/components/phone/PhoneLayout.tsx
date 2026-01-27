@@ -7,6 +7,7 @@ import { BoardDebugOverlay } from './BoardDebugOverlay';
 import { useUIMode } from '@/hooks/useUIMode';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
+import { logProToolsDiagnostic } from '@/lib/proToolsDiagnostics';
 
 // Layout constants for consistent sizing
 const COMPACT_HUD_HEIGHT = 48;  // pixels
@@ -324,6 +325,10 @@ export function PhoneLayout({
               size="sm"
               className="shrink-0"
               onClick={() => {
+                logProToolsDiagnostic({
+                  source: 'board-game-v3',
+                  action: 'phone_login_redirect',
+                });
                 window.location.href = 'https://www.alphastocks.ai/?proTools=1';
               }}
             >

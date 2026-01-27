@@ -63,6 +63,21 @@ All currency values are formatted using the `formatCurrency()` helper function (
 7. User clicks X button to close overlay
 8. Overlay disappears and scroll is restored
 
+## Diagnostics
+
+To investigate navigation issues between the board game and ProTools, a lightweight diagnostics log is stored in `localStorage` under the key `protools.navigation.log.v1`. Entries include timestamps, source app, and action identifiers.
+
+### How to view
+- Enable DevTools overlay with `?devtools=1` (or set `VITE_DEVTOOLS=1`).
+- Open the in-game DevTools panel and review the **ProTools** section for recent events.
+
+### Captured events (examples)
+- `open_attempt`, `open_window_success`, `open_window_blocked`
+- `overlay_open`, `overlay_retry`, `visibility_visible`
+
+### Clearing
+Use the **Clear** button in the DevTools overlay or remove the `protools.navigation.log.v1` item from localStorage.
+
 ## Styling
 
 The overlay uses Tailwind CSS with:

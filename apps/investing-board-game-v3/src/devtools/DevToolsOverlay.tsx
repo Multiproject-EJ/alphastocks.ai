@@ -5,6 +5,12 @@ import { useOverlayManager } from '@/hooks/useOverlayManager'
 import { useUIMode } from '@/hooks/useUIMode'
 import { isCameraStateValid } from '@/hooks/useBoardCamera'
 import { PerformanceMonitor } from './PerformanceMonitor'
+import {
+  clearProToolsDiagnostics,
+  getProToolsDiagnostics,
+  subscribeToProToolsDiagnostics,
+  type ProToolsDiagnosticEntry,
+} from '@/lib/proToolsDiagnostics'
 
 // Board configuration constant - should match the board size used in App.tsx
 const BOARD_SIZE = 1200
@@ -21,6 +27,7 @@ export function DevToolsOverlay({ phase = 'unknown' }: DevToolsOverlayProps) {
   const [safeArea, setSafeArea] = useState({ top: 0, right: 0, bottom: 0, left: 0 })
   const [zoomState, setZoomState] = useState<ZoomState | null>(null)
   const [cameraState, setCameraState] = useState<CameraState | null>(null)
+  const [proToolsDiagnostics, setProToolsDiagnostics] = useState<ProToolsDiagnosticEntry[]>([])
   
   // Get overlay manager state
   const { getCurrentOverlay, getStackSize, getQueueSize, getStack, getQueue } = useOverlayManager()
@@ -35,6 +42,13 @@ export function DevToolsOverlay({ phase = 'unknown' }: DevToolsOverlayProps) {
     })
     setEvents(eventBus.getEvents())
     return unsubscribe
+  }, [])
+
+  useEffect(() => {
+    setProToolsDiagnostics(getProToolsDiagnostics())
+    return subscribeToProToolsDiagnostics(() => {
+      setProToolsDiagnostics(getProToolsDiagnostics())
+    })
   }, [])
 
   // Subscribe to zoom state updates
@@ -119,6 +133,7 @@ export function DevToolsOverlay({ phase = 'unknown' }: DevToolsOverlayProps) {
   const currentOverlay = getCurrentOverlay()
   const overlayStack = getStack()
   const overlayQueue = getQueue()
+  const latestProToolsEntries = proToolsDiagnostics.slice(0, 8)
 
   return (
     <>
@@ -287,6 +302,33 @@ export function DevToolsOverlay({ phase = 'unknown' }: DevToolsOverlayProps) {
                       <div key={overlay.id} className="font-mono text-[9px]">
                         <span className="text-gray-400">#{idx + 1}</span>{' '}
                         <span className="text-cyan-400">{overlay.id}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* ProTools diagnostics */}
+              <div className="p-3 space-y-2 border-b border-purple-500/30">
+                <div className="flex items-center justify-between">
+                  <span className="text-purple-300 font-bold">🔁 ProTools</span>
+                  <button
+                    onClick={clearProToolsDiagnostics}
+                    className="text-[10px] bg-purple-700 hover:bg-purple-800 px-2 py-0.5 rounded"
+                    title="Clear ProTools diagnostics log"
+                  >
+                    Clear
+                  </button>
+                </div>
+                {latestProToolsEntries.length === 0 ? (
+                  <div className="text-[10px] text-purple-200/70">No ProTools diagnostics captured yet.</div>
+                ) : (
+                  <div className="space-y-1 text-[10px] text-purple-100/90">
+                    {latestProToolsEntries.map((entry) => (
+                      <div key={entry.id} className="font-mono">
+                        <span className="text-purple-300">{entry.timestamp.slice(11, 19)}</span>{' '}
+                        <span className="text-purple-200">{entry.action}</span>{' '}
+                        <span className="text-purple-400">({entry.source})</span>
                       </div>
                     ))}
                   </div>

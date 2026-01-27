@@ -154,6 +154,9 @@ summary, etc.), ensuring JSON responses instead of HTML.
 - Maintain consistent design language with existing styles; document new utility classes or components in `assets/styles.css` comments.
 - When adding new files/directories, update this README and include path references in the relevant task notes.
 
+### Operational Logs
+- ProTools navigation investigation log: `docs/protools-navigation-log.md`.
+
 ### Tooling Setup
 - Install Node.js 20+.
 - From the repo root, run `npm install` to pull Preact + Vite dependencies (generate `node_modules/` and `package-lock.json`). If installation fails in restricted environments, configure npm for an allowed registry and regenerate the lockfile before committing.
