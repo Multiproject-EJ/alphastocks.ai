@@ -794,6 +794,8 @@ const App = () => {
   const [isMobileView, setIsMobileView] = useState(false);
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [isMobileNavDrawerOpen, setIsMobileNavDrawerOpen] = useState(false);
+  const [isQuickQueueRunning, setIsQuickQueueRunning] = useState(false);
+  const [quickQueueStatus, setQuickQueueStatus] = useState(null);
   const [alertSettings, setAlertSettings] = useState(() => createInitialAlertState());
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [portfolioView, setPortfolioView] = useState('protools'); // 'protools' or 'boardgame'
@@ -821,6 +823,7 @@ const App = () => {
   const tabsRef = useRef(null);
   const tabsRefModules = useRef(null);
   const SCROLL_EDGE_THRESHOLD = 5; // Threshold in pixels for detecting scroll edges
+  const quickQueueBatchSize = 5;
   const runtimeConfig = useMemo(() => getRuntimeConfig(), []);
   const dataService = useMemo(() => getDataService(), [runtimeConfig.mode]);
   const { user, signOut } = useAuth();
@@ -1381,6 +1384,97 @@ const App = () => {
     focusDashboardWorkspace();
     setIsProToolsOpen(true);
   }, [focusDashboardWorkspace]);
+
+  const runQuickQueueAutoCycle = useCallback(async () => {
+    const response = await fetch('/api/valuebot?action=cron&source=ui', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    const data = await response.json().catch(() => ({}));
+    if (data?.ok) {
+      return data?.message || 'Auto run started.';
+    }
+    return data?.error || 'Auto run failed to start.';
+  }, []);
+
+  const handleQuickQueueCreate = useCallback(async () => {
+    if (isQuickQueueRunning) return;
+
+    setIsQuickQueueRunning(true);
+    setQuickQueueStatus({
+      tone: 'info',
+      message: `Creating ${quickQueueBatchSize} new cards…`
+    });
+
+    try {
+      const unqueuedResponse = await fetch('/api/universe-builder', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'get-unqueued-stocks', limit: quickQueueBatchSize })
+      });
+
+      const unqueuedData = await unqueuedResponse.json();
+
+      if (!unqueuedResponse.ok || !unqueuedData.ok) {
+        throw new Error(unqueuedData.error || 'Failed to fetch new stocks.');
+      }
+
+      if (!unqueuedData.stocks || unqueuedData.stocks.length === 0) {
+        setQuickQueueStatus({
+          tone: 'warning',
+          message: 'No new stocks available to add right now.'
+        });
+        return;
+      }
+
+      const profileId = activeProfile?.id ?? user?.id;
+      const addResponse = await fetch('/api/universe-builder', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'add-to-queue',
+          stocks: unqueuedData.stocks,
+          provider: 'openai',
+          ...(profileId ? { user_id: profileId } : {})
+        })
+      });
+
+      const addData = await addResponse.json();
+
+      if (!addResponse.ok || !addData.ok) {
+        throw new Error(addData.error || 'Failed to add new stocks to the queue.');
+      }
+
+      const addedCount = addData.added ?? 0;
+      let message = addedCount
+        ? `Queued ${addedCount} new card${addedCount === 1 ? '' : 's'}.`
+        : 'No new cards were added.';
+
+      const autoRunMessage = await runQuickQueueAutoCycle();
+      if (autoRunMessage) {
+        message = `${message} ${autoRunMessage}`;
+      }
+
+      setQuickQueueStatus({
+        tone: addedCount ? 'success' : 'warning',
+        message
+      });
+    } catch (error) {
+      console.error('Quick queue failed', error);
+      setQuickQueueStatus({
+        tone: 'error',
+        message: error?.message || 'Unable to create new cards right now.'
+      });
+    } finally {
+      setIsQuickQueueRunning(false);
+    }
+  }, [activeProfile?.id, isQuickQueueRunning, quickQueueBatchSize, runQuickQueueAutoCycle, user?.id]);
+
+  useEffect(() => {
+    if (!quickQueueStatus) return undefined;
+    const timer = setTimeout(() => setQuickQueueStatus(null), 4500);
+    return () => clearTimeout(timer);
+  }, [quickQueueStatus]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -3487,6 +3581,29 @@ const App = () => {
               >
                 {workspaceStatus.message}
               </span>
+            )}
+
+            {isMobileView && isProToolsOpen && (
+              <div className="protools-quickqueue-wrapper">
+                <button
+                  type="button"
+                  className={`protools-quickqueue-button${isQuickQueueRunning ? ' is-loading' : ''}`}
+                  onClick={handleQuickQueueCreate}
+                  disabled={isQuickQueueRunning}
+                >
+                  <span>Create {quickQueueBatchSize} New Cards</span>
+                  {isQuickQueueRunning && <span className="spinner" aria-hidden="true" />}
+                </button>
+                {quickQueueStatus && (
+                  <span
+                    className={`protools-quickqueue-status protools-quickqueue-status--${quickQueueStatus.tone}`}
+                    role="status"
+                    aria-live="polite"
+                  >
+                    {quickQueueStatus.message}
+                  </span>
+                )}
+              </div>
             )}
 
             <div
