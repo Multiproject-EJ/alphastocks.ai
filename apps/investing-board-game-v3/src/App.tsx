@@ -134,6 +134,7 @@ import { calculateMovement, getHoppingTiles, getPortalConfigForRing } from '@/li
 import { isJackpotWeek } from '@/lib/events'
 import { applyRingMultiplier, getMultiplierDisplay } from '@/lib/rewardMultiplier'
 import { getLearningTileDefinition } from '@/lib/learningTiles'
+import { getLearningQuestionCount } from '@/lib/learningQuestionBank'
 import {
   ECONOMY_LOCAL_STORAGE_KEY,
   createInitialEconomyState,
@@ -2936,8 +2937,12 @@ function App() {
       }, stockSpinDuration + 2000)
     } else if (tile.type === 'learning') {
       const learningDefinition = getLearningTileDefinition(tile.learningId)
+      const questionCount = getLearningQuestionCount(tile.learningId)
+      const questionLabel = questionCount > 0 ? `${questionCount} question${questionCount === 1 ? '' : 's'}` : null
       toast.info(learningDefinition?.title ?? tile.title, {
-        description: learningDefinition?.description ?? 'Micro-learning challenges are coming soon.',
+        description: questionLabel
+          ? `${questionLabel} • ${learningDefinition?.description ?? 'Micro-learning challenges are coming soon.'}`
+          : (learningDefinition?.description ?? 'Micro-learning challenges are coming soon.'),
       })
       debugGame('Phase transition: landed -> idle (learning tile)')
       setPhase('idle')

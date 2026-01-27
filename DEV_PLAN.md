@@ -62,7 +62,7 @@ _Last reviewed: 2026-01-24 (M3.4 portfolio reward hooks)_
 - **State management/store:** Local React state in `src/App.tsx` plus contexts in `src/context/*` (Auth, Overlay, UI Mode); custom hooks in `src/hooks/*`
 - **Game loop entry:** `src/App.tsx` (dice roll → `calculateMovement` in `src/lib/movementEngine.ts`), board data in `src/lib/mockData.ts`
 - **UI components:** `src/components/*` (board, modals, overlays, portfolio readout panel), shop UI in `src/components/ShopModal.tsx` + `src/components/shop/*` (mobile shop shell, property vault album cards)
-- **Micro-learning tiles:** `src/lib/learningTiles.ts` (taxonomy definitions) + `src/components/Tile.tsx` (renderer)
+- **Micro-learning tiles:** `src/lib/learningTiles.ts` (taxonomy definitions) + `src/lib/learningQuestionBank.ts` (seed question bank) + `src/components/Tile.tsx` (renderer)
 - **Stock tile modals:** `src/components/StockModal.tsx` via `src/lib/overlayRegistry.ts` and `src/hooks/useOverlayManager.ts`, triggered in `src/App.tsx` on category tile landings
 - **Wheel of Fortune rewards + daily spin caps:** `src/App.tsx` + `src/components/WheelOfFortuneModal.tsx`
 - **Shop 2.0 entry:** `src/components/Shop2Modal.tsx` (feature-flagged Shop 2.0 preview shell)
@@ -178,7 +178,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 
 ### M4 — Micro‑Learning Tiles
 - **M4.1** ✅ Tile taxonomy + renderer
-- **M4.2** Question bank format + seed content
+- **M4.2** ✅ Question bank format + seed content
 - **M4.3** Rewards + streak system
 - **M4.4** Graphic templates + animations
 
@@ -240,12 +240,16 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **M4.2 — Question bank format + seed content.**
+**Recommended next slice:** **M4.3 — Rewards + streak system.**
 
 ## M4.1 Slice Notes (Tile taxonomy + renderer)
 - Added a shared micro-learning tile taxonomy with categories, labels, and descriptions to keep quiz surfaces consistent.
 - Updated board tile data to tag quiz tiles with learning IDs so the renderer can display category-specific styling.
 - Added a learning tile renderer treatment (icon + label) alongside existing tile visuals with a landing fallback toast.
+
+## M4.2 Slice Notes (Question bank format + seed content)
+- Added a structured question bank for learning modules with difficulty, tags, and explanations to seed future quiz flows.
+- Connected learning tiles to the seed bank by surfacing question counts in the learning toast for quick context.
 
 ---
 

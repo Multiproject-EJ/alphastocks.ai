@@ -6,6 +6,24 @@
 ## Unreleased
 
 **Date:** 2026-01-24  
+**Slice:** M4.2 (question bank format + seed content)  
+**Summary:**  
+- Added a structured learning question bank with difficulty, tags, and explanations for seed quizzes.  
+- Wired learning tile toasts to display the seed question count for quick context.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/lib/learningQuestionBank.ts  
+- apps/investing-board-game-v3/src/App.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Land on a Quiz or Insider Quiz tile and confirm the toast shows the question count.  
+
+**Date:** 2026-01-24  
 **Slice:** M4.1 (tile taxonomy + renderer)  
 **Summary:**  
 - Added a micro-learning tile taxonomy with categories, icons, and descriptions for quiz tiles.  
