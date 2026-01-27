@@ -23,6 +23,7 @@ import { useAuth } from './context/AuthContext.jsx';
 import UniverseBuilder from './features/universe-builder/UniverseBuilder.jsx';
 import SearchTab from './features/universe-builder/SearchTab.jsx';
 import StockAnalysisReport from './features/stock-analysis-report/StockAnalysisReport.jsx';
+import { logProToolsDiagnostic } from './lib/proToolsDiagnostics.js';
 
 const DEFAULT_FOCUS_LIST = [
   { id: 'focus-1', title: 'SPY breakout', caption: 'Checklist ready • 09:30', tag: { tone: 'tag-green', label: 'Today' } },
@@ -1383,6 +1384,11 @@ const App = () => {
   const openProToolsWorkspace = useCallback(() => {
     focusDashboardWorkspace();
     setIsProToolsOpen(true);
+    logProToolsDiagnostic({
+      source: 'workspace',
+      action: 'workspace_open',
+      details: { section: 'dashboard' }
+    });
   }, [focusDashboardWorkspace]);
 
   const runQuickQueueAutoCycle = useCallback(async () => {
@@ -1481,6 +1487,11 @@ const App = () => {
 
     const params = new URLSearchParams(window.location.search);
     if (params.get('proTools') === '1') {
+      logProToolsDiagnostic({
+        source: 'workspace',
+        action: 'query_param_open',
+        details: { search: window.location.search }
+      });
       openProToolsWorkspace();
     }
   }, [openProToolsWorkspace]);
@@ -1526,8 +1537,17 @@ const App = () => {
       const nextIsOpen = !prev;
 
       if (nextIsOpen) {
+        logProToolsDiagnostic({
+          source: 'workspace',
+          action: 'toggle_open'
+        });
         focusDashboardWorkspace();
       } else if (typeof window !== 'undefined') {
+        logProToolsDiagnostic({
+          source: 'workspace',
+          action: 'toggle_close_redirect',
+          details: { target: '/board-game-v3/' }
+        });
         window.location.assign('/board-game-v3/');
       }
 

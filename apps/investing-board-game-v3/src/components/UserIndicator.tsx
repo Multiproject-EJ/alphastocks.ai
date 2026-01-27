@@ -12,6 +12,7 @@ import { useAuth } from '@/context/AuthContext'
 import { TierBadge } from '@/components/TierBadge'
 import { NetWorthTier } from '@/lib/netWorthTiers'
 import { formatCoins } from '@/lib/coins'
+import { logProToolsDiagnostic } from '@/lib/proToolsDiagnostics'
 
 interface UserIndicatorProps {
   saving?: boolean
@@ -58,6 +59,10 @@ export function UserIndicator({ saving, lastSaved, currentTier, stars, coins }: 
         size="sm"
         onClick={() => {
           // Navigate to ProTools for login
+          logProToolsDiagnostic({
+            source: 'board-game-v3',
+            action: 'login_redirect',
+          })
           window.location.href = 'https://www.alphastocks.ai/?proTools=1'
         }}
         className="gap-2 bg-background/80 backdrop-blur-sm"
@@ -152,6 +157,10 @@ export function UserIndicator({ saving, lastSaved, currentTier, stars, coins }: 
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onClick={() => {
+            logProToolsDiagnostic({
+              source: 'board-game-v3',
+              action: 'menu_open_redirect',
+            })
             window.location.href = 'https://www.alphastocks.ai/?proTools=1'
           }}
           className="gap-2"
