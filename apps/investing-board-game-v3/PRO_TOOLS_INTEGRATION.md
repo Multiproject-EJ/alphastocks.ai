@@ -70,6 +70,7 @@ To investigate navigation issues between the board game and ProTools, a lightwei
 ### How to view
 - Enable DevTools overlay with `?devtools=1` (or set `VITE_DEVTOOLS=1`).
 - Open the in-game DevTools panel and review the **ProTools** section for recent events.
+- On mobile layouts (dev builds), the `BoardDebugOverlay` includes a **ProTools** block with the latest entries and a clear button.
 
 ### Captured events (examples)
 - `open_attempt`, `open_window_success`, `open_window_blocked`
