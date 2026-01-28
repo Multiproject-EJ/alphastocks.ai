@@ -54,7 +54,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 - `AI_IMPLEMENTATION.md`, `IMPLEMENTATION_SUMMARY.md`, `DEVLOG.md` (project-wide status/context)
 
 ### Repo Map (paths verified)
-_Last reviewed: 2026-01-29 (M7.2 tile label component)_
+_Last reviewed: 2026-01-28 (M7.3 tile label data hook)_
 #### Frontend
 - **Legacy static pages entry:** `/index.html`, `/about.html`, `/faq.html`, `/monthly/`, `/weekly/`, `/superinvestor/`
 - **Vite + Preact app:** `/apps/investing-board-game-v3` (built into `/public/board-game-v3` via `npm run build:board-game-v3`)
@@ -204,7 +204,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 ### M7 — Tile Price Pop Labels
 - **M7.1** Audit board renderer + tile overlays
 - **M7.2** ✅ Implement tile label component
-- **M7.3** Hook labels to tile data
+- **M7.3** ✅ Hook labels to tile data
 
 ### M8 — Telemetry & Tuning
 - **M8.1** Economy telemetry sinks
@@ -241,7 +241,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **M7.3 — Hook labels to tile data.**
+**Recommended next slice:** **M8.1 — Economy telemetry sinks.**
 
 ## M4.1 Slice Notes (Tile taxonomy + renderer)
 - Added a shared micro-learning tile taxonomy with categories, labels, and descriptions to keep quiz surfaces consistent.
@@ -397,6 +397,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ## M7.2 Slice Notes (Implement tile label component)
 - Added a reusable `TileLabel` component with tone variants, icon/sublabel support, and mobile-first styling for future price pops.
 - Extended the `Tile` renderer to accept an optional label config and render the overlay when ring content is visible.
+
+## M7.3 Slice Notes (Hook labels to tile data)
+- Added ring-aware tile label configuration so category, event, and learning tiles surface compact labels without new layout wrappers.
+- Surfaced elite ring win rewards with a compact currency label so Ring 3 prize tiles read as high-value targets at a glance.
+- Applied ring multiplier sublabels on stock tiles to reinforce reward scaling on Rings 2 and 3.
 
 ## M0.4 Slice Notes (Lazy-load Portfolio charts)
 - Lazy-loaded the Portfolio modal so chart dependencies no longer block initial app startup.
