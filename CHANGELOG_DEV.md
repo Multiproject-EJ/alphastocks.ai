@@ -5,6 +5,24 @@
 
 ## Unreleased
 
+**Date:** 2026-01-29  
+**Slice:** M7.2 (implement tile label component)  
+**Summary:**  
+- Added a reusable tile label overlay component with tone variants, icon support, and mobile-first styling.  
+- Extended the tile renderer to accept optional label metadata so upcoming price pops can plug in without layout changes.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/components/TileLabel.tsx  
+- apps/investing-board-game-v3/src/components/Tile.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Inspect a tile in the dev tools and confirm the optional label overlay renders when provided.  
+
 **Date:** 2026-01-28  
 **Slice:** M7.1 (audit board renderer + tile overlays)  
 **Summary:**  

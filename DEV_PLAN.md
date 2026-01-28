@@ -54,7 +54,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 - `AI_IMPLEMENTATION.md`, `IMPLEMENTATION_SUMMARY.md`, `DEVLOG.md` (project-wide status/context)
 
 ### Repo Map (paths verified)
-_Last reviewed: 2026-01-28 (M7.1 board renderer + tile overlays audit)_
+_Last reviewed: 2026-01-29 (M7.2 tile label component)_
 #### Frontend
 - **Legacy static pages entry:** `/index.html`, `/about.html`, `/faq.html`, `/monthly/`, `/weekly/`, `/superinvestor/`
 - **Vite + Preact app:** `/apps/investing-board-game-v3` (built into `/public/board-game-v3` via `npm run build:board-game-v3`)
@@ -203,7 +203,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 
 ### M7 — Tile Price Pop Labels
 - **M7.1** Audit board renderer + tile overlays
-- **M7.2** Implement tile label component
+- **M7.2** ✅ Implement tile label component
 - **M7.3** Hook labels to tile data
 
 ### M8 — Telemetry & Tuning
@@ -241,7 +241,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **M7.2 — Implement tile label component.**
+**Recommended next slice:** **M7.3 — Hook labels to tile data.**
 
 ## M4.1 Slice Notes (Tile taxonomy + renderer)
 - Added a shared micro-learning tile taxonomy with categories, labels, and descriptions to keep quiz surfaces consistent.
@@ -393,6 +393,10 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Confirmed board layout rendering lives in `App.tsx` using ring-based `calculateTilePositions` helpers and per-ring scale factors, with `BoardViewport` (classic zoom) + `Board3DViewport` (camera transform) handling layout constraints.
 - Verified tile overlay treatments in `Tile.tsx` including type badges, ownership marker, portal/teleport highlights, and ring state classes (revealing/locked) to inform the upcoming label component.
 - Noted that ring layers and tile overlays are gated by ring visibility/opacity helpers, so new label overlays should follow the same pointer-events and ring-reveal rules.
+
+## M7.2 Slice Notes (Implement tile label component)
+- Added a reusable `TileLabel` component with tone variants, icon/sublabel support, and mobile-first styling for future price pops.
+- Extended the `Tile` renderer to accept an optional label config and render the overlay when ring content is visible.
 
 ## M0.4 Slice Notes (Lazy-load Portfolio charts)
 - Lazy-loaded the Portfolio modal so chart dependencies no longer block initial app startup.
