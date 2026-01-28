@@ -283,7 +283,25 @@ const TileComponent = ({ tile, isActive, isHopping, isLanded, onClick, side, has
         </div>
       ) : learningDefinition ? (
         <div className="relative z-10 flex flex-col items-center justify-center text-center px-2 gap-1">
-          <div className="relative">
+          <div
+            className={cn(
+              'absolute inset-1 rounded-[10px] bg-gradient-to-br opacity-70',
+              learningCategoryStyle?.gradientClass ?? 'from-emerald-700/70 via-teal-800/60 to-slate-900'
+            )}
+            aria-hidden
+          />
+          <div
+            className={cn(
+              'absolute inset-1 rounded-[10px] opacity-60 mix-blend-screen',
+              learningCategoryStyle?.patternClass ?? 'bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.2),_transparent_60%)]'
+            )}
+            aria-hidden
+          />
+          <motion.div
+            className="relative"
+            animate={{ y: [0, -4, 0], rotate: [0, -2, 2, 0] }}
+            transition={{ duration: 3.6, repeat: Infinity, ease: 'easeInOut' }}
+          >
             <div
               className={cn(
                 'absolute inset-0 rounded-full blur-md',
@@ -294,11 +312,16 @@ const TileComponent = ({ tile, isActive, isHopping, isLanded, onClick, side, has
             <span className="relative text-[42px] sm:text-[50px] leading-none drop-shadow-md">
               {learningDefinition.icon}
             </span>
-          </div>
+          </motion.div>
           <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-wide text-slate-100">
             {learningDefinition.shortTitle}
           </span>
-          <span className={cn('text-[10px] font-medium', learningCategoryStyle?.textClass)}>
+          <span
+            className={cn(
+              'text-[10px] font-semibold uppercase tracking-widest px-2 py-0.5 rounded-full',
+              learningCategoryStyle?.badgeClass ?? 'bg-emerald-500/20 text-emerald-100 border border-emerald-300/40'
+            )}
+          >
             {learningCategoryStyle?.label}
           </span>
         </div>

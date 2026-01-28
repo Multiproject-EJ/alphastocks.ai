@@ -38,32 +38,54 @@ export const LEARNING_TILE_DEFINITIONS: Record<string, LearningTileDefinition> =
 
 export const LEARNING_CATEGORY_STYLES: Record<
   LearningTileCategory,
-  { label: string; textClass: string; glowClass: string }
+  {
+    label: string
+    textClass: string
+    glowClass: string
+    badgeClass: string
+    gradientClass: string
+    patternClass: string
+  }
 > = {
   bias: {
     label: 'Bias',
     textClass: 'text-rose-200',
     glowClass: 'bg-rose-400/30',
+    badgeClass: 'bg-rose-500/20 text-rose-100 border border-rose-400/40',
+    gradientClass: 'from-rose-700/80 via-fuchsia-700/60 to-slate-900',
+    patternClass: 'bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.25),_transparent_55%)]',
   },
   fundamentals: {
     label: 'Fundamentals',
     textClass: 'text-emerald-200',
     glowClass: 'bg-emerald-400/30',
+    badgeClass: 'bg-emerald-500/20 text-emerald-100 border border-emerald-300/40',
+    gradientClass: 'from-emerald-700/80 via-teal-700/70 to-slate-900',
+    patternClass: 'bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.2),_transparent_60%)]',
   },
   strategy: {
     label: 'Strategy',
     textClass: 'text-sky-200',
     glowClass: 'bg-sky-400/30',
+    badgeClass: 'bg-sky-500/20 text-sky-100 border border-sky-300/40',
+    gradientClass: 'from-sky-700/80 via-indigo-700/60 to-slate-900',
+    patternClass: 'bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.2),_transparent_58%)]',
   },
   risk: {
     label: 'Risk',
     textClass: 'text-amber-200',
     glowClass: 'bg-amber-400/30',
+    badgeClass: 'bg-amber-500/20 text-amber-100 border border-amber-300/40',
+    gradientClass: 'from-amber-600/80 via-orange-700/70 to-slate-900',
+    patternClass: 'bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.22),_transparent_60%)]',
   },
   market: {
     label: 'Market',
     textClass: 'text-purple-200',
     glowClass: 'bg-purple-400/30',
+    badgeClass: 'bg-purple-500/20 text-purple-100 border border-purple-300/40',
+    gradientClass: 'from-purple-700/80 via-indigo-800/70 to-slate-900',
+    patternClass: 'bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.2),_transparent_60%)]',
   },
 }
 
