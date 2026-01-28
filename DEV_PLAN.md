@@ -179,8 +179,8 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 ### M4 — Micro‑Learning Tiles
 - **M4.1** ✅ Tile taxonomy + renderer
 - **M4.2** ✅ Question bank format + seed content
-- **M4.3** Rewards + streak system
-- **M4.4** Graphic templates + animations
+- **M4.3** ✅ Rewards + streak system
+- **M4.4** ✅ Graphic templates + animations
 
 ### M5 — Vault Album Shop (Shop 2.0)
 - **M5.0** ✅ Audit existing shop & decide flag vs in-place
@@ -240,7 +240,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **M4.4 — Graphic templates + animations.**
+**Recommended next slice:** **M7.1 — Audit board renderer + tile overlays.**
 
 ## M4.1 Slice Notes (Tile taxonomy + renderer)
 - Added a shared micro-learning tile taxonomy with categories, labels, and descriptions to keep quiz surfaces consistent.
@@ -255,6 +255,10 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Added learning tile rewards (stars + XP) with streak bonuses and ring/star multipliers for mobile-first feedback.
 - Tracked daily learning streaks and persisted last-learning dates in the game stats for deterministic streak continuity.
 - Updated Bias Sanctuary quiz completion to increment quiz stats and daily quiz streak metadata for future achievement hooks.
+
+## M4.4 Slice Notes (Graphic templates + animations)
+- Added category-specific learning tile templates with gradients, pattern overlays, and badge styling for clearer quiz identity cues.
+- Introduced a subtle icon float animation and glow layering to give learning tiles a livelier, mobile-first feel without changing layout.
 
 ---
 

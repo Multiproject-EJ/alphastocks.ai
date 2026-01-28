@@ -6,6 +6,24 @@
 ## Unreleased
 
 **Date:** 2026-01-25  
+**Slice:** M4.4 (graphic templates + animations)  
+**Summary:**  
+- Added category-specific learning tile templates with gradients, pattern overlays, and badge styling.  
+- Animated learning tile icons with subtle float/rotate motion and glow layering for a more dynamic quiz feel.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/components/Tile.tsx  
+- apps/investing-board-game-v3/src/lib/learningTiles.ts  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Load the board, locate learning tiles, and confirm category badges/gradients render with subtle icon motion.  
+
+**Date:** 2026-01-25  
 **Slice:** M4.3 (rewards + streak system)  
 **Summary:**  
 - Added learning tile rewards that grant stars and XP with streak bonuses tied to daily learning progress.  
