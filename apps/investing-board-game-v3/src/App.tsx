@@ -728,6 +728,54 @@ function App() {
     () => getPortfolioRewardBuff(gameState.holdings),
     [gameState.holdings]
   )
+  const compactCurrencyFormatter = useMemo(
+    () => new Intl.NumberFormat('en-US', { notation: 'compact', compactDisplay: 'short', maximumFractionDigits: 0 }),
+    []
+  )
+
+  const getTileLabelConfig = useCallback(
+    (tile: TileType, ring: RingNumber) => {
+      if (tile.type === 'quick-reward') return undefined
+
+      if (ring === 3 && tile.ring3Reward && tile.isWinTile) {
+        return {
+          label: `$${compactCurrencyFormatter.format(tile.ring3Reward)}`,
+          tone: 'premium',
+          icon: '👑',
+          sublabel: 'Win',
+        }
+      }
+
+      if (tile.type === 'learning') {
+        return {
+          label: 'Quiz',
+          tone: 'success',
+          icon: '📚',
+        }
+      }
+
+      if (tile.type === 'event') {
+        return {
+          label: 'Event',
+          tone: 'warning',
+          icon: '⚡',
+        }
+      }
+
+      if (tile.type === 'category') {
+        const ringBoost = ring === 3 ? 'x10' : ring === 2 ? 'x3' : undefined
+        return {
+          label: 'Stock',
+          tone: ring === 3 ? 'premium' : 'accent',
+          icon: '📈',
+          sublabel: ringBoost,
+        }
+      }
+
+      return undefined
+    },
+    [compactCurrencyFormatter]
+  )
 
   // Coins and Thrift Path hooks
   const {
@@ -4224,6 +4272,7 @@ function App() {
                           isLanded={tile.id === gameState.position && phase === 'landed'}
                           hasOwnership={tile.category ? ownedCategories.has(tile.category) : false}
                           ringNumber={1}
+                          tileLabel={getTileLabelConfig(tile, 1)}
                           isTeleporting={isTeleportingTile(tile.id)}
                           isPortal={tile.id === ring1PortalTileId}
                           onClick={() => {
@@ -4328,6 +4377,7 @@ function App() {
                               isHopping={hoppingTiles.includes(tile.id)}
                               isLanded={false}
                               ringNumber={2}
+                              tileLabel={getTileLabelConfig(tile, 2)}
                               isTeleporting={isTeleportingTile(tile.id)}
                               isPortal={tile.id === ring2PortalTileId}
                               onClick={() => {
@@ -4377,6 +4427,7 @@ function App() {
                               isHopping={hoppingTiles.includes(tile.id)}
                               isLanded={false}
                               ringNumber={3}
+                              tileLabel={getTileLabelConfig(tile, 3)}
                               isRing3Revealed={ring3Revealed}
                               isRing3Revealing={ring3Revealing}
                               isTeleporting={isTeleportingTile(tile.id)}

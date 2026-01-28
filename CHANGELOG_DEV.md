@@ -5,6 +5,23 @@
 
 ## Unreleased
 
+**Date:** 2026-01-28  
+**Slice:** M7.3 (hook labels to tile data)  
+**Summary:**  
+- Added ring-aware tile label configs so category, event, and learning tiles surface compact overlays.  
+- Highlighted Ring 3 win tiles with compact reward labels and added ring multiplier sublabels on stock tiles.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/App.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Load the board and confirm tile labels render on category/event/learning tiles, with Ring 2/3 stock tiles showing multiplier sublabels and Ring 3 win tiles showing compact reward labels.  
+
 **Date:** 2026-01-29  
 **Slice:** M7.2 (implement tile label component)  
 **Summary:**  
