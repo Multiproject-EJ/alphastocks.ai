@@ -297,9 +297,13 @@ function App() {
       uniqueStocks: 0,
       quizzesCompleted: 0,
       perfectQuizzes: 0,
+      daily_quiz: 0,
+      lastQuizDate: null,
       scratchcardsPlayed: 0,
       scratchcardsWon: 0,
       scratchcardWinStreak: 0,
+      learningStreakDays: 0,
+      lastLearningDate: null,
       tilesVisited: [],
       consecutiveDays: 0,
       lastLoginDate: null,
@@ -2820,6 +2824,30 @@ function App() {
     }, 800) // Short delay for celebration to play
   }
 
+  const getDateKey = (date: Date) => date.toISOString().split('T')[0]
+
+  const getDailyStreakUpdate = (
+    lastDate: string | null | undefined,
+    currentStreak: number,
+    now: Date = new Date()
+  ) => {
+    const todayKey = getDateKey(now)
+
+    if (lastDate === todayKey) {
+      return { nextStreak: currentStreak, isRepeat: true, todayKey }
+    }
+
+    const yesterday = new Date(now)
+    yesterday.setDate(now.getDate() - 1)
+    const yesterdayKey = getDateKey(yesterday)
+
+    if (lastDate === yesterdayKey) {
+      return { nextStreak: currentStreak + 1, isRepeat: false, todayKey }
+    }
+
+    return { nextStreak: 1, isRepeat: false, todayKey }
+  }
+
   const handleTileLanding = (position: number, passedStart = false) => {
     // Check if this is a Ring 3 tile (IDs 300-306)
     if (position >= 300 && position < 400 && gameState.currentRing === 3) {
@@ -2986,11 +3014,39 @@ function App() {
       const learningDefinition = getLearningTileDefinition(tile.learningId)
       const questionCount = getLearningQuestionCount(tile.learningId)
       const questionLabel = questionCount > 0 ? `${questionCount} question${questionCount === 1 ? '' : 's'}` : null
+      const { nextStreak, isRepeat, todayKey } = getDailyStreakUpdate(
+        gameState.stats?.lastLearningDate,
+        gameState.stats?.learningStreakDays ?? 0
+      )
+      const baseStars = 2
+      const baseXp = 6
+      const streakBonusStars = isRepeat ? 0 : Math.min(nextStreak - 1, 3)
+      const streakBonusXp = isRepeat ? 0 : Math.min(nextStreak - 1, 3) * 2
+      let starsEarned = baseStars + streakBonusStars
+      starsEarned = applyStarMultiplier(starsEarned)
+      starsEarned = applyRingMultiplier(starsEarned, gameState.currentRing)
+      const xpEarned = baseXp + streakBonusXp
+
+      setGameState(prev => ({
+        ...prev,
+        stars: prev.stars + starsEarned,
+        xp: (prev.xp ?? 0) + xpEarned,
+        stats: {
+          ...prev.stats,
+          learningStreakDays: nextStreak,
+          lastLearningDate: todayKey,
+          totalStarsEarned: (prev.stats?.totalStarsEarned || 0) + starsEarned,
+        },
+      }))
       toast.info(learningDefinition?.title ?? tile.title, {
         description: questionLabel
           ? `${questionLabel} • ${learningDefinition?.description ?? 'Micro-learning challenges are coming soon.'}`
           : (learningDefinition?.description ?? 'Micro-learning challenges are coming soon.'),
       })
+      toast.success('Learning bonus earned!', {
+        description: `+${starsEarned} ⭐ and +${xpEarned} XP • Streak ${nextStreak} day${nextStreak === 1 ? '' : 's'}`,
+      })
+      triggerCelebrationFromLastTile(['⭐', '📚', '✨'])
       debugGame('Phase transition: landed -> idle (learning tile)')
       setPhase('idle')
     } else if (tile.type === 'event') {
@@ -3479,6 +3535,10 @@ function App() {
   const handleBiasQuizComplete = (correct: number, total: number) => {
     const percentage = (correct / total) * 100
     const isPerfect = correct === total
+    const { nextStreak: nextQuizStreak, todayKey: quizDateKey } = getDailyStreakUpdate(
+      gameState.stats?.lastQuizDate,
+      gameState.stats?.daily_quiz ?? 0
+    )
     
     // Track challenge progress for quiz completion
     updateChallengeProgress('complete_quiz', { score: correct, total, isPerfect })
@@ -3495,11 +3555,19 @@ function App() {
     setGameState((prev) => ({
       ...prev,
       stars: prev.stars + starsEarned,
+      stats: {
+        ...prev.stats,
+        quizzesCompleted: (prev.stats?.quizzesCompleted || 0) + 1,
+        perfectQuizzes: (prev.stats?.perfectQuizzes || 0) + (isPerfect ? 1 : 0),
+        daily_quiz: nextQuizStreak,
+        lastQuizDate: quizDateKey,
+        totalStarsEarned: (prev.stats?.totalStarsEarned || 0) + starsEarned,
+      },
     }))
 
     const multiplierText = getMultiplierDisplay(gameState.currentRing)
     toast.success(`Quiz complete: ${correct}/${total} correct`, {
-      description: `Earned ${starsEarned} stars! ⭐ ${multiplierText ? `(Ring ${gameState.currentRing} ${multiplierText}) ` : ''}${percentage >= 100 ? 'Perfect score!' : ''}`,
+      description: `Earned ${starsEarned} stars! ⭐ ${multiplierText ? `(Ring ${gameState.currentRing} ${multiplierText}) ` : ''}${percentage >= 100 ? 'Perfect score! ' : ''}Streak ${nextQuizStreak} day${nextQuizStreak === 1 ? '' : 's'}.`,
     })
     triggerCelebrationFromLastTile(['⭐', '✨'])
   }

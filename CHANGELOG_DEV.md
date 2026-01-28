@@ -5,6 +5,27 @@
 
 ## Unreleased
 
+**Date:** 2026-01-25  
+**Slice:** M4.3 (rewards + streak system)  
+**Summary:**  
+- Added learning tile rewards that grant stars and XP with streak bonuses tied to daily learning progress.  
+- Persisted learning streak metadata in game stats and surfaced streak feedback in learning tile toasts.  
+- Updated Bias Sanctuary quiz completion to increment quiz stats and daily quiz streak tracking.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/App.tsx  
+- apps/investing-board-game-v3/src/hooks/useGameSave.ts  
+- apps/investing-board-game-v3/src/lib/types.ts  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Land on a learning tile twice in one day and confirm stars/XP award plus streak messaging stays stable.  
+- (manual) Complete a Bias Sanctuary quiz on consecutive days and confirm the streak count increments in the toast.  
+
 **Date:** 2026-01-24  
 **Slice:** M4.2 (question bank format + seed content)  
 **Summary:**  

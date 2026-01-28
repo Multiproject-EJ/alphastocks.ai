@@ -54,7 +54,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 - `AI_IMPLEMENTATION.md`, `IMPLEMENTATION_SUMMARY.md`, `DEVLOG.md` (project-wide status/context)
 
 ### Repo Map (paths verified)
-_Last reviewed: 2026-01-24 (M3.4 portfolio reward hooks)_
+_Last reviewed: 2026-01-25 (M4.3 learning rewards + streaks)_
 #### Frontend
 - **Legacy static pages entry:** `/index.html`, `/about.html`, `/faq.html`, `/monthly/`, `/weekly/`, `/superinvestor/`
 - **Vite + Preact app:** `/apps/investing-board-game-v3` (built into `/public/board-game-v3` via `npm run build:board-game-v3`)
@@ -240,7 +240,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **M4.3 — Rewards + streak system.**
+**Recommended next slice:** **M4.4 — Graphic templates + animations.**
 
 ## M4.1 Slice Notes (Tile taxonomy + renderer)
 - Added a shared micro-learning tile taxonomy with categories, labels, and descriptions to keep quiz surfaces consistent.
@@ -250,6 +250,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ## M4.2 Slice Notes (Question bank format + seed content)
 - Added a structured question bank for learning modules with difficulty, tags, and explanations to seed future quiz flows.
 - Connected learning tiles to the seed bank by surfacing question counts in the learning toast for quick context.
+
+## M4.3 Slice Notes (Rewards + streak system)
+- Added learning tile rewards (stars + XP) with streak bonuses and ring/star multipliers for mobile-first feedback.
+- Tracked daily learning streaks and persisted last-learning dates in the game stats for deterministic streak continuity.
+- Updated Bias Sanctuary quiz completion to increment quiz stats and daily quiz streak metadata for future achievement hooks.
 
 ---
 
