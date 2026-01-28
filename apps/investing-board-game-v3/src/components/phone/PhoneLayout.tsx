@@ -92,6 +92,7 @@ export function PhoneLayout({
   const showDebug = import.meta.env.DEV;
   const [currentHour, setCurrentHour] = useState(() => new Date().getHours());
   const [spaceBackgroundEnabled, setSpaceBackgroundEnabled] = useState(false);
+  const [valueBotModalOpen, setValueBotModalOpen] = useState(false);
   const [backgroundChoice, setBackgroundChoice] = useState<'cycle' | 'finance-board'>(() => {
     if (typeof window === 'undefined') return 'cycle';
     const savedChoice = localStorage.getItem('alphastocks_phone_background');
@@ -112,6 +113,11 @@ export function PhoneLayout({
     rotateX: 55,
     rotateZ: 45,
     scale: 0.55,
+  };
+
+  const handleOpenValueBot = () => {
+    setValueBotModalOpen(true);
+    onOpenProTools();
   };
 
   useEffect(() => {
@@ -303,12 +309,92 @@ export function PhoneLayout({
           isRolling={isRolling}
           isAutoRolling={isAutoRolling}
           onToggleAutoRoll={onToggleAutoRoll}
-          onOpenProTools={onOpenProTools}
+          onOpenProTools={handleOpenValueBot}
           lastEnergyCheck={lastEnergyCheck}
           dice1={dice1}
           dice2={dice2}
         />
       </div>
+
+      {valueBotModalOpen && (
+        <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/70 px-4 py-6 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-3xl border border-white/10 bg-[#0b0f1d]/95 p-5 text-white shadow-2xl">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.3em] text-purple-200/70">
+                  ValueBot Community
+                </p>
+                <h2 className="text-xl font-semibold">Help build valuebot.ai together</h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => setValueBotModalOpen(false)}
+                className="rounded-full border border-white/20 px-3 py-1 text-xs font-semibold text-white/80 hover:border-white/40 hover:text-white"
+              >
+                Close
+              </button>
+            </div>
+
+            <p className="mt-3 text-sm text-white/80">
+              ValueBot is a community project. If you love the stock card creator, chip in a small donation to
+              make ValueBot even better while ProTools loads in the background.
+            </p>
+
+            <div className="mt-4 rounded-2xl border border-white/10 bg-white/5 p-4">
+              <p className="text-xs font-semibold uppercase text-white/60">Live status</p>
+              <div className="mt-3">
+                <div className="flex items-center justify-between text-xs text-white/70">
+                  <span>Community backing</span>
+                  <span>64%</span>
+                </div>
+                <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-white/10">
+                  <div className="h-full w-[64%] rounded-full bg-gradient-to-r from-purple-400 via-blue-400 to-cyan-300" />
+                </div>
+                <div className="mt-3 flex items-center justify-between text-[11px] text-white/60">
+                  <span>Goals reached</span>
+                  <span>2 / 3</span>
+                </div>
+                <div className="mt-2 grid grid-cols-3 gap-2 text-[10px] font-semibold">
+                  <span className="rounded-full bg-emerald-500/20 px-2 py-1 text-center text-emerald-200">Level 1</span>
+                  <span className="rounded-full bg-emerald-500/20 px-2 py-1 text-center text-emerald-200">Level 2</span>
+                  <span className="rounded-full bg-white/10 px-2 py-1 text-center text-white/50">Level 3</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-4 space-y-2 text-sm text-white/80">
+              <p>Level 1. Early backers cover hosting + core upgrades.</p>
+              <p>Level 2. (Community backing high, many people chip in)</p>
+              <p>Level 3. Global momentum unlocks weekly ValueBot releases and new stock-card features.</p>
+            </div>
+
+            <div className="mt-5 grid grid-cols-3 gap-2 text-sm font-semibold">
+              <button
+                type="button"
+                className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-white hover:bg-white/10"
+              >
+                Donate $3
+              </button>
+              <button
+                type="button"
+                className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-white hover:bg-white/10"
+              >
+                Donate $5
+              </button>
+              <button
+                type="button"
+                className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-white hover:bg-white/10"
+              >
+                Donate $10
+              </button>
+            </div>
+
+            <p className="mt-4 text-xs text-white/50">
+              This is a community preview. ProTools is still available in a new tab.
+            </p>
+          </div>
+        </div>
+      )}
 
       {!authLoading && !isAuthenticated && (
         <div
