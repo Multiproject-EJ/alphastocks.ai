@@ -18,7 +18,7 @@ type NavItem = {
 };
 
 const NAV_ITEMS: ReadonlyArray<NavItem> = [
-  { id: 'proTools', icon: Wrench, label: 'ProTools' },
+  { id: 'proTools', icon: Wrench, label: 'ValueBot' },
   { id: 'stockExchangeBuilder', icon: Building2, label: 'Stocks' },
 ] as const;
 
