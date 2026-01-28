@@ -5,6 +5,23 @@
 
 ## Unreleased
 
+**Date:** 2026-01-28  
+**Slice:** M7.1 (audit board renderer + tile overlays)  
+**Summary:**  
+- Audited board rendering and ring layout flow in `App.tsx`, `BoardViewport`, and `Board3DViewport` to map the tile positioning path.  
+- Reviewed tile overlay treatments (type badges, ownership markers, portal/teleport highlights, ring reveal states) to scope the upcoming label component.  
+- Documented ring visibility gating/pointer-events considerations for overlay additions.  
+
+**Files changed:**  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (none)  
+
 **Date:** 2026-01-25  
 **Slice:** M4.4 (graphic templates + animations)  
 **Summary:**  
