@@ -149,6 +149,7 @@ import {
 } from '@/lib/economyThrottle'
 import { clampMultiplierToLeverage, getUnlockedMultipliers } from '@/lib/leverage'
 import { MOMENTUM_MAX, applyMomentumDecay, applyMomentumFromNetWorthChange } from '@/lib/momentum'
+import type { EconomyWindowState } from '@/lib/economyWindows'
 import { getActiveEconomyWindow, getEconomyWindowMultipliers, tickEconomyWindows } from '@/lib/economyWindows'
 import { useUniverseStocks } from '@/hooks/useUniverseStocks'
 import { useGameSave } from '@/hooks/useGameSave'
@@ -187,6 +188,7 @@ import { getInitialStockExchangeState, StockExchangeBuilderState } from '@/lib/s
 import { calculateXPForLevel } from '@/lib/progression'
 import type { UIMode, GamePhase } from '@/lib/uiModeStateMachine'
 import type { RollMultiplier } from '@/lib/constants'
+import { trackTelemetryEvent } from '@/lib/telemetry'
 
 // Alias for backward compatibility
 type Phase = GamePhase
@@ -1113,6 +1115,30 @@ function App() {
     () => getSoftThrottleMultiplier(economyState, rightNowTick),
     [economyState, rightNowTick]
   )
+
+  const previousEconomyWindowRef = useRef<EconomyWindowState | null>(null)
+
+  useEffect(() => {
+    const previous = previousEconomyWindowRef.current
+    if (previous?.id === activeEconomyWindow?.id) return
+
+    if (activeEconomyWindow) {
+      trackTelemetryEvent('economy_window_started', {
+        id: activeEconomyWindow.id,
+        type: activeEconomyWindow.type,
+        durationMinutes: activeEconomyWindow.durationMinutes,
+        leverageLevel: economyState.leverageLevel,
+        momentum: economyState.momentum,
+      })
+    } else if (previous) {
+      trackTelemetryEvent('economy_window_ended', {
+        id: previous.id,
+        type: previous.type,
+      })
+    }
+
+    previousEconomyWindowRef.current = activeEconomyWindow
+  }, [activeEconomyWindow, economyState.leverageLevel, economyState.momentum])
 
   const getEconomyMultipliers = useCallback(() => {
     const eventMultipliers = getActiveMultipliers()
@@ -2271,6 +2297,12 @@ function App() {
 
     // DevTools: Log roll event
     logEvent?.('roll_pressed', { multiplier, rollsRemaining })
+    trackTelemetryEvent('roll_started', {
+      multiplier,
+      rollsRemaining,
+      position: gameState.position,
+      ring: gameState.currentRing,
+    })
 
     // Haptic feedback for rolling
     heavyTap()  // Strong haptic on roll
@@ -2472,12 +2504,22 @@ function App() {
         baseCoins, finalCoins, 
         baseXP, finalXP 
       })
-      
+
       // Handle jackpot: Add to jackpot when passing Start without landing
       let jackpotChange = 0
       if (willPassStart && !willLandOnStart) {
         jackpotChange = JACKPOT_PASS_START_AMOUNT * multiplier
       }
+
+      trackTelemetryEvent('roll_rewards_awarded', {
+        multiplier,
+        stars: finalStars,
+        coins: finalCoins,
+        xp: finalXP,
+        jackpotChange,
+        ring: gameState.currentRing,
+        passedStart: willPassStart && !willLandOnStart,
+      })
       
       // Award all rewards with multiplier applied
       setGameState(prev => ({
@@ -2796,6 +2838,14 @@ function App() {
       : amount
     const portfolioBonus = rewardAmount - amount
 
+    trackTelemetryEvent('quick_reward_awarded', {
+      type: rewardType,
+      amount: rewardAmount,
+      portfolioBonus,
+      ring: gameState.currentRing,
+      isPremium: tile.isPremium,
+    })
+
     // Get tile position for celebration animation (center of screen as approximation)
     const tilePosition = { 
       x: window.innerWidth / 2, 
@@ -2937,6 +2987,13 @@ function App() {
 
     // DevTools: Log tile landed event
     logEvent?.('tile_landed', { position, tileType: tile.type, passedStart, rewardMultiplier })
+    trackTelemetryEvent('tile_landed', {
+      position,
+      ring: gameState.currentRing,
+      tileType: tile.type,
+      passedStart,
+      rewardMultiplier,
+    })
 
     // Track challenge progress for landing on tile
     updateChallengeProgress('land_on_tile', { position, tileType: tile.type })

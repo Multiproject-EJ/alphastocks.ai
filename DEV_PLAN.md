@@ -16,6 +16,7 @@ Use this exact prompt to kick off a run and keep the plan in scope:
 ## Existing Master Plan Reference (do not duplicate)
 There is a broader, long-form master plan already in the repo. Keep this file as the **run-by-run execution plan** and cross‑reference the long plan instead of rewriting it:
 - `docs/DEV_PLAN_MARKETTYCOON_MASTER.md` (core vision, loop, ethics, ring overview). Align slices here with that doc to avoid drift.
+- No other DEV_PLAN-style add-on MDs were found in the repo at last scan; keep this file synced with the master plan above.
 
 ## Operating Rules (non‑negotiable)
 0) **Mobile-first UI:** Design and implement for **mobile first**, then adapt for tablet/desktop. Do not port desktop patterns to mobile; scale mobile patterns upward instead.
@@ -207,7 +208,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **M7.3** ✅ Hook labels to tile data
 
 ### M8 — Telemetry & Tuning
-- **M8.1** Economy telemetry sinks
+- **M8.1** ✅ Economy telemetry sinks
 
 ### M9 — Celebrations & FX
 - **M9.1** Ring 3 upgrade celebration (board spin + UI flash) ✅
@@ -241,7 +242,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **M8.1 — Economy telemetry sinks.**
+**Recommended next slice:** **M0.2 — Instrumentation hooks (optional logging, no behavior change).**
 
 ## M4.1 Slice Notes (Tile taxonomy + renderer)
 - Added a shared micro-learning tile taxonomy with categories, labels, and descriptions to keep quiz surfaces consistent.
@@ -402,6 +403,10 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Added ring-aware tile label configuration so category, event, and learning tiles surface compact labels without new layout wrappers.
 - Surfaced elite ring win rewards with a compact currency label so Ring 3 prize tiles read as high-value targets at a glance.
 - Applied ring multiplier sublabels on stock tiles to reinforce reward scaling on Rings 2 and 3.
+
+## M8.1 Slice Notes (Economy telemetry sinks)
+- Added a telemetry helper with opt-in consent, console logging in dev, and local storage buffering for lightweight economy event sinks.
+- Wired economy window start/end events, roll rewards, tile landings, and quick reward grants into the telemetry pipeline for future tuning passes.
 
 ## M0.4 Slice Notes (Lazy-load Portfolio charts)
 - Lazy-loaded the Portfolio modal so chart dependencies no longer block initial app startup.

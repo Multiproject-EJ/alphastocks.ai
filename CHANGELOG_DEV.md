@@ -6,6 +6,24 @@
 ## Unreleased
 
 **Date:** 2026-01-28  
+**Slice:** M8.1 (economy telemetry sinks)  
+**Summary:**  
+- Added an opt-in telemetry helper with console + local storage sinks for lightweight economy event capture.  
+- Wired economy window, roll reward, tile landing, and quick reward events into the telemetry pipeline.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/App.tsx  
+- apps/investing-board-game-v3/src/lib/telemetry.ts  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Set `localStorage.alphastocks.telemetry.opt_in = "true"`, roll the dice or hit a quick-reward tile, and confirm events persist under `localStorage.alphastocks.telemetry.events`.  
+
+**Date:** 2026-01-28  
 **Slice:** M7.3 (hook labels to tile data)  
 **Summary:**  
 - Added ring-aware tile label configs so category, event, and learning tiles surface compact overlays.  
