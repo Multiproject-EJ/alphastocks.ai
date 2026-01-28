@@ -203,9 +203,13 @@ export interface GameState {
     uniqueStocks: number
     quizzesCompleted: number
     perfectQuizzes: number
+    daily_quiz?: number
+    lastQuizDate?: string | null
     scratchcardsPlayed: number
     scratchcardsWon: number
     scratchcardWinStreak: number
+    learningStreakDays?: number
+    lastLearningDate?: string | null
     tilesVisited: number[]
     consecutiveDays: number
     lastLoginDate: string | null
