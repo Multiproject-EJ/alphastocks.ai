@@ -189,15 +189,14 @@ import { calculateXPForLevel } from '@/lib/progression'
 import type { UIMode, GamePhase } from '@/lib/uiModeStateMachine'
 import type { RollMultiplier } from '@/lib/constants'
 import { trackTelemetryEvent } from '@/lib/telemetry'
+import { trackInstrumentationEvent } from '@/lib/instrumentation'
 
 // Alias for backward compatibility
 type Phase = GamePhase
 
-// Debug helper function - logs only when DEBUG_GAME is enabled in localStorage
-const debugGame = (...args: unknown[]) => {
-  if (typeof window !== 'undefined' && localStorage.getItem('DEBUG_GAME') === 'true') {
-    console.log('[DEBUG]', ...args)
-  }
+// Debug helper function - logs only when instrumentation is enabled
+const debugGame = (message: string, payload?: unknown) => {
+  trackInstrumentationEvent(message, payload)
 }
 
 // Constants

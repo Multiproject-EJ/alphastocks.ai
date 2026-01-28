@@ -5,6 +5,40 @@
 
 ## Unreleased
 
+**Date:** 2026-01-29  
+**Slice:** M0.2 (instrumentation hooks follow-up)  
+**Summary:**  
+- Fixed the Tile component to pass through tile label props so label overlays render without reference errors.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/components/Tile.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Load the board and confirm tile label overlays render without a console error about `tileLabel`.  
+
+**Date:** 2026-01-29  
+**Slice:** M0.2 (instrumentation hooks)  
+**Summary:**  
+- Added an opt-in instrumentation helper for debug logging with a dev console sink.  
+- Routed game debug logging through the new instrumentation hook to keep logging centralized.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/App.tsx  
+- apps/investing-board-game-v3/src/lib/instrumentation.ts  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Set `localStorage.DEBUG_GAME = "true"` and trigger any in-game action (e.g., dice roll); confirm instrumentation logs in the console.  
+
 **Date:** 2026-01-28  
 **Slice:** M8.1 (economy telemetry sinks)  
 **Summary:**  
