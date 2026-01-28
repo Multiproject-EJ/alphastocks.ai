@@ -8,6 +8,14 @@ import { QuickRewardTile } from './QuickRewardTile'
 import { QuickRewardType } from '@/lib/quickRewardTiles'
 import { TILE_WIDTH, TILE_HEIGHT } from '@/lib/constants'
 import { getLearningTileDefinition, LEARNING_CATEGORY_STYLES } from '@/lib/learningTiles'
+import { TileLabel, TileLabelTone } from '@/components/TileLabel'
+
+interface TileLabelConfig {
+  label: string
+  tone?: TileLabelTone
+  icon?: string
+  sublabel?: string
+}
 
 interface TileProps {
   tile: TileType
@@ -22,6 +30,7 @@ interface TileProps {
   isRing3Revealing?: boolean  // NEW: Whether Ring 3 is currently revealing
   isTeleporting?: boolean
   isPortal?: boolean
+  tileLabel?: TileLabelConfig
 }
 
 // Configuration for corner tiles and event tiles that use images instead of text
@@ -276,6 +285,15 @@ const TileComponent = ({ tile, isActive, isHopping, isLanded, onClick, side, has
         </div>
       )}
 
+      {tileLabel && !shouldShowMysteryContent && (
+        <TileLabel
+          label={tileLabel.label}
+          tone={tileLabel.tone}
+          icon={tileLabel.icon}
+          sublabel={tileLabel.sublabel}
+        />
+      )}
+
       {/* Ring 3 locked content - show mystery */}
       {shouldShowMysteryContent ? (
         <div className="flex items-center justify-center w-full h-full relative z-10">
@@ -373,6 +391,10 @@ export const Tile = memo(TileComponent, (prevProps, nextProps) => {
     prevProps.isRing3Revealed === nextProps.isRing3Revealed &&
     prevProps.isRing3Revealing === nextProps.isRing3Revealing &&
     prevProps.isTeleporting === nextProps.isTeleporting &&
-    prevProps.isPortal === nextProps.isPortal
+    prevProps.isPortal === nextProps.isPortal &&
+    prevProps.tileLabel?.label === nextProps.tileLabel?.label &&
+    prevProps.tileLabel?.tone === nextProps.tileLabel?.tone &&
+    prevProps.tileLabel?.icon === nextProps.tileLabel?.icon &&
+    prevProps.tileLabel?.sublabel === nextProps.tileLabel?.sublabel
   );
 });
