@@ -57,7 +57,21 @@ const TILE_IMAGES: Record<string, { src: string; alt: string }> = {
   },
 }
 
-const TileComponent = ({ tile, isActive, isHopping, isLanded, onClick, side, hasOwnership = false, ringNumber, isRing3Revealed = false, isRing3Revealing = false, isTeleporting = false, isPortal = false }: TileProps) => {
+const TileComponent = ({
+  tile,
+  isActive,
+  isHopping,
+  isLanded,
+  onClick,
+  side,
+  hasOwnership = false,
+  ringNumber,
+  isRing3Revealed = false,
+  isRing3Revealing = false,
+  isTeleporting = false,
+  isPortal = false,
+  tileLabel,
+}: TileProps) => {
   const { lightTap } = useHaptics();
 
   const handleClick = useCallback(() => {

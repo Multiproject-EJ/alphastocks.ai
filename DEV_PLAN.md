@@ -248,6 +248,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ## M0.2 Slice Notes (Instrumentation hooks)
 - Added a dedicated instrumentation helper that enables opt-in debug logging via local storage or env flags without changing gameplay behavior.
 - Centralized debug logging to route through the instrumentation hook so it can be extended with additional sinks later.
+- Fixed the Tile component prop wiring so tile label overlays no longer reference an undefined variable during render.
 
 ## M4.1 Slice Notes (Tile taxonomy + renderer)
 - Added a shared micro-learning tile taxonomy with categories, labels, and descriptions to keep quiz surfaces consistent.
