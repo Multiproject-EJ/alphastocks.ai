@@ -5,6 +5,23 @@
 
 ## Unreleased
 
+**Date:** 2026-02-01  
+**Slice:** P1.2 (Portal animation polish)  
+**Summary:**  
+- Added portal beam + ripple layers and updated timing so ring transitions feel smoother and more dimensional.  
+- Tuned overlay brightness and particle travel behavior to keep portal animations readable across screen sizes.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/components/PortalAnimation.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (not run; not requested)  
+
 **Date:** 2026-01-30  
 **Slice:** P1.1 (Wheel of Fortune playable demo in Games Hub)  
 **Summary:**  
