@@ -5,6 +5,26 @@
 
 ## Unreleased
 
+**Date:** 2026-01-30  
+**Slice:** P1.1 (Wheel of Fortune playable demo in Games Hub)  
+**Summary:**  
+- Marked Wheel of Fortune as playable in the mini-games hub and gated hub entry on playable status.  
+- Reused the Wheel of Fortune modal in the hub with demo spin limits, balances, and sound feedback.  
+- Added a compact demo ledger line in the wheel modal to keep cash, stars, rolls, and XP visible during hub spins.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/components/WheelOfFortuneModal.tsx  
+- apps/investing-board-game-v3/src/lib/gamesConfig.ts  
+- apps/investing-board-game-v3/src/pages/GamesHub.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (not run; not requested)  
+
 **Date:** 2026-01-29  
 **Slice:** M1.1 (audit ring movement + portal behavior)  
 **Summary:**  

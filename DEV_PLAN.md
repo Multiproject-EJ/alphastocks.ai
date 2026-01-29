@@ -55,7 +55,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 - `AI_IMPLEMENTATION.md`, `IMPLEMENTATION_SUMMARY.md`, `DEVLOG.md` (project-wide status/context)
 
 ### Repo Map (paths verified)
-_Last reviewed: 2026-01-29 (M1.1 ring movement + portal audit)_
+_Last reviewed: 2026-01-30 (P1.1 mini-games hub Wheel of Fortune demo)_
 #### Frontend
 - **Legacy static pages entry:** `/index.html`, `/about.html`, `/faq.html`, `/monthly/`, `/weekly/`, `/superinvestor/`
 - **Vite + Preact app:** `/apps/investing-board-game-v3` (built into `/public/board-game-v3` via `npm run build:board-game-v3`)
@@ -63,6 +63,7 @@ _Last reviewed: 2026-01-29 (M1.1 ring movement + portal audit)_
 - **State management/store:** Local React state in `src/App.tsx` plus contexts in `src/context/*` (Auth, Overlay, UI Mode); custom hooks in `src/hooks/*`
 - **Game loop entry:** `src/App.tsx` (dice roll → `calculateMovement` in `src/lib/movementEngine.ts`), board data in `src/lib/mockData.ts`
 - **UI components:** `src/components/*` (board, modals, overlays, portfolio readout panel), shop UI in `src/components/ShopModal.tsx` + `src/components/shop/*` (mobile shop shell, property vault album cards)
+- **Mini-games hub:** `src/pages/GamesHub.tsx` (grid of mini-games in overlay), `src/components/games/*` (cards, overlay shell, placeholder game surfaces), Wheel of Fortune demo uses `src/components/WheelOfFortuneModal.tsx`
 - **Board renderer + tiles:** `src/App.tsx` (ring layout, tile positioning), `src/components/BoardViewport.tsx`, `src/components/Board3DViewport.tsx`, `src/components/Tile.tsx`
 - **Micro-learning tiles:** `src/lib/learningTiles.ts` (taxonomy definitions) + `src/lib/learningQuestionBank.ts` (seed question bank) + `src/components/Tile.tsx` (renderer)
 - **Stock tile modals:** `src/components/StockModal.tsx` via `src/lib/overlayRegistry.ts` and `src/hooks/useOverlayManager.ts`, triggered in `src/App.tsx` on category tile landings
@@ -215,6 +216,9 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 ### M9 — Celebrations & FX
 - **M9.1** Ring 3 upgrade celebration (board spin + UI flash) ✅
 
+### P1 — Mini-Games Hub
+- **P1.1** ✅ Wheel of Fortune playable demo in Games Hub
+
 ---
 
 ## Config Strategy
@@ -244,7 +248,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **TBD — select the next slice from `docs/DEV_PLAN_MARKETTYCOON_MASTER.md` now that M1.1 is complete.**
+**Recommended next slice:** **P1.2 — Portal animation polish (align with Priority Roadmap P0 polish)**.
 
 ## M0.2 Slice Notes (Instrumentation hooks)
 - Added a dedicated instrumentation helper that enables opt-in debug logging via local storage or env flags without changing gameplay behavior.
@@ -410,6 +414,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Added ring-aware tile label configuration so category, event, and learning tiles surface compact labels without new layout wrappers.
 - Surfaced elite ring win rewards with a compact currency label so Ring 3 prize tiles read as high-value targets at a glance.
 - Applied ring multiplier sublabels on stock tiles to reinforce reward scaling on Rings 2 and 3.
+
+## P1.1 Slice Notes (Wheel of Fortune playable demo in Games Hub)
+- Marked Wheel of Fortune as playable in the mini-games hub and gated game opening to playable entries only.
+- Reused the existing Wheel of Fortune modal inside the hub with demo balances, spins remaining, and sound feedback.
+- Added a lightweight demo ledger (cash, stars, rolls, XP) so wheel rewards remain visible during hub play.
 
 ## M8.1 Slice Notes (Economy telemetry sinks)
 - Added a telemetry helper with opt-in consent, console logging in dev, and local storage buffering for lightweight economy event sinks.

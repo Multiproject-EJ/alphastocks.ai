@@ -31,6 +31,8 @@ interface WheelOfFortuneModalProps {
   isOpen: boolean
   onClose: () => void
   coins: number
+  balanceLabel?: string
+  secondaryBalances?: Array<{ label: string; value: string }>
   currentRing: 1 | 2 | 3
   spinsRemaining: number
   spinsLimit: number
@@ -44,6 +46,8 @@ export function WheelOfFortuneModal({
   isOpen,
   onClose,
   coins,
+  balanceLabel = 'Balance',
+  secondaryBalances,
   currentRing,
   spinsRemaining,
   spinsLimit,
@@ -318,9 +322,18 @@ export function WheelOfFortuneModal({
           </button>
 
           {/* Balance */}
-          <div className="mt-3 flex items-center justify-center gap-2 text-purple-300">
-            <Coins className="w-4 h-4" />
-            <span>Balance: {coins.toLocaleString()} coins</span>
+          <div className="mt-3 flex flex-col items-center justify-center gap-1 text-purple-300">
+            <div className="flex items-center justify-center gap-2">
+              <Coins className="w-4 h-4" />
+              <span>{balanceLabel}: {coins.toLocaleString()} coins</span>
+            </div>
+            {secondaryBalances && secondaryBalances.length > 0 && (
+              <div className="flex flex-wrap items-center justify-center gap-3 text-xs text-purple-200">
+                {secondaryBalances.map(balance => (
+                  <span key={balance.label}>{balance.label}: {balance.value}</span>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </motion.div>
