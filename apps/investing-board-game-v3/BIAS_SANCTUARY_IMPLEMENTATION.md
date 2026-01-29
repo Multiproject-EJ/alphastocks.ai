@@ -1,7 +1,7 @@
-# Bias Sanctuary Implementation
+# Case Study Implementation (Bias Sanctuary Modal)
 
 ## Overview
-The Bias Sanctuary feature has been successfully implemented as an educational corner tile in the Investing Board Game. When players land on the "Bias Sanctuary" corner (position 17), they are presented with an interactive learning experience about cognitive biases in investing.
+The Case Study feature has been successfully implemented as an educational learning tile in the Investing Board Game. When players land on the Case Study tile, they are presented with an interactive learning experience about cognitive biases in investing (powered by the `BiasSanctuaryModal` component).
 
 ## Features Implemented
 
@@ -95,7 +95,7 @@ The Bias Sanctuary feature has been successfully implemented as an educational c
    - Added `currentCaseStudy` state
    - Added `handleBiasQuizComplete` function
    - Integrated modal in JSX
-   - Updated Bias Sanctuary tile handler to show modal
+   - Updated Case Study tile handler to show modal
 
 ### Dependencies Used
 - **framer-motion**: For smooth animations
@@ -142,7 +142,7 @@ transition={{ duration: 0.3 }}
 ## Testing Checklist
 
 ### Functional Testing ✅
-- [x] Modal opens when landing on Bias Sanctuary tile (position 17)
+- [x] Modal opens when landing on the Case Study tile
 - [x] Card spins in with smooth animation
 - [x] Random case study is selected from the 3 available
 - [x] All 4 context panels can be expanded/collapsed
@@ -193,9 +193,9 @@ npm run build
 ```
 
 ## Game Integration
-The Bias Sanctuary modal is fully integrated into the game flow:
+The Case Study modal is fully integrated into the game flow:
 
-1. Player rolls dice and lands on position 17 (Bias Sanctuary corner)
+1. Player rolls dice and lands on the Case Study tile
 2. A random case study is selected from the pool
 3. Modal opens with spinning card animation
 4. Player reads the case study and expands context panels

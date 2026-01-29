@@ -7,8 +7,15 @@ import { resolveStockPrice } from './stockPricing'
 // Event tiles: 8 - 23% of ring
 // Corner tiles: 4 - 11% of ring
 export const BOARD_TILES: Tile[] = [
-  // Corner - Start
-  { id: 0, type: 'corner', title: 'Start / ThriftyPath' },
+  // Corner - Big Fish Portal (Start)
+  {
+    id: 0,
+    type: 'corner',
+    title: 'Big Fish Portal',
+    specialAction: 'big-fish-portal',
+    portalStyle: 'blue',
+    colorBorder: 'oklch(0.72 0.2 225)',
+  },
   
   // Quick rewards
   { id: 1, type: 'quick-reward', title: 'Cash Bonus', quickRewardType: 'cash' },
@@ -95,8 +102,8 @@ export const INNER_TRACK_TILES: Tile[] = Array.from({ length: 12 }, (_, i) => ({
 // Event tiles: 5 - 21% of ring
 // Corner tiles: 3 - 12% of ring
 export const RING_2_TILES: Tile[] = [
-  // Corner - Ascension Gate
-  { id: 200, type: 'corner', title: 'Ascension Gate' },
+  // Fall portals (Ring 2 drop points)
+  { id: 200, type: 'special', title: 'Fall Portal', specialAction: 'ring-fall', specialStyle: 'fall-portal', portalStyle: 'blue', colorBorder: 'oklch(0.72 0.2 225)' },
   
   // Quick rewards (3× multiplier on Ring 2!)
   { id: 201, type: 'quick-reward', title: 'Premium Cash', quickRewardType: 'cash' },
@@ -112,14 +119,14 @@ export const RING_2_TILES: Tile[] = [
   { id: 205, type: 'corner', title: 'Elevator 🛗' },
   
   // Quick rewards
-  { id: 206, type: 'quick-reward', title: 'XP Surge', quickRewardType: 'xp' },
+  { id: 206, type: 'special', title: 'Fall Portal', specialAction: 'ring-fall', specialStyle: 'fall-portal', portalStyle: 'blue', colorBorder: 'oklch(0.72 0.2 225)' },
   
   // Stock tile
   { id: 207, type: 'category', title: 'Premium Dividends', category: 'dividends', colorBorder: 'oklch(0.74 0.20 220)' },
   
   // Quick rewards
   { id: 208, type: 'event', title: 'Executive Event' },
-  { id: 209, type: 'quick-reward', title: 'Premium Cash', quickRewardType: 'cash' },
+  { id: 209, type: 'special', title: 'Chance', specialAction: 'chance', specialStyle: 'chance-card', colorBorder: 'oklch(0.75 0.18 240)' },
   
   // Corner - High Roller Casino
   { id: 210, type: 'corner', title: 'High Roller Casino' },
@@ -128,7 +135,7 @@ export const RING_2_TILES: Tile[] = [
   { id: 211, type: 'quick-reward', title: 'Bonus Roll', quickRewardType: 'bonus-roll' },
   
   // Stock tile
-  { id: 212, type: 'category', title: 'Premium Growth', category: 'growth', colorBorder: 'oklch(0.80 0.18 90)' },
+  { id: 212, type: 'special', title: 'Fall Portal', specialAction: 'ring-fall', specialStyle: 'fall-portal', portalStyle: 'blue', colorBorder: 'oklch(0.72 0.2 225)' },
   
   // Quick rewards
   { id: 213, type: 'quick-reward', title: 'Star Storm', quickRewardType: 'stars' },
@@ -140,7 +147,7 @@ export const RING_2_TILES: Tile[] = [
   { id: 217, type: 'category', title: 'Premium Moats', category: 'moats', colorBorder: 'oklch(0.70 0.19 235)' },
   
   // Quick rewards
-  { id: 218, type: 'event', title: 'Market Shock' },
+  { id: 218, type: 'special', title: 'Fall Portal', specialAction: 'ring-fall', specialStyle: 'fall-portal', portalStyle: 'blue', colorBorder: 'oklch(0.72 0.2 225)' },
   { id: 219, type: 'quick-reward', title: 'Gold Coins', quickRewardType: 'coins' },
   { id: 220, type: 'event', title: 'Board Meeting' },
   { id: 221, type: 'event', title: 'Wildcard' },
@@ -152,93 +159,57 @@ export const RING_2_TILES: Tile[] = [
   { id: 223, type: 'quick-reward', title: 'Premium Cash', quickRewardType: 'cash' },
 ]
 
-// Ring 3: Elite Circle (9 tiles, IDs 300-309)
-// Tiles are positioned in a circle: 300 (Start), 301, 302, 303, 304, 305, 306, 307, 308, 309, back to 300
-// Last 3 tiles (307-309) positioned just before reaching Start (300) are PREMIUM with 200× multiplier
+// Ring 3: Wealth Run (7 tiles, IDs 300-306)
+// Each tile is a super high reward. One roll only per visit.
 export const RING_3_TILES: Tile[] = [
-  // Tile 0: Start/Portal (Inner Sanctum)
-  { 
-    id: 300, 
-    type: 'corner', 
-    title: 'Inner Sanctum',
-    ring3Reward: 20000,
+  {
+    id: 300,
+    type: 'special',
+    title: 'Wealth Run: Apex Vault',
+    ring3Reward: 250000,
     isWinTile: true,
   },
-  // Tiles 1-6: Normal Ring 3 tiles (10× multiplier)
-  { 
-    id: 301, 
-    type: 'category', 
-    title: 'Elite Blue Chips', 
-    category: 'elite', 
-    colorBorder: 'oklch(0.80 0.18 235)',
-    ring3Reward: 20000,
+  {
+    id: 301,
+    type: 'special',
+    title: 'Wealth Run: Diamond Surge',
+    ring3Reward: 400000,
     isWinTile: true,
   },
-  { 
-    id: 302, 
-    type: 'event', 
-    title: 'Black Swan 🦢',
-    isBlackSwan: true,
-    isWinTile: false,
-    consolationReward: { type: 'random', stars: 50, coins: 50 },
-  },
-  { 
-    id: 303, 
-    type: 'category', 
-    title: 'Elite Legends', 
-    category: 'elite', 
-    colorBorder: 'oklch(0.84 0.18 90)',
-    ring3Reward: 20000,
+  {
+    id: 302,
+    type: 'special',
+    title: 'Wealth Run: Legacy Stack',
+    ring3Reward: 600000,
     isWinTile: true,
   },
-  { 
-    id: 304, 
-    type: 'corner', 
-    title: 'Final Elevator 🛗',
-    ring3Reward: 20000,
+  {
+    id: 303,
+    type: 'special',
+    title: 'Wealth Run: Titan Fortune',
+    ring3Reward: 850000,
     isWinTile: true,
   },
-  { 
-    id: 305, 
-    type: 'category', 
-    title: 'Elite Dynasty', 
-    category: 'elite', 
-    colorBorder: 'oklch(0.80 0.18 235)',
-    ring3Reward: 20000,
+  {
+    id: 304,
+    type: 'special',
+    title: 'Wealth Run: Crown Reserve',
+    ring3Reward: 1100000,
     isWinTile: true,
   },
-  { 
-    id: 306, 
-    type: 'quick-reward', 
-    title: 'Elite Bonus',
-    quickRewardType: 'coins',
-    ring3Reward: 20000,
+  {
+    id: 305,
+    type: 'special',
+    title: 'Wealth Run: Sovereign Cache',
+    ring3Reward: 1500000,
     isWinTile: true,
   },
-  // Tiles 7-9: PREMIUM tiles (200× multiplier)
-  { 
-    id: 307, 
-    type: 'quick-reward', 
-    title: '💎 PREMIUM Cash',
-    quickRewardType: 'cash',
-    isPremium: true,
-    multiplier: 200,
-  },
-  { 
-    id: 308, 
-    type: 'quick-reward', 
-    title: '💎 PREMIUM Stars',
-    quickRewardType: 'stars',
-    isPremium: true,
-    multiplier: 200,
-  },
-  { 
-    id: 309, 
-    type: 'quick-reward', 
-    title: '💎 PREMIUM Jackpot',
-    quickRewardType: 'mystery',
-    isPremium: true,
-    multiplier: 200,
+  {
+    id: 306,
+    type: 'special',
+    title: 'Wealth Run: Omega Prize',
+    ring3Reward: 2000000,
+    isWinTile: true,
   },
 ]
 
@@ -246,19 +217,14 @@ export const RING_3_TILES: Tile[] = [
 export const RING_CONFIG = {
   1: { name: 'Street Level', tiles: 35, rewardMultiplier: 1, riskMultiplier: 1 },
   2: { name: 'Executive Floor', tiles: 24, rewardMultiplier: 3, riskMultiplier: 3 },
-  3: { name: 'Elite Circle', tiles: 9, rewardMultiplier: 10, riskMultiplier: 10 },
+  3: { name: 'Wealth Run', tiles: 7, rewardMultiplier: 10, riskMultiplier: 10 },
 } as const
 
 // Ring 3 Configuration
 export const RING_3_CONFIG = {
   maxRolls: 1,  // Only 1 dice roll allowed
-  rewardPerWinTile: 20000,  // $20,000 per winning tile
+  rewardPerWinTile: 250000,  // Baseline high reward (use per-tile overrides)
   minStockScore: 8.0,  // Only show 8.0+ composite score stocks
-  blackSwanTileId: 302,
-  consolationReward: {
-    stars: 50,
-    coins: 50,
-  },
 } as const
 
 // Portal configuration for each ring's start tile
@@ -273,13 +239,13 @@ export const PORTAL_CONFIG = {
     startTileId: 200,
     totalTiles: 24,
     onPass: { action: 'stay', targetRing: 2, targetTile: 200 },
-    onLand: { action: 'ascend', targetRing: 3, targetTile: 300 },
+    onLand: { action: 'stay', targetRing: 2, targetTile: 200 },
   },
   ring3: {
     startTileId: 300,
     totalTiles: 7,
     onPass: { action: 'stay', targetRing: 3, targetTile: 300 },
-    onLand: { action: 'throne', targetRing: 0, targetTile: -1 }, // -1 = Throne center
+    onLand: { action: 'stay', targetRing: 3, targetTile: 300 },
   },
 } as const
 
@@ -295,6 +261,15 @@ export const ELEVATOR_ODDS = {
     fall: { min: 2, max: 10 },       // ~92% - fall to Ring 1
   },
 } as const
+
+export const ROULETTE_REWARDS = [
+  { id: 'mega-cash', label: '$5M Mega Cash', type: 'cash', amount: 5_000_000, icon: '💰' },
+  { id: 'star-flood', label: '2M Stars', type: 'stars', amount: 2_000_000, icon: '⭐' },
+  { id: 'coin-tsunami', label: '3M Coins', type: 'coins', amount: 3_000_000, icon: '🪙' },
+  { id: 'vault-jackpot', label: '$8M Vault Jackpot', type: 'cash', amount: 8_000_000, icon: '🏦' },
+  { id: 'legacy-stars', label: '5M Stars', type: 'stars', amount: 5_000_000, icon: '✨' },
+  { id: 'mystery-box', label: 'Mystery Box', type: 'mystery', amount: 0, icon: '🎁' },
+] as const
 
 export const MOCK_STOCKS: Record<string, Stock[]> = {
   turnarounds: [

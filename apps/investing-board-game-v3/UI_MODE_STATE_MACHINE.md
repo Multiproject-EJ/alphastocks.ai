@@ -26,14 +26,14 @@ The UI Mode State Machine provides a centralized way to manage different view mo
 
 | Mode | Description | Can Transition To |
 |------|-------------|-------------------|
-| `board` | Main game board | cityBuilder, gallery, portfolio, hub, shop, casino, biasSanctuary, challenges, leaderboard, settings |
+| `board` | Main game board | cityBuilder, gallery, portfolio, hub, shop, casino, biasSanctuary (Case Study), challenges, leaderboard, settings |
 | `cityBuilder` | Building/upgrading city | board |
 | `gallery` | Net worth gallery view | board |
 | `portfolio` | Portfolio management | board |
 | `hub` | Hub/navigation view | board, cityBuilder, gallery, portfolio, shop, challenges, leaderboard |
 | `shop` | Shop interface | board, hub |
 | `casino` | Casino mini-game | board |
-| `biasSanctuary` | Bias sanctuary | board |
+| `biasSanctuary` | Case Study (bias sanctuary modal) | board |
 | `challenges` | Challenges view | board, hub |
 | `leaderboard` | Leaderboard view | board, hub |
 | `settings` | Settings | board, hub |

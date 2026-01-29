@@ -10,6 +10,7 @@ import { StockModal } from '@/components/StockModal'
 import { EventModal } from '@/components/EventModal'
 import { ThriftyPathModal } from '@/components/ThriftyPathModal'
 import { WildcardEventModal } from '@/components/WildcardEventModal'
+import { ChanceCardModal } from '@/components/ChanceCardModal'
 import { HubModal } from '@/components/HubModal'
 import { BiasSanctuaryModal } from '@/components/BiasSanctuaryModal'
 import { CasinoModal } from '@/components/CasinoModal'
@@ -36,6 +37,7 @@ export const OVERLAY_REGISTRY = {
   'event': EventModal,
   'thriftyPath': ThriftyPathModal,
   'wildcardEvent': WildcardEventModal,
+  'chanceCard': ChanceCardModal,
   'portfolio': PortfolioModal,
   'hub': HubModal,
   'biasSanctuary': BiasSanctuaryModal,
