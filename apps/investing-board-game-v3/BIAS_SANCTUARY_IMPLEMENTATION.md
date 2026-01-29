@@ -1,4 +1,4 @@
-# Case Study Implementation (Bias Sanctuary Modal)
+# Case Study Implementation (BiasSanctuaryModal)
 
 ## Overview
 The Case Study feature has been successfully implemented as an educational learning tile in the Investing Board Game. When players land on the Case Study tile, they are presented with an interactive learning experience about cognitive biases in investing (powered by the `BiasSanctuaryModal` component).
