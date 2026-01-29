@@ -16,7 +16,7 @@ Use this exact prompt to kick off a run and keep the plan in scope:
 ## Existing Master Plan Reference (do not duplicate)
 There is a broader, long-form master plan already in the repo. Keep this file as the **run-by-run execution plan** and cross‑reference the long plan instead of rewriting it:
 - `docs/DEV_PLAN_MARKETTYCOON_MASTER.md` (core vision, loop, ethics, ring overview). Align slices here with that doc to avoid drift.
-- No other DEV_PLAN-style add-on MDs were found in the repo at last scan; keep this file synced with the master plan above.
+- Repo scan (2026-01-29) found only `docs/DEV_PLAN_MARKETTYCOON_MASTER.md` as the canonical add-on plan; no other DEV_PLAN-style add-on MDs were present, so sync remains between this file and the master plan.
 
 ## Operating Rules (non‑negotiable)
 0) **Mobile-first UI:** Design and implement for **mobile first**, then adapt for tablet/desktop. Do not port desktop patterns to mobile; scale mobile patterns upward instead.
@@ -55,7 +55,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 - `AI_IMPLEMENTATION.md`, `IMPLEMENTATION_SUMMARY.md`, `DEVLOG.md` (project-wide status/context)
 
 ### Repo Map (paths verified)
-_Last reviewed: 2026-01-31 (M0.6 docs alignment refresh)_
+_Last reviewed: 2026-01-29 (M0.2 instrumentation hooks)_
 #### Frontend
 - **Legacy static pages entry:** `/index.html`, `/about.html`, `/faq.html`, `/monthly/`, `/weekly/`, `/superinvestor/`
 - **Vite + Preact app:** `/apps/investing-board-game-v3` (built into `/public/board-game-v3` via `npm run build:board-game-v3`)
@@ -73,6 +73,7 @@ _Last reviewed: 2026-01-31 (M0.6 docs alignment refresh)_
 - **Shop 2.0 windows/discounts:** `src/components/Shop2Modal.tsx` + `src/hooks/useShopVaultPurchase.ts` (event window discount pricing + purchase spend)
 - **Shop 2.0 unlock rules:** `src/hooks/useShopVaultOverview.ts` (set completion gating for the next set)
 - **Animation utilities:** `src/lib/animations.ts`, `src/hooks/useBoardCamera.ts`, `src/hooks/useCameraAnimation.ts`
+- **Instrumentation hooks:** `src/lib/instrumentation.ts` (opt-in debug logging via local storage or env flag)
 
 #### PWA
 - **Service worker:** `/sw.js` (root static site), `/apps/investing-board-game-v3/public/sw.js` (game)
@@ -151,7 +152,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 
 ### M0 — Audit & Baseline
 - **M0.1** ✅ Repo audit (this run)
-- **M0.2** Instrumentation hooks (optional logging, no behavior change)
+- **M0.2** ✅ Instrumentation hooks (optional logging, no behavior change)
 - **M0.3** ✅ Wheel of Fortune daily spin cap + reward consistency
 - **M0.4** ✅ Lazy-load Portfolio charts to prevent app boot errors
 - **M0.5** ✅ Casino + scratchcard MD plan alignment (status snapshot + next-slice checklist)
@@ -245,10 +246,10 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ## Next Slice
 **Recommended next slice:** **M1.1 — Audit ring movement + portal behavior.**
 
-### M1.1 Slice Notes (Audit ring movement + portal behavior)
-- Verify the movement engine matches the land-only portal rules and Bull Market window behavior for Ring 1 → Ring 2.
-- Confirm Ring 2 fall portal drop logic + Chance lift to Ring 3 are consistent across config, movement engine, and UI messaging.
-- Capture any deltas between mock data, movement engine, and docs before changing behavior.
+## M0.2 Slice Notes (Instrumentation hooks)
+- Added a dedicated instrumentation helper that enables opt-in debug logging via local storage or env flags without changing gameplay behavior.
+- Centralized debug logging to route through the instrumentation hook so it can be extended with additional sinks later.
+- Fixed the Tile component prop wiring so tile label overlays no longer reference an undefined variable during render.
 
 ## M4.1 Slice Notes (Tile taxonomy + renderer)
 - Added a shared micro-learning tile taxonomy with categories, labels, and descriptions to keep quiz surfaces consistent.

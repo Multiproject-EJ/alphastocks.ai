@@ -5,48 +5,39 @@
 
 ## Unreleased
 
-**Date:** 2026-01-31  
-**Slice:** M0.6 (docs alignment: ring progression + Case Study rename)  
+**Date:** 2026-01-29  
+**Slice:** M0.2 (instrumentation hooks follow-up)  
 **Summary:**  
-- Refined Case Study naming references in implementation docs to emphasize the Case Study terminology alongside the BiasSanctuaryModal component.  
-- Clarified ring progression notes in the PRD and Ring 3 implementation summary to reflect land-only portal ascents and current Ring 2 → Ring 3 flow.  
-- Marked M0.6 as complete in the master dev plan and advanced the next recommended slice.  
+- Fixed the Tile component to pass through tile label props so label overlays render without reference errors.  
 
 **Files changed:**  
+- apps/investing-board-game-v3/src/components/Tile.tsx  
 - DEV_PLAN.md  
-- apps/investing-board-game-v3/PRD.md  
-- apps/investing-board-game-v3/RING3_IMPLEMENTATION.md  
-- apps/investing-board-game-v3/BIAS_SANCTUARY_IMPLEMENTATION.md  
-- apps/investing-board-game-v3/CHALLENGES_EVENTS_IMPLEMENTATION.md  
 - CHANGELOG_DEV.md  
 
 **SQL migrations:**  
 - (none)  
 
 **How to test:**  
-- (none)  
+- (manual) Load the board and confirm tile label overlays render without a console error about `tileLabel`.  
 
-**Date:** 2026-01-30  
-**Slice:** M0.6 (docs alignment: ring progression + Case Study rename)  
+**Date:** 2026-01-29  
+**Slice:** M0.2 (instrumentation hooks)  
 **Summary:**  
-- Aligned ring progression docs with the current Big Fish Portal → Ring 2 fall/Chance → Wealth Run + roulette flow.  
-- Renamed Bias Sanctuary references to Case Study and removed outdated square-board corner wording.  
-- Refreshed implementation summaries (Ring 3, challenges, PRD) to match current behavior.  
+- Added an opt-in instrumentation helper for debug logging with a dev console sink.  
+- Routed game debug logging through the new instrumentation hook to keep logging centralized.  
 
 **Files changed:**  
+- apps/investing-board-game-v3/src/App.tsx  
+- apps/investing-board-game-v3/src/lib/instrumentation.ts  
 - DEV_PLAN.md  
-- docs/DEV_PLAN_MARKETTYCOON_MASTER.md  
-- apps/investing-board-game-v3/PRD.md  
-- apps/investing-board-game-v3/RING3_IMPLEMENTATION.md  
-- apps/investing-board-game-v3/BIAS_SANCTUARY_IMPLEMENTATION.md  
-- apps/investing-board-game-v3/CHALLENGES_EVENTS_IMPLEMENTATION.md  
 - CHANGELOG_DEV.md  
 
 **SQL migrations:**  
 - (none)  
 
 **How to test:**  
-- (none)  
+- (manual) Set `localStorage.DEBUG_GAME = "true"` and trigger any in-game action (e.g., dice roll); confirm instrumentation logs in the console.  
 
 **Date:** 2026-01-28  
 **Slice:** M8.1 (economy telemetry sinks)  
