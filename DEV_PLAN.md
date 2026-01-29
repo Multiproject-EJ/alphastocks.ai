@@ -156,6 +156,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **M0.3** ✅ Wheel of Fortune daily spin cap + reward consistency
 - **M0.4** ✅ Lazy-load Portfolio charts to prevent app boot errors
 - **M0.5** ✅ Casino + scratchcard MD plan alignment (status snapshot + next-slice checklist)
+- **M0.6** ✅ Docs alignment (ring progression, Wealth Run + roulette, Case Study rename)
 
 ### M1 — 3‑Ring Board Rules (Outer/Middle/Inner)
 - **M1.1** Audit ring movement + portal behavior
