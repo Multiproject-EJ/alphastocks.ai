@@ -55,7 +55,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 - `AI_IMPLEMENTATION.md`, `IMPLEMENTATION_SUMMARY.md`, `DEVLOG.md` (project-wide status/context)
 
 ### Repo Map (paths verified)
-_Last reviewed: 2026-01-29 (M0.2 instrumentation hooks)_
+_Last reviewed: 2026-01-29 (M1.1 ring movement + portal audit)_
 #### Frontend
 - **Legacy static pages entry:** `/index.html`, `/about.html`, `/faq.html`, `/monthly/`, `/weekly/`, `/superinvestor/`
 - **Vite + Preact app:** `/apps/investing-board-game-v3` (built into `/public/board-game-v3` via `npm run build:board-game-v3`)
@@ -159,7 +159,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **M0.6** ✅ Docs alignment (ring progression, Wealth Run + roulette, Case Study rename)
 
 ### M1 — 3‑Ring Board Rules (Outer/Middle/Inner)
-- **M1.1** Audit ring movement + portal behavior
+- **M1.1** ✅ Audit ring movement + portal behavior
 - **M1.2** ✅ Start behavior: land-only ring transitions
 - **M1.3** ✅ Bull Market window → ring 2 quick entry
 - **M1.4** ✅ Middle-ring wildcard outcomes (fraud vs hidden gem)
@@ -244,7 +244,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **M1.1 — Audit ring movement + portal behavior.**
+**Recommended next slice:** **TBD — select the next slice from `docs/DEV_PLAN_MARKETTYCOON_MASTER.md` now that M1.1 is complete.**
 
 ## M0.2 Slice Notes (Instrumentation hooks)
 - Added a dedicated instrumentation helper that enables opt-in debug logging via local storage or env flags without changing gameplay behavior.
@@ -428,3 +428,8 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ## M1.4 Slice Notes (Middle-ring wildcard outcomes)
 - Added a Ring 2 wildcard outcome split so "Hidden Gem" (20%) vs "Fraud Alert" (80%) fires on the middle ring.
 - Kept the existing wildcard pool for Rings 1 and 3.
+
+## M1.1 Slice Notes (Audit ring movement + portal behavior)
+- Verified portal rules in `movementEngine` and `App.tsx` match the master plan: Ring 1 ascends only on exact landings, and Ring 2/3 start tiles remain stable anchors on both pass and land.
+- Confirmed portal behavior is driven by `PORTAL_CONFIG` with optional overrides for event-driven exceptions (e.g., Bull Market window), keeping transitions deterministic and configurable.
+- Documented the ring/portal flow so future portal adjustments can stay repo-first and avoid movement engine rewrites.
