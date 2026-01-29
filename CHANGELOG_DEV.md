@@ -6,6 +6,23 @@
 ## Unreleased
 
 **Date:** 2026-01-29  
+**Slice:** M1.1 (audit ring movement + portal behavior)  
+**Summary:**  
+- Audited ring movement and portal behavior against the master plan, confirming land-only ascension on Ring 1 and stable anchors for Ring 2/3 start tiles.  
+- Verified portal transitions route through `PORTAL_CONFIG` and movement overrides for event windows, keeping portal behavior deterministic and configurable.  
+- Captured findings in the dev plan to guide future portal tweaks without engine rewrites.  
+
+**Files changed:**  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (none — documentation-only slice)  
+
+**Date:** 2026-01-29  
 **Slice:** M0.2 (instrumentation hooks follow-up)  
 **Summary:**  
 - Fixed the Tile component to pass through tile label props so label overlays render without reference errors.  
