@@ -457,6 +457,9 @@ function App() {
     }
   }, [notificationsEnabled])
 
+  const [developerModeEnabled, setDeveloperModeEnabled] = useState(false)
+  const [developerPanelOpen, setDeveloperPanelOpen] = useState(false)
+
   useEffect(() => {
     const storedValue = localStorage.getItem('developerModeEnabled')
     if (storedValue !== null) {
@@ -513,8 +516,6 @@ function App() {
   const [isLoading, setIsLoading] = useState(true)
   const [isMobile, setIsMobile] = useState(false)
   const [dynamicRadius, setDynamicRadius] = useState<number | undefined>(undefined)
-  const [developerModeEnabled, setDeveloperModeEnabled] = useState(false)
-  const [developerPanelOpen, setDeveloperPanelOpen] = useState(false)
 
   const resetDailyWheelSpins = useCallback((dateKey: string) => {
     const newLimit = getRandomDailyWheelSpinLimit()
@@ -3830,7 +3831,7 @@ function App() {
     }, 500)
   }
 
-  const handleBiasQuizComplete = (correct: number, total: number) => {
+  function handleBiasQuizComplete(correct: number, total: number) {
     const percentage = (correct / total) * 100
     const isPerfect = correct === total
     const { nextStreak: nextQuizStreak, todayKey: quizDateKey } = getDailyStreakUpdate(
@@ -3870,7 +3871,7 @@ function App() {
     triggerCelebrationFromLastTile(['⭐', '✨'])
   }
 
-  const handleCasinoWin = (amount: number) => {
+  function handleCasinoWin(amount: number) {
     // Track challenge progress for scratchcard win
     updateChallengeProgress('win_scratchcard')
     
