@@ -73,32 +73,6 @@ export function UIModeProvider({
     modeData: {},
     canTransition: true,
   })
-
-  // Save last mode to localStorage for persistence
-  useEffect(() => {
-    try {
-      localStorage.setItem('lastUIMode', state.mode)
-    } catch (e) {
-      // Ignore localStorage errors
-    }
-  }, [state.mode])
-
-  // Restore last mode on mount (only once, safely)
-  useEffect(() => {
-    try {
-      const lastMode = localStorage.getItem('lastUIMode')
-      // Validate that it's a valid UIMode
-      const validModes: UIMode[] = ['board', 'stockExchangeBuilder', 'gallery', 'portfolio', 'hub', 'shop', 'casino', 'biasSanctuary', 'challenges', 'leaderboard', 'settings']
-      if (lastMode && validModes.includes(lastMode as UIMode) && lastMode !== initialMode) {
-        // Schedule transition for next tick to ensure transitionTo is defined
-        setTimeout(() => {
-          transitionTo(lastMode as UIMode).catch(console.error)
-        }, 0)
-      }
-    } catch (e) {
-      // Ignore localStorage errors
-    }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
   
   const transitionTo = useCallback(async (newMode: UIMode, data?: Record<string, any>): Promise<boolean> => {
     console.log(`[UIMode] Attempting transition: ${state.mode} → ${newMode}`);
@@ -157,6 +131,32 @@ export function UIModeProvider({
       return false
     }
   }, [state.mode, state.canTransition, state.phase])
+
+  // Save last mode to localStorage for persistence
+  useEffect(() => {
+    try {
+      localStorage.setItem('lastUIMode', state.mode)
+    } catch (e) {
+      // Ignore localStorage errors
+    }
+  }, [state.mode])
+
+  // Restore last mode on mount (only once, safely)
+  useEffect(() => {
+    try {
+      const lastMode = localStorage.getItem('lastUIMode')
+      // Validate that it's a valid UIMode
+      const validModes: UIMode[] = ['board', 'stockExchangeBuilder', 'gallery', 'portfolio', 'hub', 'shop', 'casino', 'biasSanctuary', 'challenges', 'leaderboard', 'settings']
+      if (lastMode && validModes.includes(lastMode as UIMode) && lastMode !== initialMode) {
+        // Schedule transition for next tick to ensure transitionTo is defined
+        setTimeout(() => {
+          transitionTo(lastMode as UIMode).catch(console.error)
+        }, 0)
+      }
+    } catch (e) {
+      // Ignore localStorage errors
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
   
   const setPhase = useCallback((phase: GamePhase) => {
     setState(prev => ({
