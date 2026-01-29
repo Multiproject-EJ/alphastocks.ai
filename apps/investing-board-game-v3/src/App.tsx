@@ -10,6 +10,7 @@ import { StockModal } from '@/components/StockModal'
 import { EventModal } from '@/components/EventModal'
 import { ThriftyPathModal } from '@/components/ThriftyPathModal'
 import { WildcardEventModal } from '@/components/WildcardEventModal'
+import { ChanceCardModal } from '@/components/ChanceCardModal'
 import { ProToolsOverlay } from '@/components/ProToolsOverlay'
 import { BiasSanctuaryModal } from '@/components/BiasSanctuaryModal'
 import { CenterCarousel } from '@/components/CenterCarousel'
@@ -34,7 +35,7 @@ import { MysteryCard } from '@/components/MysteryCard'
 import { PortalAnimation } from '@/components/PortalAnimation'
 import { PortalTeleportAnimation } from '@/components/PortalTeleportAnimation'
 import { MoneyCelebration } from '@/components/MoneyCelebration'
-import { BlackSwanAnimation } from '@/components/BlackSwanAnimation'
+import { Card } from '@/components/ui/card'
 import { QuickCelebration } from '@/components/QuickCelebration'
 import { WheelOfFortuneModal } from '@/components/WheelOfFortuneModal'
 import { VaultHeistModal } from '@/components/VaultHeistModal'
@@ -91,6 +92,15 @@ const DAILY_WHEEL_SPIN_MAX = 5
 const getTodayKey = () => new Date().toLocaleDateString('en-CA')
 const getRandomDailyWheelSpinLimit = () =>
   Math.floor(Math.random() * (DAILY_WHEEL_SPIN_MAX - DAILY_WHEEL_SPIN_MIN + 1)) + DAILY_WHEEL_SPIN_MIN
+const CHANCE_JACKPOT_ODDS = 0.2
+
+const rollRouletteDice = () => {
+  const dice = Array.from({ length: 4 }, () => Math.floor(Math.random() * 6) + 1)
+  return {
+    dice,
+    total: dice.reduce((sum, value) => sum + value, 0),
+  }
+}
 
 import { GameState, Stock, BiasCaseStudy, WildcardEvent, PortalTransition, RingNumber, Tile as TileType } from '@/lib/types'
 import { RealMoneyRollsPack } from '@/components/OutOfRollsModal'
@@ -106,6 +116,7 @@ import {
   RING_3_CONFIG,
   PORTAL_CONFIG,
   getEliteStocksForRing3,
+  ROULETTE_REWARDS,
 } from '@/lib/mockData'
 import { getRandomWildcardEvent, CASH_PERCENTAGE_PENALTY } from '@/lib/wildcardEvents'
 import { SHOP_ITEMS } from '@/lib/shopItems'
@@ -209,9 +220,9 @@ const BASE_NET_WORTH = 100000
 // Ring 3 reveal animation timing (in milliseconds)
 // Animation duration per tile: 800ms
 // Stagger delay between tiles: 100ms
-// Total tiles in Ring 3: 9
-// Total animation time: 800ms + (9 tiles × 100ms stagger) = 1700ms, rounded to 1600ms for safety
-const RING_3_REVEAL_DURATION = 1600
+// Total tiles in Ring 3: 7
+// Total animation time: 800ms + (7 tiles × 100ms stagger) = 1500ms
+const RING_3_REVEAL_DURATION = 1500
 
 const getTileTitleForRing = (ring: RingNumber | 0, tileId: number) => {
   if (ring === 0) {
@@ -381,10 +392,8 @@ function App() {
     amount: number
     position: { x: number; y: number }
   } | null>(null)
-  const [blackSwanAnimation, setBlackSwanAnimation] = useState<{
-    active: boolean
-    consolationReward: { type: 'stars' | 'coins'; amount: number }
-  } | null>(null)
+  const [rouletteModeActive, setRouletteModeActive] = useState(false)
+  const [rouletteSpinActive, setRouletteSpinActive] = useState(false)
 
   // Quick Reward celebration state
   const [quickCelebration, setQuickCelebration] = useState<{
@@ -449,6 +458,31 @@ function App() {
     }
   }, [notificationsEnabled])
 
+  useEffect(() => {
+    const storedValue = localStorage.getItem('developerModeEnabled')
+    if (storedValue !== null) {
+      setDeveloperModeEnabled(storedValue === 'true')
+    }
+
+    const handleDeveloperModeChange = (event: Event) => {
+      if (event instanceof CustomEvent && typeof event.detail?.enabled === 'boolean') {
+        setDeveloperModeEnabled(event.detail.enabled)
+      } else {
+        const fallback = localStorage.getItem('developerModeEnabled')
+        setDeveloperModeEnabled(fallback === 'true')
+      }
+    }
+
+    window.addEventListener('developer-mode-changed', handleDeveloperModeChange)
+    return () => window.removeEventListener('developer-mode-changed', handleDeveloperModeChange)
+  }, [])
+
+  useEffect(() => {
+    if (!developerModeEnabled) {
+      setDeveloperPanelOpen(false)
+    }
+  }, [developerModeEnabled])
+
   // Keep state for data that modals need (but not open/closed state)
   const [currentStock, setCurrentStock] = useState<Stock | null>(null)
   const [showCentralStock, setShowCentralStock] = useState(false)
@@ -480,6 +514,8 @@ function App() {
   const [isLoading, setIsLoading] = useState(true)
   const [isMobile, setIsMobile] = useState(false)
   const [dynamicRadius, setDynamicRadius] = useState<number | undefined>(undefined)
+  const [developerModeEnabled, setDeveloperModeEnabled] = useState(false)
+  const [developerPanelOpen, setDeveloperPanelOpen] = useState(false)
 
   const resetDailyWheelSpins = useCallback((dateKey: string) => {
     const newLimit = getRandomDailyWheelSpinLimit()
@@ -739,6 +775,33 @@ function App() {
     (tile: TileType, ring: RingNumber) => {
       if (tile.type === 'quick-reward') return undefined
 
+      if (rouletteModeActive) {
+        const reward = ROULETTE_REWARDS[(tile.id + ring * 2) % ROULETTE_REWARDS.length]
+        return {
+          label: reward.type === 'mystery' ? 'Mystery Box' : reward.label,
+          tone: 'premium',
+          icon: reward.icon,
+          sublabel: 'Roulette',
+        }
+      }
+
+      if (tile.specialAction === 'ring-fall') {
+        return {
+          label: 'Drop',
+          tone: 'warning',
+          icon: '⬇️',
+          sublabel: 'Fall',
+        }
+      }
+
+      if (tile.specialAction === 'chance') {
+        return {
+          label: 'Chance',
+          tone: 'accent',
+          icon: '🎴',
+        }
+      }
+
       if (ring === 3 && tile.ring3Reward && tile.isWinTile) {
         return {
           label: `$${compactCurrencyFormatter.format(tile.ring3Reward)}`,
@@ -776,7 +839,7 @@ function App() {
 
       return undefined
     },
-    [compactCurrencyFormatter]
+    [compactCurrencyFormatter, rouletteModeActive]
   )
 
   // Coins and Thrift Path hooks
@@ -1071,7 +1134,6 @@ function App() {
     getActiveMultipliers,
     hasGuaranteedCasinoWin,
     getRollsBonus,
-    getCustomEffects,
   } = useEvents({ playSound })
 
   const shopWindow = useMemo(() => {
@@ -1233,6 +1295,9 @@ function App() {
 
   // Ring Focus System Helper Functions
   const getRingOpacity = useCallback((ringNumber: RingNumber): number => {
+    if (rouletteModeActive) {
+      return 1
+    }
     if (ringNumber === gameState.currentRing) {
       return 1 // Active ring: full opacity
     }
@@ -1240,14 +1305,17 @@ function App() {
       return 0.12 // Lower rings: very muted (been there)
     }
     return 0.08 // Higher rings: almost hidden (not yet unlocked)
-  }, [gameState.currentRing])
+  }, [gameState.currentRing, rouletteModeActive])
 
   const getRingFilter = useCallback((ringNumber: RingNumber): string => {
+    if (rouletteModeActive) {
+      return 'none'
+    }
     if (ringNumber === gameState.currentRing) {
       return 'none' // Active: no filter
     }
     return 'grayscale(0.85) brightness(0.45) saturate(0.65)' // Inactive: heavily dimmed
-  }, [gameState.currentRing])
+  }, [gameState.currentRing, rouletteModeActive])
 
   const isTeleportingTile = useCallback((tileId: number): boolean => {
     if (!teleportFlash) return false
@@ -1255,8 +1323,11 @@ function App() {
   }, [teleportFlash])
 
   const isRingInteractive = useCallback((ringNumber: RingNumber): boolean => {
+    if (rouletteModeActive) {
+      return false
+    }
     return ringNumber === gameState.currentRing
-  }, [gameState.currentRing])
+  }, [gameState.currentRing, rouletteModeActive])
 
   const handleRingTransition = useCallback((fromRing: RingNumber, toRing: RingNumber) => {
     // Fade out the old ring
@@ -2250,10 +2321,15 @@ function App() {
       return
     }
 
+    if (rouletteModeActive) {
+      handleRouletteRoll()
+      return
+    }
+
     // Check Ring 3 roll limit
     if (gameState.currentRing === 3 && ring3RollUsed) {
       toast.error('No more rolls!', {
-        description: 'You only get 1 roll on Ring 3. Land on a tile or face the Black Swan!',
+        description: 'You only get 1 roll in the Wealth Run. Make it count.',
       })
       return
     }
@@ -2337,26 +2413,12 @@ function App() {
     
     const totalMovement = diceResult.total
     
-    const customEffects = getCustomEffects()
-    const isBullMarketWindow = customEffects.includes('bull_market_window')
-    const portalOverrides = isBullMarketWindow
-      ? {
-          1: {
-            onPass: {
-              action: 'ascend',
-              targetRing: 2,
-              targetTile: getPortalConfigForRing(2).startTileId,
-            },
-          },
-        }
-      : undefined
-
     // Use new movement engine to calculate cross-ring movement
     const movementResult = calculateMovement(
       gameState.currentRing,
       gameState.position,
       totalMovement,
-      { portalOverrides }
+      undefined
     )
     
     // Calculate base rewards (will be multiplied)
@@ -2374,7 +2436,6 @@ function App() {
     // Check if player will pass Start (position 0) - only on Ring 1
     const startPosition = gameState.position
     const ringConfig = RING_CONFIG[gameState.currentRing]
-    const portalConfig = getPortalConfigForRing(gameState.currentRing)
     const finalPosition = (startPosition + totalMovement) % ringConfig.tiles
     const willPassStart = gameState.currentRing === 1 && startPosition + totalMovement >= ringConfig.tiles
     const willLandOnStart = finalPosition === 0
@@ -2625,7 +2686,6 @@ function App() {
     phase === 'landed' && BOARD_TILES[gameState.position]?.title === 'Court of Capital'
   const isCategoryTileActive = phase === 'landed' && BOARD_TILES[gameState.position]?.type === 'category'
   const ring1PortalTileId = getPortalConfigForRing(1).startTileId
-  const ring2PortalTileId = getPortalConfigForRing(2).startTileId
 
   // Compute which categories the player owns stocks in
   const ownedCategories = useMemo(() => {
@@ -2673,6 +2733,59 @@ function App() {
     if (lastLandedTileId === null) return
     triggerTileCelebration(lastLandedTileId, emojis)
   }, [lastLandedTileId, triggerTileCelebration])
+
+  const handleRouletteRoll = useCallback(() => {
+    if (phase !== 'idle') {
+      toast.info('Finish your current action first', {
+        description: 'Close any open cards or modals before rolling again.',
+      })
+      return
+    }
+
+    setPhase('rolling')
+    playSound('dice-roll')
+
+    const rouletteRoll = rollRouletteDice()
+    const total = rouletteRoll.total
+
+    setDice1(rouletteRoll.dice[0])
+    setDice2(rouletteRoll.dice[1])
+    setLastRoll(total)
+
+    setRouletteSpinActive(true)
+
+    const rewardIndex = total % ROULETTE_REWARDS.length
+    const rawReward = ROULETTE_REWARDS[rewardIndex]
+    const reward =
+      rawReward.type === 'mystery'
+        ? ROULETTE_REWARDS.filter(entry => entry.type !== 'mystery')[Math.floor(Math.random() * (ROULETTE_REWARDS.length - 1))]
+        : rawReward
+
+    setTimeout(() => {
+      setRouletteSpinActive(false)
+      setPhase('idle')
+
+      if (reward.type === 'cash') {
+        setGameState(prev => ({
+          ...prev,
+          cash: prev.cash + reward.amount,
+          netWorth: prev.netWorth + reward.amount,
+        }))
+      } else if (reward.type === 'stars') {
+        setGameState(prev => ({
+          ...prev,
+          stars: prev.stars + reward.amount,
+        }))
+      } else if (reward.type === 'coins') {
+        addCoins(reward.amount, 'Roulette Mega Spin')
+      }
+
+      toast.success('🎯 Roulette Jackpot!', {
+        description: `${reward.icon} ${reward.label}`,
+      })
+      triggerCelebrationFromLastTile([reward.icon, '✨'])
+    }, 1400)
+  }, [phase, playSound, addCoins, triggerCelebrationFromLastTile])
 
   const handleEventCurrencyEarned = useCallback((source: string) => {
     if (!currentActiveEvent || !activeEventCurrency) return
@@ -2961,11 +3074,80 @@ function App() {
 
     playSound('tile-land')
 
-    const tile = BOARD_TILES[position]
+    const tile =
+      gameState.currentRing === 2
+        ? RING_2_TILES.find((ringTile) => ringTile.id === position)
+        : BOARD_TILES[position]
+    if (!tile) {
+      debugGame('handleTileLanding: tile not found', { position, ring: gameState.currentRing })
+      return
+    }
     debugGame('handleTileLanding:', { position, tile, passedStart })
     setLastLandedTileId(position)
     setIsStockSpinning(false)
     if (stockSpinTimeoutRef.current) clearTimeout(stockSpinTimeoutRef.current)
+
+    // Ring 2 fall portals
+    if (gameState.currentRing === 2 && tile.specialAction === 'ring-fall') {
+      toast.info('⬇️ Fall Portal', {
+        description: 'You dropped back to Street Level.',
+      })
+      triggerPortalAnimation({
+        direction: 'down',
+        fromRing: 2,
+        toRing: 1,
+        fromTile: position,
+        toTile: 0,
+        triggeredBy: 'land',
+      })
+      setPhase('idle')
+      return
+    }
+
+    // Ring 2 chance tiles
+    if (gameState.currentRing === 2 && tile.specialAction === 'chance') {
+      showOverlay({
+        id: 'chanceCard',
+        component: ChanceCardModal,
+        props: {
+          onDraw: () => {
+            const isJackpot = Math.random() < CHANCE_JACKPOT_ODDS
+            if (isJackpot) {
+              toast.success('🎴 Jackpot Card!', {
+                description: 'You shot up to the Wealth Run.',
+              })
+              triggerPortalAnimation({
+                direction: 'up',
+                fromRing: 2,
+                toRing: 3,
+                fromTile: position,
+                toTile: 300,
+                triggeredBy: 'land',
+              })
+            } else {
+              const consolationStars = 500
+              setGameState(prev => ({
+                ...prev,
+                stars: prev.stars + consolationStars,
+              }))
+              toast.info('🎴 Chance Card', {
+                description: `No jackpot this time. +${consolationStars} ⭐`,
+              })
+              triggerCelebrationFromLastTile(['⭐', '🎴'])
+            }
+            closeCurrent()
+            setPhase('idle')
+          },
+        },
+        priority: 'normal',
+        onClose: () => {
+          setTimeout(() => {
+            setPhase('idle')
+          }, 200)
+        },
+      })
+      return
+    }
 
     // Quick reward tiles - auto-collect, no popup
     if (tile.type === 'quick-reward') {
@@ -3238,58 +3420,53 @@ function App() {
       }
     } else if (tile.type === 'corner') {
       debugGame('Corner tile:', tile.title)
-      if (tile.title === 'Start / ThriftyPath') {
-        // Check if it's Jackpot Week and player landed on Start
+      if (tile.title === 'Big Fish Portal') {
         if (position === 0) {
           const isJackpotWeekNow = isJackpotWeek()
           const currentJackpot = gameState.jackpot ?? 0
-          
+
           if (isJackpotWeekNow && currentJackpot > 0) {
-            // Award the jackpot!
             const jackpotWin = currentJackpot * rewardMultiplier
             setGameState(prev => ({
               ...prev,
               cash: prev.cash + jackpotWin,
               netWorth: prev.netWorth + jackpotWin,
-              jackpot: 0, // Reset jackpot
+              jackpot: 0,
             }))
-            
+
             playSound('level-up')
             hapticSuccess()
-            triggerTileCelebration(position, ['🎰', '💰', '🎉'])
+            triggerTileCelebration(position, ['🐟', '💰', '🎉'])
             setShowCelebration(true)
-            
-            // Trigger inner circle celebration
+
             setIsJackpotCelebrating(true)
-            
-            // All inner tiles rainbow for 5 seconds
-            const rainbowColors = ['oklch(0.60 0.20 0)', 'oklch(0.65 0.22 60)', 'oklch(0.70 0.20 120)', 
+
+            const rainbowColors = ['oklch(0.60 0.20 0)', 'oklch(0.65 0.22 60)', 'oklch(0.70 0.20 120)',
                                    'oklch(0.65 0.22 180)', 'oklch(0.60 0.25 240)', 'oklch(0.70 0.20 300)']
-            
+
             INNER_TRACK_TILES.forEach((tile, index) => {
               setInnerTileColors(prev => new Map(prev).set(tile.id, rainbowColors[index % rainbowColors.length]))
             })
-            
+
             setTimeout(() => {
               setIsJackpotCelebrating(false)
-              setInnerTileColors(new Map()) // Reset all colors
+              setInnerTileColors(new Map())
             }, 5000)
-            
+
             toast.success(`🎰 JACKPOT WIN!`, {
-              description: `You landed on Start during Jackpot Week! +$${jackpotWin.toLocaleString()}${rewardMultiplier > 1 ? ` (${rewardMultiplier}x)` : ''}`,
+              description: `You landed on Big Fish Portal during Jackpot Week! +$${jackpotWin.toLocaleString()}${rewardMultiplier > 1 ? ` (${rewardMultiplier}x)` : ''}`,
             })
           } else if (isJackpotWeekNow) {
             toast.info('🎰 Jackpot Week!', {
-              description: 'Land on Start to win the jackpot! Keep passing Start to build it up.',
+              description: 'Land on Big Fish Portal to win the jackpot! Keep passing to build it up.',
             })
           } else {
-            toast.info('You\'re on Start!', {
-              description: 'Great place to plan your next move',
+            toast.info('🐟 Big Fish Portal', {
+              description: 'Land here to jump to Ring 2.',
             })
           }
         }
-        // Immediately transition back to idle (no modal to show)
-        debugGame('Phase transition: landed -> idle (Start corner)')
+        debugGame('Phase transition: landed -> idle (Big Fish Portal)')
         setPhase('idle')
       } else if (tile.title === 'Casino') {
         toast.info('🎰 Welcome to the Casino!', {
@@ -3354,49 +3531,8 @@ function App() {
     // Mark roll as used (already done in handleRoll, but ensure it's set)
     setRing3RollUsed(true)
 
-    // Check if it's the Black Swan danger tile
-    if (tile.isBlackSwan) {
-      // Random consolation: stars or coins
-      const rewardType = Math.random() > 0.5 ? 'stars' : 'coins'
-      const reward = { type: rewardType as 'stars' | 'coins', amount: 50 }
-
-      // Get Ring 1 Start position for destination
-      const ring1StartPosition = { x: window.innerWidth / 2, y: window.innerHeight / 2 }
-
-      setBlackSwanAnimation({
-        active: true,
-        consolationReward: reward,
-      })
-
-      // Give consolation reward
-      setGameState(prev => ({
-        ...prev,
-        [rewardType]: prev[rewardType] + 50,
-      }))
-
-      playSound('error')
-
-      // After animation, move to Ring 1
-      setTimeout(() => {
-        setGameState(prev => ({
-          ...prev,
-          currentRing: 1,
-          position: 0, // Start of Ring 1
-        }))
-        setRing3RollUsed(false) // Reset for next time
-        setBlackSwanAnimation(null)
-
-        toast.info('🦢 Black Swan Event', {
-          description: `Consolation: +${reward.amount} ${reward.type === 'stars' ? '⭐' : '🪙'}`,
-          duration: 3000,
-        })
-      }, 2500)
-
-      return
-    }
-
     // It's a winning tile!
-    const winAmount = RING_3_CONFIG.rewardPerWinTile
+    const winAmount = tile.ring3Reward ?? RING_3_CONFIG.rewardPerWinTile
 
     // Trigger money celebration
     setMoneyCelebration({
@@ -3418,14 +3554,72 @@ function App() {
 
     // Show toast
     toast.success(`💰 +$${winAmount.toLocaleString()}!`, {
-      description: 'Ring 3 Victory Reward!',
+      description: 'Wealth Run jackpot claimed!',
       duration: 3000,
     })
 
     setTimeout(() => {
       setMoneyCelebration(null)
     }, 1500)
+
+    setRouletteModeActive(true)
+    toast.success('🎯 Triple Ring Roulette', {
+      description: 'All rings are live. Spin the mega roulette.',
+    })
   }
+
+  const jumpToTile = useCallback((ring: RingNumber, tileId: number) => {
+    setGameState(prev => ({
+      ...prev,
+      currentRing: ring,
+      position: tileId,
+    }))
+    setPhase('idle')
+    setRing3RollUsed(false)
+  }, [])
+
+  const triggerBiasQuiz = useCallback(() => {
+    const caseStudy = getRandomBiasCaseStudy()
+    setCurrentCaseStudy(caseStudy)
+    showOverlay({
+      id: 'biasSanctuary',
+      component: BiasSanctuaryModal,
+      props: {
+        caseStudy,
+        onComplete: handleBiasQuizComplete,
+      },
+      priority: 'normal',
+      onClose: () => {
+        setCurrentCaseStudy(null)
+        setTimeout(() => {
+          setPhase('idle')
+        }, 300)
+      },
+    })
+  }, [showOverlay, handleBiasQuizComplete])
+
+  const triggerChanceJackpot = useCallback(() => {
+    triggerPortalAnimation({
+      direction: 'up',
+      fromRing: 2,
+      toRing: 3,
+      fromTile: 209,
+      toTile: 300,
+      triggeredBy: 'land',
+    })
+    toast.success('🎴 Forced Chance Jackpot', {
+      description: 'Jumped to the Wealth Run.',
+    })
+  }, [triggerPortalAnimation])
+
+  const triggerWealthRunReward = useCallback(() => {
+    setGameState(prev => ({
+      ...prev,
+      currentRing: 3,
+      position: 300,
+    }))
+    handleRing3Landing(300, { x: window.innerWidth / 2, y: window.innerHeight / 2 })
+  }, [handleRing3Landing])
 
   const handleBuyStock = (sharesToBuy: number) => {
     if (!currentStock) return
@@ -3940,7 +4134,7 @@ function App() {
       ref={containerRef} 
       className={`relative isolate game-board ${isPhone ? 'h-full w-full p-0' : 'min-h-screen bg-background p-8 overflow-hidden'} ${
         ring3CelebrationActive ? 'ring3-celebration-screen' : ''
-      }`}
+      } ${rouletteModeActive ? 'roulette-mode-active' : ''} ${rouletteSpinActive ? 'roulette-spin-active' : ''}`}
     >
       <LoadingScreen show={isLoading} />
         
@@ -3979,7 +4173,60 @@ function App() {
               economyWindowEndsAt={activeEconomyWindow?.endAt ?? null}
               economyWindowStarsMultiplier={economyWindowMultipliers.starsMultiplier}
               economyWindowXpMultiplier={economyWindowMultipliers.xpMultiplier}
+              rollLabel={rouletteModeActive ? 'SPIN ROULETTE' : 'ROLL'}
+              rollIcon={rouletteModeActive ? <span className="text-lg">🎲🎲🎲</span> : undefined}
+              rollPulse={rouletteModeActive}
             />
+          </div>
+        )}
+
+        {developerModeEnabled && !isPhone && (
+          <div className="fixed bottom-40 right-8 z-50 flex flex-col items-end gap-3 pointer-events-auto">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setDeveloperPanelOpen((prev) => !prev)}
+              className="bg-slate-900/70 text-slate-100 border-slate-500/50"
+            >
+              {developerPanelOpen ? 'Hide Dev Panel' : 'Show Dev Panel'}
+            </Button>
+            {developerPanelOpen && (
+              <Card className="w-64 border border-slate-500/40 bg-slate-950/90 p-3 text-xs text-slate-100 shadow-xl">
+                <div className="mb-2 font-semibold uppercase tracking-[0.2em] text-slate-300">
+                  Developer Tools
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Button size="sm" onClick={() => jumpToTile(1, 0)}>
+                    Jump to Big Fish Portal
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => jumpToTile(2, 209)}>
+                    Jump to Chance Tile
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={triggerChanceJackpot}>
+                    Force Chance Jackpot
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => jumpToTile(2, 200)}>
+                    Jump to Fall Portal
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={triggerWealthRunReward}>
+                    Trigger Wealth Run Reward
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={triggerBiasQuiz}>
+                    Open Bias Quiz
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => {
+                      setRouletteModeActive(false)
+                      setRouletteSpinActive(false)
+                    }}
+                  >
+                    Reset Roulette Mode
+                  </Button>
+                </div>
+              </Card>
+            )}
           </div>
         )}
         
@@ -4436,7 +4683,6 @@ function App() {
                               ringNumber={2}
                               tileLabel={getTileLabelConfig(tile, 2)}
                               isTeleporting={isTeleportingTile(tile.id)}
-                              isPortal={tile.id === ring2PortalTileId}
                               onClick={() => {
                                 if (phase === 'idle' && gameState.currentRing === 2) {
                                   handleTileLanding(tile.id)
@@ -4450,7 +4696,7 @@ function App() {
 
                       {/* Ring 3 - Elite Circle (7 tiles) */}
                       <div 
-                        className={`transition-all duration-500 ${
+                        className={`ring-rotation-layer transition-all duration-500 ${
                           revealingRing === 3 ? 'ring-revealing' : ''
                         } ${fadingRing === 3 ? 'ring-fading' : ''}`}
                         style={{
@@ -4907,17 +5153,6 @@ function App() {
           amount={moneyCelebration.amount}
           position={moneyCelebration.position}
           onComplete={() => setMoneyCelebration(null)}
-        />
-      )}
-
-      {/* Black Swan Animation for Ring 3 danger tile */}
-      {blackSwanAnimation && (
-        <BlackSwanAnimation
-          isActive={blackSwanAnimation.active}
-          tilePosition={{ x: window.innerWidth / 2, y: window.innerHeight / 2 }}
-          destinationPosition={{ x: window.innerWidth / 2, y: window.innerHeight / 2 }}
-          consolationReward={blackSwanAnimation.consolationReward}
-          onComplete={() => setBlackSwanAnimation(null)}
         />
       )}
 

@@ -51,6 +51,14 @@ const TILE_IMAGES: Record<string, { src: string; alt: string }> = {
     src: 'Starttitle.webp',
     alt: 'Start / ThriftyPath - Begin your investment journey',
   },
+  'Big Fish Portal': {
+    src: 'Starttitle.webp',
+    alt: 'Big Fish Portal - Jump to Ring 2',
+  },
+  'Chance': {
+    src: 'Chance.webp',
+    alt: 'Chance card - Draw for a jackpot',
+  },
   'Wildcard': {
     src: 'Wildcard.webp',
     alt: 'Wildcard - A surprise event awaits',
@@ -102,6 +110,9 @@ const TileComponent = ({ tile, isActive, isHopping, isLanded, onClick, side, has
 
   // Get tile type-specific gradient overlay
   const getTileGradient = () => {
+    if (tile.specialStyle === 'fall-portal') {
+      return ''
+    }
     if (ringNumber === 2 || ringNumber === 3) {
       switch (tile.type) {
         case 'category':
@@ -169,16 +180,21 @@ const TileComponent = ({ tile, isActive, isHopping, isLanded, onClick, side, has
   // For circular layout, we use a simpler border system
   // Category tiles get their category color, others get default/accent
   const borderStyles = useMemo(() => {
-    const borderColor = isPortal
-      ? 'oklch(0.62 0.28 300)'
-      : isActive
-      ? 'oklch(0.75 0.15 85)'
-      : (tile.colorBorder || 'oklch(0.30 0.02 250)')
+    const portalBorder =
+      isPortal && tile.portalStyle === 'blue'
+        ? 'oklch(0.72 0.2 225)'
+        : isPortal
+        ? 'oklch(0.62 0.28 300)'
+        : null
+    const borderColor = portalBorder
+      ?? (isActive
+        ? 'oklch(0.75 0.15 85)'
+        : (tile.colorBorder || 'oklch(0.30 0.02 250)'))
 
     return {
       borderColor,
     }
-  }, [isActive, tile.colorBorder, isPortal]);
+  }, [isActive, tile.colorBorder, isPortal, tile.portalStyle]);
 
   return (
     <motion.div
@@ -190,7 +206,9 @@ const TileComponent = ({ tile, isActive, isHopping, isLanded, onClick, side, has
           ? 'shadow-[0_0_20px_oklch(0.75_0.15_85_/_0.5)]'
           : 'hover:bg-card/70',
         getRingClasses(),
-        isPortal ? 'portal-tile-magic' : ''
+        tile.specialStyle === 'fall-portal' ? 'tile-fall-portal' : '',
+        isPortal && tile.portalStyle === 'blue' ? 'portal-tile-blue' : '',
+        isPortal && tile.portalStyle !== 'blue' ? 'portal-tile-magic' : ''
       )}
       style={{
         ...borderStyles,
@@ -219,12 +237,14 @@ const TileComponent = ({ tile, isActive, isHopping, isLanded, onClick, side, has
       }}
     >
       {/* Colorful gradient overlay based on tile type */}
-      <div 
-        className={`absolute inset-0 bg-gradient-to-br ${getTileGradient()} opacity-50 pointer-events-none`}
-        style={{
-          clipPath: 'polygon(0% 0%, 100% 0%, 86% 100%, 14% 100%)',
-        }}
-      />
+      {getTileGradient() && (
+        <div 
+          className={`absolute inset-0 bg-gradient-to-br ${getTileGradient()} opacity-50 pointer-events-none`}
+          style={{
+            clipPath: 'polygon(0% 0%, 100% 0%, 86% 100%, 14% 100%)',
+          }}
+        />
+      )}
 
       {isTeleporting && (
         <div
