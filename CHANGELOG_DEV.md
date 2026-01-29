@@ -5,6 +5,27 @@
 
 ## Unreleased
 
+**Date:** 2026-01-31  
+**Slice:** M0.6 (docs alignment: ring progression + Case Study rename)  
+**Summary:**  
+- Refined Case Study naming references in implementation docs to emphasize the Case Study terminology alongside the BiasSanctuaryModal component.  
+- Clarified ring progression notes in the PRD and Ring 3 implementation summary to reflect land-only portal ascents and current Ring 2 → Ring 3 flow.  
+- Marked M0.6 as complete in the master dev plan and advanced the next recommended slice.  
+
+**Files changed:**  
+- DEV_PLAN.md  
+- apps/investing-board-game-v3/PRD.md  
+- apps/investing-board-game-v3/RING3_IMPLEMENTATION.md  
+- apps/investing-board-game-v3/BIAS_SANCTUARY_IMPLEMENTATION.md  
+- apps/investing-board-game-v3/CHALLENGES_EVENTS_IMPLEMENTATION.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (none)  
+
 **Date:** 2026-01-30  
 **Slice:** M0.6 (docs alignment: ring progression + Case Study rename)  
 **Summary:**  

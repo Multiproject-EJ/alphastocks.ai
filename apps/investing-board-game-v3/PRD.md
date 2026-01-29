@@ -123,7 +123,7 @@ Animations should enhance the board game feeling with physics-based movements an
 - **Customizations**: 
   - 3-ring spiral board layout (Ring 1: 35 tiles, Ring 2: 24 tiles, Ring 3: 7 tiles)
   - Anchor tiles for key moments: Big Fish Portal (start), Casino, Court of Capital, Case Study
-  - Ring 2 fall portals + Chance tile to lift into the Wealth Run
+  - Big Fish Portal (Ring 1) ascends to Ring 2 on land-only; Ring 2 fall portals drop to Ring 1 and the Chance tile can lift into the Wealth Run
   - Ring 3 Wealth Run uses a single-roll jackpot with roulette-style mega reward payoff
   - Category tiles feature prominent color-coded top borders matching their investment type
   - Custom draggable component using framer-motion

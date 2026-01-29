@@ -13,6 +13,7 @@ This implementation replaces the prior Ring 3 victory lap with a **Wealth Run** 
 ### 2. Ring 2 Progression Updates
 - **Fall Portals**: Ring 2 tiles with `specialAction: 'ring-fall'` drop players to Ring 1.
 - **Chance Tile**: A dedicated `specialAction: 'chance'` tile that triggers the Chance card modal. Jackpot results lift the player into the Wealth Run.
+- **Big Fish Portal (Ring 1)**: Landing on the portal ascends to Ring 2; pass-through stays on Ring 1 (land-only transition).
 
 ### 3. Type System Updates (types.ts)
 Extended `Tile` to support new special actions and styling:

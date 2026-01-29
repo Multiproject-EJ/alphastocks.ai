@@ -55,7 +55,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 - `AI_IMPLEMENTATION.md`, `IMPLEMENTATION_SUMMARY.md`, `DEVLOG.md` (project-wide status/context)
 
 ### Repo Map (paths verified)
-_Last reviewed: 2026-01-28 (M7.3 tile label data hook)_
+_Last reviewed: 2026-01-31 (M0.6 docs alignment refresh)_
 #### Frontend
 - **Legacy static pages entry:** `/index.html`, `/about.html`, `/faq.html`, `/monthly/`, `/weekly/`, `/superinvestor/`
 - **Vite + Preact app:** `/apps/investing-board-game-v3` (built into `/public/board-game-v3` via `npm run build:board-game-v3`)
@@ -155,6 +155,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **M0.3** ✅ Wheel of Fortune daily spin cap + reward consistency
 - **M0.4** ✅ Lazy-load Portfolio charts to prevent app boot errors
 - **M0.5** ✅ Casino + scratchcard MD plan alignment (status snapshot + next-slice checklist)
+- **M0.6** ✅ Docs alignment (ring progression, Wealth Run + roulette, Case Study rename)
 
 ### M1 — 3‑Ring Board Rules (Outer/Middle/Inner)
 - **M1.1** Audit ring movement + portal behavior
@@ -242,12 +243,12 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **M0.6 — Docs alignment (ring progression, Wealth Run + roulette, Case Study rename).**
+**Recommended next slice:** **M1.1 — Audit ring movement + portal behavior.**
 
-### M0.6 Slice Notes (Docs alignment: ring progression + Case Study rename)
-- Reconcile Markdown docs with the current ring progression: Big Fish Portal start, Ring 2 fall portals + Chance lift, and Ring 3 Wealth Run with roulette reward loop.
-- Rename “Bias Sanctuary” references to “Case Study” in documentation and remove outdated square-board corner assumptions.
-- Refresh implementation summaries (Ring 3, challenges, PRD) so the written spec matches current game logic and UI.
+### M1.1 Slice Notes (Audit ring movement + portal behavior)
+- Verify the movement engine matches the land-only portal rules and Bull Market window behavior for Ring 1 → Ring 2.
+- Confirm Ring 2 fall portal drop logic + Chance lift to Ring 3 are consistent across config, movement engine, and UI messaging.
+- Capture any deltas between mock data, movement engine, and docs before changing behavior.
 
 ## M4.1 Slice Notes (Tile taxonomy + renderer)
 - Added a shared micro-learning tile taxonomy with categories, labels, and descriptions to keep quiz surfaces consistent.
