@@ -5,6 +5,28 @@
 
 ## Unreleased
 
+**Date:** 2026-01-30  
+**Slice:** M0.6 (docs alignment: ring progression + Case Study rename)  
+**Summary:**  
+- Aligned ring progression docs with the current Big Fish Portal → Ring 2 fall/Chance → Wealth Run + roulette flow.  
+- Renamed Bias Sanctuary references to Case Study and removed outdated square-board corner wording.  
+- Refreshed implementation summaries (Ring 3, challenges, PRD) to match current behavior.  
+
+**Files changed:**  
+- DEV_PLAN.md  
+- docs/DEV_PLAN_MARKETTYCOON_MASTER.md  
+- apps/investing-board-game-v3/PRD.md  
+- apps/investing-board-game-v3/RING3_IMPLEMENTATION.md  
+- apps/investing-board-game-v3/BIAS_SANCTUARY_IMPLEMENTATION.md  
+- apps/investing-board-game-v3/CHALLENGES_EVENTS_IMPLEMENTATION.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (none)  
+
 **Date:** 2026-01-28  
 **Slice:** M8.1 (economy telemetry sinks)  
 **Summary:**  
@@ -98,7 +120,7 @@
 **Summary:**  
 - Added learning tile rewards that grant stars and XP with streak bonuses tied to daily learning progress.  
 - Persisted learning streak metadata in game stats and surfaced streak feedback in learning tile toasts.  
-- Updated Bias Sanctuary quiz completion to increment quiz stats and daily quiz streak tracking.  
+- Updated Case Study quiz completion to increment quiz stats and daily quiz streak tracking.  
 
 **Files changed:**  
 - apps/investing-board-game-v3/src/App.tsx  
@@ -112,7 +134,7 @@
 
 **How to test:**  
 - (manual) Land on a learning tile twice in one day and confirm stars/XP award plus streak messaging stays stable.  
-- (manual) Complete a Bias Sanctuary quiz on consecutive days and confirm the streak count increments in the toast.  
+- (manual) Complete a Case Study quiz on consecutive days and confirm the streak count increments in the toast.  
 
 **Date:** 2026-01-24  
 **Slice:** M4.2 (question bank format + seed content)  

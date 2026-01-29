@@ -137,7 +137,7 @@ _Last reviewed: 2026-01-28 (M7.3 tile label data hook)_
 - **Vault Album shop:** current shop is item list; no album/sets/grids. (`src/components/ShopModal.tsx`, `src/lib/shopItems.ts`)
 - **Vault Leveling:** no XP/leveling tied to shop purchases. (`src/hooks/useShopInventory.ts`)
 - **Leverage ladder gating + momentum meter:** not implemented beyond basic roll multipliers. (`src/lib/constants.ts`)
-- **Micro-learning tiles:** partial learning exists (Bias Sanctuary), but no Duolingo-style tile system. (`src/components/BiasSanctuaryModal.tsx`)
+- **Micro-learning tiles:** partial learning exists (Case Study modal), but no Duolingo-style tile system. (`src/components/BiasSanctuaryModal.tsx`)
 
 ### Do‑Not‑Touch List
 - **ProTools art/card rendering and assets:** Keep `StockModal` pipeline intact; only add guards or wiring.
@@ -242,7 +242,12 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **M0.2 — Instrumentation hooks (optional logging, no behavior change).**
+**Recommended next slice:** **M0.6 — Docs alignment (ring progression, Wealth Run + roulette, Case Study rename).**
+
+### M0.6 Slice Notes (Docs alignment: ring progression + Case Study rename)
+- Reconcile Markdown docs with the current ring progression: Big Fish Portal start, Ring 2 fall portals + Chance lift, and Ring 3 Wealth Run with roulette reward loop.
+- Rename “Bias Sanctuary” references to “Case Study” in documentation and remove outdated square-board corner assumptions.
+- Refresh implementation summaries (Ring 3, challenges, PRD) so the written spec matches current game logic and UI.
 
 ## M4.1 Slice Notes (Tile taxonomy + renderer)
 - Added a shared micro-learning tile taxonomy with categories, labels, and descriptions to keep quiz surfaces consistent.
@@ -256,7 +261,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ## M4.3 Slice Notes (Rewards + streak system)
 - Added learning tile rewards (stars + XP) with streak bonuses and ring/star multipliers for mobile-first feedback.
 - Tracked daily learning streaks and persisted last-learning dates in the game stats for deterministic streak continuity.
-- Updated Bias Sanctuary quiz completion to increment quiz stats and daily quiz streak metadata for future achievement hooks.
+- Updated Case Study quiz completion to increment quiz stats and daily quiz streak metadata for future achievement hooks.
 
 ## M4.4 Slice Notes (Graphic templates + animations)
 - Added category-specific learning tile templates with gradients, pattern overlays, and badge styling for clearer quiz identity cues.

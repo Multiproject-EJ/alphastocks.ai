@@ -27,7 +27,7 @@ Defines and manages daily and weekly challenges:
 - `land_on_tile` - Landing on specific tiles/positions
 - `land_on_corner` - Landing on corner tiles
 - `earn_stars` - Cumulative star earning
-- `complete_quiz` - Bias Sanctuary quiz completion
+- `complete_quiz` - Case Study quiz completion
 - `win_scratchcard` - Casino scratchcard wins
 - `reach_net_worth` - Achieving net worth milestones
 - `buy_from_shop` - Shop purchases
@@ -192,7 +192,7 @@ const {
 - `handleRoll()` - Tracks 'roll' action with dice value
 - `handleTileLanding()` - Tracks 'land_on_tile' and 'land_on_corner'
 - `handleBuyStock()` - Tracks 'buy_stock' with ticker/category
-- `handleBiasQuizComplete()` - Tracks 'complete_quiz' with score
+- `handleBiasQuizComplete()` - Tracks 'complete_quiz' with score (Case Study quiz)
 - `handleCasinoWin()` - Tracks 'win_scratchcard'
 - `handleChooseChallenge()` - Tracks 'complete_thrifty'
 

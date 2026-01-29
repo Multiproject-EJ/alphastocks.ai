@@ -109,7 +109,7 @@ Typography should balance financial seriousness with gaming approachability, usi
 
 ## Animations
 
-Animations should enhance the board game feeling with physics-based movements and satisfying feedback. Use sparingly but purposefully - dice roll anticipation, smooth avatar movement across tiles, modal enter/exit with slight scale, gold glow pulse on Wealth Throne, subtle hover states on tiles and buttons.
+Animations should enhance the board game feeling with physics-based movements and satisfying feedback. Use sparingly but purposefully - dice roll anticipation, smooth avatar movement across tiles, modal enter/exit with slight scale, gold glow pulse on Wealth Run reveal, subtle hover states on tiles and buttons.
 
 ## Component Selection
 
@@ -121,13 +121,12 @@ Animations should enhance the board game feeling with physics-based movements an
   - Separator for dividing content sections in cards
   
 - **Customizations**: 
-  - Custom board grid layout with 26 tiles (reduced from 31) arranged in Monopoly-style square
-  - 4 corner tiles: Start/ThriftyPath, Casino, Court of Capital, Bias Sanctuary
-  - Corners without full features display placeholder text
-  - Corner tiles are larger (200x200px) than regular tiles (100x120px)
+  - 3-ring spiral board layout (Ring 1: 35 tiles, Ring 2: 24 tiles, Ring 3: 7 tiles)
+  - Anchor tiles for key moments: Big Fish Portal (start), Casino, Court of Capital, Case Study
+  - Ring 2 fall portals + Chance tile to lift into the Wealth Run
+  - Ring 3 Wealth Run uses a single-roll jackpot with roulette-style mega reward payoff
   - Category tiles feature prominent color-coded top borders matching their investment type
   - Custom draggable component using framer-motion
-  - Custom Wealth Throne centerpiece with SVG rings
   - Custom tile strip component with highlighting
   
 - **States**: 
