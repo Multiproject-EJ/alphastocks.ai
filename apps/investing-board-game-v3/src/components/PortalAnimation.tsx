@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { PortalTransition, RingNumber } from '@/lib/types'
 import { RING_CONFIG } from '@/lib/mockData'
 
@@ -10,6 +10,7 @@ interface PortalAnimationProps {
 
 export function PortalAnimation({ transition, isAnimating }: PortalAnimationProps) {
   const [phase, setPhase] = useState<'idle' | 'glow' | 'fade' | 'materialize' | 'celebrate'>('idle')
+  const [viewport, setViewport] = useState({ width: 0, height: 0 })
   
   useEffect(() => {
     if (!transition || !isAnimating) {
@@ -19,15 +20,19 @@ export function PortalAnimation({ transition, isAnimating }: PortalAnimationProp
     
     // Start animation sequence
     const isAscending = transition.direction === 'up'
-    const totalDuration = isAscending ? 1500 : 1200
-    const materializeDelay = isAscending ? 700 : 700
+    const totalDuration = isAscending ? 1600 : 1300
+    const timings = {
+      fade: isAscending ? 420 : 320,
+      materialize: isAscending ? 780 : 660,
+      celebrate: isAscending ? 1180 : 980,
+    }
     
     setPhase('glow')
     
     const timers = [
-      setTimeout(() => setPhase('fade'), isAscending ? 400 : 300),
-      setTimeout(() => setPhase('materialize'), materializeDelay),
-      setTimeout(() => setPhase('celebrate'), isAscending ? 1200 : 900),
+      setTimeout(() => setPhase('fade'), timings.fade),
+      setTimeout(() => setPhase('materialize'), timings.materialize),
+      setTimeout(() => setPhase('celebrate'), timings.celebrate),
       setTimeout(() => {
         setPhase('idle')
       }, totalDuration),
@@ -35,11 +40,31 @@ export function PortalAnimation({ transition, isAnimating }: PortalAnimationProp
     
     return () => timers.forEach(clearTimeout)
   }, [transition, isAnimating])
+
+  useEffect(() => {
+    const updateViewport = () => {
+      setViewport({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      })
+    }
+
+    updateViewport()
+    window.addEventListener('resize', updateViewport)
+    return () => window.removeEventListener('resize', updateViewport)
+  }, [])
   
   if (!transition || !isAnimating || phase === 'idle') return null
   
   const isAscending = transition.direction === 'up'
   const isThrone = transition.toRing === 0
+  const portalPalette = getPortalPalette(isAscending, isThrone)
+  const portalSize = useMemo(() => {
+    const base = Math.min(viewport.width || 800, viewport.height || 600)
+    return base * (isThrone ? 0.62 : 0.52)
+  }, [viewport.width, viewport.height, isThrone])
+  const beamWidth = Math.max(portalSize * 0.12, 56)
+  const beamHeight = Math.max((viewport.height || 700) * 1.1, 520)
   
   return (
     <AnimatePresence>
@@ -48,12 +73,12 @@ export function PortalAnimation({ transition, isAnimating }: PortalAnimationProp
         className="fixed inset-0 z-50 pointer-events-none"
         initial={{ opacity: 0 }}
         animate={{ 
-          opacity: phase === 'fade' ? 1 : phase === 'materialize' ? 0.5 : 0,
+          opacity: phase === 'fade' ? 0.9 : phase === 'materialize' ? 0.55 : 0,
           backgroundColor: isThrone
-            ? 'rgba(252, 211, 77, 0.9)' // Golden for throne
+            ? 'rgba(252, 211, 77, 0.85)' // Golden for throne
             : isAscending 
-              ? 'rgba(255, 255, 255, 0.9)' 
-              : 'rgba(30, 30, 30, 0.85)'
+              ? 'rgba(255, 255, 255, 0.82)' 
+              : 'rgba(20, 25, 35, 0.82)'
         }}
         transition={{ duration: 0.3 }}
       />
@@ -74,14 +99,72 @@ export function PortalAnimation({ transition, isAnimating }: PortalAnimationProp
             transform: 'translate(-50%, -50%)',
           }}
           initial={{ width: 0, height: 0, opacity: 0 }}
-          animate={{ width: 300, height: 300, opacity: 1 }}
+          animate={{ width: portalSize * 0.8, height: portalSize * 0.8, opacity: 1 }}
           transition={{ duration: 0.4, ease: 'easeOut' }}
         />
+      )}
+
+      {/* Portal beam */}
+      {(phase === 'fade' || phase === 'materialize') && (
+        <motion.div
+          className="fixed left-1/2 top-1/2 z-50 pointer-events-none"
+          style={{
+            width: `${beamWidth}px`,
+            height: `${beamHeight}px`,
+            transform: 'translate(-50%, -50%)',
+            background: isAscending
+              ? `linear-gradient(to top, transparent, ${portalPalette.beamStrong}, ${portalPalette.beamSoft}, transparent)`
+              : `linear-gradient(to bottom, transparent, ${portalPalette.beamStrong}, ${portalPalette.beamSoft}, transparent)`,
+            filter: 'blur(8px)',
+          }}
+          initial={{ opacity: 0, scaleY: 0.65 }}
+          animate={{
+            opacity: phase === 'materialize' ? 0.7 : 0.45,
+            scaleY: phase === 'materialize' ? 1 : 0.8,
+          }}
+          transition={{ duration: 0.35, ease: 'easeOut' }}
+        />
+      )}
+
+      {/* Portal ripples */}
+      {(phase === 'glow' || phase === 'fade' || phase === 'materialize') && (
+        <div className="fixed inset-0 z-50 pointer-events-none">
+          {[0, 1, 2].map((index) => (
+            <motion.div
+              key={index}
+              className="absolute rounded-full"
+              style={{
+                left: '50%',
+                top: '50%',
+                width: portalSize * (0.7 + index * 0.12),
+                height: portalSize * (0.7 + index * 0.12),
+                border: `1px solid ${portalPalette.ring}`,
+                boxShadow: `0 0 24px ${portalPalette.glow}`,
+                transform: 'translate(-50%, -50%)',
+              }}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{
+                opacity: phase === 'fade' ? 0.9 : 0.55,
+                scale: phase === 'materialize' ? 1.05 : 1,
+              }}
+              transition={{
+                duration: 0.5,
+                delay: index * 0.08,
+                ease: 'easeOut',
+              }}
+            />
+          ))}
+        </div>
       )}
       
       {/* Particles */}
       {(phase === 'glow' || phase === 'materialize' || phase === 'celebrate') && (
-        <PortalParticles direction={transition.direction} phase={phase} isThrone={isThrone} />
+        <PortalParticles
+          direction={transition.direction}
+          phase={phase}
+          isThrone={isThrone}
+          viewportHeight={viewport.height || 800}
+        />
       )}
       
       {/* Ring Name Toast */}
@@ -124,10 +207,46 @@ function getRingName(ring: RingNumber | 0): string {
   }
 }
 
-function PortalParticles({ direction, phase, isThrone }: { direction: 'up' | 'down', phase: string, isThrone: boolean }) {
+function getPortalPalette(isAscending: boolean, isThrone: boolean) {
+  if (isThrone) {
+    return {
+      beamStrong: 'rgba(251, 191, 36, 0.9)',
+      beamSoft: 'rgba(245, 158, 11, 0.55)',
+      ring: 'rgba(252, 211, 77, 0.8)',
+      glow: 'rgba(251, 191, 36, 0.7)',
+    }
+  }
+
+  if (isAscending) {
+    return {
+      beamStrong: 'rgba(168, 85, 247, 0.85)',
+      beamSoft: 'rgba(59, 130, 246, 0.55)',
+      ring: 'rgba(147, 197, 253, 0.7)',
+      glow: 'rgba(129, 140, 248, 0.6)',
+    }
+  }
+
+  return {
+    beamStrong: 'rgba(148, 163, 184, 0.8)',
+    beamSoft: 'rgba(71, 85, 105, 0.5)',
+    ring: 'rgba(148, 163, 184, 0.6)',
+    glow: 'rgba(100, 116, 139, 0.6)',
+  }
+}
+
+function PortalParticles({
+  direction,
+  phase,
+  isThrone,
+  viewportHeight,
+}: {
+  direction: 'up' | 'down'
+  phase: string
+  isThrone: boolean
+  viewportHeight: number
+}) {
   const count = phase === 'celebrate' ? 80 : 30
   const isAscending = direction === 'up'
-  const viewportHeight = typeof window !== 'undefined' ? window.innerHeight : 800
   
   return (
     <div className="fixed inset-0 z-50 pointer-events-none overflow-hidden">

@@ -55,7 +55,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 - `AI_IMPLEMENTATION.md`, `IMPLEMENTATION_SUMMARY.md`, `DEVLOG.md` (project-wide status/context)
 
 ### Repo Map (paths verified)
-_Last reviewed: 2026-01-30 (P1.1 mini-games hub Wheel of Fortune demo)_
+_Last reviewed: 2026-02-01 (P1.2 portal animation polish)_
 #### Frontend
 - **Legacy static pages entry:** `/index.html`, `/about.html`, `/faq.html`, `/monthly/`, `/weekly/`, `/superinvestor/`
 - **Vite + Preact app:** `/apps/investing-board-game-v3` (built into `/public/board-game-v3` via `npm run build:board-game-v3`)
@@ -218,6 +218,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 
 ### P1 — Mini-Games Hub
 - **P1.1** ✅ Wheel of Fortune playable demo in Games Hub
+- **P1.2** ✅ Portal animation polish
 
 ---
 
@@ -248,7 +249,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P1.2 — Portal animation polish (align with Priority Roadmap P0 polish)**.
+**Recommended next slice:** **M7.1 — Audit board renderer + tile overlays**.
 
 ## M0.2 Slice Notes (Instrumentation hooks)
 - Added a dedicated instrumentation helper that enables opt-in debug logging via local storage or env flags without changing gameplay behavior.
@@ -419,6 +420,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Marked Wheel of Fortune as playable in the mini-games hub and gated game opening to playable entries only.
 - Reused the existing Wheel of Fortune modal inside the hub with demo balances, spins remaining, and sound feedback.
 - Added a lightweight demo ledger (cash, stars, rolls, XP) so wheel rewards remain visible during hub play.
+
+## P1.2 Slice Notes (Portal animation polish)
+- Added portal beam and ripple layers to give ring transitions a more dimensional, mobile-first visual treatment.
+- Tuned portal timing and overlay opacity so the transitions feel smoother without washing out the board.
+- Routed portal particle travel using the tracked viewport height for consistent effects across screen sizes.
 
 ## M8.1 Slice Notes (Economy telemetry sinks)
 - Added a telemetry helper with opt-in consent, console logging in dev, and local storage buffering for lightweight economy event sinks.
