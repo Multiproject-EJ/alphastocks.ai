@@ -20,7 +20,7 @@ export const GAMES_CONFIG: GameConfig[] = [
     emoji: '🎡',
     description: 'Spin to win cash & prizes',
     counter: '1 of 10',
-    status: 'coming-soon',
+    status: 'playable',
     accentColor: 'from-purple-500 to-pink-500',
   },
   {

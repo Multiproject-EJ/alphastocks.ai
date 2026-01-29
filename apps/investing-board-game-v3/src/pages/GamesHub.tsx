@@ -4,15 +4,17 @@
  */
 
 import { ArrowLeft, GameController } from '@phosphor-icons/react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { GameCard } from '@/components/games/GameCard'
 import { GameOverlay } from '@/components/games/GameOverlay'
 import { GameLoadingScreen } from '@/components/games/GameLoadingScreen'
+import { WheelOfFortuneModal } from '@/components/WheelOfFortuneModal'
 import { GAMES_CONFIG } from '@/lib/gamesConfig'
 import { useGameOverlay } from '@/hooks/useGameOverlay'
+import { useSound } from '@/hooks/useSound'
 
 // Import all game placeholders
-import { WheelOfFortune } from '@/components/games/placeholders/WheelOfFortune'
 import { StockRush } from '@/components/games/placeholders/StockRush'
 import { VaultHeist } from '@/components/games/placeholders/VaultHeist'
 import { MarketMayhem } from '@/components/games/placeholders/MarketMayhem'
@@ -27,12 +29,23 @@ interface GamesHubProps {
   onBack?: () => void
 }
 
+const DEMO_WHEEL_SPINS_LIMIT = 3
+const DEMO_WHEEL_FREE_SPINS = 1
+const DEMO_WHEEL_STARTING_COINS = 250
+
 export function GamesHub({ onBack }: GamesHubProps) {
   const { activeGame, isLoading, openGame, closeGame } = useGameOverlay()
+  const { play: playSound } = useSound()
+  const [wheelCoins, setWheelCoins] = useState(DEMO_WHEEL_STARTING_COINS)
+  const [wheelSpinsRemaining, setWheelSpinsRemaining] = useState(DEMO_WHEEL_SPINS_LIMIT)
+  const [wheelFreeSpins, setWheelFreeSpins] = useState(DEMO_WHEEL_FREE_SPINS)
+  const [wheelCash, setWheelCash] = useState(0)
+  const [wheelStars, setWheelStars] = useState(0)
+  const [wheelRolls, setWheelRolls] = useState(0)
+  const [wheelXp, setWheelXp] = useState(0)
 
   // Map game IDs to their components
   const gameComponents: Record<string, React.ComponentType<{ onClose: () => void }>> = {
-    'wheel-of-fortune': WheelOfFortune,
     'stock-rush': StockRush,
     'vault-heist': VaultHeist,
     'market-mayhem': MarketMayhem,
@@ -46,6 +59,68 @@ export function GamesHub({ onBack }: GamesHubProps) {
 
   const ActiveGameComponent = activeGame ? gameComponents[activeGame] : null
   const activeGameConfig = activeGame ? GAMES_CONFIG.find(g => g.id === activeGame) : null
+
+  const resetWheelDemo = useCallback(() => {
+    setWheelCoins(DEMO_WHEEL_STARTING_COINS)
+    setWheelSpinsRemaining(DEMO_WHEEL_SPINS_LIMIT)
+    setWheelFreeSpins(DEMO_WHEEL_FREE_SPINS)
+    setWheelCash(0)
+    setWheelStars(0)
+    setWheelRolls(0)
+    setWheelXp(0)
+  }, [])
+
+  useEffect(() => {
+    if (activeGame === 'wheel-of-fortune') {
+      resetWheelDemo()
+    }
+  }, [activeGame, resetWheelDemo])
+
+  const handleGameSelect = useCallback((gameId: string, status: 'coming-soon' | 'playable') => {
+    if (status !== 'playable') return
+    openGame(gameId)
+  }, [openGame])
+
+  const handleWheelSpinComplete = useCallback((prize: { id: string; type: string; value: number }, value: number) => {
+    setWheelSpinsRemaining(prev => Math.max(0, prev - 1))
+
+    switch (prize.type) {
+      case 'coins':
+        setWheelCoins(prev => prev + value)
+        break
+      case 'stars':
+        setWheelStars(prev => prev + value)
+        break
+      case 'cash':
+        setWheelCash(prev => prev + value)
+        break
+      case 'rolls':
+        setWheelRolls(prev => prev + value)
+        break
+      case 'xp':
+        setWheelXp(prev => prev + value)
+        break
+      case 'spin-again':
+        setWheelFreeSpins(prev => prev + 1)
+        break
+      case 'jackpot':
+        if (prize.id === 'jackpot-stars') {
+          setWheelStars(prev => prev + value)
+        } else {
+          setWheelCash(prev => prev + value)
+        }
+        break
+      default:
+        break
+    }
+  }, [])
+
+  const wheelBalances = useMemo(() => ([
+    { label: '💵 Cash', value: `$${wheelCash.toLocaleString()}` },
+    { label: '⭐ Stars', value: wheelStars.toLocaleString() },
+    { label: '🎲 Rolls', value: wheelRolls.toLocaleString() },
+    { label: '⚡ XP', value: wheelXp.toLocaleString() },
+  ]), [wheelCash, wheelRolls, wheelStars, wheelXp])
 
   return (
     <>
@@ -83,7 +158,7 @@ export function GamesHub({ onBack }: GamesHubProps) {
               <GameCard
                 key={game.id}
                 game={game}
-                onClick={() => openGame(game.id)}
+                onClick={() => handleGameSelect(game.id, game.status)}
               />
             ))}
           </div>
@@ -105,10 +180,42 @@ export function GamesHub({ onBack }: GamesHubProps) {
         />
       )}
 
-      {/* Game Overlay */}
-      <GameOverlay isOpen={!!activeGame && !isLoading} onClose={closeGame}>
-        {ActiveGameComponent && <ActiveGameComponent onClose={closeGame} />}
-      </GameOverlay>
+      {activeGame === 'wheel-of-fortune' && !isLoading ? (
+        <WheelOfFortuneModal
+          isOpen
+          onClose={closeGame}
+          coins={wheelCoins}
+          balanceLabel="Demo balance"
+          secondaryBalances={wheelBalances}
+          currentRing={1}
+          spinsRemaining={wheelSpinsRemaining}
+          spinsLimit={DEMO_WHEEL_SPINS_LIMIT}
+          freeSpinsRemaining={wheelFreeSpins}
+          onSpinComplete={handleWheelSpinComplete}
+          onSpendCoins={(amount) => {
+            if (wheelSpinsRemaining <= 0) {
+              return false
+            }
+            if (amount > 0) {
+              if (wheelCoins >= amount) {
+                setWheelCoins(prev => prev - amount)
+                return true
+              }
+              return false
+            }
+            if (wheelFreeSpins > 0) {
+              setWheelFreeSpins(prev => prev - 1)
+              return true
+            }
+            return false
+          }}
+          playSound={playSound}
+        />
+      ) : (
+        <GameOverlay isOpen={!!activeGame && !isLoading} onClose={closeGame}>
+          {ActiveGameComponent && <ActiveGameComponent onClose={closeGame} />}
+        </GameOverlay>
+      )}
     </>
   )
 }
