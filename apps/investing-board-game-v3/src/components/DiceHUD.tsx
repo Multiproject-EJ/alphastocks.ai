@@ -1,4 +1,4 @@
-import type { MouseEvent, PointerEvent } from 'react'
+import type { MouseEvent, PointerEvent, ReactNode } from 'react'
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/button'
@@ -34,6 +34,9 @@ interface DiceHUDProps {
   economyWindowEndsAt?: string | null
   economyWindowStarsMultiplier?: number
   economyWindowXpMultiplier?: number
+  rollLabel?: string
+  rollIcon?: ReactNode
+  rollPulse?: boolean
 }
 
 export function DiceHUD({ 
@@ -57,6 +60,9 @@ export function DiceHUD({
   economyWindowEndsAt = null,
   economyWindowStarsMultiplier = 1,
   economyWindowXpMultiplier = 1,
+  rollLabel = 'ROLL',
+  rollIcon,
+  rollPulse = false,
 }: DiceHUDProps) {
   const [timeUntilReset, setTimeUntilReset] = useState('')
   const [energyRegenTime, setEnergyRegenTime] = useState('')
@@ -379,15 +385,17 @@ export function DiceHUD({
                   )}
                 </div>
 
-                <Button
-                  onClick={() => onRoll(selectedMultiplier)}
-                  disabled={phase !== 'idle' || rollsRemaining < selectedMultiplier}
-                  className="w-full gap-2 bg-accent text-accent-foreground hover:bg-accent/90 font-semibold"
-                  size="lg"
-                >
-                  <DiceFive size={20} weight="fill" />
-                  ROLL {selectedMultiplier > 1 ? `(${selectedMultiplier})` : ''}
-                </Button>
+                  <Button
+                    onClick={() => onRoll(selectedMultiplier)}
+                    disabled={phase !== 'idle' || rollsRemaining < selectedMultiplier}
+                    className={`w-full gap-2 bg-accent text-accent-foreground hover:bg-accent/90 font-semibold ${
+                      rollPulse ? 'roulette-roll-pulse' : ''
+                    }`}
+                    size="lg"
+                  >
+                    {rollIcon ?? <DiceFive size={20} weight="fill" />}
+                    {rollLabel} {selectedMultiplier > 1 ? `(${selectedMultiplier})` : ''}
+                  </Button>
 
                 {/* Auto-Roll Button */}
                 <Button
@@ -494,7 +502,9 @@ export function DiceHUD({
               key="compact"
               type="button"
               onClick={() => setIsExpanded(true)}
-              className="dice-control-zone__content relative flex items-center justify-center w-32 h-32 rounded-full border-2 border-white/20 bg-card/80 backdrop-blur-md shadow-xl cursor-pointer"
+              className={`dice-control-zone__content relative flex items-center justify-center w-32 h-32 rounded-full border-2 border-white/20 bg-card/80 backdrop-blur-md shadow-xl cursor-pointer ${
+                rollPulse ? 'roulette-roll-pulse' : ''
+              }`}
             >
             <button
               type="button"

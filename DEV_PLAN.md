@@ -138,7 +138,7 @@ _Last reviewed: 2026-01-29 (M0.2 instrumentation hooks)_
 - **Vault Album shop:** current shop is item list; no album/sets/grids. (`src/components/ShopModal.tsx`, `src/lib/shopItems.ts`)
 - **Vault Leveling:** no XP/leveling tied to shop purchases. (`src/hooks/useShopInventory.ts`)
 - **Leverage ladder gating + momentum meter:** not implemented beyond basic roll multipliers. (`src/lib/constants.ts`)
-- **Micro-learning tiles:** partial learning exists (Bias Sanctuary), but no Duolingo-style tile system. (`src/components/BiasSanctuaryModal.tsx`)
+- **Micro-learning tiles:** partial learning exists (Case Study modal), but no Duolingo-style tile system. (`src/components/BiasSanctuaryModal.tsx`)
 
 ### Do‑Not‑Touch List
 - **ProTools art/card rendering and assets:** Keep `StockModal` pipeline intact; only add guards or wiring.
@@ -262,7 +262,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ## M4.3 Slice Notes (Rewards + streak system)
 - Added learning tile rewards (stars + XP) with streak bonuses and ring/star multipliers for mobile-first feedback.
 - Tracked daily learning streaks and persisted last-learning dates in the game stats for deterministic streak continuity.
-- Updated Bias Sanctuary quiz completion to increment quiz stats and daily quiz streak metadata for future achievement hooks.
+- Updated Case Study quiz completion to increment quiz stats and daily quiz streak metadata for future achievement hooks.
 
 ## M4.4 Slice Notes (Graphic templates + animations)
 - Added category-specific learning tile templates with gradients, pattern overlays, and badge styling for clearer quiz identity cues.

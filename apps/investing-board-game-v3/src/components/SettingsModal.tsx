@@ -23,6 +23,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
   const [tutorialEnabled, setTutorialEnabled] = useState(false)
   const [backgroundChoice, setBackgroundChoice] = useState<'cycle' | 'finance-board'>('cycle')
   const [isMobile, setIsMobile] = useState(false)
+  const [developerModeEnabled, setDeveloperModeEnabled] = useState(false)
   const [diagnosticsStatus, setDiagnosticsStatus] = useState<'idle' | 'running' | 'success' | 'error'>('idle')
   const [diagnosticsSummary, setDiagnosticsSummary] = useState<string>('Run a quick check for Supabase connectivity.')
   const [diagnosticsDetails, setDiagnosticsDetails] = useState<string[]>([])
@@ -53,6 +54,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
     const savedCameraMode = localStorage.getItem('alphastocks_camera_mode')
     const savedTutorialEnabled = localStorage.getItem('tutorialEnabled')
     const savedBackgroundChoice = localStorage.getItem('alphastocks_phone_background')
+    const savedDeveloperMode = localStorage.getItem('developerModeEnabled')
 
     if (savedHapticsEnabled !== null) setHapticsEnabled(savedHapticsEnabled === 'true')
     if (savedReducedMotion !== null) setReducedMotion(savedReducedMotion === 'true')
@@ -66,6 +68,9 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
     } else {
       // Default based on screen size
       setCameraMode(window.innerWidth < 768 ? 'immersive' : 'classic')
+    }
+    if (savedDeveloperMode !== null) {
+      setDeveloperModeEnabled(savedDeveloperMode === 'true')
     }
   }, [])
 
@@ -115,6 +120,12 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
     setBackgroundChoice(value)
     localStorage.setItem('alphastocks_phone_background', value)
     window.dispatchEvent(new Event('phone-background-changed'))
+  }
+
+  const handleDeveloperModeChange = (value: boolean) => {
+    setDeveloperModeEnabled(value)
+    localStorage.setItem('developerModeEnabled', value.toString())
+    window.dispatchEvent(new CustomEvent('developer-mode-changed', { detail: { enabled: value } }))
   }
 
   const handleResetTutorial = () => {
@@ -387,6 +398,27 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
               <Separator />
             </>
           )}
+
+          {/* Developer Mode */}
+          <div className="space-y-4">
+            <h3 className="font-semibold text-sm">Developer Mode</h3>
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <Label htmlFor="developer-mode">Enable Dev Tools</Label>
+                <p className="text-xs text-muted-foreground">
+                  Show debug controls for jumping to tiles and triggering flows.
+                </p>
+              </div>
+              <Switch
+                id="developer-mode"
+                checked={developerModeEnabled}
+                onCheckedChange={handleDeveloperModeChange}
+                className={toggleClassName}
+              />
+            </div>
+          </div>
+
+          <Separator />
 
           {/* Troubleshooting */}
           <div className="space-y-4">

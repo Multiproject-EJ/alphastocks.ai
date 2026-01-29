@@ -59,6 +59,10 @@ export interface Tile {
   // Premium tile properties
   isPremium?: boolean
   multiplier?: number
+  // Ring transition + special behaviors
+  specialAction?: 'ring-fall' | 'chance' | 'big-fish-portal' | 'roulette-reward'
+  specialStyle?: 'fall-portal' | 'chance-card' | 'roulette-reward'
+  portalStyle?: 'blue' | 'purple'
 }
 
 export interface Stock {

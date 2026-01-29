@@ -105,7 +105,7 @@ The **15-second core loop** that must remain intact:
 - **Net Worth Tier Up** ($100k → $250k → $500k → $1M)
 - **Complete a City** in City Builder mode
 - **Perfect Bias Quiz** (all questions correct, bonus reward)
-- **Reach the Wealth Throne** (Ring 3 → Center)
+- **Win the Wealth Run + Roulette** (Ring 3 jackpot + mega reward spin)
 - **Purpose:** Epic moments that create memorable experiences
 
 ---
@@ -144,7 +144,7 @@ The **15-second core loop** that must remain intact:
 **Mechanics:**
 - Real company data (scores, sectors, financials)
 - Quiz challenges (test knowledge, earn stars)
-- Bias Sanctuary (learn about cognitive biases)
+- Case Study lab (learn about cognitive biases)
 - Alpha scoring system (composite, quality, risk, timing)
 - Market event simulation (interest rates, inflation, earnings)
 
@@ -156,21 +156,18 @@ The **15-second core loop** that must remain intact:
 ## Multi-Ring Board System
 
 ### Overview
-Transform the single-ring board into a **3-ring progressive spiral** where players advance inward toward the "Wealth Throne" at the center.
+Transform the single-ring board into a **3-ring progressive spiral** where players advance inward toward a high-stakes Wealth Run.
 
 ```
 ┌─────────────────────────────────────────┐
 │           RING 1: STREET LEVEL          │
-│              (27 tiles)                 │
+│              (35 tiles)                 │
 │    ┌─────────────────────────────┐      │
 │    │      RING 2: EXECUTIVE      │      │
-│    │         (18 tiles)          │      │
+│    │         (24 tiles)          │      │
 │    │    ┌─────────────────┐      │      │
-│    │    │   RING 3: ELITE │      │      │
-│    │    │    (9 tiles)    │      │      │
-│    │    │   ┌─────────┐   │      │      │
-│    │    │   │ THRONE  │   │      │      │
-│    │    │   └─────────┘   │      │      │
+│    │    │   RING 3: WEALTH│      │      │
+│    │    │     (7 tiles)   │      │      │
 │    │    └─────────────────┘      │      │
 │    └─────────────────────────────┘      │
 └─────────────────────────────────────────┘
@@ -180,94 +177,75 @@ Transform the single-ring board into a **3-ring progressive spiral** where playe
 
 | Ring | Name | Tiles | Multiplier | Entry | Exit |
 |------|------|-------|------------|-------|------|
-| 1 | Street Level | 27 | 1× | Start | Auto-ascend after 1 lap |
-| 2 | Executive Floor | 18 | 3× | Complete Ring 1 | Elevator tile |
-| 3 | Elite Circle | 9 | 10× | Lucky Elevator roll | Elevator to Throne or fall |
+| 1 | Street Level | 35 | 1× | Big Fish Portal (land) | Land on Big Fish Portal to jump to Ring 2 |
+| 2 | Executive Floor | 24 | 3× | Big Fish Portal jump | Chance Card jackpot to Ring 3; fall portals drop to Ring 1 |
+| 3 | Wealth Run | 7 | 10× | Chance Card jackpot | One roll → win payout → unlock roulette spin |
 
-**Total:** 54 tiles (27 + 18 + 9) — Symmetrical ratio of 3:2:1
+**Total:** 66 tiles (35 + 24 + 7) — Inward escalation toward high-stakes rewards
 
-### The Elevator Mechanic 🛗
+### Ring 2 Fall Portals + Chance Lift 🎴
 
-Ring 2 and Ring 3 each have an "Elevator" corner tile. When landing on it, player rolls dice:
-
-#### Ring 2 Elevator:
-| Roll | Outcome | Odds |
-|------|---------|------|
-| 11-12 | ASCEND to Ring 3 | ~8% |
-| 5-10 | Stay on Ring 2 | ~72% |
-| 2-4 | Fall back to Ring 1 | ~20% |
-
-#### Ring 3 Elevator:
-| Roll | Outcome | Odds |
-|------|---------|------|
-| 11-12 | REACH THE THRONE! 👑 | ~8% |
-| 2-10 | Fall back to Ring 1 | ~92% |
+- **Fall Portals:** Multiple Ring 2 tiles immediately drop players back to Ring 1 (blue fall portal visuals).
+- **Chance Tile:** Landing on Chance reveals a card with outcomes; jackpot results lift the player into the Wealth Run.
+- **Elevator Tile:** Present as a themed corner for future expansion; current progression uses fall portals + Chance lift.
 
 ### Ring Progression Rules
 
 1. **Ring 1 (Street Level):**
    - All players start here
-   - Complete 1 full lap to unlock Ring 2
+   - Land on the Big Fish Portal to jump to Ring 2
    - Standard rewards (1× multiplier)
    - Stocks: Basic categories (turnarounds, dividends, growth, value, moats)
 
 2. **Ring 2 (Executive Floor):**
-   - Entered after completing Ring 1
+   - Entered via Big Fish Portal jump
    - All rewards × 3 (stars, coins, stock quality)
    - Premium versions of Ring 1 categories
-   - One Elevator tile to potentially reach Ring 3
+   - Fall portals can drop you to Ring 1
+   - Chance tile can lift you to the Wealth Run
 
-3. **Ring 3 (Elite Circle):**
-   - Entered via lucky Elevator roll from Ring 2
+3. **Ring 3 (Wealth Run):**
+   - Entered via Chance Card jackpot on Ring 2
    - All rewards × 10 (highest stakes)
-   - Elite stocks only (BRK.A, LVMH, ARAMCO, TSM)
-   - One Final Elevator tile leading to Throne
-
-4. **The Wealth Throne (Center):**
-   - Reached by rolling 11-12 on Ring 3 Elevator
-   - Victory condition
-   - Massive reward (10,000 stars + special badge)
-   - Player can continue playing from Ring 1 with Throne badge
+   - One roll only; land to claim a jackpot payout
+   - Winning triggers a roulette-style mega reward loop
 
 ### Risk/Reward Balance
 
 - **Ring 1:** Low risk, consistent progress
-- **Ring 2:** Medium risk, elevator can send you back
-- **Ring 3:** High risk (92% fall chance), massive rewards
-- **Strategy:** Choose when to take Elevator risk vs. staying safe
+- **Ring 2:** Medium risk, fall portals can send you back
+- **Ring 3:** High reward, single-shot Wealth Run
+- **Strategy:** Manage fall risk while hunting for the Chance jackpot
 
 ---
 
 ## Portal Mechanics 🌀
 
-The Start tile on each ring acts as a **portal** that determines whether players ascend, descend, or reach victory.
+The Big Fish Portal on Ring 1 is the primary entry into Ring 2. Ring 2 and Ring 3 start tiles are stable anchors (no auto transitions).
 
 ### Portal Rules
 
 | Ring | Start Tile | On PASS (don't land) | On LAND EXACTLY |
 |------|------------|----------------------|-----------------|
-| 1 | Start / ThriftyPath | ⬆️ Portal UP to Ring 2 | ⬆️ Portal UP to Ring 2 |
-| 2 | Ascension Gate | ⬇️ Portal DOWN to Ring 1 | ⬆️ Portal UP to Ring 3 |
-| 3 | Inner Sanctum | ⬇️ Portal DOWN to Ring 1 | 👑 REACH THE THRONE! |
+| 1 | Big Fish Portal | Stay on Ring 1 | ⬆️ Portal UP to Ring 2 |
+| 2 | Ring 2 Start | Stay on Ring 2 | Stay on Ring 2 |
+| 3 | Wealth Run Start | Stay on Ring 3 | Stay on Ring 3 |
 
 ### Key Mechanics
 
-1. **Ring 1 → Ring 2 (Easy Ascent)**
-   - Complete one full lap on Ring 1
-   - When you pass Start, automatically portal up
-   - No precision required — just complete the lap
+1. **Ring 1 → Ring 2 (Big Fish Portal)**
+   - Land on Big Fish Portal to jump inward
+   - Passing the tile keeps you on Ring 1
+   - Jackpot Week bonus triggers on portal landings
 
-2. **Ring 2 → Ring 3 (Precision Required)**
-   - You must land EXACTLY on Ascension Gate (tile 200)
-   - If you pass it (roll too high), you fall back to Ring 1
-   - This creates tension: "Will I land exactly?"
-   - Probability of exact landing varies by position
+2. **Ring 2 → Ring 3 (Chance Card Lift)**
+   - Land on Chance to draw a card
+   - Jackpot results lift you into the Wealth Run
+   - Other outcomes keep you in Ring 2
 
-3. **Ring 3 → Throne (Maximum Precision)**
-   - Same rule: land EXACTLY on Inner Sanctum (tile 300)
-   - If you pass it, fall all the way back to Ring 1
-   - Creates high-stakes moments
-   - Victory requires skill AND luck
+3. **Ring 3 (Wealth Run)**
+   - One roll only; land to claim the jackpot payout
+   - Winning unlocks the roulette spin for mega rewards
 
 ### Portal Animations
 
@@ -284,12 +262,12 @@ The Start tile on each ring acts as a **portal** that determines whether players
 - Descending whoosh sound
 - Toast: "Back to Street Level — try again!"
 
-**Throne Victory:**
+**Wealth Run Victory:**
 - Golden explosion effect
 - Crown icon animation
 - Confetti + fireworks
 - Epic victory fanfare
-- Full-screen celebration modal
+- Roulette spin CTA for mega rewards
 
 ---
 
@@ -300,9 +278,9 @@ The Start tile on each ring acts as a **portal** that determines whether players
 | System | Status | Files |
 |--------|--------|-------|
 | Core Game Loop | ✅ Complete | `App.tsx`, `types.ts` |
-| Ring 1 Board (27 tiles) | ✅ Complete | `mockData.ts` (BOARD_TILES) |
-| Ring 2 Data (18 tiles) | ✅ Complete | `mockData.ts` (RING_2_TILES) |
-| Ring 3 Data (9 tiles) | ✅ Complete | `mockData.ts` (RING_3_TILES) |
+| Ring 1 Board (35 tiles) | ✅ Complete | `mockData.ts` (BOARD_TILES) |
+| Ring 2 Data (24 tiles) | ✅ Complete | `mockData.ts` (RING_2_TILES) |
+| Ring 3 Data (7 tiles) | ✅ Complete | `mockData.ts` (RING_3_TILES) |
 | Ring Config Constants | ✅ Complete | `mockData.ts` (RING_CONFIG) |
 | Elevator Odds | ✅ Complete | `mockData.ts` (ELEVATOR_ODDS) |
 | Elite Stock Category | ✅ Complete | `types.ts`, `mockData.ts` |
@@ -310,7 +288,7 @@ The Start tile on each ring acts as a **portal** that determines whether players
 | Stock Categories | ✅ Complete | 6 categories (turnarounds, dividends, growth, value, moats, elite) |
 | Casino Minigames | ✅ Complete | Scratchcard, Slots |
 | Quiz System | ✅ Complete | `EventModal.tsx` |
-| Bias Sanctuary | ✅ Complete | `BiasSanctuaryModal.tsx` |
+| Case Study | ✅ Complete | `BiasSanctuaryModal.tsx` |
 | City Builder | ✅ Complete | `CityBuilderModal.tsx` |
 | Stock Exchange Builder | ✅ Complete | `StockExchangeBuilderModal.tsx` |
 | Achievement System | ✅ Complete | `AchievementsModal.tsx` |
@@ -346,9 +324,9 @@ The Start tile on each ring acts as a **portal** that determines whether players
 | System | Status | Next Steps |
 |--------|--------|------------|
 | Multi-Ring UI | 🚧 In Progress | Render Ring 2 and Ring 3 tiles visually |
-| Elevator Mechanic | 🚧 In Progress | Implement roll logic and ring transitions |
+| Fall Portals + Chance Lift | 🚧 In Progress | Add richer outcomes + polish Ring 2 portal feedback |
 | Ring Transition Animations | 🚧 In Progress | Polish ascend/descend visual feedback |
-| Wealth Throne Center | 🚧 In Progress | Center tile UI and victory sequence |
+| Wealth Run Roulette Loop | 🚧 In Progress | Add richer roulette UX and long-tail rewards |
 | Soothing Sound System | 🚧 In Progress | Upgrade harsh oscillators to pleasant tones |
 
 ### 📋 Planned
@@ -358,7 +336,7 @@ The Start tile on each ring acts as a **portal** that determines whether players
 | Wheel of Fortune | P1 | Happy Hour mini-game |
 | Stock Rush | P1 | Timed discount event |
 | Elite Stock Mechanics | P1 | Special behaviors for elite stocks |
-| Throne Victory Sequence | P1 | Epic celebration for reaching center |
+| Roulette Victory Sequence | P1 | Epic celebration for Wealth Run roulette wins |
 | Vault Heist | P2 | Weekly special event |
 | Sound Effects | P2 | Audio for all actions |
 | Ring-based Leaderboards | P2 | Track who reaches Ring 3 most |
@@ -378,7 +356,7 @@ The Start tile on each ring acts as a **portal** that determines whether players
 - **Green:** Positive actions (buy, gain, win)
 - **Red:** Negative actions (risk, loss, warning)
 - **Blue:** Informational (quiz, learn, stats)
-- **Gold/Yellow:** Special events (casino, elevator, throne)
+- **Gold/Yellow:** Special events (casino, Wealth Run, roulette)
 - **Purple:** Premium features (shop, boosts)
 
 ### Rule 3: Animation Budget
@@ -517,7 +495,7 @@ update game logic
 3. **Progression:**
    - Time to reach Ring 2
    - Time to reach Ring 3
-   - % of players reaching Throne
+   - % of players triggering Wealth Run roulette
    - Net Worth distribution (users per tier)
 
 4. **Monetization:**
@@ -528,7 +506,7 @@ update game logic
 
 5. **Education:**
    - Quiz accuracy rate
-   - Bias case studies completed
+   - Case Study completions
    - Time spent on Alpha score analysis
    - Portfolio diversity score
 
@@ -599,7 +577,7 @@ If a mechanic would feel unfair in a $20 premium game, it's exploitative in a F2
 3. **Educational Integrity:**
    - ✅ All stock data must be accurate
    - ✅ Quiz answers must be correct and well-sourced
-   - ✅ Bias case studies must reflect real research
+   - ✅ Case studies must reflect real research
    - ✅ Never simplify to the point of misinformation
 
 4. **Age-Appropriate:**
@@ -637,7 +615,7 @@ These games are always accessible but have daily limits to prevent abuse.
 |------|-------------|-------------|----------|---------|
 | **Scratchcard** | 3-match instant win game | 3 plays | 1 hour | 50-500 coins |
 | **Quiz Challenge** | Investment knowledge questions | 5 plays | None | 25-100 stars + XP |
-| **Bias Sanctuary** | Cognitive bias case studies | 3 studies | None | 50 stars + insight |
+| **Case Study** | Cognitive bias case studies | 3 studies | None | 50 stars + insight |
 | **Stock Purchase** | Buy stocks on category tiles | Unlimited | None | Portfolio growth |
 | **Daily Dividends** | 7-day collection streak | 1 per day | 24 hours | Dice rolls, cash |
 
@@ -799,7 +777,7 @@ ENDED TODAY:
 |------|--------|----------|-------|
 | Scratchcard | ✅ Complete | — | `ScratchcardModal.tsx` |
 | Quiz Challenge | ✅ Complete | — | `EventModal.tsx` |
-| Bias Sanctuary | ✅ Complete | — | `BiasSanctuaryModal.tsx` |
+| Case Study | ✅ Complete | — | `BiasSanctuaryModal.tsx` |
 | Daily Dividends | ✅ Complete | — | `DailyDividendsModal.tsx` |
 | Slot Machine | ✅ Complete | — | `CasinoModal.tsx` |
 | Wheel of Fortune | 🚧 Planned | P1 | — |
@@ -1121,10 +1099,10 @@ PHASE 4: PULSE
 | Priority | Feature | Description |
 |----------|---------|-------------|
 | P0 | Portal Animation | Glow → Fade → Materialize sequence |
-| P0 | Ring 3 Victory Lap | $20K rewards, Black Swan danger |
+| P0 | Wealth Run + Roulette | One-roll jackpot + mega roulette rewards |
 | P1 | Wheel of Fortune | First mini-game implementation |
 | P1 | Ring Transition Polish | Smooth ascend/descend animations |
-| P2 | Throne Victory | Epic final celebration sequence |
+| P2 | Roulette Victory | Epic final celebration sequence |
 | P2 | Sound Effects | Audio feedback for all actions |
 
 ---
@@ -1152,7 +1130,7 @@ PHASE 4: PULSE
 - [x] **Shop Items**
 - [ ] Wheel of Fortune mini-game
 - [ ] Elite stock special behaviors
-- [ ] Throne victory sequence
+- [ ] Roulette victory sequence
 - [x] Daily login rewards
 - [x] Weekly challenges
 - [ ] Social features (leaderboard)
@@ -1164,7 +1142,7 @@ PHASE 4: PULSE
 - [ ] Advanced portfolio analytics
 - [ ] Event system (limited-time events)
 - [ ] Seasonal battle pass
-- [ ] More bias case studies
+- [ ] More case studies
 
 ### P3: Long-Term Content (Month 2+)
 - [ ] New stock categories (international, crypto, etc.)
