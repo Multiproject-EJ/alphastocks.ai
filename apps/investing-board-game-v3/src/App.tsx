@@ -1675,6 +1675,7 @@ function App() {
     clearError: clearSaveError,
   } = useGameSave()
   const proToolsOverlayInitialized = useRef(false)
+  const immediateSaveRef = useRef(false)
 
   const handleOpenProTools = useCallback(() => {
     const proToolsUrl = 'https://www.alphastocks.ai/?proTools=1'
@@ -1982,6 +1983,16 @@ function App() {
     setLastSavedTime(lastSaveTimeRef.current)
     saveGame(gameState, rollsRemaining, nextResetTime)
   }, [isAuthenticated, phase, gameState, rollsRemaining, nextResetTime, saveGame])
+
+  const triggerImmediateSave = useCallback(() => {
+    immediateSaveRef.current = true
+  }, [])
+
+  useEffect(() => {
+    if (!immediateSaveRef.current) return
+    immediateSaveRef.current = false
+    saveGame(gameState, rollsRemaining, nextResetTime)
+  }, [gameState, rollsRemaining, nextResetTime, saveGame])
 
   // Trigger auto-save when game state changes and player is idle
   useEffect(() => {
@@ -3686,6 +3697,7 @@ function App() {
         stats: updatedStats,
       }
     })
+    triggerImmediateSave()
 
     toast.success(`Purchased ${shares} shares of ${currentStock.ticker}`, {
       description: `Total cost: $${totalCost.toLocaleString()}`,
@@ -3774,8 +3786,9 @@ function App() {
           holdings: nextHoldings,
         }
       })
+      triggerImmediateSave()
     },
-    []
+    [triggerImmediateSave]
   )
 
   const handleChooseChallenge = (challenge: typeof THRIFTY_CHALLENGES[0]) => {
