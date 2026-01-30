@@ -12,19 +12,37 @@
   "categories": ["finance", "productivity"],
   "icons": [
     {
-      "src": "/icons/market_tycoon_logo_192x192.png",
+      "src": "/icons/investor_game_icon_64x64.png",
+      "sizes": "64x64",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/investor_game_icon_128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/investor_game_icon_192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/market_tycoon_logo_512x512.png",
+      "src": "/icons/investor_game_icon_512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/market_tycoon_logo_512x512.png",
+      "src": "/icons/investor_game_icon_1024x1024.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/investor_game_icon_512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
