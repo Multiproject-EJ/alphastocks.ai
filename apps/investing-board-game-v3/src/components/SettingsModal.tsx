@@ -172,7 +172,11 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
           .select('id', { head: true, count: 'exact' })
           .limit(1)
         if (error) {
-          details.push(`Database check failed: ${error.message}`)
+          if (error.code === '42P01') {
+            details.push('Database check failed: board_game_profiles table is missing.')
+          } else {
+            details.push(`Database check failed: ${error.message}`)
+          }
           hasError = true
         } else {
           details.push('Database reachable: board_game_profiles responded.')
@@ -236,7 +240,14 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
           }
 
           if (profileError) {
-            details.push(`Save schema check failed: ${profileError.message}`)
+            if (
+              typeof (profileError as { code?: string }).code === 'string' &&
+              (profileError as { code?: string }).code === '42P01'
+            ) {
+              details.push('Save schema check failed: board_game_profiles table is missing.')
+            } else {
+              details.push(`Save schema check failed: ${profileError.message}`)
+            }
             hasError = true
           } else if (!data) {
             details.push('Save schema check passed, but no profile row exists yet for this user.')
