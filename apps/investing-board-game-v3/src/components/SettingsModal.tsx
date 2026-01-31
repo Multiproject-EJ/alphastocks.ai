@@ -172,7 +172,11 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
           .select('id', { head: true, count: 'exact' })
           .limit(1)
         if (error) {
-          details.push(`Database check failed: ${error.message}`)
+          if (error.code === '42P01') {
+            details.push('Database check failed: board_game_profiles table is missing.')
+          } else {
+            details.push(`Database check failed: ${error.message}`)
+          }
           hasError = true
         } else {
           details.push('Database reachable: board_game_profiles responded.')
@@ -181,6 +185,150 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
         const message = error instanceof Error ? error.message : 'Unknown error'
         details.push(`Database check threw an error: ${message}`)
         hasError = true
+      }
+
+      if (!isAuthenticated || !user) {
+        details.push('Save diagnostics skipped: user is not authenticated.')
+      } else {
+        try {
+          const requiredColumns = [
+            'profile_id',
+            'cash',
+            'position',
+            'net_worth',
+            'portfolio_value',
+            'stars',
+            'coins',
+            'holdings',
+            'inventory',
+            'active_effects',
+            'stats',
+            'achievements',
+            'rolls_remaining',
+            'rolls_reset_at',
+            'updated_at',
+          ]
+          const optionalColumns = ['challenges', 'thrift_path', 'event_track']
+          let selectColumns = [...requiredColumns, ...optionalColumns]
+          let data: Record<string, any> | null = null
+          let profileError: { message: string } | null = null
+
+          for (let attempt = 0; attempt < 2; attempt += 1) {
+            const response = await supabaseClient
+              .from('board_game_profiles')
+              .select(selectColumns.join(','))
+              .eq('profile_id', user.id)
+              .maybeSingle()
+
+            if (!response.error) {
+              data = response.data
+              profileError = null
+              break
+            }
+
+            profileError = response.error
+            const message = response.error.message || ''
+            const missingMatch = message.match(/column\s+[^.]+\.(\w+)\s+does not exist/i)
+            if (missingMatch) {
+              const missingColumn = missingMatch[1]
+              selectColumns = selectColumns.filter((column) => column !== missingColumn)
+              details.push(`Schema warning: column ${missingColumn} is missing; continuing without it.`)
+              continue
+            }
+
+            break
+          }
+
+          if (profileError) {
+            if (
+              typeof (profileError as { code?: string }).code === 'string' &&
+              (profileError as { code?: string }).code === '42P01'
+            ) {
+              details.push('Save schema check failed: board_game_profiles table is missing.')
+            } else {
+              details.push(`Save schema check failed: ${profileError.message}`)
+            }
+            hasError = true
+          } else if (!data) {
+            details.push('Save schema check passed, but no profile row exists yet for this user.')
+            details.push('Save test skipped to avoid creating a blank profile. Trigger a manual save and retry.')
+          } else {
+            const issues: string[] = []
+            if (typeof data.cash !== 'number') issues.push('cash')
+            if (typeof data.stars !== 'number') issues.push('stars')
+            if (typeof data.coins !== 'number') issues.push('coins')
+            if (typeof data.position !== 'number') issues.push('position')
+            if (!Array.isArray(data.holdings)) issues.push('holdings')
+            if (!Array.isArray(data.inventory)) issues.push('inventory')
+            if (!Array.isArray(data.active_effects)) issues.push('active_effects')
+            if (data.stats && typeof data.stats !== 'object') issues.push('stats')
+            if (data.achievements && typeof data.achievements !== 'object') issues.push('achievements')
+
+            if (issues.length > 0) {
+              details.push(`Profile data type mismatch: ${issues.join(', ')}.`)
+              hasError = true
+            } else {
+              details.push('Profile schema looks compatible with current save payload.')
+            }
+
+            const savePayload = {
+              profile_id: data.profile_id,
+              cash: data.cash ?? 0,
+              position: data.position ?? 0,
+              net_worth: data.net_worth ?? 0,
+              portfolio_value: data.portfolio_value ?? 0,
+              stars: data.stars ?? 0,
+              coins: data.coins ?? 0,
+              holdings: data.holdings ?? [],
+              inventory: data.inventory ?? [],
+              active_effects: data.active_effects ?? [],
+              stats: data.stats ?? {},
+              achievements: data.achievements ?? { unlocked: [], progress: {} },
+              challenges: data.challenges ?? null,
+              thrift_path: data.thrift_path ?? null,
+              event_track: data.event_track ?? null,
+              rolls_remaining: data.rolls_remaining ?? 0,
+              rolls_reset_at: data.rolls_reset_at ?? new Date().toISOString(),
+            }
+
+            const { data: savedRow, error: saveError } = await supabaseClient
+              .from('board_game_profiles')
+              .upsert(savePayload, { onConflict: 'profile_id' })
+              .select('profile_id, cash, stars, coins, position, holdings, inventory, updated_at')
+              .maybeSingle()
+
+            if (saveError) {
+              details.push(`Save test failed: ${saveError.message}`)
+              hasError = true
+            } else if (!savedRow) {
+              details.push('Save test failed: no row returned after upsert.')
+              hasError = true
+            } else {
+              const writeChecks: string[] = []
+              if (savedRow.cash !== data.cash) writeChecks.push('cash')
+              if (savedRow.stars !== data.stars) writeChecks.push('stars')
+              if (savedRow.coins !== data.coins) writeChecks.push('coins')
+              if (savedRow.position !== data.position) writeChecks.push('position')
+              if (Array.isArray(savedRow.holdings) && Array.isArray(data.holdings)) {
+                if (savedRow.holdings.length !== data.holdings.length) writeChecks.push('holdings')
+              }
+              if (Array.isArray(savedRow.inventory) && Array.isArray(data.inventory)) {
+                if (savedRow.inventory.length !== data.inventory.length) writeChecks.push('inventory')
+              }
+
+              if (writeChecks.length > 0) {
+                details.push(`Save test completed, but mismatched fields: ${writeChecks.join(', ')}.`)
+                hasError = true
+              } else {
+                details.push('Save test passed: upsert + fetch returned expected values.')
+              }
+            }
+          }
+        } catch (error) {
+          const message = error instanceof Error ? error.message : 'Unknown error'
+          details.push(`Save diagnostics threw an error: ${message}`)
+          hasError = true
+        }
       }
     }
 
