@@ -212,6 +212,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
           let selectColumns = [...requiredColumns, ...optionalColumns]
           let data: Record<string, any> | null = null
           let profileError: { message: string } | null = null
+          const missingColumns = new Set<string>()
 
           for (let attempt = 0; attempt < 2; attempt += 1) {
             const response = await supabaseClient
@@ -232,6 +233,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
             if (missingMatch) {
               const missingColumn = missingMatch[1]
               selectColumns = selectColumns.filter((column) => column !== missingColumn)
+              missingColumns.add(missingColumn)
               details.push(`Schema warning: column ${missingColumn} is missing; continuing without it.`)
               continue
             }
@@ -271,7 +273,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
               details.push('Profile schema looks compatible with current save payload.')
             }
 
-            const savePayload = {
+            const savePayload: Record<string, any> = {
               profile_id: data.profile_id,
               cash: data.cash ?? 0,
               position: data.position ?? 0,
@@ -289,6 +291,12 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
               event_track: data.event_track ?? null,
               rolls_remaining: data.rolls_remaining ?? 0,
               rolls_reset_at: data.rolls_reset_at ?? new Date().toISOString(),
+            }
+
+            for (const column of missingColumns) {
+              if (column in savePayload) {
+                delete savePayload[column]
+              }
             }
 
             const { data: savedRow, error: saveError } = await supabaseClient
