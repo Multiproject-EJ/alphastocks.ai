@@ -187,32 +187,53 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
         details.push('Save diagnostics skipped: user is not authenticated.')
       } else {
         try {
-          const { data, error: profileError } = await supabaseClient
-            .from('board_game_profiles')
-            .select(
-              [
-                'profile_id',
-                'cash',
-                'position',
-                'net_worth',
-                'portfolio_value',
-                'stars',
-                'coins',
-                'holdings',
-                'inventory',
-                'active_effects',
-                'stats',
-                'achievements',
-                'challenges',
-                'thrift_path',
-                'event_track',
-                'rolls_remaining',
-                'rolls_reset_at',
-                'updated_at',
-              ].join(',')
-            )
-            .eq('profile_id', user.id)
-            .maybeSingle()
+          const requiredColumns = [
+            'profile_id',
+            'cash',
+            'position',
+            'net_worth',
+            'portfolio_value',
+            'stars',
+            'coins',
+            'holdings',
+            'inventory',
+            'active_effects',
+            'stats',
+            'achievements',
+            'rolls_remaining',
+            'rolls_reset_at',
+            'updated_at',
+          ]
+          const optionalColumns = ['challenges', 'thrift_path', 'event_track']
+          let selectColumns = [...requiredColumns, ...optionalColumns]
+          let data: Record<string, any> | null = null
+          let profileError: { message: string } | null = null
+
+          for (let attempt = 0; attempt < 2; attempt += 1) {
+            const response = await supabaseClient
+              .from('board_game_profiles')
+              .select(selectColumns.join(','))
+              .eq('profile_id', user.id)
+              .maybeSingle()
+
+            if (!response.error) {
+              data = response.data
+              profileError = null
+              break
+            }
+
+            profileError = response.error
+            const message = response.error.message || ''
+            const missingMatch = message.match(/column\s+[^.]+\.(\w+)\s+does not exist/i)
+            if (missingMatch) {
+              const missingColumn = missingMatch[1]
+              selectColumns = selectColumns.filter((column) => column !== missingColumn)
+              details.push(`Schema warning: column ${missingColumn} is missing; continuing without it.`)
+              continue
+            }
+
+            break
+          }
 
           if (profileError) {
             details.push(`Save schema check failed: ${profileError.message}`)
