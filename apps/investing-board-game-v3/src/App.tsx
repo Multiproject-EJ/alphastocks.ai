@@ -1677,6 +1677,18 @@ function App() {
   const proToolsOverlayInitialized = useRef(false)
   const immediateSaveRef = useRef(false)
 
+  const shouldUseSameTabProTools = () => {
+    if (typeof window === 'undefined') return false
+    const userAgent = window.navigator.userAgent || ''
+    const userAgentData = (window.navigator as Navigator & { userAgentData?: { mobile?: boolean } })
+      .userAgentData
+    const isMobileAgent = Boolean(userAgentData?.mobile) || /Android|iPhone|iPad|iPod|Mobi/i.test(userAgent)
+    const isStandalone =
+      window.matchMedia?.('(display-mode: standalone)')?.matches ||
+      (window.navigator as Navigator & { standalone?: boolean }).standalone
+    return Boolean(isMobileAgent || isStandalone)
+  }
+
   const handleOpenProTools = useCallback(() => {
     const proToolsUrl = 'https://www.alphastocks.ai/?proTools=1'
     const fallbackType = isAuthenticated ? 'error' : 'login'
@@ -1698,6 +1710,15 @@ function App() {
         source: 'board-game-v3',
         action: 'open_failed_no_window',
       })
+      return
+    }
+
+    if (shouldUseSameTabProTools()) {
+      logProToolsDiagnostic({
+        source: 'board-game-v3',
+        action: 'open_same_tab',
+      })
+      window.location.assign(proToolsUrl)
       return
     }
 
