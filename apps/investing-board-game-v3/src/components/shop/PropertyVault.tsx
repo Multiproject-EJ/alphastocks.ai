@@ -10,6 +10,7 @@ interface PropertyVaultProps {
   cash: number;
   isPurchasing: string | null;
   items?: typeof PROPERTY_VAULT_ITEMS;
+  ownedItemIds?: Set<string>;
   onBuy: (itemId: string, cost: number) => void;
 }
 
@@ -17,6 +18,7 @@ export function PropertyVault({
   cash,
   isPurchasing,
   items = PROPERTY_VAULT_ITEMS,
+  ownedItemIds,
   onBuy,
 }: PropertyVaultProps) {
   const { error } = useHaptics();
@@ -72,43 +74,57 @@ export function PropertyVault({
       </div>
 
       <div className="grid grid-cols-2 gap-3 pb-2">
-        {items.map((item) => (
-          <div
-            key={item.id}
-            className="rounded-2xl border border-white/10 bg-[#231236] p-2.5 text-white shadow-[0_12px_24px_rgba(15,7,28,0.35)]"
-          >
-            <div className="relative mx-auto mb-2.5 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-[#f5d38b]/40 via-[#9b6cff]/30 to-[#3a1b4f]/80 text-2xl">
-              {item.image ? (
-                <img
-                  src={item.image}
-                  alt={item.name}
-                  className="h-full w-full rounded-full object-cover"
-                />
-              ) : (
-                <span>{item.icon}</span>
-              )}
-              {item.isComplete && (
-                <span className="absolute -bottom-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500 text-xs font-bold text-white shadow-lg">
-                  ✓
-                </span>
-              )}
-            </div>
-            <div className="text-xs font-semibold">{item.name}</div>
-            <div className="text-[11px] text-white/60">{item.description}</div>
-            <button
-              onClick={() => handleBuy(item.id, item.price)}
-              disabled={cash < item.price || isPurchasing === item.id}
-              className={cn(
-                'mt-2.5 w-full rounded-full px-3 py-1.5 text-[11px] font-semibold transition-colors',
-                cash >= item.price
-                  ? 'bg-[#f7d488] text-[#2b1a3f] hover:bg-[#f9e1a5]'
-                  : 'cursor-not-allowed bg-white/10 text-white/40',
-              )}
+        {items.map((item) => {
+          const isOwned = ownedItemIds?.has(item.id);
+          return (
+            <div
+              key={item.id}
+              className="rounded-2xl border border-white/10 bg-[#231236] p-2.5 text-white shadow-[0_12px_24px_rgba(15,7,28,0.35)]"
             >
-              {isPurchasing === item.id ? '...' : `Unlock $${item.price.toLocaleString()}`}
-            </button>
-          </div>
-        ))}
+              <div className="relative mx-auto mb-2.5 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-[#f5d38b]/40 via-[#9b6cff]/30 to-[#3a1b4f]/80 text-2xl">
+                {item.image ? (
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    className="h-full w-full rounded-full object-cover"
+                  />
+                ) : (
+                  <span>{item.icon}</span>
+                )}
+                {item.isComplete && (
+                  <span className="absolute -bottom-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500 text-xs font-bold text-white shadow-lg">
+                    ✓
+                  </span>
+                )}
+                {isOwned && (
+                  <span className="absolute -top-2 -right-2 rounded-full bg-emerald-500 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white shadow-lg">
+                    Owned
+                  </span>
+                )}
+              </div>
+              <div className="text-xs font-semibold">{item.name}</div>
+              <div className="text-[11px] text-white/60">{item.description}</div>
+              <button
+                onClick={() => handleBuy(item.id, item.price)}
+                disabled={isOwned || cash < item.price || isPurchasing === item.id}
+                className={cn(
+                  'mt-2.5 w-full rounded-full px-3 py-1.5 text-[11px] font-semibold transition-colors',
+                  isOwned
+                    ? 'cursor-not-allowed bg-emerald-500/20 text-emerald-200'
+                    : cash >= item.price
+                    ? 'bg-[#f7d488] text-[#2b1a3f] hover:bg-[#f9e1a5]'
+                    : 'cursor-not-allowed bg-white/10 text-white/40',
+                )}
+              >
+                {isPurchasing === item.id
+                  ? '...'
+                  : isOwned
+                  ? 'Owned'
+                  : `Unlock $${item.price.toLocaleString()}`}
+              </button>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
