@@ -119,7 +119,7 @@ import {
   ROULETTE_REWARDS,
 } from '@/lib/mockData'
 import { getRandomWildcardEvent, CASH_PERCENTAGE_PENALTY } from '@/lib/wildcardEvents'
-import { SHOP_ITEMS } from '@/lib/shopItems'
+import { SHOP_ITEMS, ShopCategory } from '@/lib/shopItems'
 import {
   DAILY_ROLL_LIMIT,
   AUTO_SAVE_DEBOUNCE_MS,
@@ -1014,7 +1014,27 @@ function App() {
   )
 
   // Mobile shop purchase handler (uses cash instead of stars)
-  const handleMobileShopPurchase = useCallback((itemId: string) => {
+  const handleMobileShopPurchase = useCallback((itemId: string, cost: number, category: ShopCategory) => {
+    if (category === 'vault') {
+      if (gameState.cash < cost) {
+        toast.error('Not enough cash', {
+          description: `You need $${cost.toLocaleString()} but only have $${gameState.cash.toLocaleString()}`,
+        })
+        return false
+      }
+
+      setGameState((prev) => ({
+        ...prev,
+        cash: prev.cash - cost,
+      }))
+
+      toast.success('Vault item secured!', {
+        description: 'Added to your Property Vault.',
+      })
+      playSound('cash-register')
+      return true
+    }
+
     const item = SHOP_ITEMS.find(i => i.id === itemId)
     if (!item) return false
 

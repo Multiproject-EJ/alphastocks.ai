@@ -1,21 +1,26 @@
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 import { X } from '@phosphor-icons/react';
 import { ShopTabs } from './ShopTabs';
 import { ShopItem } from './ShopItem';
 import { PropertyVault } from './PropertyVault';
 import { usePurchase } from '@/hooks/usePurchase';
+import { useAuth } from '@/context/AuthContext';
 import { PROPERTY_VAULT_ITEMS, SHOP_ITEMS, ShopCategory } from '@/lib/shopItems';
+import { hasSupabaseConfig, supabaseClient } from '@/lib/supabaseClient';
 
 interface MobileShopProps {
   cash: number;
-  onPurchase: (itemId: string, cost: number) => void;
+  onPurchase: (itemId: string, cost: number, category: ShopCategory) => void;
   onClose?: () => void;
 }
 
 export function MobileShop({ cash, onPurchase, onClose }: MobileShopProps) {
-  const [activeTab, setActiveTab] = useState<ShopCategory>('utilities');
+  const [activeTab, setActiveTab] = useState<ShopCategory>('vault');
   const [pageIndex, setPageIndex] = useState(0);
   const { purchase, isPurchasing } = usePurchase();
+  const { user } = useAuth();
+  const [ownedVaultItems, setOwnedVaultItems] = useState<Set<string>>(new Set());
 
   const pageSize = 6;
   const utilityItems = SHOP_ITEMS.filter(item => item.category === 'utilities');
@@ -31,12 +36,37 @@ export function MobileShop({ cash, onPurchase, onClose }: MobileShopProps) {
     (pageIndex + 1) * pageSize,
   );
 
-  const handleBuy = async (itemId: string, cost: number) => {
+  const handleBuy = async (itemId: string, cost: number, category: ShopCategory) => {
     if (cash < cost) return;
-    
+
+    if (category === 'vault' && ownedVaultItems.has(itemId)) {
+      return;
+    }
+
     const success = await purchase(itemId, cost);
     if (success) {
-      onPurchase(itemId, cost);
+      if (category === 'vault') {
+        if (supabaseClient && hasSupabaseConfig && user) {
+          const { error } = await supabaseClient.rpc('shop_vault_purchase', {
+            item_id: itemId,
+          });
+
+          if (error) {
+            toast.error('Vault purchase failed', {
+              description: error.message,
+            });
+            return;
+          }
+        } else {
+          toast.message('Vault purchase saved locally', {
+            description: 'Connect your account to sync vault ownership.',
+          });
+        }
+
+        setOwnedVaultItems((prev) => new Set(prev).add(itemId));
+      }
+
+      onPurchase(itemId, cost, category);
     }
   };
 
@@ -48,6 +78,39 @@ export function MobileShop({ cash, onPurchase, onClose }: MobileShopProps) {
   useEffect(() => {
     setPageIndex((current) => Math.min(current, totalPages - 1));
   }, [totalPages]);
+
+  useEffect(() => {
+    if (!supabaseClient || !hasSupabaseConfig || !user) {
+      setOwnedVaultItems(new Set());
+      return;
+    }
+
+    let isActive = true;
+
+    const loadOwnership = async () => {
+      const { data, error } = await supabaseClient
+        .from('shop_vault_item_ownership')
+        .select('item_id')
+        .eq('profile_id', user.id);
+
+      if (!isActive) return;
+
+      if (error) {
+        toast.error('Unable to load vault ownership', {
+          description: error.message,
+        });
+        return;
+      }
+
+      setOwnedVaultItems(new Set((data ?? []).map((record) => record.item_id as string)));
+    };
+
+    loadOwnership();
+
+    return () => {
+      isActive = false;
+    };
+  }, [user]);
 
   const paginationControls = (
     <div className="flex items-center justify-between rounded-full border border-border/60 bg-background/80 px-3 py-1.5 text-xs text-muted-foreground shadow-sm">
@@ -116,7 +179,7 @@ export function MobileShop({ cash, onPurchase, onClose }: MobileShopProps) {
                   key={item.id}
                   item={item}
                   canAfford={cash >= item.price}
-                  onBuy={() => handleBuy(item.id, item.price)}
+                  onBuy={() => handleBuy(item.id, item.price, 'utilities')}
                   isPurchasing={isPurchasing === item.id}
                 />
               ))}
@@ -128,8 +191,9 @@ export function MobileShop({ cash, onPurchase, onClose }: MobileShopProps) {
             <PropertyVault
               cash={cash}
               isPurchasing={isPurchasing}
+              ownedItemIds={ownedVaultItems}
               items={vaultPageItems}
-              onBuy={handleBuy}
+              onBuy={(itemId, cost) => handleBuy(itemId, cost, 'vault')}
             />
             {paginationControls}
           </div>

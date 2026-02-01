@@ -42,6 +42,7 @@ import {
   COSMETICS,
   CURRENCY_PACKS,
   SHOP_ITEMS,
+  ShopCategory,
 } from '@/lib/shopItems'
 import { useSound } from '@/hooks/useSound'
 import { useIsMobile } from '@/hooks/use-mobile'
@@ -52,7 +53,7 @@ interface ShopModalProps {
   onOpenChange: (open: boolean) => void
   gameState: GameState
   onPurchase: (itemId: string) => void
-  onMobilePurchase?: (itemId: string) => boolean
+  onMobilePurchase?: (itemId: string, cost: number, category: ShopCategory) => boolean
   isPermanentOwned: (itemId: string) => boolean
   getItemQuantity: (itemId: string) => number
   canAfford: (price: number) => boolean
@@ -107,9 +108,9 @@ export function ShopModal({
   }, [selectedCategory, sortBy])
 
   // Handle mobile shop purchase (uses cash instead of stars)
-  const handleMobilePurchase = (itemId: string, cost: number) => {
+  const handleMobilePurchase = (itemId: string, cost: number, category: ShopCategory) => {
     if (onMobilePurchase) {
-      onMobilePurchase(itemId)
+      onMobilePurchase(itemId, cost, category)
     }
   }
 
