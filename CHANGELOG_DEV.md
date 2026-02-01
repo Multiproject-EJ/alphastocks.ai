@@ -5,6 +5,22 @@
 
 ## Unreleased
 
+**Date:** 2026-02-02  
+**Slice:** M7.1 (audit board renderer + tile overlays)  
+**Summary:**  
+- Audited the board renderer and tile overlay stack to confirm where ring layout, overlays, and visibility gates live.  
+- Documented the audit in the master plan so follow-on label overlays can respect ring reveal and pointer-event rules.  
+
+**Files changed:**  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (not run; documentation-only slice)  
+
 **Date:** 2026-02-01  
 **Slice:** P1.2 (Portal animation polish)  
 **Summary:**  

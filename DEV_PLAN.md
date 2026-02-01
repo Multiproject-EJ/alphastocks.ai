@@ -206,7 +206,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **M6.5** ✅ Apply roll regen boost perk (based on existing regen)
 
 ### M7 — Tile Price Pop Labels
-- **M7.1** Audit board renderer + tile overlays
+- **M7.1** ✅ Audit board renderer + tile overlays
 - **M7.2** ✅ Implement tile label component
 - **M7.3** ✅ Hook labels to tile data
 
@@ -249,7 +249,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **M7.1 — Audit board renderer + tile overlays**.
+**Recommended next slice:** **TBD — align with the master plan for the next milestone**.
 
 ## M0.2 Slice Notes (Instrumentation hooks)
 - Added a dedicated instrumentation helper that enables opt-in debug logging via local storage or env flags without changing gameplay behavior.
