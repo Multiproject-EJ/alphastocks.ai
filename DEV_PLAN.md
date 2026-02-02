@@ -222,6 +222,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P1.3** ✅ Roulette victory sequence
 - **P1.4** ✅ Happy Hour wheel scheduling in Games Hub
 - **P1.5** ✅ Stock Rush timed mini-game surface
+- **P1.6** ✅ Vault Heist timed mini-game surface
 
 ### P2 — Audio & Feedback
 - **P2.1** ✅ Soothing sound system
@@ -255,7 +256,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **Vault Heist timed mini-game surface (P1 planned in `docs/DEV_PLAN_MARKETTYCOON_MASTER.md`).**
+**Recommended next slice:** **Market Mayhem timed mini-game surface (P2 planned in `docs/DEV_PLAN_MARKETTYCOON_MASTER.md`).**
 
 ## M0.2 Slice Notes (Instrumentation hooks)
 - Added a dedicated instrumentation helper that enables opt-in debug logging via local storage or env flags without changing gameplay behavior.
@@ -447,6 +448,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Built a mobile-first Stock Rush timed-event surface with discount, bonus-star, and limited-supply callouts aligned to the master plan.
 - Added rush pick cards with discounted pricing, claimed progress, and quick-buy CTAs to communicate urgency.
 - Wired the mini-games hub to show Stock Rush schedule availability so the card opens only during live rush windows.
+
+## P1.6 Slice Notes (Vault Heist timed mini-game surface)
+- Built a mobile-first Vault Heist event surface with lane selection, crew boost messaging, and alarm risk callouts.
+- Wired the mini-games hub Vault Heist card to show schedule availability and open only during live heist windows.
+- Added live status messaging with countdown-friendly labels to keep the Saturday heist cadence clear.
 
 ## P2.1 Slice Notes (Soothing sound system)
 - Added a soft low-pass filter and warmer triangle waveform defaults to the Web Audio synth nodes to reduce harshness.
