@@ -193,6 +193,29 @@ export function GamesHub({ onBack }: GamesHubProps) {
     }
   }, [activeMiniGames, upcomingMiniGames, getTimeRemaining])
 
+  const marketMayhemAvailability = useMemo(() => {
+    const activeMayhem = activeMiniGames.find(game => game.id === 'market-mayhem')
+    const upcomingMayhem = upcomingMiniGames.find(game => game.id === 'market-mayhem')
+    const remaining = activeMayhem ? getTimeRemaining(activeMayhem) : null
+    const formatTime = (date: Date) => date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+
+    if (activeMayhem) {
+      return {
+        isPlayable: true,
+        statusLabel: 'Play',
+        availabilityLabel: remaining ? `Mayhem live • ${remaining.display} left` : 'Mayhem live',
+      }
+    }
+
+    return {
+      isPlayable: false,
+      statusLabel: 'Closed',
+      availabilityLabel: upcomingMayhem
+        ? `Next surge • ${formatTime(upcomingMayhem.startsAt)}`
+        : 'Mayhem schedule pending',
+    }
+  }, [activeMiniGames, upcomingMiniGames, getTimeRemaining])
+
   return (
     <>
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-4 md:p-8">
@@ -237,7 +260,9 @@ export function GamesHub({ onBack }: GamesHubProps) {
                     ? stockRushAvailability.isPlayable
                     : game.id === 'vault-heist'
                       ? vaultHeistAvailability.isPlayable
-                      : game.status === 'playable',
+                      : game.id === 'market-mayhem'
+                        ? marketMayhemAvailability.isPlayable
+                        : game.status === 'playable',
                 )}
                 isPlayable={game.id === 'wheel-of-fortune'
                   ? wheelAvailability.isPlayable
@@ -245,21 +270,27 @@ export function GamesHub({ onBack }: GamesHubProps) {
                     ? stockRushAvailability.isPlayable
                     : game.id === 'vault-heist'
                       ? vaultHeistAvailability.isPlayable
-                    : undefined}
+                      : game.id === 'market-mayhem'
+                        ? marketMayhemAvailability.isPlayable
+                        : undefined}
                 statusLabel={game.id === 'wheel-of-fortune'
                   ? wheelAvailability.statusLabel
                   : game.id === 'stock-rush'
                     ? stockRushAvailability.statusLabel
                     : game.id === 'vault-heist'
                       ? vaultHeistAvailability.statusLabel
-                    : undefined}
+                      : game.id === 'market-mayhem'
+                        ? marketMayhemAvailability.statusLabel
+                        : undefined}
                 availabilityLabel={game.id === 'wheel-of-fortune'
                   ? wheelAvailability.availabilityLabel
                   : game.id === 'stock-rush'
                     ? stockRushAvailability.availabilityLabel
                     : game.id === 'vault-heist'
                       ? vaultHeistAvailability.availabilityLabel
-                    : undefined}
+                      : game.id === 'market-mayhem'
+                        ? marketMayhemAvailability.availabilityLabel
+                        : undefined}
               />
             ))}
           </div>

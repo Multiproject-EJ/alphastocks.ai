@@ -1230,3 +1230,23 @@
 
 **How to test:**  
 - (manual) Land on a stock tile, confirm the buy button shows the ring-scaled bundle cost, purchase once, and verify holdings + stats update.  
+
+**Date:** 2026-02-03  
+**Slice:** P2 (Market Mayhem timed mini-game surface)  
+**Summary:**  
+- Built a mobile-first Market Mayhem timed-event surface with rapid decision CTAs, flash signal callouts, and a leaderboard preview.  
+- Added monthly-random schedule support for Market Mayhem so the mini-game hub can surface live and upcoming surge windows.  
+- Wired the Games Hub card to show Market Mayhem availability labels and open the event when the surge is active.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/components/games/placeholders/MarketMayhem.tsx  
+- apps/investing-board-game-v3/src/lib/miniGameSchedule.ts  
+- apps/investing-board-game-v3/src/pages/GamesHub.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Open the mini-games hub, confirm Market Mayhem shows live/upcoming timing labels, and open it during an active window to view the trading-floor layout.  
