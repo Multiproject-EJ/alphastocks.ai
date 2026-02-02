@@ -65,6 +65,23 @@
 - (manual) Land on the Chance tile, draw multiple times, and verify non-jackpot outcomes award randomized perks while jackpots still lift to Ring 3.  
 
 **Date:** 2026-02-02  
+**Slice:** P1 (Elite stock special behaviors)  
+**Summary:**  
+- Added elite stock purchase bonuses that grant extra stars and XP based on composite scores with live economy multipliers.  
+- Tracked bonus stars for elite purchases and surfaced a dedicated elite bonus toast on buy.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/App.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Land on an elite stock tile, purchase shares, and confirm the bonus toast shows added stars/XP.  
+
+**Date:** 2026-02-02  
 **Slice:** P2.1 (soothing sound system)  
 **Summary:**  
 - Added low-pass filtered tone nodes to soften Web Audio synth output and reduce harsh peaks.  
