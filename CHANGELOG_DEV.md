@@ -5,6 +5,27 @@
 
 ## Unreleased
 
+**Date:** 2026-02-04  
+**Slice:** Wealth Run Roulette Loop (richer roulette UX + long-tail rewards)  
+**Summary:**  
+- Expanded the roulette reward table with additional mid-tier payouts plus long-tail rewards like rolls and XP.  
+- Added a roulette status panel to surface live mode, latest spin result, and highlighted rewards in a mobile-first layout.  
+- Reset roulette session stats on activation and track roulette spins for clearer loop feedback.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/App.tsx  
+- apps/investing-board-game-v3/src/components/RouletteStatusPanel.tsx  
+- apps/investing-board-game-v3/src/lib/mockData.ts  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Trigger a Wealth Run win tile, confirm the roulette status panel appears and highlights rewards.  
+- (manual) Spin roulette multiple times; verify rewards apply for cash, stars, coins, XP, and rolls as shown in the toast.  
+
 **Date:** 2026-02-03  
 **Slice:** Fall Portals + Chance Lift  
 **Summary:**  
