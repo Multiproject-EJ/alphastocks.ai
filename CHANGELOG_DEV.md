@@ -5,6 +5,24 @@
 
 ## Unreleased
 
+**Date:** 2026-02-02  
+**Slice:** P1.5 (Stock Rush timed mini-game surface)  
+**Summary:**  
+- Built a mobile-first Stock Rush timed-event surface with rush bonuses, countdown status, and pick cards.  
+- Wired the mini-games hub Stock Rush card to show schedule availability and open only during live rush windows.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/components/games/placeholders/StockRush.tsx  
+- apps/investing-board-game-v3/src/pages/GamesHub.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Open the Games Hub during a Stock Rush window and launch Stock Rush to confirm the rush surface, countdown, and pick cards render on mobile.  
+
 **Date:** 2026-02-06  
 **Slice:** P1.4 (Happy Hour wheel scheduling in Games Hub)  
 **Summary:**  

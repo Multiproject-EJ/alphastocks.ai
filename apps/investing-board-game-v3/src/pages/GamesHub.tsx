@@ -147,6 +147,29 @@ export function GamesHub({ onBack }: GamesHubProps) {
     }
   }, [activeMiniGames, upcomingMiniGames, getTimeRemaining])
 
+  const stockRushAvailability = useMemo(() => {
+    const activeRush = activeMiniGames.find(game => game.id === 'stock-rush')
+    const upcomingRush = upcomingMiniGames.find(game => game.id === 'stock-rush')
+    const remaining = activeRush ? getTimeRemaining(activeRush) : null
+    const formatTime = (date: Date) => date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+
+    if (activeRush) {
+      return {
+        isPlayable: true,
+        statusLabel: 'Play',
+        availabilityLabel: remaining ? `Rush live • ${remaining.display} left` : 'Rush live',
+      }
+    }
+
+    return {
+      isPlayable: false,
+      statusLabel: 'Closed',
+      availabilityLabel: upcomingRush
+        ? `Next rush • ${formatTime(upcomingRush.startsAt)}`
+        : 'Rush schedule pending',
+    }
+  }, [activeMiniGames, upcomingMiniGames, getTimeRemaining])
+
   return (
     <>
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-4 md:p-8">
@@ -185,11 +208,27 @@ export function GamesHub({ onBack }: GamesHubProps) {
                 game={game}
                 onClick={() => handleGameSelect(
                   game.id,
-                  game.id === 'wheel-of-fortune' ? wheelAvailability.isPlayable : game.status === 'playable',
+                  game.id === 'wheel-of-fortune'
+                    ? wheelAvailability.isPlayable
+                    : game.id === 'stock-rush'
+                      ? stockRushAvailability.isPlayable
+                      : game.status === 'playable',
                 )}
-                isPlayable={game.id === 'wheel-of-fortune' ? wheelAvailability.isPlayable : undefined}
-                statusLabel={game.id === 'wheel-of-fortune' ? wheelAvailability.statusLabel : undefined}
-                availabilityLabel={game.id === 'wheel-of-fortune' ? wheelAvailability.availabilityLabel : undefined}
+                isPlayable={game.id === 'wheel-of-fortune'
+                  ? wheelAvailability.isPlayable
+                  : game.id === 'stock-rush'
+                    ? stockRushAvailability.isPlayable
+                    : undefined}
+                statusLabel={game.id === 'wheel-of-fortune'
+                  ? wheelAvailability.statusLabel
+                  : game.id === 'stock-rush'
+                    ? stockRushAvailability.statusLabel
+                    : undefined}
+                availabilityLabel={game.id === 'wheel-of-fortune'
+                  ? wheelAvailability.availabilityLabel
+                  : game.id === 'stock-rush'
+                    ? stockRushAvailability.availabilityLabel
+                    : undefined}
               />
             ))}
           </div>
