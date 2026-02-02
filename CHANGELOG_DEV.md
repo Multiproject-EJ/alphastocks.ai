@@ -5,6 +5,23 @@
 
 ## Unreleased
 
+**Date:** 2026-02-06  
+**Slice:** P0 (multi-ring UI rendering)  
+**Summary:**  
+- Synced phone board ring counts to the canonical ring configuration so Ring 2/3 positioning and scale match the real tile counts.  
+- Normalized mobile ring position math to keep multi-ring rendering consistent when entering inner rings.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/components/phone/MobileBoard3D.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Open the board on a phone viewport, transition to Ring 2 or Ring 3, and confirm the camera centers correctly on the inner ring tiles.  
+
 **Date:** 2026-02-05  
 **Slice:** P1.3 (Roulette victory sequence)  
 **Summary:**  

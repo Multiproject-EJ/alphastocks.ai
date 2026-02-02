@@ -55,7 +55,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 - `AI_IMPLEMENTATION.md`, `IMPLEMENTATION_SUMMARY.md`, `DEVLOG.md` (project-wide status/context)
 
 ### Repo Map (paths verified)
-_Last reviewed: 2026-02-02 (P1 elite stock special behaviors)_
+_Last reviewed: 2026-02-06 (P0 multi-ring UI rendering on phone)_
 #### Frontend
 - **Legacy static pages entry:** `/index.html`, `/about.html`, `/faq.html`, `/monthly/`, `/weekly/`, `/superinvestor/`
 - **Vite + Preact app:** `/apps/investing-board-game-v3` (built into `/public/board-game-v3` via `npm run build:board-game-v3`)
@@ -253,7 +253,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **Multi-ring UI rendering (P0 planned in `docs/DEV_PLAN_MARKETTYCOON_MASTER.md`).**
+**Recommended next slice:** **Portal animation polish (P0 planned in `docs/DEV_PLAN_MARKETTYCOON_MASTER.md`).**
 
 ## M0.2 Slice Notes (Instrumentation hooks)
 - Added a dedicated instrumentation helper that enables opt-in debug logging via local storage or env flags without changing gameplay behavior.
@@ -442,6 +442,10 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ## P1 Elite Stock Special Behaviors Slice Notes
 - Added an elite stock purchase bonus that awards extra stars and XP based on composite score with live economy multipliers.
 - Updated elite stock buys to track bonus stars in stats and surface a dedicated bonus toast on purchase.
+
+## P0 Multi-ring UI Rendering Slice Notes
+- Synced the phone 3D board ring tile counts with the canonical ring configuration so inner rings render at the correct scale and position.
+- Normalized mobile ring position math to use the configured tile counts, keeping multi-ring UI rendering consistent with ring data.
 
 ## Wealth Run Roulette Loop Slice Notes
 - Expanded the roulette reward table with long-tail rewards (rolls, XP) and richer mid-tier prizes to smooth the payout curve.
