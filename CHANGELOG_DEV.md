@@ -1250,3 +1250,23 @@
 
 **How to test:**  
 - (manual) Open the mini-games hub, confirm Market Mayhem shows live/upcoming timing labels, and open it during an active window to view the trading-floor layout.  
+
+**Date:** 2026-02-02  
+**Slice:** P3 (Portfolio Poker timed mini-game surface)  
+**Summary:**  
+- Built a mobile-first Portfolio Poker timed-event surface with hand-combo bonuses, opponent callouts, and round-flow framing.  
+- Added a daily Portfolio Poker schedule slot so the mini-game hub can surface live/upcoming table windows.  
+- Wired the Games Hub card to show Portfolio Poker availability labels and gate access to live windows.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/components/games/placeholders/PortfolioPoker.tsx  
+- apps/investing-board-game-v3/src/lib/miniGameSchedule.ts  
+- apps/investing-board-game-v3/src/pages/GamesHub.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Open the mini-games hub during the Portfolio Poker window (daily at 6pm local), confirm the card shows a live label, and open it to view the poker table layout.  
