@@ -285,6 +285,29 @@ export function GamesHub({ onBack }: GamesHubProps) {
     }
   }, [activeMiniGames, upcomingMiniGames, getTimeRemaining])
 
+  const bearTrapAvailability = useMemo(() => {
+    const activeBearTrap = activeMiniGames.find(game => game.id === 'bear-trap')
+    const upcomingBearTrap = upcomingMiniGames.find(game => game.id === 'bear-trap')
+    const remaining = activeBearTrap ? getTimeRemaining(activeBearTrap) : null
+    const formatTime = (date: Date) => date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+
+    if (activeBearTrap) {
+      return {
+        isPlayable: true,
+        statusLabel: 'Play',
+        availabilityLabel: remaining ? `Bear Trap live • ${remaining.display} left` : 'Bear Trap live',
+      }
+    }
+
+    return {
+      isPlayable: false,
+      statusLabel: 'Closed',
+      availabilityLabel: upcomingBearTrap
+        ? `Next drop • ${formatTime(upcomingBearTrap.startsAt)}`
+        : 'Bear Trap schedule pending',
+    }
+  }, [activeMiniGames, upcomingMiniGames, getTimeRemaining])
+
   return (
     <>
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-4 md:p-8">
@@ -336,7 +359,9 @@ export function GamesHub({ onBack }: GamesHubProps) {
                           : game.id === 'dividend-derby'
                             ? dividendDerbyAvailability.isPlayable
                             : game.id === 'bull-run'
-                              ? bullRunAvailability.isPlayable
+                            ? bullRunAvailability.isPlayable
+                            : game.id === 'bear-trap'
+                              ? bearTrapAvailability.isPlayable
                         : game.status === 'playable',
                 )}
                 isPlayable={game.id === 'wheel-of-fortune'
@@ -353,6 +378,8 @@ export function GamesHub({ onBack }: GamesHubProps) {
                           ? dividendDerbyAvailability.isPlayable
                           : game.id === 'bull-run'
                             ? bullRunAvailability.isPlayable
+                            : game.id === 'bear-trap'
+                              ? bearTrapAvailability.isPlayable
                         : undefined}
                 statusLabel={game.id === 'wheel-of-fortune'
                   ? wheelAvailability.statusLabel
@@ -365,9 +392,11 @@ export function GamesHub({ onBack }: GamesHubProps) {
                       : game.id === 'portfolio-poker'
                         ? portfolioPokerAvailability.statusLabel
                         : game.id === 'dividend-derby'
-                          ? dividendDerbyAvailability.statusLabel
-                          : game.id === 'bull-run'
-                            ? bullRunAvailability.statusLabel
+                        ? dividendDerbyAvailability.statusLabel
+                        : game.id === 'bull-run'
+                          ? bullRunAvailability.statusLabel
+                          : game.id === 'bear-trap'
+                            ? bearTrapAvailability.statusLabel
                         : undefined}
                 availabilityLabel={game.id === 'wheel-of-fortune'
                   ? wheelAvailability.availabilityLabel
@@ -380,9 +409,11 @@ export function GamesHub({ onBack }: GamesHubProps) {
                       : game.id === 'portfolio-poker'
                         ? portfolioPokerAvailability.availabilityLabel
                         : game.id === 'dividend-derby'
-                          ? dividendDerbyAvailability.availabilityLabel
-                          : game.id === 'bull-run'
-                            ? bullRunAvailability.availabilityLabel
+                        ? dividendDerbyAvailability.availabilityLabel
+                        : game.id === 'bull-run'
+                          ? bullRunAvailability.availabilityLabel
+                          : game.id === 'bear-trap'
+                            ? bearTrapAvailability.availabilityLabel
                         : undefined}
               />
             ))}

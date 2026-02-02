@@ -190,6 +190,17 @@ export const MINI_GAME_CONFIG: MiniGameSchedule[] = [
       durationMinutes: 90,
     },
   },
+  {
+    id: 'bear-trap',
+    name: 'Bear Trap',
+    category: 'special',
+    isActive: false,
+    schedule: {
+      type: 'daily',
+      times: ['21:00'],
+      durationMinutes: 120,
+    },
+  },
 ]
 
 /**
