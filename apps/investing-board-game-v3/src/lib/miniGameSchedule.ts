@@ -179,6 +179,17 @@ export const MINI_GAME_CONFIG: MiniGameSchedule[] = [
       },
     },
   },
+  {
+    id: 'bull-run',
+    name: 'Bull Run',
+    category: 'special',
+    isActive: false,
+    schedule: {
+      type: 'daily',
+      times: ['15:00'],
+      durationMinutes: 90,
+    },
+  },
 ]
 
 /**

@@ -262,6 +262,29 @@ export function GamesHub({ onBack }: GamesHubProps) {
     }
   }, [activeMiniGames, upcomingMiniGames, getTimeRemaining])
 
+  const bullRunAvailability = useMemo(() => {
+    const activeBullRun = activeMiniGames.find(game => game.id === 'bull-run')
+    const upcomingBullRun = upcomingMiniGames.find(game => game.id === 'bull-run')
+    const remaining = activeBullRun ? getTimeRemaining(activeBullRun) : null
+    const formatTime = (date: Date) => date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+
+    if (activeBullRun) {
+      return {
+        isPlayable: true,
+        statusLabel: 'Play',
+        availabilityLabel: remaining ? `Bull Run live • ${remaining.display} left` : 'Bull Run live',
+      }
+    }
+
+    return {
+      isPlayable: false,
+      statusLabel: 'Closed',
+      availabilityLabel: upcomingBullRun
+        ? `Next run • ${formatTime(upcomingBullRun.startsAt)}`
+        : 'Bull Run schedule pending',
+    }
+  }, [activeMiniGames, upcomingMiniGames, getTimeRemaining])
+
   return (
     <>
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-4 md:p-8">
@@ -312,6 +335,8 @@ export function GamesHub({ onBack }: GamesHubProps) {
                           ? portfolioPokerAvailability.isPlayable
                           : game.id === 'dividend-derby'
                             ? dividendDerbyAvailability.isPlayable
+                            : game.id === 'bull-run'
+                              ? bullRunAvailability.isPlayable
                         : game.status === 'playable',
                 )}
                 isPlayable={game.id === 'wheel-of-fortune'
@@ -326,6 +351,8 @@ export function GamesHub({ onBack }: GamesHubProps) {
                         ? portfolioPokerAvailability.isPlayable
                         : game.id === 'dividend-derby'
                           ? dividendDerbyAvailability.isPlayable
+                          : game.id === 'bull-run'
+                            ? bullRunAvailability.isPlayable
                         : undefined}
                 statusLabel={game.id === 'wheel-of-fortune'
                   ? wheelAvailability.statusLabel
@@ -339,6 +366,8 @@ export function GamesHub({ onBack }: GamesHubProps) {
                         ? portfolioPokerAvailability.statusLabel
                         : game.id === 'dividend-derby'
                           ? dividendDerbyAvailability.statusLabel
+                          : game.id === 'bull-run'
+                            ? bullRunAvailability.statusLabel
                         : undefined}
                 availabilityLabel={game.id === 'wheel-of-fortune'
                   ? wheelAvailability.availabilityLabel
@@ -352,6 +381,8 @@ export function GamesHub({ onBack }: GamesHubProps) {
                         ? portfolioPokerAvailability.availabilityLabel
                         : game.id === 'dividend-derby'
                           ? dividendDerbyAvailability.availabilityLabel
+                          : game.id === 'bull-run'
+                            ? bullRunAvailability.availabilityLabel
                         : undefined}
               />
             ))}

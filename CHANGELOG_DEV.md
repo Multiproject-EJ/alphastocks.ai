@@ -5,6 +5,26 @@
 
 ## Unreleased
 
+**Date:** 2026-02-05  
+**Slice:** P3 (Bull Run timed mini-game surface)  
+**Summary:**  
+- Built a mobile-first Bull Run timed-event surface with momentum lanes, surge picks, and streak callouts for the rally loop.  
+- Added daily Bull Run schedule metadata so the mini-game availability system can surface live/upcoming windows.  
+- Wired the Games Hub card to show Bull Run availability labels and gate access until the rally is live.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/components/games/placeholders/BullRun.tsx  
+- apps/investing-board-game-v3/src/lib/miniGameSchedule.ts  
+- apps/investing-board-game-v3/src/pages/GamesHub.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Open the mini-games hub, confirm Bull Run shows live/upcoming timing labels, and open it during an active window to view the rally layout.  
+
 **Date:** 2026-02-04  
 **Slice:** P3 (Dividend Derby timed mini-game surface)  
 **Summary:**  
