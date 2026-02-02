@@ -5,6 +5,24 @@
 
 ## Unreleased
 
+**Date:** 2026-02-05  
+**Slice:** P1.3 (Roulette victory sequence)  
+**Summary:**  
+- Added a dedicated roulette victory modal with tier-based styling, celebration effects, and reward recap copy.  
+- Wired roulette spins and mode resets to open or clear the victory sequence for cleaner roulette flow feedback.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/App.tsx  
+- apps/investing-board-game-v3/src/components/RouletteVictoryModal.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Trigger a Wealth Run roulette spin and confirm the victory modal appears with the reward summary, then close it to continue.  
+
 **Date:** 2026-02-04  
 **Slice:** Wealth Run Roulette Loop (richer roulette UX + long-tail rewards)  
 **Summary:**  

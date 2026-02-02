@@ -41,6 +41,7 @@ import { WheelOfFortuneModal } from '@/components/WheelOfFortuneModal'
 import { VaultHeistModal } from '@/components/VaultHeistModal'
 import { ThroneVictoryModal } from '@/components/ThroneVictoryModal'
 import { RouletteStatusPanel } from '@/components/RouletteStatusPanel'
+import { RouletteVictoryModal } from '@/components/RouletteVictoryModal'
 import { SHOP2_ENABLED } from '@/lib/featureFlags'
 import { logProToolsDiagnostic } from '@/lib/proToolsDiagnostics'
 
@@ -402,6 +403,7 @@ function App() {
   const [rouletteSpinActive, setRouletteSpinActive] = useState(false)
   const [lastRouletteReward, setLastRouletteReward] = useState<RouletteReward | null>(null)
   const [rouletteSpinCount, setRouletteSpinCount] = useState(0)
+  const [rouletteVictoryOpen, setRouletteVictoryOpen] = useState(false)
 
   // Quick Reward celebration state
   const [quickCelebration, setQuickCelebration] = useState<{
@@ -2811,6 +2813,7 @@ function App() {
       return
     }
 
+    setRouletteVictoryOpen(false)
     setPhase('rolling')
     playSound('dice-roll')
 
@@ -2870,6 +2873,7 @@ function App() {
 
       setLastRouletteReward(reward)
       setRouletteSpinCount(prev => prev + 1)
+      setRouletteVictoryOpen(true)
 
       toast.success('🎯 Roulette Jackpot!', {
         description: `${reward.icon} ${reward.label}`,
@@ -3672,6 +3676,7 @@ function App() {
     setRouletteModeActive(true)
     setLastRouletteReward(null)
     setRouletteSpinCount(0)
+    setRouletteVictoryOpen(false)
     toast.success('🎯 Triple Ring Roulette', {
       description: 'All rings are live. Spin the mega roulette.',
     })
@@ -4333,6 +4338,7 @@ function App() {
                       setRouletteSpinActive(false)
                       setLastRouletteReward(null)
                       setRouletteSpinCount(0)
+                      setRouletteVictoryOpen(false)
                     }}
                   >
                     Reset Roulette Mode
@@ -5199,6 +5205,13 @@ function App() {
           return false
         }}
         playSound={playSound}
+      />
+
+      <RouletteVictoryModal
+        isOpen={rouletteVictoryOpen}
+        reward={lastRouletteReward}
+        spinCount={rouletteSpinCount}
+        onClose={() => setRouletteVictoryOpen(false)}
       />
 
       {/* Vault Heist Modal */}
