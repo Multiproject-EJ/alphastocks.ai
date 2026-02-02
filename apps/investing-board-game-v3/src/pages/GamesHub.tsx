@@ -12,6 +12,7 @@ import { GameLoadingScreen } from '@/components/games/GameLoadingScreen'
 import { WheelOfFortuneModal } from '@/components/WheelOfFortuneModal'
 import { GAMES_CONFIG } from '@/lib/gamesConfig'
 import { useGameOverlay } from '@/hooks/useGameOverlay'
+import { useMiniGames } from '@/hooks/useMiniGames'
 import { useSound } from '@/hooks/useSound'
 
 // Import all game placeholders
@@ -36,6 +37,7 @@ const DEMO_WHEEL_STARTING_COINS = 250
 export function GamesHub({ onBack }: GamesHubProps) {
   const { activeGame, isLoading, openGame, closeGame } = useGameOverlay()
   const { play: playSound } = useSound()
+  const { activeMiniGames, upcomingMiniGames, getTimeRemaining } = useMiniGames()
   const [wheelCoins, setWheelCoins] = useState(DEMO_WHEEL_STARTING_COINS)
   const [wheelSpinsRemaining, setWheelSpinsRemaining] = useState(DEMO_WHEEL_SPINS_LIMIT)
   const [wheelFreeSpins, setWheelFreeSpins] = useState(DEMO_WHEEL_FREE_SPINS)
@@ -76,8 +78,8 @@ export function GamesHub({ onBack }: GamesHubProps) {
     }
   }, [activeGame, resetWheelDemo])
 
-  const handleGameSelect = useCallback((gameId: string, status: 'coming-soon' | 'playable') => {
-    if (status !== 'playable') return
+  const handleGameSelect = useCallback((gameId: string, isPlayable: boolean) => {
+    if (!isPlayable) return
     openGame(gameId)
   }, [openGame])
 
@@ -122,6 +124,29 @@ export function GamesHub({ onBack }: GamesHubProps) {
     { label: '⚡ XP', value: wheelXp.toLocaleString() },
   ]), [wheelCash, wheelRolls, wheelStars, wheelXp])
 
+  const wheelAvailability = useMemo(() => {
+    const activeHappyHour = activeMiniGames.find(game => game.id === 'happy-hour-wheel')
+    const upcomingHappyHour = upcomingMiniGames.find(game => game.id === 'happy-hour-wheel')
+    const remaining = activeHappyHour ? getTimeRemaining(activeHappyHour) : null
+    const formatTime = (date: Date) => date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+
+    if (activeHappyHour) {
+      return {
+        isPlayable: true,
+        statusLabel: 'Play',
+        availabilityLabel: remaining ? `Happy Hour live • ${remaining.display} left` : 'Happy Hour live',
+      }
+    }
+
+    return {
+      isPlayable: false,
+      statusLabel: 'Closed',
+      availabilityLabel: upcomingHappyHour
+        ? `Next happy hour • ${formatTime(upcomingHappyHour.startsAt)}`
+        : 'Happy Hour schedule pending',
+    }
+  }, [activeMiniGames, upcomingMiniGames, getTimeRemaining])
+
   return (
     <>
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-4 md:p-8">
@@ -158,7 +183,13 @@ export function GamesHub({ onBack }: GamesHubProps) {
               <GameCard
                 key={game.id}
                 game={game}
-                onClick={() => handleGameSelect(game.id, game.status)}
+                onClick={() => handleGameSelect(
+                  game.id,
+                  game.id === 'wheel-of-fortune' ? wheelAvailability.isPlayable : game.status === 'playable',
+                )}
+                isPlayable={game.id === 'wheel-of-fortune' ? wheelAvailability.isPlayable : undefined}
+                statusLabel={game.id === 'wheel-of-fortune' ? wheelAvailability.statusLabel : undefined}
+                availabilityLabel={game.id === 'wheel-of-fortune' ? wheelAvailability.availabilityLabel : undefined}
               />
             ))}
           </div>
