@@ -55,7 +55,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 - `AI_IMPLEMENTATION.md`, `IMPLEMENTATION_SUMMARY.md`, `DEVLOG.md` (project-wide status/context)
 
 ### Repo Map (paths verified)
-_Last reviewed: 2026-02-06 (P0 multi-ring UI rendering on phone)_
+_Last reviewed: 2026-02-02 (P1 Stock Rush timed mini-game surface)_
 #### Frontend
 - **Legacy static pages entry:** `/index.html`, `/about.html`, `/faq.html`, `/monthly/`, `/weekly/`, `/superinvestor/`
 - **Vite + Preact app:** `/apps/investing-board-game-v3` (built into `/public/board-game-v3` via `npm run build:board-game-v3`)
@@ -221,6 +221,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P1.2** ✅ Portal animation polish
 - **P1.3** ✅ Roulette victory sequence
 - **P1.4** ✅ Happy Hour wheel scheduling in Games Hub
+- **P1.5** ✅ Stock Rush timed mini-game surface
 
 ### P2 — Audio & Feedback
 - **P2.1** ✅ Soothing sound system
@@ -254,7 +255,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **Stock Rush timed mini-game surface (P1 planned in `docs/DEV_PLAN_MARKETTYCOON_MASTER.md`).**
+**Recommended next slice:** **Vault Heist timed mini-game surface (P1 planned in `docs/DEV_PLAN_MARKETTYCOON_MASTER.md`).**
 
 ## M0.2 Slice Notes (Instrumentation hooks)
 - Added a dedicated instrumentation helper that enables opt-in debug logging via local storage or env flags without changing gameplay behavior.
@@ -441,6 +442,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Added availability messaging on the Wheel of Fortune card to show live Happy Hour countdowns or the next scheduled start time.
 - Kept the rest of the hub unchanged so non-scheduled games remain visible without new gating.
 - Tightened mobile UX by disabling focus/interaction on closed cards and sizing the availability label for smaller screens.
+
+## P1.5 Slice Notes (Stock Rush timed mini-game surface)
+- Built a mobile-first Stock Rush timed-event surface with discount, bonus-star, and limited-supply callouts aligned to the master plan.
+- Added rush pick cards with discounted pricing, claimed progress, and quick-buy CTAs to communicate urgency.
+- Wired the mini-games hub to show Stock Rush schedule availability so the card opens only during live rush windows.
 
 ## P2.1 Slice Notes (Soothing sound system)
 - Added a soft low-pass filter and warmer triangle waveform defaults to the Web Audio synth nodes to reduce harshness.
