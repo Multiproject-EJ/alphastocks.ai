@@ -23,7 +23,13 @@ export function GameCard({ game, onClick, isPlayable: isPlayableProp, statusLabe
   const isPlayable = isPlayableProp ?? game.status === 'playable'
   const actionLabel = statusLabel ?? (isPlayable ? 'Play' : 'Coming Soon')
 
+  const handleClick = () => {
+    if (!isPlayable) return
+    onClick()
+  }
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (!isPlayable) return
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault()
       onClick()
@@ -47,10 +53,11 @@ export function GameCard({ game, onClick, isPlayable: isPlayableProp, statusLabe
             : 'border-slate-700/50 opacity-75'
           }
         `}
-        onClick={onClick}
+        onClick={handleClick}
         onKeyDown={handleKeyDown}
         role="button"
-        tabIndex={0}
+        tabIndex={isPlayable ? 0 : -1}
+        aria-disabled={!isPlayable}
         aria-label={`${game.name} - ${game.description} - ${availabilityLabel ?? actionLabel} - ${game.counter}`}
       >
         {/* Counter Badge */}
@@ -74,7 +81,7 @@ export function GameCard({ game, onClick, isPlayable: isPlayableProp, statusLabe
           {game.description}
         </p>
         {availabilityLabel && (
-          <p className="mb-4 text-xs font-semibold uppercase tracking-wide text-slate-400">
+          <p className="mb-4 text-[11px] font-semibold uppercase tracking-wide text-slate-400 sm:text-xs">
             {availabilityLabel}
           </p>
         )}

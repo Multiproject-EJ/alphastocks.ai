@@ -440,6 +440,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Wired the mini-games hub to use the mini-game schedule hook so Wheel of Fortune opens only during Happy Hour windows.
 - Added availability messaging on the Wheel of Fortune card to show live Happy Hour countdowns or the next scheduled start time.
 - Kept the rest of the hub unchanged so non-scheduled games remain visible without new gating.
+- Tightened mobile UX by disabling focus/interaction on closed cards and sizing the availability label for smaller screens.
 
 ## P2.1 Slice Notes (Soothing sound system)
 - Added a soft low-pass filter and warmer triangle waveform defaults to the Web Audio synth nodes to reduce harshness.

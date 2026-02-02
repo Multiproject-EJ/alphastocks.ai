@@ -8,6 +8,22 @@
 **Date:** 2026-02-06  
 **Slice:** P1.4 (Happy Hour wheel scheduling in Games Hub)  
 **Summary:**  
+- Tightened mobile UX by disabling focus/interaction on closed mini-game cards and tuning availability label sizing.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/components/games/GameCard.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Open the Games Hub outside Happy Hour and confirm the Wheel of Fortune card is not focusable/clickable and the availability line fits on mobile.  
+
+**Date:** 2026-02-06  
+**Slice:** P1.4 (Happy Hour wheel scheduling in Games Hub)  
+**Summary:**  
 - Hooked the mini-games hub into the mini-game schedule engine so Wheel of Fortune is only playable during Happy Hour windows.  
 - Added availability messaging on the Wheel of Fortune card for live countdowns or upcoming start times.  
 
