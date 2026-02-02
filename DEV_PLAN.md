@@ -252,7 +252,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **Wealth Run Roulette Loop — add richer roulette UX and long-tail rewards**.
+**Recommended next slice:** **TBD — pick the next board-economy slice from `docs/DEV_PLAN_MARKETTYCOON_MASTER.md`.**
 
 ## M0.2 Slice Notes (Instrumentation hooks)
 - Added a dedicated instrumentation helper that enables opt-in debug logging via local storage or env flags without changing gameplay behavior.
@@ -432,6 +432,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ## P2.1 Slice Notes (Soothing sound system)
 - Added a soft low-pass filter and warmer triangle waveform defaults to the Web Audio synth nodes to reduce harshness.
 - Tuned reward, portal, and UI tones to use filtered voices with smoother envelopes for more pleasant feedback.
+
+## Wealth Run Roulette Loop Slice Notes
+- Expanded the roulette reward table with long-tail rewards (rolls, XP) and richer mid-tier prizes to smooth the payout curve.
+- Added a mobile-first roulette status panel that highlights live mode, latest reward, and the long-tail reward mix.
+- Reset roulette session stats on activation and track completed roulette spins for clearer loop feedback.
 
 ## M8.1 Slice Notes (Economy telemetry sinks)
 - Added a telemetry helper with opt-in consent, console logging in dev, and local storage buffering for lightweight economy event sinks.

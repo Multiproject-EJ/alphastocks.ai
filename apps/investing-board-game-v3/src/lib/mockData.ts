@@ -263,13 +263,25 @@ export const ELEVATOR_ODDS = {
 } as const
 
 export const ROULETTE_REWARDS = [
-  { id: 'mega-cash', label: '$5M Mega Cash', type: 'cash', amount: 5_000_000, icon: '💰' },
-  { id: 'star-flood', label: '2M Stars', type: 'stars', amount: 2_000_000, icon: '⭐' },
-  { id: 'coin-tsunami', label: '3M Coins', type: 'coins', amount: 3_000_000, icon: '🪙' },
-  { id: 'vault-jackpot', label: '$8M Vault Jackpot', type: 'cash', amount: 8_000_000, icon: '🏦' },
-  { id: 'legacy-stars', label: '5M Stars', type: 'stars', amount: 5_000_000, icon: '✨' },
-  { id: 'mystery-box', label: 'Mystery Box', type: 'mystery', amount: 0, icon: '🎁' },
+  { id: 'mega-cash', label: '$5M Mega Cash', type: 'cash', amount: 5_000_000, icon: '💰', tier: 'mega' },
+  { id: 'star-flood', label: '2M Stars', type: 'stars', amount: 2_000_000, icon: '⭐', tier: 'mega' },
+  { id: 'coin-tsunami', label: '3M Coins', type: 'coins', amount: 3_000_000, icon: '🪙', tier: 'mega' },
+  { id: 'vault-jackpot', label: '$8M Vault Jackpot', type: 'cash', amount: 8_000_000, icon: '🏦', tier: 'mega' },
+  { id: 'legacy-stars', label: '5M Stars', type: 'stars', amount: 5_000_000, icon: '✨', tier: 'mega' },
+  { id: 'mystery-box', label: 'Mystery Box', type: 'mystery', amount: 0, icon: '🎁', tier: 'mystery' },
+  { id: 'cash-surge', label: '$750K Cash', type: 'cash', amount: 750_000, icon: '💵', tier: 'major' },
+  { id: 'star-surge', label: '400K Stars', type: 'stars', amount: 400_000, icon: '🌟', tier: 'major' },
+  { id: 'coin-surge', label: '500K Coins', type: 'coins', amount: 500_000, icon: '🧿', tier: 'major' },
+  { id: 'xp-blast', label: '25K XP', type: 'xp', amount: 25_000, icon: '⚡', tier: 'boost' },
+  { id: 'roll-bundle', label: '+8 Rolls', type: 'rolls', amount: 8, icon: '🎲', tier: 'boost' },
+  { id: 'cash-spark', label: '$120K Cash', type: 'cash', amount: 120_000, icon: '💳', tier: 'tail' },
+  { id: 'star-spark', label: '90K Stars', type: 'stars', amount: 90_000, icon: '✨', tier: 'tail' },
+  { id: 'coin-spark', label: '140K Coins', type: 'coins', amount: 140_000, icon: '🪙', tier: 'tail' },
+  { id: 'xp-spark', label: '8K XP', type: 'xp', amount: 8_000, icon: '⚡', tier: 'tail' },
+  { id: 'roll-burst', label: '+3 Rolls', type: 'rolls', amount: 3, icon: '🎲', tier: 'tail' },
 ] as const
+
+export type RouletteReward = typeof ROULETTE_REWARDS[number]
 
 export const MOCK_STOCKS: Record<string, Stock[]> = {
   turnarounds: [

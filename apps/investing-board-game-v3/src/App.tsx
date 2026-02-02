@@ -40,6 +40,7 @@ import { QuickCelebration } from '@/components/QuickCelebration'
 import { WheelOfFortuneModal } from '@/components/WheelOfFortuneModal'
 import { VaultHeistModal } from '@/components/VaultHeistModal'
 import { ThroneVictoryModal } from '@/components/ThroneVictoryModal'
+import { RouletteStatusPanel } from '@/components/RouletteStatusPanel'
 import { SHOP2_ENABLED } from '@/lib/featureFlags'
 import { logProToolsDiagnostic } from '@/lib/proToolsDiagnostics'
 
@@ -122,6 +123,7 @@ import {
   PORTAL_CONFIG,
   getEliteStocksForRing3,
   ROULETTE_REWARDS,
+  type RouletteReward,
 } from '@/lib/mockData'
 import { getRandomWildcardEvent, CASH_PERCENTAGE_PENALTY } from '@/lib/wildcardEvents'
 import { SHOP_ITEMS, ShopCategory } from '@/lib/shopItems'
@@ -398,6 +400,8 @@ function App() {
   } | null>(null)
   const [rouletteModeActive, setRouletteModeActive] = useState(false)
   const [rouletteSpinActive, setRouletteSpinActive] = useState(false)
+  const [lastRouletteReward, setLastRouletteReward] = useState<RouletteReward | null>(null)
+  const [rouletteSpinCount, setRouletteSpinCount] = useState(0)
 
   // Quick Reward celebration state
   const [quickCelebration, setQuickCelebration] = useState<{
@@ -773,6 +777,14 @@ function App() {
   )
   const compactCurrencyFormatter = useMemo(
     () => new Intl.NumberFormat('en-US', { notation: 'compact', compactDisplay: 'short', maximumFractionDigits: 0 }),
+    []
+  )
+  const rouletteHighlights = useMemo(
+    () => ROULETTE_REWARDS.filter(reward => reward.tier === 'mega' || reward.tier === 'major').slice(0, 3),
+    []
+  )
+  const rouletteLongTail = useMemo(
+    () => ROULETTE_REWARDS.filter(reward => reward.tier === 'tail' || reward.tier === 'boost').slice(0, 4),
     []
   )
 
@@ -2822,20 +2834,42 @@ function App() {
       setRouletteSpinActive(false)
       setPhase('idle')
 
-      if (reward.type === 'cash') {
-        setGameState(prev => ({
-          ...prev,
-          cash: prev.cash + reward.amount,
-          netWorth: prev.netWorth + reward.amount,
-        }))
-      } else if (reward.type === 'stars') {
-        setGameState(prev => ({
-          ...prev,
-          stars: prev.stars + reward.amount,
-        }))
-      } else if (reward.type === 'coins') {
-        addCoins(reward.amount, 'Roulette Mega Spin')
+      switch (reward.type) {
+        case 'cash':
+          setGameState(prev => ({
+            ...prev,
+            cash: prev.cash + reward.amount,
+            netWorth: prev.netWorth + reward.amount,
+          }))
+          break
+        case 'stars':
+          setGameState(prev => ({
+            ...prev,
+            stars: prev.stars + reward.amount,
+          }))
+          break
+        case 'coins':
+          addCoins(reward.amount, 'Roulette Mega Spin')
+          break
+        case 'rolls':
+          setRollsRemaining(prev => Math.min(prev + reward.amount, ENERGY_MAX))
+          setGameState(prev => ({
+            ...prev,
+            energyRolls: Math.min((prev.energyRolls ?? DAILY_ROLL_LIMIT) + reward.amount, ENERGY_MAX),
+          }))
+          break
+        case 'xp':
+          setGameState(prev => ({
+            ...prev,
+            xp: prev.xp + reward.amount,
+          }))
+          break
+        default:
+          break
       }
+
+      setLastRouletteReward(reward)
+      setRouletteSpinCount(prev => prev + 1)
 
       toast.success('🎯 Roulette Jackpot!', {
         description: `${reward.icon} ${reward.label}`,
@@ -3636,6 +3670,8 @@ function App() {
     }, 1500)
 
     setRouletteModeActive(true)
+    setLastRouletteReward(null)
+    setRouletteSpinCount(0)
     toast.success('🎯 Triple Ring Roulette', {
       description: 'All rings are live. Spin the mega roulette.',
     })
@@ -4295,6 +4331,8 @@ function App() {
                     onClick={() => {
                       setRouletteModeActive(false)
                       setRouletteSpinActive(false)
+                      setLastRouletteReward(null)
+                      setRouletteSpinCount(0)
                     }}
                   >
                     Reset Roulette Mode
@@ -4311,6 +4349,22 @@ function App() {
             <EventBanner
               events={activeEvents}
               onOpenCalendar={openEventCalendar}
+            />
+          </div>
+        )}
+        {rouletteModeActive && (
+          <div
+            className={`absolute left-1/2 z-30 w-[min(92vw,420px)] -translate-x-1/2 ${
+              isPhone ? 'top-24' : 'top-6'
+            }`}
+          >
+            <RouletteStatusPanel
+              isActive={rouletteModeActive}
+              spinActive={rouletteSpinActive}
+              lastReward={lastRouletteReward}
+              highlightRewards={rouletteHighlights}
+              tailRewards={rouletteLongTail}
+              spinCount={rouletteSpinCount}
             />
           </div>
         )}
