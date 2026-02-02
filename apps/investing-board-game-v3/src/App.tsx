@@ -3740,6 +3740,15 @@ function App() {
 
     const shares = Math.max(1, Math.floor(sharesToBuy))
     const totalCost = currentStock.price * shares
+    const isEliteStock = currentStock.category === 'elite'
+    const compositeScore = currentStock.scores?.composite ?? 6
+    const baseEliteStars = Math.max(3, Math.round(compositeScore / 2))
+    const baseEliteXp = Math.max(8, Math.round(compositeScore * 2))
+    const eliteStars = isEliteStock
+      ? applyRingMultiplier(applyStarMultiplier(baseEliteStars), gameState.currentRing)
+      : 0
+    const { xpMultiplier } = getEconomyMultipliers()
+    const eliteXp = isEliteStock ? Math.floor(baseEliteXp * xpMultiplier) : 0
     
     // Apply Portfolio Booster upgrade if owned (increases portfolio value by 10%)
     const hasPortfolioBooster = isPermanentOwned('portfolio-booster')
@@ -3789,6 +3798,7 @@ function App() {
         ...prev.stats,
         stocksPurchased: (prev.stats?.stocksPurchased || 0) + 1,
         uniqueStocks: (prev.stats?.uniqueStocks || 0) + (alreadyOwned ? 0 : 1),
+        totalStarsEarned: (prev.stats?.totalStarsEarned || 0) + eliteStars,
       }
 
       return {
@@ -3798,6 +3808,8 @@ function App() {
         netWorth: newNetWorth,
         holdings: nextHoldings,
         stats: updatedStats,
+        stars: prev.stars + eliteStars,
+        xp: (prev.xp ?? 0) + eliteXp,
       }
     })
     triggerImmediateSave()
@@ -3805,6 +3817,11 @@ function App() {
     toast.success(`Purchased ${shares} shares of ${currentStock.ticker}`, {
       description: `Total cost: $${totalCost.toLocaleString()}`,
     })
+    if (eliteStars > 0 || eliteXp > 0) {
+      toast.success('Elite bonus unlocked!', {
+        description: `+${eliteStars} ⭐ and +${eliteXp} XP`,
+      })
+    }
 
     debugGame('Stock purchased - closing modals and returning to idle')
     // Modal will close automatically via overlay manager's onOpenChange
