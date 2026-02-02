@@ -6,6 +6,25 @@
 ## Unreleased
 
 **Date:** 2026-02-06  
+**Slice:** P1.4 (Happy Hour wheel scheduling in Games Hub)  
+**Summary:**  
+- Hooked the mini-games hub into the mini-game schedule engine so Wheel of Fortune is only playable during Happy Hour windows.  
+- Added availability messaging on the Wheel of Fortune card for live countdowns or upcoming start times.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/components/games/GameCard.tsx  
+- apps/investing-board-game-v3/src/pages/GamesHub.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Open the Games Hub outside Happy Hour and confirm the Wheel of Fortune card shows Closed with a next start time.  
+- (manual) During Happy Hour, confirm the Wheel of Fortune card shows a live countdown and the Play button is enabled.  
+
+**Date:** 2026-02-06  
 **Slice:** P0 (multi-ring UI rendering)  
 **Summary:**  
 - Synced phone board ring counts to the canonical ring configuration so Ring 2/3 positioning and scale match the real tile counts.  
