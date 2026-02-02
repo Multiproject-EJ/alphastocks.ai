@@ -5,6 +5,26 @@
 
 ## Unreleased
 
+**Date:** 2026-02-03  
+**Slice:** Fall Portals + Chance Lift  
+**Summary:**  
+- Added safety-net rewards to Ring 2 fall portals so some drops grant a quick bonus before returning to Street Level.  
+- Expanded Chance Card outcomes with randomized executive perks while keeping the jackpot lift to the Wealth Run.  
+- Updated Chance Card modal copy to reflect the broader outcome mix.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/App.tsx  
+- apps/investing-board-game-v3/src/components/ChanceCardModal.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) On Ring 2, land on a Fall Portal multiple times to confirm some drops grant a bonus reward before the portal animation.  
+- (manual) Land on the Chance tile, draw multiple times, and verify non-jackpot outcomes award randomized perks while jackpots still lift to Ring 3.  
+
 **Date:** 2026-02-02  
 **Slice:** P2.1 (soothing sound system)  
 **Summary:**  

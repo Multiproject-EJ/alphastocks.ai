@@ -252,7 +252,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **Fall Portals + Chance Lift — add richer Ring 2 portal outcomes + feedback polish**.
+**Recommended next slice:** **Wealth Run Roulette Loop — add richer roulette UX and long-tail rewards**.
 
 ## M0.2 Slice Notes (Instrumentation hooks)
 - Added a dedicated instrumentation helper that enables opt-in debug logging via local storage or env flags without changing gameplay behavior.
@@ -436,6 +436,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ## M8.1 Slice Notes (Economy telemetry sinks)
 - Added a telemetry helper with opt-in consent, console logging in dev, and local storage buffering for lightweight economy event sinks.
 - Wired economy window start/end events, roll rewards, tile landings, and quick reward grants into the telemetry pipeline for future tuning passes.
+
+## Fall Portals + Chance Lift Slice Notes
+- Added Ring 2 fall portal safety-net rewards so some drops grant a bonus roll, stars, or coins before returning to Street Level.
+- Expanded Chance Card outcomes with randomized executive perks alongside the jackpot lift to the Wealth Run for richer mid-ring stakes.
+- Updated Chance Card copy to reflect the broader outcome mix and chance-lift narrative.
 
 ## M0.4 Slice Notes (Lazy-load Portfolio charts)
 - Lazy-loaded the Portfolio modal so chart dependencies no longer block initial app startup.
