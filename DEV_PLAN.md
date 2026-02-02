@@ -55,7 +55,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 - `AI_IMPLEMENTATION.md`, `IMPLEMENTATION_SUMMARY.md`, `DEVLOG.md` (project-wide status/context)
 
 ### Repo Map (paths verified)
-_Last reviewed: 2026-02-01 (P1.2 portal animation polish)_
+_Last reviewed: 2026-02-02 (P2.1 soothing sound system)_
 #### Frontend
 - **Legacy static pages entry:** `/index.html`, `/about.html`, `/faq.html`, `/monthly/`, `/weekly/`, `/superinvestor/`
 - **Vite + Preact app:** `/apps/investing-board-game-v3` (built into `/public/board-game-v3` via `npm run build:board-game-v3`)
@@ -220,6 +220,9 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P1.1** ✅ Wheel of Fortune playable demo in Games Hub
 - **P1.2** ✅ Portal animation polish
 
+### P2 — Audio & Feedback
+- **P2.1** ✅ Soothing sound system
+
 ---
 
 ## Config Strategy
@@ -249,7 +252,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **TBD — align with the master plan for the next milestone**.
+**Recommended next slice:** **Fall Portals + Chance Lift — add richer Ring 2 portal outcomes + feedback polish**.
 
 ## M0.2 Slice Notes (Instrumentation hooks)
 - Added a dedicated instrumentation helper that enables opt-in debug logging via local storage or env flags without changing gameplay behavior.
@@ -425,6 +428,10 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Added portal beam and ripple layers to give ring transitions a more dimensional, mobile-first visual treatment.
 - Tuned portal timing and overlay opacity so the transitions feel smoother without washing out the board.
 - Routed portal particle travel using the tracked viewport height for consistent effects across screen sizes.
+
+## P2.1 Slice Notes (Soothing sound system)
+- Added a soft low-pass filter and warmer triangle waveform defaults to the Web Audio synth nodes to reduce harshness.
+- Tuned reward, portal, and UI tones to use filtered voices with smoother envelopes for more pleasant feedback.
 
 ## M8.1 Slice Notes (Economy telemetry sinks)
 - Added a telemetry helper with opt-in consent, console logging in dev, and local storage buffering for lightweight economy event sinks.

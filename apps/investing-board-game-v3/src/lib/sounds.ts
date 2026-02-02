@@ -169,6 +169,33 @@ class SoundManager {
     this.saveSettings()
   }
 
+  private createToneNodes(
+    {
+      filterFrequency = 1600,
+      filterQ = 0.7,
+      startTime,
+    }: { filterFrequency?: number; filterQ?: number; startTime?: number } = {}
+  ) {
+    if (!this.audioContext) {
+      throw new Error('Audio context not initialized')
+    }
+
+    const osc = this.audioContext.createOscillator()
+    const filter = this.audioContext.createBiquadFilter()
+    const gain = this.audioContext.createGain()
+    const atTime = startTime ?? this.audioContext.currentTime
+
+    filter.type = 'lowpass'
+    filter.frequency.setValueAtTime(filterFrequency, atTime)
+    filter.Q.setValueAtTime(filterQ, atTime)
+
+    osc.connect(filter)
+    filter.connect(gain)
+    gain.connect(this.audioContext.destination)
+
+    return { osc, gain, filter }
+  }
+
   /**
    * Play a sound effect
    */
@@ -179,11 +206,10 @@ class SoundManager {
 
     try {
       const now = this.audioContext.currentTime
-      const oscillator = this.audioContext.createOscillator()
-      const gainNode = this.audioContext.createGain()
-
-      oscillator.connect(gainNode)
-      gainNode.connect(this.audioContext.destination)
+      const { osc: oscillator, gain: gainNode } = this.createToneNodes({
+        filterFrequency: 1800,
+        startTime: now,
+      })
 
       // Configure sound based on type
       switch (soundType) {
@@ -197,7 +223,7 @@ class SoundManager {
 
         case 'tile-land':
           // Single soft beep (token landing)
-          oscillator.type = 'sine'
+          oscillator.type = 'triangle'
           oscillator.frequency.setValueAtTime(400, now)
           gainNode.gain.setValueAtTime(this.settings.volume * 0.3, now)
           gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.1)
@@ -252,7 +278,7 @@ class SoundManager {
 
         case 'swipe-no':
           // Short flick down (dismiss)
-          oscillator.type = 'sine'
+          oscillator.type = 'triangle'
           oscillator.frequency.setValueAtTime(480, now)
           oscillator.frequency.exponentialRampToValueAtTime(220, now + 0.12)
           gainNode.gain.setValueAtTime(this.settings.volume * 0.35, now)
@@ -297,13 +323,13 @@ class SoundManager {
     const duration = 0.08
     
     for (let i = 0; i < taps; i++) {
-      const osc = this.audioContext.createOscillator()
-      const gain = this.audioContext.createGain()
-      osc.connect(gain)
-      gain.connect(this.audioContext.destination)
+      const { osc, gain } = this.createToneNodes({
+        filterFrequency: 1200,
+        startTime: tapStart,
+      })
       
       const tapStart = startTime + i * duration
-      osc.type = 'sine'
+      osc.type = 'triangle'
       
       // Randomize frequency slightly for natural feel
       const baseFreq = 250 + Math.random() * 150
@@ -324,12 +350,12 @@ class SoundManager {
     if (!this.audioContext) return
 
     // Low sine wave pulse
-    const osc = this.audioContext.createOscillator()
-    const gain = this.audioContext.createGain()
-    osc.connect(gain)
-    gain.connect(this.audioContext.destination)
+    const { osc, gain } = this.createToneNodes({
+      filterFrequency: 1000,
+      startTime,
+    })
     
-    osc.type = 'sine'
+    osc.type = 'triangle'
     osc.frequency.setValueAtTime(100, startTime)
     osc.frequency.exponentialRampToValueAtTime(80, startTime + 0.1)
     
@@ -340,12 +366,12 @@ class SoundManager {
     osc.stop(startTime + 0.2)
     
     // Add subtle "settle" sound
-    const settle = this.audioContext.createOscillator()
-    const settleGain = this.audioContext.createGain()
-    settle.connect(settleGain)
-    settleGain.connect(this.audioContext.destination)
+    const { osc: settle, gain: settleGain } = this.createToneNodes({
+      filterFrequency: 1000,
+      startTime: startTime + 0.08,
+    })
     
-    settle.type = 'sine'
+    settle.type = 'triangle'
     settle.frequency.setValueAtTime(120, startTime + 0.08)
     settleGain.gain.setValueAtTime(this.settings.volume * 0.2, startTime + 0.08)
     settleGain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.15)
@@ -364,13 +390,13 @@ class SoundManager {
     const notes = [523, 784]
     
     notes.forEach((freq, i) => {
-      const osc = this.audioContext!.createOscillator()
-      const gain = this.audioContext!.createGain()
-      osc.connect(gain)
-      gain.connect(this.audioContext!.destination)
-      
       const noteStart = startTime + i * 0.05
-      osc.type = 'sine'
+      const { osc, gain } = this.createToneNodes({
+        filterFrequency: 2000,
+        startTime: noteStart,
+      })
+      
+      osc.type = 'triangle'
       osc.frequency.setValueAtTime(freq, noteStart)
       
       gain.gain.setValueAtTime(this.settings.volume * 0.25, noteStart)
@@ -391,13 +417,13 @@ class SoundManager {
     const notes = [523, 659, 784]
     
     notes.forEach((freq, i) => {
-      const osc = this.audioContext!.createOscillator()
-      const gain = this.audioContext!.createGain()
-      osc.connect(gain)
-      gain.connect(this.audioContext!.destination)
-      
       const noteStart = startTime + i * 0.08
-      osc.type = 'sine'
+      const { osc, gain } = this.createToneNodes({
+        filterFrequency: 2200,
+        startTime: noteStart,
+      })
+      
+      osc.type = 'triangle'
       osc.frequency.setValueAtTime(freq, noteStart)
       
       gain.gain.setValueAtTime(this.settings.volume * 0.3, noteStart)
@@ -408,10 +434,10 @@ class SoundManager {
     })
     
     // Add subtle shimmer (high harmonic at low volume)
-    const shimmer = this.audioContext.createOscillator()
-    const shimmerGain = this.audioContext.createGain()
-    shimmer.connect(shimmerGain)
-    shimmerGain.connect(this.audioContext.destination)
+    const { osc: shimmer, gain: shimmerGain } = this.createToneNodes({
+      filterFrequency: 3200,
+      startTime: startTime + 0.16,
+    })
     
     shimmer.type = 'sine'
     shimmer.frequency.setValueAtTime(1568, startTime + 0.16) // G6
@@ -429,12 +455,12 @@ class SoundManager {
     if (!this.audioContext) return
 
     // Soft descending two-note pattern
-    const osc1 = this.audioContext.createOscillator()
-    const gain1 = this.audioContext.createGain()
-    osc1.connect(gain1)
-    gain1.connect(this.audioContext.destination)
+    const { osc: osc1, gain: gain1 } = this.createToneNodes({
+      filterFrequency: 1600,
+      startTime,
+    })
     
-    osc1.type = 'sine'
+    osc1.type = 'triangle'
     osc1.frequency.setValueAtTime(440, startTime)
     gain1.gain.setValueAtTime(this.settings.volume * 0.3, startTime)
     gain1.gain.exponentialRampToValueAtTime(0.001, startTime + 0.25)
@@ -442,12 +468,12 @@ class SoundManager {
     osc1.start(startTime)
     osc1.stop(startTime + 0.3)
     
-    const osc2 = this.audioContext.createOscillator()
-    const gain2 = this.audioContext.createGain()
-    osc2.connect(gain2)
-    gain2.connect(this.audioContext.destination)
+    const { osc: osc2, gain: gain2 } = this.createToneNodes({
+      filterFrequency: 1600,
+      startTime: startTime + 0.08,
+    })
     
-    osc2.type = 'sine'
+    osc2.type = 'triangle'
     osc2.frequency.setValueAtTime(330, startTime + 0.08)
     gain2.gain.setValueAtTime(this.settings.volume * 0.3, startTime + 0.08)
     gain2.gain.exponentialRampToValueAtTime(0.001, startTime + 0.3)
@@ -463,11 +489,11 @@ class SoundManager {
     if (!this.audioContext) return
     
     // Part 1: Mechanical "ka" click
-    const click = this.audioContext.createOscillator()
-    const clickGain = this.audioContext.createGain()
-    click.connect(clickGain)
-    clickGain.connect(this.audioContext.destination)
-    click.type = 'sine'
+    const { osc: click, gain: clickGain } = this.createToneNodes({
+      filterFrequency: 1400,
+      startTime,
+    })
+    click.type = 'triangle'
     click.frequency.setValueAtTime(300, startTime)
     click.frequency.exponentialRampToValueAtTime(150, startTime + 0.05)
     clickGain.gain.setValueAtTime(this.settings.volume * 0.3, startTime)
@@ -480,10 +506,10 @@ class SoundManager {
     const bellStart = startTime + 0.05
     
     bellFreqs.forEach((freq, i) => {
-      const osc = this.audioContext!.createOscillator()
-      const gain = this.audioContext!.createGain()
-      osc.connect(gain)
-      gain.connect(this.audioContext!.destination)
+      const { osc, gain } = this.createToneNodes({
+        filterFrequency: 2600,
+        startTime: bellStart,
+      })
       
       osc.type = 'sine'
       osc.frequency.setValueAtTime(freq, bellStart)
@@ -509,13 +535,13 @@ class SoundManager {
     const noteSpacing = 0.12
     
     notes.forEach((freq, i) => {
-      const osc = this.audioContext!.createOscillator()
-      const gain = this.audioContext!.createGain()
-      osc.connect(gain)
-      gain.connect(this.audioContext!.destination)
+      const { osc, gain } = this.createToneNodes({
+        filterFrequency: 2200,
+        startTime: noteStart,
+      })
       
       const noteStart = startTime + i * noteSpacing
-      osc.type = 'sine'
+      osc.type = 'triangle'
       osc.frequency.setValueAtTime(freq, noteStart)
       
       // Each note builds in volume slightly
@@ -529,16 +555,17 @@ class SoundManager {
     })
     
     // Final shimmer on last note
-    const shimmer = this.audioContext.createOscillator()
-    const shimmerGain = this.audioContext.createGain()
-    shimmer.connect(shimmerGain)
-    shimmerGain.connect(this.audioContext.destination)
+    const shimmerStart = startTime + notes.length * noteSpacing
+    const { osc: shimmer, gain: shimmerGain } = this.createToneNodes({
+      filterFrequency: 3400,
+      startTime: shimmerStart,
+    })
     shimmer.type = 'sine'
-    shimmer.frequency.setValueAtTime(1568, startTime + notes.length * noteSpacing) // G6
-    shimmerGain.gain.setValueAtTime(this.settings.volume * 0.15, startTime + notes.length * noteSpacing)
-    shimmerGain.gain.exponentialRampToValueAtTime(0.001, startTime + notes.length * noteSpacing + 0.8)
-    shimmer.start(startTime + notes.length * noteSpacing)
-    shimmer.stop(startTime + notes.length * noteSpacing + 1)
+    shimmer.frequency.setValueAtTime(1568, shimmerStart) // G6
+    shimmerGain.gain.setValueAtTime(this.settings.volume * 0.15, shimmerStart)
+    shimmerGain.gain.exponentialRampToValueAtTime(0.001, shimmerStart + 0.8)
+    shimmer.start(shimmerStart)
+    shimmer.stop(shimmerStart + 1)
   }
 
   /**
@@ -552,13 +579,13 @@ class SoundManager {
     const noteSpacing = 0.10
     
     notes.forEach((freq, i) => {
-      const osc = this.audioContext!.createOscillator()
-      const gain = this.audioContext!.createGain()
-      osc.connect(gain)
-      gain.connect(this.audioContext!.destination)
+      const { osc, gain } = this.createToneNodes({
+        filterFrequency: 2400,
+        startTime: noteStart,
+      })
       
       const noteStart = startTime + i * noteSpacing
-      osc.type = 'sine'
+      osc.type = 'triangle'
       osc.frequency.setValueAtTime(freq, noteStart)
       
       // Build up volume progressively
@@ -574,16 +601,17 @@ class SoundManager {
     // Multiple shimmers for epic feel
     const shimmerFreqs = [1568, 1976, 2349]
     shimmerFreqs.forEach((freq, i) => {
-      const shimmer = this.audioContext!.createOscillator()
-      const shimmerGain = this.audioContext!.createGain()
-      shimmer.connect(shimmerGain)
-      shimmerGain.connect(this.audioContext!.destination)
+      const shimmerStart = startTime + notes.length * noteSpacing + i * 0.1
+      const { osc: shimmer, gain: shimmerGain } = this.createToneNodes({
+        filterFrequency: 3600,
+        startTime: shimmerStart,
+      })
       shimmer.type = 'sine'
-      shimmer.frequency.setValueAtTime(freq, startTime + notes.length * noteSpacing + i * 0.1)
-      shimmerGain.gain.setValueAtTime(this.settings.volume * 0.2, startTime + notes.length * noteSpacing + i * 0.1)
-      shimmerGain.gain.exponentialRampToValueAtTime(0.001, startTime + notes.length * noteSpacing + 1.0 + i * 0.1)
-      shimmer.start(startTime + notes.length * noteSpacing + i * 0.1)
-      shimmer.stop(startTime + notes.length * noteSpacing + 1.2 + i * 0.1)
+      shimmer.frequency.setValueAtTime(freq, shimmerStart)
+      shimmerGain.gain.setValueAtTime(this.settings.volume * 0.2, shimmerStart)
+      shimmerGain.gain.exponentialRampToValueAtTime(0.001, shimmerStart + 1.0)
+      shimmer.start(shimmerStart)
+      shimmer.stop(shimmerStart + 1.2)
     })
   }
 
@@ -594,11 +622,11 @@ class SoundManager {
     if (!this.audioContext) return
 
     // Initial soft "pop" (noise burst simulation with quick sweep)
-    const pop = this.audioContext.createOscillator()
-    const popGain = this.audioContext.createGain()
-    pop.connect(popGain)
-    popGain.connect(this.audioContext.destination)
-    pop.type = 'sine'
+    const { osc: pop, gain: popGain } = this.createToneNodes({
+      filterFrequency: 2000,
+      startTime,
+    })
+    pop.type = 'triangle'
     pop.frequency.setValueAtTime(800, startTime)
     pop.frequency.exponentialRampToValueAtTime(200, startTime + 0.05)
     popGain.gain.setValueAtTime(this.settings.volume * 0.3, startTime)
@@ -611,13 +639,13 @@ class SoundManager {
     const duration = 0.15
 
     notes.forEach((freq, i) => {
-      const osc = this.audioContext!.createOscillator()
-      const gain = this.audioContext!.createGain()
-      osc.connect(gain)
-      gain.connect(this.audioContext!.destination)
+      const { osc, gain } = this.createToneNodes({
+        filterFrequency: 2200,
+        startTime: noteStart,
+      })
 
       const noteStart = startTime + 0.1 + i * duration
-      osc.type = 'sine'
+      osc.type = 'triangle'
       osc.frequency.setValueAtTime(freq, noteStart)
       gain.gain.setValueAtTime(this.settings.volume * 0.35, noteStart)
       gain.gain.exponentialRampToValueAtTime(0.001, noteStart + duration * 2)
@@ -637,13 +665,13 @@ class SoundManager {
     const noteSpacing = 0.05
     
     notes.forEach((freq, i) => {
-      const osc = this.audioContext!.createOscillator()
-      const gain = this.audioContext!.createGain()
-      osc.connect(gain)
-      gain.connect(this.audioContext!.destination)
+      const { osc, gain } = this.createToneNodes({
+        filterFrequency: 2000,
+        startTime: noteStart,
+      })
       
       const noteStart = startTime + i * noteSpacing
-      osc.type = 'sine'
+      osc.type = 'triangle'
       osc.frequency.setValueAtTime(freq, noteStart)
       
       gain.gain.setValueAtTime(this.settings.volume * 0.3, noteStart)
@@ -654,16 +682,17 @@ class SoundManager {
     })
     
     // Sustained final note with slow fade
-    const finalNote = this.audioContext.createOscillator()
-    const finalGain = this.audioContext.createGain()
-    finalNote.connect(finalGain)
-    finalGain.connect(this.audioContext.destination)
-    finalNote.type = 'sine'
-    finalNote.frequency.setValueAtTime(523, startTime + notes.length * noteSpacing) // C5
-    finalGain.gain.setValueAtTime(this.settings.volume * 0.4, startTime + notes.length * noteSpacing)
-    finalGain.gain.exponentialRampToValueAtTime(0.001, startTime + notes.length * noteSpacing + 0.5)
-    finalNote.start(startTime + notes.length * noteSpacing)
-    finalNote.stop(startTime + notes.length * noteSpacing + 0.6)
+    const finalStart = startTime + notes.length * noteSpacing
+    const { osc: finalNote, gain: finalGain } = this.createToneNodes({
+      filterFrequency: 2000,
+      startTime: finalStart,
+    })
+    finalNote.type = 'triangle'
+    finalNote.frequency.setValueAtTime(523, finalStart) // C5
+    finalGain.gain.setValueAtTime(this.settings.volume * 0.4, finalStart)
+    finalGain.gain.exponentialRampToValueAtTime(0.001, finalStart + 0.5)
+    finalNote.start(finalStart)
+    finalNote.stop(finalStart + 0.6)
   }
 
   /**
@@ -677,13 +706,13 @@ class SoundManager {
     const noteSpacing = 0.08
     
     notes.forEach((freq, i) => {
-      const osc = this.audioContext!.createOscillator()
-      const gain = this.audioContext!.createGain()
-      osc.connect(gain)
-      gain.connect(this.audioContext!.destination)
+      const { osc, gain } = this.createToneNodes({
+        filterFrequency: 2400,
+        startTime: noteStart,
+      })
       
       const noteStart = startTime + i * noteSpacing
-      osc.type = 'sine'
+      osc.type = 'triangle'
       osc.frequency.setValueAtTime(freq, noteStart)
       
       gain.gain.setValueAtTime(this.settings.volume * 0.35, noteStart)
@@ -700,12 +729,12 @@ class SoundManager {
   private playButtonClick(startTime: number) {
     if (!this.audioContext) return
     
-    const osc = this.audioContext.createOscillator()
-    const gain = this.audioContext.createGain()
-    osc.connect(gain)
-    gain.connect(this.audioContext.destination)
+    const { osc, gain } = this.createToneNodes({
+      filterFrequency: 1800,
+      startTime,
+    })
     
-    osc.type = 'sine'
+    osc.type = 'triangle'
     osc.frequency.setValueAtTime(400, startTime)
     gain.gain.setValueAtTime(this.settings.volume * 0.15, startTime)
     gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.03)
@@ -724,13 +753,13 @@ class SoundManager {
     const notes = [330, 262]
     
     notes.forEach((freq, i) => {
-      const osc = this.audioContext!.createOscillator()
-      const gain = this.audioContext!.createGain()
-      osc.connect(gain)
-      gain.connect(this.audioContext!.destination)
+      const { osc, gain } = this.createToneNodes({
+        filterFrequency: 1200,
+        startTime: noteStart,
+      })
       
       const noteStart = startTime + i * 0.12
-      osc.type = 'sine'
+      osc.type = 'triangle'
       osc.frequency.setValueAtTime(freq, noteStart)
       
       gain.gain.setValueAtTime(this.settings.volume * 0.2, noteStart)
@@ -748,12 +777,12 @@ class SoundManager {
     if (!this.audioContext) return
     
     // Sine sweep from 200Hz → 800Hz with shimmering harmonics
-    const osc = this.audioContext.createOscillator()
-    const gain = this.audioContext.createGain()
-    osc.connect(gain)
-    gain.connect(this.audioContext.destination)
+    const { osc, gain } = this.createToneNodes({
+      filterFrequency: 1800,
+      startTime,
+    })
     
-    osc.type = 'sine'
+    osc.type = 'triangle'
     osc.frequency.setValueAtTime(200, startTime)
     osc.frequency.exponentialRampToValueAtTime(800, startTime + 0.8)
     
@@ -765,10 +794,10 @@ class SoundManager {
     osc.stop(startTime + 0.9)
     
     // Add shimmer harmonic
-    const shimmer = this.audioContext.createOscillator()
-    const shimmerGain = this.audioContext.createGain()
-    shimmer.connect(shimmerGain)
-    shimmerGain.connect(this.audioContext.destination)
+    const { osc: shimmer, gain: shimmerGain } = this.createToneNodes({
+      filterFrequency: 3200,
+      startTime: startTime + 0.2,
+    })
     
     shimmer.type = 'sine'
     shimmer.frequency.setValueAtTime(400, startTime + 0.2)
@@ -787,12 +816,12 @@ class SoundManager {
     if (!this.audioContext) return
     
     // Sine sweep from 600Hz → 200Hz
-    const osc = this.audioContext.createOscillator()
-    const gain = this.audioContext.createGain()
-    osc.connect(gain)
-    gain.connect(this.audioContext.destination)
+    const { osc, gain } = this.createToneNodes({
+      filterFrequency: 1800,
+      startTime,
+    })
     
-    osc.type = 'sine'
+    osc.type = 'triangle'
     osc.frequency.setValueAtTime(600, startTime)
     osc.frequency.exponentialRampToValueAtTime(200, startTime + 0.6)
     
@@ -810,12 +839,12 @@ class SoundManager {
     if (!this.audioContext) return
     
     // Rising anticipation sweep
-    const osc = this.audioContext.createOscillator()
-    const gain = this.audioContext.createGain()
-    osc.connect(gain)
-    gain.connect(this.audioContext.destination)
+    const { osc, gain } = this.createToneNodes({
+      filterFrequency: 2000,
+      startTime,
+    })
     
-    osc.type = 'sine'
+    osc.type = 'triangle'
     osc.frequency.setValueAtTime(300, startTime)
     osc.frequency.exponentialRampToValueAtTime(600, startTime + 0.3)
     
@@ -836,13 +865,13 @@ class SoundManager {
     const notes = [659, 784, 988] // E5, G5, B5
     
     notes.forEach((freq, i) => {
-      const osc = this.audioContext!.createOscillator()
-      const gain = this.audioContext!.createGain()
-      osc.connect(gain)
-      gain.connect(this.audioContext!.destination)
-      
       const noteStart = startTime + i * 0.05
-      osc.type = 'sine'
+      const { osc, gain } = this.createToneNodes({
+        filterFrequency: 2800,
+        startTime: noteStart,
+      })
+      
+      osc.type = 'triangle'
       osc.frequency.setValueAtTime(freq, noteStart)
       
       gain.gain.setValueAtTime(this.settings.volume * 0.3, noteStart)
