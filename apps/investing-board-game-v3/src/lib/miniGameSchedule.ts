@@ -153,6 +153,17 @@ export const MINI_GAME_CONFIG: MiniGameSchedule[] = [
       },
     },
   },
+  {
+    id: 'portfolio-poker',
+    name: 'Portfolio Poker',
+    category: 'special',
+    isActive: false,
+    schedule: {
+      type: 'daily',
+      times: ['18:00'],
+      durationMinutes: 180,
+    },
+  },
 ]
 
 /**

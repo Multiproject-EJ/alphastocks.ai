@@ -216,6 +216,29 @@ export function GamesHub({ onBack }: GamesHubProps) {
     }
   }, [activeMiniGames, upcomingMiniGames, getTimeRemaining])
 
+  const portfolioPokerAvailability = useMemo(() => {
+    const activePoker = activeMiniGames.find(game => game.id === 'portfolio-poker')
+    const upcomingPoker = upcomingMiniGames.find(game => game.id === 'portfolio-poker')
+    const remaining = activePoker ? getTimeRemaining(activePoker) : null
+    const formatTime = (date: Date) => date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+
+    if (activePoker) {
+      return {
+        isPlayable: true,
+        statusLabel: 'Play',
+        availabilityLabel: remaining ? `Poker live • ${remaining.display} left` : 'Poker live',
+      }
+    }
+
+    return {
+      isPlayable: false,
+      statusLabel: 'Closed',
+      availabilityLabel: upcomingPoker
+        ? `Next table • ${formatTime(upcomingPoker.startsAt)}`
+        : 'Poker schedule pending',
+    }
+  }, [activeMiniGames, upcomingMiniGames, getTimeRemaining])
+
   return (
     <>
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-4 md:p-8">
@@ -262,6 +285,8 @@ export function GamesHub({ onBack }: GamesHubProps) {
                       ? vaultHeistAvailability.isPlayable
                       : game.id === 'market-mayhem'
                         ? marketMayhemAvailability.isPlayable
+                        : game.id === 'portfolio-poker'
+                          ? portfolioPokerAvailability.isPlayable
                         : game.status === 'playable',
                 )}
                 isPlayable={game.id === 'wheel-of-fortune'
@@ -272,6 +297,8 @@ export function GamesHub({ onBack }: GamesHubProps) {
                       ? vaultHeistAvailability.isPlayable
                       : game.id === 'market-mayhem'
                         ? marketMayhemAvailability.isPlayable
+                        : game.id === 'portfolio-poker'
+                          ? portfolioPokerAvailability.isPlayable
                         : undefined}
                 statusLabel={game.id === 'wheel-of-fortune'
                   ? wheelAvailability.statusLabel
@@ -281,6 +308,8 @@ export function GamesHub({ onBack }: GamesHubProps) {
                       ? vaultHeistAvailability.statusLabel
                       : game.id === 'market-mayhem'
                         ? marketMayhemAvailability.statusLabel
+                        : game.id === 'portfolio-poker'
+                          ? portfolioPokerAvailability.statusLabel
                         : undefined}
                 availabilityLabel={game.id === 'wheel-of-fortune'
                   ? wheelAvailability.availabilityLabel
@@ -290,6 +319,8 @@ export function GamesHub({ onBack }: GamesHubProps) {
                       ? vaultHeistAvailability.availabilityLabel
                       : game.id === 'market-mayhem'
                         ? marketMayhemAvailability.availabilityLabel
+                        : game.id === 'portfolio-poker'
+                          ? portfolioPokerAvailability.availabilityLabel
                         : undefined}
               />
             ))}
