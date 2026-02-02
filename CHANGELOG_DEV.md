@@ -5,6 +5,24 @@
 
 ## Unreleased
 
+**Date:** 2026-02-08  
+**Slice:** P1.6 (Vault Heist timed mini-game surface)  
+**Summary:**  
+- Built a mobile-first Vault Heist timed-event surface with lane callouts, crew boost messaging, and alarm risk cues.  
+- Wired the mini-games hub Vault Heist card to show schedule availability and open only during live heist windows.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/components/games/placeholders/VaultHeist.tsx  
+- apps/investing-board-game-v3/src/pages/GamesHub.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Open the Games Hub during the Vault Heist window and launch Vault Heist to confirm the heist surface and countdown label render on mobile.  
+
 **Date:** 2026-02-02  
 **Slice:** P1.5 (Stock Rush timed mini-game surface)  
 **Summary:**  
