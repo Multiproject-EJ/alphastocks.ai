@@ -63,7 +63,7 @@ _Last reviewed: 2026-02-06 (P0 multi-ring UI rendering on phone)_
 - **State management/store:** Local React state in `src/App.tsx` plus contexts in `src/context/*` (Auth, Overlay, UI Mode); custom hooks in `src/hooks/*`
 - **Game loop entry:** `src/App.tsx` (dice roll → `calculateMovement` in `src/lib/movementEngine.ts`), board data in `src/lib/mockData.ts`
 - **UI components:** `src/components/*` (board, modals, overlays, portfolio readout panel), shop UI in `src/components/ShopModal.tsx` + `src/components/shop/*` (mobile shop shell, property vault album cards), roulette win flow in `src/components/RouletteVictoryModal.tsx`
-- **Mini-games hub:** `src/pages/GamesHub.tsx` (grid of mini-games in overlay), `src/components/games/*` (cards, overlay shell, placeholder game surfaces), Wheel of Fortune demo uses `src/components/WheelOfFortuneModal.tsx`
+- **Mini-games hub:** `src/pages/GamesHub.tsx` (grid of mini-games in overlay, schedule-aware availability via `useMiniGames`), `src/components/games/*` (cards, overlay shell, placeholder game surfaces), Wheel of Fortune demo uses `src/components/WheelOfFortuneModal.tsx`
 - **Board renderer + tiles:** `src/App.tsx` (ring layout, tile positioning), `src/components/BoardViewport.tsx`, `src/components/Board3DViewport.tsx`, `src/components/Tile.tsx`
 - **Micro-learning tiles:** `src/lib/learningTiles.ts` (taxonomy definitions) + `src/lib/learningQuestionBank.ts` (seed question bank) + `src/components/Tile.tsx` (renderer)
 - **Stock tile modals:** `src/components/StockModal.tsx` via `src/lib/overlayRegistry.ts` and `src/hooks/useOverlayManager.ts`, triggered in `src/App.tsx` on category tile landings
@@ -220,6 +220,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P1.1** ✅ Wheel of Fortune playable demo in Games Hub
 - **P1.2** ✅ Portal animation polish
 - **P1.3** ✅ Roulette victory sequence
+- **P1.4** ✅ Happy Hour wheel scheduling in Games Hub
 
 ### P2 — Audio & Feedback
 - **P2.1** ✅ Soothing sound system
@@ -253,7 +254,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **Portal animation polish (P0 planned in `docs/DEV_PLAN_MARKETTYCOON_MASTER.md`).**
+**Recommended next slice:** **Stock Rush timed mini-game surface (P1 planned in `docs/DEV_PLAN_MARKETTYCOON_MASTER.md`).**
 
 ## M0.2 Slice Notes (Instrumentation hooks)
 - Added a dedicated instrumentation helper that enables opt-in debug logging via local storage or env flags without changing gameplay behavior.
@@ -434,6 +435,12 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Added a dedicated roulette victory modal with tier-based styling and celebration effects to headline roulette wins.
 - Wired roulette spins to open the victory sequence and reset it cleanly between spins or mode resets.
 - Surfaced reward recap messaging in the modal to reinforce roulette payouts on mobile.
+
+## P1.4 Slice Notes (Happy Hour wheel scheduling in Games Hub)
+- Wired the mini-games hub to use the mini-game schedule hook so Wheel of Fortune opens only during Happy Hour windows.
+- Added availability messaging on the Wheel of Fortune card to show live Happy Hour countdowns or the next scheduled start time.
+- Kept the rest of the hub unchanged so non-scheduled games remain visible without new gating.
+- Tightened mobile UX by disabling focus/interaction on closed cards and sizing the availability label for smaller screens.
 
 ## P2.1 Slice Notes (Soothing sound system)
 - Added a soft low-pass filter and warmer triangle waveform defaults to the Web Audio synth nodes to reduce harshness.

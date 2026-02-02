@@ -12,14 +12,24 @@ import { useReducedMotion } from '@/hooks/useReducedMotion'
 interface GameCardProps {
   game: GameConfig
   onClick: () => void
+  isPlayable?: boolean
+  statusLabel?: string
+  availabilityLabel?: string
 }
 
-export function GameCard({ game, onClick }: GameCardProps) {
+export function GameCard({ game, onClick, isPlayable: isPlayableProp, statusLabel, availabilityLabel }: GameCardProps) {
   const prefersReducedMotion = useReducedMotion()
 
-  const isPlayable = game.status === 'playable'
+  const isPlayable = isPlayableProp ?? game.status === 'playable'
+  const actionLabel = statusLabel ?? (isPlayable ? 'Play' : 'Coming Soon')
+
+  const handleClick = () => {
+    if (!isPlayable) return
+    onClick()
+  }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (!isPlayable) return
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault()
       onClick()
@@ -43,11 +53,12 @@ export function GameCard({ game, onClick }: GameCardProps) {
             : 'border-slate-700/50 opacity-75'
           }
         `}
-        onClick={onClick}
+        onClick={handleClick}
         onKeyDown={handleKeyDown}
         role="button"
-        tabIndex={0}
-        aria-label={`${game.name} - ${game.description} - ${game.counter}`}
+        tabIndex={isPlayable ? 0 : -1}
+        aria-disabled={!isPlayable}
+        aria-label={`${game.name} - ${game.description} - ${availabilityLabel ?? actionLabel} - ${game.counter}`}
       >
         {/* Counter Badge */}
         <div className="absolute right-4 top-4">
@@ -69,6 +80,11 @@ export function GameCard({ game, onClick }: GameCardProps) {
         <p className="mb-4 text-sm text-slate-300">
           {game.description}
         </p>
+        {availabilityLabel && (
+          <p className="mb-4 text-[11px] font-semibold uppercase tracking-wide text-slate-400 sm:text-xs">
+            {availabilityLabel}
+          </p>
+        )}
 
         {/* Status/Action Button */}
         <Button
@@ -81,7 +97,7 @@ export function GameCard({ game, onClick }: GameCardProps) {
           `}
           disabled={!isPlayable}
         >
-          {isPlayable ? 'Play' : 'Coming Soon'}
+          {actionLabel}
         </Button>
 
         {/* Accent Glow Effect */}
