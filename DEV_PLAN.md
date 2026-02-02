@@ -62,7 +62,7 @@ _Last reviewed: 2026-02-02 (P2.1 soothing sound system)_
 - **Routing system:** No router; UI mode/state machine in `apps/investing-board-game-v3/src/lib/uiModeStateMachine.ts` + context `src/context/UIModeContext.tsx`
 - **State management/store:** Local React state in `src/App.tsx` plus contexts in `src/context/*` (Auth, Overlay, UI Mode); custom hooks in `src/hooks/*`
 - **Game loop entry:** `src/App.tsx` (dice roll → `calculateMovement` in `src/lib/movementEngine.ts`), board data in `src/lib/mockData.ts`
-- **UI components:** `src/components/*` (board, modals, overlays, portfolio readout panel), shop UI in `src/components/ShopModal.tsx` + `src/components/shop/*` (mobile shop shell, property vault album cards)
+- **UI components:** `src/components/*` (board, modals, overlays, portfolio readout panel), shop UI in `src/components/ShopModal.tsx` + `src/components/shop/*` (mobile shop shell, property vault album cards), roulette win flow in `src/components/RouletteVictoryModal.tsx`
 - **Mini-games hub:** `src/pages/GamesHub.tsx` (grid of mini-games in overlay), `src/components/games/*` (cards, overlay shell, placeholder game surfaces), Wheel of Fortune demo uses `src/components/WheelOfFortuneModal.tsx`
 - **Board renderer + tiles:** `src/App.tsx` (ring layout, tile positioning), `src/components/BoardViewport.tsx`, `src/components/Board3DViewport.tsx`, `src/components/Tile.tsx`
 - **Micro-learning tiles:** `src/lib/learningTiles.ts` (taxonomy definitions) + `src/lib/learningQuestionBank.ts` (seed question bank) + `src/components/Tile.tsx` (renderer)
@@ -219,6 +219,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 ### P1 — Mini-Games Hub
 - **P1.1** ✅ Wheel of Fortune playable demo in Games Hub
 - **P1.2** ✅ Portal animation polish
+- **P1.3** ✅ Roulette victory sequence
 
 ### P2 — Audio & Feedback
 - **P2.1** ✅ Soothing sound system
@@ -252,7 +253,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **TBD — pick the next board-economy slice from `docs/DEV_PLAN_MARKETTYCOON_MASTER.md`.**
+**Recommended next slice:** **Elite stock special behaviors (P1 planned in `docs/DEV_PLAN_MARKETTYCOON_MASTER.md`).**
 
 ## M0.2 Slice Notes (Instrumentation hooks)
 - Added a dedicated instrumentation helper that enables opt-in debug logging via local storage or env flags without changing gameplay behavior.
@@ -428,6 +429,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Added portal beam and ripple layers to give ring transitions a more dimensional, mobile-first visual treatment.
 - Tuned portal timing and overlay opacity so the transitions feel smoother without washing out the board.
 - Routed portal particle travel using the tracked viewport height for consistent effects across screen sizes.
+
+## P1.3 Slice Notes (Roulette victory sequence)
+- Added a dedicated roulette victory modal with tier-based styling and celebration effects to headline roulette wins.
+- Wired roulette spins to open the victory sequence and reset it cleanly between spins or mode resets.
+- Surfaced reward recap messaging in the modal to reinforce roulette payouts on mobile.
 
 ## P2.1 Slice Notes (Soothing sound system)
 - Added a soft low-pass filter and warmer triangle waveform defaults to the Web Audio synth nodes to reduce harshness.
