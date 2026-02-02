@@ -93,6 +93,11 @@ const getTodayKey = () => new Date().toLocaleDateString('en-CA')
 const getRandomDailyWheelSpinLimit = () =>
   Math.floor(Math.random() * (DAILY_WHEEL_SPIN_MAX - DAILY_WHEEL_SPIN_MIN + 1)) + DAILY_WHEEL_SPIN_MIN
 const CHANCE_JACKPOT_ODDS = 0.2
+const FALL_PORTAL_RELIEF_ODDS = 0.35
+const FALL_PORTAL_RELIEF_REWARDS: QuickRewardType[] = ['bonus-roll', 'stars', 'coins']
+const CHANCE_CONSOLATION_REWARDS: QuickRewardType[] = ['bonus-roll', 'stars', 'coins', 'cash']
+const pickRandomReward = <T,>(options: T[]): T =>
+  options[Math.floor(Math.random() * options.length)]
 
 const rollRouletteDice = () => {
   const dice = Array.from({ length: 4 }, () => Math.floor(Math.random() * 6) + 1)
@@ -3141,9 +3146,23 @@ function App() {
 
     // Ring 2 fall portals
     if (gameState.currentRing === 2 && tile.specialAction === 'ring-fall') {
-      toast.info('⬇️ Fall Portal', {
-        description: 'You dropped back to Street Level.',
-      })
+      const shouldGrantRelief = Math.random() < FALL_PORTAL_RELIEF_ODDS
+      if (shouldGrantRelief) {
+        const reliefReward = pickRandomReward(FALL_PORTAL_RELIEF_REWARDS)
+        toast.success('🛟 Safety Net', {
+          description: `Grab a ${QUICK_REWARD_CONFIG[reliefReward].label.toLowerCase()} on the way down.`,
+        })
+        handleQuickRewardTile({
+          id: -1,
+          type: 'quick-reward',
+          title: 'Safety Net',
+          quickRewardType: reliefReward,
+        })
+      } else {
+        toast.info('⬇️ Fall Portal', {
+          description: 'You dropped back to Street Level.',
+        })
+      }
       triggerPortalAnimation({
         direction: 'down',
         fromRing: 2,
@@ -3177,15 +3196,17 @@ function App() {
                 triggeredBy: 'land',
               })
             } else {
-              const consolationStars = 500
-              setGameState(prev => ({
-                ...prev,
-                stars: prev.stars + consolationStars,
-              }))
+              const consolationReward = pickRandomReward(CHANCE_CONSOLATION_REWARDS)
               toast.info('🎴 Chance Card', {
-                description: `No jackpot this time. +${consolationStars} ⭐`,
+                description: `Executive boost: ${QUICK_REWARD_CONFIG[consolationReward].label.toLowerCase()}.`,
               })
-              triggerCelebrationFromLastTile(['⭐', '🎴'])
+              handleQuickRewardTile({
+                id: -2,
+                type: 'quick-reward',
+                title: 'Chance Card',
+                quickRewardType: consolationReward,
+              })
+              triggerCelebrationFromLastTile(['🎴', '✨'])
             }
             closeCurrent()
             setPhase('idle')

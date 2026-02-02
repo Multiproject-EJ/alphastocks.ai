@@ -30,7 +30,7 @@ export function ChanceCardModal({ open, onOpenChange, onDraw }: ChanceCardModalP
             className="w-full max-w-[220px] drop-shadow-[0_12px_28px_rgba(0,0,0,0.45)]"
           />
           <p className="text-sm text-muted-foreground text-center">
-            Flip the card to see if you hit the jackpot.
+            Flip the card to see if you hit the jackpot lift or snag an executive perk.
           </p>
         </div>
 
