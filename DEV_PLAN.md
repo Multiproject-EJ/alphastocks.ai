@@ -55,7 +55,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 - `AI_IMPLEMENTATION.md`, `IMPLEMENTATION_SUMMARY.md`, `DEVLOG.md` (project-wide status/context)
 
 ### Repo Map (paths verified)
-_Last reviewed: 2026-02-02 (P3 Portfolio Poker timed mini-game surface)_
+_Last reviewed: 2026-02-04 (P3 Dividend Derby timed mini-game surface)_
 #### Frontend
 - **Legacy static pages entry:** `/index.html`, `/about.html`, `/faq.html`, `/monthly/`, `/weekly/`, `/superinvestor/`
 - **Vite + Preact app:** `/apps/investing-board-game-v3` (built into `/public/board-game-v3` via `npm run build:board-game-v3`)
@@ -256,7 +256,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **Dividend Derby timed mini-game surface (P3 planned in `docs/DEV_PLAN_MARKETTYCOON_MASTER.md`).**
+**Recommended next slice:** **Bull Run timed mini-game surface (P3 planned in `docs/DEV_PLAN_MARKETTYCOON_MASTER.md`).**
 
 ## M0.2 Slice Notes (Instrumentation hooks)
 - Added a dedicated instrumentation helper that enables opt-in debug logging via local storage or env flags without changing gameplay behavior.
@@ -463,6 +463,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Built a mobile-first Portfolio Poker timed-event surface with hand-combo bonuses, opponent lineup callouts, and round flow framing.
 - Added schedule metadata for Portfolio Poker so the mini-game availability system can surface pending or live window labels.
 - Wired the Games Hub card to show Portfolio Poker availability and lock access until the event window is live.
+
+## P3 Slice Notes (Dividend Derby timed mini-game surface)
+- Built a mobile-first Dividend Derby event surface with lane bonuses, lineup cards, and photo-finish messaging for the monthly showcase.
+- Added monthly schedule metadata for Dividend Derby so the mini-game availability system can surface upcoming windows.
+- Wired the Games Hub card to show Dividend Derby availability labels and gate access until the derby is live.
 
 ## P2.1 Slice Notes (Soothing sound system)
 - Added a soft low-pass filter and warmer triangle waveform defaults to the Web Audio synth nodes to reduce harshness.
