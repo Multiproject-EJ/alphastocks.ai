@@ -5,6 +5,26 @@
 
 ## Unreleased
 
+**Date:** 2026-02-06  
+**Slice:** P3 (Bear Trap timed mini-game surface)  
+**Summary:**  
+- Built a mobile-first Bear Trap timed-event surface with defense pods, alert stream callouts, and rebound bonus framing for the bear-market loop.  
+- Added a nightly Bear Trap schedule slot so the mini-game availability system can surface live/upcoming drop windows.  
+- Wired the Games Hub card to show Bear Trap availability labels and gate access until the drop window is live.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/components/games/placeholders/BearTrap.tsx  
+- apps/investing-board-game-v3/src/lib/miniGameSchedule.ts  
+- apps/investing-board-game-v3/src/pages/GamesHub.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Open the mini-games hub, confirm Bear Trap shows live/upcoming timing labels, and open it during the nightly drop window (daily at 9pm local) to view the defense layout.  
+
 **Date:** 2026-02-05  
 **Slice:** P3 (Bull Run timed mini-game surface)  
 **Summary:**  
