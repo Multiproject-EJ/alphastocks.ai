@@ -6,6 +6,23 @@
 ## Unreleased
 
 **Date:** 2026-02-02  
+**Slice:** P2.1 (soothing sound system)  
+**Summary:**  
+- Added low-pass filtered tone nodes to soften Web Audio synth output and reduce harsh peaks.  
+- Switched key reward, portal, and UI tones to warmer triangle waves for smoother feedback.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/lib/sounds.ts  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Trigger dice rolls, rewards, portal transitions, and UI clicks to confirm the new softer tones play without distortion.  
+
+**Date:** 2026-02-02  
 **Slice:** M7.1 (audit board renderer + tile overlays)  
 **Summary:**  
 - Audited the board renderer and tile overlay stack to confirm where ring layout, overlays, and visibility gates live.  
