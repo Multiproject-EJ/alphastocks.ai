@@ -239,6 +239,29 @@ export function GamesHub({ onBack }: GamesHubProps) {
     }
   }, [activeMiniGames, upcomingMiniGames, getTimeRemaining])
 
+  const dividendDerbyAvailability = useMemo(() => {
+    const activeDerby = activeMiniGames.find(game => game.id === 'dividend-derby')
+    const upcomingDerby = upcomingMiniGames.find(game => game.id === 'dividend-derby')
+    const remaining = activeDerby ? getTimeRemaining(activeDerby) : null
+    const formatTime = (date: Date) => date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+
+    if (activeDerby) {
+      return {
+        isPlayable: true,
+        statusLabel: 'Play',
+        availabilityLabel: remaining ? `Derby live • ${remaining.display} left` : 'Derby live',
+      }
+    }
+
+    return {
+      isPlayable: false,
+      statusLabel: 'Closed',
+      availabilityLabel: upcomingDerby
+        ? `Next derby • ${formatTime(upcomingDerby.startsAt)}`
+        : 'Derby schedule pending',
+    }
+  }, [activeMiniGames, upcomingMiniGames, getTimeRemaining])
+
   return (
     <>
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-4 md:p-8">
@@ -287,6 +310,8 @@ export function GamesHub({ onBack }: GamesHubProps) {
                         ? marketMayhemAvailability.isPlayable
                         : game.id === 'portfolio-poker'
                           ? portfolioPokerAvailability.isPlayable
+                          : game.id === 'dividend-derby'
+                            ? dividendDerbyAvailability.isPlayable
                         : game.status === 'playable',
                 )}
                 isPlayable={game.id === 'wheel-of-fortune'
@@ -296,9 +321,11 @@ export function GamesHub({ onBack }: GamesHubProps) {
                     : game.id === 'vault-heist'
                       ? vaultHeistAvailability.isPlayable
                       : game.id === 'market-mayhem'
-                        ? marketMayhemAvailability.isPlayable
-                        : game.id === 'portfolio-poker'
-                          ? portfolioPokerAvailability.isPlayable
+                      ? marketMayhemAvailability.isPlayable
+                      : game.id === 'portfolio-poker'
+                        ? portfolioPokerAvailability.isPlayable
+                        : game.id === 'dividend-derby'
+                          ? dividendDerbyAvailability.isPlayable
                         : undefined}
                 statusLabel={game.id === 'wheel-of-fortune'
                   ? wheelAvailability.statusLabel
@@ -307,9 +334,11 @@ export function GamesHub({ onBack }: GamesHubProps) {
                     : game.id === 'vault-heist'
                       ? vaultHeistAvailability.statusLabel
                       : game.id === 'market-mayhem'
-                        ? marketMayhemAvailability.statusLabel
-                        : game.id === 'portfolio-poker'
-                          ? portfolioPokerAvailability.statusLabel
+                      ? marketMayhemAvailability.statusLabel
+                      : game.id === 'portfolio-poker'
+                        ? portfolioPokerAvailability.statusLabel
+                        : game.id === 'dividend-derby'
+                          ? dividendDerbyAvailability.statusLabel
                         : undefined}
                 availabilityLabel={game.id === 'wheel-of-fortune'
                   ? wheelAvailability.availabilityLabel
@@ -318,9 +347,11 @@ export function GamesHub({ onBack }: GamesHubProps) {
                     : game.id === 'vault-heist'
                       ? vaultHeistAvailability.availabilityLabel
                       : game.id === 'market-mayhem'
-                        ? marketMayhemAvailability.availabilityLabel
-                        : game.id === 'portfolio-poker'
-                          ? portfolioPokerAvailability.availabilityLabel
+                      ? marketMayhemAvailability.availabilityLabel
+                      : game.id === 'portfolio-poker'
+                        ? portfolioPokerAvailability.availabilityLabel
+                        : game.id === 'dividend-derby'
+                          ? dividendDerbyAvailability.availabilityLabel
                         : undefined}
               />
             ))}

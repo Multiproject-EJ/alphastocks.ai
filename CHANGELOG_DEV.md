@@ -5,6 +5,26 @@
 
 ## Unreleased
 
+**Date:** 2026-02-04  
+**Slice:** P3 (Dividend Derby timed mini-game surface)  
+**Summary:**  
+- Built a mobile-first Dividend Derby event surface with lane bonuses, lineup cards, and photo-finish messaging for the monthly showcase.  
+- Added monthly schedule metadata so the mini-game availability system can surface upcoming Dividend Derby windows.  
+- Wired the Games Hub card to show Dividend Derby availability labels and gate access until the derby is live.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/components/games/placeholders/DividendDerby.tsx  
+- apps/investing-board-game-v3/src/lib/miniGameSchedule.ts  
+- apps/investing-board-game-v3/src/pages/GamesHub.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Open the mini-games hub, confirm Dividend Derby shows live/upcoming timing labels, and open it during an active window to view the race layout.  
+
 **Date:** 2026-02-08  
 **Slice:** P1.6 (Vault Heist timed mini-game surface)  
 **Summary:**  

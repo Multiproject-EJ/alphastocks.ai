@@ -164,6 +164,21 @@ export const MINI_GAME_CONFIG: MiniGameSchedule[] = [
       durationMinutes: 180,
     },
   },
+  {
+    id: 'dividend-derby',
+    name: 'Dividend Derby',
+    category: 'special',
+    isActive: false,
+    schedule: {
+      type: 'monthly-random',
+      times: ['12:00'],
+      durationMinutes: 180,
+      occurrences: {
+        min: 1,
+        max: 1,
+      },
+    },
+  },
 ]
 
 /**
