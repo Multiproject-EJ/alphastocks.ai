@@ -308,6 +308,29 @@ export function GamesHub({ onBack }: GamesHubProps) {
     }
   }, [activeMiniGames, upcomingMiniGames, getTimeRemaining])
 
+  const ipoFrenzyAvailability = useMemo(() => {
+    const activeIpo = activeMiniGames.find(game => game.id === 'ipo-frenzy')
+    const upcomingIpo = upcomingMiniGames.find(game => game.id === 'ipo-frenzy')
+    const remaining = activeIpo ? getTimeRemaining(activeIpo) : null
+    const formatTime = (date: Date) => date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+
+    if (activeIpo) {
+      return {
+        isPlayable: true,
+        statusLabel: 'Play',
+        availabilityLabel: remaining ? `IPO Frenzy live • ${remaining.display} left` : 'IPO Frenzy live',
+      }
+    }
+
+    return {
+      isPlayable: false,
+      statusLabel: 'Closed',
+      availabilityLabel: upcomingIpo
+        ? `Next IPO window • ${formatTime(upcomingIpo.startsAt)}`
+        : 'IPO schedule pending',
+    }
+  }, [activeMiniGames, upcomingMiniGames, getTimeRemaining])
+
   return (
     <>
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-4 md:p-8">
@@ -362,6 +385,8 @@ export function GamesHub({ onBack }: GamesHubProps) {
                             ? bullRunAvailability.isPlayable
                             : game.id === 'bear-trap'
                               ? bearTrapAvailability.isPlayable
+                              : game.id === 'ipo-frenzy'
+                                ? ipoFrenzyAvailability.isPlayable
                         : game.status === 'playable',
                 )}
                 isPlayable={game.id === 'wheel-of-fortune'
@@ -380,6 +405,8 @@ export function GamesHub({ onBack }: GamesHubProps) {
                             ? bullRunAvailability.isPlayable
                             : game.id === 'bear-trap'
                               ? bearTrapAvailability.isPlayable
+                              : game.id === 'ipo-frenzy'
+                                ? ipoFrenzyAvailability.isPlayable
                         : undefined}
                 statusLabel={game.id === 'wheel-of-fortune'
                   ? wheelAvailability.statusLabel
@@ -397,6 +424,8 @@ export function GamesHub({ onBack }: GamesHubProps) {
                           ? bullRunAvailability.statusLabel
                           : game.id === 'bear-trap'
                             ? bearTrapAvailability.statusLabel
+                            : game.id === 'ipo-frenzy'
+                              ? ipoFrenzyAvailability.statusLabel
                         : undefined}
                 availabilityLabel={game.id === 'wheel-of-fortune'
                   ? wheelAvailability.availabilityLabel
@@ -414,6 +443,8 @@ export function GamesHub({ onBack }: GamesHubProps) {
                           ? bullRunAvailability.availabilityLabel
                           : game.id === 'bear-trap'
                             ? bearTrapAvailability.availabilityLabel
+                            : game.id === 'ipo-frenzy'
+                              ? ipoFrenzyAvailability.availabilityLabel
                         : undefined}
               />
             ))}

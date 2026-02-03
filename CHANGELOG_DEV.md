@@ -5,6 +5,26 @@
 
 ## Unreleased
 
+**Date:** 2026-02-07  
+**Slice:** P3 (IPO Frenzy timed mini-game surface)  
+**Summary:**  
+- Built a mobile-first IPO Frenzy timed-event surface with allocation playbooks, pop signals, and roadshow framing for IPO launches.  
+- Added a weekly IPO Frenzy schedule slot so the mini-game availability system can surface live/upcoming IPO windows.  
+- Wired the Games Hub card to show IPO Frenzy availability labels and gate access until the window is live.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/components/games/placeholders/IpoFrenzy.tsx  
+- apps/investing-board-game-v3/src/lib/miniGameSchedule.ts  
+- apps/investing-board-game-v3/src/pages/GamesHub.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Open the mini-games hub, confirm IPO Frenzy shows live/upcoming timing labels, and open it during the Tuesday 7pm local window to view the IPO layout.  
+
 **Date:** 2026-02-06  
 **Slice:** P3 (Bear Trap timed mini-game surface)  
 **Summary:**  

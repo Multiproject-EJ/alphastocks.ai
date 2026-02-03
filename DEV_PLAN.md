@@ -55,7 +55,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 - `AI_IMPLEMENTATION.md`, `IMPLEMENTATION_SUMMARY.md`, `DEVLOG.md` (project-wide status/context)
 
 ### Repo Map (paths verified)
-_Last reviewed: 2026-02-02 (P3 Bear Trap timed mini-game surface)_
+_Last reviewed: 2026-02-07 (P3 IPO Frenzy timed mini-game surface)_
 #### Frontend
 - **Legacy static pages entry:** `/index.html`, `/about.html`, `/faq.html`, `/monthly/`, `/weekly/`, `/superinvestor/`
 - **Vite + Preact app:** `/apps/investing-board-game-v3` (built into `/public/board-game-v3` via `npm run build:board-game-v3`)
@@ -256,7 +256,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **IPO Frenzy timed mini-game surface (P3 planned in `docs/DEV_PLAN_MARKETTYCOON_MASTER.md`).**
+**Recommended next slice:** **Merger Mania timed mini-game surface (P3 planned in `docs/DEV_PLAN_MARKETTYCOON_MASTER.md`).**
 
 ## M0.2 Slice Notes (Instrumentation hooks)
 - Added a dedicated instrumentation helper that enables opt-in debug logging via local storage or env flags without changing gameplay behavior.
@@ -478,6 +478,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Built a mobile-first Bear Trap timed-event surface with defense pod selections, alert stream callouts, and rebound bonus framing to match the bear-market loop.
 - Added a nightly Bear Trap schedule slot so the mini-game availability system can surface live/upcoming drop windows.
 - Wired the Games Hub card to show Bear Trap availability labels and gate access until the drop window is live.
+
+## P3 Slice Notes (IPO Frenzy timed mini-game surface)
+- Built a mobile-first IPO Frenzy timed-event surface with allocation playbooks, pop signals, and roadshow framing for IPO launches.
+- Added a weekly IPO Frenzy schedule slot so the mini-game availability system can surface live/upcoming IPO windows.
+- Wired the Games Hub card to show IPO Frenzy availability labels and gate access until the window is live.
 
 ## P2.1 Slice Notes (Soothing sound system)
 - Added a soft low-pass filter and warmer triangle waveform defaults to the Web Audio synth nodes to reduce harshness.
