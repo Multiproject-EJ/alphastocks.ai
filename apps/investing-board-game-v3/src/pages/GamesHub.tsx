@@ -331,6 +331,29 @@ export function GamesHub({ onBack }: GamesHubProps) {
     }
   }, [activeMiniGames, upcomingMiniGames, getTimeRemaining])
 
+  const mergerManiaAvailability = useMemo(() => {
+    const activeMerger = activeMiniGames.find(game => game.id === 'merger-mania')
+    const upcomingMerger = upcomingMiniGames.find(game => game.id === 'merger-mania')
+    const remaining = activeMerger ? getTimeRemaining(activeMerger) : null
+    const formatTime = (date: Date) => date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+
+    if (activeMerger) {
+      return {
+        isPlayable: true,
+        statusLabel: 'Play',
+        availabilityLabel: remaining ? `Merger Mania live • ${remaining.display} left` : 'Merger Mania live',
+      }
+    }
+
+    return {
+      isPlayable: false,
+      statusLabel: 'Closed',
+      availabilityLabel: upcomingMerger
+        ? `Next deal window • ${formatTime(upcomingMerger.startsAt)}`
+        : 'Deal schedule pending',
+    }
+  }, [activeMiniGames, upcomingMiniGames, getTimeRemaining])
+
   return (
     <>
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-4 md:p-8">
@@ -387,6 +410,8 @@ export function GamesHub({ onBack }: GamesHubProps) {
                               ? bearTrapAvailability.isPlayable
                               : game.id === 'ipo-frenzy'
                                 ? ipoFrenzyAvailability.isPlayable
+                                : game.id === 'merger-mania'
+                                  ? mergerManiaAvailability.isPlayable
                         : game.status === 'playable',
                 )}
                 isPlayable={game.id === 'wheel-of-fortune'
@@ -407,6 +432,8 @@ export function GamesHub({ onBack }: GamesHubProps) {
                               ? bearTrapAvailability.isPlayable
                               : game.id === 'ipo-frenzy'
                                 ? ipoFrenzyAvailability.isPlayable
+                                : game.id === 'merger-mania'
+                                  ? mergerManiaAvailability.isPlayable
                         : undefined}
                 statusLabel={game.id === 'wheel-of-fortune'
                   ? wheelAvailability.statusLabel
@@ -426,6 +453,8 @@ export function GamesHub({ onBack }: GamesHubProps) {
                             ? bearTrapAvailability.statusLabel
                             : game.id === 'ipo-frenzy'
                               ? ipoFrenzyAvailability.statusLabel
+                              : game.id === 'merger-mania'
+                                ? mergerManiaAvailability.statusLabel
                         : undefined}
                 availabilityLabel={game.id === 'wheel-of-fortune'
                   ? wheelAvailability.availabilityLabel
@@ -445,6 +474,8 @@ export function GamesHub({ onBack }: GamesHubProps) {
                             ? bearTrapAvailability.availabilityLabel
                             : game.id === 'ipo-frenzy'
                               ? ipoFrenzyAvailability.availabilityLabel
+                              : game.id === 'merger-mania'
+                                ? mergerManiaAvailability.availabilityLabel
                         : undefined}
               />
             ))}
