@@ -394,6 +394,7 @@ function App() {
 
   // Ring 3 roll tracking and animations
   const [ring3RollUsed, setRing3RollUsed] = useState(false)
+  const [ringTransitionDirection, setRingTransitionDirection] = useState<'up' | 'down' | null>(null)
   const [moneyCelebration, setMoneyCelebration] = useState<{
     active: boolean
     amount: number
@@ -416,6 +417,7 @@ function App() {
   // Ring focus system state
   const [revealingRing, setRevealingRing] = useState<RingNumber | null>(null)
   const [fadingRing, setFadingRing] = useState<RingNumber | null>(null)
+  const ringTransitionTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   // Portal state for ring transitions
   const [portalTransition, setPortalTransition] = useState<PortalTransition | null>(null)
@@ -1368,7 +1370,11 @@ function App() {
     return ringNumber === gameState.currentRing
   }, [gameState.currentRing, rouletteModeActive])
 
-  const handleRingTransition = useCallback((fromRing: RingNumber, toRing: RingNumber) => {
+  const handleRingTransition = useCallback((fromRing: RingNumber, toRing: RingNumber, direction: 'up' | 'down') => {
+    if (ringTransitionTimeoutRef.current) {
+      clearTimeout(ringTransitionTimeoutRef.current)
+    }
+    setRingTransitionDirection(direction)
     // Fade out the old ring
     setFadingRing(fromRing)
     
@@ -1378,9 +1384,10 @@ function App() {
     }, 300)
     
     // Clear animation states after completion
-    setTimeout(() => {
+    ringTransitionTimeoutRef.current = setTimeout(() => {
       setFadingRing(null)
       setRevealingRing(null)
+      setRingTransitionDirection(null)
     }, 1200)
   }, [])
 
@@ -2965,9 +2972,9 @@ function App() {
     
     // Trigger ring focus transition animation
     if (transition.direction === 'up' && transition.toRing !== 0) {
-      handleRingTransition(transition.fromRing, transition.toRing as RingNumber)
+      handleRingTransition(transition.fromRing, transition.toRing as RingNumber, 'up')
     } else if (transition.direction === 'down' && transition.toRing !== 0) {
-      handleRingTransition(transition.fromRing, transition.toRing as RingNumber)
+      handleRingTransition(transition.fromRing, transition.toRing as RingNumber, 'down')
     }
     
     // Play appropriate sound
@@ -4237,7 +4244,9 @@ function App() {
     `${!isPhone && !isMobile ? 'p-0' : 'p-8'} transition-all duration-700`,
     // Circular container to match the board shape
     'rounded-full aspect-square',
-    isLogoPanel ? 'bg-opacity-0 backdrop-blur-none' : ''
+    isLogoPanel ? 'bg-opacity-0 backdrop-blur-none' : '',
+    ringTransitionDirection === 'up' ? 'ring-transition-up' : '',
+    ringTransitionDirection === 'down' ? 'ring-transition-down' : ''
   ].filter(Boolean).join(' ')
 
   // Calculate XP for next level for phone HUD
