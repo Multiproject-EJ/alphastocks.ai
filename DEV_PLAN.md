@@ -55,7 +55,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 - `AI_IMPLEMENTATION.md`, `IMPLEMENTATION_SUMMARY.md`, `DEVLOG.md` (project-wide status/context)
 
 ### Repo Map (paths verified)
-_Last reviewed: 2026-02-13 (P2 ring history tracking)_
+_Last reviewed: 2026-02-14 (P2 ring-based leaderboards)_
 #### Frontend
 - **Legacy static pages entry:** `/index.html`, `/about.html`, `/faq.html`, `/monthly/`, `/weekly/`, `/superinvestor/`
 - **Vite + Preact app:** `/apps/investing-board-game-v3` (built into `/public/board-game-v3` via `npm run build:board-game-v3`)
@@ -64,6 +64,7 @@ _Last reviewed: 2026-02-13 (P2 ring history tracking)_
 - **Game loop entry:** `src/App.tsx` (dice roll → `calculateMovement` in `src/lib/movementEngine.ts`), board data in `src/lib/mockData.ts`
 - **UI components:** `src/components/*` (board, modals, overlays, portfolio readout panel), shop UI in `src/components/ShopModal.tsx` + `src/components/shop/*` (mobile shop shell, property vault album cards), roulette win flow in `src/components/RouletteVictoryModal.tsx`
 - **Mini-games hub:** `src/pages/GamesHub.tsx` (grid of mini-games in overlay, schedule-aware availability via `useMiniGames`), `src/components/games/*` (cards, overlay shell, placeholder game surfaces), Wheel of Fortune demo uses `src/components/WheelOfFortuneModal.tsx`
+- **Leaderboards:** `src/components/LeaderboardModal.tsx` + `src/hooks/useLeaderboard.ts` (global/weekly/ring leaderboards)
 - **Board renderer + tiles:** `src/App.tsx` (ring layout, tile positioning), `src/components/BoardViewport.tsx`, `src/components/Board3DViewport.tsx`, `src/components/Tile.tsx`
 - **Micro-learning tiles:** `src/lib/learningTiles.ts` (taxonomy definitions) + `src/lib/learningQuestionBank.ts` (seed question bank) + `src/components/Tile.tsx` (renderer)
 - **Stock category catalog:** `src/lib/stockCategories.ts` (labels, tiers, and palettes for core + expansion categories)
@@ -227,6 +228,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 
 ### P2 — Audio & Feedback
 - **P2.1** ✅ Soothing sound system
+- **P2.2** ✅ Ring-based leaderboards
 
 ---
 
@@ -257,7 +259,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P2 Ring-based leaderboards (next planned master-plan slice).**
+**Recommended next slice:** **P2 Ring history tracking (next planned master-plan slice).**
 
 ## P3 Slice Notes (Expansion category art/FX + reward callouts)
 - Added expansion-tier tile styling overlays so expansion categories stand out with their palette glow + shimmer FX on the board.
@@ -520,6 +522,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ## P2.1 Slice Notes (Soothing sound system)
 - Added a soft low-pass filter and warmer triangle waveform defaults to the Web Audio synth nodes to reduce harshness.
 - Tuned reward, portal, and UI tones to use filtered voices with smoother envelopes for more pleasant feedback.
+
+## P2.2 Slice Notes (Ring-based leaderboards)
+- Expanded the ring leaderboards to show Ring 1, Ring 2, and Ring 3 rankings so progression cohorts have their own leaderboard views.
+- Updated the ring leaderboard fetch to pull top entries per ring and keep the Hall of Fame view powered by throne counts.
+- Ensured the leaderboard footer highlights the current user within the active ring tab for clear ranking context.
 
 ## P2 Slice Notes (Ring history tracking)
 - Added ring history tracking fields (counts, last visit, and recent transitions) to player stats for long-term progression analytics.
