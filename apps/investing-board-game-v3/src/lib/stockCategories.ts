@@ -166,6 +166,10 @@ export const STOCK_CATEGORY_DEFINITIONS: Record<TileCategory, StockCategoryDefin
   },
 }
 
+export function getStockCategoryDefinition(category: TileCategory): StockCategoryDefinition | undefined {
+  return STOCK_CATEGORY_DEFINITIONS[category]
+}
+
 export function getStockCategoryLabel(category: TileCategory): string {
   return STOCK_CATEGORY_DEFINITIONS[category]?.label ?? category
 }

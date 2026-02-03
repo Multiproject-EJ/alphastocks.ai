@@ -154,6 +154,7 @@ import { calculateMovement, getHoppingTiles, getPortalConfigForRing } from '@/li
 import { isJackpotWeek } from '@/lib/events'
 import { applyRingMultiplier, getMultiplierDisplay } from '@/lib/rewardMultiplier'
 import { getLearningTileDefinition } from '@/lib/learningTiles'
+import { getStockCategoryDefinition } from '@/lib/stockCategories'
 import { getLearningQuestionCount } from '@/lib/learningQuestionBank'
 import {
   ECONOMY_LOCAL_STORAGE_KEY,
@@ -850,6 +851,17 @@ function App() {
 
       if (tile.type === 'category') {
         const ringBoost = ring === 3 ? 'x10' : ring === 2 ? 'x3' : undefined
+        const categoryDefinition = tile.category ? getStockCategoryDefinition(tile.category) : undefined
+
+        if (categoryDefinition?.tier === 'expansion') {
+          return {
+            label: 'Expansion',
+            tone: 'premium',
+            icon: '✨',
+            sublabel: ringBoost ? `Bonus ${ringBoost}` : 'Bonus',
+          }
+        }
+
         return {
           label: 'Stock',
           tone: ring === 3 ? 'premium' : 'accent',

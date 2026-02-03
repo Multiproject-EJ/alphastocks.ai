@@ -9,6 +9,7 @@ import { QuickRewardType } from '@/lib/quickRewardTiles'
 import { TILE_WIDTH, TILE_HEIGHT } from '@/lib/constants'
 import { getLearningTileDefinition, LEARNING_CATEGORY_STYLES } from '@/lib/learningTiles'
 import { TileLabel, TileLabelTone } from '@/components/TileLabel'
+import { getStockCategoryDefinition } from '@/lib/stockCategories'
 
 interface TileLabelConfig {
   label: string
@@ -173,6 +174,12 @@ const TileComponent = ({
   const learningCategoryStyle = learningDefinition
     ? LEARNING_CATEGORY_STYLES[learningDefinition.category]
     : null
+  const categoryDefinition =
+    tile.type === 'category' && tile.category
+      ? getStockCategoryDefinition(tile.category)
+      : null
+  const isExpansionCategory = categoryDefinition?.tier === 'expansion'
+  const expansionGlowColor = categoryDefinition?.palette.hex ?? '#ffffff'
 
   // Handle quick reward tiles
   if (tile.type === 'quick-reward' && tile.quickRewardType) {
@@ -258,6 +265,34 @@ const TileComponent = ({
             clipPath: 'polygon(0% 0%, 100% 0%, 86% 100%, 14% 100%)',
           }}
         />
+      )}
+
+      {isExpansionCategory && (
+        <>
+          <div
+            className="absolute inset-0 opacity-70 pointer-events-none"
+            style={{
+              clipPath: 'polygon(0% 0%, 100% 0%, 86% 100%, 14% 100%)',
+              background: `radial-gradient(circle at 50% 20%, ${expansionGlowColor}55 0%, transparent 55%)`,
+            }}
+            aria-hidden
+          />
+          <div
+            className="absolute inset-0 opacity-50 pointer-events-none"
+            style={{
+              clipPath: 'polygon(0% 0%, 100% 0%, 86% 100%, 14% 100%)',
+              background: `linear-gradient(140deg, transparent 10%, ${expansionGlowColor}66 45%, transparent 75%)`,
+              mixBlendMode: 'screen',
+            }}
+            aria-hidden
+          />
+          <div
+            className="absolute -right-1 top-2 text-base drop-shadow-[0_0_12px_rgba(255,255,255,0.35)]"
+            aria-hidden
+          >
+            ✨
+          </div>
+        </>
       )}
 
       {isTeleporting && (
