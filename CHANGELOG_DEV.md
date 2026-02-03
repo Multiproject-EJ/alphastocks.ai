@@ -7,6 +7,26 @@
 
 
 **Date:** 2026-02-04  
+**Slice:** Right Now calendar polish (upcoming events + mini-games roster)  
+**Summary:**  
+- Added a mini-game window roster to the Right Now calendar so upcoming mini-game windows appear alongside events.  
+- Surfaced active mini-game windows with time-remaining callouts for quick status scanning.  
+- Documented completion of the Right Now calendar polish slice.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/App.tsx  
+- apps/investing-board-game-v3/src/components/EventCalendar.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Open Right Now and confirm upcoming mini-game windows show start times and countdowns.  
+- (manual) During an active mini-game window, confirm the roster highlights it with an active badge.  
+
+**Date:** 2026-02-04  
 **Slice:** Unified window UI pass  
 **Summary:**  
 - Added a shared economy window status pill so HUD and phone dice controls reuse the same countdown + bonus display.  

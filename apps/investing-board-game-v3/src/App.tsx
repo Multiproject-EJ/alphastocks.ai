@@ -282,6 +282,7 @@ import type { VaultItemSummary } from '@/hooks/useShopVaultOverview'
 import { useAchievements } from '@/hooks/useAchievements'
 import { useChallenges } from '@/hooks/useChallenges'
 import { useEvents } from '@/hooks/useEvents'
+import { useMiniGames } from '@/hooks/useMiniGames'
 import { useHaptics } from '@/hooks/useHaptics'
 import { useSwipeGesture } from '@/hooks/useSwipeGesture'
 import { useGestureArbitration } from '@/hooks/useGestureArbitration'
@@ -1298,6 +1299,8 @@ function App() {
     getRollsBonus,
   } = useEvents({ playSound })
 
+  const { activeMiniGames, upcomingMiniGames } = useMiniGames()
+
   const shopWindow = useMemo(() => {
     let topDiscount = 0
     let topEvent: (typeof activeEvents)[number] | null = null
@@ -1381,10 +1384,12 @@ function App() {
       props: {
         activeEvents,
         upcomingEvents,
+        activeMiniGames,
+        upcomingMiniGames,
       },
       priority: 'normal',
     })
-  }, [activeEvents, upcomingEvents, showOverlay])
+  }, [activeEvents, upcomingEvents, activeMiniGames, upcomingMiniGames, showOverlay])
 
   const openShopOverlay = useCallback(() => {
     showOverlay({

@@ -263,7 +263,12 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **Right Now calendar polish (surface upcoming window roster for events + mini-games).**
+**Recommended next slice:** **TBD (select next master-plan slice after Right Now calendar polish).**
+
+## Right Now Calendar Polish Slice Notes (Completed ✅)
+- Expanded the Right Now calendar to surface upcoming mini-game windows alongside event scheduling.
+- Added active mini-game window callouts with remaining time so players can see live windows at a glance.
+- Kept the calendar mobile-first while adding a dedicated mini-game roster section for upcoming windows.
 
 ## Unified Window UI Pass Slice Notes (Completed ✅)
 - Added a shared economy window status pill so HUD and phone dice controls display the same countdown + bonus info.
