@@ -6,6 +6,24 @@
 ## Unreleased
 
 
+**Date:** 2026-02-04  
+**Slice:** P2 (Mega Jackpot event currency multipliers)  
+**Summary:**  
+- Applied economy multipliers to event currency star rewards so active event boosts (including Mega Jackpot) amplify event prize payouts.  
+- Updated the master dev plan notes and advanced the recommended next slice.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/App.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Trigger an event currency gain during Mega Jackpot and confirm the awarded stars reflect the active event multipliers.  
+
+
 
 **Date:** 2026-02-13  
 **Slice:** P2 (Mega Jackpot monthly event window)  

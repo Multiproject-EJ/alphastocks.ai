@@ -262,7 +262,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **Mega Jackpot monthly event window (first-Saturday schedule).**
+**Recommended next slice:** **Event window unification pass (align event + mini-game scheduling).**
 
 ## Fall Portals + Chance Lift Slice Notes (Completed ✅)
 - Expanded Ring 2 fall portal outcomes with safety-net and executive-evac rewards, plus celebratory feedback tied to portal drops.
@@ -273,6 +273,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Added monthly recurrence support for first-weekday scheduling so events can target slots like “first Saturday.”
 - Introduced the Mega Jackpot recurring event with a first-Saturday monthly window, plus boosted stars/XP multipliers.
 - Wired Mega Jackpot into the existing event pipeline with its own currency progression targets and custom-effect marker.
+- Applied economy multipliers to event currency star rewards so Mega Jackpot boosts amplify event prize payouts.
 
 ## P3 Slice Notes (Expansion category art/FX + reward callouts)
 - Added expansion-tier tile styling overlays so expansion categories stand out with their palette glow + shimmer FX on the board.
