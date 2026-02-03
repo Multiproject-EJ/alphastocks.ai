@@ -264,6 +264,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ## Next Slice
 **Recommended next slice:** **TBD (select next milestone slice from docs/DEV_PLAN_MARKETTYCOON_MASTER.md).**
 
+## P2 Slice Notes (Mega Jackpot monthly event window)
+- Added monthly recurrence support for first-weekday scheduling so events can target slots like “first Saturday.”
+- Introduced the Mega Jackpot recurring event with a first-Saturday monthly window, plus boosted stars/XP multipliers.
+- Wired Mega Jackpot into the existing event pipeline with its own currency progression targets and custom-effect marker.
+
 ## P3 Slice Notes (Expansion category art/FX + reward callouts)
 - Added expansion-tier tile styling overlays so expansion categories stand out with their palette glow + shimmer FX on the board.
 - Updated expansion category tile labels to call out bonus rewards alongside the ring multiplier for quicker reward recognition.

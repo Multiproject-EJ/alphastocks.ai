@@ -29,6 +29,7 @@ export interface GameEvent {
     frequency: 'daily' | 'weekly' | 'monthly'
     dayOfWeek?: number // 0-6 for weekly (0 = Sunday)
     dayOfMonth?: number // 1-31 for monthly
+    weekOfMonth?: number // 1-5 for monthly weekday events
     hour?: number // for time-specific events
     duration: number // hours
   }
@@ -86,12 +87,44 @@ function getNextOccurrence(recurrence: GameEvent['recurrence']): { start: Date; 
       start.setMonth(start.getMonth() + 1)
     }
     start.setHours(recurrence.hour || 0, 0, 0, 0)
+  } else if (
+    recurrence.frequency === 'monthly' &&
+    recurrence.dayOfWeek !== undefined &&
+    recurrence.weekOfMonth !== undefined
+  ) {
+    const targetDate = getNthWeekdayOfMonth(
+      start.getFullYear(),
+      start.getMonth(),
+      recurrence.dayOfWeek,
+      recurrence.weekOfMonth
+    )
+    targetDate.setHours(recurrence.hour || 0, 0, 0, 0)
+
+    if (targetDate <= now) {
+      const nextMonthDate = getNthWeekdayOfMonth(
+        start.getFullYear(),
+        start.getMonth() + 1,
+        recurrence.dayOfWeek,
+        recurrence.weekOfMonth
+      )
+      nextMonthDate.setHours(recurrence.hour || 0, 0, 0, 0)
+      start = nextMonthDate
+    } else {
+      start = targetDate
+    }
   }
 
   const end = new Date(start)
   end.setHours(end.getHours() + recurrence.duration)
 
   return { start, end }
+}
+
+function getNthWeekdayOfMonth(year: number, month: number, dayOfWeek: number, weekOfMonth: number): Date {
+  const firstOfMonth = new Date(year, month, 1)
+  const firstWeekdayOffset = (dayOfWeek - firstOfMonth.getDay() + 7) % 7
+  const dayOfMonth = 1 + firstWeekdayOffset + (weekOfMonth - 1) * 7
+  return new Date(year, month, dayOfMonth)
 }
 
 /**
@@ -191,6 +224,25 @@ export const RECURRING_EVENTS: GameEvent[] = [
       dayOfWeek: 3, // Wednesday
       hour: 12,
       duration: 36
+    }
+  },
+  {
+    id: 'mega-jackpot',
+    title: 'Mega Jackpot',
+    description: 'Monthly mega jackpot surge with boosted rewards.',
+    type: 'recurring',
+    startDate: new Date(),
+    endDate: new Date(),
+    isActive: false,
+    effects: { starsMultiplier: 2.5, xpMultiplier: 2, customEffect: 'mega_jackpot' },
+    icon: '💎',
+    currency: createCurrencyRules('💎', 10, 50, 1200),
+    recurrence: {
+      frequency: 'monthly',
+      dayOfWeek: 6, // Saturday
+      weekOfMonth: 1, // First Saturday
+      hour: 0,
+      duration: 24
     }
   }
 ]
