@@ -7,6 +7,28 @@
 
 
 **Date:** 2026-02-04  
+**Slice:** Unified window UI pass  
+**Summary:**  
+- Added a shared economy window status pill so HUD and phone dice controls reuse the same countdown + bonus display.  
+- Surfaced active economy windows during overlays with a fixed banner to keep window bonuses visible while modals are open.  
+- Centralized economy window countdown formatting for consistent window messaging.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/App.tsx  
+- apps/investing-board-game-v3/src/components/DiceHUD.tsx  
+- apps/investing-board-game-v3/src/components/EconomyWindowStatus.tsx  
+- apps/investing-board-game-v3/src/components/phone/DiceButton.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Trigger an economy window and confirm the countdown + bonuses appear in the desktop Dice HUD and phone dice button.  
+- (manual) Open a modal during an active economy window and confirm the banner stays visible.  
+
+**Date:** 2026-02-04  
 **Slice:** Event window unification pass  
 **Summary:**  
 - Added a shared window scheduling helper so events and mini-games use consistent timing logic.  

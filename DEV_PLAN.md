@@ -263,7 +263,12 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **Unified window UI pass (surface shared window status in HUD + overlays).**
+**Recommended next slice:** **Right Now calendar polish (surface upcoming window roster for events + mini-games).**
+
+## Unified Window UI Pass Slice Notes (Completed ✅)
+- Added a shared economy window status pill so HUD and phone dice controls display the same countdown + bonus info.
+- Surfaced active economy windows in overlay mode with a fixed banner, keeping window bonuses visible while modals are open.
+- Centralized economy window timer formatting to keep countdowns consistent across HUD and overlay surfaces.
 
 ## Event Window Unification Slice Notes (Completed ✅)
 - Added a shared window-scheduling helper so recurring events and mini-games use the same timing logic.
