@@ -1524,3 +1524,20 @@
 
 **How to test:**  
 - (manual) Move between rings via portals or debug jumps and confirm ring history/counts update in the saved game stats.  
+
+**Date:** 2026-02-03  
+**Slice:** P2.3 (Advanced portfolio analytics)  
+**Summary:**  
+- Added portfolio insight blocks with invested capital, unrealized P/L, diversification, and top performer metrics in the portfolio modal.  
+- Surfaced per-holding value and gain/loss readouts alongside existing holdings details.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/components/PortfolioModal.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Open the Portfolio modal with holdings and confirm the insight cards and per-holding P/L metrics render correctly.  

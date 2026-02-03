@@ -55,7 +55,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 - `AI_IMPLEMENTATION.md`, `IMPLEMENTATION_SUMMARY.md`, `DEVLOG.md` (project-wide status/context)
 
 ### Repo Map (paths verified)
-_Last reviewed: 2026-02-14 (P2 ring-based leaderboards)_
+_Last reviewed: 2026-02-03 (P2.3 portfolio analytics)_
 #### Frontend
 - **Legacy static pages entry:** `/index.html`, `/about.html`, `/faq.html`, `/monthly/`, `/weekly/`, `/superinvestor/`
 - **Vite + Preact app:** `/apps/investing-board-game-v3` (built into `/public/board-game-v3` via `npm run build:board-game-v3`)
@@ -229,6 +229,8 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 ### P2 — Audio & Feedback
 - **P2.1** ✅ Soothing sound system
 - **P2.2** ✅ Ring-based leaderboards
+- **P2.3** ✅ Advanced portfolio analytics
+- **P2.4** Event system audit (limited-time windows)
 
 ---
 
@@ -259,7 +261,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P2 Ring history tracking (next planned master-plan slice).**
+**Recommended next slice:** **P2.4 Event system audit (limited-time windows).**
 
 ## P3 Slice Notes (Expansion category art/FX + reward callouts)
 - Added expansion-tier tile styling overlays so expansion categories stand out with their palette glow + shimmer FX on the board.
@@ -527,6 +529,10 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Expanded the ring leaderboards to show Ring 1, Ring 2, and Ring 3 rankings so progression cohorts have their own leaderboard views.
 - Updated the ring leaderboard fetch to pull top entries per ring and keep the Hall of Fame view powered by throne counts.
 - Ensured the leaderboard footer highlights the current user within the active ring tab for clear ranking context.
+
+## P2.3 Slice Notes (Advanced portfolio analytics)
+- Added portfolio insight blocks to highlight invested capital, unrealized gains, diversification, and top performer at a glance.
+- Surfaced per-holding value and P/L metrics so portfolio performance is easier to scan in the modal.
 
 ## P2 Slice Notes (Ring history tracking)
 - Added ring history tracking fields (counts, last visit, and recent transitions) to player stats for long-term progression analytics.

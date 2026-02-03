@@ -20,12 +20,54 @@ export function PortfolioModal({
 }: PortfolioModalProps) {
   const [tradeShares, setTradeShares] = useState<Record<number, string>>({})
 
+  const holdingPerformance = useMemo(() => {
+    return gameState.holdings.map((holding) => {
+      const currentValue = holding.shares * holding.stock.price
+      const gain = currentValue - holding.totalCost
+      const gainPercent = holding.totalCost > 0 ? (gain / holding.totalCost) * 100 : 0
+
+      return {
+        ...holding,
+        currentValue,
+        gain,
+        gainPercent,
+      }
+    })
+  }, [gameState.holdings])
+
+  const portfolioSnapshot = useMemo(() => {
+    const investedTotal = holdingPerformance.reduce((sum, holding) => sum + holding.totalCost, 0)
+    const currentValue = holdingPerformance.reduce((sum, holding) => sum + holding.currentValue, 0)
+    const totalGain = currentValue - investedTotal
+    const roi = investedTotal > 0 ? (totalGain / investedTotal) * 100 : 0
+    const categories = new Set(holdingPerformance.map((holding) => holding.stock.category))
+    const topHolding = holdingPerformance.reduce<null | (typeof holdingPerformance)[number]>(
+      (best, holding) => {
+        if (!best) return holding
+        return holding.gain > best.gain ? holding : best
+      },
+      null,
+    )
+
+    return {
+      investedTotal,
+      currentValue,
+      totalGain,
+      roi,
+      categoryCount: categories.size,
+      topHolding,
+    }
+  }, [holdingPerformance])
+
+  const portfolioValue =
+    portfolioSnapshot.currentValue > 0 ? portfolioSnapshot.currentValue : gameState.portfolioValue
+
   // Calculate category allocation data for pie chart
   const categoryData = useMemo(() => {
     if (gameState.holdings.length === 0) return []
-    
+
     const categoryTotals: Record<string, number> = {}
-    
+
     gameState.holdings.forEach((holding) => {
       const category = holding.stock.category
       if (!categoryTotals[category]) {
@@ -33,7 +75,7 @@ export function PortfolioModal({
       }
       categoryTotals[category] += holding.totalCost
     })
-    
+
     return Object.entries(categoryTotals).map(([category, value]) => ({
       name: getStockCategoryLabel(category as TileCategory) || category,
       value,
@@ -44,19 +86,19 @@ export function PortfolioModal({
   // Calculate asset allocation (Cash vs Stocks)
   const assetAllocationData = useMemo(() => {
     if (gameState.netWorth === 0) return []
-    
+
     return [
       { name: 'Cash', value: gameState.cash, color: '#6366F1' },
-      { name: 'Stocks', value: gameState.portfolioValue, color: '#22C55E' },
+      { name: 'Stocks', value: portfolioValue, color: '#22C55E' },
     ].filter(item => item.value > 0)
-  }, [gameState.cash, gameState.portfolioValue, gameState.netWorth])
+  }, [gameState.cash, gameState.netWorth, portfolioValue])
 
   // Calculate percentages for display
   const cashPercent = gameState.netWorth > 0 
     ? ((gameState.cash / gameState.netWorth) * 100).toFixed(1) 
     : '0'
   const stocksPercent = gameState.netWorth > 0 
-    ? ((gameState.portfolioValue / gameState.netWorth) * 100).toFixed(1) 
+    ? ((portfolioValue / gameState.netWorth) * 100).toFixed(1) 
     : '0'
 
   return (
@@ -79,7 +121,7 @@ export function PortfolioModal({
             <div className="flex items-center justify-between">
               <div className="text-sm text-muted-foreground">Portfolio Value</div>
               <div className="font-mono font-semibold text-foreground">
-                ${gameState.portfolioValue.toLocaleString()} <span className="text-xs text-muted-foreground">({stocksPercent}%)</span>
+                ${portfolioValue.toLocaleString()} <span className="text-xs text-muted-foreground">({stocksPercent}%)</span>
               </div>
             </div>
 
@@ -90,6 +132,51 @@ export function PortfolioModal({
               </div>
             </div>
           </div>
+
+          <Separator />
+
+          {/* Portfolio Insights */}
+          {gameState.holdings.length > 0 && (
+            <div className="space-y-2">
+              <h3 className="text-sm font-semibold text-foreground">Portfolio Insights</h3>
+              <div className="grid gap-2 text-xs sm:grid-cols-2">
+                <div className="rounded border border-border bg-background/60 p-3">
+                  <div className="text-muted-foreground">Invested Capital</div>
+                  <div className="font-semibold text-foreground">
+                    ${portfolioSnapshot.investedTotal.toLocaleString()}
+                  </div>
+                </div>
+                <div className="rounded border border-border bg-background/60 p-3">
+                  <div className="text-muted-foreground">Unrealized P/L</div>
+                  <div
+                    className={`font-semibold ${
+                      portfolioSnapshot.totalGain >= 0 ? 'text-emerald-400' : 'text-rose-400'
+                    }`}
+                  >
+                    {portfolioSnapshot.totalGain >= 0 ? '+' : '-'}$
+                    {Math.abs(portfolioSnapshot.totalGain).toLocaleString()} (
+                    {portfolioSnapshot.roi.toFixed(1)}%)
+                  </div>
+                </div>
+                <div className="rounded border border-border bg-background/60 p-3">
+                  <div className="text-muted-foreground">Diversification</div>
+                  <div className="font-semibold text-foreground">
+                    {portfolioSnapshot.categoryCount} Categories
+                  </div>
+                </div>
+                <div className="rounded border border-border bg-background/60 p-3">
+                  <div className="text-muted-foreground">Top Performer</div>
+                  <div className="font-semibold text-foreground">
+                    {portfolioSnapshot.topHolding
+                      ? `${portfolioSnapshot.topHolding.stock.ticker} ${
+                          portfolioSnapshot.topHolding.gain >= 0 ? '+' : '-'
+                        }$${Math.abs(portfolioSnapshot.topHolding.gain).toLocaleString()}`
+                      : '—'}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           <Separator />
 
@@ -171,7 +258,7 @@ export function PortfolioModal({
               </p>
             ) : (
               <div className="space-y-2 max-h-[220px] overflow-y-auto pr-1">
-                {gameState.holdings.map((holding, idx) => (
+                {holdingPerformance.map((holding, idx) => (
                   <div 
                     key={idx} 
                     className="text-xs space-y-1 p-3 rounded bg-background/50 border border-border"
@@ -201,6 +288,13 @@ export function PortfolioModal({
                     <div className="flex justify-between text-muted-foreground">
                       <span className="capitalize">{getStockCategoryLabel(holding.stock.category)}</span>
                       <span>@${holding.stock.price.toLocaleString()}/share</span>
+                    </div>
+                    <div className="flex justify-between text-[11px] text-muted-foreground">
+                      <span>Value ${holding.currentValue.toLocaleString()}</span>
+                      <span className={holding.gain >= 0 ? 'text-emerald-400' : 'text-rose-400'}>
+                        {holding.gain >= 0 ? '+' : '-'}${Math.abs(holding.gain).toLocaleString()} (
+                        {holding.gainPercent.toFixed(1)}%)
+                      </span>
                     </div>
                     {onTradeHolding && (
                       <div className="flex flex-wrap items-center gap-2 pt-2">
