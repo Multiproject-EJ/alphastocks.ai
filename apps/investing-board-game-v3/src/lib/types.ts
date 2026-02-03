@@ -35,6 +35,13 @@ export interface PortalTransition {
   fromTile: number
   toTile: number
   triggeredBy: 'pass' | 'land'
+  suppressDefaultToast?: boolean
+  toastOverride?: {
+    title: string
+    description?: string
+    variant?: 'success' | 'info'
+    duration?: number
+  }
 }
 
 export interface Tile {
