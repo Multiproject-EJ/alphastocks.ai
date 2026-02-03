@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Star, ChartLine, Trophy, CalendarBlank, Crown, GearSix, GameController } from '@phosphor-icons/react'
 import { Tile } from '@/components/Tile'
 import { DiceHUD } from '@/components/DiceHUD'
+import { EconomyWindowStatus } from '@/components/EconomyWindowStatus'
 import { HubModal } from '@/components/HubModal'
 import { CentralStockCard } from '@/components/CentralStockCard'
 import { StockModal } from '@/components/StockModal'
@@ -4518,6 +4519,8 @@ function App() {
     />
   )
 
+  const hasActiveOverlay = Boolean(getCurrentOverlay() || proToolsOpen)
+
   // Main content that will be wrapped by layout
   const mainContent = (
     <div 
@@ -5364,6 +5367,18 @@ function App() {
               top: '60px', // Below CompactHUD
             } : {})
           }}
+        />
+      )}
+
+      {hasActiveOverlay && (
+        <EconomyWindowStatus
+          label={activeEconomyWindow?.label ?? null}
+          endsAt={activeEconomyWindow?.endAt ?? null}
+          starsMultiplier={economyWindowMultipliers.starsMultiplier}
+          xpMultiplier={economyWindowMultipliers.xpMultiplier}
+          className="fixed left-1/2 top-24 z-[70] w-[min(92vw,320px)] -translate-x-1/2 pointer-events-none border-emerald-300/50 bg-emerald-500/15 text-[11px] text-emerald-50 shadow-[0_10px_25px_rgba(16,185,129,0.25)]"
+          headerClassName="text-[9px] uppercase tracking-[0.3em] text-emerald-100/90"
+          detailClassName="text-[10px] text-emerald-100/90"
         />
       )}
 
