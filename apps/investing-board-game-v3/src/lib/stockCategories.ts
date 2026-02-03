@@ -148,7 +148,7 @@ export const STOCK_CATEGORY_DEFINITIONS: Record<TileCategory, StockCategoryDefin
   },
   international: {
     label: 'International',
-    tier: 'future',
+    tier: 'expansion',
     palette: {
       hex: '#5BA7FF',
       oklch: 'oklch(0.70 0.20 250)',
