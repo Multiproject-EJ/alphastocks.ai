@@ -1388,3 +1388,26 @@
 
 **How to test:**  
 - (manual) Trigger a portal ascend/descend (land on start tiles) and confirm the board container flashes a directional focus pulse.  
+
+**Date:** 2026-02-08  
+**Slice:** P3 (Stock category audit + config hooks)  
+**Summary:**  
+- Added a shared stock category catalog with tiering and palette metadata to prep expansion categories like international equities.  
+- Routed portfolio visuals to read category labels/colors from the shared catalog for consistent future rollouts.  
+- Updated universe stock bucketing to use shared category lists while keeping the core category order intact.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/lib/stockCategories.ts  
+- apps/investing-board-game-v3/src/lib/types.ts  
+- apps/investing-board-game-v3/src/hooks/useUniverseStocks.ts  
+- apps/investing-board-game-v3/src/components/PortfolioModal.tsx  
+- apps/investing-board-game-v3/src/components/PortfolioReadoutPanel.tsx  
+- apps/investing-board-game-v3/src/components/PortfolioWheel.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Open the portfolio modal/readout panel and confirm category labels/colors match prior visuals with no regressions.  

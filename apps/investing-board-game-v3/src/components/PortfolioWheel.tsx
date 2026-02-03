@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
-import { GameState } from '@/lib/types'
+import { getStockCategoryLabel, getStockCategoryPalette } from '@/lib/stockCategories'
+import { GameState, TileCategory } from '@/lib/types'
 
 interface PortfolioWheelProps {
   gameState: GameState
@@ -91,24 +92,7 @@ function DonutSegment({
   )
 }
 
-// Category color mapping from mockData.ts
-const CATEGORY_COLORS: Record<string, string> = {
-  // Main track categories
-  turnarounds: 'oklch(0.60 0.20 330)', // pink/magenta
-  dividends: 'oklch(0.65 0.20 200)',   // blue
-  growth: 'oklch(0.70 0.18 25)',       // orange
-  value: 'oklch(0.75 0.15 85)',        // gold/yellow
-  moats: 'oklch(0.55 0.22 15)',        // red
-  // Inner track categories
-  ipo: 'oklch(0.80 0.25 320)',         // bright pink/magenta
-  meme: 'oklch(0.75 0.30 60)',         // bright yellow
-  crypto: 'oklch(0.70 0.25 280)',      // purple
-  penny: 'oklch(0.65 0.20 120)',       // green
-  leverage: 'oklch(0.60 0.30 0)',      // red
-  options: 'oklch(0.70 0.20 180)',     // cyan
-  // Cash
-  cash: '#22c55e',                     // green
-}
+const CASH_SEGMENT_COLOR = '#22c55e'
 
 function formatNumber(num: number): string {
   if (num >= 1000000) {
@@ -141,10 +125,12 @@ export function PortfolioWheel({ gameState }: PortfolioWheelProps) {
     
     // Convert to segments
     Object.entries(categoryTotals).forEach(([category, value]) => {
+      const categoryKey = category as TileCategory
+      const palette = getStockCategoryPalette(categoryKey)
       parts.push({
-        label: category.charAt(0).toUpperCase() + category.slice(1),
+        label: getStockCategoryLabel(categoryKey),
         value,
-        color: CATEGORY_COLORS[category] || '#888',
+        color: palette.oklch,
       })
     })
     
@@ -153,7 +139,7 @@ export function PortfolioWheel({ gameState }: PortfolioWheelProps) {
       parts.push({
         label: 'Cash',
         value: gameState.cash,
-        color: CATEGORY_COLORS.cash,
+        color: CASH_SEGMENT_COLOR,
       })
     }
     

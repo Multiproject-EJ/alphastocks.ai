@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Separator } from '@/components/ui/separator'
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts'
+import { getStockCategoryLabel, getStockCategoryPalette } from '@/lib/stockCategories'
 import { GameState, TileCategory } from '@/lib/types'
 
 interface PortfolioModalProps {
@@ -9,25 +10,6 @@ interface PortfolioModalProps {
   onOpenChange: (open: boolean) => void
   gameState: GameState
   onTradeHolding?: (holdingIndex: number, action: 'buy' | 'sell', shares: number) => void
-}
-
-// Category color mapping
-const CATEGORY_COLORS: Partial<Record<TileCategory, string>> = {
-  turnarounds: '#FF6B6B',
-  dividends: '#4ECDC4',
-  growth: '#45B7D1',
-  moats: '#96CEB4',
-  value: '#FFEAA7',
-  elite: '#FFD700', // Gold for elite stocks
-}
-
-const CATEGORY_LABELS: Partial<Record<TileCategory, string>> = {
-  turnarounds: 'Turnarounds',
-  dividends: 'Dividends',
-  growth: 'Growth',
-  moats: 'Moats',
-  value: 'Value',
-  elite: 'Elite',
 }
 
 export function PortfolioModal({
@@ -53,9 +35,9 @@ export function PortfolioModal({
     })
     
     return Object.entries(categoryTotals).map(([category, value]) => ({
-      name: CATEGORY_LABELS[category as TileCategory] || category,
+      name: getStockCategoryLabel(category as TileCategory) || category,
       value,
-      color: CATEGORY_COLORS[category as TileCategory] || '#888888',
+      color: getStockCategoryPalette(category as TileCategory).hex,
     }))
   }, [gameState.holdings])
 
@@ -193,7 +175,10 @@ export function PortfolioModal({
                   <div 
                     key={idx} 
                     className="text-xs space-y-1 p-3 rounded bg-background/50 border border-border"
-                    style={{ borderLeftColor: CATEGORY_COLORS[holding.stock.category], borderLeftWidth: 3 }}
+                    style={{
+                      borderLeftColor: getStockCategoryPalette(holding.stock.category).hex,
+                      borderLeftWidth: 3,
+                    }}
                   >
                     <div className="flex justify-between items-start">
                       <div>
@@ -214,7 +199,7 @@ export function PortfolioModal({
                       </div>
                     </div>
                     <div className="flex justify-between text-muted-foreground">
-                      <span className="capitalize">{CATEGORY_LABELS[holding.stock.category]}</span>
+                      <span className="capitalize">{getStockCategoryLabel(holding.stock.category)}</span>
                       <span>@${holding.stock.price.toLocaleString()}/share</span>
                     </div>
                     {onTradeHolding && (

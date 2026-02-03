@@ -1,6 +1,6 @@
 export type TileType = 'corner' | 'category' | 'event' | 'learning' | 'mystery' | 'quick-reward' | 'special'
 
-export type TileCategory = 'turnarounds' | 'dividends' | 'growth' | 'moats' | 'value' | 'ipo' | 'meme' | 'crypto' | 'penny' | 'leverage' | 'options' | 'elite'
+export type TileCategory = 'turnarounds' | 'dividends' | 'growth' | 'moats' | 'value' | 'ipo' | 'meme' | 'crypto' | 'penny' | 'leverage' | 'options' | 'international' | 'elite'
 
 export type RingNumber = 1 | 2 | 3
 

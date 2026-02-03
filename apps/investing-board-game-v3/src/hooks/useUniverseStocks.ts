@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { supabaseClient, hasSupabaseConfig } from '@/lib/supabaseClient'
 import { getRandomStock } from '@/lib/mockData'
 import { resolveStockPrice } from '@/lib/stockPricing'
+import { ALL_STOCK_CATEGORIES, CORE_STOCK_CATEGORIES } from '@/lib/stockCategories'
 import { Stock, TileCategory } from '@/lib/types'
 
 type UniverseRow = {
@@ -21,14 +22,13 @@ type UniverseRow = {
   image_url: string | null
 }
 
-const CATEGORY_ORDER: TileCategory[] = ['turnarounds', 'dividends', 'growth', 'moats', 'value']
 const DEFAULT_SCORE = 5
 
 function deriveCategory(symbol: string, index: number): TileCategory {
   const normalizedSymbol = symbol?.trim() || 'UNIVERSE'
   const codePoints = Array.from(normalizedSymbol).map((char) => char.codePointAt(0) ?? 0)
   const total = codePoints.reduce((sum, value) => sum + value, index)
-  return CATEGORY_ORDER[Math.abs(total) % CATEGORY_ORDER.length]
+  return CORE_STOCK_CATEGORIES[Math.abs(total) % CORE_STOCK_CATEGORIES.length]
 }
 
 function normalizePrice(ticker: string, score?: number | null, seedIndex?: number): number {
@@ -126,7 +126,7 @@ function mapUniverseRowToStock(row: UniverseRow, index: number): Stock {
 }
 
 function createEmptyBuckets(): Record<TileCategory, Stock[]> {
-  return CATEGORY_ORDER.reduce(
+  return ALL_STOCK_CATEGORIES.reduce(
     (acc, category) => ({
       ...acc,
       [category]: [],
