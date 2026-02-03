@@ -5,6 +5,25 @@
 
 ## Unreleased
 
+**Date:** 2026-02-14  
+**Slice:** P2.2 (Ring-based leaderboards)  
+**Summary:**  
+- Added ring-specific leaderboard tabs so Ring 1, Ring 2, and Ring 3 cohorts get their own rankings views.  
+- Updated ring leaderboard fetching to pull the top entries per ring for consistent ranking data.  
+- Kept the Hall of Fame view powered by throne counts while the footer highlights the active ring leaderboard context.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/components/LeaderboardModal.tsx  
+- apps/investing-board-game-v3/src/hooks/useLeaderboard.ts  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Open the leaderboard modal, switch to Ring Leaders, toggle Ring 1/2/3 tabs, and confirm the Hall of Fame view still orders by throne count.  
+
 **Date:** 2026-02-07  
 **Slice:** P3 (Merger Mania timed mini-game surface)  
 **Summary:**  

@@ -220,23 +220,31 @@ export function useLeaderboard({ gameState }: UseLeaderboardProps): UseLeaderboa
     await fetchLeaderboard('global', 'net_worth')
   }, [fetchLeaderboard])
 
-  // Fetch Ring Leaders (Ring 2 and 3 players)
+  // Fetch Ring Leaders (Ring 1-3 leaderboards)
   const fetchRingLeaders = useCallback(async () => {
     if (!supabaseClient || !hasSupabaseConfig) return
     
     try {
-      const { data, error } = await supabaseClient
-        .from('leaderboard')
-        .select('*')
-        .gte('current_ring', 2)  // Ring 2 and 3 players
-        .order('current_ring', { ascending: false })
-        .order('throne_count', { ascending: false })
-        .order('net_worth', { ascending: false })
-        .limit(50)
-      
-      if (!error && data) {
-        setRingLeaders(data.map((row: any, index: number) => mapToLeaderboardEntry(row, index)))
-      }
+      const ringQueries = [1, 2, 3].map((ring) =>
+        supabaseClient
+          .from('leaderboard')
+          .select('*')
+          .eq('current_ring', ring)
+          .order('net_worth', { ascending: false })
+          .order('throne_count', { ascending: false })
+          .limit(50)
+      )
+
+      const results = await Promise.all(ringQueries)
+      const entries = results.flatMap(({ data, error }) => {
+        if (error && error.code !== '42P01') {
+          throw error
+        }
+
+        return data ? data.map((row: any) => mapToLeaderboardEntry(row)) : []
+      })
+
+      setRingLeaders(entries)
     } catch (err) {
       console.error('Error fetching ring leaders:', err)
     }

@@ -40,6 +40,7 @@ export function LeaderboardModal({
 }: LeaderboardModalProps) {
   const dialogClass = useResponsiveDialogClass('large')
   const [activeTab, setActiveTab] = useState<'global' | 'weekly' | 'seasonal' | 'rings' | 'thrones'>('global')
+  const [activeRingTab, setActiveRingTab] = useState<'ring1' | 'ring2' | 'ring3'>('ring1')
   const [sortBy, setSortBy] = useState<'net_worth' | 'level' | 'season_tier' | 'stars'>('net_worth')
   const parentRef = useRef<HTMLDivElement>(null)
 
@@ -209,6 +210,21 @@ export function LeaderboardModal({
     )
   }
 
+  const ringLeaderboards = {
+    ring1: ringLeaders
+      .filter((entry) => entry.currentRing === 1)
+      .sort((a, b) => b.netWorth - a.netWorth)
+      .map((entry, index) => ({ ...entry, rank: index + 1 })),
+    ring2: ringLeaders
+      .filter((entry) => entry.currentRing === 2)
+      .sort((a, b) => b.netWorth - a.netWorth)
+      .map((entry, index) => ({ ...entry, rank: index + 1 })),
+    ring3: ringLeaders
+      .filter((entry) => entry.currentRing === 3)
+      .sort((a, b) => b.netWorth - a.netWorth)
+      .map((entry, index) => ({ ...entry, rank: index + 1 })),
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className={`${dialogClass} h-[80vh] bg-card border-2 border-accent/30 shadow-2xl`}>
@@ -293,12 +309,35 @@ export function LeaderboardModal({
           </TabsContent>
 
           <TabsContent value="rings" className="flex-1 mt-4">
+            <div className="flex items-center gap-2 mb-3 flex-wrap">
+              <Button
+                size="sm"
+                variant={activeRingTab === 'ring1' ? 'default' : 'outline'}
+                onClick={() => setActiveRingTab('ring1')}
+              >
+                🏠 Ring 1
+              </Button>
+              <Button
+                size="sm"
+                variant={activeRingTab === 'ring2' ? 'default' : 'outline'}
+                onClick={() => setActiveRingTab('ring2')}
+              >
+                🏢 Ring 2
+              </Button>
+              <Button
+                size="sm"
+                variant={activeRingTab === 'ring3' ? 'default' : 'outline'}
+                onClick={() => setActiveRingTab('ring3')}
+              >
+                👑 Ring 3
+              </Button>
+            </div>
             {loading ? (
               <div className="flex items-center justify-center h-full">
                 <div className="text-muted-foreground">Loading...</div>
               </div>
             ) : (
-              <VirtualLeaderboard data={ringLeaders} />
+              <VirtualLeaderboard data={ringLeaderboards[activeRingTab]} />
             )}
           </TabsContent>
 
@@ -316,7 +355,9 @@ export function LeaderboardModal({
         {/* Current user's position - sticky footer */}
         {currentUserId && (() => {
           const currentUserEntry = 
-            activeTab === 'rings' || activeTab === 'thrones'
+            activeTab === 'rings'
+              ? ringLeaderboards[activeRingTab].find(e => e.userId === currentUserId)
+              : activeTab === 'thrones'
               ? ringLeaders.find(e => e.userId === currentUserId)
               : activeTab === 'weekly'
               ? weeklyLeaderboard.find(e => e.userId === currentUserId)
