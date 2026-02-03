@@ -5,6 +5,25 @@
 
 ## Unreleased
 
+**Date:** 2026-02-13  
+**Slice:** P2 (Mega Jackpot monthly event window)  
+**Summary:**  
+- Added monthly recurrence support for first-weekday scheduling so event windows can target “first Saturday” slots.  
+- Introduced the Mega Jackpot recurring event with boosted stars/XP rewards and a custom-effect marker for future hooks.  
+- Wired the new Mega Jackpot event into the standard events pipeline with dedicated currency progression targets.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/lib/events.ts  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Use the events feed to confirm a “Mega Jackpot” entry appears as an upcoming monthly event and becomes active during the first Saturday window.  
+
+
 **Date:** 2026-02-15  
 **Slice:** P2.5 (Sound effects pass — HUD button feedback)  
 **Summary:**  
