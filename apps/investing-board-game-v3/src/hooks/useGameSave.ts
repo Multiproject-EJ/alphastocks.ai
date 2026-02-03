@@ -126,6 +126,16 @@ export function useGameSave(): UseGameSaveReturn {
         lastLoginDate: null,
         totalStarsEarned: 0,
         roll6Streak: 0,
+        ringVisitCounts: { ring1: 1, ring2: 0, ring3: 0 },
+        ringHistory: [
+          {
+            ring: 1,
+            at: new Date().toISOString(),
+            reason: 'start',
+          },
+        ],
+        lastRingVisited: 1,
+        lastRingVisitedAt: new Date().toISOString(),
       },
       thriftPath: profile.thrift_path || undefined,
       eventTrack: profile.event_track || undefined,
@@ -250,6 +260,16 @@ export function useGameSave(): UseGameSaveReturn {
             lastLoginDate: null,
             totalStarsEarned: 0,
             roll6Streak: 0,
+            ringVisitCounts: { ring1: 1, ring2: 0, ring3: 0 },
+            ringHistory: [
+              {
+                ring: 1,
+                at: new Date().toISOString(),
+                reason: 'start',
+              },
+            ],
+            lastRingVisited: 1,
+            lastRingVisitedAt: new Date().toISOString(),
           },
           thrift_path: gameState.thriftPath || undefined,
           event_track: gameState.eventTrack || undefined,

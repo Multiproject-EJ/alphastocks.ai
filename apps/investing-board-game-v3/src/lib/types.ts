@@ -221,6 +221,18 @@ export interface GameState {
     roll6Streak: number
     rollsPurchased?: number
     coinsSpentOnRolls?: number
+    ringVisitCounts?: {
+      ring1: number
+      ring2: number
+      ring3: number
+    }
+    ringHistory?: Array<{
+      ring: RingNumber
+      at: string
+      reason: 'start' | 'move' | 'portal' | 'jump' | 'reset'
+    }>
+    lastRingVisited?: RingNumber
+    lastRingVisitedAt?: string | null
   }
   // Energy regeneration fields
   lastEnergyCheck?: Date

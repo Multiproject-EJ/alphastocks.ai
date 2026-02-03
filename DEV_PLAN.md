@@ -55,7 +55,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 - `AI_IMPLEMENTATION.md`, `IMPLEMENTATION_SUMMARY.md`, `DEVLOG.md` (project-wide status/context)
 
 ### Repo Map (paths verified)
-_Last reviewed: 2026-02-11 (P3 expansion category art/FX + reward callouts)_
+_Last reviewed: 2026-02-13 (P2 ring history tracking)_
 #### Frontend
 - **Legacy static pages entry:** `/index.html`, `/about.html`, `/faq.html`, `/monthly/`, `/weekly/`, `/superinvestor/`
 - **Vite + Preact app:** `/apps/investing-board-game-v3` (built into `/public/board-game-v3` via `npm run build:board-game-v3`)
@@ -257,7 +257,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **Select the next master-plan slice after P3 landing FX polish (see `docs/DEV_PLAN_MARKETTYCOON_MASTER.md`).**
+**Recommended next slice:** **P2 Ring-based leaderboards (next planned master-plan slice).**
 
 ## P3 Slice Notes (Expansion category art/FX + reward callouts)
 - Added expansion-tier tile styling overlays so expansion categories stand out with their palette glow + shimmer FX on the board.
@@ -520,6 +520,10 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ## P2.1 Slice Notes (Soothing sound system)
 - Added a soft low-pass filter and warmer triangle waveform defaults to the Web Audio synth nodes to reduce harshness.
 - Tuned reward, portal, and UI tones to use filtered voices with smoother envelopes for more pleasant feedback.
+
+## P2 Slice Notes (Ring history tracking)
+- Added ring history tracking fields (counts, last visit, and recent transitions) to player stats for long-term progression analytics.
+- Wired ring transitions (movement hops, portal jumps, manual jumps, and throne resets) to log ring visit history consistently.
 
 ## P1 Elite Stock Special Behaviors Slice Notes
 - Added an elite stock purchase bonus that awards extra stars and XP based on composite score with live economy multipliers.

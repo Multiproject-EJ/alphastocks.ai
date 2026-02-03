@@ -330,6 +330,16 @@ function App() {
       lastLoginDate: null,
       totalStarsEarned: 0,
       roll6Streak: 0,
+      ringVisitCounts: { ring1: 1, ring2: 0, ring3: 0 },
+      ringHistory: [
+        {
+          ring: 1,
+          at: new Date().toISOString(),
+          reason: 'start',
+        },
+      ],
+      lastRingVisited: 1,
+      lastRingVisitedAt: new Date().toISOString(),
     },
     lifetimeCashEarned: 0,
     lifetimeStarsEarned: 0,
@@ -2568,10 +2578,11 @@ function App() {
           setHoppingTiles([nextPosition])
           
           // Update position and ring as we hop
-          setGameState((prev) => ({ 
-            ...prev, 
+          setGameState((prev) => ({
+            ...prev,
             position: nextPosition,
-            currentRing: currentStep.ring
+            currentRing: currentStep.ring,
+            stats: buildRingHistoryUpdate(prev, currentStep.ring, 'move'),
           }))
           currentHop++
 
@@ -2610,6 +2621,7 @@ function App() {
             ...prev,
             position: newPosition,
             currentRing: newRing,
+            stats: buildRingHistoryUpdate(prev, newRing, 'move'),
           }))
           
           // Trigger landing event with current reward multiplier
@@ -3001,19 +3013,25 @@ function App() {
       // Check if throne is reached
       const isThroneReached = transition.toRing === 0
       
-      setGameState(prev => ({
-        ...prev,
-        // Only update currentRing if not going to throne (toRing !== 0)
-        ...(transition.toRing !== 0 && { currentRing: transition.toRing as RingNumber }),
-        position: transition.toTile,
-        // Track throne if reached and award rewards
-        ...(isThroneReached && {
-          hasReachedThrone: true,
-          throneCount: (prev.throneCount || 0) + 1,
-          stars: prev.stars + 10000,  // Award 10K stars
-          cash: prev.cash + 100000,    // Award $100K cash
-        }),
-      }))
+      setGameState(prev => {
+        const nextRing = transition.toRing !== 0 ? (transition.toRing as RingNumber) : prev.currentRing
+        return {
+          ...prev,
+          // Only update currentRing if not going to throne (toRing !== 0)
+          ...(transition.toRing !== 0 && { currentRing: nextRing }),
+          position: transition.toTile,
+          stats: transition.toRing !== 0
+            ? buildRingHistoryUpdate(prev, nextRing, 'portal')
+            : prev.stats,
+          // Track throne if reached and award rewards
+          ...(isThroneReached && {
+            hasReachedThrone: true,
+            throneCount: (prev.throneCount || 0) + 1,
+            stars: prev.stars + 10000,  // Award 10K stars
+            cash: prev.cash + 100000,    // Award $100K cash
+          }),
+        }
+      })
       
       setIsPortalAnimating(false)
       setPortalTransition(null)
@@ -3038,7 +3056,7 @@ function App() {
         })
       }
     }, 1500) // Animation duration
-  }, [playSound, handleRingTransition])
+  }, [buildRingHistoryUpdate, playSound, handleRingTransition])
 
   // Handle landing on quick reward tile - AUTO COLLECT, NO POPUP
   const handleQuickRewardTile = (tile: TileType) => {
@@ -3150,6 +3168,52 @@ function App() {
   }
 
   const getDateKey = (date: Date) => date.toISOString().split('T')[0]
+
+  type RingHistoryReason = 'start' | 'move' | 'portal' | 'jump' | 'reset'
+
+  const buildRingHistoryUpdate = useCallback((
+    prev: GameState,
+    nextRing: RingNumber,
+    reason: RingHistoryReason,
+  ) => {
+    if (prev.currentRing === nextRing) {
+      return prev.stats
+    }
+
+    const timestamp = new Date().toISOString()
+    const ringVisitCounts = prev.stats.ringVisitCounts ?? {
+      ring1: prev.currentRing === 1 ? 1 : 0,
+      ring2: prev.currentRing === 2 ? 1 : 0,
+      ring3: prev.currentRing === 3 ? 1 : 0,
+    }
+    const ringKey = nextRing === 1 ? 'ring1' : nextRing === 2 ? 'ring2' : 'ring3'
+    const nextVisitCounts = {
+      ...ringVisitCounts,
+      [ringKey]: ringVisitCounts[ringKey] + 1,
+    }
+    const ringHistory = [
+      ...(prev.stats.ringHistory ?? [
+        {
+          ring: prev.currentRing,
+          at: prev.stats.lastRingVisitedAt ?? timestamp,
+          reason: 'start' as const,
+        },
+      ]),
+      {
+        ring: nextRing,
+        at: timestamp,
+        reason,
+      },
+    ].slice(-50)
+
+    return {
+      ...prev.stats,
+      ringVisitCounts: nextVisitCounts,
+      ringHistory,
+      lastRingVisited: nextRing,
+      lastRingVisitedAt: timestamp,
+    }
+  }, [])
 
   const getDailyStreakUpdate = (
     lastDate: string | null | undefined,
@@ -3714,10 +3778,11 @@ function App() {
       ...prev,
       currentRing: ring,
       position: tileId,
+      stats: buildRingHistoryUpdate(prev, ring, 'jump'),
     }))
     setPhase('idle')
     setRing3RollUsed(false)
-  }, [])
+  }, [buildRingHistoryUpdate])
 
   const triggerBiasQuiz = useCallback(() => {
     const caseStudy = getRandomBiasCaseStudy()
@@ -3758,9 +3823,10 @@ function App() {
       ...prev,
       currentRing: 3,
       position: 300,
+      stats: buildRingHistoryUpdate(prev, 3, 'jump'),
     }))
     handleRing3Landing(300, { x: window.innerWidth / 2, y: window.innerHeight / 2 })
-  }, [handleRing3Landing])
+  }, [buildRingHistoryUpdate, handleRing3Landing])
 
   const handleBuyStock = (sharesToBuy: number) => {
     if (!currentStock) return
@@ -5288,6 +5354,7 @@ function App() {
             ...prev,
             currentRing: 1,
             position: 0,
+            stats: buildRingHistoryUpdate(prev, 1, 'reset'),
           }))
           setShowThroneVictory(false)
         }}

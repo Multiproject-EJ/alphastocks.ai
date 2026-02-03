@@ -1486,3 +1486,22 @@
 
 **How to test:**  
 - (manual) Land on an expansion category tile and confirm the landing pulse glow, stinger sound, and celebratory emoji burst fire once.  
+
+**Date:** 2026-02-13  
+**Slice:** P2 (Ring history tracking)  
+**Summary:**  
+- Added ring visit counts, last-visit metadata, and ring history entries to player stats for tracking progression across rings.  
+- Wired ring transitions (movement hops, portal transitions, manual jumps, and throne resets) to record ring history updates.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/App.tsx  
+- apps/investing-board-game-v3/src/hooks/useGameSave.ts  
+- apps/investing-board-game-v3/src/lib/types.ts  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Move between rings via portals or debug jumps and confirm ring history/counts update in the saved game stats.  
