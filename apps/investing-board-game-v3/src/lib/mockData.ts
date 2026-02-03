@@ -73,7 +73,7 @@ export const BOARD_TILES: Tile[] = [
   { id: 27, type: 'event', title: 'Analyst Call' },
   
   // Stock tile
-  { id: 28, type: 'category', title: 'Value Picks', category: 'value', colorBorder: 'oklch(0.80 0.18 85)' },
+  { id: 28, type: 'category', title: 'IPO Launchpad', category: 'ipo', colorBorder: 'oklch(0.80 0.25 320)' },
   
   // Quick rewards
   { id: 29, type: 'event', title: 'Market Event' },
@@ -82,7 +82,7 @@ export const BOARD_TILES: Tile[] = [
   { id: 32, type: 'learning', title: 'Quiz', learningId: 'quiz-fundamentals' },
   
   // Stock tile
-  { id: 33, type: 'category', title: 'Dividend Dreams', category: 'dividends', colorBorder: 'oklch(0.70 0.25 200)' },
+  { id: 33, type: 'category', title: 'Meme Mania', category: 'meme', colorBorder: 'oklch(0.75 0.30 60)' },
   
   // Quick rewards to finish lap
   { id: 34, type: 'quick-reward', title: 'XP Boost', quickRewardType: 'xp' },
@@ -109,10 +109,10 @@ export const RING_2_TILES: Tile[] = [
   { id: 201, type: 'quick-reward', title: 'Premium Cash', quickRewardType: 'cash' },
   
   // Stock tile
-  { id: 202, type: 'category', title: 'Premium Value', category: 'value', colorBorder: 'oklch(0.82 0.18 85)' },
+  { id: 202, type: 'category', title: 'Crypto Vault', category: 'crypto', colorBorder: 'oklch(0.70 0.25 280)' },
   
-  // Quick rewards
-  { id: 203, type: 'quick-reward', title: 'Star Storm', quickRewardType: 'stars' },
+  // Stock tile
+  { id: 203, type: 'category', title: 'Global Exchange', category: 'international', colorBorder: 'oklch(0.70 0.20 250)' },
   { id: 204, type: 'quick-reward', title: 'Gold Coins', quickRewardType: 'coins' },
   
   // Corner - Elevator
@@ -122,7 +122,7 @@ export const RING_2_TILES: Tile[] = [
   { id: 206, type: 'special', title: 'Fall Portal', specialAction: 'ring-fall', specialStyle: 'fall-portal', portalStyle: 'blue', colorBorder: 'oklch(0.72 0.2 225)' },
   
   // Stock tile
-  { id: 207, type: 'category', title: 'Premium Dividends', category: 'dividends', colorBorder: 'oklch(0.74 0.20 220)' },
+  { id: 207, type: 'category', title: 'Penny Surge', category: 'penny', colorBorder: 'oklch(0.65 0.20 120)' },
   
   // Quick rewards
   { id: 208, type: 'event', title: 'Executive Event' },
@@ -144,7 +144,7 @@ export const RING_2_TILES: Tile[] = [
   { id: 216, type: 'quick-reward', title: 'Mystery Vault', quickRewardType: 'mystery' },
   
   // Stock tile
-  { id: 217, type: 'category', title: 'Premium Moats', category: 'moats', colorBorder: 'oklch(0.70 0.19 235)' },
+  { id: 217, type: 'category', title: 'Options Desk', category: 'options', colorBorder: 'oklch(0.70 0.20 180)' },
   
   // Quick rewards
   { id: 218, type: 'special', title: 'Fall Portal', specialAction: 'ring-fall', specialStyle: 'fall-portal', portalStyle: 'blue', colorBorder: 'oklch(0.72 0.2 225)' },
@@ -153,7 +153,7 @@ export const RING_2_TILES: Tile[] = [
   { id: 221, type: 'event', title: 'Wildcard' },
   
   // Stock tile
-  { id: 222, type: 'category', title: 'Premium Turnarounds', category: 'turnarounds', colorBorder: 'oklch(0.78 0.18 95)' },
+  { id: 222, type: 'category', title: 'Leverage Ladder', category: 'leverage', colorBorder: 'oklch(0.60 0.30 0)' },
   
   // Quick rewards
   { id: 223, type: 'quick-reward', title: 'Premium Cash', quickRewardType: 'cash' },
@@ -452,6 +452,188 @@ export const MOCK_STOCKS: Record<string, Stock[]> = {
       price: 27.30, 
       description: 'Pharmaceutical company with strong cash flow, low valuation',
       scores: { composite: 7.0, quality: 7.8, risk: 5.0, timing: 6.5 }
+    },
+  ],
+  ipo: [
+    {
+      name: 'Arm Holdings',
+      ticker: 'ARM',
+      category: 'ipo',
+      price: 128.40,
+      description: 'Recent IPO driving chip IP demand with high growth expectations',
+      scores: { composite: 7.4, quality: 7.2, risk: 7.8, timing: 7.0 }
+    },
+    {
+      name: 'Instacart',
+      ticker: 'CART',
+      category: 'ipo',
+      price: 33.15,
+      description: 'Grocery delivery platform navigating post-IPO expansion plans',
+      scores: { composite: 6.6, quality: 6.5, risk: 7.2, timing: 6.4 }
+    },
+    {
+      name: 'Klaviyo',
+      ticker: 'KVYO',
+      category: 'ipo',
+      price: 25.85,
+      description: 'Marketing automation newcomer scaling enterprise adoption',
+      scores: { composite: 6.8, quality: 6.7, risk: 7.0, timing: 6.6 }
+    },
+  ],
+  meme: [
+    {
+      name: 'GameStop',
+      ticker: 'GME',
+      category: 'meme',
+      price: 23.40,
+      description: 'Cult-favorite retailer with volatile social momentum',
+      scores: { composite: 6.1, quality: 4.8, risk: 9.0, timing: 6.5 }
+    },
+    {
+      name: 'AMC Entertainment',
+      ticker: 'AMC',
+      category: 'meme',
+      price: 4.90,
+      description: 'Cinema chain fueled by retail trader enthusiasm',
+      scores: { composite: 5.4, quality: 4.5, risk: 9.3, timing: 6.0 }
+    },
+    {
+      name: 'Bed Bath & Beyond',
+      ticker: 'BBBYQ',
+      category: 'meme',
+      price: 0.12,
+      description: 'High-volatility ticker symbolizing meme-stock risk',
+      scores: { composite: 4.2, quality: 2.5, risk: 9.8, timing: 4.5 }
+    },
+  ],
+  crypto: [
+    {
+      name: 'Coinbase Global',
+      ticker: 'COIN',
+      category: 'crypto',
+      price: 214.30,
+      description: 'Crypto exchange leveraged to digital asset volatility',
+      scores: { composite: 7.0, quality: 6.8, risk: 8.2, timing: 7.4 }
+    },
+    {
+      name: 'Marathon Digital',
+      ticker: 'MARA',
+      category: 'crypto',
+      price: 24.60,
+      description: 'Bitcoin miner tied to hash-rate cycles and crypto prices',
+      scores: { composite: 6.2, quality: 5.5, risk: 8.8, timing: 6.8 }
+    },
+    {
+      name: 'Riot Platforms',
+      ticker: 'RIOT',
+      category: 'crypto',
+      price: 15.40,
+      description: 'Digital mining firm with leveraged crypto exposure',
+      scores: { composite: 6.0, quality: 5.2, risk: 9.0, timing: 6.6 }
+    },
+  ],
+  penny: [
+    {
+      name: 'Plug Power',
+      ticker: 'PLUG',
+      category: 'penny',
+      price: 3.15,
+      description: 'Hydrogen tech firm trading at speculative price levels',
+      scores: { composite: 5.6, quality: 4.8, risk: 8.7, timing: 5.8 }
+    },
+    {
+      name: 'Mullen Automotive',
+      ticker: 'MULN',
+      category: 'penny',
+      price: 0.19,
+      description: 'Microcap EV maker with high-risk turnaround ambitions',
+      scores: { composite: 4.8, quality: 3.8, risk: 9.4, timing: 4.9 }
+    },
+    {
+      name: 'Sundial Growers',
+      ticker: 'SNDL',
+      category: 'penny',
+      price: 1.82,
+      description: 'Cannabis operator navigating microcap volatility',
+      scores: { composite: 5.1, quality: 4.2, risk: 9.1, timing: 5.2 }
+    },
+  ],
+  leverage: [
+    {
+      name: 'Direxion S&P Bull 3X',
+      ticker: 'SPXL',
+      category: 'leverage',
+      price: 118.70,
+      description: 'Triple-leveraged ETF amplifying S&P 500 moves',
+      scores: { composite: 6.7, quality: 6.0, risk: 9.2, timing: 6.8 }
+    },
+    {
+      name: 'ProShares Ultra QQQ',
+      ticker: 'QLD',
+      category: 'leverage',
+      price: 88.40,
+      description: 'Leveraged Nasdaq exposure with amplified tech swings',
+      scores: { composite: 6.5, quality: 6.2, risk: 8.8, timing: 6.6 }
+    },
+    {
+      name: 'Direxion Daily Tech Bull 3X',
+      ticker: 'TECL',
+      category: 'leverage',
+      price: 70.25,
+      description: 'Triple-leveraged tech ETF for aggressive momentum bets',
+      scores: { composite: 6.4, quality: 5.8, risk: 9.4, timing: 6.7 }
+    },
+  ],
+  options: [
+    {
+      name: 'Cboe Global Markets',
+      ticker: 'CBOE',
+      category: 'options',
+      price: 189.60,
+      description: 'Options exchange operator benefiting from trading volume',
+      scores: { composite: 7.3, quality: 7.8, risk: 6.2, timing: 7.1 }
+    },
+    {
+      name: 'Robinhood Markets',
+      ticker: 'HOOD',
+      category: 'options',
+      price: 18.95,
+      description: 'Retail trading platform with growing options activity',
+      scores: { composite: 6.6, quality: 6.0, risk: 7.4, timing: 6.7 }
+    },
+    {
+      name: 'Interactive Brokers',
+      ticker: 'IBKR',
+      category: 'options',
+      price: 122.30,
+      description: 'Brokerage powerhouse with global derivatives access',
+      scores: { composite: 7.1, quality: 7.4, risk: 6.5, timing: 6.9 }
+    },
+  ],
+  international: [
+    {
+      name: 'Toyota Motor Corp',
+      ticker: 'TM',
+      category: 'international',
+      price: 248.10,
+      description: 'Global auto leader with diversified international revenue',
+      scores: { composite: 7.8, quality: 8.2, risk: 4.8, timing: 7.2 }
+    },
+    {
+      name: 'Nestlé',
+      ticker: 'NSRGY',
+      category: 'international',
+      price: 101.40,
+      description: 'Swiss consumer staples giant with global brand strength',
+      scores: { composite: 7.6, quality: 8.0, risk: 4.5, timing: 7.0 }
+    },
+    {
+      name: 'ASML Holding',
+      ticker: 'ASML',
+      category: 'international',
+      price: 960.75,
+      description: 'Dutch semiconductor equipment leader with dominant EUV tech',
+      scores: { composite: 8.7, quality: 9.2, risk: 4.2, timing: 8.4 }
     },
   ],
   elite: [
