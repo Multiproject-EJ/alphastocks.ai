@@ -5,24 +5,7 @@
 
 ## Unreleased
 
-**Date:** 2026-02-03  
-**Slice:** Fall Portals + Chance Lift (Ring 2 portal outcomes + feedback polish)  
-**Summary:**  
-- Expanded Ring 2 fall portal outcomes with safety-net and executive-evac reward variants plus celebration feedback.  
-- Broadened Chance card outcomes to include executive lifts and market boosts while preserving the Ring 3 jackpot lift.  
-- Centralized weighted outcome selection for Ring 2 portal tiles to simplify tuning.  
 
-**Files changed:**  
-- apps/investing-board-game-v3/src/App.tsx  
-- DEV_PLAN.md  
-- CHANGELOG_DEV.md  
-
-**SQL migrations:**  
-- (none)  
-
-**How to test:**  
-- (manual) Land on a Ring 2 Fall Portal and confirm the new outcome variety and portal drop feedback.  
-- (manual) Land on the Ring 2 Chance tile and confirm the jackpot lift, executive lift, or market boost outcome messaging.  
 
 **Date:** 2026-02-13  
 **Slice:** P2 (Mega Jackpot monthly event window)  
@@ -324,25 +307,6 @@
 - (manual) Trigger a Wealth Run win tile, confirm the roulette status panel appears and highlights rewards.  
 - (manual) Spin roulette multiple times; verify rewards apply for cash, stars, coins, XP, and rolls as shown in the toast.  
 
-**Date:** 2026-02-03  
-**Slice:** Fall Portals + Chance Lift  
-**Summary:**  
-- Added safety-net rewards to Ring 2 fall portals so some drops grant a quick bonus before returning to Street Level.  
-- Expanded Chance Card outcomes with randomized executive perks while keeping the jackpot lift to the Wealth Run.  
-- Updated Chance Card modal copy to reflect the broader outcome mix.  
-
-**Files changed:**  
-- apps/investing-board-game-v3/src/App.tsx  
-- apps/investing-board-game-v3/src/components/ChanceCardModal.tsx  
-- DEV_PLAN.md  
-- CHANGELOG_DEV.md  
-
-**SQL migrations:**  
-- (none)  
-
-**How to test:**  
-- (manual) On Ring 2, land on a Fall Portal multiple times to confirm some drops grant a bonus reward before the portal animation.  
-- (manual) Land on the Chance tile, draw multiple times, and verify non-jackpot outcomes award randomized perks while jackpots still lift to Ring 3.  
 
 **Date:** 2026-02-02  
 **Slice:** P1 (Elite stock special behaviors)  
@@ -1614,3 +1578,23 @@
 
 **How to test:**  
 - (manual) Open the Portfolio modal with holdings and confirm the insight cards and per-holding P/L metrics render correctly.  
+- (none)  
+
+**Date:** 2026-02-03  
+**Slice:** Fall Portals + Chance Lift (Ring 2 portal outcomes + feedback polish)  
+**Summary:**  
+- Added portal animation toast overrides so Ring 2 fall portals can rely on their reward feedback without the generic portal-down message.  
+- Updated fall portal transitions to suppress the default portal toast, keeping the safety-net/evac reward callouts as the primary feedback.  
+- Documented completion of the Fall Portals + Chance Lift slice and advanced the recommended next slice.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/App.tsx  
+- apps/investing-board-game-v3/src/lib/types.ts  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Land on a Ring 2 Fall Portal tile and confirm the reward/portal outcome toast appears without the generic “Portal Down” message.  

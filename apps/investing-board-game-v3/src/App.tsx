@@ -3155,19 +3155,34 @@ function App() {
       setIsPortalAnimating(false)
       setPortalTransition(null)
       
-      // Show toast message
+      if (transition.direction === 'up' && isThroneReached) {
+        // Show throne victory modal instead of just a toast
+        setTimeout(() => {
+          setShowThroneVictory(true)
+        }, 500)
+        return
+      }
+
+      if (transition.toastOverride) {
+        const variant = transition.toastOverride.variant ?? (transition.direction === 'up' ? 'success' : 'info')
+        const toastFn = variant === 'success' ? toast.success : toast.info
+        toastFn(transition.toastOverride.title, {
+          description: transition.toastOverride.description,
+          duration: transition.toastOverride.duration ?? 3000,
+        })
+        return
+      }
+
+      if (transition.suppressDefaultToast) {
+        return
+      }
+
+      // Show default toast message
       if (transition.direction === 'up') {
-        if (isThroneReached) {
-          // Show throne victory modal instead of just a toast
-          setTimeout(() => {
-            setShowThroneVictory(true)
-          }, 500)
-        } else {
-          toast.success(`⬆️ PORTAL UP!`, {
-            description: `Welcome to Ring ${transition.toRing}: ${RING_CONFIG[transition.toRing as RingNumber].name}!`,
-            duration: 3000,
-          })
-        }
+        toast.success(`⬆️ PORTAL UP!`, {
+          description: `Welcome to Ring ${transition.toRing}: ${RING_CONFIG[transition.toRing as RingNumber].name}!`,
+          duration: 3000,
+        })
       } else {
         toast.info('⬇️ Portal Down', {
           description: 'Back to Street Level. Complete another lap to ascend!',
@@ -3420,6 +3435,7 @@ function App() {
         fromTile: position,
         toTile: 0,
         triggeredBy: 'land',
+        suppressDefaultToast: true,
       })
       setPhase('idle')
       return
