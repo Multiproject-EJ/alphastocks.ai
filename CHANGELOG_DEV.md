@@ -5,6 +5,25 @@
 
 ## Unreleased
 
+**Date:** 2026-02-03  
+**Slice:** Fall Portals + Chance Lift (Ring 2 portal outcomes + feedback polish)  
+**Summary:**  
+- Expanded Ring 2 fall portal outcomes with safety-net and executive-evac reward variants plus celebration feedback.  
+- Broadened Chance card outcomes to include executive lifts and market boosts while preserving the Ring 3 jackpot lift.  
+- Centralized weighted outcome selection for Ring 2 portal tiles to simplify tuning.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/App.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Land on a Ring 2 Fall Portal and confirm the new outcome variety and portal drop feedback.  
+- (manual) Land on the Ring 2 Chance tile and confirm the jackpot lift, executive lift, or market boost outcome messaging.  
+
 **Date:** 2026-02-13  
 **Slice:** P2 (Mega Jackpot monthly event window)  
 **Summary:**  

@@ -262,7 +262,12 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **TBD (select next milestone slice from docs/DEV_PLAN_MARKETTYCOON_MASTER.md).**
+**Recommended next slice:** **Fall Portals + Chance Lift (Ring 2 portal outcomes + feedback polish).**
+
+## Fall Portals + Chance Lift Slice Notes
+- Expanded Ring 2 fall portal outcomes with safety-net and executive-evac rewards, plus celebratory feedback tied to portal drops.
+- Broadened Chance card outcomes to include executive lifts and market boosts, while keeping the Ring 3 jackpot lift as the headline outcome.
+- Standardized weighted outcome picking for Ring 2 portal tiles to keep the risk/reward variety deterministic and easy to tune.
 
 ## P2 Slice Notes (Mega Jackpot monthly event window)
 - Added monthly recurrence support for first-weekday scheduling so events can target slots like “first Saturday.”

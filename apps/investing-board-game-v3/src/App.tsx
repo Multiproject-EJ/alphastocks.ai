@@ -94,10 +94,108 @@ const DAILY_WHEEL_SPIN_MAX = 5
 const getTodayKey = () => new Date().toLocaleDateString('en-CA')
 const getRandomDailyWheelSpinLimit = () =>
   Math.floor(Math.random() * (DAILY_WHEEL_SPIN_MAX - DAILY_WHEEL_SPIN_MIN + 1)) + DAILY_WHEEL_SPIN_MIN
-const CHANCE_JACKPOT_ODDS = 0.2
-const FALL_PORTAL_RELIEF_ODDS = 0.35
 const FALL_PORTAL_RELIEF_REWARDS: QuickRewardType[] = ['bonus-roll', 'stars', 'coins']
-const CHANCE_CONSOLATION_REWARDS: QuickRewardType[] = ['bonus-roll', 'stars', 'coins', 'cash']
+const FALL_PORTAL_EVAC_REWARDS: QuickRewardType[] = ['xp', 'cash', 'bonus-roll']
+const CHANCE_LIFT_REWARDS: QuickRewardType[] = ['bonus-roll', 'xp']
+const CHANCE_CONSOLATION_REWARDS: QuickRewardType[] = ['stars', 'coins', 'cash']
+
+type WeightedOutcome<T> = {
+  odds: number
+  value: T
+}
+
+type PortalOutcome = {
+  id: 'safety-net' | 'executive-evac' | 'hard-drop'
+  title: string
+  description: (rewardLabel?: string) => string
+  rewardPool?: QuickRewardType[]
+  celebration?: string[]
+}
+
+type ChanceOutcome = {
+  id: 'jackpot' | 'executive-lift' | 'market-boost'
+  title: string
+  description: (rewardLabel?: string) => string
+  rewardPool?: QuickRewardType[]
+  celebration?: string[]
+}
+
+const FALL_PORTAL_OUTCOMES: WeightedOutcome<PortalOutcome>[] = [
+  {
+    odds: 0.35,
+    value: {
+      id: 'safety-net',
+      title: '🛟 Safety Net',
+      description: (rewardLabel) => `Grab a ${rewardLabel} on the way down.`,
+      rewardPool: FALL_PORTAL_RELIEF_REWARDS,
+      celebration: ['🛟', '✨'],
+    },
+  },
+  {
+    odds: 0.25,
+    value: {
+      id: 'executive-evac',
+      title: '🪂 Executive Evac',
+      description: (rewardLabel) => `Parachuted with a ${rewardLabel}.`,
+      rewardPool: FALL_PORTAL_EVAC_REWARDS,
+      celebration: ['🪂', '💫'],
+    },
+  },
+  {
+    odds: 0.4,
+    value: {
+      id: 'hard-drop',
+      title: '⬇️ Fall Portal',
+      description: () => 'You dropped back to Street Level.',
+    },
+  },
+]
+
+const CHANCE_OUTCOMES: WeightedOutcome<ChanceOutcome>[] = [
+  {
+    odds: 0.2,
+    value: {
+      id: 'jackpot',
+      title: '🎴 Jackpot Card!',
+      description: () => 'You shot up to the Wealth Run.',
+      celebration: ['🎴', '💎', '🚀'],
+    },
+  },
+  {
+    odds: 0.35,
+    value: {
+      id: 'executive-lift',
+      title: '🎴 Executive Lift',
+      description: (rewardLabel) => `Lifted with a ${rewardLabel}.`,
+      rewardPool: CHANCE_LIFT_REWARDS,
+      celebration: ['🎴', '✨'],
+    },
+  },
+  {
+    odds: 0.45,
+    value: {
+      id: 'market-boost',
+      title: '🎴 Market Boost',
+      description: (rewardLabel) => `Executive boost: ${rewardLabel}.`,
+      rewardPool: CHANCE_CONSOLATION_REWARDS,
+      celebration: ['🎴', '📈'],
+    },
+  },
+]
+
+const pickWeightedOutcome = <T,>(outcomes: WeightedOutcome<T>[]): T => {
+  const roll = Math.random()
+  let cumulative = 0
+
+  for (const outcome of outcomes) {
+    cumulative += outcome.odds
+    if (roll <= cumulative) {
+      return outcome.value
+    }
+  }
+
+  return outcomes[outcomes.length - 1].value
+}
 const pickRandomReward = <T,>(options: T[]): T =>
   options[Math.floor(Math.random() * options.length)]
 
@@ -2802,6 +2900,27 @@ function App() {
 
   const getTileCelebrationPosition = useCallback((tileId: number) => {
     const tileBoardSize = { width: boardSize, height: boardSize }
+
+    if (tileId >= 300 && tileId < 400) {
+      const { ring3 } = calculateAllRingPositions(tileBoardSize, boardOuterRadius)
+      const ring3Position = ring3.find(p => p.id === tileId - 300)
+      if (!ring3Position) return null
+      return {
+        x: ring3Position.x - boardPadding,
+        y: ring3Position.y - boardPadding,
+      }
+    }
+
+    if (tileId >= 200 && tileId < 300) {
+      const { ring2 } = calculateAllRingPositions(tileBoardSize, boardOuterRadius)
+      const ring2Position = ring2.find(p => p.id === tileId - 200)
+      if (!ring2Position) return null
+      return {
+        x: ring2Position.x - boardPadding,
+        y: ring2Position.y - boardPadding,
+      }
+    }
+
     const tilePositions = calculateTilePositions(tileBoardSize, 35, boardOuterRadius, false)
     const position = tilePositions.find(p => p.id === tileId)
     if (!position) return null
@@ -3267,23 +3386,33 @@ function App() {
 
     // Ring 2 fall portals
     if (gameState.currentRing === 2 && tile.specialAction === 'ring-fall') {
-      const shouldGrantRelief = Math.random() < FALL_PORTAL_RELIEF_ODDS
-      if (shouldGrantRelief) {
-        const reliefReward = pickRandomReward(FALL_PORTAL_RELIEF_REWARDS)
-        toast.success('🛟 Safety Net', {
-          description: `Grab a ${QUICK_REWARD_CONFIG[reliefReward].label.toLowerCase()} on the way down.`,
+      const fallOutcome = pickWeightedOutcome(FALL_PORTAL_OUTCOMES)
+      const rewardType = fallOutcome.rewardPool
+        ? pickRandomReward(fallOutcome.rewardPool)
+        : null
+      const rewardLabel = rewardType ? QUICK_REWARD_CONFIG[rewardType].label.toLowerCase() : ''
+      const toastMessage = fallOutcome.description(rewardLabel)
+
+      if (rewardType) {
+        toast.success(fallOutcome.title, {
+          description: toastMessage,
         })
         handleQuickRewardTile({
           id: -1,
           type: 'quick-reward',
-          title: 'Safety Net',
-          quickRewardType: reliefReward,
+          title: fallOutcome.title,
+          quickRewardType: rewardType,
         })
       } else {
-        toast.info('⬇️ Fall Portal', {
-          description: 'You dropped back to Street Level.',
+        toast.info(fallOutcome.title, {
+          description: toastMessage,
         })
       }
+
+      if (fallOutcome.celebration) {
+        triggerTileCelebration(position, fallOutcome.celebration)
+      }
+
       triggerPortalAnimation({
         direction: 'down',
         fromRing: 2,
@@ -3303,11 +3432,20 @@ function App() {
         component: ChanceCardModal,
         props: {
           onDraw: () => {
-            const isJackpot = Math.random() < CHANCE_JACKPOT_ODDS
-            if (isJackpot) {
-              toast.success('🎴 Jackpot Card!', {
-                description: 'You shot up to the Wealth Run.',
+            const chanceOutcome = pickWeightedOutcome(CHANCE_OUTCOMES)
+            const rewardType = chanceOutcome.rewardPool
+              ? pickRandomReward(chanceOutcome.rewardPool)
+              : null
+            const rewardLabel = rewardType ? QUICK_REWARD_CONFIG[rewardType].label.toLowerCase() : ''
+            const toastMessage = chanceOutcome.description(rewardLabel)
+
+            if (chanceOutcome.id === 'jackpot') {
+              toast.success(chanceOutcome.title, {
+                description: toastMessage,
               })
+              if (chanceOutcome.celebration) {
+                triggerTileCelebration(position, chanceOutcome.celebration)
+              }
               triggerPortalAnimation({
                 direction: 'up',
                 fromRing: 2,
@@ -3317,17 +3455,24 @@ function App() {
                 triggeredBy: 'land',
               })
             } else {
-              const consolationReward = pickRandomReward(CHANCE_CONSOLATION_REWARDS)
-              toast.info('🎴 Chance Card', {
-                description: `Executive boost: ${QUICK_REWARD_CONFIG[consolationReward].label.toLowerCase()}.`,
-              })
-              handleQuickRewardTile({
-                id: -2,
-                type: 'quick-reward',
-                title: 'Chance Card',
-                quickRewardType: consolationReward,
-              })
-              triggerCelebrationFromLastTile(['🎴', '✨'])
+              if (rewardType) {
+                toast.info(chanceOutcome.title, {
+                  description: toastMessage,
+                })
+                handleQuickRewardTile({
+                  id: -2,
+                  type: 'quick-reward',
+                  title: chanceOutcome.title,
+                  quickRewardType: rewardType,
+                })
+              } else {
+                toast.info(chanceOutcome.title, {
+                  description: toastMessage,
+                })
+              }
+              if (chanceOutcome.celebration) {
+                triggerTileCelebration(position, chanceOutcome.celebration)
+              }
             }
             closeCurrent()
             setPhase('idle')
@@ -4930,6 +5075,7 @@ function App() {
                               ringNumber={2}
                               tileLabel={getTileLabelConfig(tile, 2)}
                               isTeleporting={isTeleportingTile(tile.id)}
+                              isPortal={tile.specialAction === 'ring-fall'}
                               onClick={() => {
                                 if (phase === 'idle' && gameState.currentRing === 2) {
                                   handleTileLanding(tile.id)
