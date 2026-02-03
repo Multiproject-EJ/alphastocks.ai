@@ -119,6 +119,13 @@ Manages event lifecycle and effects:
 - Plays celebration sound on event start
 - Auto-updates recurring event schedules
 
+### Limited-Time Windows Audit (P2.4)
+The event window system currently splits scheduling across the events engine and the mini-game schedule pipeline:
+
+- **Events engine:** `lib/events.ts` defines recurring, special, and monthly-rotation events with start/end windows computed from local time, plus a quarterly Alpha Day window and conditional Jackpot Week event. The helper checks (`checkEventStart`, `checkEventEnd`) look for windows that flipped within the last minute, and `useEvents` polls every minute to sync active/upcoming events and apply multipliers or discounts.  
+- **Mini-game windows:** `lib/miniGameSchedule.ts` defines daily/weekly/monthly-random schedules for mini-games, including deterministic monthly-random slots via seeded RNG. `useMiniGames` refreshes availability every minute and derives active/upcoming windows entirely from client time.  
+- **Key gaps for limited-time windows:** There is no shared window engine between events and mini-games, and all scheduling uses client-local time (no server time sync or persisted state), so drift or clock skew can affect window visibility.
+
 ### UI Components
 
 #### 5. ChallengeTracker (`components/ChallengeTracker.tsx`)
