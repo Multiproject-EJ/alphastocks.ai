@@ -256,7 +256,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **Merger Mania timed mini-game surface (P3 planned in `docs/DEV_PLAN_MARKETTYCOON_MASTER.md`).**
+**Recommended next slice:** **TBD (check `docs/DEV_PLAN_MARKETTYCOON_MASTER.md` for the next P3 timed mini-game).**
 
 ## M0.2 Slice Notes (Instrumentation hooks)
 - Added a dedicated instrumentation helper that enables opt-in debug logging via local storage or env flags without changing gameplay behavior.
@@ -483,6 +483,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Built a mobile-first IPO Frenzy timed-event surface with allocation playbooks, pop signals, and roadshow framing for IPO launches.
 - Added a weekly IPO Frenzy schedule slot so the mini-game availability system can surface live/upcoming IPO windows.
 - Wired the Games Hub card to show IPO Frenzy availability labels and gate access until the window is live.
+
+## P3 Slice Notes (Merger Mania timed mini-game surface)
+- Built a mobile-first Merger Mania timed-event surface with deal targets, negotiation levers, and integration tracks for the M&A sprint.
+- Added a weekly Merger Mania schedule slot so the mini-game availability system can surface live/upcoming deal windows.
+- Wired the Games Hub card to show Merger Mania availability labels and gate access until the deal window is live.
 
 ## P2.1 Slice Notes (Soothing sound system)
 - Added a soft low-pass filter and warmer triangle waveform defaults to the Web Audio synth nodes to reduce harshness.

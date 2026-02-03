@@ -213,6 +213,18 @@ export const MINI_GAME_CONFIG: MiniGameSchedule[] = [
       durationMinutes: 120,
     },
   },
+  {
+    id: 'merger-mania',
+    name: 'Merger Mania',
+    category: 'special',
+    isActive: false,
+    schedule: {
+      type: 'weekly',
+      days: [3], // Wednesday
+      times: ['20:00'],
+      durationMinutes: 120,
+    },
+  },
 ]
 
 /**

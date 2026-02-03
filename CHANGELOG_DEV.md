@@ -6,6 +6,26 @@
 ## Unreleased
 
 **Date:** 2026-02-07  
+**Slice:** P3 (Merger Mania timed mini-game surface)  
+**Summary:**  
+- Built a mobile-first Merger Mania timed-event surface with deal targets, negotiation levers, and integration tracks for the M&A sprint.  
+- Added a weekly Merger Mania schedule slot so the mini-game availability system can surface live/upcoming deal windows.  
+- Wired the Games Hub card to show Merger Mania availability labels and gate access until the deal window is live.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/components/games/placeholders/MergerMania.tsx  
+- apps/investing-board-game-v3/src/lib/miniGameSchedule.ts  
+- apps/investing-board-game-v3/src/pages/GamesHub.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Open the mini-games hub, confirm Merger Mania shows live/upcoming timing labels, and open it during an active window to view the deal-room layout.  
+
+**Date:** 2026-02-07  
 **Slice:** P3 (IPO Frenzy timed mini-game surface)  
 **Summary:**  
 - Built a mobile-first IPO Frenzy timed-event surface with allocation playbooks, pop signals, and roadshow framing for IPO launches.  
