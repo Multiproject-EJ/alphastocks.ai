@@ -55,7 +55,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 - `AI_IMPLEMENTATION.md`, `IMPLEMENTATION_SUMMARY.md`, `DEVLOG.md` (project-wide status/context)
 
 ### Repo Map (paths verified)
-_Last reviewed: 2026-02-09 (P3 expansion category tiles + mock data coverage)_
+_Last reviewed: 2026-02-10 (P3 expansion category tuning + tile copy pass)_
 #### Frontend
 - **Legacy static pages entry:** `/index.html`, `/about.html`, `/faq.html`, `/monthly/`, `/weekly/`, `/superinvestor/`
 - **Vite + Preact app:** `/apps/investing-board-game-v3` (built into `/public/board-game-v3` via `npm run build:board-game-v3`)
@@ -257,7 +257,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P3 long-term content follow-up — expansion category tuning + tile copy pass (see `docs/DEV_PLAN_MARKETTYCOON_MASTER.md`).**
+**Recommended next slice:** **P3 long-term content follow-up — expansion category art/FX + reward callouts (see `docs/DEV_PLAN_MARKETTYCOON_MASTER.md`).**
 
 ## M0.2 Slice Notes (Instrumentation hooks)
 - Added a dedicated instrumentation helper that enables opt-in debug logging via local storage or env flags without changing gameplay behavior.
@@ -503,6 +503,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Added expansion category stock tiles to the Ring 1 + Ring 2 mock board data so IPO, meme, crypto, penny, leverage, options, and international lanes appear in board flow.
 - Expanded mock stock coverage with sample listings for every expansion category so fallback stock pulls remain deterministic when Supabase data is absent.
 - Rebalanced the Ring 2 stock tile mix toward expansion categories while keeping the ring tile count intact.
+
+## P3 Slice Notes (Expansion category tuning + tile copy pass)
+- Tuned expansion category metadata so international stocks sit alongside the other expansion themes in the shared catalog.
+- Refreshed expansion tile titles on Rings 1 and 2 to better match the category fantasy.
+- Updated expansion stock blurbs with sharper, mobile-friendly copy for the mock universe.
 
 ## P2.1 Slice Notes (Soothing sound system)
 - Added a soft low-pass filter and warmer triangle waveform defaults to the Web Audio synth nodes to reduce harshness.

@@ -1429,3 +1429,22 @@
 
 **How to test:**  
 - (manual) Land on the updated Ring 1/Ring 2 category tiles and confirm expansion category modals show the new mock stock entries.  
+
+**Date:** 2026-02-10  
+**Slice:** P3 (Expansion category tuning + tile copy pass)  
+**Summary:**  
+- Tuned expansion category metadata so international stocks live with the other expansion tiers.  
+- Refreshed Ring 1/Ring 2 expansion tile titles to reinforce category themes.  
+- Polished expansion mock stock blurbs with sharper, mobile-friendly copy.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/lib/stockCategories.ts  
+- apps/investing-board-game-v3/src/lib/mockData.ts  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Land on expansion category tiles and confirm the refreshed titles and stock descriptions render in the stock modal.  
