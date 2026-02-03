@@ -1,26 +1,9 @@
 import { useMemo } from 'react'
+import { getStockCategoryLabel, getStockCategoryPalette } from '@/lib/stockCategories'
 import { GameState, TileCategory } from '@/lib/types'
 
 interface PortfolioReadoutPanelProps {
   gameState: GameState
-}
-
-const CATEGORY_COLORS: Partial<Record<TileCategory, string>> = {
-  turnarounds: 'bg-pink-500/80',
-  dividends: 'bg-sky-500/80',
-  growth: 'bg-orange-400/80',
-  moats: 'bg-rose-500/80',
-  value: 'bg-yellow-400/80',
-  elite: 'bg-amber-400/90',
-}
-
-const CATEGORY_LABELS: Partial<Record<TileCategory, string>> = {
-  turnarounds: 'Turnarounds',
-  dividends: 'Dividends',
-  growth: 'Growth',
-  moats: 'Moats',
-  value: 'Value',
-  elite: 'Elite',
 }
 
 function formatCurrency(value: number) {
@@ -125,9 +108,9 @@ export function PortfolioReadoutPanel({ gameState }: PortfolioReadoutPanelProps)
                     className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/70"
                   >
                     <span
-                      className={`h-2.5 w-2.5 rounded-full ${CATEGORY_COLORS[category as TileCategory] ?? 'bg-white/40'}`}
+                      className={`h-2.5 w-2.5 rounded-full ${getStockCategoryPalette(category as TileCategory).chip}`}
                     />
-                    <span>{CATEGORY_LABELS[category as TileCategory] ?? category}</span>
+                    <span>{getStockCategoryLabel(category as TileCategory) ?? category}</span>
                     <span className="text-white/50">{percent.toFixed(0)}%</span>
                   </div>
                 )
