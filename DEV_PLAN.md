@@ -55,7 +55,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 - `AI_IMPLEMENTATION.md`, `IMPLEMENTATION_SUMMARY.md`, `DEVLOG.md` (project-wide status/context)
 
 ### Repo Map (paths verified)
-_Last reviewed: 2026-02-10 (P3 expansion category tuning + tile copy pass)_
+_Last reviewed: 2026-02-11 (P3 expansion category art/FX + reward callouts)_
 #### Frontend
 - **Legacy static pages entry:** `/index.html`, `/about.html`, `/faq.html`, `/monthly/`, `/weekly/`, `/superinvestor/`
 - **Vite + Preact app:** `/apps/investing-board-game-v3` (built into `/public/board-game-v3` via `npm run build:board-game-v3`)
@@ -257,7 +257,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P3 long-term content follow-up — expansion category art/FX + reward callouts (see `docs/DEV_PLAN_MARKETTYCOON_MASTER.md`).**
+**Recommended next slice:** **P3 long-term content follow-up — expansion category landing FX polish + sound stingers (see `docs/DEV_PLAN_MARKETTYCOON_MASTER.md`).**
+
+## P3 Slice Notes (Expansion category art/FX + reward callouts)
+- Added expansion-tier tile styling overlays so expansion categories stand out with their palette glow + shimmer FX on the board.
+- Updated expansion category tile labels to call out bonus rewards alongside the ring multiplier for quicker reward recognition.
 
 ## M0.2 Slice Notes (Instrumentation hooks)
 - Added a dedicated instrumentation helper that enables opt-in debug logging via local storage or env flags without changing gameplay behavior.

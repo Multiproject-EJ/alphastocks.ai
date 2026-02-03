@@ -1448,3 +1448,22 @@
 
 **How to test:**  
 - (manual) Land on expansion category tiles and confirm the refreshed titles and stock descriptions render in the stock modal.  
+
+**Date:** 2026-02-11  
+**Slice:** P3 (Expansion category art/FX + reward callouts)  
+**Summary:**  
+- Added expansion-tier tile FX overlays so expansion categories glow with their palette accent on the board.  
+- Updated expansion category tile labels to call out bonus rewards alongside ring multipliers.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/App.tsx  
+- apps/investing-board-game-v3/src/components/Tile.tsx  
+- apps/investing-board-game-v3/src/lib/stockCategories.ts  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Load the board, find expansion category tiles, and confirm the glow FX + “Expansion” reward callout appear.  
