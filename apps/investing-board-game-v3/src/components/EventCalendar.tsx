@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Badge } from '@/components/ui/badge'
 import { GameEvent } from '@/lib/events'
+import { MiniGameSchedule, getTimeRemaining } from '@/lib/miniGameSchedule'
 import { motion } from 'framer-motion'
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday } from 'date-fns'
 
@@ -16,6 +17,8 @@ interface EventCalendarProps {
   onOpenChange: (open: boolean) => void
   activeEvents: GameEvent[]
   upcomingEvents: GameEvent[]
+  activeMiniGames: MiniGameSchedule[]
+  upcomingMiniGames: Array<MiniGameSchedule & { startsAt: Date }>
 }
 
 export function EventCalendar({
@@ -23,6 +26,8 @@ export function EventCalendar({
   onOpenChange,
   activeEvents,
   upcomingEvents,
+  activeMiniGames,
+  upcomingMiniGames,
 }: EventCalendarProps) {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [currentMonth] = useState(new Date())
@@ -62,6 +67,23 @@ export function EventCalendar({
     if (hours > 0) return `Starts in ${hours}h`
     return 'Starting soon!'
   }
+
+  const getMiniGameCountdown = (startsAt: Date) => {
+    const now = new Date()
+    const diff = startsAt.getTime() - now.getTime()
+
+    if (diff < 0) return 'Active Now'
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+
+    if (days > 0) return `Starts in ${days}d ${hours}h`
+    if (hours > 0) return `Starts in ${hours}h`
+    return 'Starting soon!'
+  }
+
+  const activeMiniGameWindows = activeMiniGames.filter(game => game.category !== 'always')
+  const upcomingMiniGameWindows = upcomingMiniGames.filter(game => game.category !== 'always')
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -215,6 +237,90 @@ export function EventCalendar({
             ) : (
               <div className="text-center text-muted-foreground py-8">
                 No upcoming events scheduled
+              </div>
+            )}
+          </div>
+
+          {/* Mini-Game Windows List */}
+          <div className="mt-8">
+            <h3 className="text-lg font-bold mb-4 text-foreground">
+              Mini-Game Windows
+            </h3>
+
+            {activeMiniGameWindows.length > 0 && (
+              <div className="space-y-3 mb-4">
+                {activeMiniGameWindows.map((game, index) => {
+                  const remaining = getTimeRemaining(game)
+                  return (
+                    <motion.div
+                      key={`active-${game.id}`}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.05 }}
+                      className="p-4 bg-card/60 rounded-lg border-2 border-emerald-400/40"
+                    >
+                      <div className="flex items-start gap-3">
+                        <span className="text-3xl">🎮</span>
+                        <div className="flex-1">
+                          <h4 className="font-bold text-foreground mb-1">
+                            {game.name}
+                          </h4>
+                          <p className="text-sm text-muted-foreground mb-2">
+                            Window live right now.
+                          </p>
+                          <div className="flex items-center gap-4 text-xs">
+                            <div className="text-muted-foreground">
+                              {remaining ? `Ends in ${remaining.display}` : 'Ending soon'}
+                            </div>
+                          </div>
+                        </div>
+                        <Badge className="bg-emerald-500/20 text-emerald-200 border-emerald-300/40">
+                          Active Now
+                        </Badge>
+                      </div>
+                    </motion.div>
+                  )
+                })}
+              </div>
+            )}
+
+            {upcomingMiniGameWindows.length > 0 ? (
+              <div className="space-y-3">
+                {upcomingMiniGameWindows.map((game, index) => (
+                  <motion.div
+                    key={`upcoming-${game.id}`}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="p-4 bg-card/50 rounded-lg border-2 border-border/30 hover:border-accent/30 transition-colors"
+                  >
+                    <div className="flex items-start gap-3">
+                      <span className="text-3xl">🎮</span>
+
+                      <div className="flex-1">
+                        <h4 className="font-bold text-foreground mb-1">
+                          {game.name}
+                        </h4>
+                        <p className="text-sm text-muted-foreground mb-2">
+                          Next scheduled window.
+                        </p>
+
+                        <div className="flex items-center gap-4 text-xs">
+                          <div className="text-muted-foreground">
+                            {format(game.startsAt, 'MMM d, h:mm a')}
+                          </div>
+                          <div className="text-accent font-semibold">
+                            {getMiniGameCountdown(game.startsAt)}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center text-muted-foreground py-8">
+                No upcoming mini-game windows scheduled
               </div>
             )}
           </div>
