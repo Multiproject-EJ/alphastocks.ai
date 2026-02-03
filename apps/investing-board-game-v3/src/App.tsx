@@ -3293,6 +3293,14 @@ function App() {
     // Haptic feedback on tile landing
     lightTap()
 
+    if (tile.type === 'category' && tile.category) {
+      const categoryDefinition = getStockCategoryDefinition(tile.category)
+      if (categoryDefinition?.tier === 'expansion') {
+        playSound('expansion-stinger')
+        triggerTileCelebration(position, ['✨', '💎', '🚀'])
+      }
+    }
+
     // Get current reward multiplier and reset it for next roll
     const rewardMultiplier = currentRewardMultiplierRef.current
     currentRewardMultiplierRef.current = 1 // Reset to default after reading

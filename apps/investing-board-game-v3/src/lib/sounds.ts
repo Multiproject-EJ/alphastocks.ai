@@ -16,6 +16,7 @@ export type SoundType =
   | 'big-win'           // Jackpot/legendary rewards
   | 'mega-jackpot'      // 200× premium tile wins
   | 'celebration'
+  | 'expansion-stinger'
   | 'button-click'
   | 'level-up'
   | 'achievement'       // Achievement unlocked
@@ -264,6 +265,10 @@ class SoundManager {
           this.playCelebration(now)
           return // Special handling
 
+        case 'expansion-stinger':
+          this.playExpansionStinger(now)
+          return // Special handling
+
         case 'button-click':
           this.playButtonClick(now)
           return // Special handling
@@ -446,6 +451,45 @@ class SoundManager {
     
     shimmer.start(startTime + 0.16)
     shimmer.stop(startTime + 0.6)
+  }
+
+  /**
+   * Play expansion stinger sound - bright shimmer for expansion landings
+   */
+  private playExpansionStinger(startTime: number) {
+    if (!this.audioContext) return
+
+    const notes = [659, 784, 988, 1319] // E5 → G5 → B5 → E6
+
+    notes.forEach((freq, i) => {
+      const noteStart = startTime + i * 0.07
+      const { osc, gain } = this.createToneNodes({
+        filterFrequency: 2400,
+        startTime: noteStart,
+      })
+
+      osc.type = 'triangle'
+      osc.frequency.setValueAtTime(freq, noteStart)
+
+      gain.gain.setValueAtTime(this.settings.volume * 0.32, noteStart)
+      gain.gain.exponentialRampToValueAtTime(0.001, noteStart + 0.45)
+
+      osc.start(noteStart)
+      osc.stop(noteStart + 0.5)
+    })
+
+    const { osc: shimmer, gain: shimmerGain } = this.createToneNodes({
+      filterFrequency: 3200,
+      startTime: startTime + 0.12,
+    })
+
+    shimmer.type = 'sine'
+    shimmer.frequency.setValueAtTime(1760, startTime + 0.12) // A6
+    shimmerGain.gain.setValueAtTime(this.settings.volume * 0.18, startTime + 0.12)
+    shimmerGain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.6)
+
+    shimmer.start(startTime + 0.12)
+    shimmer.stop(startTime + 0.65)
   }
 
   /**

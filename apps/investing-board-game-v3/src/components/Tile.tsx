@@ -292,6 +292,19 @@ const TileComponent = ({
           >
             ✨
           </div>
+          {isLanded && (
+            <motion.div
+              className="absolute inset-[-6px] pointer-events-none"
+              style={{
+                clipPath: 'polygon(0% 0%, 100% 0%, 86% 100%, 14% 100%)',
+                boxShadow: `0 0 22px ${expansionGlowColor}88`,
+              }}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: [0, 0.9, 0], scale: [0.9, 1.1, 1.2] }}
+              transition={{ duration: 1, ease: 'easeOut' }}
+              aria-hidden
+            />
+          )}
         </>
       )}
 
