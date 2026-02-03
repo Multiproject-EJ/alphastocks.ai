@@ -1370,3 +1370,21 @@
 
 **How to test:**  
 - (manual) Open the mini-games hub during the Portfolio Poker window (daily at 6pm local), confirm the card shows a live label, and open it to view the poker table layout.  
+
+**Date:** 2026-02-03  
+**Slice:** Ring Transition Animations  
+**Summary:**  
+- Added direction-aware ring transition pulses so portal ascents/descents accent the board container without fighting mobile transforms.  
+- Hooked portal-driven ring transitions to trigger the new up/down focus animation and clear transition timers safely.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/App.tsx  
+- apps/investing-board-game-v3/src/index.css  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Trigger a portal ascend/descend (land on start tiles) and confirm the board container flashes a directional focus pulse.  

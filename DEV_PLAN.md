@@ -256,7 +256,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **TBD (check `docs/DEV_PLAN_MARKETTYCOON_MASTER.md` for the next P3 timed mini-game).**
+**Recommended next slice:** **P3 long-term content kickoff — audit new stock categories + data/config hooks (see `docs/DEV_PLAN_MARKETTYCOON_MASTER.md`).**
 
 ## M0.2 Slice Notes (Instrumentation hooks)
 - Added a dedicated instrumentation helper that enables opt-in debug logging via local storage or env flags without changing gameplay behavior.
@@ -432,6 +432,10 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Added portal beam and ripple layers to give ring transitions a more dimensional, mobile-first visual treatment.
 - Tuned portal timing and overlay opacity so the transitions feel smoother without washing out the board.
 - Routed portal particle travel using the tracked viewport height for consistent effects across screen sizes.
+
+## Ring Transition Animations Slice Notes
+- Added direction-aware ring transition pulses so ascend/descend moments brighten or cool the board container without disrupting mobile transforms.
+- Wired portal-driven ring transitions to trigger the new up/down focus animation while clearing prior ring transition timers safely.
 
 ## P1.3 Slice Notes (Roulette victory sequence)
 - Added a dedicated roulette victory modal with tier-based styling and celebration effects to headline roulette wins.
