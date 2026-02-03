@@ -5,6 +5,23 @@
 
 ## Unreleased
 
+**Date:** 2026-02-15  
+**Slice:** P2.5 (Sound effects pass — HUD button feedback)  
+**Summary:**  
+- Added button-click sound feedback for Compact HUD controls (background toggle, settings, stocks, expand/collapse).  
+- Ensured the mute toggle only plays a click when unmuting to avoid silent feedback loops.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/components/phone/CompactHUD.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Ensure sound is enabled, then tap Compact HUD buttons to confirm the click sound fires; mute and unmute to confirm the click only plays on unmute.  
+
 **Date:** 2026-02-03  
 **Slice:** P2.4 (Event system audit — limited-time windows)  
 **Summary:**  
