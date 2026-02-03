@@ -41,7 +41,7 @@ export function CompactHUD({
   onOpenStocks = () => {},
 }: CompactHUDProps) {
   const [isExpanded, setIsExpanded] = useState(false);
-  const { muted, toggleMute } = useSound();
+  const { muted, toggleMute, play } = useSound();
   const xpGoal = Math.max(xpToNext, 1);
   const xpProgress = Math.min((xp / xpGoal) * 100, 100);
 
@@ -85,6 +85,7 @@ export function CompactHUD({
           <button
             onClick={(e) => {
               e.stopPropagation();
+              play('button-click');
               onToggleSpaceBackground();
             }}
             className={`p-1 rounded-md transition-colors ${spaceBackgroundEnabled ? 'bg-indigo-500/20 text-indigo-200' : 'hover:bg-accent/20 text-muted-foreground'}`}
@@ -99,7 +100,13 @@ export function CompactHUD({
           <button
             onClick={(e) => {
               e.stopPropagation();
-              toggleMute();
+              if (muted) {
+                toggleMute();
+                play('button-click');
+              } else {
+                play('button-click');
+                toggleMute();
+              }
             }}
             className={`p-1 rounded-md transition-colors ${!muted ? 'text-primary' : 'hover:bg-accent/20 text-muted-foreground'}`}
             aria-label={muted ? 'Unmute sound' : 'Mute sound'}
@@ -122,6 +129,7 @@ export function CompactHUD({
           <button
             onClick={(e) => {
               e.stopPropagation();
+              play('button-click');
               onOpenSettings();
             }}
             className="p-1 rounded-md transition-colors hover:bg-accent/20 text-muted-foreground"
@@ -135,6 +143,7 @@ export function CompactHUD({
           <button
             onClick={(e) => {
               e.stopPropagation();
+              play('button-click');
               onOpenStocks();
             }}
             className="p-1 rounded-md transition-colors hover:bg-accent/20 text-muted-foreground"
@@ -146,7 +155,10 @@ export function CompactHUD({
           
           {/* Expand/Collapse arrow */}
           <button
-            onClick={() => setIsExpanded(!isExpanded)}
+            onClick={() => {
+              play('button-click');
+              setIsExpanded(!isExpanded);
+            }}
             className="p-1 hover:bg-accent/20 rounded-md transition-colors"
             aria-label={isExpanded ? 'Collapse HUD' : 'Expand HUD'}
           >
