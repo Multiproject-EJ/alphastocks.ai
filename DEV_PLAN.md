@@ -55,7 +55,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 - `AI_IMPLEMENTATION.md`, `IMPLEMENTATION_SUMMARY.md`, `DEVLOG.md` (project-wide status/context)
 
 ### Repo Map (paths verified)
-_Last reviewed: 2026-02-08 (P3 stock category audit + config hooks)_
+_Last reviewed: 2026-02-09 (P3 expansion category tiles + mock data coverage)_
 #### Frontend
 - **Legacy static pages entry:** `/index.html`, `/about.html`, `/faq.html`, `/monthly/`, `/weekly/`, `/superinvestor/`
 - **Vite + Preact app:** `/apps/investing-board-game-v3` (built into `/public/board-game-v3` via `npm run build:board-game-v3`)
@@ -257,7 +257,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P3 long-term content kickoff — wire expansion category tiles + mock data coverage (see `docs/DEV_PLAN_MARKETTYCOON_MASTER.md`).**
+**Recommended next slice:** **P3 long-term content follow-up — expansion category tuning + tile copy pass (see `docs/DEV_PLAN_MARKETTYCOON_MASTER.md`).**
 
 ## M0.2 Slice Notes (Instrumentation hooks)
 - Added a dedicated instrumentation helper that enables opt-in debug logging via local storage or env flags without changing gameplay behavior.
@@ -498,6 +498,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Added a shared stock category catalog with tiering and palette metadata to prep for expansion categories like international equities.
 - Wired portfolio visuals to read labels/colors from the shared catalog so future category rollouts stay consistent across charts and badges.
 - Updated universe stock bucketing to use the shared category lists while keeping the core category order intact.
+
+## P3 Slice Notes (Expansion category tiles + mock data coverage)
+- Added expansion category stock tiles to the Ring 1 + Ring 2 mock board data so IPO, meme, crypto, penny, leverage, options, and international lanes appear in board flow.
+- Expanded mock stock coverage with sample listings for every expansion category so fallback stock pulls remain deterministic when Supabase data is absent.
+- Rebalanced the Ring 2 stock tile mix toward expansion categories while keeping the ring tile count intact.
 
 ## P2.1 Slice Notes (Soothing sound system)
 - Added a soft low-pass filter and warmer triangle waveform defaults to the Web Audio synth nodes to reduce harshness.

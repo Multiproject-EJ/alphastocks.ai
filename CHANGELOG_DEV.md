@@ -1411,3 +1411,21 @@
 
 **How to test:**  
 - (manual) Open the portfolio modal/readout panel and confirm category labels/colors match prior visuals with no regressions.  
+
+**Date:** 2026-02-09  
+**Slice:** P3 (Expansion category tiles + mock data coverage)  
+**Summary:**  
+- Swapped in expansion stock categories on Ring 1 and Ring 2 mock tiles so IPO, meme, crypto, penny, leverage, options, and international lanes appear in the board loop.  
+- Added mock stock coverage for every expansion category to keep fallback pulls deterministic when Supabase is unavailable.  
+- Rebalanced Ring 2 stock tile labels to spotlight expansion category themes.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/lib/mockData.ts  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Land on the updated Ring 1/Ring 2 category tiles and confirm expansion category modals show the new mock stock entries.  
