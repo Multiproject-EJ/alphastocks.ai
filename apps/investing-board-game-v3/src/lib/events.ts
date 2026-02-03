@@ -3,6 +3,8 @@
  * Recurring and special events that provide temporary bonuses and effects
  */
 
+import { WindowSchedule, getNextScheduleWindow } from '@/lib/windowSchedule'
+
 export interface GameEvent {
   id: string
   title: string
@@ -62,69 +64,73 @@ function getNextOccurrence(recurrence: GameEvent['recurrence']): { start: Date; 
     return { start: new Date(), end: new Date() }
   }
 
-  const now = new Date()
-  let start = new Date(now)
+  const schedule = mapRecurrenceToSchedule(recurrence)
+  const nextWindow = getNextScheduleWindow(schedule, new Date())
+
+  if (!nextWindow) {
+    return { start: new Date(), end: new Date() }
+  }
+
+  return nextWindow
+}
+
+function mapRecurrenceToSchedule(recurrence: GameEvent['recurrence']): WindowSchedule {
+  const time = `${(recurrence?.hour ?? 0).toString().padStart(2, '0')}:00`
+  const durationMinutes = (recurrence?.duration ?? 0) * 60
+
+  if (!recurrence) {
+    return {
+      type: 'daily',
+      times: [time],
+      durationMinutes,
+    }
+  }
+
+  if (recurrence.frequency === 'daily') {
+    return {
+      type: 'daily',
+      times: [time],
+      durationMinutes,
+    }
+  }
 
   if (recurrence.frequency === 'weekly' && recurrence.dayOfWeek !== undefined) {
-    const currentDay = now.getDay()
-    const targetDay = recurrence.dayOfWeek
-    let daysUntilTarget = targetDay - currentDay
+    return {
+      type: 'weekly',
+      times: [time],
+      days: [recurrence.dayOfWeek],
+      durationMinutes,
+    }
+  }
 
-    if (daysUntilTarget < 0 || (daysUntilTarget === 0 && now.getHours() >= (recurrence.hour || 0))) {
-      daysUntilTarget += 7
+  if (recurrence.frequency === 'monthly' && recurrence.dayOfMonth !== undefined) {
+    return {
+      type: 'monthly',
+      times: [time],
+      dayOfMonth: recurrence.dayOfMonth,
+      durationMinutes,
     }
+  }
 
-    start.setDate(now.getDate() + daysUntilTarget)
-    start.setHours(recurrence.hour || 0, 0, 0, 0)
-  } else if (recurrence.frequency === 'daily') {
-    if (now.getHours() >= (recurrence.hour || 0)) {
-      start.setDate(now.getDate() + 1)
-    }
-    start.setHours(recurrence.hour || 0, 0, 0, 0)
-  } else if (recurrence.frequency === 'monthly' && recurrence.dayOfMonth !== undefined) {
-    start.setDate(recurrence.dayOfMonth)
-    if (start <= now) {
-      start.setMonth(start.getMonth() + 1)
-    }
-    start.setHours(recurrence.hour || 0, 0, 0, 0)
-  } else if (
+  if (
     recurrence.frequency === 'monthly' &&
     recurrence.dayOfWeek !== undefined &&
     recurrence.weekOfMonth !== undefined
   ) {
-    const targetDate = getNthWeekdayOfMonth(
-      start.getFullYear(),
-      start.getMonth(),
-      recurrence.dayOfWeek,
-      recurrence.weekOfMonth
-    )
-    targetDate.setHours(recurrence.hour || 0, 0, 0, 0)
-
-    if (targetDate <= now) {
-      const nextMonthDate = getNthWeekdayOfMonth(
-        start.getFullYear(),
-        start.getMonth() + 1,
-        recurrence.dayOfWeek,
-        recurrence.weekOfMonth
-      )
-      nextMonthDate.setHours(recurrence.hour || 0, 0, 0, 0)
-      start = nextMonthDate
-    } else {
-      start = targetDate
+    return {
+      type: 'monthly-weekday',
+      times: [time],
+      days: [recurrence.dayOfWeek],
+      weekOfMonth: recurrence.weekOfMonth,
+      durationMinutes,
     }
   }
 
-  const end = new Date(start)
-  end.setHours(end.getHours() + recurrence.duration)
-
-  return { start, end }
-}
-
-function getNthWeekdayOfMonth(year: number, month: number, dayOfWeek: number, weekOfMonth: number): Date {
-  const firstOfMonth = new Date(year, month, 1)
-  const firstWeekdayOffset = (dayOfWeek - firstOfMonth.getDay() + 7) % 7
-  const dayOfMonth = 1 + firstWeekdayOffset + (weekOfMonth - 1) * 7
-  return new Date(year, month, dayOfMonth)
+  return {
+    type: 'daily',
+    times: [time],
+    durationMinutes,
+  }
 }
 
 /**

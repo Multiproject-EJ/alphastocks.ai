@@ -55,7 +55,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 - `AI_IMPLEMENTATION.md`, `IMPLEMENTATION_SUMMARY.md`, `DEVLOG.md` (project-wide status/context)
 
 ### Repo Map (paths verified)
-_Last reviewed: 2026-02-03 (P2.3 portfolio analytics)_
+_Last reviewed: 2026-02-04 (Event window unification pass)_
 #### Frontend
 - **Legacy static pages entry:** `/index.html`, `/about.html`, `/faq.html`, `/monthly/`, `/weekly/`, `/superinvestor/`
 - **Vite + Preact app:** `/apps/investing-board-game-v3` (built into `/public/board-game-v3` via `npm run build:board-game-v3`)
@@ -75,6 +75,7 @@ _Last reviewed: 2026-02-03 (P2.3 portfolio analytics)_
 - **Shop 2.0 purchases:** `src/hooks/useShopVaultPurchase.ts` (atomic vault buy + currency spend)
 - **Shop 2.0 windows/discounts:** `src/components/Shop2Modal.tsx` + `src/hooks/useShopVaultPurchase.ts` (event window discount pricing + purchase spend)
 - **Shop 2.0 unlock rules:** `src/hooks/useShopVaultOverview.ts` (set completion gating for the next set)
+- **Event window helpers:** `src/lib/windowSchedule.ts` (shared schedule/availability helpers for events + mini-games)
 - **Animation utilities:** `src/lib/animations.ts`, `src/hooks/useBoardCamera.ts`, `src/hooks/useCameraAnimation.ts`
 - **Instrumentation hooks:** `src/lib/instrumentation.ts` (opt-in debug logging via local storage or env flag)
 
@@ -262,7 +263,12 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **Event window unification pass (align event + mini-game scheduling).**
+**Recommended next slice:** **Unified window UI pass (surface shared window status in HUD + overlays).**
+
+## Event Window Unification Slice Notes (Completed ✅)
+- Added a shared window-scheduling helper so recurring events and mini-games use the same timing logic.
+- Centralized daily/weekly/monthly and monthly-random window calculations with seeded randomness to keep schedule determinism consistent.
+- Updated mini-game scheduling to rely on the unified window helpers for active, upcoming, and countdown state.
 
 ## Fall Portals + Chance Lift Slice Notes (Completed ✅)
 - Expanded Ring 2 fall portal outcomes with safety-net and executive-evac rewards, plus celebratory feedback tied to portal drops.

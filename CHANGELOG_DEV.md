@@ -7,6 +7,27 @@
 
 
 **Date:** 2026-02-04  
+**Slice:** Event window unification pass  
+**Summary:**  
+- Added a shared window scheduling helper so events and mini-games use consistent timing logic.  
+- Updated mini-game scheduling to rely on unified window calculations for active, upcoming, and countdown state.  
+- Mapped recurring event timings onto the shared schedule helper to keep recurrence calculations aligned.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/lib/events.ts  
+- apps/investing-board-game-v3/src/lib/miniGameSchedule.ts  
+- apps/investing-board-game-v3/src/lib/windowSchedule.ts  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Open the Games Hub and verify scheduled mini-games still show active/upcoming windows as before.  
+- (manual) Wait for any recurring event window to start/end and confirm the event toast and effects still trigger.  
+
+**Date:** 2026-02-04  
 **Slice:** P2 (Mega Jackpot event currency multipliers)  
 **Summary:**  
 - Applied economy multipliers to event currency star rewards so active event boosts (including Mega Jackpot) amplify event prize payouts.  
