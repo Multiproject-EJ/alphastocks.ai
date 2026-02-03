@@ -1467,3 +1467,22 @@
 
 **How to test:**  
 - (manual) Load the board, find expansion category tiles, and confirm the glow FX + “Expansion” reward callout appear.  
+
+**Date:** 2026-02-12  
+**Slice:** P3 (Expansion category landing FX polish + sound stingers)  
+**Summary:**  
+- Added a landing-only expansion pulse glow so expansion tiles pop on touchdown.  
+- Triggered an expansion landing stinger with celebratory tile emojis for expansion category stops.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/App.tsx  
+- apps/investing-board-game-v3/src/components/Tile.tsx  
+- apps/investing-board-game-v3/src/lib/sounds.ts  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Land on an expansion category tile and confirm the landing pulse glow, stinger sound, and celebratory emoji burst fire once.  

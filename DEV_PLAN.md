@@ -257,11 +257,15 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P3 long-term content follow-up — expansion category landing FX polish + sound stingers (see `docs/DEV_PLAN_MARKETTYCOON_MASTER.md`).**
+**Recommended next slice:** **Select the next master-plan slice after P3 landing FX polish (see `docs/DEV_PLAN_MARKETTYCOON_MASTER.md`).**
 
 ## P3 Slice Notes (Expansion category art/FX + reward callouts)
 - Added expansion-tier tile styling overlays so expansion categories stand out with their palette glow + shimmer FX on the board.
 - Updated expansion category tile labels to call out bonus rewards alongside the ring multiplier for quicker reward recognition.
+
+## P3 Slice Notes (Expansion category landing FX polish + sound stingers)
+- Added a landing-only expansion pulse glow to make expansion-category stops pop with a quick highlight.
+- Triggered a dedicated expansion landing stinger so expansion tiles have a brighter audio cue on touchdown.
 
 ## M0.2 Slice Notes (Instrumentation hooks)
 - Added a dedicated instrumentation helper that enables opt-in debug logging via local storage or env flags without changing gameplay behavior.
