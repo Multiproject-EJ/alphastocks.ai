@@ -201,6 +201,18 @@ export const MINI_GAME_CONFIG: MiniGameSchedule[] = [
       durationMinutes: 120,
     },
   },
+  {
+    id: 'ipo-frenzy',
+    name: 'IPO Frenzy',
+    category: 'special',
+    isActive: false,
+    schedule: {
+      type: 'weekly',
+      days: [2], // Tuesday
+      times: ['19:00'],
+      durationMinutes: 120,
+    },
+  },
 ]
 
 /**
