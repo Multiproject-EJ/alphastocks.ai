@@ -3037,6 +3037,7 @@ function App() {
 
     const { earnOnMarketEvent, goal, rewardStars, emoji } = activeEventCurrency
     if (earnOnMarketEvent <= 0 || goal <= 0) return
+    const { starsMultiplier } = getEconomyMultipliers()
 
     let goalsHit = 0
     let starsAwarded = 0
@@ -3048,7 +3049,7 @@ function App() {
       goalsHit = Math.floor(updatedAmount / goal)
       const baseStarsAwarded = goalsHit * rewardStars
       // Apply ring multiplier to event rewards
-      starsAwarded = applyRingMultiplier(baseStarsAwarded, prev.currentRing)
+      starsAwarded = Math.floor(applyRingMultiplier(baseStarsAwarded, prev.currentRing) * starsMultiplier)
       const remainder = updatedAmount % goal
 
       return {
@@ -3073,7 +3074,7 @@ function App() {
       })
       triggerCelebrationFromLastTile(['⭐', '✨'])
     }
-  }, [activeEventCurrency, currentActiveEvent, triggerCelebrationFromLastTile])
+  }, [activeEventCurrency, currentActiveEvent, getEconomyMultipliers, triggerCelebrationFromLastTile])
 
   // Function to check if a tile is a portal start tile
   const isPortalStartTile = useCallback((tileId: number, ring: RingNumber): boolean => {
