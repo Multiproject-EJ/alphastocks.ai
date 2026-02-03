@@ -230,7 +230,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P2.1** ✅ Soothing sound system
 - **P2.2** ✅ Ring-based leaderboards
 - **P2.3** ✅ Advanced portfolio analytics
-- **P2.4** Event system audit (limited-time windows)
+- **P2.4** ✅ Event system audit (limited-time windows)
 
 ---
 
@@ -261,7 +261,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P2.4 Event system audit (limited-time windows).**
+**Recommended next slice:** **TBD (select next milestone slice from docs/DEV_PLAN_MARKETTYCOON_MASTER.md).**
 
 ## P3 Slice Notes (Expansion category art/FX + reward callouts)
 - Added expansion-tier tile styling overlays so expansion categories stand out with their palette glow + shimmer FX on the board.
@@ -537,6 +537,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ## P2 Slice Notes (Ring history tracking)
 - Added ring history tracking fields (counts, last visit, and recent transitions) to player stats for long-term progression analytics.
 - Wired ring transitions (movement hops, portal jumps, manual jumps, and throne resets) to log ring visit history consistently.
+
+## P2.4 Slice Notes (Event system audit — limited-time windows)
+- Audited the event engine scheduling (recurring, special, monthly rotation, Alpha Day, Jackpot Week) and confirmed it is driven off client-local time with minute-based polling for start/end transitions.
+- Reviewed mini-game window scheduling (daily/weekly/monthly-random) and confirmed deterministic monthly-random slots via seeded RNG plus minute-based refresh for availability.
+- Noted the current split between event windows and mini-game windows, with no shared window engine or server-time sync, as the primary limitation to address in a future window unification pass.
 
 ## P1 Elite Stock Special Behaviors Slice Notes
 - Added an elite stock purchase bonus that awards extra stars and XP based on composite score with live economy multipliers.

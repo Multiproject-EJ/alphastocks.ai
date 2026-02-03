@@ -5,6 +5,24 @@
 
 ## Unreleased
 
+**Date:** 2026-02-03  
+**Slice:** P2.4 (Event system audit — limited-time windows)  
+**Summary:**  
+- Audited the event system scheduling (recurring, special, rotation, Alpha Day, Jackpot Week) and documented the client-local, minute-based polling model.  
+- Reviewed mini-game window scheduling (daily/weekly/monthly-random) and noted the deterministic monthly-random slots and minute-based refresh.  
+- Logged the current split between event windows and mini-game windows, highlighting the lack of shared window engine or server-time sync.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/CHALLENGES_EVENTS_IMPLEMENTATION.md  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (none; documentation-only)  
+
 **Date:** 2026-02-14  
 **Slice:** P2.2 (Ring-based leaderboards)  
 **Summary:**  
