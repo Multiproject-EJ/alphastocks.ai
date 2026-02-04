@@ -1,5 +1,15 @@
 export type LearningTileCategory = 'bias' | 'fundamentals' | 'strategy' | 'risk' | 'market'
 
+export type LearningGraphicTemplateId = 'aurora' | 'prism' | 'comet'
+
+export interface LearningGraphicTemplate {
+  label: string
+  frameClass: string
+  shimmerClass: string
+  sparkleClass: string
+  orbitClass: string
+}
+
 export interface LearningTileDefinition {
   id: string
   title: string
@@ -7,6 +17,7 @@ export interface LearningTileDefinition {
   category: LearningTileCategory
   description: string
   icon: string
+  graphicTemplateId: LearningGraphicTemplateId
 }
 
 export const LEARNING_TILE_DEFINITIONS: Record<string, LearningTileDefinition> = {
@@ -17,6 +28,7 @@ export const LEARNING_TILE_DEFINITIONS: Record<string, LearningTileDefinition> =
     category: 'fundamentals',
     description: 'Quick hits on balance sheets, moats, and long-term value.',
     icon: '📘',
+    graphicTemplateId: 'aurora',
   },
   'quiz-strategy': {
     id: 'quiz-strategy',
@@ -25,6 +37,7 @@ export const LEARNING_TILE_DEFINITIONS: Record<string, LearningTileDefinition> =
     category: 'strategy',
     description: 'Sharpen your edge on catalysts, timing, and optionality.',
     icon: '🎯',
+    graphicTemplateId: 'comet',
   },
   'quiz-bias': {
     id: 'quiz-bias',
@@ -33,6 +46,34 @@ export const LEARNING_TILE_DEFINITIONS: Record<string, LearningTileDefinition> =
     category: 'bias',
     description: 'Spot cognitive pitfalls before they take your profits.',
     icon: '🧠',
+    graphicTemplateId: 'prism',
+  },
+}
+
+export const LEARNING_GRAPHIC_TEMPLATES: Record<LearningGraphicTemplateId, LearningGraphicTemplate> = {
+  aurora: {
+    label: 'Aurora Glow',
+    frameClass: 'bg-gradient-to-br from-emerald-500/35 via-teal-500/20 to-slate-900/40',
+    shimmerClass: 'bg-[conic-gradient(from_120deg,_rgba(255,255,255,0.25),_rgba(255,255,255,0)_40%,_rgba(255,255,255,0.2)_60%,_rgba(255,255,255,0)_85%)]',
+    sparkleClass:
+      'bg-[radial-gradient(circle_at_20%_20%,_rgba(255,255,255,0.25),_transparent_40%),radial-gradient(circle_at_80%_30%,_rgba(255,255,255,0.2),_transparent_45%),radial-gradient(circle_at_60%_80%,_rgba(255,255,255,0.18),_transparent_50%)]',
+    orbitClass: 'bg-[radial-gradient(circle,_rgba(52,211,153,0.35),_transparent_60%)]',
+  },
+  prism: {
+    label: 'Prism Surge',
+    frameClass: 'bg-gradient-to-br from-rose-500/35 via-fuchsia-500/25 to-slate-900/45',
+    shimmerClass: 'bg-[conic-gradient(from_40deg,_rgba(255,255,255,0.28),_rgba(255,255,255,0)_38%,_rgba(255,255,255,0.18)_62%,_rgba(255,255,255,0)_85%)]',
+    sparkleClass:
+      'bg-[radial-gradient(circle_at_25%_70%,_rgba(255,255,255,0.25),_transparent_40%),radial-gradient(circle_at_70%_20%,_rgba(255,255,255,0.18),_transparent_48%),radial-gradient(circle_at_78%_78%,_rgba(255,255,255,0.2),_transparent_52%)]',
+    orbitClass: 'bg-[radial-gradient(circle,_rgba(251,113,133,0.35),_transparent_60%)]',
+  },
+  comet: {
+    label: 'Comet Trail',
+    frameClass: 'bg-gradient-to-br from-sky-500/35 via-indigo-500/25 to-slate-900/45',
+    shimmerClass: 'bg-[conic-gradient(from_210deg,_rgba(255,255,255,0.25),_rgba(255,255,255,0)_40%,_rgba(255,255,255,0.2)_65%,_rgba(255,255,255,0)_85%)]',
+    sparkleClass:
+      'bg-[radial-gradient(circle_at_30%_30%,_rgba(255,255,255,0.22),_transparent_40%),radial-gradient(circle_at_85%_25%,_rgba(255,255,255,0.18),_transparent_45%),radial-gradient(circle_at_65%_85%,_rgba(255,255,255,0.2),_transparent_50%)]',
+    orbitClass: 'bg-[radial-gradient(circle,_rgba(96,165,250,0.35),_transparent_60%)]',
   },
 }
 
