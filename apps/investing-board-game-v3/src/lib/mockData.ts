@@ -824,6 +824,123 @@ export const BIAS_CASE_STUDIES: BiasCaseStudy[] = [
       },
     ],
   },
+  {
+    id: '4',
+    title: 'Loss Aversion in a Downturn',
+    biasType: 'Loss Aversion',
+    description: 'See how the fear of losses can outweigh rational decision-making.',
+    scenario: 'Andre watched his logistics stock fall 25% after a guidance cut. He refused to sell because "locking in the loss feels worse," even though the company’s competitive position had weakened. Meanwhile, he sold a steady dividend stock too early just to feel a quick win.',
+    context: [
+      'Loss aversion means losses feel more painful than equivalent gains feel good.',
+      'Investors may hold losing positions too long to avoid realizing a loss.',
+      'It can also cause premature selling of winners to "lock in" small gains.',
+      'A disciplined plan with predefined exit rules helps counter emotional decisions.',
+    ],
+    quiz: [
+      {
+        id: 'q1',
+        question: 'Which behavior best illustrates loss aversion?',
+        options: [
+          'Ignoring company fundamentals to chase momentum',
+          'Holding a losing stock to avoid realizing the loss',
+          'Buying a stock after a positive earnings surprise',
+          'Diversifying across multiple sectors',
+        ],
+        correctAnswer: 1,
+        explanation: 'Loss aversion leads investors to hold onto losing positions because realizing the loss feels worse than the potential benefit of moving on.',
+      },
+      {
+        id: 'q2',
+        question: 'What is a practical way to reduce loss aversion?',
+        options: [
+          'Set exit criteria before buying and follow them',
+          'Only invest in companies you love',
+          'Avoid reviewing your portfolio',
+          'Double down whenever a stock drops',
+        ],
+        correctAnswer: 0,
+        explanation: 'Predefined exit criteria help you make decisions based on rules instead of emotions when a position moves against you.',
+      },
+    ],
+  },
+  {
+    id: '5',
+    title: 'Herding Into Hot IPOs',
+    biasType: 'Herding Bias',
+    description: 'Explore how crowd behavior can distort risk perception.',
+    scenario: 'A flashy fintech IPO doubled on day one. Seeing social media hype, Maya bought without reviewing the prospectus. When lock-up expirations hit and insiders sold, the stock plunged and she realized she had followed the crowd without a plan.',
+    context: [
+      'Herding bias drives investors to follow the crowd rather than independent analysis.',
+      'Social proof can make risky trades feel safer than they are.',
+      'Crowded trades can reverse quickly once sentiment shifts.',
+      'Independent research and valuation help avoid buying purely on hype.',
+    ],
+    quiz: [
+      {
+        id: 'q1',
+        question: 'Why is herding bias risky?',
+        options: [
+          'It always leads to over-diversification',
+          'It relies on popularity instead of fundamentals',
+          'It makes investors too conservative',
+          'It eliminates market volatility',
+        ],
+        correctAnswer: 1,
+        explanation: 'Herding bias causes decisions based on popularity, which can ignore fundamentals and inflate risk when sentiment reverses.',
+      },
+      {
+        id: 'q2',
+        question: 'What is a healthier response to market hype?',
+        options: [
+          'Buy immediately before the crowd moves on',
+          'Follow social media sentiment indicators only',
+          'Pause to review fundamentals and your risk tolerance',
+          'Sell all holdings to avoid missing out',
+        ],
+        correctAnswer: 2,
+        explanation: 'Stepping back to evaluate fundamentals and personal risk tolerance helps avoid decisions based purely on crowd behavior.',
+      },
+    ],
+  },
+  {
+    id: '6',
+    title: 'Overconfidence After a Win',
+    biasType: 'Overconfidence Bias',
+    description: 'Learn how recent success can lead to excessive risk-taking.',
+    scenario: 'After a few lucky swing trades, Luis believed he had a special knack for timing the market. He increased his position sizes and stopped using stop-losses. A sudden sector rotation erased months of gains in a week.',
+    context: [
+      'Overconfidence can make investors overestimate their skill and underestimate risk.',
+      'It often leads to larger position sizes, reduced diversification, and reckless timing.',
+      'Short-term wins can be random rather than evidence of repeatable skill.',
+      'Maintaining risk limits and reviewing performance objectively can reduce this bias.',
+    ],
+    quiz: [
+      {
+        id: 'q1',
+        question: 'What is a common outcome of overconfidence bias?',
+        options: [
+          'Lower trading volume',
+          'Taking larger, less diversified positions',
+          'Avoiding all market risk',
+          'Holding only index funds',
+        ],
+        correctAnswer: 1,
+        explanation: 'Overconfidence often leads to taking larger, concentrated positions because investors believe they can predict outcomes better than they can.',
+      },
+      {
+        id: 'q2',
+        question: 'Which habit helps guard against overconfidence?',
+        options: [
+          'Relying on gut instinct only',
+          'Ignoring post-trade reviews',
+          'Tracking decisions and reviewing outcomes objectively',
+          'Doubling down after every win',
+        ],
+        correctAnswer: 2,
+        explanation: 'Tracking decisions and reviewing outcomes objectively helps distinguish skill from luck and maintains discipline.',
+      },
+    ],
+  },
 ]
 
 export function getRandomBiasCaseStudy(): BiasCaseStudy {
