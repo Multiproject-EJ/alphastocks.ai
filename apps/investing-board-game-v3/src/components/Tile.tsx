@@ -7,7 +7,7 @@ import { useHaptics } from '@/hooks/useHaptics'
 import { QuickRewardTile } from './QuickRewardTile'
 import { QuickRewardType } from '@/lib/quickRewardTiles'
 import { TILE_WIDTH, TILE_HEIGHT } from '@/lib/constants'
-import { getLearningTileDefinition, LEARNING_CATEGORY_STYLES } from '@/lib/learningTiles'
+import { getLearningTileDefinition, LEARNING_CATEGORY_STYLES, LEARNING_GRAPHIC_TEMPLATES } from '@/lib/learningTiles'
 import { TileLabel, TileLabelTone } from '@/components/TileLabel'
 import { getStockCategoryDefinition } from '@/lib/stockCategories'
 
@@ -173,6 +173,10 @@ const TileComponent = ({
   const learningDefinition = tile.type === 'learning' ? getLearningTileDefinition(tile.learningId) : null
   const learningCategoryStyle = learningDefinition
     ? LEARNING_CATEGORY_STYLES[learningDefinition.category]
+    : null
+  const learningTemplate = learningDefinition
+    ? LEARNING_GRAPHIC_TEMPLATES[learningDefinition.graphicTemplateId] ??
+      LEARNING_GRAPHIC_TEMPLATES.aurora
     : null
   const categoryDefinition =
     tile.type === 'category' && tile.category
@@ -397,6 +401,24 @@ const TileComponent = ({
             )}
             aria-hidden
           />
+          {learningTemplate && (
+            <>
+              <div
+                className={cn('absolute inset-2 rounded-[10px] opacity-60', learningTemplate.frameClass)}
+                aria-hidden
+              />
+              <div
+                className={cn('absolute inset-2 rounded-[10px] opacity-70', learningTemplate.sparkleClass)}
+                aria-hidden
+              />
+              <motion.div
+                className={cn('absolute inset-2 rounded-[10px] opacity-60 mix-blend-screen', learningTemplate.shimmerClass)}
+                animate={{ rotate: [0, 10, 0], opacity: [0.2, 0.55, 0.25] }}
+                transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+                aria-hidden
+              />
+            </>
+          )}
           <motion.div
             className="relative"
             animate={{ y: [0, -4, 0], rotate: [0, -2, 2, 0] }}
@@ -409,6 +431,14 @@ const TileComponent = ({
               )}
               aria-hidden
             />
+            {learningTemplate && (
+              <motion.div
+                className={cn('absolute -inset-6 rounded-full blur-xl opacity-80', learningTemplate.orbitClass)}
+                animate={{ scale: [0.9, 1.05, 0.92], opacity: [0.4, 0.75, 0.45] }}
+                transition={{ duration: 4.8, repeat: Infinity, ease: 'easeInOut' }}
+                aria-hidden
+              />
+            )}
             <span className="relative text-[42px] sm:text-[50px] leading-none drop-shadow-md">
               {learningDefinition.icon}
             </span>

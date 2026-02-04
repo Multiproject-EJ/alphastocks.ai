@@ -55,7 +55,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 - `AI_IMPLEMENTATION.md`, `IMPLEMENTATION_SUMMARY.md`, `DEVLOG.md` (project-wide status/context)
 
 ### Repo Map (paths verified)
-_Last reviewed: 2026-02-05 (Ring config centralization kickoff)_
+_Last reviewed: 2026-02-14 (Learning tile graphic templates + animations)_
 #### Frontend
 - **Legacy static pages entry:** `/index.html`, `/about.html`, `/faq.html`, `/monthly/`, `/weekly/`, `/superinvestor/`
 - **Vite + Preact app:** `/apps/investing-board-game-v3` (built into `/public/board-game-v3` via `npm run build:board-game-v3`)
@@ -263,7 +263,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **M4.4 Graphic templates + animations.**
+**Recommended next slice:** **M2.7 Alpha Day scheduler (rare).**
 
 ## Right Now Calendar Polish Slice Notes (Completed ✅)
 - Expanded the Right Now calendar to surface upcoming mini-game windows alongside event scheduling.
@@ -337,8 +337,9 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Reused the shared daily streak helper for learning and quiz streak tracking so daily logic stays consistent.
 
 ## M4.4 Slice Notes (Graphic templates + animations)
-- Added category-specific learning tile templates with gradients, pattern overlays, and badge styling for clearer quiz identity cues.
-- Introduced a subtle icon float animation and glow layering to give learning tiles a livelier, mobile-first feel without changing layout.
+- Added learning tile graphic templates (Aurora, Prism, Comet) with frame, shimmer, sparkle, and orbit layers to diversify quiz visuals per category.
+- Wired learning tile definitions to pick a template so quiz tiles render a consistent look/feel tied to their subject matter.
+- Extended the learning tile animation stack with shimmer and orbit pulses while preserving the existing mobile-first layout.
 
 ---
 
