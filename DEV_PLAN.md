@@ -55,7 +55,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 - `AI_IMPLEMENTATION.md`, `IMPLEMENTATION_SUMMARY.md`, `DEVLOG.md` (project-wide status/context)
 
 ### Repo Map (paths verified)
-_Last reviewed: 2026-02-08 (Price data strategy slice)_
+_Last reviewed: 2026-02-10 (Economy config seed slice)_
 #### Frontend
 - **Legacy static pages entry:** `/index.html`, `/about.html`, `/faq.html`, `/monthly/`, `/weekly/`, `/superinvestor/`
 - **Vite + Preact app:** `/apps/investing-board-game-v3` (built into `/public/board-game-v3` via `npm run build:board-game-v3`)
@@ -119,6 +119,9 @@ _Last reviewed: 2026-02-08 (Price data strategy slice)_
 - **Shop/estate logic:** `src/hooks/useShopInventory.ts` (stars-based purchases), `src/hooks/usePurchase.ts` (mobile cash purchases), `src/lib/shopItems.ts` (legacy + vault data), and city builder in `src/lib/cityBuilder.ts` + `src/hooks/useCityBuilder.ts`
 - **Events/timers:** `src/lib/events.ts`, `src/hooks/useEvents.ts`, `src/lib/miniGameSchedule.ts`, `src/hooks/useDailyDividends.ts`
 - **Soft throttle dampening:** `src/lib/economyThrottle.ts` + reward multiplier wiring in `src/App.tsx`
+
+#### Config (new)
+- **Economy config seed:** `/config/economy.json` (energy + vault regen defaults) + `apps/investing-board-game-v3/src/lib/economyConfig.ts` (normalization + exports)
 
 #### ProTools (read-only)
 - **Integration docs:** `apps/investing-board-game-v3/PRO_TOOLS_INTEGRATION.md`
@@ -220,6 +223,9 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 ### M9 — Celebrations & FX
 - **M9.1** Ring 3 upgrade celebration (board spin + UI flash) ✅
 
+### C1 — Config Strategy (Data-driven tuning)
+- **C1.1** ✅ Economy config seed (energy + vault regen)
+
 ### P1 — Mini-Games Hub
 - **P1.1** ✅ Wheel of Fortune playable demo in Games Hub
 - **P1.2** ✅ Portal animation polish
@@ -272,7 +278,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **TBD — choose the next master-plan slice after the master plan schedule status sync.**
+**Recommended next slice:** **C1.2 — Shop vault config seed (seasons, discounts, and level curve).**
 
 ## P2.7 Scope Notes (Bias Sanctuary visual story mode)
 ### Story structure & content
@@ -505,6 +511,12 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ## M6.5 Slice Notes (Apply roll regen boost perk)
 - Added vault-level regen bonus helpers and hooked the bonus into the 2-hour dice reset amount.
 - Surfaced the vault perk bonus in the out-of-rolls modal so players can see their boosted reset amount.
+
+## C1.1 Slice Notes (Economy config seed)
+- Seeded a central economy config JSON file for energy and vault regen defaults.
+- Added a normalization helper to export energy configs from the JSON file and keep fallbacks safe.
+- Updated the run-by-run plan to track the new config strategy slice.
+- Re-exported energy config constants from `energy.ts` to keep existing imports working.
 
 ## M7.1 Slice Notes (Audit board renderer + tile overlays)
 - Confirmed board layout rendering lives in `App.tsx` using ring-based `calculateTilePositions` helpers and per-ring scale factors, with `BoardViewport` (classic zoom) + `Board3DViewport` (camera transform) handling layout constraints.

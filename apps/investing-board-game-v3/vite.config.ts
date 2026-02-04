@@ -7,6 +7,7 @@ import createIconImportProxy from "@github/spark/vitePhosphorIconProxyPlugin";
 import { resolve } from 'path'
 
 const projectRoot = process.env.PROJECT_ROOT || import.meta.dirname
+const repoRoot = resolve(projectRoot, '../..')
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -23,4 +24,9 @@ export default defineConfig({
       '@': resolve(projectRoot, 'src')
     }
   },
+  server: {
+    fs: {
+      allow: [projectRoot, repoRoot]
+    }
+  }
 });

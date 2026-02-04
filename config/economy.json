@@ -1,0 +1,14 @@
+{
+  "energy": {
+    "MAX_ROLLS": 50,
+    "REGEN_RATE": 30,
+    "REGEN_INTERVAL_MINUTES": 120,
+    "DAILY_BONUS": 10,
+    "RESET_AMOUNT": 30
+  },
+  "vaultRegenBonus": {
+    "LEVEL_STEP": 3,
+    "BONUS_PER_STEP": 2,
+    "MAX_BONUS": 10
+  }
+}
