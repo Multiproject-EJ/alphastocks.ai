@@ -1817,3 +1817,20 @@
 
 **How to test:**  
 - (manual) Land on a Ring 2 Fall Portal tile and confirm the reward/portal outcome toast appears without the generic “Portal Down” message.  
+
+**Date:** 2026-02-04  
+**Slice:** Master plan status sync (docs alignment)  
+**Summary:**  
+- Synced the master plan status table with completed systems and cleared stale in-progress/planned entries.  
+- Logged the master plan status sync slice in the run-by-run plan for traceability.  
+
+**Files changed:**  
+- docs/DEV_PLAN_MARKETTYCOON_MASTER.md  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (none)  

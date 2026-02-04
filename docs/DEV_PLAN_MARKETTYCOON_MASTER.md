@@ -318,29 +318,27 @@ The Big Fish Portal on Ring 1 is the primary entry into Ring 2. Ring 2 and Ring 
 | Event Track | ✅ Complete | `EventTrackModal.tsx` |
 | Premium Tiles (200×) | ✅ Complete | `mockData.ts`, `App.tsx` |
 | ProTools Integration | ✅ Complete | `App.tsx` |
+| Multi-Ring UI | ✅ Complete | `App.tsx`, `Board3DViewport.tsx` |
+| Fall Portals + Chance Lift | ✅ Complete | `App.tsx`, `wildcardEvents.ts` |
+| Ring Transition Animations | ✅ Complete | `App.tsx`, `PortalAnimation.tsx` |
+| Wealth Run Roulette Loop | ✅ Complete | `App.tsx`, `RouletteVictoryModal.tsx` |
+| Soothing Sound System | ✅ Complete | `lib/sounds.ts`, `useSound.ts` |
+| Wheel of Fortune | ✅ Complete | `WheelOfFortuneModal.tsx`, `GamesHub.tsx` |
+| Stock Rush | ✅ Complete | `components/games/placeholders/StockRush.tsx` |
+| Elite Stock Mechanics | ✅ Complete | `App.tsx`, `StockModal.tsx` |
+| Roulette Victory Sequence | ✅ Complete | `RouletteVictoryModal.tsx` |
+| Vault Heist | ✅ Complete | `components/games/placeholders/VaultHeist.tsx` |
+| Sound Effects | ✅ Complete | `lib/sounds.ts`, `useSound.ts` |
+| Ring-based Leaderboards | ✅ Complete | `LeaderboardModal.tsx`, `useLeaderboard.ts` |
+| Ring History Tracking | ✅ Complete | `App.tsx`, `types.ts` |
 
 ### 🚧 In Progress
 
-| System | Status | Next Steps |
-|--------|--------|------------|
-| Multi-Ring UI | 🚧 In Progress | Render Ring 2 and Ring 3 tiles visually |
-| Fall Portals + Chance Lift | 🚧 In Progress | Add richer outcomes + polish Ring 2 portal feedback |
-| Ring Transition Animations | 🚧 In Progress | Polish ascend/descend visual feedback |
-| Wealth Run Roulette Loop | 🚧 In Progress | Add richer roulette UX and long-tail rewards |
-| Soothing Sound System | 🚧 In Progress | Upgrade harsh oscillators to pleasant tones |
+No active in-progress systems listed here; see `DEV_PLAN.md` for the current slice queue.
 
 ### 📋 Planned
 
-| System | Priority | Description |
-|--------|----------|-------------|
-| Wheel of Fortune | P1 | Happy Hour mini-game |
-| Stock Rush | P1 | Timed discount event |
-| Elite Stock Mechanics | P1 | Special behaviors for elite stocks |
-| Roulette Victory Sequence | P1 | Epic celebration for Wealth Run roulette wins |
-| Vault Heist | P2 | Weekly special event |
-| Sound Effects | P2 | Audio for all actions |
-| Ring-based Leaderboards | P2 | Track who reaches Ring 3 most |
-| Ring History Tracking | P2 | Show player's ring progression over time |
+Planned work is tracked in `DEV_PLAN.md` to keep the master plan focused on systems status.
 
 ---
 
