@@ -1958,6 +1958,25 @@
 
 **How to test:**  
 - (manual) Open the event calendar and confirm Alpha Day, Mega Jackpot, or Jackpot Week entries show a “Rare” badge in the selected-date and upcoming lists.  
+**Date:** 2026-02-08  
+**Slice:** M3.5 Price data strategy (with fallback)  
+**Summary:**  
+- Added a stock price resolver that prefers live market prices when provided, with deterministic fallback pricing when missing.  
+- Updated universe stock fetching to accept optional price fields without breaking Supabase queries.  
+- Logged the slice completion in the run-by-run plan.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/hooks/useUniverseStocks.ts  
+- apps/investing-board-game-v3/src/lib/stockPricing.ts  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Open the board game, land on a stock tile, and confirm prices show; if your Supabase universe includes price fields, verify they appear instead of the fallback values.  
+
 **Date:** 2026-02-06  
 **Slice:** P2.7 Bias Sanctuary visual story mode  
 **Summary:**  
