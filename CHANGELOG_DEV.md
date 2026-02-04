@@ -1852,3 +1852,21 @@
 
 **How to test:**  
 - (none)  
+
+**Date:** 2026-02-04  
+**Slice:** P4.2 Rare event calendar callouts  
+**Summary:**  
+- Added rare-event badges to highlight Alpha Day and jackpot moments in the event calendar.  
+- Kept the calendar layout mobile-first while adding rarity cues to selected-date and upcoming lists.  
+- Logged the slice completion in the run-by-run plan.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/components/EventCalendar.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Open the event calendar and confirm Alpha Day, Mega Jackpot, or Jackpot Week entries show a “Rare” badge in the selected-date and upcoming lists.  

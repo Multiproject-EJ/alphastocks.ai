@@ -236,6 +236,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 
 ### P4 — Seasonal & Holiday Events
 - **P4.1** ✅ Holiday event schedule fixtures
+- **P4.2** ✅ Rare event calendar callouts
 
 ---
 
@@ -560,6 +561,10 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ## P4.1 Slice Notes (Holiday event schedule fixtures)
 - Added seasonal special-event fixtures to the events catalog so the calendar can surface holiday reward windows.
 - Tuned reward multipliers and currency rules for seasonal moments like Founders Day, Summer Festival, and Holiday Rally.
+
+## P4.2 Slice Notes (Rare event calendar callouts)
+- Added a rare-event badge to highlight Alpha Day, Mega Jackpot, and Jackpot Week in the event calendar.
+- Kept the calendar layout mobile-first while adding lightweight rarity cues in the selected-date and upcoming lists.
 
 ## P3 Slice Notes (Stock category audit + config hooks)
 - Added a shared stock category catalog with tiering and palette metadata to prep for expansion categories like international equities.
