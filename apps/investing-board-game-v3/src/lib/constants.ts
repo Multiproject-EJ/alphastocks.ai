@@ -1,13 +1,25 @@
 // Game configuration constants
+import {
+  CATEGORY_OWNERSHIP_MAX_REWARD,
+  DAILY_ROLL_LIMIT,
+  ENERGY_MAX,
+  ENERGY_REGEN_MINUTES,
+  JACKPOT_PASS_START_AMOUNT,
+  MULTIPLIERS,
+  STARTING_CASH,
+  STARTING_NET_WORTH,
+} from '@/config/economy'
 
-/** Maximum number of dice rolls allowed per day (bonus rolls) */
-export const DAILY_ROLL_LIMIT = 10
-
-/** Maximum energy rolls that can be stored */
-export const ENERGY_MAX = 50
-
-/** Time in minutes between energy regenerations */
-export const ENERGY_REGEN_MINUTES = 30
+export {
+  CATEGORY_OWNERSHIP_MAX_REWARD,
+  DAILY_ROLL_LIMIT,
+  ENERGY_MAX,
+  ENERGY_REGEN_MINUTES,
+  JACKPOT_PASS_START_AMOUNT,
+  MULTIPLIERS,
+  STARTING_CASH,
+  STARTING_NET_WORTH,
+}
 
 /** Debounce delay for auto-save in milliseconds */
 export const AUTO_SAVE_DEBOUNCE_MS = 2000
@@ -15,21 +27,7 @@ export const AUTO_SAVE_DEBOUNCE_MS = 2000
 /** Timeout delay for triggering auto-save after state changes in milliseconds */
 export const AUTO_SAVE_TIMEOUT_MS = 1000
 
-/** Starting cash amount for new games */
-export const STARTING_CASH = 100000
-
-/** Starting net worth for new games */
-export const STARTING_NET_WORTH = 100000
-
-/** Available roll multipliers */
-export const MULTIPLIERS = [1, 5, 10, 25, 50, 100] as const
 export type RollMultiplier = typeof MULTIPLIERS[number]
-
-/** Jackpot amount added when passing Start without landing on it */
-export const JACKPOT_PASS_START_AMOUNT = 10000
-
-/** Maximum cash reward for owning 100% of a category in portfolio */
-export const CATEGORY_OWNERSHIP_MAX_REWARD = 100000
 
 /** Tile dimensions for board tiles */
 export const TILE_WIDTH = 112
