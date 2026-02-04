@@ -22,6 +22,24 @@
 **How to test:**  
 - (manual) Load the board and open the event calendar to confirm Alpha Day still appears in upcoming events and no regressions appear in recurring rotations.  
 
+**Date:** 2026-02-04  
+**Slice:** Master plan mini-game status sync (docs)  
+**Summary:**  
+- Updated the master plan mini-game status table to reflect completed game surfaces and their source files.  
+- Added the newest timed-event mini-games to the master plan status list to keep planned vs shipped accurate.  
+- Logged the doc-sync slice in the run-by-run plan.  
+
+**Files changed:**  
+- docs/DEV_PLAN_MARKETTYCOON_MASTER.md  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (none)  
+
 **Date:** 2026-02-14  
 **Slice:** M4.4 (Graphic templates + animations)  
 **Summary:**  

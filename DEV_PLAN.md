@@ -55,7 +55,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 - `AI_IMPLEMENTATION.md`, `IMPLEMENTATION_SUMMARY.md`, `DEVLOG.md` (project-wide status/context)
 
 ### Repo Map (paths verified)
-_Last reviewed: 2026-02-05 (Holiday event schedule fixtures)_
+_Last reviewed: 2026-02-04 (Master plan mini-game status sync)_
 #### Frontend
 - **Legacy static pages entry:** `/index.html`, `/about.html`, `/faq.html`, `/monthly/`, `/weekly/`, `/superinvestor/`
 - **Vite + Preact app:** `/apps/investing-board-game-v3` (built into `/public/board-game-v3` via `npm run build:board-game-v3`)
@@ -557,6 +557,10 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Built a mobile-first Merger Mania timed-event surface with deal targets, negotiation levers, and integration tracks for the M&A sprint.
 - Added a weekly Merger Mania schedule slot so the mini-game availability system can surface live/upcoming deal windows.
 - Wired the Games Hub card to show Merger Mania availability labels and gate access until the deal window is live.
+
+## Master Plan Mini-Game Status Sync Slice Notes (Completed ✅)
+- Updated the master plan mini-game status table to mark implemented mini-games as complete and list their source files.
+- Added newer timed-event mini-games to the master plan status table so planned vs shipped remains accurate.
 
 ## P4.1 Slice Notes (Holiday event schedule fixtures)
 - Added seasonal special-event fixtures to the events catalog so the calendar can surface holiday reward windows.
