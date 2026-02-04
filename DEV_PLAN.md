@@ -263,7 +263,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **Config strategy follow-up: centralize learning config exports.**
+**Recommended next slice:** **M4.3 Rewards + streak system.**
 
 ## Right Now Calendar Polish Slice Notes (Completed ✅)
 - Expanded the Right Now calendar to surface upcoming mini-game windows alongside event scheduling.
@@ -287,6 +287,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Moved Shop 2.0 fixture data and XP tuning constants into a shared shop vault config module.
 - Re-exported the shop vault fixture types/data from the legacy helper to keep existing imports stable.
 - Centralized shop vault XP tuning constants so purchase/level math reads from config.
+
+## Config Strategy Follow-up Slice Notes (Learning config exports) (Completed ✅)
+- Centralized learning tile metadata, category styles, and question bank content in a shared learning config module.
+- Re-exported learning config types and constants through the legacy learning helper modules to keep imports stable.
+- Kept learning tile and question lookups unchanged while shifting the source of truth to config.
 
 ## Event Window Unification Slice Notes (Completed ✅)
 - Added a shared window-scheduling helper so recurring events and mini-games use the same timing logic.
