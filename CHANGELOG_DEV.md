@@ -7,6 +7,24 @@
 
 - Updated the master plan Priority Roadmap checklist to reflect completed systems so the canonical roadmap matches shipped features.
 
+**Date:** 2026-02-07  
+**Slice:** P4.3 Mega Jackpot boost  
+**Summary:**  
+- Applied a Mega Jackpot event boost so Jackpot Week payouts get an additional multiplier when the monthly Mega Jackpot window is live.  
+- Updated Jackpot Week win messaging to acknowledge the Mega Jackpot boost when active.  
+- Logged the slice completion in the run-by-run plan.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/App.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) During a Jackpot Week while the Mega Jackpot event is active, land on the Big Fish Portal and confirm the payout includes the Mega Jackpot boost messaging.  
+
 **Date:** 2026-02-06  
 **Slice:** Plan update — Bias Sanctuary visual story mode (scope expansion)  
 **Summary:**  
