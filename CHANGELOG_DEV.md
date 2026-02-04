@@ -5,6 +5,25 @@
 
 ## Unreleased
 
+**Date:** 2026-02-05  
+**Slice:** Config strategy follow-up (economy config extraction)  
+**Summary:**  
+- Centralized core economy tuning constants into a dedicated config module for shared reuse.  
+- Re-exported economy constants from the legacy constants module to keep existing imports stable.  
+- Documented completion of the economy config follow-up slice and advanced the next slice recommendation.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/config/economy.ts  
+- apps/investing-board-game-v3/src/lib/constants.ts  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Load the board and confirm rolls, rewards, and roll multipliers behave as before.  
+
 
 **Date:** 2026-02-05  
 **Slice:** Config strategy kickoff (ring config extraction)  
