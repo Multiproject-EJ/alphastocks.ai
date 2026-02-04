@@ -3,27 +3,7 @@
  * Implements periodic full reset of dice rolls (30 dice every 2 hours)
  */
 
-export const ENERGY_CONFIG = {
-  /** Maximum number of rolls that can be stored */
-  MAX_ROLLS: 50,
-  /** Number of rolls regenerated per reset (full reset amount) */
-  REGEN_RATE: 30,
-  /** Time in minutes between each reset (2 hours = 120 minutes) */
-  REGEN_INTERVAL_MINUTES: 120,
-  /** Bonus rolls awarded daily (separate from energy system) */
-  DAILY_BONUS: 10,
-  /** Reset amount - 30 dice every 2 hours */
-  RESET_AMOUNT: 30
-}
-
-export const VAULT_REGEN_BONUS_CONFIG = {
-  /** Every N vault levels earned adds bonus rolls to each reset */
-  LEVEL_STEP: 3,
-  /** Bonus rolls per level step */
-  BONUS_PER_STEP: 2,
-  /** Maximum bonus rolls allowed */
-  MAX_BONUS: 10,
-}
+import { ENERGY_CONFIG, VAULT_REGEN_BONUS_CONFIG } from './economyConfig'
 
 export function getVaultRegenBonusRolls(vaultLevel: number): number {
   const safeLevel = Math.max(1, Math.floor(vaultLevel))
