@@ -235,6 +235,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P2.5** ✅ HUD button click sound feedback
 - **P2.6** ✅ More case studies
 - **P2.7** ✅ Bias Sanctuary visual story mode (scrollable webtoon + audio)
+- **P2.8** ✅ Bias Sanctuary ambient audio cues
 
 ### P4 — Seasonal & Holiday Events
 - **P4.1** ✅ Holiday event schedule fixtures
@@ -269,7 +270,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **TBD — choose the next master-plan slice after P2.7 completion.**
+**Recommended next slice:** **TBD — choose the next master-plan slice after P2.8 completion.**
 
 ## P2.7 Scope Notes (Bias Sanctuary visual story mode)
 ### Story structure & content
@@ -649,6 +650,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Added scrollable story mode panels to Bias Sanctuary case studies with hook → tension → decision → consequence → reflection beats.
 - Included per-panel mood treatments, decision callouts, and audio cue metadata with a mute toggle tied to existing sound settings.
 - Added a takeaway badge step and resume/skip controls before the quiz so players can move between story and quiz smoothly.
+
+## P2.8 Slice Notes (Bias Sanctuary ambient audio cues)
+- Added story-level ambient audio cues that play once when entering story mode and reset between sessions.
+- Surfaced ambient audio captions in the story header so players know the background tone they’re hearing.
+- Applied ambient audio metadata to the bias story fixtures for consistent fallback behavior.
 
 ## P1 Elite Stock Special Behaviors Slice Notes
 - Added an elite stock purchase bonus that awards extra stars and XP based on composite score with live economy multipliers.

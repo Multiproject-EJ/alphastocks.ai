@@ -710,6 +710,10 @@ const DEFAULT_BIAS_STORY_ASSETS = {
   basePath: '',
   media: {},
 }
+const DEFAULT_BIAS_STORY_AMBIENT = {
+  sound: 'tile-land' as const,
+  caption: 'Soft market floor ambience.',
+}
 
 export const BIAS_CASE_STUDIES: BiasCaseStudy[] = [
   {
@@ -728,6 +732,7 @@ export const BIAS_CASE_STUDIES: BiasCaseStudy[] = [
       badgeLabel: 'Insight Captured',
       takeaway: 'Seek disconfirming evidence before reinforcing a thesis.',
       assetManifest: DEFAULT_BIAS_STORY_ASSETS,
+      ambientAudio: DEFAULT_BIAS_STORY_AMBIENT,
       panels: [
         {
           id: '1-1',
@@ -807,6 +812,7 @@ export const BIAS_CASE_STUDIES: BiasCaseStudy[] = [
       badgeLabel: 'Anchor Lifted',
       takeaway: 'Anchor on fundamentals, not a past price.',
       assetManifest: DEFAULT_BIAS_STORY_ASSETS,
+      ambientAudio: DEFAULT_BIAS_STORY_AMBIENT,
       panels: [
         {
           id: '2-1',
@@ -886,6 +892,7 @@ export const BIAS_CASE_STUDIES: BiasCaseStudy[] = [
       badgeLabel: 'Cycle Awareness',
       takeaway: 'Zoom out before you scale up.',
       assetManifest: DEFAULT_BIAS_STORY_ASSETS,
+      ambientAudio: DEFAULT_BIAS_STORY_AMBIENT,
       panels: [
         {
           id: '3-1',
@@ -965,6 +972,7 @@ export const BIAS_CASE_STUDIES: BiasCaseStudy[] = [
       badgeLabel: 'Courage Gained',
       takeaway: 'Let rules, not pain, decide the exit.',
       assetManifest: DEFAULT_BIAS_STORY_ASSETS,
+      ambientAudio: DEFAULT_BIAS_STORY_AMBIENT,
       panels: [
         {
           id: '4-1',
@@ -1043,6 +1051,7 @@ export const BIAS_CASE_STUDIES: BiasCaseStudy[] = [
       badgeLabel: 'Independent Lens',
       takeaway: 'Pause the hype long enough to verify the fundamentals.',
       assetManifest: DEFAULT_BIAS_STORY_ASSETS,
+      ambientAudio: DEFAULT_BIAS_STORY_AMBIENT,
       panels: [
         {
           id: '5-1',
@@ -1122,6 +1131,7 @@ export const BIAS_CASE_STUDIES: BiasCaseStudy[] = [
       badgeLabel: 'Humility Restored',
       takeaway: 'Treat every win as data, not proof of destiny.',
       assetManifest: DEFAULT_BIAS_STORY_ASSETS,
+      ambientAudio: DEFAULT_BIAS_STORY_AMBIENT,
       panels: [
         {
           id: '6-1',
