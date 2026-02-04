@@ -2516,6 +2516,52 @@ function App() {
     }
   }, [gameState.currentRing])
 
+  type RingHistoryReason = 'start' | 'move' | 'portal' | 'jump' | 'reset'
+
+  const buildRingHistoryUpdate = useCallback((
+    prev: GameState,
+    nextRing: RingNumber,
+    reason: RingHistoryReason,
+  ) => {
+    if (prev.currentRing === nextRing) {
+      return prev.stats
+    }
+
+    const timestamp = new Date().toISOString()
+    const ringVisitCounts = prev.stats.ringVisitCounts ?? {
+      ring1: prev.currentRing === 1 ? 1 : 0,
+      ring2: prev.currentRing === 2 ? 1 : 0,
+      ring3: prev.currentRing === 3 ? 1 : 0,
+    }
+    const ringKey = nextRing === 1 ? 'ring1' : nextRing === 2 ? 'ring2' : 'ring3'
+    const nextVisitCounts = {
+      ...ringVisitCounts,
+      [ringKey]: ringVisitCounts[ringKey] + 1,
+    }
+    const ringHistory = [
+      ...(prev.stats.ringHistory ?? [
+        {
+          ring: prev.currentRing,
+          at: prev.stats.lastRingVisitedAt ?? timestamp,
+          reason: 'start' as const,
+        },
+      ]),
+      {
+        ring: nextRing,
+        at: timestamp,
+        reason,
+      },
+    ].slice(-50)
+
+    return {
+      ...prev.stats,
+      ringVisitCounts: nextVisitCounts,
+      ringHistory,
+      lastRingVisited: nextRing,
+      lastRingVisitedAt: timestamp,
+    }
+  }, [])
+
   const handleRoll = (multiplier: number = 1) => {
     if (phase !== 'idle') {
       debugGame('Cannot roll - phase is not idle:', { phase, currentPosition: gameState.position })
@@ -3309,52 +3355,6 @@ function App() {
   }
 
   const getDateKey = (date: Date) => date.toISOString().split('T')[0]
-
-  type RingHistoryReason = 'start' | 'move' | 'portal' | 'jump' | 'reset'
-
-  const buildRingHistoryUpdate = useCallback((
-    prev: GameState,
-    nextRing: RingNumber,
-    reason: RingHistoryReason,
-  ) => {
-    if (prev.currentRing === nextRing) {
-      return prev.stats
-    }
-
-    const timestamp = new Date().toISOString()
-    const ringVisitCounts = prev.stats.ringVisitCounts ?? {
-      ring1: prev.currentRing === 1 ? 1 : 0,
-      ring2: prev.currentRing === 2 ? 1 : 0,
-      ring3: prev.currentRing === 3 ? 1 : 0,
-    }
-    const ringKey = nextRing === 1 ? 'ring1' : nextRing === 2 ? 'ring2' : 'ring3'
-    const nextVisitCounts = {
-      ...ringVisitCounts,
-      [ringKey]: ringVisitCounts[ringKey] + 1,
-    }
-    const ringHistory = [
-      ...(prev.stats.ringHistory ?? [
-        {
-          ring: prev.currentRing,
-          at: prev.stats.lastRingVisitedAt ?? timestamp,
-          reason: 'start' as const,
-        },
-      ]),
-      {
-        ring: nextRing,
-        at: timestamp,
-        reason,
-      },
-    ].slice(-50)
-
-    return {
-      ...prev.stats,
-      ringVisitCounts: nextVisitCounts,
-      ringHistory,
-      lastRingVisited: nextRing,
-      lastRingVisitedAt: timestamp,
-    }
-  }, [])
 
   const getDailyStreakUpdate = (
     lastDate: string | null | undefined,
