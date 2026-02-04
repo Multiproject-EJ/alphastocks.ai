@@ -252,3 +252,11 @@ export const LEARNING_QUESTION_BANK: Record<string, LearningModule> = {
     ],
   },
 }
+
+export const LEARNING_REWARD_CONFIG = {
+  baseStars: 2,
+  baseXp: 6,
+  streakBonusStars: 1,
+  streakBonusXp: 2,
+  maxStreakBonusDays: 3,
+}

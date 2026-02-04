@@ -263,7 +263,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **M4.3 Rewards + streak system.**
+**Recommended next slice:** **M4.4 Graphic templates + animations.**
 
 ## Right Now Calendar Polish Slice Notes (Completed ✅)
 - Expanded the Right Now calendar to surface upcoming mini-game windows alongside event scheduling.
@@ -332,9 +332,9 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Connected learning tiles to the seed bank by surfacing question counts in the learning toast for quick context.
 
 ## M4.3 Slice Notes (Rewards + streak system)
-- Added learning tile rewards (stars + XP) with streak bonuses and ring/star multipliers for mobile-first feedback.
-- Tracked daily learning streaks and persisted last-learning dates in the game stats for deterministic streak continuity.
-- Updated Case Study quiz completion to increment quiz stats and daily quiz streak metadata for future achievement hooks.
+- Centralized learning reward tuning values (base payout and streak bonuses) into the shared learning config.
+- Added a learning reward helper that calculates streak bonuses and totals for micro-learning tiles.
+- Reused the shared daily streak helper for learning and quiz streak tracking so daily logic stays consistent.
 
 ## M4.4 Slice Notes (Graphic templates + animations)
 - Added category-specific learning tile templates with gradients, pattern overlays, and badge styling for clearer quiz identity cues.

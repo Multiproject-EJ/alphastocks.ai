@@ -5,6 +5,28 @@
 
 ## Unreleased
 
+**Date:** 2026-02-14  
+**Slice:** M4.3 (Rewards + streak system)  
+**Summary:**  
+- Centralized learning reward tuning values in the learning config so base and streak payouts are shared.  
+- Added a learning reward helper to calculate streak bonuses and totals for micro-learning tiles.  
+- Reused the shared daily streak helper for learning and quiz streak tracking.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/App.tsx  
+- apps/investing-board-game-v3/src/config/learning.ts  
+- apps/investing-board-game-v3/src/lib/learningRewards.ts  
+- apps/investing-board-game-v3/src/lib/streaks.ts  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Land on a learning tile on consecutive days and confirm the streak bonus scales while the daily streak count increments.  
+- (manual) Complete a Bias Quiz and confirm the daily quiz streak still increments.  
+
 **Date:** 2026-02-05  
 **Slice:** Config strategy follow-up (learning config exports)  
 **Summary:**  
