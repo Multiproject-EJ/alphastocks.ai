@@ -55,7 +55,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 - `AI_IMPLEMENTATION.md`, `IMPLEMENTATION_SUMMARY.md`, `DEVLOG.md` (project-wide status/context)
 
 ### Repo Map (paths verified)
-_Last reviewed: 2026-02-04 (Event window unification pass)_
+_Last reviewed: 2026-02-05 (Ring config centralization kickoff)_
 #### Frontend
 - **Legacy static pages entry:** `/index.html`, `/about.html`, `/faq.html`, `/monthly/`, `/weekly/`, `/superinvestor/`
 - **Vite + Preact app:** `/apps/investing-board-game-v3` (built into `/public/board-game-v3` via `npm run build:board-game-v3`)
@@ -263,7 +263,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **TBD (select next master-plan slice after Right Now calendar polish).**
+**Recommended next slice:** **Config strategy kickoff: centralize ring config exports.**
 
 ## Right Now Calendar Polish Slice Notes (Completed ✅)
 - Expanded the Right Now calendar to surface upcoming mini-game windows alongside event scheduling.
@@ -274,6 +274,10 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Added a shared economy window status pill so HUD and phone dice controls display the same countdown + bonus info.
 - Surfaced active economy windows in overlay mode with a fixed banner, keeping window bonuses visible while modals are open.
 - Centralized economy window timer formatting to keep countdowns consistent across HUD and overlay surfaces.
+
+## Config Strategy Kickoff Slice Notes (Completed ✅)
+- Moved ring configuration, Ring 3 settings, and portal configuration into a dedicated config module to kick off the central config strategy.
+- Kept existing imports stable by re-exporting the ring config from `mockData` while the broader config migration remains phased.
 
 ## Event Window Unification Slice Notes (Completed ✅)
 - Added a shared window-scheduling helper so recurring events and mini-games use the same timing logic.

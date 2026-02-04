@@ -6,6 +6,25 @@
 ## Unreleased
 
 
+**Date:** 2026-02-05  
+**Slice:** Config strategy kickoff (ring config extraction)  
+**Summary:**  
+- Moved ring configuration, Ring 3 settings, and portal settings into a dedicated config module.  
+- Re-exported ring config from `mockData` so existing imports remain stable during the config migration.  
+- Documented completion of the config strategy kickoff slice.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/config/rings.ts  
+- apps/investing-board-game-v3/src/lib/mockData.ts  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Load the board and confirm ring transitions, portal behavior, and ring labels still match prior behavior.  
+
 **Date:** 2026-02-04  
 **Slice:** Right Now calendar polish (upcoming events + mini-games roster)  
 **Summary:**  
