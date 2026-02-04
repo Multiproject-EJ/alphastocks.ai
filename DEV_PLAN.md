@@ -55,7 +55,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 - `AI_IMPLEMENTATION.md`, `IMPLEMENTATION_SUMMARY.md`, `DEVLOG.md` (project-wide status/context)
 
 ### Repo Map (paths verified)
-_Last reviewed: 2026-02-04 (Master plan mini-game status sync)_
+_Last reviewed: 2026-02-06 (Case study expansion slice)_
 #### Frontend
 - **Legacy static pages entry:** `/index.html`, `/about.html`, `/faq.html`, `/monthly/`, `/weekly/`, `/superinvestor/`
 - **Vite + Preact app:** `/apps/investing-board-game-v3` (built into `/public/board-game-v3` via `npm run build:board-game-v3`)
@@ -233,6 +233,8 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P2.3** ✅ Advanced portfolio analytics
 - **P2.4** ✅ Event system audit (limited-time windows)
 - **P2.5** ✅ HUD button click sound feedback
+- **P2.6** ✅ More case studies
+- **P2.7** 🔜 Bias Sanctuary visual story mode (scrollable webtoon + audio)
 
 ### P4 — Seasonal & Holiday Events
 - **P4.1** ✅ Holiday event schedule fixtures
@@ -267,7 +269,13 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **TBD (select next slice from the master plan backlog).**
+**Recommended next slice:** **P2.7 Bias Sanctuary visual story mode (scrollable webtoon + audio).**
+
+## P2.7 Scope Notes (Bias Sanctuary visual story mode)
+- Add a visual story mode to each case study with a scrollable, panel-based “webtoon” layout that pairs text, imagery, and emotional beats.
+- Support optional background media per story (video clip or illustrated panels), with graceful fallbacks when assets are unavailable.
+- Include lightweight ambient audio cues (per-story or per-panel) with mute controls aligned to existing audio settings.
+- Keep the story mode mobile-first, with swipe-friendly navigation and clear progression indicators.
 
 ## Right Now Calendar Polish Slice Notes (Completed ✅)
 - Expanded the Right Now calendar to surface upcoming mini-game windows alongside event scheduling.
@@ -610,6 +618,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ## P2.5 Slice Notes (Sound effects pass — HUD button feedback)
 - Added soft button-click audio feedback for Compact HUD controls (background toggle, settings, stocks, expand/collapse).
 - Ensured the mute toggle plays a click when unmuting without firing audio when muting.
+
+## P2.6 Slice Notes (More case studies)
+- Expanded the bias case study catalog with new scenarios on loss aversion, herding, and overconfidence.
+- Added quiz prompts to reinforce the new case studies inside the Bias Sanctuary flow.
+- Kept case study content mobile-friendly with concise scenarios and focused explanations.
 
 ## P1 Elite Stock Special Behaviors Slice Notes
 - Added an elite stock purchase bonus that awards extra stars and XP based on composite score with live economy multipliers.
