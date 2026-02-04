@@ -706,6 +706,11 @@ export function getRandomMarketEvent(): string {
   return MARKET_EVENTS[Math.floor(Math.random() * MARKET_EVENTS.length)]
 }
 
+const DEFAULT_BIAS_STORY_ASSETS = {
+  basePath: '',
+  media: {},
+}
+
 export const BIAS_CASE_STUDIES: BiasCaseStudy[] = [
   {
     id: '1',
@@ -719,6 +724,46 @@ export const BIAS_CASE_STUDIES: BiasCaseStudy[] = [
       'Successful investors actively seek disconfirming evidence and challenge their own investment theses.',
       'Professional analysts use devil\'s advocate approaches and pre-mortems to combat this bias.',
     ],
+    story: {
+      badgeLabel: 'Insight Captured',
+      takeaway: 'Seek disconfirming evidence before reinforcing a thesis.',
+      assetManifest: DEFAULT_BIAS_STORY_ASSETS,
+      panels: [
+        {
+          id: '1-1',
+          title: 'Hook',
+          text: 'Sarah scrolls through glowing TechCorp headlines, feeling her conviction grow with every bullish quote.',
+          mood: 'warm',
+          audioCue: { sound: 'button-click', caption: 'Soft newsroom hum.' },
+        },
+        {
+          id: '1-2',
+          title: 'Tension',
+          text: 'A surprise earnings miss lands, but she flips past it to find a fresh analyst upgrade.',
+          mood: 'cool',
+          decisionCue: 'She dismisses the red flags as noise.',
+          audioCue: { sound: 'swipe-no', caption: 'Muted warning tone.' },
+        },
+        {
+          id: '1-3',
+          title: 'Decision',
+          text: 'She doubles her position, convinced the market is overreacting.',
+          mood: 'warm',
+        },
+        {
+          id: '1-4',
+          title: 'Consequence',
+          text: 'The stock slides again as more issues surface, catching her off guard.',
+          mood: 'cool',
+        },
+        {
+          id: '1-5',
+          title: 'Reflection',
+          text: 'The real lesson: search for evidence that challenges your thesis, not just the headlines that confirm it.',
+          mood: 'neutral',
+        },
+      ],
+    },
     quiz: [
       {
         id: 'q1',
@@ -758,6 +803,46 @@ export const BIAS_CASE_STUDIES: BiasCaseStudy[] = [
       'The market doesn\'t care what price you paid - each day is a new decision about whether to hold.',
       'Professional investors evaluate positions based on forward prospects, not past prices.',
     ],
+    story: {
+      badgeLabel: 'Anchor Lifted',
+      takeaway: 'Anchor on fundamentals, not a past price.',
+      assetManifest: DEFAULT_BIAS_STORY_ASSETS,
+      panels: [
+        {
+          id: '2-1',
+          title: 'Hook',
+          text: 'Mike watches RetailCo bounce between $60 and $70, fixated on the $100 he paid.',
+          mood: 'neutral',
+          audioCue: { sound: 'button-click', caption: 'Soft ticker chatter.' },
+        },
+        {
+          id: '2-2',
+          title: 'Tension',
+          text: 'Each dip feels temporary in his mind, even as the fundamentals weaken.',
+          mood: 'cool',
+          decisionCue: 'He delays action while waiting to break even.',
+        },
+        {
+          id: '2-3',
+          title: 'Decision',
+          text: 'He ignores the fresh guidance cut because it conflicts with his anchored price.',
+          mood: 'cool',
+          audioCue: { sound: 'swipe-no', caption: 'Subtle warning pulse.' },
+        },
+        {
+          id: '2-4',
+          title: 'Consequence',
+          text: 'The stock grinds lower, and his decision window narrows.',
+          mood: 'neutral',
+        },
+        {
+          id: '2-5',
+          title: 'Reflection',
+          text: 'A new day means a new decision: evaluate the business, not the entry price.',
+          mood: 'warm',
+        },
+      ],
+    },
     quiz: [
       {
         id: 'q1',
@@ -797,6 +882,46 @@ export const BIAS_CASE_STUDIES: BiasCaseStudy[] = [
       'Markets are cyclical, but recency bias makes recent trends feel permanent.',
       'Successful investors study history and understand that market conditions always change.',
     ],
+    story: {
+      badgeLabel: 'Cycle Awareness',
+      takeaway: 'Zoom out before you scale up.',
+      assetManifest: DEFAULT_BIAS_STORY_ASSETS,
+      panels: [
+        {
+          id: '3-1',
+          title: 'Hook',
+          text: 'Jennifer celebrates three straight years of gains, assuming the rally is permanent.',
+          mood: 'warm',
+          audioCue: { sound: 'celebration', caption: 'Faint celebration swell.' },
+        },
+        {
+          id: '3-2',
+          title: 'Tension',
+          text: 'Historical charts feel irrelevant while the latest headlines promise more upside.',
+          mood: 'neutral',
+          decisionCue: 'She pushes her portfolio to 100% equities.',
+        },
+        {
+          id: '3-3',
+          title: 'Decision',
+          text: 'She sidelines her risk plan because the recent past feels like destiny.',
+          mood: 'cool',
+          audioCue: { sound: 'swipe-no', caption: 'Soft caution chime.' },
+        },
+        {
+          id: '3-4',
+          title: 'Consequence',
+          text: 'A sharp correction hits, and she realizes she ignored the cycle.',
+          mood: 'cool',
+        },
+        {
+          id: '3-5',
+          title: 'Reflection',
+          text: 'Market cycles repeat. Staying balanced beats chasing the latest streak.',
+          mood: 'neutral',
+        },
+      ],
+    },
     quiz: [
       {
         id: 'q1',
@@ -836,6 +961,45 @@ export const BIAS_CASE_STUDIES: BiasCaseStudy[] = [
       'It can also cause premature selling of winners to "lock in" small gains.',
       'A disciplined plan with predefined exit rules helps counter emotional decisions.',
     ],
+    story: {
+      badgeLabel: 'Courage Gained',
+      takeaway: 'Let rules, not pain, decide the exit.',
+      assetManifest: DEFAULT_BIAS_STORY_ASSETS,
+      panels: [
+        {
+          id: '4-1',
+          title: 'Hook',
+          text: 'Andre watches his logistics stock slide and feels the sting of every red candle.',
+          mood: 'cool',
+          audioCue: { sound: 'swipe-no', caption: 'Low warning pulse.' },
+        },
+        {
+          id: '4-2',
+          title: 'Tension',
+          text: 'Selling feels like admitting defeat, so he stays frozen.',
+          mood: 'neutral',
+          decisionCue: 'He ignores his original exit plan.',
+        },
+        {
+          id: '4-3',
+          title: 'Decision',
+          text: 'He sells a steady winner early just to feel a win.',
+          mood: 'warm',
+        },
+        {
+          id: '4-4',
+          title: 'Consequence',
+          text: 'The loser keeps sliding while the winner keeps climbing without him.',
+          mood: 'cool',
+        },
+        {
+          id: '4-5',
+          title: 'Reflection',
+          text: 'Pre-committed exit rules keep emotions from hijacking decisions.',
+          mood: 'neutral',
+        },
+      ],
+    },
     quiz: [
       {
         id: 'q1',
@@ -875,6 +1039,46 @@ export const BIAS_CASE_STUDIES: BiasCaseStudy[] = [
       'Crowded trades can reverse quickly once sentiment shifts.',
       'Independent research and valuation help avoid buying purely on hype.',
     ],
+    story: {
+      badgeLabel: 'Independent Lens',
+      takeaway: 'Pause the hype long enough to verify the fundamentals.',
+      assetManifest: DEFAULT_BIAS_STORY_ASSETS,
+      panels: [
+        {
+          id: '5-1',
+          title: 'Hook',
+          text: 'Maya watches a fintech IPO double and feels the crowd’s excitement.',
+          mood: 'warm',
+          audioCue: { sound: 'celebration', caption: 'Faint crowd cheer.' },
+        },
+        {
+          id: '5-2',
+          title: 'Tension',
+          text: 'Her feed is full of rocket emojis and hot takes.',
+          mood: 'neutral',
+          decisionCue: 'She buys before reading the prospectus.',
+        },
+        {
+          id: '5-3',
+          title: 'Decision',
+          text: 'She leans on social proof instead of her own analysis.',
+          mood: 'cool',
+          audioCue: { sound: 'swipe-no', caption: 'Soft caution beat.' },
+        },
+        {
+          id: '5-4',
+          title: 'Consequence',
+          text: 'Lock-up expirations hit, insiders sell, and the stock dives.',
+          mood: 'cool',
+        },
+        {
+          id: '5-5',
+          title: 'Reflection',
+          text: 'Independent research is the antidote to crowded trades.',
+          mood: 'neutral',
+        },
+      ],
+    },
     quiz: [
       {
         id: 'q1',
@@ -914,6 +1118,46 @@ export const BIAS_CASE_STUDIES: BiasCaseStudy[] = [
       'Short-term wins can be random rather than evidence of repeatable skill.',
       'Maintaining risk limits and reviewing performance objectively can reduce this bias.',
     ],
+    story: {
+      badgeLabel: 'Humility Restored',
+      takeaway: 'Treat every win as data, not proof of destiny.',
+      assetManifest: DEFAULT_BIAS_STORY_ASSETS,
+      panels: [
+        {
+          id: '6-1',
+          title: 'Hook',
+          text: 'Luis strings together wins and feels unstoppable.',
+          mood: 'warm',
+          audioCue: { sound: 'celebration', caption: 'Gentle victory sting.' },
+        },
+        {
+          id: '6-2',
+          title: 'Tension',
+          text: 'He increases position sizes and abandons his stop-losses.',
+          mood: 'neutral',
+          decisionCue: 'He assumes skill instead of luck.',
+        },
+        {
+          id: '6-3',
+          title: 'Decision',
+          text: 'A sudden rotation hits, and his exposure is too large.',
+          mood: 'cool',
+          audioCue: { sound: 'swipe-no', caption: 'Soft caution chime.' },
+        },
+        {
+          id: '6-4',
+          title: 'Consequence',
+          text: 'Days of losses wipe out months of gains.',
+          mood: 'cool',
+        },
+        {
+          id: '6-5',
+          title: 'Reflection',
+          text: 'Track outcomes objectively and keep risk limits intact.',
+          mood: 'neutral',
+        },
+      ],
+    },
     quiz: [
       {
         id: 'q1',
