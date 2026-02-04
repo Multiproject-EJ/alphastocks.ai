@@ -6,6 +6,26 @@
 ## Unreleased
 
 **Date:** 2026-02-05  
+**Slice:** Config strategy follow-up (learning config exports)  
+**Summary:**  
+- Centralized learning tile metadata, category styles, and question bank content in a shared learning config module.  
+- Re-exported learning config types/data from the legacy learning helpers to keep existing imports stable.  
+- Preserved learning tile and question lookup helpers while shifting the source of truth to config.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/config/learning.ts  
+- apps/investing-board-game-v3/src/lib/learningTiles.ts  
+- apps/investing-board-game-v3/src/lib/learningQuestionBank.ts  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Open a learning tile and confirm the quiz content and category styling still render as expected.  
+
+**Date:** 2026-02-05  
 **Slice:** Config strategy follow-up (shop vault config exports)  
 **Summary:**  
 - Centralized Shop 2.0 fixture data and XP tuning constants in a shared shop vault config module.  
