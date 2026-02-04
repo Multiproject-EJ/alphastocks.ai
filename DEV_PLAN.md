@@ -263,7 +263,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **Config strategy follow-up: centralize shop vault config exports.**
+**Recommended next slice:** **Config strategy follow-up: centralize learning config exports.**
 
 ## Right Now Calendar Polish Slice Notes (Completed ✅)
 - Expanded the Right Now calendar to surface upcoming mini-game windows alongside event scheduling.
@@ -282,6 +282,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ## Config Strategy Follow-up Slice Notes (Completed ✅)
 - Centralized economy tuning knobs (roll limits, regen, multipliers, and baseline rewards) into a shared config module.
 - Preserved existing imports by re-exporting economy constants from the legacy constants module while the config migration continues.
+
+## Config Strategy Follow-up Slice Notes (Shop vault config exports) (Completed ✅)
+- Moved Shop 2.0 fixture data and XP tuning constants into a shared shop vault config module.
+- Re-exported the shop vault fixture types/data from the legacy helper to keep existing imports stable.
+- Centralized shop vault XP tuning constants so purchase/level math reads from config.
 
 ## Event Window Unification Slice Notes (Completed ✅)
 - Added a shared window-scheduling helper so recurring events and mini-games use the same timing logic.
