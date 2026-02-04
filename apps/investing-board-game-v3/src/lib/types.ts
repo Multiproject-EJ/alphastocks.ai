@@ -1,3 +1,5 @@
+import { SoundType } from './sounds'
+
 export type TileType = 'corner' | 'category' | 'event' | 'learning' | 'mystery' | 'quick-reward' | 'special'
 
 export type TileCategory = 'turnarounds' | 'dividends' | 'growth' | 'moats' | 'value' | 'ipo' | 'meme' | 'crypto' | 'penny' | 'leverage' | 'options' | 'international' | 'elite'
@@ -330,6 +332,38 @@ export interface BiasQuizQuestion {
   explanation: string
 }
 
+export interface BiasStoryMedia {
+  type: 'image' | 'video'
+  src: string
+  alt: string
+}
+
+export interface BiasStoryAudioCue {
+  sound: SoundType
+  caption: string
+}
+
+export interface BiasStoryPanel {
+  id: string
+  title: string
+  text: string
+  mood?: 'warm' | 'cool' | 'neutral'
+  decisionCue?: string
+  mediaKey?: string
+  audioCue?: BiasStoryAudioCue
+}
+
+export interface BiasStory {
+  panels: BiasStoryPanel[]
+  takeaway: string
+  badgeLabel?: string
+  assetManifest?: {
+    basePath?: string
+    media: Record<string, BiasStoryMedia>
+  }
+  ambientAudio?: BiasStoryAudioCue
+}
+
 export interface BiasCaseStudy {
   id: string
   title: string
@@ -338,6 +372,7 @@ export interface BiasCaseStudy {
   scenario: string
   context: string[]
   quiz: BiasQuizQuestion[]
+  story?: BiasStory
 }
 
 export interface AIPlayer {

@@ -1940,3 +1940,22 @@
 
 **How to test:**  
 - (manual) Open the event calendar and confirm Alpha Day, Mega Jackpot, or Jackpot Week entries show a “Rare” badge in the selected-date and upcoming lists.  
+**Date:** 2026-02-06  
+**Slice:** P2.7 Bias Sanctuary visual story mode  
+**Summary:**  
+- Added scrollable story mode panels with takeaway and resume/skip controls to the Bias Sanctuary flow.  
+- Extended bias case study fixtures with story beats, mood treatments, and audio cue metadata plus a mute toggle.  
+- Logged the slice completion in the run-by-run plan.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/components/BiasSanctuaryModal.tsx  
+- apps/investing-board-game-v3/src/lib/mockData.ts  
+- apps/investing-board-game-v3/src/lib/types.ts  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Open Bias Sanctuary and confirm story mode panels, takeaway, and resume/skip controls appear before the quiz.  

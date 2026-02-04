@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Dialog,
@@ -16,9 +16,10 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible'
-import { Brain, CaretDown, CheckCircle, XCircle, Lightbulb } from '@phosphor-icons/react'
+import { Brain, CaretDown, CheckCircle, XCircle, Lightbulb, SpeakerSlash, SpeakerHigh } from '@phosphor-icons/react'
 import { BiasCaseStudy } from '@/lib/types'
 import { CelebrationEffect } from '@/components/CelebrationEffect'
+import { useSound } from '@/hooks/useSound'
 
 interface BiasSanctuaryModalProps {
   open: boolean
@@ -34,19 +35,42 @@ export function BiasSanctuaryModal({
   onComplete,
 }: BiasSanctuaryModalProps) {
   const dialogClass = useResponsiveDialogClass('large')
-  const [showCard, setShowCard] = useState(true)
+  const [mode, setMode] = useState<'intro' | 'story' | 'quiz' | 'complete'>('intro')
   const [contextExpanded, setContextExpanded] = useState<number[]>([])
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [selectedAnswers, setSelectedAnswers] = useState<Record<string, number>>({})
   const [showExplanation, setShowExplanation] = useState<Record<string, boolean>>({})
-  const [quizComplete, setQuizComplete] = useState(false)
+  const [storyIndex, setStoryIndex] = useState(0)
+  const [storyCompleted, setStoryCompleted] = useState(false)
   const [showCelebration, setShowCelebration] = useState(false)
+  const { play: playSound, muted, toggleMute } = useSound()
 
   if (!caseStudy) return null
 
   const currentQuestion = caseStudy.quiz[currentQuestionIndex]
   const totalQuestions = caseStudy.quiz.length
   const isLastQuestion = currentQuestionIndex === totalQuestions - 1
+  const story = caseStudy.story
+  const storyPanels = story?.panels ?? []
+  const hasStory = storyPanels.length > 0
+  const storyPanelCount = storyPanels.length
+  const isTakeawayPanel = storyIndex >= storyPanelCount
+  const resolvedStoryMedia = useMemo(() => {
+    if (!story?.assetManifest?.media) return {}
+    return story.assetManifest.media
+  }, [story])
+  const storyBasePath = story?.assetManifest?.basePath ?? ''
+
+  const currentStoryPanel = storyPanels[Math.min(storyIndex, Math.max(storyPanelCount - 1, 0))]
+  const currentMedia = currentStoryPanel?.mediaKey
+    ? resolvedStoryMedia[currentStoryPanel.mediaKey]
+    : undefined
+  const currentMediaSrc = currentMedia?.src ? `${storyBasePath}${currentMedia.src}` : undefined
+
+  useEffect(() => {
+    if (mode !== 'story' || !currentStoryPanel?.audioCue || muted) return
+    playSound(currentStoryPanel.audioCue.sound)
+  }, [currentStoryPanel, mode, muted, playSound])
 
   const handleAnswerSelect = (questionId: string, answerIndex: number) => {
     setSelectedAnswers((prev) => ({ ...prev, [questionId]: answerIndex }))
@@ -59,7 +83,7 @@ export function BiasSanctuaryModal({
       const correct = caseStudy.quiz.filter(
         (q) => selectedAnswers[q.id] === q.correctAnswer
       ).length
-      setQuizComplete(true)
+      setMode('complete')
       setShowCelebration(true)
       onComplete(correct, totalQuestions)
     } else {
@@ -68,12 +92,13 @@ export function BiasSanctuaryModal({
   }
 
   const handleRestart = () => {
-    setShowCard(true)
+    setMode('intro')
     setContextExpanded([])
     setCurrentQuestionIndex(0)
     setSelectedAnswers({})
     setShowExplanation({})
-    setQuizComplete(false)
+    setStoryIndex(0)
+    setStoryCompleted(false)
     setShowCelebration(false)
   }
 
@@ -86,6 +111,33 @@ export function BiasSanctuaryModal({
   const correctAnswers = caseStudy.quiz.filter(
     (q) => selectedAnswers[q.id] === q.correctAnswer
   ).length
+
+  const storyToneClass = currentStoryPanel?.mood === 'warm'
+    ? 'bg-amber-500/10 border-amber-500/30'
+    : currentStoryPanel?.mood === 'cool'
+    ? 'bg-sky-500/10 border-sky-500/30'
+    : 'bg-background/40 border-border'
+
+  const handleStartStory = () => {
+    setMode('story')
+  }
+
+  const handleSkipStory = () => {
+    setMode('quiz')
+  }
+
+  const handleStoryNext = () => {
+    if (isTakeawayPanel) {
+      setStoryCompleted(true)
+      setMode('quiz')
+    } else {
+      setStoryIndex((prev) => Math.min(prev + 1, storyPanelCount))
+    }
+  }
+
+  const handleStoryPrev = () => {
+    setStoryIndex((prev) => Math.max(prev - 1, 0))
+  }
 
   return (
     <Dialog
@@ -101,7 +153,7 @@ export function BiasSanctuaryModal({
       <CelebrationEffect show={showCelebration} onComplete={() => setShowCelebration(false)} />
       <DialogContent className={`${dialogClass} max-h-[85vh] overflow-y-auto bg-card border-2 border-accent/50 shadow-[0_0_60px_oklch(0.75_0.15_85_/_0.4)]`}>
         <AnimatePresence mode="wait">
-          {showCard ? (
+          {mode === 'intro' ? (
             <motion.div
               key="card"
               initial={{ scale: 0, rotate: 360, opacity: 0 }}
@@ -192,15 +244,180 @@ export function BiasSanctuaryModal({
                 </div>
               </Card>
 
-              <Button
-                onClick={() => setShowCard(false)}
-                className="w-full mt-4 bg-accent hover:bg-accent/90 text-accent-foreground"
-                size="lg"
-              >
-                Take the Quiz
-              </Button>
+              <div className="flex flex-col gap-3 mt-4">
+                {hasStory ? (
+                  <>
+                    <Button
+                      onClick={handleStartStory}
+                      className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
+                      size="lg"
+                    >
+                      Begin Story Mode
+                    </Button>
+                    <Button
+                      onClick={handleSkipStory}
+                      variant="outline"
+                      className="w-full"
+                    >
+                      Skip Story, Take the Quiz
+                    </Button>
+                  </>
+                ) : (
+                  <Button
+                    onClick={() => setMode('quiz')}
+                    className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
+                    size="lg"
+                  >
+                    Take the Quiz
+                  </Button>
+                )}
+              </div>
             </motion.div>
-          ) : quizComplete ? (
+          ) : mode === 'story' ? (
+            <motion.div
+              key="story"
+              initial={{ x: 30, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ duration: 0.3 }}
+            >
+              <DialogHeader>
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <DialogTitle className="text-xl font-bold text-accent">
+                      {caseStudy.title}
+                    </DialogTitle>
+                    <DialogDescription className="text-sm text-foreground/80">
+                      Scroll through the story beats before the quiz.
+                    </DialogDescription>
+                  </div>
+                  <Button
+                    onClick={toggleMute}
+                    variant="ghost"
+                    className="gap-2 text-xs text-muted-foreground hover:text-foreground"
+                  >
+                    {muted ? <SpeakerSlash size={16} /> : <SpeakerHigh size={16} />}
+                    {muted ? 'Audio muted' : 'Audio on'}
+                  </Button>
+                </div>
+              </DialogHeader>
+
+              <div className="mt-4 space-y-4">
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <span>
+                    {isTakeawayPanel
+                      ? 'Takeaway'
+                      : `Panel ${storyIndex + 1} of ${storyPanelCount}`}
+                  </span>
+                  <span className="uppercase tracking-wider">{caseStudy.biasType}</span>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  {storyPanels.map((panel, index) => (
+                    <span
+                      key={panel.id}
+                      className={`h-1 flex-1 rounded-full ${
+                        index <= storyIndex ? 'bg-accent' : 'bg-border'
+                      }`}
+                    />
+                  ))}
+                  <span className={`h-1 w-6 rounded-full ${isTakeawayPanel ? 'bg-accent' : 'bg-border'}`} />
+                </div>
+
+                <motion.div
+                  key={isTakeawayPanel ? 'takeaway' : currentStoryPanel?.id}
+                  drag={isTakeawayPanel ? false : 'x'}
+                  dragConstraints={{ left: 0, right: 0 }}
+                  onDragEnd={(_, info) => {
+                    if (isTakeawayPanel) return
+                    if (info.offset.x < -80) handleStoryNext()
+                    if (info.offset.x > 80) handleStoryPrev()
+                  }}
+                  className={`rounded-2xl border-2 p-4 ${storyToneClass}`}
+                >
+                  {isTakeawayPanel ? (
+                    <div className="text-center space-y-3">
+                      <div className="inline-flex items-center gap-2 rounded-full bg-accent/15 px-3 py-1 text-xs font-semibold text-accent">
+                        {story?.badgeLabel ?? 'Story Complete'}
+                      </div>
+                      <h3 className="text-lg font-semibold text-foreground">Takeaway</h3>
+                      <p className="text-sm text-muted-foreground">{story?.takeaway}</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <h3 className="text-lg font-semibold text-foreground">
+                            {currentStoryPanel?.title}
+                          </h3>
+                          {currentStoryPanel?.decisionCue && (
+                            <p className="text-xs font-semibold text-accent uppercase tracking-wider mt-1">
+                              Decision Moment: {currentStoryPanel.decisionCue}
+                            </p>
+                          )}
+                        </div>
+                        {currentStoryPanel?.audioCue && (
+                          <span className="text-[10px] text-muted-foreground">
+                            {currentStoryPanel.audioCue.caption}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex flex-col gap-3">
+                        {currentMediaSrc ? (
+                          currentMedia?.type === 'video' ? (
+                            <video
+                              className="w-full rounded-xl border border-border"
+                              muted
+                              playsInline
+                              controls
+                            >
+                              <source src={currentMediaSrc} />
+                            </video>
+                          ) : (
+                            <img
+                              src={currentMediaSrc}
+                              alt={currentMedia?.alt ?? 'Story panel'}
+                              className="w-full rounded-xl border border-border object-cover"
+                            />
+                          )
+                        ) : (
+                          <div className="w-full rounded-xl border border-border bg-background/60 p-4 text-center text-xs text-muted-foreground">
+                            Visual panel placeholder
+                          </div>
+                        )}
+                        <p className="text-sm text-foreground/90">{currentStoryPanel?.text}</p>
+                      </div>
+                    </div>
+                  )}
+                </motion.div>
+              </div>
+
+              <div className="flex flex-col gap-3 mt-4">
+                <div className="flex gap-3">
+                  <Button
+                    onClick={handleStoryPrev}
+                    variant="outline"
+                    className="flex-1"
+                    disabled={storyIndex === 0}
+                  >
+                    Previous
+                  </Button>
+                  <Button
+                    onClick={handleStoryNext}
+                    className="flex-1 bg-accent hover:bg-accent/90 text-accent-foreground"
+                  >
+                    {isTakeawayPanel ? 'Start Quiz' : storyIndex === storyPanelCount - 1 ? 'Takeaway' : 'Next'}
+                  </Button>
+                </div>
+                <Button
+                  onClick={handleSkipStory}
+                  variant="ghost"
+                  className="text-xs text-muted-foreground hover:text-foreground"
+                >
+                  Skip story for now
+                </Button>
+              </div>
+            </motion.div>
+          ) : mode === 'complete' ? (
             <motion.div
               key="complete"
               initial={{ scale: 0.9, opacity: 0 }}
@@ -338,8 +555,17 @@ export function BiasSanctuaryModal({
               </div>
 
               <div className="flex gap-3 mt-4">
+                {hasStory && !storyCompleted && (
+                  <Button
+                    onClick={() => setMode('story')}
+                    variant="outline"
+                    className="flex-1"
+                  >
+                    Resume Story
+                  </Button>
+                )}
                 <Button
-                  onClick={() => setShowCard(true)}
+                  onClick={() => setMode('intro')}
                   variant="outline"
                   className="flex-1"
                 >
