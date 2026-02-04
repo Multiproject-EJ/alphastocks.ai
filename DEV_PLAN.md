@@ -272,7 +272,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **TBD — choose the next master-plan slice after the price data strategy pass.**
+**Recommended next slice:** **TBD — choose the next master-plan slice after the master plan schedule status sync.**
 
 ## P2.7 Scope Notes (Bias Sanctuary visual story mode)
 ### Story structure & content
@@ -693,6 +693,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Synced the master plan status table with completed systems so the master doc reflects recent slices.
 - Cleared stale in-progress/planned entries that are now tracked in `DEV_PLAN.md`.
 - Kept the master plan focused on system status while leaving slice sequencing to the run-by-run plan.
+
+## Master Plan Event Schedule Status Sync Slice Notes (Completed ✅)
+- Updated the master plan event schedule table to mark Happy Hour Wheel and Stock Rush as shipped.
+- Marked special-event entries (Vault Heist, Mega Jackpot, Market Mayhem, Holiday Events) as implemented in the master plan.
+- Reframed the old upcoming PR list as completed work so the master plan no longer advertises shipped features as planned.
 
 ## M0.4 Slice Notes (Lazy-load Portfolio charts)
 - Lazy-loaded the Portfolio modal so chart dependencies no longer block initial app startup.

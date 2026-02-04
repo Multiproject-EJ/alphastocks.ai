@@ -6,6 +6,25 @@
 ## Unreleased
 
 - Updated the master plan Priority Roadmap checklist to reflect completed systems so the canonical roadmap matches shipped features.
+- Marked master plan event schedules and formerly planned PRs as completed so the canonical roadmap reflects shipped mini-games.
+
+**Date:** 2026-02-08  
+**Slice:** Master plan event schedule status sync  
+**Summary:**  
+- Updated the master plan schedule tables to mark Happy Hour Wheel, Stock Rush, Vault Heist, Mega Jackpot, Market Mayhem, and Holiday Events as shipped.  
+- Reframed the legacy upcoming PR list in the master plan as completed work.  
+- Logged the slice completion in the run-by-run plan.  
+
+**Files changed:**  
+- docs/DEV_PLAN_MARKETTYCOON_MASTER.md  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Review the master plan schedule tables to confirm shipped mini-games are marked as completed.  
 
 **Date:** 2026-02-07  
 **Slice:** P4.3 Mega Jackpot boost  
