@@ -617,6 +617,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Expanded Chance Card outcomes with randomized executive perks alongside the jackpot lift to the Wealth Run for richer mid-ring stakes.
 - Updated Chance Card copy to reflect the broader outcome mix and chance-lift narrative.
 
+## Master Plan Status Sync Slice Notes (Completed ✅)
+- Synced the master plan status table with completed systems so the master doc reflects recent slices.
+- Cleared stale in-progress/planned entries that are now tracked in `DEV_PLAN.md`.
+- Kept the master plan focused on system status while leaving slice sequencing to the run-by-run plan.
+
 ## M0.4 Slice Notes (Lazy-load Portfolio charts)
 - Lazy-loaded the Portfolio modal so chart dependencies no longer block initial app startup.
 
