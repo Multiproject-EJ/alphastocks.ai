@@ -1299,6 +1299,7 @@ function App() {
     getActiveMultipliers,
     hasGuaranteedCasinoWin,
     getRollsBonus,
+    getCustomEffects,
   } = useEvents({ playSound })
 
   const { activeMiniGames, upcomingMiniGames } = useMiniGames()
@@ -1317,6 +1318,8 @@ function App() {
 
     return { discount: topDiscount, event: topEvent }
   }, [activeEvents])
+
+  const customEventEffects = useMemo(() => new Set(getCustomEffects()), [getCustomEffects])
 
   const handleVaultPurchase = useCallback(
     (item: VaultItemSummary) => purchaseVaultItem(item, shopWindow.discount),
@@ -3768,9 +3771,11 @@ function App() {
         if (position === 0) {
           const isJackpotWeekNow = isJackpotWeek()
           const currentJackpot = gameState.jackpot ?? 0
+          const hasMegaJackpotBoost = customEventEffects.has('mega_jackpot')
+          const megaJackpotMultiplier = hasMegaJackpotBoost ? 1.5 : 1
 
           if (isJackpotWeekNow && currentJackpot > 0) {
-            const jackpotWin = currentJackpot * rewardMultiplier
+            const jackpotWin = currentJackpot * rewardMultiplier * megaJackpotMultiplier
             setGameState(prev => ({
               ...prev,
               cash: prev.cash + jackpotWin,
@@ -3798,7 +3803,7 @@ function App() {
             }, 5000)
 
             toast.success(`🎰 JACKPOT WIN!`, {
-              description: `You landed on Big Fish Portal during Jackpot Week! +$${jackpotWin.toLocaleString()}${rewardMultiplier > 1 ? ` (${rewardMultiplier}x)` : ''}`,
+              description: `You landed on Big Fish Portal during Jackpot Week! +$${jackpotWin.toLocaleString()}${rewardMultiplier > 1 ? ` (${rewardMultiplier}x)` : ''}${hasMegaJackpotBoost ? ' (Mega Jackpot Boost)' : ''}`,
             })
           } else if (isJackpotWeekNow) {
             toast.info('🎰 Jackpot Week!', {

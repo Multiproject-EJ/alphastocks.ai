@@ -55,7 +55,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 - `AI_IMPLEMENTATION.md`, `IMPLEMENTATION_SUMMARY.md`, `DEVLOG.md` (project-wide status/context)
 
 ### Repo Map (paths verified)
-_Last reviewed: 2026-02-06 (Case study expansion slice)_
+_Last reviewed: 2026-02-07 (Mega Jackpot boost slice)_
 #### Frontend
 - **Legacy static pages entry:** `/index.html`, `/about.html`, `/faq.html`, `/monthly/`, `/weekly/`, `/superinvestor/`
 - **Vite + Preact app:** `/apps/investing-board-game-v3` (built into `/public/board-game-v3` via `npm run build:board-game-v3`)
@@ -240,6 +240,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 ### P4 — Seasonal & Holiday Events
 - **P4.1** ✅ Holiday event schedule fixtures
 - **P4.2** ✅ Rare event calendar callouts
+- **P4.3** ✅ Mega Jackpot boost (Jackpot Week payout bonus)
 
 ---
 
@@ -270,7 +271,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **TBD — choose the next master-plan slice after P2.8 completion.**
+**Recommended next slice:** **TBD — choose the next master-plan slice after the Mega Jackpot boost pass.**
 
 ## P2.7 Scope Notes (Bias Sanctuary visual story mode)
 ### Story structure & content
@@ -599,6 +600,10 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ## P4.2 Slice Notes (Rare event calendar callouts)
 - Added a rare-event badge to highlight Alpha Day, Mega Jackpot, and Jackpot Week in the event calendar.
 - Kept the calendar layout mobile-first while adding lightweight rarity cues in the selected-date and upcoming lists.
+
+## P4.3 Slice Notes (Mega Jackpot boost)
+- Applied a Mega Jackpot event boost so Jackpot Week payouts get a bonus multiplier when the monthly Mega Jackpot window is live.
+- Updated Jackpot Week win messaging to acknowledge the Mega Jackpot boost when active.
 
 ## P3 Slice Notes (Stock category audit + config hooks)
 - Added a shared stock category catalog with tiering and palette metadata to prep for expansion categories like international equities.
