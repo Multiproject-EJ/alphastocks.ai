@@ -6,6 +6,26 @@
 ## Unreleased
 
 **Date:** 2026-02-14  
+**Slice:** M4.4 (Graphic templates + animations)  
+**Summary:**  
+- Added learning tile graphic template presets with shimmer, sparkle, and orbit layers for richer quiz tile visuals.  
+- Wired learning tile definitions to select templates so category quizzes stay visually distinct and consistent.  
+- Expanded the learning tile animation stack with shimmer/orbit motion while keeping the layout mobile-first.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/components/Tile.tsx  
+- apps/investing-board-game-v3/src/config/learning.ts  
+- apps/investing-board-game-v3/src/lib/learningTiles.ts  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Load the board and confirm learning tiles show the new shimmer/orbit visuals and distinct templates per quiz type.  
+
+**Date:** 2026-02-14  
 **Slice:** M4.3 (Rewards + streak system)  
 **Summary:**  
 - Centralized learning reward tuning values in the learning config so base and streak payouts are shared.  
