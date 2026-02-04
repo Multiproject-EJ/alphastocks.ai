@@ -43,6 +43,7 @@ export function BiasSanctuaryModal({
   const [storyIndex, setStoryIndex] = useState(0)
   const [storyCompleted, setStoryCompleted] = useState(false)
   const [showCelebration, setShowCelebration] = useState(false)
+  const [ambientPlayed, setAmbientPlayed] = useState(false)
   const { play: playSound, muted, toggleMute } = useSound()
 
   if (!caseStudy) return null
@@ -60,6 +61,7 @@ export function BiasSanctuaryModal({
     return story.assetManifest.media
   }, [story])
   const storyBasePath = story?.assetManifest?.basePath ?? ''
+  const storyAmbientAudio = story?.ambientAudio
 
   const currentStoryPanel = storyPanels[Math.min(storyIndex, Math.max(storyPanelCount - 1, 0))]
   const currentMedia = currentStoryPanel?.mediaKey
@@ -71,6 +73,16 @@ export function BiasSanctuaryModal({
     if (mode !== 'story' || !currentStoryPanel?.audioCue || muted) return
     playSound(currentStoryPanel.audioCue.sound)
   }, [currentStoryPanel, mode, muted, playSound])
+
+  useEffect(() => {
+    if (mode !== 'story') {
+      if (ambientPlayed) setAmbientPlayed(false)
+      return
+    }
+    if (!storyAmbientAudio || muted || ambientPlayed) return
+    playSound(storyAmbientAudio.sound)
+    setAmbientPlayed(true)
+  }, [ambientPlayed, mode, muted, playSound, storyAmbientAudio])
 
   const handleAnswerSelect = (questionId: string, answerIndex: number) => {
     setSelectedAnswers((prev) => ({ ...prev, [questionId]: answerIndex }))
@@ -100,6 +112,7 @@ export function BiasSanctuaryModal({
     setStoryIndex(0)
     setStoryCompleted(false)
     setShowCelebration(false)
+    setAmbientPlayed(false)
   }
 
   const toggleContext = (index: number) => {
@@ -289,6 +302,11 @@ export function BiasSanctuaryModal({
                     <DialogDescription className="text-sm text-foreground/80">
                       Scroll through the story beats before the quiz.
                     </DialogDescription>
+                    {storyAmbientAudio?.caption && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Ambient: {storyAmbientAudio.caption}
+                      </p>
+                    )}
                   </div>
                   <Button
                     onClick={toggleMute}

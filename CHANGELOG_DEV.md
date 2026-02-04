@@ -1959,3 +1959,22 @@
 
 **How to test:**  
 - (manual) Open Bias Sanctuary and confirm story mode panels, takeaway, and resume/skip controls appear before the quiz.  
+
+**Date:** 2026-02-04  
+**Slice:** P2.8 Bias Sanctuary ambient audio cues  
+**Summary:**  
+- Added story-level ambient audio playback with captions in the Bias Sanctuary story header.  
+- Applied ambient audio metadata to bias story fixtures for consistent fallback behavior.  
+- Logged the slice completion in the run-by-run plan.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/components/BiasSanctuaryModal.tsx  
+- apps/investing-board-game-v3/src/lib/mockData.ts  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Open Bias Sanctuary, enter story mode, and confirm the ambient caption appears and the ambient cue plays once when the story starts.  
