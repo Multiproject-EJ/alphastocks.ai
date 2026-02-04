@@ -31,6 +31,7 @@ export function EventCalendar({
 }: EventCalendarProps) {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [currentMonth] = useState(new Date())
+  const rareEventIds = new Set(['mega-jackpot', 'jackpot-week'])
 
   // Get all days in current month
   const monthStart = startOfMonth(currentMonth)
@@ -52,6 +53,10 @@ export function EventCalendar({
   }
 
   const selectedEvents = selectedDate ? getEventsForDate(selectedDate) : []
+
+  const isRareEvent = (event: GameEvent): boolean => {
+    return event.title === 'Alpha Day' || rareEventIds.has(event.id)
+  }
 
   // Format countdown for upcoming events
   const getCountdown = (event: GameEvent) => {
@@ -176,11 +181,18 @@ export function EventCalendar({
                         <div className="font-semibold text-foreground">{event.title}</div>
                         <div className="text-xs text-muted-foreground">{event.description}</div>
                       </div>
-                      {activeEvents.includes(event) && (
-                        <Badge className="bg-accent/20 text-accent border-accent/30">
-                          Active
-                        </Badge>
-                      )}
+                      <div className="flex items-center gap-2">
+                        {activeEvents.includes(event) && (
+                          <Badge className="bg-accent/20 text-accent border-accent/30">
+                            Active
+                          </Badge>
+                        )}
+                        {isRareEvent(event) && (
+                          <Badge className="bg-amber-500/20 text-amber-200 border-amber-300/40">
+                            Rare
+                          </Badge>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -215,21 +227,28 @@ export function EventCalendar({
                           {event.description}
                         </p>
                         
-                        <div className="flex items-center gap-4 text-xs">
-                          <div className="text-muted-foreground">
-                            {format(event.startDate, 'MMM d, h:mm a')}
-                          </div>
-                          <div className="text-accent font-semibold">
-                            {getCountdown(event)}
-                          </div>
+                      <div className="flex items-center gap-4 text-xs">
+                        <div className="text-muted-foreground">
+                          {format(event.startDate, 'MMM d, h:mm a')}
+                        </div>
+                        <div className="text-accent font-semibold">
+                          {getCountdown(event)}
                         </div>
                       </div>
-                      
-                      {activeEvents.includes(event) && (
-                        <Badge className="bg-accent/20 text-accent border-accent/30">
-                          Active Now
-                        </Badge>
-                      )}
+                    </div>
+                    
+                      <div className="flex items-center gap-2">
+                        {activeEvents.includes(event) && (
+                          <Badge className="bg-accent/20 text-accent border-accent/30">
+                            Active Now
+                          </Badge>
+                        )}
+                        {isRareEvent(event) && (
+                          <Badge className="bg-amber-500/20 text-amber-200 border-amber-300/40">
+                            Rare
+                          </Badge>
+                        )}
+                      </div>
                     </div>
                   </motion.div>
                 ))}
