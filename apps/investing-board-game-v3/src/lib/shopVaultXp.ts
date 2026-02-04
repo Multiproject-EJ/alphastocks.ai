@@ -1,7 +1,9 @@
-const VAULT_PURCHASE_XP_MIN = 25
-const VAULT_PURCHASE_XP_RATE = 0.05
-const VAULT_LEVEL_BASE_XP = 1000
-const VAULT_LEVEL_STEP_XP = 250
+import {
+  VAULT_LEVEL_BASE_XP,
+  VAULT_LEVEL_STEP_XP,
+  VAULT_PURCHASE_XP_MIN,
+  VAULT_PURCHASE_XP_RATE,
+} from '@/config/shopVault'
 
 export const getVaultPurchaseXp = (price: number) => {
   return Math.max(VAULT_PURCHASE_XP_MIN, Math.ceil(price * VAULT_PURCHASE_XP_RATE))

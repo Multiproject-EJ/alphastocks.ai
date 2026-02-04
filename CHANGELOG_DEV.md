@@ -6,6 +6,27 @@
 ## Unreleased
 
 **Date:** 2026-02-05  
+**Slice:** Config strategy follow-up (shop vault config exports)  
+**Summary:**  
+- Centralized Shop 2.0 fixture data and XP tuning constants in a shared shop vault config module.  
+- Re-exported shop vault fixture types/data from the legacy fixtures helper to keep existing imports stable.  
+- Updated vault XP math to read tuning constants from the shared config.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/config/shopVault.ts  
+- apps/investing-board-game-v3/src/lib/shopVaultFixtures.ts  
+- apps/investing-board-game-v3/src/lib/shopVaultXp.ts  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Open Shop 2.0 vault overview and confirm fixture data still renders when Supabase is unavailable.  
+- (manual) Purchase a vault item and confirm XP progress still increments.  
+
+**Date:** 2026-02-05  
 **Slice:** Config strategy follow-up (economy config extraction)  
 **Summary:**  
 - Centralized core economy tuning constants into a dedicated config module for shared reuse.  
