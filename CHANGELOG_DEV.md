@@ -5,6 +5,8 @@
 
 ## Unreleased
 
+- Updated the master plan Priority Roadmap checklist to reflect completed systems so the canonical roadmap matches shipped features.
+
 **Date:** 2026-02-15  
 **Slice:** M2.7 (Alpha Day scheduler — deterministic timebase)  
 **Summary:**  
