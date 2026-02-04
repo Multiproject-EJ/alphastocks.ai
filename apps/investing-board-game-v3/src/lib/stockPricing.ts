@@ -19,6 +19,10 @@ type StockPriceInput = {
   seedIndex?: number
 }
 
+type StockUniversePriceInput = StockPriceInput & {
+  marketPrice?: number | string | null
+}
+
 function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value))
 }
@@ -51,6 +55,21 @@ function roundToCents(value: number): number {
   return Math.round(value * 100) / 100
 }
 
+function normalizeMarketPrice(value: number | string | null | undefined): number | null {
+  if (typeof value === 'number' && Number.isFinite(value) && value > 0) {
+    return roundToCents(value)
+  }
+
+  if (typeof value === 'string') {
+    const parsed = Number(value)
+    if (Number.isFinite(parsed) && parsed > 0) {
+      return roundToCents(parsed)
+    }
+  }
+
+  return null
+}
+
 export function resolveStockPrice({ ticker, compositeScore, seedIndex = 0 }: StockPriceInput): number {
   const symbol = ticker?.trim().toUpperCase() || 'UNIVERSE'
   const seed = hashString(`${symbol}-${seedIndex}`)
@@ -65,4 +84,18 @@ export function resolveStockPrice({ ticker, compositeScore, seedIndex = 0 }: Sto
 
   const fallback = lerp(FALLBACK_RANGE.min, FALLBACK_RANGE.max, random)
   return roundToCents(clamp(fallback, FALLBACK_RANGE.min, FALLBACK_RANGE.max))
+}
+
+export function resolveUniversePrice({
+  ticker,
+  compositeScore,
+  seedIndex = 0,
+  marketPrice,
+}: StockUniversePriceInput): number {
+  const normalizedMarketPrice = normalizeMarketPrice(marketPrice)
+  if (normalizedMarketPrice !== null) {
+    return normalizedMarketPrice
+  }
+
+  return resolveStockPrice({ ticker, compositeScore, seedIndex })
 }

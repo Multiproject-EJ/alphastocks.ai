@@ -55,7 +55,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 - `AI_IMPLEMENTATION.md`, `IMPLEMENTATION_SUMMARY.md`, `DEVLOG.md` (project-wide status/context)
 
 ### Repo Map (paths verified)
-_Last reviewed: 2026-02-07 (Mega Jackpot boost slice)_
+_Last reviewed: 2026-02-08 (Price data strategy slice)_
 #### Frontend
 - **Legacy static pages entry:** `/index.html`, `/about.html`, `/faq.html`, `/monthly/`, `/weekly/`, `/superinvestor/`
 - **Vite + Preact app:** `/apps/investing-board-game-v3` (built into `/public/board-game-v3` via `npm run build:board-game-v3`)
@@ -68,6 +68,7 @@ _Last reviewed: 2026-02-07 (Mega Jackpot boost slice)_
 - **Board renderer + tiles:** `src/App.tsx` (ring layout, tile positioning), `src/components/BoardViewport.tsx`, `src/components/Board3DViewport.tsx`, `src/components/Tile.tsx`
 - **Micro-learning tiles:** `src/lib/learningTiles.ts` (taxonomy definitions) + `src/lib/learningQuestionBank.ts` (seed question bank) + `src/components/Tile.tsx` (renderer)
 - **Stock category catalog:** `src/lib/stockCategories.ts` (labels, tiers, and palettes for core + expansion categories)
+- **Stock price strategy:** `src/lib/stockPricing.ts` + `src/hooks/useUniverseStocks.ts` (market price override with deterministic fallback)
 - **Stock tile modals:** `src/components/StockModal.tsx` via `src/lib/overlayRegistry.ts` and `src/hooks/useOverlayManager.ts`, triggered in `src/App.tsx` on category tile landings
 - **Wheel of Fortune rewards + daily spin caps:** `src/App.tsx` + `src/components/WheelOfFortuneModal.tsx`
 - **Shop 2.0 entry:** `src/components/Shop2Modal.tsx` (feature-flagged Shop 2.0 preview shell)
@@ -182,7 +183,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **M3.2** ✅ Portfolio readout panel
 - **M3.3** ✅ Stock tile buy action (paper trading)
 - **M3.4** ✅ Portfolio reward hooks (soft positive buffs)
-- **M3.5** Price data strategy (with fallback)
+- **M3.5** ✅ Price data strategy (with fallback)
 
 ### M4 — Micro‑Learning Tiles
 - **M4.1** ✅ Tile taxonomy + renderer
@@ -271,7 +272,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **TBD — choose the next master-plan slice after the Mega Jackpot boost pass.**
+**Recommended next slice:** **TBD — choose the next master-plan slice after the price data strategy pass.**
 
 ## P2.7 Scope Notes (Bias Sanctuary visual story mode)
 ### Story structure & content
@@ -604,6 +605,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ## P4.3 Slice Notes (Mega Jackpot boost)
 - Applied a Mega Jackpot event boost so Jackpot Week payouts get a bonus multiplier when the monthly Mega Jackpot window is live.
 - Updated Jackpot Week win messaging to acknowledge the Mega Jackpot boost when active.
+
+## M3.5 Slice Notes (Price data strategy with fallback)
+- Added a stock price resolver that prefers live market prices when available, with deterministic seed-based fallback pricing.
+- Updated universe stock mapping to pick up optional price fields without breaking Supabase fetches.
+- Logged the slice completion and refreshed the repo map pointer for price strategy ownership.
 
 ## P3 Slice Notes (Stock category audit + config hooks)
 - Added a shared stock category catalog with tiering and palette metadata to prep for expansion categories like international equities.

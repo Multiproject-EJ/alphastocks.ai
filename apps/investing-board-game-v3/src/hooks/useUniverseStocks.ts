@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { supabaseClient, hasSupabaseConfig } from '@/lib/supabaseClient'
 import { getRandomStock } from '@/lib/mockData'
-import { resolveStockPrice } from '@/lib/stockPricing'
+import { resolveUniversePrice } from '@/lib/stockPricing'
 import { ALL_STOCK_CATEGORIES, CORE_STOCK_CATEGORIES } from '@/lib/stockCategories'
 import { Stock, TileCategory } from '@/lib/types'
 
@@ -20,6 +20,10 @@ type UniverseRow = {
   last_addon_run_at: string | null
   created_at: string | null
   image_url: string | null
+  price?: number | string | null
+  last_price?: number | string | null
+  last_close_price?: number | string | null
+  [key: string]: unknown
 }
 
 const DEFAULT_SCORE = 5
@@ -31,8 +35,13 @@ function deriveCategory(symbol: string, index: number): TileCategory {
   return CORE_STOCK_CATEGORIES[Math.abs(total) % CORE_STOCK_CATEGORIES.length]
 }
 
-function normalizePrice(ticker: string, score?: number | null, seedIndex?: number): number {
-  return resolveStockPrice({ ticker, compositeScore: score, seedIndex })
+function normalizePrice(
+  ticker: string,
+  score?: number | null,
+  seedIndex?: number,
+  marketPrice?: number | string | null
+): number {
+  return resolveUniversePrice({ ticker, compositeScore: score, seedIndex, marketPrice })
 }
 
 /**
@@ -103,11 +112,13 @@ function deriveScoresFromLabels(
 }
 
 function mapUniverseRowToStock(row: UniverseRow, index: number): Stock {
+  const marketPrice = row.last_price ?? row.price ?? row.last_close_price ?? null
+
   return {
     name: row.name?.trim() || row.symbol,
     ticker: row.symbol,
     category: deriveCategory(row.symbol, index),
-    price: normalizePrice(row.symbol, row.last_composite_score, index),
+    price: normalizePrice(row.symbol, row.last_composite_score, index, marketPrice),
     description: row.addon_summary?.trim() || 'Saved from your investment universe.',
     risk_label: row.last_risk_label,
     quality_label: row.last_quality_label,
@@ -153,22 +164,7 @@ export function useUniverseStocks() {
       setLoading(true)
       const { data, error: queryError } = await supabaseClient
         .from('investment_universe')
-        .select(`
-          id, 
-          symbol, 
-          name, 
-          addon_summary,
-          last_composite_score,
-          last_risk_label,
-          last_quality_label,
-          last_timing_label,
-          last_model,
-          last_deep_dive_at,
-          addon_flags,
-          last_addon_run_at,
-          created_at,
-          image_url
-        `)
+        .select('*')
         .order('created_at', { ascending: false })
         .limit(200)
 
