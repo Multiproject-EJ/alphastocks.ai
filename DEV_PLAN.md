@@ -55,7 +55,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 - `AI_IMPLEMENTATION.md`, `IMPLEMENTATION_SUMMARY.md`, `DEVLOG.md` (project-wide status/context)
 
 ### Repo Map (paths verified)
-_Last reviewed: 2026-02-14 (Learning tile graphic templates + animations)_
+_Last reviewed: 2026-02-05 (Holiday event schedule fixtures)_
 #### Frontend
 - **Legacy static pages entry:** `/index.html`, `/about.html`, `/faq.html`, `/monthly/`, `/weekly/`, `/superinvestor/`
 - **Vite + Preact app:** `/apps/investing-board-game-v3` (built into `/public/board-game-v3` via `npm run build:board-game-v3`)
@@ -233,6 +233,9 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P2.3** ✅ Advanced portfolio analytics
 - **P2.4** ✅ Event system audit (limited-time windows)
 - **P2.5** ✅ HUD button click sound feedback
+
+### P4 — Seasonal & Holiday Events
+- **P4.1** ✅ Holiday event schedule fixtures
 
 ---
 
@@ -553,6 +556,10 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Built a mobile-first Merger Mania timed-event surface with deal targets, negotiation levers, and integration tracks for the M&A sprint.
 - Added a weekly Merger Mania schedule slot so the mini-game availability system can surface live/upcoming deal windows.
 - Wired the Games Hub card to show Merger Mania availability labels and gate access until the deal window is live.
+
+## P4.1 Slice Notes (Holiday event schedule fixtures)
+- Added seasonal special-event fixtures to the events catalog so the calendar can surface holiday reward windows.
+- Tuned reward multipliers and currency rules for seasonal moments like Founders Day, Summer Festival, and Holiday Rally.
 
 ## P3 Slice Notes (Stock category audit + config hooks)
 - Added a shared stock category catalog with tiering and palette metadata to prep for expansion categories like international equities.

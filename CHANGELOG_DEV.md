@@ -1834,3 +1834,21 @@
 
 **How to test:**  
 - (none)  
+
+**Date:** 2026-02-05  
+**Slice:** P4.1 Holiday event schedule fixtures  
+**Summary:**  
+- Added seasonal special-event fixtures (Founders Day, Summer Market Festival, Holiday Rally) to the events catalog so the calendar can surface holiday windows.  
+- Tuned reward multipliers and currency rules for the new holiday events to keep bonuses aligned with existing event tiers.  
+- Logged completion of the holiday events slice in the run-by-run plan.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/lib/events.ts  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (none)  
