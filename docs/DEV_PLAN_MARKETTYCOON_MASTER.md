@@ -778,12 +778,16 @@ ENDED TODAY:
 | Case Study | ✅ Complete | — | `BiasSanctuaryModal.tsx` |
 | Daily Dividends | ✅ Complete | — | `DailyDividendsModal.tsx` |
 | Slot Machine | ✅ Complete | — | `CasinoModal.tsx` |
-| Wheel of Fortune | 🚧 Planned | P1 | — |
-| Stock Rush | 🚧 Planned | P1 | — |
-| Vault Heist | 🚧 Planned | P2 | — |
-| Market Mayhem | 🚧 Planned | P2 | — |
-| Portfolio Poker | 🚧 Planned | P3 | — |
-| Dividend Derby | 🚧 Planned | P3 | — |
+| Wheel of Fortune | ✅ Complete | P1 | `WheelOfFortuneModal.tsx`, `GamesHub.tsx` |
+| Stock Rush | ✅ Complete | P1 | `components/games/placeholders/StockRush.tsx` |
+| Vault Heist | ✅ Complete | P2 | `components/games/placeholders/VaultHeist.tsx` |
+| Market Mayhem | ✅ Complete | P2 | `components/games/placeholders/MarketMayhem.tsx` |
+| Portfolio Poker | ✅ Complete | P3 | `components/games/placeholders/PortfolioPoker.tsx` |
+| Dividend Derby | ✅ Complete | P3 | `components/games/placeholders/DividendDerby.tsx` |
+| Bull Run | ✅ Complete | P3 | `components/games/placeholders/BullRun.tsx` |
+| Bear Trap | ✅ Complete | P3 | `components/games/placeholders/BearTrap.tsx` |
+| IPO Frenzy | ✅ Complete | P3 | `components/games/placeholders/IpoFrenzy.tsx` |
+| Merger Mania | ✅ Complete | P3 | `components/games/placeholders/MergerMania.tsx` |
 
 ---
 
