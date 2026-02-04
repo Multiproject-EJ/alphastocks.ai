@@ -622,8 +622,8 @@ These games appear on a predictable schedule, creating anticipation.
 
 | Game | Schedule | Duration | Rewards | Status |
 |------|----------|----------|---------|--------|
-| **Happy Hour Wheel** | Daily 6-9pm | 3 hours | Random prizes | 🚧 Planned |
-| **Stock Rush** | 9am, 1pm, 6pm | 2 hours each | Discounted stocks | 🚧 Planned |
+| **Happy Hour Wheel** | Daily 6-9pm | 3 hours | Random prizes | ✅ Exists |
+| **Stock Rush** | 9am, 1pm, 6pm | 2 hours each | Discounted stocks | ✅ Exists |
 | **Double XP** | Weekends | 48 hours | 2× XP on all actions | ✅ Exists |
 | **Casino Happy Hour** | Fridays 6pm | 3 hours | Guaranteed scratchcard win | ✅ Exists |
 | **Thrifty Thursday** | Thursdays | 24 hours | 2× Thrifty Path stars | ✅ Exists |
@@ -634,10 +634,10 @@ These are limited-time events that create excitement and FOMO.
 
 | Game | Schedule | Duration | Rewards | Status |
 |------|----------|----------|---------|--------|
-| **Vault Heist** | Saturdays 2pm | 1 hour | Big coin prizes | 🚧 Planned |
-| **Mega Jackpot** | Monthly (1st Saturday) | 24 hours | Massive star pool | 🚧 Planned |
-| **Market Mayhem** | Random (2-3x/month) | 4 hours | Rapid trading bonuses | 🚧 Planned |
-| **Holiday Events** | Seasonal | 3-7 days | Themed rewards | 🚧 Planned |
+| **Vault Heist** | Saturdays 2pm | 1 hour | Big coin prizes | ✅ Exists |
+| **Mega Jackpot** | Monthly (1st Saturday) | 24 hours | Massive star pool | ✅ Exists |
+| **Market Mayhem** | Random (2-3x/month) | 4 hours | Rapid trading bonuses | ✅ Exists |
+| **Holiday Events** | Seasonal | 3-7 days | Themed rewards | ✅ Exists |
 | **New Year Celebration** | Jan 1 | 24 hours | 3× stars and XP | ✅ Exists |
 
 ### Planned Mini-Games (Specs)
@@ -1096,16 +1096,16 @@ PHASE 4: PULSE
 |-------|-------------|--------------|
 | 029_currency_economy.sql | Currency exchange, shop items, mystery box | 2026-01-16 |
 
-### Upcoming PRs (Planned)
+### Formerly Planned PRs (Now Completed)
 
-| Priority | Feature | Description |
-|----------|---------|-------------|
-| P0 | Portal Animation | Glow → Fade → Materialize sequence |
-| P0 | Wealth Run + Roulette | One-roll jackpot + mega roulette rewards |
-| P1 | Wheel of Fortune | First mini-game implementation |
-| P1 | Ring Transition Polish | Smooth ascend/descend animations |
-| P2 | Roulette Victory | Epic final celebration sequence |
-| P2 | Sound Effects | Audio feedback for all actions |
+| Priority | Feature | Description | Status |
+|----------|---------|-------------|--------|
+| P0 | Portal Animation | Glow → Fade → Materialize sequence | ✅ Completed |
+| P0 | Wealth Run + Roulette | One-roll jackpot + mega roulette rewards | ✅ Completed |
+| P1 | Wheel of Fortune | First mini-game implementation | ✅ Completed |
+| P1 | Ring Transition Polish | Smooth ascend/descend animations | ✅ Completed |
+| P2 | Roulette Victory | Epic final celebration sequence | ✅ Completed |
+| P2 | Sound Effects | Audio feedback for all actions | ✅ Completed |
 
 ---
 
