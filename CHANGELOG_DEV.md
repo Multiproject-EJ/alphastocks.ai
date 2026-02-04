@@ -5,6 +5,23 @@
 
 ## Unreleased
 
+**Date:** 2026-02-15  
+**Slice:** M2.7 (Alpha Day scheduler — deterministic timebase)  
+**Summary:**  
+- Passed a shared reference time through event aggregation so Alpha Day and monthly rotation scheduling stay deterministic during polling or testing.  
+- Kept the Alpha Day quarterly window and Jackpot Week calculations intact while unifying event evaluation with the supplied “now.”  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/lib/events.ts  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Load the board and open the event calendar to confirm Alpha Day still appears in upcoming events and no regressions appear in recurring rotations.  
+
 **Date:** 2026-02-14  
 **Slice:** M4.4 (Graphic templates + animations)  
 **Summary:**  
