@@ -510,20 +510,20 @@ let initializedRecurringEvents: GameEvent[] | null = null
 /**
  * Get all events (recurring + special) with proper dates
  */
-export function getAllEvents(): GameEvent[] {
+export function getAllEvents(now: Date = new Date()): GameEvent[] {
   if (!initializedRecurringEvents) {
     initializedRecurringEvents = initializeRecurringEvents()
   }
   const events = [
     ...initializedRecurringEvents,
     ...SPECIAL_EVENTS,
-    ...generateMonthlyRotationEvents(),
+    ...generateMonthlyRotationEvents(now),
   ]
 
-  events.push(getAlphaDayEvent())
+  events.push(getAlphaDayEvent(now))
 
   // Add Jackpot Week event if active
-  const jackpotEvent = getJackpotWeekEvent()
+  const jackpotEvent = getJackpotWeekEvent(now)
   if (jackpotEvent) {
     events.push(jackpotEvent)
   }
@@ -535,7 +535,7 @@ export function getAllEvents(): GameEvent[] {
  * Get currently active events
  */
 export function getActiveEvents(now: Date = new Date()): GameEvent[] {
-  const allEvents = getAllEvents()
+  const allEvents = getAllEvents(now)
   return allEvents.filter(event => isEventActive(event, now))
 }
 
@@ -543,7 +543,7 @@ export function getActiveEvents(now: Date = new Date()): GameEvent[] {
  * Get upcoming events (next N events)
  */
 export function getUpcomingEvents(limit: number = 5, now: Date = new Date()): GameEvent[] {
-  const allEvents = getAllEvents()
+  const allEvents = getAllEvents(now)
   
   // Filter to future events and sort by start date
   const upcomingEvents = allEvents
@@ -559,7 +559,7 @@ export function getUpcomingEvents(limit: number = 5, now: Date = new Date()): Ga
  * Returns the event if it just started (within the last minute)
  */
 export function checkEventStart(now: Date = new Date()): GameEvent | null {
-  const allEvents = getAllEvents()
+  const allEvents = getAllEvents(now)
   const oneMinuteAgo = new Date(now.getTime() - 60000)
   
   for (const event of allEvents) {
@@ -576,7 +576,7 @@ export function checkEventStart(now: Date = new Date()): GameEvent | null {
  * Returns the event if it just ended (within the last minute)
  */
 export function checkEventEnd(now: Date = new Date()): GameEvent | null {
-  const allEvents = getAllEvents()
+  const allEvents = getAllEvents(now)
   const oneMinuteAgo = new Date(now.getTime() - 60000)
   
   for (const event of allEvents) {

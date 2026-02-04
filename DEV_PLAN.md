@@ -263,7 +263,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **M2.7 Alpha Day scheduler (rare).**
+**Recommended next slice:** **TBD (select next slice from the master plan backlog).**
 
 ## Right Now Calendar Polish Slice Notes (Completed ✅)
 - Expanded the Right Now calendar to surface upcoming mini-game windows alongside event scheduling.
@@ -357,6 +357,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Added a deterministic quarterly “Alpha Day” special event so the event system can surface a rare 24-hour multiplier surge.
 - Scheduled Alpha Day using a predictable first-Monday rule for each quarter month, ensuring the next occurrence is always discoverable in upcoming events.
 - Wired the Alpha Day event into the global events list without altering existing recurring or rotation events.
+- Aligned event aggregation helpers to accept a shared reference time so Alpha Day scheduling stays deterministic when polling or testing with a custom “now.”
 
 ## M2.4 Slice Notes (Windows engine + mobile-first HUD banner)
 - Added a dedicated `economyWindows` engine that deterministically starts 5–25 minute windows based on leverage + momentum thresholds, with cooldown handling and persisted timestamps.
