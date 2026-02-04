@@ -7,6 +7,40 @@
 
 - Updated the master plan Priority Roadmap checklist to reflect completed systems so the canonical roadmap matches shipped features.
 
+**Date:** 2026-02-06  
+**Slice:** Plan update — Bias Sanctuary visual story mode  
+**Summary:**  
+- Added a planned slice for a visual Bias Sanctuary story mode with scrollable webtoon panels and optional audio.  
+- Updated the next-slice recommendation to prioritize the new story mode concept.  
+
+**Files changed:**  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (none)  
+
+**Date:** 2026-02-06  
+**Slice:** P2.6 More case studies  
+**Summary:**  
+- Expanded the bias case study catalog with new scenarios covering loss aversion, herding, and overconfidence.  
+- Added quiz prompts and explanations for each new case study to keep the Bias Sanctuary flow engaging.  
+- Logged the case study slice completion in the run-by-run plan.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/lib/mockData.ts  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (none)  
+
 **Date:** 2026-02-15  
 **Slice:** M2.7 (Alpha Day scheduler — deterministic timebase)  
 **Summary:**  
