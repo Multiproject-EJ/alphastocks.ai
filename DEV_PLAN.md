@@ -272,10 +272,31 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 **Recommended next slice:** **P2.7 Bias Sanctuary visual story mode (scrollable webtoon + audio).**
 
 ## P2.7 Scope Notes (Bias Sanctuary visual story mode)
+### Story structure & content
 - Add a visual story mode to each case study with a scrollable, panel-based “webtoon” layout that pairs text, imagery, and emotional beats.
+- Define a per-story structure: hook → tension → decision → consequence → reflection, with short captions that reinforce the bias.
+- Include “decision moment” callouts in-panel to connect the story beat to the quiz prompt.
+- Keep the narrative copy mobile-first: 1–2 short sentences per panel and no long paragraphs.
+
+### Media & assets
 - Support optional background media per story (video clip or illustrated panels), with graceful fallbacks when assets are unavailable.
+- Allow per-panel imagery, color treatment, or illustration frames for emotional contrast (e.g., warm vs cool palettes).
+- Add a minimal asset manifest format (per story) so designers can swap panel imagery without touching component logic.
+
+### Audio & accessibility
 - Include lightweight ambient audio cues (per-story or per-panel) with mute controls aligned to existing audio settings.
+- Provide captions or transcript snippets for any audio narration or music.
+- Ensure media auto-play is opt-in on mobile and respects mute/autoplay policies.
+
+### UX & progression
 - Keep the story mode mobile-first, with swipe-friendly navigation and clear progression indicators.
+- Allow “skip story” and “resume story” paths so players can return to the quiz without friction.
+- Add a completion badge or short takeaway card before the quiz begins to reinforce learning.
+
+### Technical + data integration
+- Extend the bias case study data model to include story panel metadata (text, image/video refs, optional audio cues).
+- Provide a fixture fallback for story panels when Supabase is unavailable, mirroring existing mock data patterns.
+- Wire the story mode into the Bias Sanctuary modal without disrupting existing quiz flow or celebrations.
 
 ## Right Now Calendar Polish Slice Notes (Completed ✅)
 - Expanded the Right Now calendar to surface upcoming mini-game windows alongside event scheduling.

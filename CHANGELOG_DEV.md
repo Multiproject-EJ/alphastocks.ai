@@ -8,6 +8,22 @@
 - Updated the master plan Priority Roadmap checklist to reflect completed systems so the canonical roadmap matches shipped features.
 
 **Date:** 2026-02-06  
+**Slice:** Plan update — Bias Sanctuary visual story mode (scope expansion)  
+**Summary:**  
+- Expanded the P2.7 scope notes with story structure, media, audio/accessibility, UX, and data integration details.  
+- Kept the next-slice recommendation focused on the visual story mode work.  
+
+**Files changed:**  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (none)  
+
+**Date:** 2026-02-06  
 **Slice:** Plan update — Bias Sanctuary visual story mode  
 **Summary:**  
 - Added a planned slice for a visual Bias Sanctuary story mode with scrollable webtoon panels and optional audio.  
