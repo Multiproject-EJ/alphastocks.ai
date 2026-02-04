@@ -9,6 +9,23 @@
 - Marked master plan event schedules and formerly planned PRs as completed so the canonical roadmap reflects shipped mini-games.
 
 **Date:** 2026-02-10  
+**Slice:** C1.1 Economy config seed (follow-up)  
+**Summary:**  
+- Re-exported energy config constants from `energy.ts` so existing imports continue to resolve.  
+- Updated the run-by-run plan notes for the config seed slice.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/lib/energy.ts  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) `npm run build`  
+
+**Date:** 2026-02-10  
 **Slice:** C1.1 Economy config seed  
 **Summary:**  
 - Seeded a central economy config JSON file for energy regen defaults and vault regen bonuses.  

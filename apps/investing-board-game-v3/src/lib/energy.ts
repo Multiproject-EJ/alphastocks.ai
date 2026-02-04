@@ -5,6 +5,8 @@
 
 import { ENERGY_CONFIG, VAULT_REGEN_BONUS_CONFIG } from './economyConfig'
 
+export { ENERGY_CONFIG, VAULT_REGEN_BONUS_CONFIG }
+
 export function getVaultRegenBonusRolls(vaultLevel: number): number {
   const safeLevel = Math.max(1, Math.floor(vaultLevel))
   const steps = Math.floor((safeLevel - 1) / VAULT_REGEN_BONUS_CONFIG.LEVEL_STEP)

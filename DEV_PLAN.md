@@ -516,6 +516,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Seeded a central economy config JSON file for energy and vault regen defaults.
 - Added a normalization helper to export energy configs from the JSON file and keep fallbacks safe.
 - Updated the run-by-run plan to track the new config strategy slice.
+- Re-exported energy config constants from `energy.ts` to keep existing imports working.
 
 ## M7.1 Slice Notes (Audit board renderer + tile overlays)
 - Confirmed board layout rendering lives in `App.tsx` using ring-based `calculateTilePositions` helpers and per-ring scale factors, with `BoardViewport` (classic zoom) + `Board3DViewport` (camera transform) handling layout constraints.
