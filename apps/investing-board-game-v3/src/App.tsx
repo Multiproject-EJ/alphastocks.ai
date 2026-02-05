@@ -9,6 +9,7 @@ import { HubModal } from '@/components/HubModal'
 import { CentralStockCard } from '@/components/CentralStockCard'
 import { StockModal } from '@/components/StockModal'
 import { EventModal } from '@/components/EventModal'
+import { EventChoiceModal } from '@/components/EventChoiceModal'
 import { ThriftyPathModal } from '@/components/ThriftyPathModal'
 import { WildcardEventModal } from '@/components/WildcardEventModal'
 import { ChanceCardModal } from '@/components/ChanceCardModal'
@@ -248,6 +249,7 @@ import {
   QUICK_REWARD_CONFIG,
   QuickRewardType 
 } from '@/lib/quickRewardTiles'
+import { EVENT_TILE_REWARD_LABELS, getEventTileDefinition, type EventTileOption } from '@/lib/eventTiles'
 import { getEnergyResetAmount, getResetRollsAmount, getVaultRegenBonusRolls, ENERGY_CONFIG } from '@/lib/energy'
 import { calculateTilePositions, calculateAllRingPositions } from '@/lib/tilePositions'
 import { calculateMovement, getHoppingTiles, getPortalConfigForRing } from '@/lib/movementEngine'
@@ -3189,6 +3191,93 @@ function App() {
     }
   }, [activeEventCurrency, currentActiveEvent, getEconomyMultipliers, triggerCelebrationFromLastTile])
 
+  const handleEventTileChoice = useCallback((tileTitle: string, option: EventTileOption) => {
+    const baseAmount = Math.floor(Math.random() * (option.reward.max - option.reward.min + 1)) + option.reward.min
+    const isBonusRoll = option.reward.type === 'bonus-roll'
+    const multiplierText = isBonusRoll ? '' : getMultiplierDisplay(gameState.currentRing)
+    const shouldApplyPortfolioBuff = portfolioRewardBuff.multiplier > 1
+      && ['cash', 'coins', 'xp'].includes(option.reward.type)
+
+    let finalAmount = baseAmount
+    let portfolioBonus = 0
+
+    if (option.reward.type === 'stars') {
+      const starAmount = applyRingMultiplier(applyStarMultiplier(baseAmount), gameState.currentRing)
+      finalAmount = starAmount
+    } else if (isBonusRoll) {
+      finalAmount = baseAmount
+    } else {
+      const ringAdjusted = applyRingMultiplier(baseAmount, gameState.currentRing)
+      finalAmount = shouldApplyPortfolioBuff
+        ? Math.floor(ringAdjusted * portfolioRewardBuff.multiplier)
+        : ringAdjusted
+      portfolioBonus = shouldApplyPortfolioBuff ? finalAmount - ringAdjusted : 0
+    }
+
+    setGameState(prev => {
+      switch (option.reward.type) {
+        case 'cash':
+          return {
+            ...prev,
+            cash: prev.cash + finalAmount,
+            netWorth: prev.netWorth + finalAmount,
+          }
+        case 'stars':
+          return {
+            ...prev,
+            stars: prev.stars + finalAmount,
+          }
+        case 'coins':
+          return {
+            ...prev,
+            coins: prev.coins + finalAmount,
+          }
+        case 'xp':
+          return {
+            ...prev,
+            xp: prev.xp + finalAmount,
+          }
+        default:
+          return prev
+      }
+    })
+
+    if (option.reward.type === 'bonus-roll') {
+      setRollsRemaining(prev => prev + finalAmount)
+    }
+
+    trackTelemetryEvent('event_tile_choice', {
+      tile: tileTitle,
+      optionId: option.id,
+      rewardType: option.reward.type,
+      rewardAmount: finalAmount,
+      portfolioBonus,
+      ring: gameState.currentRing,
+    })
+
+    playSound('celebration')
+    hapticSuccess()
+    triggerCelebrationFromLastTile([option.emoji, '✨'])
+
+    const rewardLabel = EVENT_TILE_REWARD_LABELS[option.reward.type]
+    const portfolioNote = portfolioBonus > 0 ? ` (+${portfolioBonus.toLocaleString()} bonus)` : ''
+
+    toast.success(`${tileTitle}: ${option.title}`, {
+      description: `+${finalAmount.toLocaleString()} ${rewardLabel}${multiplierText ? ` (${multiplierText})` : ''}${portfolioNote}`,
+    })
+  }, [
+    applyRingMultiplier,
+    applyStarMultiplier,
+    gameState.currentRing,
+    hapticSuccess,
+    playSound,
+    portfolioRewardBuff.multiplier,
+    setGameState,
+    setRollsRemaining,
+    trackTelemetryEvent,
+    triggerCelebrationFromLastTile,
+  ])
+
   // Function to check if a tile is a portal start tile
   const isPortalStartTile = useCallback((tileId: number, ring: RingNumber): boolean => {
     const portalConfig = PORTAL_CONFIG[`ring${ring}` as keyof typeof PORTAL_CONFIG]
@@ -3849,14 +3938,39 @@ function App() {
           })
         }
       } else {
-        // Fallback for event tiles without specific handlers (Wildcard, "?", etc.)
-        debugGame('Event tile without handler - showing generic message and returning to idle')
-        toast.info(tile.title, {
-          description: 'This feature is coming soon!',
-        })
-        // Immediately transition back to idle (no modal to show)
-        debugGame('Phase transition: landed -> idle (event fallback)')
-        setPhase('idle')
+        const eventDefinition = getEventTileDefinition(tile.title)
+        if (eventDefinition) {
+          debugGame('Opening Tier 1 event tile modal')
+          showOverlay({
+            id: `event-tile-${tile.title.toLowerCase().replace(/\s+/g, '-')}`,
+            component: EventChoiceModal,
+            props: {
+              title: eventDefinition.title,
+              description: eventDefinition.description,
+              icon: eventDefinition.icon,
+              options: eventDefinition.options,
+              onSelect: (option: EventTileOption) => {
+                handleEventTileChoice(eventDefinition.title, option)
+              },
+            },
+            priority: 'normal',
+            onClose: () => {
+              setTimeout(() => {
+                debugGame('Phase transition: landed -> idle (event tile modal closed)')
+                setPhase('idle')
+              }, 300)
+            }
+          })
+        } else {
+          // Fallback for event tiles without specific handlers (Wildcard, "?", etc.)
+          debugGame('Event tile without handler - showing generic message and returning to idle')
+          toast.info(tile.title, {
+            description: 'This feature is coming soon!',
+          })
+          // Immediately transition back to idle (no modal to show)
+          debugGame('Phase transition: landed -> idle (event fallback)')
+          setPhase('idle')
+        }
       }
     } else if (tile.type === 'corner') {
       debugGame('Corner tile:', tile.title)

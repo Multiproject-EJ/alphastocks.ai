@@ -55,7 +55,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 - `AI_IMPLEMENTATION.md`, `IMPLEMENTATION_SUMMARY.md`, `DEVLOG.md` (project-wide status/context)
 
 ### Repo Map (paths verified)
-_Last reviewed: 2026-02-10 (Economy config seed slice)_
+_Last reviewed: 2026-02-05 (Tier 1 event tile activations)_
 #### Frontend
 - **Legacy static pages entry:** `/index.html`, `/about.html`, `/faq.html`, `/monthly/`, `/weekly/`, `/superinvestor/`
 - **Vite + Preact app:** `/apps/investing-board-game-v3` (built into `/public/board-game-v3` via `npm run build:board-game-v3`)
@@ -63,6 +63,7 @@ _Last reviewed: 2026-02-10 (Economy config seed slice)_
 - **State management/store:** Local React state in `src/App.tsx` plus contexts in `src/context/*` (Auth, Overlay, UI Mode); custom hooks in `src/hooks/*`
 - **Game loop entry:** `src/App.tsx` (dice roll → `calculateMovement` in `src/lib/movementEngine.ts`), board data in `src/lib/mockData.ts`
 - **UI components:** `src/components/*` (board, modals, overlays, portfolio readout panel), shop UI in `src/components/ShopModal.tsx` + `src/components/shop/*` (mobile shop shell, property vault album cards), roulette win flow in `src/components/RouletteVictoryModal.tsx`
+- **Event tile choices:** `src/components/EventChoiceModal.tsx` + `src/lib/eventTiles.ts` (Tier 1 event tile decision copy + rewards)
 - **Mini-games hub:** `src/pages/GamesHub.tsx` (grid of mini-games in overlay, schedule-aware availability via `useMiniGames`), `src/components/games/*` (cards, overlay shell, placeholder game surfaces), Wheel of Fortune demo uses `src/components/WheelOfFortuneModal.tsx`
 - **Leaderboards:** `src/components/LeaderboardModal.tsx` + `src/hooks/useLeaderboard.ts` (global/weekly/ring leaderboards)
 - **Season Pass:** `src/hooks/useSeasonPass.ts` + `src/components/SeasonPassModal.tsx` (battle pass progression + reward claims)
@@ -229,7 +230,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 
 ### M10 — Event Tile Activations (Marketing Tiles)
 - **M10.1** Audit event tile gaps + map titles to experiences
-- **M10.2** Implement Tier 1 event tiles (Analyst Call, News Flash, Executive Event, Board Meeting)
+- **M10.2** ✅ Implement Tier 1 event tiles (Analyst Call, News Flash, Executive Event, Board Meeting)
 - **M10.3** Court of Capital activation (corner tile experience)
 - **M10.4** Event tile copy + reward tuning pass (marketing hooks)
 
@@ -296,7 +297,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **M10.2 — Implement Tier 1 event tiles (Analyst Call, News Flash, Executive Event, Board Meeting).**
+**Recommended next slice:** **M10.3 — Court of Capital activation (corner tile experience).**
 
 ## P2.7 Scope Notes (Bias Sanctuary visual story mode)
 ### Story structure & content
@@ -748,6 +749,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Inventory every event + corner tile title and document which ones are placeholder vs wired.
 - Map each “marketing” tile title to a concrete experience concept (choice, mini-game, reward flow).
 - Define Tier 1 vs Tier 2 activation priorities with small, shippable scopes.
+
+## M10.2 Slice Notes (Tier 1 event tile activations)
+- Added Tier 1 event tile definitions for Analyst Call, News Flash, Executive Event, and Board Meeting with choice-driven rewards.
+- Built a reusable event choice modal for the new event tiles with mobile-first option cards.
+- Wired event tile landings to trigger the new decision flow, apply ring-aware rewards, and log telemetry.
 
 ## Fall Portals + Chance Lift Slice Notes
 - Added Ring 2 fall portal safety-net rewards so some drops grant a bonus roll, stars, or coins before returning to Street Level.
