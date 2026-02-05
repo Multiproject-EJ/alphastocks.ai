@@ -22,7 +22,7 @@ The current scratchcard is a clean, simple win/lose minigame. This guide expands
 5. After each completed step, immediately write the next step.
 
 **Progress log (live, always update):**
-- **Done (latest):** Added config-driven scratchcard tiers and refactored `ScratchcardGame` to use them; extracted a scratchcard evaluation helper so win logic is reusable.
+- **Done (latest):** Added deterministic RNG injection to scratchcard grid generation and evaluation helpers.
 - **Next step:** Add unit tests for the evaluation helper using deterministic RNG or injected rolls.
 
 ## Next Slice (P0 Foundation)
