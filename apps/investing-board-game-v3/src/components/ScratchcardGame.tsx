@@ -166,7 +166,7 @@ export function ScratchcardGame({
               onClick={() => handleReveal(index)}
               disabled={revealed[index] || gameOver}
               className={`
-                aspect-square rounded-lg text-3xl sm:text-4xl font-bold
+                scratch-tile relative aspect-square overflow-hidden rounded-lg text-3xl sm:text-4xl font-bold
                 transition-all duration-300 transform
                 ${revealed[index] 
                   ? 'bg-gradient-to-br from-white/20 to-white/10 border-2 border-white/30 scale-100' 
@@ -180,6 +180,10 @@ export function ScratchcardGame({
               `}
             >
               {revealed[index] ? symbol : '?'}
+              <span
+                aria-hidden="true"
+                className={`scratch-overlay ${revealed[index] ? 'scratch-overlay--revealed' : ''}`}
+              />
             </button>
           ))}
         </div>
