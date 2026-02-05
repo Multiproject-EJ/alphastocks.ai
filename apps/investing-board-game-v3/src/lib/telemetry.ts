@@ -2,16 +2,29 @@ export interface TelemetryEvent {
   id: string
   name: string
   timestamp: string
+  context: TelemetryContext
   payload?: Record<string, unknown>
 }
 
 export type TelemetrySink = (event: TelemetryEvent) => void
 
+export interface TelemetryContext {
+  app: string
+  sessionId: string
+  mode?: string
+  build?: string
+}
+
 const TELEMETRY_CONSENT_KEY = 'alphastocks.telemetry.opt_in'
 const TELEMETRY_EVENTS_KEY = 'alphastocks.telemetry.events'
 const MAX_STORED_EVENTS = 50
+const DEFAULT_CONTEXT: TelemetryContext = {
+  app: 'board-game-v3',
+  sessionId: createSessionId(),
+}
 
 const sinks = new Set<TelemetrySink>()
+let telemetryContext: TelemetryContext = DEFAULT_CONTEXT
 
 function isBrowser(): boolean {
   return typeof window !== 'undefined'
@@ -32,11 +45,30 @@ export function registerTelemetrySink(sink: TelemetrySink) {
   return () => sinks.delete(sink)
 }
 
+export function setTelemetryContext(nextContext: Partial<TelemetryContext>) {
+  telemetryContext = {
+    ...telemetryContext,
+    ...nextContext,
+  }
+}
+
+export function getTelemetryContext(): TelemetryContext {
+  return telemetryContext
+}
+
+function createSessionId(): string {
+  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
+    return crypto.randomUUID()
+  }
+  return `${Date.now()}-${Math.random().toString(16).slice(2)}`
+}
+
 function createEvent(name: string, payload?: Record<string, unknown>): TelemetryEvent {
   return {
     id: `${Date.now()}-${Math.random()}`,
     name,
     timestamp: new Date().toISOString(),
+    context: telemetryContext,
     payload,
   }
 }

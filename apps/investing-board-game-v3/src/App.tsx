@@ -310,7 +310,7 @@ import { getInitialStockExchangeState, StockExchangeBuilderState } from '@/lib/s
 import { calculateXPForLevel } from '@/lib/progression'
 import type { UIMode, GamePhase } from '@/lib/uiModeStateMachine'
 import type { RollMultiplier } from '@/lib/constants'
-import { trackTelemetryEvent } from '@/lib/telemetry'
+import { setTelemetryContext, trackTelemetryEvent } from '@/lib/telemetry'
 import { trackInstrumentationEvent } from '@/lib/instrumentation'
 
 // Alias for backward compatibility
@@ -1327,6 +1327,12 @@ function App() {
   )
 
   const [rightNowTick, setRightNowTick] = useState(() => new Date())
+
+  useEffect(() => {
+    setTelemetryContext({
+      mode: import.meta.env.MODE,
+    })
+  }, [])
 
   useEffect(() => {
     const interval = setInterval(() => setRightNowTick(new Date()), 60000)
