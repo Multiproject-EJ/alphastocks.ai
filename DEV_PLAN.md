@@ -229,6 +229,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **C1.1** ✅ Economy config seed (energy + vault regen)
 - **C1.2** ✅ Shop vault config seed (seasons, discounts, and level curve)
 - **C1.3** ✅ Ring config seed (ring rewards + portals)
+- **C1.4** ✅ Learning config seed (learning tiles + streak rewards)
 
 ### P1 — Mini-Games Hub
 - **P1.1** ✅ Wheel of Fortune playable demo in Games Hub
@@ -282,7 +283,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **C1.4 — Learning config seed (learning tiles + streak rewards).**
+**Recommended next slice:** **TBD — pick the next slice from the master plan.**
 
 ## P2.7 Scope Notes (Bias Sanctuary visual story mode)
 ### Story structure & content
@@ -338,6 +339,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Centralized learning tile metadata, category styles, and question bank content in a shared learning config module.
 - Re-exported learning config types and constants through the legacy learning helper modules to keep imports stable.
 - Kept learning tile and question lookups unchanged while shifting the source of truth to config.
+
+## C1.4 Slice Notes (Learning config seed)
+- Seeded `config/learning.json` with learning tile definitions, category styling, question bank fixtures, and reward tuning.
+- Normalized the in-app learning config loader to read from the JSON seed with deterministic fallbacks.
+- Preserved existing exports so learning tiles, question bank, and reward helpers remain unchanged.
 
 ## Event Window Unification Slice Notes (Completed ✅)
 - Added a shared window-scheduling helper so recurring events and mini-games use the same timing logic.
