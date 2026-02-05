@@ -6,24 +6,18 @@ import { toast } from 'sonner'
 import {
   getScratchcardTier,
   type ScratchcardPrize,
+  type ScratchcardPrizeResult,
   type ScratchcardTier,
   type ScratchcardTierId,
 } from '@/lib/scratchcardTiers'
 
 interface ScratchcardGameProps {
   onWin?: (amount: number) => void
+  onResults?: (results: ScratchcardPrizeResult[]) => void
   onClose: () => void
   luckBoost?: number // Percentage boost to win chance (0-1)
   tierId?: ScratchcardTierId
   tier?: ScratchcardTier
-}
-
-type PrizeResult = {
-  label: string
-  amount: number
-  currency: ScratchcardPrize['currency']
-  pattern: 'row' | 'diagonal' | 'bonus'
-  multiplier?: number
 }
 
 const currencyLabel = (currency: ScratchcardPrize['currency']) => {
@@ -93,9 +87,12 @@ const buildGrid = (tier: ScratchcardTier, luckBoost: number) => {
   return symbols
 }
 
-const evaluatePatterns = (grid: string[], tier: ScratchcardTier): Array<PrizeResult['pattern']> => {
+const evaluatePatterns = (
+  grid: string[],
+  tier: ScratchcardTier,
+): Array<ScratchcardPrizeResult['pattern']> => {
   const { rows, columns } = tier.grid
-  const wins: Array<PrizeResult['pattern']> = []
+  const wins: Array<ScratchcardPrizeResult['pattern']> = []
   if (tier.winPatterns.includes('row')) {
     for (let row = 0; row < rows; row += 1) {
       const startIndex = getIndex(row, 0, columns)
@@ -149,6 +146,7 @@ const evaluatePatterns = (grid: string[], tier: ScratchcardTier): Array<PrizeRes
 
 export function ScratchcardGame({
   onWin,
+  onResults,
   onClose,
   luckBoost = 0,
   tierId = 'bronze',
@@ -160,7 +158,7 @@ export function ScratchcardGame({
   const totalCells = tier.grid.rows * tier.grid.columns
   const [revealed, setRevealed] = useState<boolean[]>(() => Array(totalCells).fill(false))
   const [gameOver, setGameOver] = useState(false)
-  const [prizeResults, setPrizeResults] = useState<PrizeResult[]>([])
+  const [prizeResults, setPrizeResults] = useState<ScratchcardPrizeResult[]>([])
 
   useEffect(() => {
     const freshGrid = buildGrid(tier, luckBoost)
@@ -196,6 +194,8 @@ export function ScratchcardGame({
       toast.info('No match this time', {
         description: 'Better luck next time!',
       })
+      setPrizeResults([])
+      onResults?.([])
       return
     }
 
@@ -204,7 +204,7 @@ export function ScratchcardGame({
         ? [2, 3, 5][Math.floor(Math.random() * 3)]
         : 1
 
-    const results: PrizeResult[] = wins.map((pattern) => {
+    const results: ScratchcardPrizeResult[] = wins.map((pattern) => {
       const prize = weightedPick(tier.prizes)
       const amount = rollAmount(prize)
       return {
@@ -217,6 +217,7 @@ export function ScratchcardGame({
     })
 
     setPrizeResults(results)
+    onResults?.(results)
     const totalCash = results
       .filter((prize) => prize.currency === 'cash')
       .reduce((sum, prize) => sum + prize.amount, 0)
