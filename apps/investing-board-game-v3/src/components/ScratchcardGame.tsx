@@ -1,40 +1,154 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Sparkle } from '@phosphor-icons/react'
 import { toast } from 'sonner'
+import { getScratchcardTier, type ScratchcardPrize, type ScratchcardTier } from '@/lib/scratchcardTiers'
 
 interface ScratchcardGameProps {
   onWin?: (amount: number) => void
   onClose: () => void
   luckBoost?: number // Percentage boost to win chance (0-1)
+  tierId?: ScratchcardTier['id']
 }
 
-const SYMBOLS = ['💎', '⭐', '🎰', '🍀', '💰', '🎲']
-const WIN_AMOUNT = 5000
+type PrizeResult = {
+  label: string
+  amount: number
+  currency: ScratchcardPrize['currency']
+  pattern: 'row' | 'diagonal' | 'bonus'
+  multiplier?: number
+}
 
-export function ScratchcardGame({ onWin, onClose, luckBoost = 0 }: ScratchcardGameProps) {
-  const [grid, setGrid] = useState<string[]>(() => {
-    // Generate a random 3x3 grid
-    const symbols = Array(9).fill(null).map(() => 
-      SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)]
-    )
-    // Base 30% chance + luck boost to have a winning combination
-    const winChance = 0.3 + luckBoost
-    if (Math.random() < winChance) {
-      const winningSymbol = SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)]
-      const positions = [0, 1, 2, 3, 4, 5, 6, 7, 8]
-      // Shuffle and pick 3 random positions
-      const shuffled = positions.sort(() => Math.random() - 0.5)
-      symbols[shuffled[0]] = winningSymbol
-      symbols[shuffled[1]] = winningSymbol
-      symbols[shuffled[2]] = winningSymbol
+const currencyLabel = (currency: ScratchcardPrize['currency']) => {
+  switch (currency) {
+    case 'coins':
+      return '🪙'
+    case 'stars':
+      return '⭐'
+    case 'xp':
+      return 'XP'
+    default:
+      return '$'
+  }
+}
+
+const weightedPick = (prizes: ScratchcardPrize[]) => {
+  const totalWeight = prizes.reduce((sum, prize) => sum + prize.weight, 0)
+  let roll = Math.random() * totalWeight
+  for (const prize of prizes) {
+    roll -= prize.weight
+    if (roll <= 0) {
+      return prize
     }
-    return symbols
+  }
+  return prizes[0]
+}
+
+const rollAmount = (prize: ScratchcardPrize) =>
+  Math.floor(prize.minAmount + Math.random() * (prize.maxAmount - prize.minAmount + 1))
+
+const getIndex = (row: number, col: number, columns: number) => row * columns + col
+
+const buildGrid = (tier: ScratchcardTier, luckBoost: number) => {
+  const { rows, columns } = tier.grid
+  const totalCells = rows * columns
+  const symbols = Array.from({ length: totalCells }, () => {
+    return tier.symbolPool[Math.floor(Math.random() * tier.symbolPool.length)]
   })
+  const winChance = tier.odds.winChance + luckBoost
+  const patterns = tier.winPatterns.filter((pattern) => pattern !== 'multiplier')
+  if (Math.random() < winChance && patterns.length > 0) {
+    const winningSymbol = tier.symbolPool[Math.floor(Math.random() * tier.symbolPool.length)]
+    const pattern = patterns[Math.floor(Math.random() * patterns.length)]
+    if (pattern === 'row') {
+      const row = Math.floor(Math.random() * rows)
+      for (let col = 0; col < columns; col += 1) {
+        symbols[getIndex(row, col, columns)] = winningSymbol
+      }
+    } else if (pattern === 'diagonal') {
+      const size = Math.min(rows, columns)
+      const isMain = Math.random() < 0.5
+      for (let step = 0; step < size; step += 1) {
+        const col = isMain ? step : columns - 1 - step
+        symbols[getIndex(step, col, columns)] = winningSymbol
+      }
+    } else if (pattern === 'bonus') {
+      const centerRow = Math.floor(rows / 2)
+      const centerCol = Math.floor(columns / 2)
+      symbols[getIndex(centerRow, centerCol, columns)] = winningSymbol
+      const extraCells = Math.min(2, totalCells - 1)
+      for (let i = 0; i < extraCells; i += 1) {
+        const randomIndex = Math.floor(Math.random() * totalCells)
+        symbols[randomIndex] = winningSymbol
+      }
+    }
+  }
+  return symbols
+}
+
+const evaluatePatterns = (grid: string[], tier: ScratchcardTier): Array<PrizeResult['pattern']> => {
+  const { rows, columns } = tier.grid
+  const wins: Array<PrizeResult['pattern']> = []
+  if (tier.winPatterns.includes('row')) {
+    for (let row = 0; row < rows; row += 1) {
+      const startIndex = getIndex(row, 0, columns)
+      const symbol = grid[startIndex]
+      let isMatch = true
+      for (let col = 1; col < columns; col += 1) {
+        if (grid[getIndex(row, col, columns)] !== symbol) {
+          isMatch = false
+          break
+        }
+      }
+      if (isMatch) wins.push('row')
+    }
+  }
+
+  if (tier.winPatterns.includes('diagonal')) {
+    const size = Math.min(rows, columns)
+    const mainSymbol = grid[getIndex(0, 0, columns)]
+    let mainMatch = true
+    for (let step = 1; step < size; step += 1) {
+      if (grid[getIndex(step, step, columns)] !== mainSymbol) {
+        mainMatch = false
+        break
+      }
+    }
+    if (mainMatch) wins.push('diagonal')
+
+    const antiSymbol = grid[getIndex(0, columns - 1, columns)]
+    let antiMatch = true
+    for (let step = 1; step < size; step += 1) {
+      if (grid[getIndex(step, columns - 1 - step, columns)] !== antiSymbol) {
+        antiMatch = false
+        break
+      }
+    }
+    if (antiMatch) wins.push('diagonal')
+  }
+
+  if (tier.winPatterns.includes('bonus')) {
+    const centerRow = Math.floor(rows / 2)
+    const centerCol = Math.floor(columns / 2)
+    const centerSymbol = grid[getIndex(centerRow, centerCol, columns)]
+    const centerCount = grid.filter((symbol) => symbol === centerSymbol).length
+    if (centerCount >= Math.min(3, rows)) {
+      wins.push('bonus')
+    }
+  }
+
+  return wins
+}
+
+export function ScratchcardGame({ onWin, onClose, luckBoost = 0, tierId = 'bronze' }: ScratchcardGameProps) {
+  const tier = useMemo(() => getScratchcardTier(tierId), [tierId])
+  const [grid] = useState<string[]>(() => buildGrid(tier, luckBoost))
   
-  const [revealed, setRevealed] = useState<boolean[]>(Array(9).fill(false))
+  const totalCells = tier.grid.rows * tier.grid.columns
+  const [revealed, setRevealed] = useState<boolean[]>(Array(totalCells).fill(false))
   const [gameOver, setGameOver] = useState(false)
+  const [prizeResults, setPrizeResults] = useState<PrizeResult[]>([])
 
   const handleReveal = (index: number) => {
     if (revealed[index] || gameOver) return
@@ -50,35 +164,55 @@ export function ScratchcardGame({ onWin, onClose, luckBoost = 0 }: ScratchcardGa
   }
 
   const revealAll = () => {
-    setRevealed(Array(9).fill(true))
+    setRevealed(Array(totalCells).fill(true))
     checkWin()
   }
 
   const checkWin = () => {
     setGameOver(true)
-    
-    // Count occurrences of each symbol
-    const counts = grid.reduce((acc, symbol) => {
-      acc[symbol] = (acc[symbol] || 0) + 1
-      return acc
-    }, {} as Record<string, number>)
 
-    // Check if any symbol appears 3 or more times
-    const hasWin = Object.values(counts).some(count => count >= 3)
-
-    if (hasWin) {
-      const winningSymbol = Object.keys(counts).find(symbol => counts[symbol] >= 3)
-      toast.success(`🎉 You won! Three ${winningSymbol}s!`, {
-        description: `You earned $${WIN_AMOUNT.toLocaleString()}!`,
-      })
-      if (onWin) {
-        onWin(WIN_AMOUNT)
-      }
-    } else {
+    const wins = evaluatePatterns(grid, tier).slice(0, tier.prizeSlots)
+    if (wins.length === 0) {
       toast.info('No match this time', {
         description: 'Better luck next time!',
       })
+      return
     }
+
+    const multiplierRoll =
+      tier.winPatterns.includes('multiplier') && Math.random() < tier.odds.multiplierChance
+        ? [2, 3, 5][Math.floor(Math.random() * 3)]
+        : 1
+
+    const results: PrizeResult[] = wins.map((pattern) => {
+      const prize = weightedPick(tier.prizes)
+      const amount = rollAmount(prize)
+      return {
+        label: prize.label,
+        amount: amount * multiplierRoll,
+        currency: prize.currency,
+        pattern,
+        multiplier: multiplierRoll > 1 ? multiplierRoll : undefined,
+      }
+    })
+
+    setPrizeResults(results)
+    const totalCash = results
+      .filter((prize) => prize.currency === 'cash')
+      .reduce((sum, prize) => sum + prize.amount, 0)
+    if (totalCash > 0 && onWin) {
+      onWin(totalCash)
+    }
+
+    const summary = results
+      .map((prize) => {
+        const label = currencyLabel(prize.currency)
+        return `${label}${prize.amount.toLocaleString()}`
+      })
+      .join(', ')
+    toast.success('🎉 You hit winning lines!', {
+      description: `Prizes: ${summary}`,
+    })
   }
 
   return (
@@ -86,15 +220,18 @@ export function ScratchcardGame({ onWin, onClose, luckBoost = 0 }: ScratchcardGa
       <CardHeader>
         <CardTitle className="text-2xl font-bold text-center flex items-center justify-center gap-2">
           <Sparkle size={24} className="text-yellow-400" />
-          Casino Scratchcard
+          {tier.name} Scratchcard
           <Sparkle size={24} className="text-yellow-400" />
         </CardTitle>
         <p className="text-sm text-center text-muted-foreground mt-2">
-          Scratch to reveal! Match 3 symbols to win ${WIN_AMOUNT.toLocaleString()}
+          Scratch to reveal! Win lines pay out multiple prizes.
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="grid grid-cols-3 gap-2 sm:gap-3 max-w-xs mx-auto">
+        <div
+          className="grid gap-2 sm:gap-3 max-w-xs mx-auto"
+          style={{ gridTemplateColumns: `repeat(${tier.grid.columns}, minmax(0, 1fr))` }}
+        >
           {grid.map((symbol, index) => (
             <button
               key={index}
@@ -115,6 +252,28 @@ export function ScratchcardGame({ onWin, onClose, luckBoost = 0 }: ScratchcardGa
             </button>
           ))}
         </div>
+
+        {gameOver && prizeResults.length > 0 && (
+          <div className="rounded-lg border border-purple-400/40 bg-purple-900/20 p-3 text-sm text-purple-100">
+            <p className="font-semibold text-purple-50">Prize summary</p>
+            <ul className="mt-2 space-y-1">
+              {prizeResults.map((prize, index) => (
+                <li key={`${prize.label}-${index}`} className="flex items-center justify-between">
+                  <span className="text-purple-100/80">
+                    {prize.pattern === 'row' && 'Row match'}
+                    {prize.pattern === 'diagonal' && 'Diagonal match'}
+                    {prize.pattern === 'bonus' && 'Bonus match'}
+                  </span>
+                  <span className="font-semibold">
+                    {currencyLabel(prize.currency)}
+                    {prize.amount.toLocaleString()}
+                    {prize.multiplier ? ` (${prize.multiplier}x)` : ''}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         <div className="flex gap-2 justify-center">
           {!gameOver && (
