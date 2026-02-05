@@ -65,6 +65,7 @@ _Last reviewed: 2026-02-10 (Economy config seed slice)_
 - **UI components:** `src/components/*` (board, modals, overlays, portfolio readout panel), shop UI in `src/components/ShopModal.tsx` + `src/components/shop/*` (mobile shop shell, property vault album cards), roulette win flow in `src/components/RouletteVictoryModal.tsx`
 - **Mini-games hub:** `src/pages/GamesHub.tsx` (grid of mini-games in overlay, schedule-aware availability via `useMiniGames`), `src/components/games/*` (cards, overlay shell, placeholder game surfaces), Wheel of Fortune demo uses `src/components/WheelOfFortuneModal.tsx`
 - **Leaderboards:** `src/components/LeaderboardModal.tsx` + `src/hooks/useLeaderboard.ts` (global/weekly/ring leaderboards)
+- **Season Pass:** `src/hooks/useSeasonPass.ts` + `src/components/SeasonPassModal.tsx` (battle pass progression + reward claims)
 - **Board renderer + tiles:** `src/App.tsx` (ring layout, tile positioning), `src/components/BoardViewport.tsx`, `src/components/Board3DViewport.tsx`, `src/components/Tile.tsx`
 - **Micro-learning tiles:** `src/lib/learningTiles.ts` (taxonomy definitions) + `src/lib/learningQuestionBank.ts` (seed question bank) + `src/components/Tile.tsx` (renderer)
 - **Stock category catalog:** `src/lib/stockCategories.ts` (labels, tiers, and palettes for core + expansion categories)
@@ -248,6 +249,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P2.6** ✅ More case studies
 - **P2.7** ✅ Bias Sanctuary visual story mode (scrollable webtoon + audio)
 - **P2.8** ✅ Bias Sanctuary ambient audio cues
+- **P2.9** ✅ Seasonal battle pass UI wiring
 
 ### P4 — Seasonal & Holiday Events
 - **P4.1** ✅ Holiday event schedule fixtures
@@ -283,7 +285,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **TBD — pick the next slice from the master plan.**
+**Recommended next slice:** **P3.1 — Advanced casino games (audit CasinoModal + existing casino hooks and scope the first new game surface).**
 
 ## P2.7 Scope Notes (Bias Sanctuary visual story mode)
 ### Story structure & content
@@ -698,6 +700,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Added story-level ambient audio cues that play once when entering story mode and reset between sessions.
 - Surfaced ambient audio captions in the story header so players know the background tone they’re hearing.
 - Applied ambient audio metadata to the bias story fixtures for consistent fallback behavior.
+
+## P2.9 Slice Notes (Seasonal battle pass UI wiring)
+- Wired the Season Pass overlay to the HUD so players can open the seasonal tier track on mobile.
+- Hooked season point rewards from challenges into the Season Pass progression helper.
+- Added overlay registry support for the Season Pass modal to keep overlay rendering consistent.
 
 ## P1 Elite Stock Special Behaviors Slice Notes
 - Added an elite stock purchase bonus that awards extra stars and XP based on composite score with live economy multipliers.

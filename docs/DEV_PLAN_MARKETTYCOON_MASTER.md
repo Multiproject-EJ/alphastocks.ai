@@ -1143,8 +1143,8 @@ PHASE 4: PULSE
 - [x] Sound effects system
 - [x] Advanced portfolio analytics
 - [x] Event system (limited-time events)
-- [ ] Seasonal battle pass
-- [ ] More case studies
+- [x] Seasonal battle pass
+- [x] More case studies
 
 ### P3: Long-Term Content (Month 2+)
 - [x] New stock categories (international, crypto, etc.)

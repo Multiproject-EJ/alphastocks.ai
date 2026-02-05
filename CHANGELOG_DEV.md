@@ -5,6 +5,33 @@
 
 ## Unreleased
 
+- Wired the Season Pass overlay into the mobile HUD so players can open the battle pass on demand.
+- Routed challenge season points into the Season Pass progression helper.
+- Registered the Season Pass overlay for consistent modal rendering.
+
+**Date:** 2026-02-05  
+**Slice:** P2.9 Seasonal battle pass UI wiring  
+**Summary:**  
+- Wired the Season Pass modal into the overlay manager and added a Compact HUD entry point.  
+- Hooked challenge season point rewards into the Season Pass progression helper.  
+- Logged the slice completion in the run-by-run plan and updated the master plan status.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/App.tsx  
+- apps/investing-board-game-v3/src/components/phone/CompactHUD.tsx  
+- apps/investing-board-game-v3/src/components/phone/PhoneLayout.tsx  
+- apps/investing-board-game-v3/src/lib/overlayRegistry.ts  
+- DEV_PLAN.md  
+- docs/DEV_PLAN_MARKETTYCOON_MASTER.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Open the board game on mobile, expand the HUD, and confirm the Season Pass button opens the battle pass modal.  
+- (manual) Complete a challenge and verify the Season Points total increases in the HUD.  
+
 - Seeded a learning config JSON with tile definitions, question bank fixtures, and reward tuning defaults.
 - Normalized the learning config loader to read the JSON seed with fallback defaults.
 

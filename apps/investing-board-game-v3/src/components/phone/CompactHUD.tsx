@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Building2, ChevronDown, ChevronUp, Settings, Sparkles, Star, Volume2, VolumeX } from 'lucide-react';
+import { Building2, ChevronDown, ChevronUp, Settings, Sparkles, Star, Trophy, Volume2, VolumeX } from 'lucide-react';
 import { useSound } from '@/hooks/useSound';
 import { formatCoins } from '@/lib/coins';
 
@@ -22,6 +22,7 @@ interface CompactHUDProps {
   onToggleSpaceBackground?: () => void;
   onOpenSettings?: () => void;
   onOpenStocks?: () => void;
+  onOpenSeasonPass?: () => void;
 }
 
 export function CompactHUD({
@@ -39,6 +40,7 @@ export function CompactHUD({
   onToggleSpaceBackground = () => {},
   onOpenSettings = () => {},
   onOpenStocks = () => {},
+  onOpenSeasonPass = () => {},
 }: CompactHUDProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const { muted, toggleMute, play } = useSound();
@@ -193,6 +195,20 @@ export function CompactHUD({
               />
             </div>
           </div>
+          <button
+            onClick={() => {
+              play('button-click');
+              onOpenSeasonPass();
+            }}
+            className="flex items-center justify-between rounded-lg border border-purple-400/20 bg-purple-500/10 px-3 py-2 text-sm text-left transition hover:border-purple-300/40 hover:bg-purple-500/20"
+            aria-label="Open Season Pass"
+          >
+            <span className="flex items-center gap-2 text-muted-foreground">
+              <Trophy size={16} className="text-purple-200" />
+              Season Pass
+            </span>
+            <span className="text-xs font-semibold text-purple-200">View</span>
+          </button>
           {expandedStats.secondary.map((stat) => (
             <div key={stat.label} className="flex items-center justify-between text-sm">
               <div className="flex items-center gap-2 text-muted-foreground">

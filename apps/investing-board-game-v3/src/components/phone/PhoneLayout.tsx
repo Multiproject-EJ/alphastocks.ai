@@ -52,6 +52,7 @@ interface PhoneLayoutProps {
   onOpenStockExchangeBuilder?: () => void;
   onOpenRightNow?: () => void;
   onOpenSettings?: () => void;
+  onOpenSeasonPass?: () => void;
   dailySpinAvailable?: boolean;
   onOpenDailySpin?: () => void;
   eventTrackNode?: ReactNode;
@@ -84,6 +85,7 @@ export function PhoneLayout({
   onOpenStockExchangeBuilder = () => {},
   onOpenRightNow = () => {},
   onOpenSettings,
+  onOpenSeasonPass = () => {},
   dailySpinAvailable = false,
   onOpenDailySpin = () => {},
   eventTrackNode,
@@ -280,6 +282,7 @@ export function PhoneLayout({
           onToggleSpaceBackground={() => setSpaceBackgroundEnabled((enabled) => !enabled)}
           onOpenSettings={handleOpenSettings}
           onOpenStocks={onOpenStockExchangeBuilder}
+          onOpenSeasonPass={onOpenSeasonPass}
         />
       </div>
 

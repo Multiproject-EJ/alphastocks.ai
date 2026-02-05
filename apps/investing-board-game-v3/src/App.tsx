@@ -26,6 +26,7 @@ import { TierUpModal } from '@/components/TierUpModal'
 import { ThriftPathStatus } from '@/components/ThriftPathStatus'
 import { ThriftPathAura } from '@/components/ThriftPathAura'
 import { OutOfRollsModal } from '@/components/OutOfRollsModal'
+import { SeasonPassModal } from '@/components/SeasonPassModal'
 import { DailyDividendsModal } from '@/components/DailyDividendsModal'
 import { BoardZoomControls } from '@/components/BoardZoomControls'
 import { Board3DViewport } from '@/components/Board3DViewport'
@@ -283,6 +284,7 @@ import { useShopVaultOverview } from '@/hooks/useShopVaultOverview'
 import type { VaultItemSummary } from '@/hooks/useShopVaultOverview'
 import { useAchievements } from '@/hooks/useAchievements'
 import { useChallenges } from '@/hooks/useChallenges'
+import { useSeasonPass } from '@/hooks/useSeasonPass'
 import { useEvents } from '@/hooks/useEvents'
 import { useMiniGames } from '@/hooks/useMiniGames'
 import { useHaptics } from '@/hooks/useHaptics'
@@ -1255,6 +1257,22 @@ function App() {
     return true
   }, [gameState.cash, setGameState, setRollsRemaining, playSound])
 
+  const {
+    seasonPoints,
+    currentTier: currentSeasonTier,
+    hasPremiumPass,
+    claimedTiers,
+    activeSeason,
+    addSeasonPoints,
+    claimReward: claimSeasonReward,
+    upgradeToPremium,
+    canClaimTierReward,
+  } = useSeasonPass({
+    gameState,
+    setGameState,
+    playSound,
+  })
+
   // Challenges and Events hooks
   const {
     dailyChallenges,
@@ -1268,7 +1286,7 @@ function App() {
     setGameState,
     playSound,
     addXP: undefined, // Will be set later after we get the function from XP hook if it exists
-    addSeasonPoints: undefined, // Will be set later
+    addSeasonPoints,
     onChallengeComplete: (challenge) => {
       if (challenge.type !== 'daily' && challenge.type !== 'weekly') return
       eventTrackPointsRef.current(
@@ -1401,6 +1419,34 @@ function App() {
       priority: 'normal',
     })
   }, [activeEvents, upcomingEvents, activeMiniGames, upcomingMiniGames, showOverlay])
+
+  const openSeasonPass = useCallback(() => {
+    showOverlay({
+      id: 'seasonPass',
+      component: SeasonPassModal,
+      props: {
+        season: activeSeason,
+        seasonPoints,
+        currentTier: currentSeasonTier,
+        hasPremiumPass,
+        claimedTiers,
+        onClaimReward: claimSeasonReward,
+        onUpgradePremium: upgradeToPremium,
+        canClaimTierReward,
+      },
+      priority: 'normal',
+    })
+  }, [
+    showOverlay,
+    activeSeason,
+    seasonPoints,
+    currentSeasonTier,
+    hasPremiumPass,
+    claimedTiers,
+    claimSeasonReward,
+    upgradeToPremium,
+    canClaimTierReward,
+  ])
 
   const openShopOverlay = useCallback(() => {
     showOverlay({
@@ -5653,6 +5699,7 @@ function App() {
           onOpenShop={openShopOverlay}
           onOpenStockExchangeBuilder={openStockExchangeOverlay}
           onOpenRightNow={openEventCalendar}
+          onOpenSeasonPass={openSeasonPass}
           dailySpinAvailable={dailySpinAvailable}
           onOpenDailySpin={() => setIsWheelOpen(true)}
           eventTrackNode={(
