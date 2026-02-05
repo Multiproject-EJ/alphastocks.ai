@@ -22,8 +22,8 @@ The current scratchcard is a clean, simple win/lose minigame. This guide expands
 5. After each completed step, immediately write the next step.
 
 **Progress log (live, always update):**
-- **Done (latest):** Added unit tests for scratchcard evaluation helper with deterministic RNG rolls.
-- **Next step:** Add tier selection affordance and win summary UI in the scratchcard modal.
+- **Done (latest):** Added tier selection affordance in the scratchcard modal header with odds preview.
+- **Next step:** Add win summary UI polish (highlight win patterns and big win callouts).
 
 ## Next Slice (P0 Foundation)
 1. Create `scratchcardTiers` config with tier costs, odds, and prize pools.
