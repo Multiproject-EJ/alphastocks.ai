@@ -1,6 +1,7 @@
 import { useState, useCallback, type MouseEvent } from 'react';
 import { AnimatedDice } from '@/components/AnimatedDice';
 import { EconomyWindowStatus } from '@/components/EconomyWindowStatus';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { MULTIPLIERS } from '@/lib/constants';
 import { getUnlockedMultipliers } from '@/lib/leverage';
 import { cn } from '@/lib/utils';
@@ -192,9 +193,30 @@ export function DiceButton({
             className={cn('scale-[0.99]', isRolling && 'animate-dice-shake')}
           />
         </span>
-        <div className="absolute bottom-3 left-1/2 flex w-[138px] -translate-x-1/2 flex-col items-center gap-1 text-white">
+        <div className="absolute -bottom-5 left-1/2 flex w-[138px] -translate-x-1/2 flex-col items-center gap-1 text-white">
           <div className="flex w-full items-center justify-between text-[8px] uppercase tracking-[0.24em] text-white/70">
-            <span>Momentum</span>
+            <span className="flex items-center gap-1.5">
+              Momentum
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    type="button"
+                    onClick={(event) => {
+                      event.preventDefault();
+                      event.stopPropagation();
+                    }}
+                    className="flex h-3.5 w-3.5 items-center justify-center rounded-full border border-white/30 bg-white/10 text-[8px] font-semibold text-white/90"
+                    aria-label="Momentum info"
+                  >
+                    i
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="max-w-[200px] text-[10px] normal-case">
+                  Momentum grows when your net worth rises and decays over time. Higher momentum can trigger
+                  bonus economy windows with extra stars and XP.
+                </TooltipContent>
+              </Tooltip>
+            </span>
             <span className="font-mono text-white">{momentumPercent}%</span>
           </div>
           <div className="h-1.5 w-full overflow-hidden rounded-full border border-white/20 bg-black/25">
