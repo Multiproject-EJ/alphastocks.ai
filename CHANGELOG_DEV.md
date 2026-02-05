@@ -5,6 +5,28 @@
 
 ## Unreleased
 
+- Seeded a learning config JSON with tile definitions, question bank fixtures, and reward tuning defaults.
+- Normalized the learning config loader to read the JSON seed with fallback defaults.
+
+**Date:** 2026-02-12  
+**Slice:** C1.4 Learning config seed  
+**Summary:**  
+- Seeded `config/learning.json` with learning tile definitions, category styles, question bank fixtures, and reward tuning.  
+- Normalized the learning config loader to read from the JSON seed with deterministic fallbacks.  
+- Logged the slice completion in the run-by-run plan.  
+
+**Files changed:**  
+- config/learning.json  
+- apps/investing-board-game-v3/src/config/learning.ts  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Open the board game, land on a learning tile, and confirm the tile styling and quiz data match expectations.  
+
 - Seeded a central ring config JSON so ring rewards and portals can be tuned without code changes.
 - Normalized ring config exports in the app to keep fallbacks aligned with current behavior.
 
