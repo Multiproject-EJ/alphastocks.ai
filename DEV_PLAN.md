@@ -219,12 +219,14 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 
 ### M8 — Telemetry & Tuning
 - **M8.1** ✅ Economy telemetry sinks
+- **M8.2** ⏳ Telemetry review + tuning pass
 
 ### M9 — Celebrations & FX
 - **M9.1** Ring 3 upgrade celebration (board spin + UI flash) ✅
 
 ### C1 — Config Strategy (Data-driven tuning)
 - **C1.1** ✅ Economy config seed (energy + vault regen)
+- **C1.2** ✅ Shop vault config seed (seasons, discounts, and level curve)
 
 ### P1 — Mini-Games Hub
 - **P1.1** ✅ Wheel of Fortune playable demo in Games Hub
@@ -278,7 +280,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **C1.2 — Shop vault config seed (seasons, discounts, and level curve).**
+**Recommended next slice:** **M8.2 — Telemetry review + tuning pass.**
 
 ## P2.7 Scope Notes (Bias Sanctuary visual story mode)
 ### Story structure & content
@@ -517,6 +519,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Added a normalization helper to export energy configs from the JSON file and keep fallbacks safe.
 - Updated the run-by-run plan to track the new config strategy slice.
 - Re-exported energy config constants from `energy.ts` to keep existing imports working.
+
+## C1.2 Slice Notes (Shop vault config seed)
+- Added a shop vault config JSON seeded with seasons, sets, fixtures, and XP curve defaults.
+- Normalized the shop vault config so fixtures, level curve, and discount values can be tuned in one place.
+- Routed Savings Surge event discounts through the shared shop vault discount setting.
 
 ## M7.1 Slice Notes (Audit board renderer + tile overlays)
 - Confirmed board layout rendering lives in `App.tsx` using ring-based `calculateTilePositions` helpers and per-ring scale factors, with `BoardViewport` (classic zoom) + `Board3DViewport` (camera transform) handling layout constraints.

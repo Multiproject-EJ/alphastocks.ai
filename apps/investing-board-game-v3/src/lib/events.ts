@@ -3,6 +3,7 @@
  * Recurring and special events that provide temporary bonuses and effects
  */
 
+import { VAULT_SHOP_EVENT_DISCOUNT } from '@/config/shopVault'
 import { WindowSchedule, getNextScheduleWindow } from '@/lib/windowSchedule'
 
 export interface GameEvent {
@@ -391,9 +392,9 @@ const ROTATION_EVENT_TEMPLATES: Array<Omit<GameEvent, 'startDate' | 'endDate' | 
   },
   {
     title: 'Savings Surge',
-    description: 'Shop discounts up to 20%.',
+    description: `Shop discounts up to ${VAULT_SHOP_EVENT_DISCOUNT}%.`,
     type: 'special',
-    effects: { shopDiscount: 20 },
+    effects: { shopDiscount: VAULT_SHOP_EVENT_DISCOUNT },
     icon: '🛍️',
     currency: createCurrencyRules('🛍️', 3, 18, 350),
   },
