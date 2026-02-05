@@ -203,6 +203,7 @@ The current scratchcard is a simple win/lose placeholder. We want a **real casin
 ### Data model (config-first)
 - `scratchcardTiers.ts`: ticket types, cost, grid size, symbol pool, line rules, odds, prize tables.
 - `scratchcardEvents.ts`: temporary overrides (boosted odds, skins).
+- `scratchcardRewards.ts`: reward mappings, EV ranges, and payout clamps.
 
 ### Engine + renderer split
 - **Engine**: deterministic grid + win evaluation (pure functions).
@@ -228,6 +229,95 @@ The current scratchcard is a simple win/lose placeholder. We want a **real casin
 - Event overrides + schedule hooks.
 - Rare “jackpot days.”
 - Lightweight telemetry (win rate, avg payout).
+
+---
+
+## Scratchcard 2.0 — Delivery Plan (AI-ready)
+
+### Integration touchpoints (scan + confirm)
+- `ScratchcardGame.tsx`: UI + reveal interactions + win summary.
+- `CasinoModal.tsx`: entry point and tier selection UI.
+- Rewards/payout wiring in `App.tsx` (cash/coins/stars/XP updates).
+- `useChallenges.ts` + `challenges.ts`: `win_scratchcard` progress.
+- `achievements.ts`: scratchcard achievements + streaks.
+- `events.ts` + `miniGameSchedule.ts`: event windows + availability.
+- `shopItems.ts`: casino luck boost items (win rate modifiers).
+
+### Definition of Done (per slice)
+**Slice A1 — Config + Evaluation Engine**
+- Tier config drives grid size, symbol pool, and win rules.
+- `evaluateScratchcard()` returns structured prize list with odds + payout metadata.
+- Unit tests for deterministic evaluation (seeded RNG).
+
+**Slice A2 — Game UI + Summary**
+- `ScratchcardGame` accepts tier config + engine results.
+- Multi-prize summary panel with per-line highlights.
+- “See odds + EV” CTA shows win chance + prize table.
+
+**Slice A3 — Scratch Reveal Interaction**
+- Scratch mask with gradual erasing or radial scrub.
+- Reveal-all CTA after 3 scratches (if user wants fast mode).
+- Performance guardrails (mobile-friendly, reduced motion respected).
+
+**Slice B1 — Polish + Audio**
+- Big-win banner + optional confetti.
+- Subtle scratch sound loop + “ting” on reveal.
+- Win line highlight animations.
+
+**Slice C1 — Live Ops + Events**
+- Event overrides swap symbol pools/skins and boost odds.
+- Daily/weekly “jackpot day” boosts with clear schedule labels.
+
+### Handoff notes (to avoid regressions)
+- Keep payout values in config, not hardcoded in UI.
+- Preserve existing challenge/achievement counters.
+- Ensure deterministic RNG for tests and replayable outcomes.
+- No blocking network calls in the reveal loop.
+
+### Test plan (lightweight)
+- Unit test: `evaluateScratchcard()` deterministic outputs with seed.
+- UI test: render grid for each tier + summary content.
+- Performance: verify mask render doesn’t stall on low-end mobile.
+
+---
+
+## Expanded feature ideas (v2+)
+
+### Gameplay depth
+- **Win patterns library**: rows, diagonals, corners, center cross, “X” patterns.
+- **Bonus mini-zone**: 3-symbol side strip that can unlock a multiplier.
+- **Progressive jackpot meter**: small % of ticket cost feeds a rolling pot.
+- **Second-chance token**: lose once → earn token to re-roll one symbol.
+- **“Almost win” animation**: subtle tease when 2/3 match.
+
+### UX + player clarity
+- **Tier selector with preview**: shows grid size, odds, and top prize.
+- **Ticket rarity badge**: bronze/silver/gold/legendary.
+- **Win history drawer**: last 5 plays + outcomes.
+- **One-tap “fast reveal” mode**: skips scratch animation.
+
+### Economy + balancing
+- **EV bands**: expose EV ranges per tier to align with economy.
+- **Dynamic pricing**: temporary price changes during events.
+- **Daily tier caps**: higher tiers have lower daily limits.
+
+### Social + progression hooks
+- **Scratch streak meter**: 3 wins in a row → bonus ticket.
+- **Achievement callouts**: inline badge when streak or tier unlocks.
+- **Season pass hooks**: scratch wins contribute to pass XP.
+
+### Accessibility + performance
+- **Reduced motion mode**: disables scratch particles + confetti.
+- **Tap-to-reveal fallback**: for users who can’t drag.
+- **Low-end perf mode**: simplified texture + lower animation budget.
+
+---
+
+## Risk checklist (pre-merge)
+- ✅ Payouts don’t exceed economy caps.
+- ✅ Reveal loop doesn’t block main thread.
+- ✅ Odds are clearly explained to avoid misleading UX.
+- ✅ Event modifiers are reversible and logged.
 
 ## Decision points (choose early)
 1. **Grid sizes**: 3x3/4x3/4x4/5x4?
