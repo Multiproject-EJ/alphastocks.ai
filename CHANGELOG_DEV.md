@@ -5,6 +5,28 @@
 
 ## Unreleased
 
+- Seeded a central ring config JSON so ring rewards and portals can be tuned without code changes.
+- Normalized ring config exports in the app to keep fallbacks aligned with current behavior.
+
+**Date:** 2026-02-11  
+**Slice:** C1.3 Ring config seed  
+**Summary:**  
+- Added a root ring config JSON for ring reward and portal defaults.  
+- Normalized ring config exports in the board game app so fallback behavior stays deterministic.  
+- Logged the slice completion in the run-by-run plan.  
+
+**Files changed:**  
+- config/rings.json  
+- apps/investing-board-game-v3/src/config/rings.ts  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Launch the board game and confirm ring rewards, portal behavior, and ring multipliers match existing behavior.  
+
 - Added telemetry context metadata so tuning sessions can group events by app, session, and runtime mode.
 - Seeded telemetry context on boot for clearer event filtering between dev and production sessions.
 

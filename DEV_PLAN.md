@@ -122,6 +122,7 @@ _Last reviewed: 2026-02-10 (Economy config seed slice)_
 
 #### Config (new)
 - **Economy config seed:** `/config/economy.json` (energy + vault regen defaults) + `apps/investing-board-game-v3/src/lib/economyConfig.ts` (normalization + exports)
+- **Ring config seed:** `/config/rings.json` (ring rewards + portal defaults) + `apps/investing-board-game-v3/src/config/rings.ts` (normalization + exports)
 
 #### ProTools (read-only)
 - **Integration docs:** `apps/investing-board-game-v3/PRO_TOOLS_INTEGRATION.md`
@@ -227,6 +228,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 ### C1 — Config Strategy (Data-driven tuning)
 - **C1.1** ✅ Economy config seed (energy + vault regen)
 - **C1.2** ✅ Shop vault config seed (seasons, discounts, and level curve)
+- **C1.3** ✅ Ring config seed (ring rewards + portals)
 
 ### P1 — Mini-Games Hub
 - **P1.1** ✅ Wheel of Fortune playable demo in Games Hub
@@ -280,7 +282,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **TBD — pick the next milestone from the master plan.**
+**Recommended next slice:** **C1.4 — Learning config seed (learning tiles + streak rewards).**
 
 ## P2.7 Scope Notes (Bias Sanctuary visual story mode)
 ### Story structure & content
@@ -524,6 +526,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Added a shop vault config JSON seeded with seasons, sets, fixtures, and XP curve defaults.
 - Normalized the shop vault config so fixtures, level curve, and discount values can be tuned in one place.
 - Routed Savings Surge event discounts through the shared shop vault discount setting.
+
+## C1.3 Slice Notes (Ring config seed)
+- Seeded a central ring config JSON with ring rewards and portal defaults for tuning outside the app bundle.
+- Added a normalization helper to export ring configs with safe fallbacks that mirror current behavior.
+- Logged the slice completion and refreshed the repo map pointer for ring config ownership.
 
 ## M7.1 Slice Notes (Audit board renderer + tile overlays)
 - Confirmed board layout rendering lives in `App.tsx` using ring-based `calculateTilePositions` helpers and per-ring scale factors, with `BoardViewport` (classic zoom) + `Board3DViewport` (camera transform) handling layout constraints.
