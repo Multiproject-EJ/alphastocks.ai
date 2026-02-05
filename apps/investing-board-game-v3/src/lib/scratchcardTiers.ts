@@ -6,8 +6,10 @@ export type ScratchcardPrize = {
   currency: 'cash' | 'stars' | 'coins' | 'xp'
 }
 
+export type ScratchcardTierId = 'bronze' | 'silver' | 'gold' | 'legendary'
+
 export type ScratchcardTier = {
-  id: 'bronze' | 'silver' | 'gold' | 'legendary'
+  id: ScratchcardTierId
   name: string
   entryCost: { currency: 'coins' | 'stars' | 'cash'; amount: number }
   symbolPool: string[]
@@ -88,5 +90,5 @@ export const scratchcardTiers: ScratchcardTier[] = [
   },
 ]
 
-export const getScratchcardTier = (tierId: ScratchcardTier['id']) =>
+export const getScratchcardTier = (tierId: ScratchcardTierId) =>
   scratchcardTiers.find((tier) => tier.id === tierId) ?? scratchcardTiers[0]
