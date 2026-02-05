@@ -6,6 +6,14 @@ export type ScratchcardPrize = {
   currency: 'cash' | 'stars' | 'coins' | 'xp'
 }
 
+export type ScratchcardPrizeResult = {
+  label: string
+  amount: number
+  currency: ScratchcardPrize['currency']
+  pattern: 'row' | 'diagonal' | 'bonus'
+  multiplier?: number
+}
+
 export type ScratchcardTierId = 'bronze' | 'silver' | 'gold' | 'legendary'
 
 export type ScratchcardTier = {
