@@ -159,3 +159,86 @@ Enable multipliers from event systems:
 2. Update `ScratchcardGame` to render the config + prize results.
 3. Add a scratch reveal overlay with SVG masking.
 4. Wire animations behind a feature flag for mobile performance.
+
+---
+
+# Scratchcard 2.0 Brainstorming Plan
+
+## Why this plan
+The current scratchcard is a simple win/lose placeholder. We want a **real casino-feeling ticket** with layered reveals, multiple win paths, and clear rewards without making it slow or overwhelming on mobile.
+
+## Experience pillars (what players should feel)
+1. **Tactile reveal**: Real scratch texture + progressive uncovering.
+2. **Anticipation**: Micro-wins and “almost got it” tension.
+3. **Variety**: Different ticket themes and rules, not just “match 3.”
+4. **Clarity**: Players understand “what they did” and “what they won.”
+5. **Speed**: 15–25 seconds total per play, mobile-first.
+
+## Feature ideas to explore (pick a few, not all)
+### Core ticket mechanics
+- **Multi-line wins** (rows + diagonals) with clear highlights.
+- **Bonus zones** (center bonus, corner bonus, or “match 3 icons” bubble).
+- **Multiplier badges** (2×/3×/5×) revealed separately.
+- **Instant win symbols** (e.g., “🎁” = automatic prize).
+- **Fail-safe micro-reward** (small coin consolation for near misses).
+
+### Ticket themes (rotation-ready)
+- **Lucky 3 (bronze)**: simple 3x3 grid, 1–2 lines.
+- **Triple Star (silver)**: 4x3 grid + bonus center.
+- **Diamond Rush (gold)**: 4x4 grid, diagonals, multiplier badge.
+- **Jackpot Royale (legendary)**: 5x4 grid + bonus zone + jackpot symbol hunt.
+
+### Seasonal overlays
+- **Event skins** (holiday, summer, neon casino).
+- **Themed symbol pools** (emoji/icon sets).
+- **Limited “boost tickets”** tied to event windows.
+
+### Reward presentation
+- **Win summary card** listing each prize line (amount + currency).
+- **“Big Win” threshold** for special confetti + audio.
+- **Optional “reveal all”** button after 3 scratches.
+- **Odds peek CTA**: a “See odds + expected value” button that reveals the ticket’s win chance, prize table, and EV range (per tier).
+
+## Proposed 2.0 architecture (lightweight + scalable)
+### Data model (config-first)
+- `scratchcardTiers.ts`: ticket types, cost, grid size, symbol pool, line rules, odds, prize tables.
+- `scratchcardEvents.ts`: temporary overrides (boosted odds, skins).
+
+### Engine + renderer split
+- **Engine**: deterministic grid + win evaluation (pure functions).
+- **Renderer**: scratch overlay + reveal interactions + win UI.
+- **Odds math helper**: deterministic helper that calculates and displays tier odds + EV for the “See odds” CTA.
+
+### Reward hooks
+- Return **structured prize list** (type + amount + label).
+- Single payout function handles cash/coins/stars/XP.
+
+## Proposed phases (iterative)
+### Phase A — “Real ticket” baseline (1–2 slices)
+- Config-driven tiers + line rules.
+- Multi-prize results with summary UI.
+- Basic scratch texture reveal (mask + gradual erasing or radial scrub).
+
+### Phase B — “Casino polish”
+- Win line highlights + multiplier reveal.
+- Big-win animation + optional sound.
+- Limited-time ticket skins.
+
+### Phase C — “Live ops”
+- Event overrides + schedule hooks.
+- Rare “jackpot days.”
+- Lightweight telemetry (win rate, avg payout).
+
+## Decision points (choose early)
+1. **Grid sizes**: 3x3/4x3/4x4/5x4?
+2. **Daily limits**: keep 3/day or vary by tier?
+3. **Currency mix**: coins only, or allow stars/cash?
+4. **Payout curve**: more frequent small wins vs. rare big wins?
+5. **UX default**: auto-reveal or manual scratch required?
+6. **Odds disclosure**: show win chance + EV by default or behind a “See odds” CTA?
+
+## Recommendation (first concrete slice)
+1. Add `scratchcardTiers.ts` + `evaluateScratchcard.ts`.
+2. Update `ScratchcardGame` to accept tier config + return prize list.
+3. Add a basic scratch mask + line highlights.
+4. Add a win summary panel (small list).
