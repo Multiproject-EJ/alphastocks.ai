@@ -10,8 +10,20 @@ The current scratchcard is a clean, simple win/lose minigame. This guide expands
 
 ## Status Snapshot (2026-01-24)
 - **Documentation refresh:** Tiered scratchcard plan clarified with a config-first approach.
-- **Code status:** Scratchcard is still the single win/lose flow; tier config and multi-prize logic are not implemented yet.
-- **Next slice focus:** Add tier config + refactor `ScratchcardGame` to consume it.
+- **Code status:** Tier config, configurable grid, and multi-prize logic are implemented; evaluation logic now lives in a shared helper.
+- **Next slice focus:** Add tests for the evaluation helper and move toward deterministic RNG.
+
+## AI Plan Execution Rules (always follow)
+**General instructions (always active):**
+1. Keep the plan accurate and actionable; update it whenever implementation changes.
+2. Always document **what’s been done** and **what’s next** inside the plan itself.
+3. Keep steps small, numbered, and scoped to a single slice.
+4. Prefer config-first or helper-module changes before UI polish.
+5. After each completed step, immediately write the next step.
+
+**Progress log (live, always update):**
+- **Done (latest):** Added config-driven scratchcard tiers and refactored `ScratchcardGame` to use them; extracted a scratchcard evaluation helper so win logic is reusable.
+- **Next step:** Add unit tests for the evaluation helper using deterministic RNG or injected rolls.
 
 ## Next Slice (P0 Foundation)
 1. Create `scratchcardTiers` config with tier costs, odds, and prize pools.
