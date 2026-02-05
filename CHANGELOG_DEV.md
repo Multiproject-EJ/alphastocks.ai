@@ -5,6 +5,24 @@
 
 ## Unreleased
 
+- Fixed portal animation hook ordering to prevent React 310 errors during ring transitions.
+
+**Date:** 2026-02-15  
+**Slice:** M1.5 Stock tile ascend meter (bugfix)  
+**Summary:**  
+- Moved portal animation hook usage so hook order stays stable across transition states.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/components/PortalAnimation.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Land on the Big Fish Portal and confirm the ring transition plays without a React error.  
+
 - Added a stock-tile ascend meter that auto-lifts players to the next ring after 100 points.
 - Surfaced the ascend meter in the mobile HUD for progress tracking.
 
