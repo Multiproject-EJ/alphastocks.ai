@@ -7,7 +7,7 @@ interface StockModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   stock: Stock | null
-  onBuy: (shares: number) => void
+  onBuy: (shares: number, stock: Stock) => void
   cash: number
   ringNumber?: RingNumber
   playSound?: (sound: string) => void
@@ -163,7 +163,7 @@ export function StockModal({
     setShowParticles(true)
     
     setTimeout(() => {
-      onBuy(sharesToBuy)
+      onBuy(sharesToBuy, stock)
       setBuyPressed(false)
       setShowParticles(false)
       onOpenChange(false)

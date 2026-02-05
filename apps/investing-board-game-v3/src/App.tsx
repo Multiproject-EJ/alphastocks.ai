@@ -4027,13 +4027,11 @@ function App() {
     handleRing3Landing(300, { x: window.innerWidth / 2, y: window.innerHeight / 2 })
   }, [buildRingHistoryUpdate, handleRing3Landing])
 
-  const handleBuyStock = (sharesToBuy: number) => {
-    if (!currentStock) return
-
+  const handleBuyStock = (sharesToBuy: number, stock: Stock) => {
     const shares = Math.max(1, Math.floor(sharesToBuy))
-    const totalCost = currentStock.price * shares
-    const isEliteStock = currentStock.category === 'elite'
-    const compositeScore = currentStock.scores?.composite ?? 6
+    const totalCost = stock.price * shares
+    const isEliteStock = stock.category === 'elite'
+    const compositeScore = stock.scores?.composite ?? 6
     const baseEliteStars = Math.max(3, Math.round(compositeScore / 2))
     const baseEliteXp = Math.max(8, Math.round(compositeScore * 2))
     const eliteStars = isEliteStock
@@ -4057,7 +4055,7 @@ function App() {
     hapticSuccess()  // Success haptic on purchase
     
     // Track challenge progress for buying stock
-    updateChallengeProgress('buy_stock', { ticker: currentStock.ticker, category: currentStock.category })
+    updateChallengeProgress('buy_stock', { ticker: stock.ticker, category: stock.category })
     
     setGameState((prev) => {
       const newCash = prev.cash - totalCost
@@ -4066,7 +4064,7 @@ function App() {
       const newPortfolioValue = prev.portfolioValue + portfolioValueIncrease
       const newNetWorth = newCash + newPortfolioValue
       const existingHoldingIndex = prev.holdings.findIndex(
-        (holding) => holding.stock.ticker === currentStock.ticker
+        (holding) => holding.stock.ticker === stock.ticker
       )
       const nextHoldings = [...prev.holdings]
 
@@ -4079,7 +4077,7 @@ function App() {
         }
       } else {
         nextHoldings.push({
-          stock: currentStock,
+          stock,
           shares,
           totalCost,
         })
@@ -4106,7 +4104,7 @@ function App() {
     })
     triggerImmediateSave()
 
-    toast.success(`Purchased ${shares} shares of ${currentStock.ticker}`, {
+    toast.success(`Purchased ${shares} shares of ${stock.ticker}`, {
       description: `Total cost: $${totalCost.toLocaleString()}`,
     })
     if (eliteStars > 0 || eliteXp > 0) {
