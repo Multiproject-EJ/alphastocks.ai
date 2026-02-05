@@ -56,6 +56,9 @@ const weightedPick = (prizes: ScratchcardPrize[]) => {
   return prizes[0]
 }
 
+const jackpotPick = (prizes: ScratchcardPrize[]) =>
+  prizes.reduce((best, prize) => (prize.maxAmount > best.maxAmount ? prize : best), prizes[0])
+
 const rollAmount = (prize: ScratchcardPrize) =>
   Math.floor(prize.minAmount + Math.random() * (prize.maxAmount - prize.minAmount + 1))
 
@@ -216,7 +219,8 @@ export function ScratchcardGame({
         : 1
 
     const results: ScratchcardPrizeResult[] = wins.map((pattern) => {
-      const prize = weightedPick(tier.prizes)
+      const prize =
+        Math.random() < tier.odds.jackpotChance ? jackpotPick(tier.prizes) : weightedPick(tier.prizes)
       const amount = rollAmount(prize)
       return {
         label: prize.label,
