@@ -173,6 +173,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **M1.2** ✅ Start behavior: land-only ring transitions
 - **M1.3** ✅ Bull Market window → ring 2 quick entry
 - **M1.4** ✅ Middle-ring wildcard outcomes (fraud vs hidden gem)
+- **M1.5** ✅ Stock tile ascend meter (auto ring lift)
 
 ### M2 — Timeline Economy Core (Leverage, Momentum, Windows)
 - **M2.1** ✅ Canonical economy state shape + persistence
@@ -225,6 +226,12 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 
 ### M9 — Celebrations & FX
 - **M9.1** Ring 3 upgrade celebration (board spin + UI flash) ✅
+
+### M10 — Event Tile Activations (Marketing Tiles)
+- **M10.1** Audit event tile gaps + map titles to experiences
+- **M10.2** Implement Tier 1 event tiles (Analyst Call, News Flash, Executive Event, Board Meeting)
+- **M10.3** Court of Capital activation (corner tile experience)
+- **M10.4** Event tile copy + reward tuning pass (marketing hooks)
 
 ### C1 — Config Strategy (Data-driven tuning)
 - **C1.1** ✅ Economy config seed (energy + vault regen)
@@ -281,6 +288,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 6) M7 price labels overlay
 7) M3 portfolio buy tiles (paper trading)
 8) M4 micro-learning tiles
+9) M10 event tile activations (marketing tiles)
 
 ---
 
@@ -727,6 +735,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Added shared telemetry context metadata (app + session identifiers) so events are easier to group during tuning.
 - Seeded telemetry context with the runtime mode at app boot for clearer filtering between dev and prod sessions.
 
+## M10.1 Slice Notes (Event tile activation audit)
+- Inventory every event + corner tile title and document which ones are placeholder vs wired.
+- Map each “marketing” tile title to a concrete experience concept (choice, mini-game, reward flow).
+- Define Tier 1 vs Tier 2 activation priorities with small, shippable scopes.
+
 ## Fall Portals + Chance Lift Slice Notes
 - Added Ring 2 fall portal safety-net rewards so some drops grant a bonus roll, stars, or coins before returning to Street Level.
 - Expanded Chance Card outcomes with randomized executive perks alongside the jackpot lift to the Wealth Run for richer mid-ring stakes.
@@ -755,6 +768,12 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ## M1.4 Slice Notes (Middle-ring wildcard outcomes)
 - Added a Ring 2 wildcard outcome split so "Hidden Gem" (20%) vs "Fraud Alert" (80%) fires on the middle ring.
 - Kept the existing wildcard pool for Rings 1 and 3.
+
+## M1.5 Slice Notes (Stock tile ascend meter)
+- Added an ascend meter that fills by landing on stock tiles, granting 1–3 points per landing.
+- Triggered an automatic portal lift to the next ring when the meter reaches 100, resetting the counter.
+- Added a mobile HUD meter so players can track progress toward the next ring.
+- Fixed portal animation hook ordering to prevent React 310 errors on ring transitions.
 
 ## M1.1 Slice Notes (Audit ring movement + portal behavior)
 - Verified portal rules in `movementEngine` and `App.tsx` match the master plan: Ring 1 ascends only on exact landings, and Ring 2/3 start tiles remain stable anchors on both pass and land.

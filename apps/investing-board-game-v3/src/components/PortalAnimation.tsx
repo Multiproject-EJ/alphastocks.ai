@@ -53,11 +53,9 @@ export function PortalAnimation({ transition, isAnimating }: PortalAnimationProp
     window.addEventListener('resize', updateViewport)
     return () => window.removeEventListener('resize', updateViewport)
   }, [])
-  
-  if (!transition || !isAnimating || phase === 'idle') return null
-  
-  const isAscending = transition.direction === 'up'
-  const isThrone = transition.toRing === 0
+
+  const isAscending = transition?.direction === 'up'
+  const isThrone = transition?.toRing === 0
   const portalPalette = getPortalPalette(isAscending, isThrone)
   const portalSize = useMemo(() => {
     const base = Math.min(viewport.width || 800, viewport.height || 600)
@@ -65,6 +63,8 @@ export function PortalAnimation({ transition, isAnimating }: PortalAnimationProp
   }, [viewport.width, viewport.height, isThrone])
   const beamWidth = Math.max(portalSize * 0.12, 56)
   const beamHeight = Math.max((viewport.height || 700) * 1.1, 520)
+
+  if (!transition || !isAnimating || phase === 'idle') return null
   
   return (
     <AnimatePresence>

@@ -363,6 +363,8 @@ const formatEventCountdown = (target: Date, now: Date) => {
   return `${minutes}m`
 }
 
+const rollAscendMeterPoints = () => Math.floor(Math.random() * 3) + 1
+
 function App() {
   const boardRef = useRef<HTMLDivElement>(null)
   const stockSourceAnnounced = useRef<'supabase' | 'mock' | null>(null)
@@ -381,6 +383,7 @@ function App() {
     xp: 0,
   })
   const currencySnapshotInitializedRef = useRef(false)
+  const ASCEND_PROGRESS_GOAL = 100
 
   // Default initial game state
   const defaultGameState: GameState = {
@@ -434,6 +437,7 @@ function App() {
       lastLoginDate: null,
       totalStarsEarned: 0,
       roll6Streak: 0,
+      ringAscendProgress: 0,
       ringVisitCounts: { ring1: 1, ring2: 0, ring3: 0 },
       ringHistory: [
         {
@@ -3624,6 +3628,43 @@ function App() {
       }
     }
 
+    if (tile.type === 'category' && tile.category && gameState.currentRing < 3) {
+      const pointsEarned = rollAscendMeterPoints()
+      const currentProgress = gameState.stats?.ringAscendProgress ?? 0
+      const nextProgress = currentProgress + pointsEarned
+      const shouldAutoAscend = nextProgress >= ASCEND_PROGRESS_GOAL
+
+      setGameState(prev => ({
+        ...prev,
+        stats: {
+          ...prev.stats,
+          ringAscendProgress: shouldAutoAscend ? 0 : nextProgress,
+        },
+      }))
+
+      if (shouldAutoAscend) {
+        const nextRing = (gameState.currentRing + 1) as RingNumber
+        const targetTile = PORTAL_CONFIG[`ring${nextRing}` as keyof typeof PORTAL_CONFIG].startTileId
+        triggerPortalAnimation({
+          direction: 'up',
+          fromRing: gameState.currentRing,
+          toRing: nextRing,
+          fromTile: position,
+          toTile: targetTile,
+          triggeredBy: 'land',
+          toastOverride: {
+            title: '⬆️ Ascend Meter Filled!',
+            description: `Stock momentum lifted you to Ring ${nextRing}.`,
+            variant: 'success',
+            duration: 3200,
+          },
+        })
+        debugGame('Phase transition: landed -> idle (ascend meter)')
+        setPhase('idle')
+        return
+      }
+    }
+
     // Activate inner mystery card when landing on category tile
     if (tile.type === 'category' && tile.category) {
       // Calculate which inner tile to activate (aligned with outer tile)
@@ -5700,6 +5741,8 @@ function App() {
           onOpenSeasonPass={openSeasonPass}
           dailySpinAvailable={dailySpinAvailable}
           onOpenDailySpin={() => setIsWheelOpen(true)}
+          ascendProgress={gameState.stats?.ringAscendProgress ?? 0}
+          ascendGoal={ASCEND_PROGRESS_GOAL}
           eventTrackNode={(
             <EventTrackBar
               definition={eventTrackDefinition}

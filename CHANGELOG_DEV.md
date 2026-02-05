@@ -5,6 +5,70 @@
 
 ## Unreleased
 
+- Fixed portal animation hook ordering to prevent React 310 errors during ring transitions.
+
+**Date:** 2026-02-15  
+**Slice:** M1.5 Stock tile ascend meter (bugfix)  
+**Summary:**  
+- Moved portal animation hook usage so hook order stays stable across transition states.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/components/PortalAnimation.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Land on the Big Fish Portal and confirm the ring transition plays without a React error.  
+
+- Added a stock-tile ascend meter that auto-lifts players to the next ring after 100 points.
+- Surfaced the ascend meter in the mobile HUD for progress tracking.
+
+**Date:** 2026-02-15  
+**Slice:** M1.5 Stock tile ascend meter  
+**Summary:**  
+- Added a ring-ascend meter that increments 1–3 points when landing on stock tiles and resets on auto-ascend.  
+- Triggered portal lift animations when the meter hits 100 to move players to the next ring.  
+- Added a Compact HUD progress meter so players can see their ascent progress.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/App.tsx  
+- apps/investing-board-game-v3/src/components/phone/CompactHUD.tsx  
+- apps/investing-board-game-v3/src/components/phone/PhoneLayout.tsx  
+- apps/investing-board-game-v3/src/lib/types.ts  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Land on stock tiles and confirm the ascend meter increases by 1–3 points.  
+- (manual) Verify that reaching 100 triggers an automatic ring ascent and resets the meter.  
+- (manual) Check the Compact HUD for the Ascend Meter progress bar.  
+
+- Added an Event Tile Activations workstream to ensure marketing-titled tiles are scoped and built.
+- Updated the suggested run order to include event tile activation slices.
+
+**Date:** 2026-02-15  
+**Slice:** M10.1 Event tile activation audit (plan only)  
+**Summary:**  
+- Added the M10 Event Tile Activations workstream with audit + implementation slices for marketing tiles.  
+- Logged new slice notes to capture the audit scope and prioritization approach.  
+- Updated the suggested run order to include the event tile activation workstream.  
+
+**Files changed:**  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (n/a — documentation update)  
+
 - Wired the Season Pass overlay into the mobile HUD so players can open the battle pass on demand.
 - Routed challenge season points into the Season Pass progression helper.
 - Registered the Season Pass overlay for consistent modal rendering.

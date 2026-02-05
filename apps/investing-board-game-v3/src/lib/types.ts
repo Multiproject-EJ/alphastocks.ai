@@ -230,6 +230,7 @@ export interface GameState {
     roll6Streak: number
     rollsPurchased?: number
     coinsSpentOnRolls?: number
+    ringAscendProgress?: number
     ringVisitCounts?: {
       ring1: number
       ring2: number
