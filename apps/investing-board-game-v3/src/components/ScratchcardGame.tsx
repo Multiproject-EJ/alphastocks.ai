@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Sparkle } from '@phosphor-icons/react'
@@ -15,6 +15,7 @@ interface ScratchcardGameProps {
   onClose: () => void
   luckBoost?: number // Percentage boost to win chance (0-1)
   tierId?: ScratchcardTierId
+  tier?: ScratchcardTier
 }
 
 type PrizeResult = {
@@ -146,14 +147,28 @@ const evaluatePatterns = (grid: string[], tier: ScratchcardTier): Array<PrizeRes
   return wins
 }
 
-export function ScratchcardGame({ onWin, onClose, luckBoost = 0, tierId = 'bronze' }: ScratchcardGameProps) {
-  const tier = useMemo(() => getScratchcardTier(tierId), [tierId])
-  const [grid] = useState<string[]>(() => buildGrid(tier, luckBoost))
-  
+export function ScratchcardGame({
+  onWin,
+  onClose,
+  luckBoost = 0,
+  tierId = 'bronze',
+  tier: providedTier,
+}: ScratchcardGameProps) {
+  const tier = useMemo(() => providedTier ?? getScratchcardTier(tierId), [providedTier, tierId])
+  const [grid, setGrid] = useState<string[]>(() => buildGrid(tier, luckBoost))
+
   const totalCells = tier.grid.rows * tier.grid.columns
-  const [revealed, setRevealed] = useState<boolean[]>(Array(totalCells).fill(false))
+  const [revealed, setRevealed] = useState<boolean[]>(() => Array(totalCells).fill(false))
   const [gameOver, setGameOver] = useState(false)
   const [prizeResults, setPrizeResults] = useState<PrizeResult[]>([])
+
+  useEffect(() => {
+    const freshGrid = buildGrid(tier, luckBoost)
+    setGrid(freshGrid)
+    setRevealed(Array(tier.grid.rows * tier.grid.columns).fill(false))
+    setGameOver(false)
+    setPrizeResults([])
+  }, [tier, luckBoost])
 
   const handleReveal = (index: number) => {
     if (revealed[index] || gameOver) return
