@@ -19,6 +19,62 @@ The current scratchcard is a clean, simple win/lose minigame. This guide expands
 3. Replace the single “match 3” rule with win-pattern evaluation (rows/diagonals/bonus).
 4. Return a structured list of prizes so the modal can show a win summary.
 
+### P0.1 — Next thing to build (tier config scaffold)
+**Goal:** ship the tier configuration file that unlocks the next evolution step.
+
+**Action plan (do this next):**
+1. Add `src/lib/scratchcardTiers.ts` and export `scratchcardTiers` + `ScratchcardTier` type.
+2. Keep the data minimal but production-ready (Bronze → Legendary).
+3. Wire a default tier (Bronze) into `ScratchcardGame` so the config is actually used.
+
+**Minimal scaffold (starter content):**
+```ts
+export type ScratchcardTierId = 'bronze' | 'silver' | 'gold' | 'legendary';
+
+export type ScratchcardTier = {
+  id: ScratchcardTierId;
+  name: string;
+  entryCost: { currency: 'coins' | 'stars' | 'cash'; amount: number };
+  symbolPool: string[];
+  prizeSlots: number;
+  winPatterns: Array<'row' | 'diagonal' | 'bonus' | 'multiplier'>;
+  odds: {
+    winChance: number;
+    jackpotChance: number;
+    multiplierChance: number;
+  };
+  prizes: Array<{
+    label: string;
+    minAmount: number;
+    maxAmount: number;
+    weight: number;
+    currency: 'cash' | 'stars' | 'coins' | 'xp';
+  }>;
+};
+
+export const scratchcardTiers: ScratchcardTier[] = [
+  {
+    id: 'bronze',
+    name: 'Lucky 3',
+    entryCost: { currency: 'coins', amount: 50 },
+    symbolPool: ['🍒', '🍀', '⭐', '💎', '🎰', '🔔'],
+    prizeSlots: 3,
+    winPatterns: ['row'],
+    odds: { winChance: 0.25, jackpotChance: 0.01, multiplierChance: 0.08 },
+    prizes: [
+      { label: 'Small Win', minAmount: 75, maxAmount: 150, weight: 60, currency: 'coins' },
+      { label: 'Medium Win', minAmount: 200, maxAmount: 500, weight: 30, currency: 'coins' },
+      { label: 'Jackpot', minAmount: 2500, maxAmount: 2500, weight: 10, currency: 'coins' },
+    ],
+  },
+];
+```
+
+**Done when:**
+- `scratchcardTiers.ts` exists and exports both the type + tier data.
+- `ScratchcardGame` consumes the config (no hardcoded odds or rewards).
+- The app builds with the new config without runtime errors.
+
 ## Experience goals
 1. **Make scratchcards feel like a real casino ticket** (multiple prizes, real reveal patterns).
 2. **Increase anticipation** with progressive reveals and small animations.
