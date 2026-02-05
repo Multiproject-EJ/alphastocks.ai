@@ -258,6 +258,9 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P2.8** ✅ Bias Sanctuary ambient audio cues
 - **P2.9** ✅ Seasonal battle pass UI wiring
 
+### P3 — Casino & Scratchcards
+- **P3.1** ✅ Advanced casino games (audit CasinoModal + existing casino hooks and scope the first new game surface)
+
 ### P4 — Seasonal & Holiday Events
 - **P4.1** ✅ Holiday event schedule fixtures
 - **P4.2** ✅ Rare event calendar callouts
@@ -293,7 +296,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P3.1 — Advanced casino games (audit CasinoModal + existing casino hooks and scope the first new game surface).**
+**Recommended next slice:** **M10.2 — Implement Tier 1 event tiles (Analyst Call, News Flash, Executive Event, Board Meeting).**
 
 ## P2.7 Scope Notes (Bias Sanctuary visual story mode)
 ### Story structure & content
@@ -621,6 +624,12 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Built a mobile-first Bear Trap timed-event surface with defense pod selections, alert stream callouts, and rebound bonus framing to match the bear-market loop.
 - Added a nightly Bear Trap schedule slot so the mini-game availability system can surface live/upcoming drop windows.
 - Wired the Games Hub card to show Bear Trap availability labels and gate access until the drop window is live.
+
+## P3.1 Slice Notes (Advanced casino games audit)
+- Confirmed the Casino modal is a thin wrapper over the Scratchcard mini-game, with no lobby or game selection surface yet.
+- Noted the Scratchcard game uses a fixed 30% base win chance (plus the casino luck boost item) and fixed $5,000 payout with no ties to event-based guaranteed wins.
+- Verified the Casino Happy Hour event exposes a guaranteed-win flag via `useEvents`, but the casino flow currently does not consume it; this should be the first integration target.
+- Scoped the first new casino surface as a small lobby with one additional game card (proposed: High Roller Dice) that reuses existing reward toasts and respects event-based win guarantees.
 
 ## P3 Slice Notes (IPO Frenzy timed mini-game surface)
 - Built a mobile-first IPO Frenzy timed-event surface with allocation playbooks, pop signals, and roadshow framing for IPO launches.
