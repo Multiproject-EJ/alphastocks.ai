@@ -10,7 +10,11 @@ import {
   type ScratchcardTier,
   type ScratchcardTierId,
 } from '@/lib/scratchcardTiers'
-import { buildScratchcardGrid, evaluateScratchcardResults } from '@/lib/evaluateScratchcard'
+import {
+  buildScratchcardGrid,
+  evaluateScratchcardResults,
+  getScratchcardWinningLines,
+} from '@/lib/evaluateScratchcard'
 
 interface ScratchcardGameProps {
   onWin?: (amount: number) => void
@@ -60,6 +64,7 @@ export function ScratchcardGame({
   const [revealed, setRevealed] = useState<boolean[]>(() => Array(totalCells).fill(false))
   const [gameOver, setGameOver] = useState(false)
   const [prizeResults, setPrizeResults] = useState<ScratchcardPrizeResult[]>([])
+  const [winningLineIndices, setWinningLineIndices] = useState<Set<number>>(new Set())
 
   useEffect(() => {
     const freshGrid = buildScratchcardGrid(tier, luckBoost)
@@ -67,6 +72,7 @@ export function ScratchcardGame({
     setRevealed(Array(tier.grid.rows * tier.grid.columns).fill(false))
     setGameOver(false)
     setPrizeResults([])
+    setWinningLineIndices(new Set())
   }, [tier, luckBoost])
 
   const handleReveal = (index: number) => {
@@ -90,6 +96,13 @@ export function ScratchcardGame({
   const checkWin = () => {
     setGameOver(true)
 
+    const winningLines = getScratchcardWinningLines(grid, tier).slice(0, tier.prizeSlots)
+    const winningIndices = new Set<number>()
+    winningLines.forEach((line) => {
+      line.indices.forEach((index) => winningIndices.add(index))
+    })
+    setWinningLineIndices(winningIndices)
+
     const results = evaluateScratchcardResults(grid, tier)
     if (results.length === 0) {
       toast.info('No match this time', {
@@ -97,6 +110,7 @@ export function ScratchcardGame({
       })
       setPrizeResults([])
       onResults?.([])
+      setWinningLineIndices(new Set())
       return
     }
 
@@ -119,6 +133,11 @@ export function ScratchcardGame({
       description: `Prizes: ${summary}`,
     })
   }
+
+  const totalWinnings = prizeResults.reduce((sum, prize) => sum + prize.amount, 0)
+  const hasJackpot = prizeResults.some((prize) => prize.label.toLowerCase().includes('jackpot'))
+  const isBigWin =
+    prizeResults.length > 1 || hasJackpot || totalWinnings >= tier.entryCost.amount * 10
 
   return (
     <Card className="w-full max-w-full bg-gradient-to-br from-purple-900/20 to-pink-900/20 border-2 border-purple-500/50 shadow-2xl">
@@ -153,6 +172,9 @@ export function ScratchcardGame({
                   ? 'bg-gradient-to-br from-white/20 to-white/10 border-2 border-white/30 scale-100' 
                   : 'bg-gradient-to-br from-purple-600/40 to-pink-600/40 border-2 border-purple-400/60 hover:scale-105 hover:shadow-lg cursor-pointer'
                 }
+                ${gameOver && winningLineIndices.has(index)
+                  ? 'ring-2 ring-yellow-300/90 shadow-[0_0_12px_rgba(250,204,21,0.6)]'
+                  : ''}
                 ${!revealed[index] && !gameOver ? 'hover:from-purple-500/50 hover:to-pink-500/50' : ''}
                 flex items-center justify-center
               `}
@@ -164,7 +186,14 @@ export function ScratchcardGame({
 
         {gameOver && prizeResults.length > 0 && (
           <div className="rounded-lg border border-purple-400/40 bg-purple-900/20 p-3 text-sm text-purple-100">
-            <p className="font-semibold text-purple-50">Prize summary</p>
+            <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+              <p className="font-semibold text-purple-50">Prize summary</p>
+              {isBigWin && (
+                <span className="inline-flex items-center rounded-full bg-yellow-400/20 px-2 py-0.5 text-xs font-semibold text-yellow-200">
+                  Big win 🎉
+                </span>
+              )}
+            </div>
             <ul className="mt-2 space-y-1">
               {prizeResults.map((prize, index) => (
                 <li key={`${prize.label}-${index}`} className="flex items-center justify-between">
