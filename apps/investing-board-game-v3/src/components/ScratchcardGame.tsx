@@ -3,13 +3,18 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Sparkle } from '@phosphor-icons/react'
 import { toast } from 'sonner'
-import { getScratchcardTier, type ScratchcardPrize, type ScratchcardTier } from '@/lib/scratchcardTiers'
+import {
+  getScratchcardTier,
+  type ScratchcardPrize,
+  type ScratchcardTier,
+  type ScratchcardTierId,
+} from '@/lib/scratchcardTiers'
 
 interface ScratchcardGameProps {
   onWin?: (amount: number) => void
   onClose: () => void
   luckBoost?: number // Percentage boost to win chance (0-1)
-  tierId?: ScratchcardTier['id']
+  tierId?: ScratchcardTierId
 }
 
 type PrizeResult = {
