@@ -226,6 +226,12 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 ### M9 — Celebrations & FX
 - **M9.1** Ring 3 upgrade celebration (board spin + UI flash) ✅
 
+### M10 — Event Tile Activations (Marketing Tiles)
+- **M10.1** Audit event tile gaps + map titles to experiences
+- **M10.2** Implement Tier 1 event tiles (Analyst Call, News Flash, Executive Event, Board Meeting)
+- **M10.3** Court of Capital activation (corner tile experience)
+- **M10.4** Event tile copy + reward tuning pass (marketing hooks)
+
 ### C1 — Config Strategy (Data-driven tuning)
 - **C1.1** ✅ Economy config seed (energy + vault regen)
 - **C1.2** ✅ Shop vault config seed (seasons, discounts, and level curve)
@@ -281,6 +287,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 6) M7 price labels overlay
 7) M3 portfolio buy tiles (paper trading)
 8) M4 micro-learning tiles
+9) M10 event tile activations (marketing tiles)
 
 ---
 
@@ -726,6 +733,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ## M8.2 Slice Notes (Telemetry review + tuning pass)
 - Added shared telemetry context metadata (app + session identifiers) so events are easier to group during tuning.
 - Seeded telemetry context with the runtime mode at app boot for clearer filtering between dev and prod sessions.
+
+## M10.1 Slice Notes (Event tile activation audit)
+- Inventory every event + corner tile title and document which ones are placeholder vs wired.
+- Map each “marketing” tile title to a concrete experience concept (choice, mini-game, reward flow).
+- Define Tier 1 vs Tier 2 activation priorities with small, shippable scopes.
 
 ## Fall Portals + Chance Lift Slice Notes
 - Added Ring 2 fall portal safety-net rewards so some drops grant a bonus roll, stars, or coins before returning to Street Level.

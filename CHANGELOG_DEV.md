@@ -5,6 +5,26 @@
 
 ## Unreleased
 
+- Added an Event Tile Activations workstream to ensure marketing-titled tiles are scoped and built.
+- Updated the suggested run order to include event tile activation slices.
+
+**Date:** 2026-02-15  
+**Slice:** M10.1 Event tile activation audit (plan only)  
+**Summary:**  
+- Added the M10 Event Tile Activations workstream with audit + implementation slices for marketing tiles.  
+- Logged new slice notes to capture the audit scope and prioritization approach.  
+- Updated the suggested run order to include the event tile activation workstream.  
+
+**Files changed:**  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (n/a — documentation update)  
+
 - Wired the Season Pass overlay into the mobile HUD so players can open the battle pass on demand.
 - Routed challenge season points into the Season Pass progression helper.
 - Registered the Season Pass overlay for consistent modal rendering.
