@@ -33,6 +33,17 @@ const currencyLabel = (currency: ScratchcardPrize['currency']) => {
   }
 }
 
+const entryCostLabel = (currency: ScratchcardTier['entryCost']['currency']) => {
+  switch (currency) {
+    case 'coins':
+      return '🪙'
+    case 'stars':
+      return '⭐'
+    default:
+      return '$'
+  }
+}
+
 const weightedPick = (prizes: ScratchcardPrize[]) => {
   const totalWeight = prizes.reduce((sum, prize) => sum + prize.weight, 0)
   let roll = Math.random() * totalWeight
@@ -246,6 +257,10 @@ export function ScratchcardGame({
         </CardTitle>
         <p className="text-sm text-center text-muted-foreground mt-2">
           Scratch to reveal! Win lines pay out multiple prizes.
+        </p>
+        <p className="text-xs text-center text-muted-foreground mt-1">
+          Entry cost: {entryCostLabel(tier.entryCost.currency)}
+          {tier.entryCost.amount.toLocaleString()}
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
