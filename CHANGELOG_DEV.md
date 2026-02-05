@@ -5,6 +5,25 @@
 
 ## Unreleased
 
+- Audited the casino flow and scoped the next casino game surface.
+
+**Date:** 2026-02-18  
+**Slice:** P3.1 Advanced casino games (audit CasinoModal + existing casino hooks and scope the first new game surface)  
+**Summary:**  
+- Confirmed the Casino modal currently wraps the scratchcard game without a lobby or game selection step.  
+- Documented the scratchcard win-rate logic and noted the lack of wiring for Casino Happy Hour guaranteed wins.  
+- Scoped the first new casino game as a small lobby + one additional game card that reuses existing reward messaging.  
+
+**Files changed:**  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (none; documentation-only audit)  
+
 - Fixed portal animation hook ordering to prevent React 310 errors during ring transitions.
 
 **Date:** 2026-02-15  
