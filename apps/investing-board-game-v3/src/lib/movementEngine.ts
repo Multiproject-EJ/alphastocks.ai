@@ -116,23 +116,18 @@ export function calculateMovement(
         portalTriggered = true
         portalDirection = 'up'
         currentRing = action.targetRing as RingNumber
-        currentPositionIndex = RING_START_INDEX // Start at position 0 of new ring
+        currentPositionIndex = action.targetTile - getRingOffset(currentRing)
         
-        // Add the portal destination to path if we're continuing
-        if (remainingSteps > 0) {
-          const newTileId = getRingOffset(currentRing)
-          path.push({ ring: currentRing, tileId: newTileId })
-        }
+        const newTileId = action.targetTile
+        path.push({ ring: currentRing, tileId: newTileId })
       } else if (action.action === 'descend') {
         portalTriggered = true
         portalDirection = 'down'
         currentRing = action.targetRing as RingNumber
-        currentPositionIndex = RING_START_INDEX
-        
-        if (remainingSteps > 0) {
-          const newTileId = getRingOffset(currentRing)
-          path.push({ ring: currentRing, tileId: newTileId })
-        }
+        currentPositionIndex = action.targetTile - getRingOffset(currentRing)
+
+        const newTileId = action.targetTile
+        path.push({ ring: currentRing, tileId: newTileId })
       } else if (action.action === 'throne') {
         portalTriggered = true
         portalDirection = 'throne'
