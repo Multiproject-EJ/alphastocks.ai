@@ -29,6 +29,8 @@ interface PhoneLayoutProps {
     seasonPoints?: number;
     cityLevel?: number; // Optional city level for backward compatibility
   };
+  ascendProgress?: number;
+  ascendGoal?: number;
   onRollDice: (multiplier: number) => void;
   multiplier: number;
   onCycleMultiplier: () => void;
@@ -89,6 +91,8 @@ export function PhoneLayout({
   dailySpinAvailable = false,
   onOpenDailySpin = () => {},
   eventTrackNode,
+  ascendProgress = 0,
+  ascendGoal = 100,
 }: PhoneLayoutProps) {
   const { mode, transitionTo } = useUIMode();
   const showDebug = import.meta.env.DEV;
@@ -278,6 +282,9 @@ export function PhoneLayout({
       <div className="relative z-[60]">
         <CompactHUD
           {...gameState}
+          ascendProgress={ascendProgress}
+          ascendGoal={ascendGoal}
+          currentRing={currentRing}
           spaceBackgroundEnabled={spaceBackgroundEnabled}
           onToggleSpaceBackground={() => setSpaceBackgroundEnabled((enabled) => !enabled)}
           onOpenSettings={handleOpenSettings}

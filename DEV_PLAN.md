@@ -173,6 +173,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **M1.2** ✅ Start behavior: land-only ring transitions
 - **M1.3** ✅ Bull Market window → ring 2 quick entry
 - **M1.4** ✅ Middle-ring wildcard outcomes (fraud vs hidden gem)
+- **M1.5** ✅ Stock tile ascend meter (auto ring lift)
 
 ### M2 — Timeline Economy Core (Leverage, Momentum, Windows)
 - **M2.1** ✅ Canonical economy state shape + persistence
@@ -767,6 +768,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ## M1.4 Slice Notes (Middle-ring wildcard outcomes)
 - Added a Ring 2 wildcard outcome split so "Hidden Gem" (20%) vs "Fraud Alert" (80%) fires on the middle ring.
 - Kept the existing wildcard pool for Rings 1 and 3.
+
+## M1.5 Slice Notes (Stock tile ascend meter)
+- Added an ascend meter that fills by landing on stock tiles, granting 1–3 points per landing.
+- Triggered an automatic portal lift to the next ring when the meter reaches 100, resetting the counter.
+- Added a mobile HUD meter so players can track progress toward the next ring.
 
 ## M1.1 Slice Notes (Audit ring movement + portal behavior)
 - Verified portal rules in `movementEngine` and `App.tsx` match the master plan: Ring 1 ascends only on exact landings, and Ring 2/3 start tiles remain stable anchors on both pass and land.

@@ -18,6 +18,9 @@ interface CompactHUDProps {
   coins?: number;
   seasonPoints?: number;
   cityLevel?: number; // Optional city level for backward compatibility
+  ascendProgress?: number;
+  ascendGoal?: number;
+  currentRing?: number;
   spaceBackgroundEnabled?: boolean;
   onToggleSpaceBackground?: () => void;
   onOpenSettings?: () => void;
@@ -36,6 +39,9 @@ export function CompactHUD({
   coins = 0,
   seasonPoints = 0,
   cityLevel = 1,
+  ascendProgress = 0,
+  ascendGoal = 100,
+  currentRing = 1,
   spaceBackgroundEnabled = false,
   onToggleSpaceBackground = () => {},
   onOpenSettings = () => {},
@@ -46,6 +52,8 @@ export function CompactHUD({
   const { muted, toggleMute, play } = useSound();
   const xpGoal = Math.max(xpToNext, 1);
   const xpProgress = Math.min((xp / xpGoal) * 100, 100);
+  const ascendTarget = Math.max(ascendGoal, 1);
+  const ascendProgressPercent = Math.min((ascendProgress / ascendTarget) * 100, 100);
 
   const expandedStats = useMemo(() => ({
     primary: [
@@ -195,6 +203,23 @@ export function CompactHUD({
               />
             </div>
           </div>
+          {currentRing < 3 && (
+            <div className="rounded-lg border border-white/10 bg-muted/30 px-3 py-2 text-sm">
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Ascend Meter</span>
+                <span className="font-medium">{ascendProgress} / {ascendTarget}</span>
+              </div>
+              <p className="mt-1 text-[11px] text-muted-foreground">
+                Land on stock tiles to climb to Ring {currentRing + 1}.
+              </p>
+              <div className="mt-2 h-1.5 bg-muted rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-emerald-400 rounded-full transition-all"
+                  style={{ width: `${ascendProgressPercent}%` }}
+                />
+              </div>
+            </div>
+          )}
           <button
             onClick={() => {
               play('button-click');
