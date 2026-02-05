@@ -61,9 +61,10 @@ export const buildScratchcardGrid = (
   return symbols
 }
 
-const evaluatePatterns = (grid: string[], tier: ScratchcardTier) => {
+export const getScratchcardWinningLines = (grid: string[], tier: ScratchcardTier) => {
   const { rows, columns } = tier.grid
-  const wins: Array<ScratchcardPrizeResult['pattern']> = []
+  const lines: Array<{ pattern: ScratchcardPrizeResult['pattern']; indices: number[] }> = []
+
   if (tier.winPatterns.includes('row')) {
     for (let row = 0; row < rows; row += 1) {
       const startIndex = getIndex(row, 0, columns)
@@ -75,7 +76,10 @@ const evaluatePatterns = (grid: string[], tier: ScratchcardTier) => {
           break
         }
       }
-      if (isMatch) wins.push('row')
+      if (isMatch) {
+        const indices = Array.from({ length: columns }, (_, col) => getIndex(row, col, columns))
+        lines.push({ pattern: 'row', indices })
+      }
     }
   }
 
@@ -89,7 +93,10 @@ const evaluatePatterns = (grid: string[], tier: ScratchcardTier) => {
         break
       }
     }
-    if (mainMatch) wins.push('diagonal')
+    if (mainMatch) {
+      const indices = Array.from({ length: size }, (_, step) => getIndex(step, step, columns))
+      lines.push({ pattern: 'diagonal', indices })
+    }
 
     const antiSymbol = grid[getIndex(0, columns - 1, columns)]
     let antiMatch = true
@@ -99,20 +106,27 @@ const evaluatePatterns = (grid: string[], tier: ScratchcardTier) => {
         break
       }
     }
-    if (antiMatch) wins.push('diagonal')
+    if (antiMatch) {
+      const indices = Array.from({ length: size }, (_, step) =>
+        getIndex(step, columns - 1 - step, columns),
+      )
+      lines.push({ pattern: 'diagonal', indices })
+    }
   }
 
   if (tier.winPatterns.includes('bonus')) {
     const centerRow = Math.floor(rows / 2)
     const centerCol = Math.floor(columns / 2)
     const centerSymbol = grid[getIndex(centerRow, centerCol, columns)]
-    const centerCount = grid.filter((symbol) => symbol === centerSymbol).length
-    if (centerCount >= Math.min(3, rows)) {
-      wins.push('bonus')
+    const bonusIndices = grid
+      .map((symbol, index) => (symbol === centerSymbol ? index : -1))
+      .filter((index) => index !== -1)
+    if (bonusIndices.length >= Math.min(3, rows)) {
+      lines.push({ pattern: 'bonus', indices: bonusIndices })
     }
   }
 
-  return wins
+  return lines
 }
 
 export const evaluateScratchcardResults = (
@@ -120,7 +134,9 @@ export const evaluateScratchcardResults = (
   tier: ScratchcardTier,
   rng: () => number = Math.random,
 ) => {
-  const wins = evaluatePatterns(grid, tier).slice(0, tier.prizeSlots)
+  const wins = getScratchcardWinningLines(grid, tier)
+    .map((line) => line.pattern)
+    .slice(0, tier.prizeSlots)
   if (wins.length === 0) {
     return []
   }
