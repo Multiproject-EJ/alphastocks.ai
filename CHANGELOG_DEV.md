@@ -5,6 +5,28 @@
 
 ## Unreleased
 
+- Added telemetry context metadata so tuning sessions can group events by app, session, and runtime mode.
+- Seeded telemetry context on boot for clearer event filtering between dev and production sessions.
+
+**Date:** 2026-02-11  
+**Slice:** M8.2 Telemetry review + tuning pass  
+**Summary:**  
+- Added shared telemetry context metadata (app + session identifiers) to every telemetry event.  
+- Seeded telemetry context with runtime mode during app boot for easier tuning filters.  
+- Logged the slice completion in the run-by-run plan.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/App.tsx  
+- apps/investing-board-game-v3/src/lib/telemetry.ts  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Open the board game and confirm telemetry events include context metadata in local storage or console when telemetry consent is enabled.  
+
 - Added a shop vault config JSON for seasons, fixture data, XP curve defaults, and discounts, then normalized those values in the Shop 2.0 config helpers.
 - Routed the Savings Surge event discount through the shared shop vault discount setting.
 

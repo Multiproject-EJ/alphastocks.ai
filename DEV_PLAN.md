@@ -219,7 +219,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 
 ### M8 — Telemetry & Tuning
 - **M8.1** ✅ Economy telemetry sinks
-- **M8.2** ⏳ Telemetry review + tuning pass
+- **M8.2** ✅ Telemetry review + tuning pass
 
 ### M9 — Celebrations & FX
 - **M9.1** Ring 3 upgrade celebration (board spin + UI flash) ✅
@@ -280,7 +280,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **M8.2 — Telemetry review + tuning pass.**
+**Recommended next slice:** **TBD — pick the next milestone from the master plan.**
 
 ## P2.7 Scope Notes (Bias Sanctuary visual story mode)
 ### Story structure & content
@@ -702,6 +702,10 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ## M8.1 Slice Notes (Economy telemetry sinks)
 - Added a telemetry helper with opt-in consent, console logging in dev, and local storage buffering for lightweight economy event sinks.
 - Wired economy window start/end events, roll rewards, tile landings, and quick reward grants into the telemetry pipeline for future tuning passes.
+
+## M8.2 Slice Notes (Telemetry review + tuning pass)
+- Added shared telemetry context metadata (app + session identifiers) so events are easier to group during tuning.
+- Seeded telemetry context with the runtime mode at app boot for clearer filtering between dev and prod sessions.
 
 ## Fall Portals + Chance Lift Slice Notes
 - Added Ring 2 fall portal safety-net rewards so some drops grant a bonus roll, stars, or coins before returning to Street Level.
