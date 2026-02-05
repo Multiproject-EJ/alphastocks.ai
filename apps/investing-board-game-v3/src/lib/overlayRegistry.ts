@@ -31,6 +31,9 @@ const PortfolioModal = lazy(() =>
 const SettingsModal = lazy(() => import('@/components/SettingsModal'))
 const StockExchangeBuilderModal = lazy(() => import('@/components/StockExchangeBuilderModal'))
 const LeaderboardModal = lazy(() => import('@/components/LeaderboardModal'))
+const SeasonPassModal = lazy(() =>
+  import('@/components/SeasonPassModal').then((module) => ({ default: module.SeasonPassModal }))
+)
 
 export const OVERLAY_REGISTRY = {
   'stock': StockModal,
@@ -54,6 +57,7 @@ export const OVERLAY_REGISTRY = {
   'levelUp': LevelUpModal,
   'leaderboard': LeaderboardModal,
   'achievement': AchievementNotification,
+  'seasonPass': SeasonPassModal,
 } as const
 
 export type OverlayType = keyof typeof OVERLAY_REGISTRY
