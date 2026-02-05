@@ -11,7 +11,7 @@ The current scratchcard is a clean, simple win/lose minigame. This guide expands
 ## Status Snapshot (2026-01-24)
 - **Documentation refresh:** Tiered scratchcard plan clarified with a config-first approach.
 - **Code status:** Tier config, configurable grid, and multi-prize logic are implemented; evaluation logic now lives in a shared helper.
-- **Next slice focus:** Add tests for the evaluation helper and move toward deterministic RNG.
+- **Next slice focus:** Add tier selection + win summary UI polish after helper test coverage.
 
 ## AI Plan Execution Rules (always follow)
 **General instructions (always active):**
@@ -22,8 +22,8 @@ The current scratchcard is a clean, simple win/lose minigame. This guide expands
 5. After each completed step, immediately write the next step.
 
 **Progress log (live, always update):**
-- **Done (latest):** Added deterministic RNG injection to scratchcard grid generation and evaluation helpers.
-- **Next step:** Add unit tests for the evaluation helper using deterministic RNG or injected rolls.
+- **Done (latest):** Added unit tests for scratchcard evaluation helper with deterministic RNG rolls.
+- **Next step:** Add tier selection affordance and win summary UI in the scratchcard modal.
 
 ## Next Slice (P0 Foundation)
 1. Create `scratchcardTiers` config with tier costs, odds, and prize pools.

@@ -28,5 +28,9 @@ export default defineConfig({
     fs: {
       allow: [projectRoot, repoRoot]
     }
+  },
+  test: {
+    environment: 'node',
+    include: ['src/**/*.test.ts']
   }
 });
