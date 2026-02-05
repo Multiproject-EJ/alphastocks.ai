@@ -1,8 +1,8 @@
 import type { ScratchcardPrize, ScratchcardPrizeResult, ScratchcardTier } from '@/lib/scratchcardTiers'
 
-const weightedPick = (prizes: ScratchcardPrize[]) => {
+const weightedPick = (prizes: ScratchcardPrize[], rng: () => number) => {
   const totalWeight = prizes.reduce((sum, prize) => sum + prize.weight, 0)
-  let roll = Math.random() * totalWeight
+  let roll = rng() * totalWeight
   for (const prize of prizes) {
     roll -= prize.weight
     if (roll <= 0) {
@@ -15,30 +15,34 @@ const weightedPick = (prizes: ScratchcardPrize[]) => {
 const jackpotPick = (prizes: ScratchcardPrize[]) =>
   prizes.reduce((best, prize) => (prize.maxAmount > best.maxAmount ? prize : best), prizes[0])
 
-const rollAmount = (prize: ScratchcardPrize) =>
-  Math.floor(prize.minAmount + Math.random() * (prize.maxAmount - prize.minAmount + 1))
+const rollAmount = (prize: ScratchcardPrize, rng: () => number) =>
+  Math.floor(prize.minAmount + rng() * (prize.maxAmount - prize.minAmount + 1))
 
 const getIndex = (row: number, col: number, columns: number) => row * columns + col
 
-export const buildScratchcardGrid = (tier: ScratchcardTier, luckBoost: number) => {
+export const buildScratchcardGrid = (
+  tier: ScratchcardTier,
+  luckBoost: number,
+  rng: () => number = Math.random,
+) => {
   const { rows, columns } = tier.grid
   const totalCells = rows * columns
   const symbols = Array.from({ length: totalCells }, () => {
-    return tier.symbolPool[Math.floor(Math.random() * tier.symbolPool.length)]
+    return tier.symbolPool[Math.floor(rng() * tier.symbolPool.length)]
   })
   const winChance = tier.odds.winChance + luckBoost
   const patterns = tier.winPatterns.filter((pattern) => pattern !== 'multiplier')
-  if (Math.random() < winChance && patterns.length > 0) {
-    const winningSymbol = tier.symbolPool[Math.floor(Math.random() * tier.symbolPool.length)]
-    const pattern = patterns[Math.floor(Math.random() * patterns.length)]
+  if (rng() < winChance && patterns.length > 0) {
+    const winningSymbol = tier.symbolPool[Math.floor(rng() * tier.symbolPool.length)]
+    const pattern = patterns[Math.floor(rng() * patterns.length)]
     if (pattern === 'row') {
-      const row = Math.floor(Math.random() * rows)
+      const row = Math.floor(rng() * rows)
       for (let col = 0; col < columns; col += 1) {
         symbols[getIndex(row, col, columns)] = winningSymbol
       }
     } else if (pattern === 'diagonal') {
       const size = Math.min(rows, columns)
-      const isMain = Math.random() < 0.5
+      const isMain = rng() < 0.5
       for (let step = 0; step < size; step += 1) {
         const col = isMain ? step : columns - 1 - step
         symbols[getIndex(step, col, columns)] = winningSymbol
@@ -49,7 +53,7 @@ export const buildScratchcardGrid = (tier: ScratchcardTier, luckBoost: number) =
       symbols[getIndex(centerRow, centerCol, columns)] = winningSymbol
       const extraCells = Math.min(2, totalCells - 1)
       for (let i = 0; i < extraCells; i += 1) {
-        const randomIndex = Math.floor(Math.random() * totalCells)
+        const randomIndex = Math.floor(rng() * totalCells)
         symbols[randomIndex] = winningSymbol
       }
     }
@@ -111,21 +115,27 @@ const evaluatePatterns = (grid: string[], tier: ScratchcardTier) => {
   return wins
 }
 
-export const evaluateScratchcardResults = (grid: string[], tier: ScratchcardTier) => {
+export const evaluateScratchcardResults = (
+  grid: string[],
+  tier: ScratchcardTier,
+  rng: () => number = Math.random,
+) => {
   const wins = evaluatePatterns(grid, tier).slice(0, tier.prizeSlots)
   if (wins.length === 0) {
     return []
   }
 
   const multiplierRoll =
-    tier.winPatterns.includes('multiplier') && Math.random() < tier.odds.multiplierChance
-      ? [2, 3, 5][Math.floor(Math.random() * 3)]
+    tier.winPatterns.includes('multiplier') && rng() < tier.odds.multiplierChance
+      ? [2, 3, 5][Math.floor(rng() * 3)]
       : 1
 
   return wins.map((pattern) => {
     const prize =
-      Math.random() < tier.odds.jackpotChance ? jackpotPick(tier.prizes) : weightedPick(tier.prizes)
-    const amount = rollAmount(prize)
+      rng() < tier.odds.jackpotChance
+        ? jackpotPick(tier.prizes)
+        : weightedPick(tier.prizes, rng)
+    const amount = rollAmount(prize, rng)
     return {
       label: prize.label,
       amount: amount * multiplierRoll,
