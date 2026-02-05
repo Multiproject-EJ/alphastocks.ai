@@ -5,6 +5,28 @@
 
 ## Unreleased
 
+- Activated Tier 1 event tiles with choice-driven rewards and a new event decision modal.
+
+**Date:** 2026-02-05  
+**Slice:** M10.2 Implement Tier 1 event tiles (Analyst Call, News Flash, Executive Event, Board Meeting)  
+**Summary:**  
+- Added Tier 1 event tile definitions with choice copy and reward previews for the four event tiles.  
+- Built a reusable event choice modal and wired event tile landings to it.  
+- Applied ring-aware rewards, portfolio buffs, and telemetry logging for event tile choices.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/App.tsx  
+- apps/investing-board-game-v3/src/components/EventChoiceModal.tsx  
+- apps/investing-board-game-v3/src/lib/eventTiles.ts  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Land on Analyst Call, News Flash, Executive Event, and Board Meeting tiles and confirm the decision modal appears and awards the selected reward.  
+
 - Audited the casino flow and scoped the next casino game surface.
 
 **Date:** 2026-02-18  
