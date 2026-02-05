@@ -1,0 +1,932 @@
+{
+  "fixtures": {
+    "seasons": [
+      {
+        "id": "season-neon",
+        "code": "S01",
+        "name": "Neon Estates",
+        "description": "Glow-up districts with bold city icons and skyline sets.",
+        "theme": "Neon skyline",
+        "startAt": null,
+        "endAt": null,
+        "isActive": true
+      },
+      {
+        "id": "season-luxe",
+        "code": "S02",
+        "name": "Luxe Horizons",
+        "description": "Premium landmarks, gilded escapes, and prestige collections.",
+        "theme": "Luxury travel",
+        "startAt": null,
+        "endAt": null,
+        "isActive": false
+      }
+    ],
+    "sets": [
+      {
+        "id": "set-neon-core",
+        "seasonId": "season-neon",
+        "code": "CORE",
+        "name": "Core Districts",
+        "description": "Starter neighborhoods with high-footfall growth.",
+        "sortOrder": 1,
+        "isActive": true
+      },
+      {
+        "id": "set-neon-sky",
+        "seasonId": "season-neon",
+        "code": "SKY",
+        "name": "Skyline Suite",
+        "description": "Towering icons for elite investors.",
+        "sortOrder": 2,
+        "isActive": true
+      },
+      {
+        "id": "set-neon-shore",
+        "seasonId": "season-neon",
+        "code": "SHORE",
+        "name": "Harbor Lights",
+        "description": "Resort-grade properties and marina exclusives.",
+        "sortOrder": 3,
+        "isActive": true
+      },
+      {
+        "id": "set-luxe-art",
+        "seasonId": "season-luxe",
+        "code": "ART",
+        "name": "Gallery Row",
+        "description": "Art-driven districts with premium prestige.",
+        "sortOrder": 1,
+        "isActive": true
+      },
+      {
+        "id": "set-luxe-gold",
+        "seasonId": "season-luxe",
+        "code": "GOLD",
+        "name": "Gold Coast",
+        "description": "Ultra-high net worth estates.",
+        "sortOrder": 2,
+        "isActive": true
+      },
+      {
+        "id": "set-luxe-odyssey",
+        "seasonId": "season-luxe",
+        "code": "ODYSSEY",
+        "name": "Odyssey Isles",
+        "description": "Global resort chain to complete the season.",
+        "sortOrder": 3,
+        "isActive": true
+      }
+    ],
+    "items": [
+      {
+        "id": "set-neon-core-1",
+        "setId": "set-neon-core",
+        "name": "Core District 1",
+        "description": "Part 1 of the Core District collection.",
+        "icon": "\ud83c\udfd9\ufe0f",
+        "price": 1200,
+        "currency": "cash",
+        "rarity": "rare",
+        "isActive": true
+      },
+      {
+        "id": "set-neon-core-2",
+        "setId": "set-neon-core",
+        "name": "Core District 2",
+        "description": "Part 2 of the Core District collection.",
+        "icon": "\ud83c\udfd9\ufe0f",
+        "price": 1350,
+        "currency": "cash",
+        "rarity": "rare",
+        "isActive": true
+      },
+      {
+        "id": "set-neon-core-3",
+        "setId": "set-neon-core",
+        "name": "Core District 3",
+        "description": "Part 3 of the Core District collection.",
+        "icon": "\ud83c\udfd9\ufe0f",
+        "price": 1500,
+        "currency": "cash",
+        "rarity": "uncommon",
+        "isActive": true
+      },
+      {
+        "id": "set-neon-core-4",
+        "setId": "set-neon-core",
+        "name": "Core District 4",
+        "description": "Part 4 of the Core District collection.",
+        "icon": "\ud83c\udfd9\ufe0f",
+        "price": 1650,
+        "currency": "cash",
+        "rarity": "uncommon",
+        "isActive": true
+      },
+      {
+        "id": "set-neon-core-5",
+        "setId": "set-neon-core",
+        "name": "Core District 5",
+        "description": "Part 5 of the Core District collection.",
+        "icon": "\ud83c\udfd9\ufe0f",
+        "price": 1800,
+        "currency": "cash",
+        "rarity": "uncommon",
+        "isActive": true
+      },
+      {
+        "id": "set-neon-core-6",
+        "setId": "set-neon-core",
+        "name": "Core District 6",
+        "description": "Part 6 of the Core District collection.",
+        "icon": "\ud83c\udfd9\ufe0f",
+        "price": 1950,
+        "currency": "cash",
+        "rarity": "uncommon",
+        "isActive": true
+      },
+      {
+        "id": "set-neon-core-7",
+        "setId": "set-neon-core",
+        "name": "Core District 7",
+        "description": "Part 7 of the Core District collection.",
+        "icon": "\ud83c\udfd9\ufe0f",
+        "price": 2100,
+        "currency": "cash",
+        "rarity": "common",
+        "isActive": true
+      },
+      {
+        "id": "set-neon-core-8",
+        "setId": "set-neon-core",
+        "name": "Core District 8",
+        "description": "Part 8 of the Core District collection.",
+        "icon": "\ud83c\udfd9\ufe0f",
+        "price": 2250,
+        "currency": "cash",
+        "rarity": "common",
+        "isActive": true
+      },
+      {
+        "id": "set-neon-core-9",
+        "setId": "set-neon-core",
+        "name": "Core District 9",
+        "description": "Part 9 of the Core District collection.",
+        "icon": "\ud83c\udfd9\ufe0f",
+        "price": 2400,
+        "currency": "cash",
+        "rarity": "common",
+        "isActive": true
+      },
+      {
+        "id": "set-neon-core-10",
+        "setId": "set-neon-core",
+        "name": "Core District 10",
+        "description": "Part 10 of the Core District collection.",
+        "icon": "\ud83c\udfd9\ufe0f",
+        "price": 2550,
+        "currency": "cash",
+        "rarity": "common",
+        "isActive": true
+      },
+      {
+        "id": "set-neon-core-11",
+        "setId": "set-neon-core",
+        "name": "Core District 11",
+        "description": "Part 11 of the Core District collection.",
+        "icon": "\ud83c\udfd9\ufe0f",
+        "price": 2700,
+        "currency": "cash",
+        "rarity": "common",
+        "isActive": true
+      },
+      {
+        "id": "set-neon-core-12",
+        "setId": "set-neon-core",
+        "name": "Core District 12",
+        "description": "Part 12 of the Core District collection.",
+        "icon": "\ud83c\udfd9\ufe0f",
+        "price": 2850,
+        "currency": "cash",
+        "rarity": "common",
+        "isActive": true
+      },
+      {
+        "id": "set-neon-sky-1",
+        "setId": "set-neon-sky",
+        "name": "Skyline Suite 1",
+        "description": "Part 1 of the Skyline Suite collection.",
+        "icon": "\ud83c\udf06",
+        "price": 1800,
+        "currency": "cash",
+        "rarity": "rare",
+        "isActive": true
+      },
+      {
+        "id": "set-neon-sky-2",
+        "setId": "set-neon-sky",
+        "name": "Skyline Suite 2",
+        "description": "Part 2 of the Skyline Suite collection.",
+        "icon": "\ud83c\udf06",
+        "price": 1950,
+        "currency": "cash",
+        "rarity": "rare",
+        "isActive": true
+      },
+      {
+        "id": "set-neon-sky-3",
+        "setId": "set-neon-sky",
+        "name": "Skyline Suite 3",
+        "description": "Part 3 of the Skyline Suite collection.",
+        "icon": "\ud83c\udf06",
+        "price": 2100,
+        "currency": "cash",
+        "rarity": "uncommon",
+        "isActive": true
+      },
+      {
+        "id": "set-neon-sky-4",
+        "setId": "set-neon-sky",
+        "name": "Skyline Suite 4",
+        "description": "Part 4 of the Skyline Suite collection.",
+        "icon": "\ud83c\udf06",
+        "price": 2250,
+        "currency": "cash",
+        "rarity": "uncommon",
+        "isActive": true
+      },
+      {
+        "id": "set-neon-sky-5",
+        "setId": "set-neon-sky",
+        "name": "Skyline Suite 5",
+        "description": "Part 5 of the Skyline Suite collection.",
+        "icon": "\ud83c\udf06",
+        "price": 2400,
+        "currency": "cash",
+        "rarity": "uncommon",
+        "isActive": true
+      },
+      {
+        "id": "set-neon-sky-6",
+        "setId": "set-neon-sky",
+        "name": "Skyline Suite 6",
+        "description": "Part 6 of the Skyline Suite collection.",
+        "icon": "\ud83c\udf06",
+        "price": 2550,
+        "currency": "cash",
+        "rarity": "uncommon",
+        "isActive": true
+      },
+      {
+        "id": "set-neon-sky-7",
+        "setId": "set-neon-sky",
+        "name": "Skyline Suite 7",
+        "description": "Part 7 of the Skyline Suite collection.",
+        "icon": "\ud83c\udf06",
+        "price": 2700,
+        "currency": "cash",
+        "rarity": "common",
+        "isActive": true
+      },
+      {
+        "id": "set-neon-sky-8",
+        "setId": "set-neon-sky",
+        "name": "Skyline Suite 8",
+        "description": "Part 8 of the Skyline Suite collection.",
+        "icon": "\ud83c\udf06",
+        "price": 2850,
+        "currency": "cash",
+        "rarity": "common",
+        "isActive": true
+      },
+      {
+        "id": "set-neon-sky-9",
+        "setId": "set-neon-sky",
+        "name": "Skyline Suite 9",
+        "description": "Part 9 of the Skyline Suite collection.",
+        "icon": "\ud83c\udf06",
+        "price": 3000,
+        "currency": "cash",
+        "rarity": "common",
+        "isActive": true
+      },
+      {
+        "id": "set-neon-sky-10",
+        "setId": "set-neon-sky",
+        "name": "Skyline Suite 10",
+        "description": "Part 10 of the Skyline Suite collection.",
+        "icon": "\ud83c\udf06",
+        "price": 3150,
+        "currency": "cash",
+        "rarity": "common",
+        "isActive": true
+      },
+      {
+        "id": "set-neon-sky-11",
+        "setId": "set-neon-sky",
+        "name": "Skyline Suite 11",
+        "description": "Part 11 of the Skyline Suite collection.",
+        "icon": "\ud83c\udf06",
+        "price": 3300,
+        "currency": "cash",
+        "rarity": "common",
+        "isActive": true
+      },
+      {
+        "id": "set-neon-sky-12",
+        "setId": "set-neon-sky",
+        "name": "Skyline Suite 12",
+        "description": "Part 12 of the Skyline Suite collection.",
+        "icon": "\ud83c\udf06",
+        "price": 3450,
+        "currency": "cash",
+        "rarity": "common",
+        "isActive": true
+      },
+      {
+        "id": "set-neon-shore-1",
+        "setId": "set-neon-shore",
+        "name": "Harbor Light 1",
+        "description": "Part 1 of the Harbor Light collection.",
+        "icon": "\ud83d\udee5\ufe0f",
+        "price": 2000,
+        "currency": "cash",
+        "rarity": "rare",
+        "isActive": true
+      },
+      {
+        "id": "set-neon-shore-2",
+        "setId": "set-neon-shore",
+        "name": "Harbor Light 2",
+        "description": "Part 2 of the Harbor Light collection.",
+        "icon": "\ud83d\udee5\ufe0f",
+        "price": 2150,
+        "currency": "cash",
+        "rarity": "rare",
+        "isActive": true
+      },
+      {
+        "id": "set-neon-shore-3",
+        "setId": "set-neon-shore",
+        "name": "Harbor Light 3",
+        "description": "Part 3 of the Harbor Light collection.",
+        "icon": "\ud83d\udee5\ufe0f",
+        "price": 2300,
+        "currency": "cash",
+        "rarity": "uncommon",
+        "isActive": true
+      },
+      {
+        "id": "set-neon-shore-4",
+        "setId": "set-neon-shore",
+        "name": "Harbor Light 4",
+        "description": "Part 4 of the Harbor Light collection.",
+        "icon": "\ud83d\udee5\ufe0f",
+        "price": 2450,
+        "currency": "cash",
+        "rarity": "uncommon",
+        "isActive": true
+      },
+      {
+        "id": "set-neon-shore-5",
+        "setId": "set-neon-shore",
+        "name": "Harbor Light 5",
+        "description": "Part 5 of the Harbor Light collection.",
+        "icon": "\ud83d\udee5\ufe0f",
+        "price": 2600,
+        "currency": "cash",
+        "rarity": "uncommon",
+        "isActive": true
+      },
+      {
+        "id": "set-neon-shore-6",
+        "setId": "set-neon-shore",
+        "name": "Harbor Light 6",
+        "description": "Part 6 of the Harbor Light collection.",
+        "icon": "\ud83d\udee5\ufe0f",
+        "price": 2750,
+        "currency": "cash",
+        "rarity": "uncommon",
+        "isActive": true
+      },
+      {
+        "id": "set-neon-shore-7",
+        "setId": "set-neon-shore",
+        "name": "Harbor Light 7",
+        "description": "Part 7 of the Harbor Light collection.",
+        "icon": "\ud83d\udee5\ufe0f",
+        "price": 2900,
+        "currency": "cash",
+        "rarity": "common",
+        "isActive": true
+      },
+      {
+        "id": "set-neon-shore-8",
+        "setId": "set-neon-shore",
+        "name": "Harbor Light 8",
+        "description": "Part 8 of the Harbor Light collection.",
+        "icon": "\ud83d\udee5\ufe0f",
+        "price": 3050,
+        "currency": "cash",
+        "rarity": "common",
+        "isActive": true
+      },
+      {
+        "id": "set-neon-shore-9",
+        "setId": "set-neon-shore",
+        "name": "Harbor Light 9",
+        "description": "Part 9 of the Harbor Light collection.",
+        "icon": "\ud83d\udee5\ufe0f",
+        "price": 3200,
+        "currency": "cash",
+        "rarity": "common",
+        "isActive": true
+      },
+      {
+        "id": "set-neon-shore-10",
+        "setId": "set-neon-shore",
+        "name": "Harbor Light 10",
+        "description": "Part 10 of the Harbor Light collection.",
+        "icon": "\ud83d\udee5\ufe0f",
+        "price": 3350,
+        "currency": "cash",
+        "rarity": "common",
+        "isActive": true
+      },
+      {
+        "id": "set-neon-shore-11",
+        "setId": "set-neon-shore",
+        "name": "Harbor Light 11",
+        "description": "Part 11 of the Harbor Light collection.",
+        "icon": "\ud83d\udee5\ufe0f",
+        "price": 3500,
+        "currency": "cash",
+        "rarity": "common",
+        "isActive": true
+      },
+      {
+        "id": "set-neon-shore-12",
+        "setId": "set-neon-shore",
+        "name": "Harbor Light 12",
+        "description": "Part 12 of the Harbor Light collection.",
+        "icon": "\ud83d\udee5\ufe0f",
+        "price": 3650,
+        "currency": "cash",
+        "rarity": "common",
+        "isActive": true
+      },
+      {
+        "id": "set-luxe-art-1",
+        "setId": "set-luxe-art",
+        "name": "Gallery Row 1",
+        "description": "Part 1 of the Gallery Row collection.",
+        "icon": "\ud83d\uddbc\ufe0f",
+        "price": 2400,
+        "currency": "cash",
+        "rarity": "rare",
+        "isActive": true
+      },
+      {
+        "id": "set-luxe-art-2",
+        "setId": "set-luxe-art",
+        "name": "Gallery Row 2",
+        "description": "Part 2 of the Gallery Row collection.",
+        "icon": "\ud83d\uddbc\ufe0f",
+        "price": 2550,
+        "currency": "cash",
+        "rarity": "rare",
+        "isActive": true
+      },
+      {
+        "id": "set-luxe-art-3",
+        "setId": "set-luxe-art",
+        "name": "Gallery Row 3",
+        "description": "Part 3 of the Gallery Row collection.",
+        "icon": "\ud83d\uddbc\ufe0f",
+        "price": 2700,
+        "currency": "cash",
+        "rarity": "uncommon",
+        "isActive": true
+      },
+      {
+        "id": "set-luxe-art-4",
+        "setId": "set-luxe-art",
+        "name": "Gallery Row 4",
+        "description": "Part 4 of the Gallery Row collection.",
+        "icon": "\ud83d\uddbc\ufe0f",
+        "price": 2850,
+        "currency": "cash",
+        "rarity": "uncommon",
+        "isActive": true
+      },
+      {
+        "id": "set-luxe-art-5",
+        "setId": "set-luxe-art",
+        "name": "Gallery Row 5",
+        "description": "Part 5 of the Gallery Row collection.",
+        "icon": "\ud83d\uddbc\ufe0f",
+        "price": 3000,
+        "currency": "cash",
+        "rarity": "uncommon",
+        "isActive": true
+      },
+      {
+        "id": "set-luxe-art-6",
+        "setId": "set-luxe-art",
+        "name": "Gallery Row 6",
+        "description": "Part 6 of the Gallery Row collection.",
+        "icon": "\ud83d\uddbc\ufe0f",
+        "price": 3150,
+        "currency": "cash",
+        "rarity": "uncommon",
+        "isActive": true
+      },
+      {
+        "id": "set-luxe-art-7",
+        "setId": "set-luxe-art",
+        "name": "Gallery Row 7",
+        "description": "Part 7 of the Gallery Row collection.",
+        "icon": "\ud83d\uddbc\ufe0f",
+        "price": 3300,
+        "currency": "cash",
+        "rarity": "common",
+        "isActive": true
+      },
+      {
+        "id": "set-luxe-art-8",
+        "setId": "set-luxe-art",
+        "name": "Gallery Row 8",
+        "description": "Part 8 of the Gallery Row collection.",
+        "icon": "\ud83d\uddbc\ufe0f",
+        "price": 3450,
+        "currency": "cash",
+        "rarity": "common",
+        "isActive": true
+      },
+      {
+        "id": "set-luxe-art-9",
+        "setId": "set-luxe-art",
+        "name": "Gallery Row 9",
+        "description": "Part 9 of the Gallery Row collection.",
+        "icon": "\ud83d\uddbc\ufe0f",
+        "price": 3600,
+        "currency": "cash",
+        "rarity": "common",
+        "isActive": true
+      },
+      {
+        "id": "set-luxe-art-10",
+        "setId": "set-luxe-art",
+        "name": "Gallery Row 10",
+        "description": "Part 10 of the Gallery Row collection.",
+        "icon": "\ud83d\uddbc\ufe0f",
+        "price": 3750,
+        "currency": "cash",
+        "rarity": "common",
+        "isActive": true
+      },
+      {
+        "id": "set-luxe-art-11",
+        "setId": "set-luxe-art",
+        "name": "Gallery Row 11",
+        "description": "Part 11 of the Gallery Row collection.",
+        "icon": "\ud83d\uddbc\ufe0f",
+        "price": 3900,
+        "currency": "cash",
+        "rarity": "common",
+        "isActive": true
+      },
+      {
+        "id": "set-luxe-art-12",
+        "setId": "set-luxe-art",
+        "name": "Gallery Row 12",
+        "description": "Part 12 of the Gallery Row collection.",
+        "icon": "\ud83d\uddbc\ufe0f",
+        "price": 4050,
+        "currency": "cash",
+        "rarity": "common",
+        "isActive": true
+      },
+      {
+        "id": "set-luxe-gold-1",
+        "setId": "set-luxe-gold",
+        "name": "Gold Coast 1",
+        "description": "Part 1 of the Gold Coast collection.",
+        "icon": "\ud83c\udfd6\ufe0f",
+        "price": 2600,
+        "currency": "cash",
+        "rarity": "rare",
+        "isActive": true
+      },
+      {
+        "id": "set-luxe-gold-2",
+        "setId": "set-luxe-gold",
+        "name": "Gold Coast 2",
+        "description": "Part 2 of the Gold Coast collection.",
+        "icon": "\ud83c\udfd6\ufe0f",
+        "price": 2750,
+        "currency": "cash",
+        "rarity": "rare",
+        "isActive": true
+      },
+      {
+        "id": "set-luxe-gold-3",
+        "setId": "set-luxe-gold",
+        "name": "Gold Coast 3",
+        "description": "Part 3 of the Gold Coast collection.",
+        "icon": "\ud83c\udfd6\ufe0f",
+        "price": 2900,
+        "currency": "cash",
+        "rarity": "uncommon",
+        "isActive": true
+      },
+      {
+        "id": "set-luxe-gold-4",
+        "setId": "set-luxe-gold",
+        "name": "Gold Coast 4",
+        "description": "Part 4 of the Gold Coast collection.",
+        "icon": "\ud83c\udfd6\ufe0f",
+        "price": 3050,
+        "currency": "cash",
+        "rarity": "uncommon",
+        "isActive": true
+      },
+      {
+        "id": "set-luxe-gold-5",
+        "setId": "set-luxe-gold",
+        "name": "Gold Coast 5",
+        "description": "Part 5 of the Gold Coast collection.",
+        "icon": "\ud83c\udfd6\ufe0f",
+        "price": 3200,
+        "currency": "cash",
+        "rarity": "uncommon",
+        "isActive": true
+      },
+      {
+        "id": "set-luxe-gold-6",
+        "setId": "set-luxe-gold",
+        "name": "Gold Coast 6",
+        "description": "Part 6 of the Gold Coast collection.",
+        "icon": "\ud83c\udfd6\ufe0f",
+        "price": 3350,
+        "currency": "cash",
+        "rarity": "uncommon",
+        "isActive": true
+      },
+      {
+        "id": "set-luxe-gold-7",
+        "setId": "set-luxe-gold",
+        "name": "Gold Coast 7",
+        "description": "Part 7 of the Gold Coast collection.",
+        "icon": "\ud83c\udfd6\ufe0f",
+        "price": 3500,
+        "currency": "cash",
+        "rarity": "common",
+        "isActive": true
+      },
+      {
+        "id": "set-luxe-gold-8",
+        "setId": "set-luxe-gold",
+        "name": "Gold Coast 8",
+        "description": "Part 8 of the Gold Coast collection.",
+        "icon": "\ud83c\udfd6\ufe0f",
+        "price": 3650,
+        "currency": "cash",
+        "rarity": "common",
+        "isActive": true
+      },
+      {
+        "id": "set-luxe-gold-9",
+        "setId": "set-luxe-gold",
+        "name": "Gold Coast 9",
+        "description": "Part 9 of the Gold Coast collection.",
+        "icon": "\ud83c\udfd6\ufe0f",
+        "price": 3800,
+        "currency": "cash",
+        "rarity": "common",
+        "isActive": true
+      },
+      {
+        "id": "set-luxe-gold-10",
+        "setId": "set-luxe-gold",
+        "name": "Gold Coast 10",
+        "description": "Part 10 of the Gold Coast collection.",
+        "icon": "\ud83c\udfd6\ufe0f",
+        "price": 3950,
+        "currency": "cash",
+        "rarity": "common",
+        "isActive": true
+      },
+      {
+        "id": "set-luxe-gold-11",
+        "setId": "set-luxe-gold",
+        "name": "Gold Coast 11",
+        "description": "Part 11 of the Gold Coast collection.",
+        "icon": "\ud83c\udfd6\ufe0f",
+        "price": 4100,
+        "currency": "cash",
+        "rarity": "common",
+        "isActive": true
+      },
+      {
+        "id": "set-luxe-gold-12",
+        "setId": "set-luxe-gold",
+        "name": "Gold Coast 12",
+        "description": "Part 12 of the Gold Coast collection.",
+        "icon": "\ud83c\udfd6\ufe0f",
+        "price": 4250,
+        "currency": "cash",
+        "rarity": "common",
+        "isActive": true
+      },
+      {
+        "id": "set-luxe-odyssey-1",
+        "setId": "set-luxe-odyssey",
+        "name": "Odyssey Isle 1",
+        "description": "Part 1 of the Odyssey Isle collection.",
+        "icon": "\ud83c\udfdd\ufe0f",
+        "price": 2800,
+        "currency": "cash",
+        "rarity": "rare",
+        "isActive": true
+      },
+      {
+        "id": "set-luxe-odyssey-2",
+        "setId": "set-luxe-odyssey",
+        "name": "Odyssey Isle 2",
+        "description": "Part 2 of the Odyssey Isle collection.",
+        "icon": "\ud83c\udfdd\ufe0f",
+        "price": 2950,
+        "currency": "cash",
+        "rarity": "rare",
+        "isActive": true
+      },
+      {
+        "id": "set-luxe-odyssey-3",
+        "setId": "set-luxe-odyssey",
+        "name": "Odyssey Isle 3",
+        "description": "Part 3 of the Odyssey Isle collection.",
+        "icon": "\ud83c\udfdd\ufe0f",
+        "price": 3100,
+        "currency": "cash",
+        "rarity": "uncommon",
+        "isActive": true
+      },
+      {
+        "id": "set-luxe-odyssey-4",
+        "setId": "set-luxe-odyssey",
+        "name": "Odyssey Isle 4",
+        "description": "Part 4 of the Odyssey Isle collection.",
+        "icon": "\ud83c\udfdd\ufe0f",
+        "price": 3250,
+        "currency": "cash",
+        "rarity": "uncommon",
+        "isActive": true
+      },
+      {
+        "id": "set-luxe-odyssey-5",
+        "setId": "set-luxe-odyssey",
+        "name": "Odyssey Isle 5",
+        "description": "Part 5 of the Odyssey Isle collection.",
+        "icon": "\ud83c\udfdd\ufe0f",
+        "price": 3400,
+        "currency": "cash",
+        "rarity": "uncommon",
+        "isActive": true
+      },
+      {
+        "id": "set-luxe-odyssey-6",
+        "setId": "set-luxe-odyssey",
+        "name": "Odyssey Isle 6",
+        "description": "Part 6 of the Odyssey Isle collection.",
+        "icon": "\ud83c\udfdd\ufe0f",
+        "price": 3550,
+        "currency": "cash",
+        "rarity": "uncommon",
+        "isActive": true
+      },
+      {
+        "id": "set-luxe-odyssey-7",
+        "setId": "set-luxe-odyssey",
+        "name": "Odyssey Isle 7",
+        "description": "Part 7 of the Odyssey Isle collection.",
+        "icon": "\ud83c\udfdd\ufe0f",
+        "price": 3700,
+        "currency": "cash",
+        "rarity": "common",
+        "isActive": true
+      },
+      {
+        "id": "set-luxe-odyssey-8",
+        "setId": "set-luxe-odyssey",
+        "name": "Odyssey Isle 8",
+        "description": "Part 8 of the Odyssey Isle collection.",
+        "icon": "\ud83c\udfdd\ufe0f",
+        "price": 3850,
+        "currency": "cash",
+        "rarity": "common",
+        "isActive": true
+      },
+      {
+        "id": "set-luxe-odyssey-9",
+        "setId": "set-luxe-odyssey",
+        "name": "Odyssey Isle 9",
+        "description": "Part 9 of the Odyssey Isle collection.",
+        "icon": "\ud83c\udfdd\ufe0f",
+        "price": 4000,
+        "currency": "cash",
+        "rarity": "common",
+        "isActive": true
+      },
+      {
+        "id": "set-luxe-odyssey-10",
+        "setId": "set-luxe-odyssey",
+        "name": "Odyssey Isle 10",
+        "description": "Part 10 of the Odyssey Isle collection.",
+        "icon": "\ud83c\udfdd\ufe0f",
+        "price": 4150,
+        "currency": "cash",
+        "rarity": "common",
+        "isActive": true
+      },
+      {
+        "id": "set-luxe-odyssey-11",
+        "setId": "set-luxe-odyssey",
+        "name": "Odyssey Isle 11",
+        "description": "Part 11 of the Odyssey Isle collection.",
+        "icon": "\ud83c\udfdd\ufe0f",
+        "price": 4300,
+        "currency": "cash",
+        "rarity": "common",
+        "isActive": true
+      },
+      {
+        "id": "set-luxe-odyssey-12",
+        "setId": "set-luxe-odyssey",
+        "name": "Odyssey Isle 12",
+        "description": "Part 12 of the Odyssey Isle collection.",
+        "icon": "\ud83c\udfdd\ufe0f",
+        "price": 4450,
+        "currency": "cash",
+        "rarity": "common",
+        "isActive": true
+      }
+    ],
+    "ownership": [
+      {
+        "itemId": "set-neon-core-1"
+      },
+      {
+        "itemId": "set-neon-core-2"
+      },
+      {
+        "itemId": "set-neon-core-3"
+      },
+      {
+        "itemId": "set-neon-core-4"
+      },
+      {
+        "itemId": "set-neon-core-5"
+      },
+      {
+        "itemId": "set-neon-sky-1"
+      },
+      {
+        "itemId": "set-neon-sky-2"
+      },
+      {
+        "itemId": "set-neon-sky-3"
+      },
+      {
+        "itemId": "set-neon-shore-1"
+      },
+      {
+        "itemId": "set-neon-shore-2"
+      },
+      {
+        "itemId": "set-neon-shore-3"
+      },
+      {
+        "itemId": "set-luxe-art-1"
+      },
+      {
+        "itemId": "set-luxe-art-2"
+      }
+    ],
+    "progress": {
+      "level": 2,
+      "xp": 420,
+      "xpToNext": 1250
+    },
+    "claims": []
+  },
+  "xp": {
+    "PURCHASE_XP_MIN": 25,
+    "PURCHASE_XP_RATE": 0.05,
+    "LEVEL_BASE_XP": 1000,
+    "LEVEL_STEP_XP": 250
+  },
+  "discounts": {
+    "EVENT": 20
+  }
+}

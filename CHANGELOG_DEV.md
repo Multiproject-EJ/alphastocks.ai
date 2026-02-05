@@ -5,6 +5,29 @@
 
 ## Unreleased
 
+- Added a shop vault config JSON for seasons, fixture data, XP curve defaults, and discounts, then normalized those values in the Shop 2.0 config helpers.
+- Routed the Savings Surge event discount through the shared shop vault discount setting.
+
+**Date:** 2026-02-10  
+**Slice:** C1.2 Shop vault config seed (seasons, discounts, and level curve)  
+**Summary:**  
+- Added a shop vault config JSON seeded with seasons, sets, fixtures, and XP curve defaults.  
+- Normalized shop vault config so fixtures, level curve, and discounts can be tuned centrally.  
+- Routed Savings Surge event discounts through the shared shop vault discount value.  
+
+**Files changed:**  
+- config/shop_vault.json  
+- apps/investing-board-game-v3/src/config/shopVault.ts  
+- apps/investing-board-game-v3/src/lib/events.ts  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (not run)  
+
 - Updated the master plan Priority Roadmap checklist to reflect completed systems so the canonical roadmap matches shipped features.
 - Marked master plan event schedules and formerly planned PRs as completed so the canonical roadmap reflects shipped mini-games.
 
