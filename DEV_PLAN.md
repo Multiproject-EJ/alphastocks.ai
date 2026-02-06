@@ -662,6 +662,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Reused the odds helper in the Casino modal tier preview to show estimated EV ranges alongside prize tables.
 - Updated the scratchcard evolution doc with the next validation step for the shared helper.
 
+## P3.8 Slice Notes (Scratchcard 2.0 odds helper coverage)
+- Added lightweight Vitest coverage for the shared scratchcard odds helper to lock in EV math expectations.
+- Validated EV ranges and per-currency summaries stay in sync with tier odds + prize tables.
+- Updated the scratchcard evolution doc with the next odds-modifier step.
+
 ## P3 Slice Notes (IPO Frenzy timed mini-game surface)
 - Built a mobile-first IPO Frenzy timed-event surface with allocation playbooks, pop signals, and roadshow framing for IPO launches.
 - Added a weekly IPO Frenzy schedule slot so the mini-game availability system can surface live/upcoming IPO windows.

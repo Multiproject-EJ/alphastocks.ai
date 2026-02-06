@@ -5,6 +5,27 @@
 
 ## Unreleased
 
+- Added scratchcard odds helper coverage to lock in EV math expectations.
+
+**Date:** 2026-02-23  
+**Slice:** P3.8 Scratchcard 2.0 odds helper coverage  
+**Summary:**  
+- Added lightweight Vitest coverage for the shared scratchcard odds helper.  
+- Validated EV ranges and per-currency summaries stay aligned with tier odds + prize tables.  
+- Updated the scratchcard evolution log with the next odds-modifier step.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/lib/__tests__/scratchcardOdds.test.ts  
+- apps/investing-board-game-v3/SCRATCHCARD_EVOLUTION.md  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) `cd apps/investing-board-game-v3 && npm run test -- scratchcardOdds`  
+
 - Added a shared scratchcard odds helper for Casino tier previews.
 
 **Date:** 2026-02-22  
