@@ -67,15 +67,19 @@ export function CasinoModal({
     if (!selectedTier) {
       return []
     }
-    const labelMap: Record<NonNullable<typeof selectedTier>['winPatterns'][number], string> = {
-      row: 'Rows',
-      diagonal: 'Diagonals',
-      bonus: 'Bonus center',
-      multiplier: 'Multiplier badge',
+    const labelMap: Record<
+      NonNullable<typeof selectedTier>['winPatterns'][number],
+      { label: string; detail: string }
+    > = {
+      row: { label: 'Rows', detail: 'Match any full horizontal row.' },
+      diagonal: { label: 'Diagonals', detail: 'Match a top-left to bottom-right line.' },
+      bonus: { label: 'Bonus center', detail: 'Center bonus symbol pays a separate prize.' },
+      multiplier: { label: 'Multiplier badge', detail: 'Boosts one win with a 2×–5× multiplier.' },
     }
     return selectedTier.winPatterns.map((pattern) => ({
       id: pattern,
-      label: labelMap[pattern],
+      label: labelMap[pattern].label,
+      detail: labelMap[pattern].detail,
     }))
   }, [selectedTier])
   const evSummary = oddsSummary?.evSummary ?? []
@@ -210,14 +214,16 @@ export function CasinoModal({
                 ))}
               </div>
               {winPatternLabels.length > 0 && (
-                <div className="mt-3 flex flex-wrap gap-2 text-[11px] text-purple-100/80">
+                <div className="mt-3 grid gap-2 text-[11px] text-purple-100/80 sm:grid-cols-2">
                   {winPatternLabels.map((pattern) => (
-                    <span
+                    <div
                       key={`${selectedTier.id}-pattern-${pattern.id}`}
-                      className="rounded-full border border-purple-300/30 bg-purple-950/40 px-2 py-0.5"
+                      className="rounded-lg border border-purple-300/30 bg-purple-950/40 px-2 py-1"
+                      title={pattern.detail}
                     >
-                      {pattern.label}
-                    </span>
+                      <p className="text-xs font-semibold text-purple-50">{pattern.label}</p>
+                      <p className="text-[11px] text-purple-100/70">{pattern.detail}</p>
+                    </div>
                   ))}
                 </div>
               )}
