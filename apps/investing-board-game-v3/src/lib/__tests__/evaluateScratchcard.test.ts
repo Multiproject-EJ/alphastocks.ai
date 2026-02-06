@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest'
 
-import { evaluateScratchcardResults } from '@/lib/evaluateScratchcard'
+import {
+  buildScratchcardGrid,
+  evaluateScratchcardResults,
+  getScratchcardWinningLines,
+} from '@/lib/evaluateScratchcard'
 import type { ScratchcardTier } from '@/lib/scratchcardTiers'
 
 const createRng = (values: number[]) => {
@@ -93,5 +97,82 @@ describe('evaluateScratchcardResults', () => {
         multiplier: 3,
       },
     ])
+  })
+})
+
+describe('getScratchcardWinningLines', () => {
+  const baseTier: ScratchcardTier = {
+    id: 'silver',
+    name: 'Test',
+    entryCost: { currency: 'coins', amount: 10 },
+    symbolPool: ['🍀', '💎'],
+    grid: { rows: 3, columns: 3 },
+    prizeSlots: 2,
+    winPatterns: ['row', 'diagonal', 'bonus'],
+    odds: { winChance: 0, jackpotChance: 0, multiplierChance: 0 },
+    prizes: [
+      { label: 'Small', minAmount: 10, maxAmount: 10, weight: 1, currency: 'coins' },
+    ],
+  }
+
+  it('finds row matches across the grid', () => {
+    const grid = ['🍀', '🍀', '🍀', '💎', '💎', '💎', '💎', '🍀', '🍀']
+
+    const lines = getScratchcardWinningLines(grid, baseTier)
+
+    expect(lines).toEqual([
+      { pattern: 'row', indices: [0, 1, 2] },
+      { pattern: 'row', indices: [3, 4, 5] },
+    ])
+  })
+
+  it('captures both diagonals when they match', () => {
+    const grid = ['💎', '🍀', '💎', '🍀', '💎', '🍀', '💎', '🍀', '💎']
+
+    const lines = getScratchcardWinningLines(grid, baseTier)
+
+    expect(lines).toEqual([
+      { pattern: 'diagonal', indices: [0, 4, 8] },
+      { pattern: 'diagonal', indices: [2, 4, 6] },
+    ])
+  })
+
+  it('flags a bonus win when the center symbol appears at least three times', () => {
+    const grid = ['🍀', '💎', '💎', '🍀', '💎', '🍀', '🍀', '💎', '🍀']
+
+    const lines = getScratchcardWinningLines(grid, baseTier)
+
+    expect(lines).toEqual([
+      { pattern: 'bonus', indices: [1, 2, 4, 7] },
+    ])
+  })
+})
+
+describe('buildScratchcardGrid', () => {
+  it('forces a winning row when the win roll hits', () => {
+    const tier: ScratchcardTier = {
+      id: 'bronze',
+      name: 'Test',
+      entryCost: { currency: 'coins', amount: 10 },
+      symbolPool: ['🍀', '💎'],
+      grid: { rows: 2, columns: 3 },
+      prizeSlots: 1,
+      winPatterns: ['row'],
+      odds: { winChance: 1, jackpotChance: 0, multiplierChance: 0 },
+      prizes: [
+        { label: 'Small', minAmount: 10, maxAmount: 10, weight: 1, currency: 'coins' },
+      ],
+    }
+
+    const rng = createRng([
+      0.4, 0.4, 0.4, 0.6, 0.6, 0.6,
+      0,
+      0,
+      0,
+    ])
+
+    const grid = buildScratchcardGrid(tier, 0, rng)
+
+    expect(grid.slice(0, 3)).toEqual(['🍀', '🍀', '🍀'])
   })
 })
