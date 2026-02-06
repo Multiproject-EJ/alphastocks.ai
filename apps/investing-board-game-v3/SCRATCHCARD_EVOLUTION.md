@@ -22,8 +22,8 @@ The current scratchcard is a clean, simple win/lose minigame. This guide expands
 5. After each completed step, immediately write the next step.
 
 **Progress log (live, always update):**
-- **Done (latest):** Added win-line pulse animation plus celebratory sparkle overlays for big-win outcomes on scratchcard tiles.
-- **Next step:** Add a lightweight “See odds + EV” peek CTA to surface tier win chances and prize tables.
+- **Done (latest):** Added a “See odds + EV” peek CTA that surfaces win chances, EV estimates, and prize tables.
+- **Next step:** Extract odds math into a shared helper so tier previews in the Casino modal can reuse the same EV ranges.
 
 ## Next Slice (P0 Foundation)
 1. Create `scratchcardTiers` config with tier costs, odds, and prize pools.
