@@ -172,6 +172,27 @@ export function ScratchcardGame({
   }
 
   const totalWinnings = prizeResults.reduce((sum, prize) => sum + prize.amount, 0)
+  const totalsByCurrency = useMemo(() => {
+    return prizeResults.reduce<Record<ScratchcardPrize['currency'], number>>(
+      (totals, prize) => {
+        totals[prize.currency] += prize.amount
+        return totals
+      },
+      {
+        cash: 0,
+        coins: 0,
+        stars: 0,
+        xp: 0,
+      },
+    )
+  }, [prizeResults])
+  const totalsSummary = useMemo(() => {
+    return Object.entries(totalsByCurrency)
+      .filter(([, amount]) => amount > 0)
+      .map(([currency, amount]) => {
+        return `${currencyLabel(currency as ScratchcardPrize['currency'])}${amount.toLocaleString()}`
+      })
+  }, [totalsByCurrency])
   const hasJackpot = prizeResults.some((prize) => prize.label.toLowerCase().includes('jackpot'))
   const isBigWin =
     prizeResults.length > 1 || hasJackpot || totalWinnings >= tier.entryCost.amount * 10
@@ -247,6 +268,16 @@ export function ScratchcardGame({
                 </span>
               )}
             </div>
+            <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-purple-100/70">
+              <span className="rounded-full border border-purple-200/30 bg-purple-950/40 px-2 py-0.5">
+                Lines hit: {prizeResults.length}
+              </span>
+              {hasJackpot && (
+                <span className="rounded-full border border-yellow-200/40 bg-yellow-400/20 px-2 py-0.5 text-yellow-100">
+                  Jackpot hit
+                </span>
+              )}
+            </div>
             <ul className="mt-2 space-y-2">
               {prizeResults.map((prize, index) => {
                 const line = winningLines[index]
@@ -281,6 +312,14 @@ export function ScratchcardGame({
                 )
               })}
             </ul>
+            {totalsSummary.length > 0 && (
+              <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-purple-400/20 pt-3 text-xs text-purple-100/70">
+                <span>Total winnings</span>
+                <span className="text-sm font-semibold text-purple-50">
+                  {totalsSummary.join(' • ')}
+                </span>
+              </div>
+            )}
           </div>
         )}
 
