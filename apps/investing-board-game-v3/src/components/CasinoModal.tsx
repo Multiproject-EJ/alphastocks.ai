@@ -152,6 +152,7 @@ export function CasinoModal({
             {decoratedTiers.map((tier) => {
               const isSelected = tier.id === selectedTierId
               const tierTopPrize = Math.max(...tier.prizes.map((prize) => prize.maxAmount))
+              const hasMultiplier = tier.winPatterns.includes('multiplier')
               const tierWinChance = getScratchcardOddsSummary(tier, {
                 luckBoost,
                 guaranteedWin,
@@ -182,6 +183,9 @@ export function CasinoModal({
                     </span>
                     <span className="text-[11px] text-purple-100/70">
                       Win {(tierWinChance * 100).toFixed(0)}% · Top prize {tierTopPrize.toLocaleString()}
+                    </span>
+                    <span className="text-[11px] text-purple-100/70">
+                      {tier.prizeSlots} prize slots · Multiplier {hasMultiplier ? 'active' : 'off'}
                     </span>
                   </span>
                 </Button>

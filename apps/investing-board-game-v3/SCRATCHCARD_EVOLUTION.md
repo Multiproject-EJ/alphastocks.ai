@@ -22,8 +22,8 @@ The current scratchcard is a clean, simple win/lose minigame. This guide expands
 5. After each completed step, immediately write the next step.
 
 **Progress log (live, always update):**
-- **Done (latest):** Added info icon tooltips for prize slot counts and multiplier behavior in the casino modal tier preview.
-- **Next step:** Surface prize slot and multiplier hints in the ticket picker cards for quick scanning.
+- **Done (latest):** Surfaced prize slot and multiplier hints in the ticket picker cards for quick scanning.
+- **Next step:** Add a compact odds/EV teaser in the ticket cards to help players compare tiers at a glance.
 
 ## Next Slice (P0 Foundation)
 1. Create `scratchcardTiers` config with tier costs, odds, and prize pools.
