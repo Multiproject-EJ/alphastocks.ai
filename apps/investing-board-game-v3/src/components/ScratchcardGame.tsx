@@ -25,6 +25,7 @@ interface ScratchcardGameProps {
   onResults?: (results: ScratchcardPrizeResult[]) => void
   onClose: () => void
   luckBoost?: number // Percentage boost to win chance (0-1)
+  guaranteedWin?: boolean
   tierId?: ScratchcardTierId
   tier?: ScratchcardTier
 }
@@ -77,11 +78,14 @@ export function ScratchcardGame({
   onResults,
   onClose,
   luckBoost = 0,
+  guaranteedWin = false,
   tierId = 'bronze',
   tier: providedTier,
 }: ScratchcardGameProps) {
   const tier = useMemo(() => providedTier ?? getScratchcardTier(tierId), [providedTier, tierId])
-  const [grid, setGrid] = useState<string[]>(() => buildScratchcardGrid(tier, luckBoost))
+  const [grid, setGrid] = useState<string[]>(() =>
+    buildScratchcardGrid(tier, luckBoost, Math.random, guaranteedWin),
+  )
   const { lightTap, mediumTap, success: hapticSuccess, warning: hapticWarning } = useHaptics()
   const { play } = useSound()
 
@@ -118,9 +122,10 @@ export function ScratchcardGame({
     return badges
   }, [totalCells, winningLines])
   const lineBadgeClass = (lineIndex: number) => lineAccents[lineIndex % lineAccents.length].badge
+  const hasOddsBoost = guaranteedWin || luckBoost > 0
 
   useEffect(() => {
-    const freshGrid = buildScratchcardGrid(tier, luckBoost)
+    const freshGrid = buildScratchcardGrid(tier, luckBoost, Math.random, guaranteedWin)
     setGrid(freshGrid)
     setRevealed(Array(tier.grid.rows * tier.grid.columns).fill(false))
     setGameOver(false)
@@ -128,7 +133,7 @@ export function ScratchcardGame({
     setWinningLineIndices(new Set())
     setWinningLines([])
     setShowOdds(false)
-  }, [tier, luckBoost])
+  }, [tier, luckBoost, guaranteedWin])
 
   const handleReveal = (index: number) => {
     if (revealed[index] || gameOver) return
@@ -235,7 +240,11 @@ export function ScratchcardGame({
   const hasJackpot = prizeResults.some((prize) => prize.label.toLowerCase().includes('jackpot'))
   const isBigWin =
     prizeResults.length > 1 || hasJackpot || totalWinnings >= tier.entryCost.amount * 10
-  const evSummary = useMemo(() => getScratchcardOddsSummary(tier).evSummary, [tier])
+  const oddsSummary = useMemo(
+    () => getScratchcardOddsSummary(tier, { luckBoost, guaranteedWin }),
+    [tier, luckBoost, guaranteedWin],
+  )
+  const evSummary = oddsSummary.evSummary
   const patternLabel = (pattern: ScratchcardPrizeResult['pattern']) => {
     switch (pattern) {
       case 'row':
@@ -274,7 +283,7 @@ export function ScratchcardGame({
             {showOdds ? 'Hide odds & EV' : 'See odds & EV'}
           </Button>
           <span className="text-[11px] text-purple-200/60">
-            Estimates, not event boosts
+            {hasOddsBoost ? 'Includes active boosts' : 'Estimates, no boosts'}
           </span>
         </div>
       </CardHeader>
@@ -291,7 +300,7 @@ export function ScratchcardGame({
               <div className="rounded-md border border-purple-400/20 bg-purple-900/30 px-2 py-1">
                 <span className="block text-[11px] uppercase text-purple-200/60">Win chance</span>
                 <span className="text-sm font-semibold text-purple-50">
-                  {(tier.odds.winChance * 100).toFixed(0)}%
+                  {(oddsSummary.winChance * 100).toFixed(0)}%
                 </span>
               </div>
               <div className="rounded-md border border-purple-400/20 bg-purple-900/30 px-2 py-1">
@@ -309,6 +318,16 @@ export function ScratchcardGame({
                 </span>
               </div>
             </div>
+            {guaranteedWin && (
+              <p className="mt-2 text-[11px] text-emerald-200/80">
+                Happy Hour active: this ticket is a guaranteed win.
+              </p>
+            )}
+            {!guaranteedWin && luckBoost > 0 && (
+              <p className="mt-2 text-[11px] text-purple-200/70">
+                Luck boost active: +{(luckBoost * 100).toFixed(0)}% win chance.
+              </p>
+            )}
             <div className="mt-3 rounded-md border border-purple-400/20 bg-purple-900/30 px-2 py-2 text-[11px]">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <span className="uppercase text-purple-200/60">Estimated EV</span>

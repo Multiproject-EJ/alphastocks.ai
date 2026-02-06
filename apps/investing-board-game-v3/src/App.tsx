@@ -4036,6 +4036,7 @@ function App() {
             props: {
               onWin: handleCasinoWin,
               luckBoost: isPermanentOwned('casino-luck') ? 0.2 : 0,
+              guaranteedWin: hasGuaranteedCasinoWin(),
             },
             priority: 'normal',
             onClose: () => {

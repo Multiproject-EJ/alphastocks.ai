@@ -13,9 +13,23 @@ type ScratchcardOddsSummary = {
   evByCurrency: Record<ScratchcardPrize['currency'], number>
   evRangeByCurrency: Record<ScratchcardPrize['currency'], ScratchcardEvRange>
   evSummary: ScratchcardEvEntry[]
+  winChance: number
 }
 
-export const getScratchcardOddsSummary = (tier: ScratchcardTier): ScratchcardOddsSummary => {
+export type ScratchcardOddsModifiers = {
+  luckBoost?: number
+  guaranteedWin?: boolean
+}
+
+const clampProbability = (value: number) => Math.max(0, Math.min(1, value))
+
+export const getScratchcardOddsSummary = (
+  tier: ScratchcardTier,
+  modifiers: ScratchcardOddsModifiers = {},
+): ScratchcardOddsSummary => {
+  const winChance = modifiers.guaranteedWin
+    ? 1
+    : clampProbability(tier.odds.winChance + (modifiers.luckBoost ?? 0))
   const totalWeight = tier.prizes.reduce((sum, prize) => sum + prize.weight, 0)
   const evByCurrency: Record<ScratchcardPrize['currency'], number> = {
     cash: 0,
@@ -50,10 +64,10 @@ export const getScratchcardOddsSummary = (tier: ScratchcardTier): ScratchcardOdd
 
   const evSummary = (Object.keys(evByCurrency) as ScratchcardPrize['currency'][]).map(
     (currency) => {
-      const average = tier.odds.winChance * tier.prizeSlots * evByCurrency[currency]
+      const average = winChance * tier.prizeSlots * evByCurrency[currency]
       const range = evRangeByCurrency[currency]
-      const min = tier.odds.winChance * tier.prizeSlots * range.min
-      const max = tier.odds.winChance * tier.prizeSlots * range.max
+      const min = winChance * tier.prizeSlots * range.min
+      const max = winChance * tier.prizeSlots * range.max
       return { currency, average, min, max }
     },
   )
@@ -62,5 +76,6 @@ export const getScratchcardOddsSummary = (tier: ScratchcardTier): ScratchcardOdd
     evByCurrency,
     evRangeByCurrency,
     evSummary,
+    winChance,
   }
 }

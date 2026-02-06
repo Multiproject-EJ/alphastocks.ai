@@ -5,6 +5,33 @@
 
 ## Unreleased
 
+- Added event-aware scratchcard odds modifiers for casino boosts.
+
+**Date:** 2026-02-23  
+**Slice:** P3.9 Scratchcard 2.0 odds modifiers  
+**Summary:**  
+- Added event-aware odds modifiers (casino luck + happy hour) to scratchcard odds summaries and previews.  
+- Wired guaranteed-win Happy Hour boosts into scratchcard grid generation so outcomes match previewed odds.  
+- Updated the scratchcard evolution log with the next event-override step.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/App.tsx  
+- apps/investing-board-game-v3/src/components/CasinoModal.tsx  
+- apps/investing-board-game-v3/src/components/ScratchcardGame.tsx  
+- apps/investing-board-game-v3/src/lib/evaluateScratchcard.ts  
+- apps/investing-board-game-v3/src/lib/scratchcardOdds.ts  
+- apps/investing-board-game-v3/src/lib/__tests__/scratchcardOdds.test.ts  
+- apps/investing-board-game-v3/SCRATCHCARD_EVOLUTION.md  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Open the Casino modal during Happy Hour and confirm win chance previews show 100% with a guaranteed-win callout.  
+- (manual) Open the Casino modal with the Casino Luck perk and confirm win chance previews show the boosted percentage.  
+
 - Added scratchcard odds helper coverage to lock in EV math expectations.
 
 **Date:** 2026-02-23  
