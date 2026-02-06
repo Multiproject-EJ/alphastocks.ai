@@ -10,6 +10,7 @@ import {
 } from '@/lib/scratchcardEvents'
 import { getScratchcardOddsSummary } from '@/lib/scratchcardOdds'
 import { scratchcardTiers, type ScratchcardTierId } from '@/lib/scratchcardTiers'
+import { Info } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 
 interface CasinoModalProps {
@@ -84,6 +85,14 @@ export function CasinoModal({
   }, [selectedTier])
   const evSummary = oddsSummary?.evSummary ?? []
   const winChance = oddsSummary?.winChance ?? selectedTier?.odds.winChance ?? 0
+  const hasMultiplier = selectedTier?.winPatterns.includes('multiplier') ?? false
+  const multiplierTooltip = selectedTier
+    ? hasMultiplier
+      ? `Multiplier badges can boost payouts on each winning line. Chance: ${(
+          selectedTier.odds.multiplierChance * 100
+        ).toFixed(0)}%.`
+      : 'This ticket does not include multiplier badges.'
+    : ''
   const isEventActive = Boolean(scratchcardEventOverride)
   const eventBannerClasses = isEventActive
     ? 'border-emerald-300/40 bg-emerald-500/15 text-emerald-50'
@@ -186,9 +195,29 @@ export function CasinoModal({
                   <p className="text-sm font-semibold text-white">{selectedTier.name} preview</p>
                   <p className="text-xs text-purple-100/70">
                     {selectedTier.grid.rows}x{selectedTier.grid.columns} grid · {selectedTier.prizeSlots} prize slots
+                    <span
+                      className="ml-1 inline-flex items-center text-purple-200/70"
+                      title="Prize slots are how many separate wins can pay out on one ticket."
+                    >
+                      <Info className="h-3.5 w-3.5" aria-hidden="true" />
+                    </span>
                   </p>
                   <p className="text-xs text-purple-100/70">
                     Win {(winChance * 100).toFixed(0)}% · Top prize {topPrize.toLocaleString()} {selectedTier.prizes[0]?.currency ?? 'coins'}
+                  </p>
+                  <p className="text-xs text-purple-100/70">
+                    Multiplier badge
+                    <span
+                      className="ml-1 inline-flex items-center text-purple-200/70"
+                      title={multiplierTooltip}
+                    >
+                      <Info className="h-3.5 w-3.5" aria-hidden="true" />
+                    </span>
+                    <span className="ml-1">
+                      {hasMultiplier
+                        ? `${(selectedTier.odds.multiplierChance * 100).toFixed(0)}% chance`
+                        : 'Not active'}
+                    </span>
                   </p>
                   {scratchcardEventOverride && (
                     <p className="mt-1 text-[11px] text-emerald-200/80">
