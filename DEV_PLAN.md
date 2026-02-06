@@ -647,6 +647,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Routed win feedback through reward-based sound selection while keeping miss feedback subtle.
 - Updated the scratchcard evolution doc with the new completion and next UI polish step.
 
+## P3.5 Slice Notes (Scratchcard 2.0 win-line sparkles)
+- Added pulsing win-line highlight animation so winning tiles feel more celebratory after reveal.
+- Introduced big-win sparkle overlays on winning tiles to emphasize jackpot-caliber outcomes.
+- Updated the scratchcard evolution doc with the next UI polish step.
+
 ## P3 Slice Notes (IPO Frenzy timed mini-game surface)
 - Built a mobile-first IPO Frenzy timed-event surface with allocation playbooks, pop signals, and roadshow framing for IPO launches.
 - Added a weekly IPO Frenzy schedule slot so the mini-game availability system can surface live/upcoming IPO windows.

@@ -5,6 +5,29 @@
 
 ## Unreleased
 
+- Added scratchcard win-line pulse animations and big-win sparkles.
+
+**Date:** 2026-02-22  
+**Slice:** P3.5 Scratchcard 2.0 win-line sparkles  
+**Summary:**  
+- Added pulsing animations to winning scratchcard tiles for stronger win feedback.  
+- Introduced big-win sparkle overlays on winning tiles to emphasize standout outcomes.  
+- Updated the scratchcard evolution log with the next polish step.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/components/ScratchcardGame.tsx  
+- apps/investing-board-game-v3/src/index.css  
+- apps/investing-board-game-v3/SCRATCHCARD_EVOLUTION.md  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Open the Casino modal, complete a winning scratchcard, and confirm winning tiles pulse after reveal.  
+- (manual) Trigger a big win and confirm sparkle overlays appear on the winning tiles.  
+
 - Added tactile scratchcard feedback with sound + haptic cues.
 
 **Date:** 2026-02-22  

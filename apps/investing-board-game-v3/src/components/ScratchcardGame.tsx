@@ -285,8 +285,9 @@ export function ScratchcardGame({
                   : 'bg-gradient-to-br from-purple-600/40 to-pink-600/40 border-2 border-purple-400/60 hover:scale-105 hover:shadow-lg cursor-pointer'
                 }
                 ${gameOver && winningLineIndices.has(index)
-                  ? `ring-2 ${lineHighlightClasses[index]}`
+                  ? `ring-2 ${lineHighlightClasses[index]} scratch-tile--win`
                   : ''}
+                ${gameOver && winningLineIndices.has(index) && isBigWin ? 'scratch-tile--bigwin' : ''}
                 ${!revealed[index] && !gameOver ? 'hover:from-purple-500/50 hover:to-pink-500/50' : ''}
                 flex items-center justify-center
               `}
@@ -300,6 +301,9 @@ export function ScratchcardGame({
                 >
                   L{(lineBadgeByIndex[index] ?? 0) + 1}
                 </span>
+              )}
+              {gameOver && winningLineIndices.has(index) && isBigWin && (
+                <span aria-hidden="true" className="scratch-win-sparkle" />
               )}
               <span
                 aria-hidden="true"
