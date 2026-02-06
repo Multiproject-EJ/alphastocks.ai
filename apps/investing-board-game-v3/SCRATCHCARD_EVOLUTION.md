@@ -22,8 +22,8 @@ The current scratchcard is a clean, simple win/lose minigame. This guide expands
 5. After each completed step, immediately write the next step.
 
 **Progress log (live, always update):**
-- **Done (latest):** Added a scratch-mask texture overlay plus a fast-reveal CTA that unlocks after a few scratches to speed up ticket completion.
-- **Next step:** Add scratch sound + haptic hooks (optional) and tie the reveal CTA to those cues for tactile feedback.
+- **Done (latest):** Added scratch sound + haptic hooks on tile reveals, wins, and the fast-reveal CTA for more tactile feedback.
+- **Next step:** Add win-line highlight animation or celebratory sparkles tied to big-win outcomes.
 
 ## Next Slice (P0 Foundation)
 1. Create `scratchcardTiers` config with tier costs, odds, and prize pools.

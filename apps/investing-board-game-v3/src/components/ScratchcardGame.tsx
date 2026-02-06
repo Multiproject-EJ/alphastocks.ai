@@ -15,6 +15,9 @@ import {
   evaluateScratchcardResults,
   getScratchcardWinningLines,
 } from '@/lib/evaluateScratchcard'
+import { useHaptics } from '@/hooks/useHaptics'
+import { useSound } from '@/hooks/useSound'
+import { getRewardSound } from '@/lib/sounds'
 
 interface ScratchcardGameProps {
   onWin?: (amount: number) => void
@@ -78,6 +81,8 @@ export function ScratchcardGame({
 }: ScratchcardGameProps) {
   const tier = useMemo(() => providedTier ?? getScratchcardTier(tierId), [providedTier, tierId])
   const [grid, setGrid] = useState<string[]>(() => buildScratchcardGrid(tier, luckBoost))
+  const { lightTap, mediumTap, success: hapticSuccess, warning: hapticWarning } = useHaptics()
+  const { play } = useSound()
 
   const totalCells = tier.grid.rows * tier.grid.columns
   const [revealed, setRevealed] = useState<boolean[]>(() => Array(totalCells).fill(false))
@@ -128,6 +133,8 @@ export function ScratchcardGame({
     const newRevealed = [...revealed]
     newRevealed[index] = true
     setRevealed(newRevealed)
+    lightTap()
+    play('button-click')
 
     // Check if all are revealed
     if (newRevealed.every(r => r)) {
@@ -136,6 +143,8 @@ export function ScratchcardGame({
   }
 
   const revealAll = () => {
+    mediumTap()
+    play('button-click')
     setRevealed(Array(totalCells).fill(true))
     checkWin()
   }
@@ -160,6 +169,8 @@ export function ScratchcardGame({
       onResults?.([])
       setWinningLineIndices(new Set())
       setWinningLines([])
+      hapticWarning()
+      play('swipe-no')
       return
     }
 
@@ -181,6 +192,15 @@ export function ScratchcardGame({
     toast.success('🎉 You hit winning lines!', {
       description: `Prizes: ${summary}`,
     })
+    hapticSuccess()
+    const highlightPrize = results.reduce((best, prize) => {
+      if (!best) return prize
+      if (prize.amount > best.amount) return prize
+      return best
+    }, null as ScratchcardPrizeResult | null)
+    if (highlightPrize) {
+      play(getRewardSound(highlightPrize.currency, highlightPrize.amount))
+    }
   }
 
   const totalWinnings = prizeResults.reduce((sum, prize) => sum + prize.amount, 0)

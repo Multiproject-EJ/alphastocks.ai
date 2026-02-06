@@ -642,6 +642,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Introduced scratch progress messaging plus a fast-reveal CTA that unlocks after a few scratches.
 - Logged the new scratch polish step and queued sound/haptic feedback as the next slice.
 
+## P3.4 Slice Notes (Scratchcard 2.0 tactile feedback)
+- Added scratch sound + haptic cues on tile reveals, fast reveal, and win outcomes to make ticket play feel more tactile.
+- Routed win feedback through reward-based sound selection while keeping miss feedback subtle.
+- Updated the scratchcard evolution doc with the new completion and next UI polish step.
+
 ## P3 Slice Notes (IPO Frenzy timed mini-game surface)
 - Built a mobile-first IPO Frenzy timed-event surface with allocation playbooks, pop signals, and roadshow framing for IPO launches.
 - Added a weekly IPO Frenzy schedule slot so the mini-game availability system can surface live/upcoming IPO windows.
