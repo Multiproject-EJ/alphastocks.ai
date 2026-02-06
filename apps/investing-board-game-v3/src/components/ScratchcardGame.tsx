@@ -92,6 +92,7 @@ export function ScratchcardGame({
   const [winningLines, setWinningLines] = useState<
     ReturnType<typeof getScratchcardWinningLines>
   >([])
+  const [showOdds, setShowOdds] = useState(false)
   const lineHighlightClasses = useMemo(() => {
     const classes = Array(totalCells).fill('')
     winningLines.forEach((line, lineIndex) => {
@@ -125,6 +126,7 @@ export function ScratchcardGame({
     setPrizeResults([])
     setWinningLineIndices(new Set())
     setWinningLines([])
+    setShowOdds(false)
   }, [tier, luckBoost])
 
   const handleReveal = (index: number) => {
@@ -230,6 +232,44 @@ export function ScratchcardGame({
   const hasJackpot = prizeResults.some((prize) => prize.label.toLowerCase().includes('jackpot'))
   const isBigWin =
     prizeResults.length > 1 || hasJackpot || totalWinnings >= tier.entryCost.amount * 10
+  const evByCurrency = useMemo(() => {
+    const totalWeight = tier.prizes.reduce((sum, prize) => sum + prize.weight, 0)
+    const baseline: Record<ScratchcardPrize['currency'], number> = {
+      cash: 0,
+      coins: 0,
+      stars: 0,
+      xp: 0,
+    }
+    if (totalWeight <= 0) return baseline
+    return tier.prizes.reduce((totals, prize) => {
+      const average = (prize.minAmount + prize.maxAmount) / 2
+      totals[prize.currency] += (average * prize.weight) / totalWeight
+      return totals
+    }, baseline)
+  }, [tier.prizes])
+  const evRangeByCurrency = useMemo(() => {
+    const baseline = {
+      cash: { min: 0, max: 0 },
+      coins: { min: 0, max: 0 },
+      stars: { min: 0, max: 0 },
+      xp: { min: 0, max: 0 },
+    }
+    return tier.prizes.reduce((totals, prize) => {
+      const current = totals[prize.currency]
+      current.min = current.min === 0 ? prize.minAmount : Math.min(current.min, prize.minAmount)
+      current.max = Math.max(current.max, prize.maxAmount)
+      return totals
+    }, baseline)
+  }, [tier.prizes])
+  const evSummary = useMemo(() => {
+    return (Object.keys(evByCurrency) as ScratchcardPrize['currency'][]).map((currency) => {
+      const average = tier.odds.winChance * tier.prizeSlots * evByCurrency[currency]
+      const range = evRangeByCurrency[currency]
+      const min = tier.odds.winChance * tier.prizeSlots * range.min
+      const max = tier.odds.winChance * tier.prizeSlots * range.max
+      return { currency, average, min, max }
+    })
+  }, [evByCurrency, evRangeByCurrency, tier.odds.winChance, tier.prizeSlots])
   const patternLabel = (pattern: ScratchcardPrizeResult['pattern']) => {
     switch (pattern) {
       case 'row':
@@ -258,8 +298,97 @@ export function ScratchcardGame({
           Entry cost: {entryCostLabel(tier.entryCost.currency)}
           {tier.entryCost.amount.toLocaleString()}
         </p>
+        <div className="mt-3 flex flex-wrap items-center justify-center gap-2 text-xs text-muted-foreground">
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => setShowOdds((prev) => !prev)}
+            className="h-7 px-3 text-xs text-purple-100/80 hover:text-purple-50"
+          >
+            {showOdds ? 'Hide odds & EV' : 'See odds & EV'}
+          </Button>
+          <span className="text-[11px] text-purple-200/60">
+            Estimates, not event boosts
+          </span>
+        </div>
       </CardHeader>
       <CardContent className="space-y-4">
+        {showOdds && (
+          <div className="rounded-lg border border-purple-400/30 bg-purple-950/40 p-3 text-xs text-purple-100/80">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="font-semibold text-purple-50">Ticket odds</span>
+              <span className="text-[11px] text-purple-200/70">
+                Grid {tier.grid.rows}×{tier.grid.columns} • Slots {tier.prizeSlots}
+              </span>
+            </div>
+            <div className="mt-2 grid gap-2 sm:grid-cols-3">
+              <div className="rounded-md border border-purple-400/20 bg-purple-900/30 px-2 py-1">
+                <span className="block text-[11px] uppercase text-purple-200/60">Win chance</span>
+                <span className="text-sm font-semibold text-purple-50">
+                  {(tier.odds.winChance * 100).toFixed(0)}%
+                </span>
+              </div>
+              <div className="rounded-md border border-purple-400/20 bg-purple-900/30 px-2 py-1">
+                <span className="block text-[11px] uppercase text-purple-200/60">Jackpot chance</span>
+                <span className="text-sm font-semibold text-purple-50">
+                  {(tier.odds.jackpotChance * 100).toFixed(1)}%
+                </span>
+              </div>
+              <div className="rounded-md border border-purple-400/20 bg-purple-900/30 px-2 py-1">
+                <span className="block text-[11px] uppercase text-purple-200/60">
+                  Multiplier chance
+                </span>
+                <span className="text-sm font-semibold text-purple-50">
+                  {(tier.odds.multiplierChance * 100).toFixed(1)}%
+                </span>
+              </div>
+            </div>
+            <div className="mt-3 rounded-md border border-purple-400/20 bg-purple-900/30 px-2 py-2 text-[11px]">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <span className="uppercase text-purple-200/60">Estimated EV</span>
+                <div className="flex flex-wrap items-center gap-2 text-[11px] text-purple-200/80">
+                  {evSummary
+                    .filter((entry) => entry.average > 0)
+                    .map((entry) => (
+                      <span
+                        key={`ev-${entry.currency}`}
+                        className="rounded-full border border-purple-300/20 bg-purple-950/40 px-2 py-0.5 text-purple-50"
+                      >
+                        {currencyLabel(entry.currency)}
+                        {entry.average.toFixed(0)}{' '}
+                        <span className="text-purple-200/60">
+                          ({currencyLabel(entry.currency)}
+                          {entry.min.toFixed(0)}–{currencyLabel(entry.currency)}
+                          {entry.max.toFixed(0)})
+                        </span>
+                      </span>
+                    ))}
+                </div>
+              </div>
+              <p className="mt-1 text-purple-200/60">
+                EV uses tier odds, prize slots, and weighted prize averages.
+              </p>
+            </div>
+            <div className="mt-3 space-y-1">
+              <span className="text-[11px] uppercase text-purple-200/60">Prize table</span>
+              <ul className="space-y-1">
+                {tier.prizes.map((prize) => (
+                  <li
+                    key={`${prize.label}-${prize.currency}`}
+                    className="flex items-center justify-between rounded-md border border-purple-400/20 bg-purple-900/30 px-2 py-1 text-[11px]"
+                  >
+                    <span>{prize.label}</span>
+                    <span className="font-semibold text-purple-50">
+                      {currencyLabel(prize.currency)}
+                      {prize.minAmount.toLocaleString()}–{currencyLabel(prize.currency)}
+                      {prize.maxAmount.toLocaleString()}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        )}
         <div className="flex flex-col gap-1 text-center text-xs text-muted-foreground">
           <span>
             Scratched {revealedCount}/{totalCells}

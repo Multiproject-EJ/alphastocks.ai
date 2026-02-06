@@ -652,6 +652,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Introduced big-win sparkle overlays on winning tiles to emphasize jackpot-caliber outcomes.
 - Updated the scratchcard evolution doc with the next UI polish step.
 
+## P3.6 Slice Notes (Scratchcard 2.0 odds peek CTA)
+- Added a lightweight “See odds + EV” CTA in the scratchcard header to surface win chances and prize tables.
+- Included estimated EV ranges and per-currency payout summaries so odds feel transparent without leaving the ticket.
+- Updated the scratchcard evolution doc with the next reuse-focused step.
+
 ## P3 Slice Notes (IPO Frenzy timed mini-game surface)
 - Built a mobile-first IPO Frenzy timed-event surface with allocation playbooks, pop signals, and roadshow framing for IPO launches.
 - Added a weekly IPO Frenzy schedule slot so the mini-game availability system can surface live/upcoming IPO windows.

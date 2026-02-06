@@ -2386,3 +2386,22 @@
 
 **How to test:**  
 - (manual) Open Bias Sanctuary, enter story mode, and confirm the ambient caption appears and the ambient cue plays once when the story starts.  
+
+**Date:** 2026-02-07  
+**Slice:** P3.6 Scratchcard 2.0 odds peek CTA  
+**Summary:**  
+- Added a “See odds + EV” CTA to the scratchcard header with win chances, EV ranges, and prize table details.  
+- Displayed per-currency EV summaries so players can read payout expectations without leaving the ticket.  
+- Logged the slice completion in the run-by-run plan and scratchcard evolution doc.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/components/ScratchcardGame.tsx  
+- apps/investing-board-game-v3/SCRATCHCARD_EVOLUTION.md  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Open the Casino scratchcard, tap “See odds & EV,” and confirm win chances, EV ranges, and prize table details appear and toggle.  
