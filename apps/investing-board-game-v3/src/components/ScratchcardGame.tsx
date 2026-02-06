@@ -205,6 +205,8 @@ export function ScratchcardGame({
         return `${currencyLabel(currency as ScratchcardPrize['currency'])}${amount.toLocaleString()}`
       })
   }, [totalsByCurrency])
+  const revealedCount = useMemo(() => revealed.filter(Boolean).length, [revealed])
+  const revealThreshold = Math.min(3, Math.max(1, totalCells - 1))
   const hasJackpot = prizeResults.some((prize) => prize.label.toLowerCase().includes('jackpot'))
   const isBigWin =
     prizeResults.length > 1 || hasJackpot || totalWinnings >= tier.entryCost.amount * 10
@@ -238,6 +240,14 @@ export function ScratchcardGame({
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
+        <div className="flex flex-col gap-1 text-center text-xs text-muted-foreground">
+          <span>
+            Scratched {revealedCount}/{totalCells}
+          </span>
+          {!gameOver && revealedCount < revealThreshold && (
+            <span>Scratch a few tiles to unlock fast reveal.</span>
+          )}
+        </div>
         <div
           className="grid gap-2 sm:gap-3 max-w-xs mx-auto"
           style={{ gridTemplateColumns: `repeat(${tier.grid.columns}, minmax(0, 1fr))` }}
@@ -345,13 +355,13 @@ export function ScratchcardGame({
         )}
 
         <div className="flex gap-2 justify-center">
-          {!gameOver && (
+          {!gameOver && revealedCount >= revealThreshold && (
             <Button
               onClick={revealAll}
               variant="outline"
               className="bg-purple-600/20 hover:bg-purple-600/30 border-purple-400/50"
             >
-              Reveal All
+              Fast Reveal
             </Button>
           )}
           <Button
