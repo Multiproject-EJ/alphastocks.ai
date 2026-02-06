@@ -63,6 +63,21 @@ export function CasinoModal({
         : null,
     [selectedTier, luckBoost, guaranteedWin],
   )
+  const winPatternLabels = useMemo(() => {
+    if (!selectedTier) {
+      return []
+    }
+    const labelMap: Record<NonNullable<typeof selectedTier>['winPatterns'][number], string> = {
+      row: 'Rows',
+      diagonal: 'Diagonals',
+      bonus: 'Bonus center',
+      multiplier: 'Multiplier badge',
+    }
+    return selectedTier.winPatterns.map((pattern) => ({
+      id: pattern,
+      label: labelMap[pattern],
+    }))
+  }, [selectedTier])
   const evSummary = oddsSummary?.evSummary ?? []
   const winChance = oddsSummary?.winChance ?? selectedTier?.odds.winChance ?? 0
   const isEventActive = Boolean(scratchcardEventOverride)
@@ -194,6 +209,18 @@ export function CasinoModal({
                   </div>
                 ))}
               </div>
+              {winPatternLabels.length > 0 && (
+                <div className="mt-3 flex flex-wrap gap-2 text-[11px] text-purple-100/80">
+                  {winPatternLabels.map((pattern) => (
+                    <span
+                      key={`${selectedTier.id}-pattern-${pattern.id}`}
+                      className="rounded-full border border-purple-300/30 bg-purple-950/40 px-2 py-0.5"
+                    >
+                      {pattern.label}
+                    </span>
+                  ))}
+                </div>
+              )}
               <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs">
                 <span className="text-purple-100/70">
                   Entry: {selectedTier.entryCost.amount.toLocaleString()} {selectedTier.entryCost.currency}
