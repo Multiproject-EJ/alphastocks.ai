@@ -637,6 +637,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Added winning-line badge overlays on scratchcard tiles, keeping line color accents aligned with the win summary list.
 - Updated the scratchcard evolution doc to log the new visual progress and define the next UI slice.
 
+## P3.3 Slice Notes (Scratchcard 2.0 next-level reveal polish)
+- Added an SVG noise scratch-mask texture to the scratch overlay for a more tactile ticket feel.
+- Introduced scratch progress messaging plus a fast-reveal CTA that unlocks after a few scratches.
+- Logged the new scratch polish step and queued sound/haptic feedback as the next slice.
+
 ## P3 Slice Notes (IPO Frenzy timed mini-game surface)
 - Built a mobile-first IPO Frenzy timed-event surface with allocation playbooks, pop signals, and roadshow framing for IPO launches.
 - Added a weekly IPO Frenzy schedule slot so the mini-game availability system can surface live/upcoming IPO windows.

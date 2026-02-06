@@ -5,6 +5,29 @@
 
 ## Unreleased
 
+- Added scratch-mask texture and fast-reveal CTA for Scratchcard 2.0.
+
+**Date:** 2026-02-21  
+**Slice:** P3.3 Scratchcard 2.0 next-level reveal polish  
+**Summary:**  
+- Added a textured scratch-mask overlay to make scratchcard tiles feel more tactile.  
+- Added scratch progress messaging and a fast-reveal CTA that unlocks after a few scratches.  
+- Logged the scratchcard evolution progress and queued the next tactile feedback step.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/components/ScratchcardGame.tsx  
+- apps/investing-board-game-v3/src/index.css  
+- apps/investing-board-game-v3/SCRATCHCARD_EVOLUTION.md  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Open the Casino modal, scratch a few tiles, and confirm the scratch texture overlay plus fast-reveal CTA appear after a few scratches.  
+- (manual) Complete a ticket and confirm the CTA hides once the card is fully revealed.  
+
 - Added tier selection callouts in the Casino modal and winning-line badges on scratchcard tiles.
 
 **Date:** 2026-02-20  
