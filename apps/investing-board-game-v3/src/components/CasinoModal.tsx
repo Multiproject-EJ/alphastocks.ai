@@ -78,6 +78,21 @@ export function CasinoModal({
   const previewCellClasses = isEventActive
     ? 'border-emerald-300/30 bg-emerald-900/30 text-emerald-50'
     : 'border-purple-400/30 bg-purple-900/40 text-purple-50'
+  const eventBoostSummary = scratchcardEventOverride?.oddsBoost
+    ? [
+        scratchcardEventOverride.oddsBoost.winChance
+          ? `+${(scratchcardEventOverride.oddsBoost.winChance * 100).toFixed(0)}% win`
+          : null,
+        scratchcardEventOverride.oddsBoost.jackpotChance
+          ? `+${(scratchcardEventOverride.oddsBoost.jackpotChance * 100).toFixed(0)}% jackpot`
+          : null,
+        scratchcardEventOverride.oddsBoost.multiplierChance
+          ? `+${(scratchcardEventOverride.oddsBoost.multiplierChance * 100).toFixed(0)}% multiplier`
+          : null,
+      ]
+        .filter(Boolean)
+        .join(' · ')
+    : null
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -91,6 +106,11 @@ export function CasinoModal({
                 <p className="text-[11px] text-emerald-100/70">
                   {scratchcardEventOverride.description}
                 </p>
+                {eventBoostSummary && (
+                  <p className="mt-1 text-[11px] text-emerald-100/70">
+                    Boosts: {eventBoostSummary}
+                  </p>
+                )}
               </div>
               <span className="rounded-full bg-emerald-400/20 px-2 py-0.5 text-[10px] uppercase tracking-wide text-emerald-100/80">
                 Event Boost
@@ -242,6 +262,7 @@ export function CasinoModal({
           guaranteedWin={guaranteedWin}
           tierId={selectedTierId}
           tier={selectedTier}
+          eventOverride={scratchcardEventOverride}
         />
       </DialogContent>
     </Dialog>

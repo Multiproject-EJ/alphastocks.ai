@@ -19,6 +19,7 @@ import { getScratchcardOddsSummary } from '@/lib/scratchcardOdds'
 import { useHaptics } from '@/hooks/useHaptics'
 import { useSound } from '@/hooks/useSound'
 import { getRewardSound } from '@/lib/sounds'
+import type { ScratchcardEventOverride } from '@/lib/scratchcardEvents'
 
 interface ScratchcardGameProps {
   onWin?: (amount: number) => void
@@ -28,6 +29,7 @@ interface ScratchcardGameProps {
   guaranteedWin?: boolean
   tierId?: ScratchcardTierId
   tier?: ScratchcardTier
+  eventOverride?: ScratchcardEventOverride | null
 }
 
 const currencyLabel = (currency: ScratchcardPrize['currency']) => {
@@ -81,6 +83,7 @@ export function ScratchcardGame({
   guaranteedWin = false,
   tierId = 'bronze',
   tier: providedTier,
+  eventOverride = null,
 }: ScratchcardGameProps) {
   const tier = useMemo(() => providedTier ?? getScratchcardTier(tierId), [providedTier, tierId])
   const [grid, setGrid] = useState<string[]>(() =>
@@ -123,6 +126,13 @@ export function ScratchcardGame({
   }, [totalCells, winningLines])
   const lineBadgeClass = (lineIndex: number) => lineAccents[lineIndex % lineAccents.length].badge
   const hasOddsBoost = guaranteedWin || luckBoost > 0
+  const isEventActive = Boolean(eventOverride)
+  const cardClasses = isEventActive
+    ? 'w-full max-w-full bg-gradient-to-br from-emerald-950/40 via-purple-950/30 to-emerald-900/30 border-2 border-emerald-400/50 shadow-[0_0_30px_rgba(16,185,129,0.25)]'
+    : 'w-full max-w-full bg-gradient-to-br from-purple-900/20 to-pink-900/20 border-2 border-purple-500/50 shadow-2xl'
+  const headerBadgeClasses = isEventActive
+    ? 'border-emerald-300/40 bg-emerald-500/20 text-emerald-100'
+    : 'border-purple-300/40 bg-purple-500/20 text-purple-100'
 
   useEffect(() => {
     const freshGrid = buildScratchcardGrid(tier, luckBoost, Math.random, guaranteedWin)
@@ -259,7 +269,7 @@ export function ScratchcardGame({
   }
 
   return (
-    <Card className="w-full max-w-full bg-gradient-to-br from-purple-900/20 to-pink-900/20 border-2 border-purple-500/50 shadow-2xl">
+    <Card className={cardClasses}>
       <CardHeader>
         <CardTitle className="text-2xl font-bold text-center flex items-center justify-center gap-2">
           <Sparkle size={24} className="text-yellow-400" />
@@ -269,6 +279,15 @@ export function ScratchcardGame({
         <p className="text-sm text-center text-muted-foreground mt-2">
           Scratch to reveal! Win lines pay out multiple prizes.
         </p>
+        {eventOverride && (
+          <div className="mt-3 flex items-center justify-center">
+            <span
+              className={`rounded-full border px-3 py-1 text-[11px] uppercase tracking-wide ${headerBadgeClasses}`}
+            >
+              Event Boost: {eventOverride.title}
+            </span>
+          </div>
+        )}
         <p className="text-xs text-center text-muted-foreground mt-1">
           Entry cost: {entryCostLabel(tier.entryCost.currency)}
           {tier.entryCost.amount.toLocaleString()}
