@@ -4,6 +4,7 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { ScratchcardGame } from '@/components/ScratchcardGame'
+import { getScratchcardOddsSummary } from '@/lib/scratchcardOdds'
 import { scratchcardTiers, type ScratchcardTierId } from '@/lib/scratchcardTiers'
 import { useEffect, useMemo, useState } from 'react'
 
@@ -37,6 +38,10 @@ export function CasinoModal({ open, onOpenChange, onWin, luckBoost, tierId }: Ca
   const topPrize = selectedTier
     ? Math.max(...selectedTier.prizes.map((prize) => prize.maxAmount))
     : 0
+  const evSummary = useMemo(
+    () => (selectedTier ? getScratchcardOddsSummary(selectedTier).evSummary : []),
+    [selectedTier],
+  )
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -129,6 +134,22 @@ export function CasinoModal({ open, onOpenChange, onWin, luckBoost, tierId }: Ca
                       {(selectedTier.odds.jackpotChance * 100).toFixed(0)}% · Multiplier:{' '}
                       {(selectedTier.odds.multiplierChance * 100).toFixed(0)}%
                     </p>
+                    <div className="rounded-md border border-purple-400/20 bg-purple-900/30 px-2 py-1">
+                      <p className="text-[11px] uppercase text-purple-200/60">Estimated EV</p>
+                      <div className="mt-1 flex flex-wrap gap-2">
+                        {evSummary
+                          .filter((entry) => entry.average > 0)
+                          .map((entry) => (
+                            <span
+                              key={`casino-ev-${entry.currency}`}
+                              className="rounded-full border border-purple-300/20 bg-purple-950/40 px-2 py-0.5 text-[11px] text-purple-50"
+                            >
+                              {entry.currency.toUpperCase()}: {entry.average.toFixed(0)} (
+                              {entry.min.toFixed(0)}–{entry.max.toFixed(0)})
+                            </span>
+                          ))}
+                      </div>
+                    </div>
                     <ul className="space-y-1">
                       {selectedTier.prizes.map((prize) => (
                         <li key={`${selectedTier.id}-${prize.label}`} className="flex justify-between gap-2">
