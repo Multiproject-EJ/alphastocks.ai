@@ -632,6 +632,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Verified the Casino Happy Hour event exposes a guaranteed-win flag via `useEvents`, but the casino flow currently does not consume it; this should be the first integration target.
 - Scoped the first new casino surface as a small lobby with one additional game card (proposed: High Roller Dice) that reuses existing reward toasts and respects event-based win guarantees.
 
+## P3.2 Slice Notes (Scratchcard 2.0 tier selection polish)
+- Enhanced the Casino modal tier selection cards with odds, grid size, and top-prize callouts for faster ticket comparison.
+- Added winning-line badge overlays on scratchcard tiles, keeping line color accents aligned with the win summary list.
+- Updated the scratchcard evolution doc to log the new visual progress and define the next UI slice.
+
 ## P3 Slice Notes (IPO Frenzy timed mini-game surface)
 - Built a mobile-first IPO Frenzy timed-event surface with allocation playbooks, pop signals, and roadshow framing for IPO launches.
 - Added a weekly IPO Frenzy schedule slot so the mini-game availability system can surface live/upcoming IPO windows.
