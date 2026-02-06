@@ -5,6 +5,29 @@
 
 ## Unreleased
 
+- Added tactile scratchcard feedback with sound + haptic cues.
+
+**Date:** 2026-02-22  
+**Slice:** P3.4 Scratchcard 2.0 tactile feedback  
+**Summary:**  
+- Added scratch sound + haptic cues on tile reveals, fast reveal, and win outcomes for more tactile ticket play.  
+- Routed win feedback through reward-based sound selection while keeping miss feedback subtle.  
+- Updated the scratchcard evolution log with the next polish step.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/components/ScratchcardGame.tsx  
+- apps/investing-board-game-v3/SCRATCHCARD_EVOLUTION.md  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Open the Casino modal, scratch tiles, and confirm each reveal plays a light haptic and sound.  
+- (manual) Use the Fast Reveal CTA and confirm it triggers a tactile cue.  
+- (manual) Complete a winning ticket and confirm a reward-appropriate sound and success haptic fire.  
+
 - Added scratch-mask texture and fast-reveal CTA for Scratchcard 2.0.
 
 **Date:** 2026-02-21  
