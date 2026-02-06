@@ -49,6 +49,25 @@ const entryCostLabel = (currency: ScratchcardTier['entryCost']['currency']) => {
   }
 }
 
+const lineAccents = [
+  {
+    tile: 'ring-yellow-300/90 shadow-[0_0_12px_rgba(250,204,21,0.6)]',
+    badge: 'bg-yellow-300/80 text-yellow-950',
+  },
+  {
+    tile: 'ring-emerald-300/90 shadow-[0_0_12px_rgba(110,231,183,0.6)]',
+    badge: 'bg-emerald-300/80 text-emerald-950',
+  },
+  {
+    tile: 'ring-sky-300/90 shadow-[0_0_12px_rgba(125,211,252,0.6)]',
+    badge: 'bg-sky-300/80 text-sky-950',
+  },
+  {
+    tile: 'ring-pink-300/90 shadow-[0_0_12px_rgba(249,168,212,0.6)]',
+    badge: 'bg-pink-300/80 text-pink-950',
+  },
+]
+
 export function ScratchcardGame({
   onWin,
   onResults,
@@ -68,6 +87,18 @@ export function ScratchcardGame({
   const [winningLines, setWinningLines] = useState<
     ReturnType<typeof getScratchcardWinningLines>
   >([])
+  const lineHighlightClasses = useMemo(() => {
+    const classes = Array(totalCells).fill('')
+    winningLines.forEach((line, lineIndex) => {
+      const accent = lineAccents[lineIndex % lineAccents.length].tile
+      line.indices.forEach((index) => {
+        if (!classes[index]) {
+          classes[index] = accent
+        }
+      })
+    })
+    return classes
+  }, [lineAccents, totalCells, winningLines])
 
   useEffect(() => {
     const freshGrid = buildScratchcardGrid(tier, luckBoost)
@@ -191,7 +222,7 @@ export function ScratchcardGame({
                   : 'bg-gradient-to-br from-purple-600/40 to-pink-600/40 border-2 border-purple-400/60 hover:scale-105 hover:shadow-lg cursor-pointer'
                 }
                 ${gameOver && winningLineIndices.has(index)
-                  ? 'ring-2 ring-yellow-300/90 shadow-[0_0_12px_rgba(250,204,21,0.6)]'
+                  ? `ring-2 ${lineHighlightClasses[index]}`
                   : ''}
                 ${!revealed[index] && !gameOver ? 'hover:from-purple-500/50 hover:to-pink-500/50' : ''}
                 flex items-center justify-center
@@ -209,7 +240,7 @@ export function ScratchcardGame({
         {gameOver && prizeResults.length > 0 && (
           <div className="rounded-lg border border-purple-400/40 bg-purple-900/20 p-3 text-sm text-purple-100">
             <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-              <p className="font-semibold text-purple-50">Prize summary</p>
+              <p className="font-semibold text-purple-50">Winning lines</p>
               {isBigWin && (
                 <span className="inline-flex items-center rounded-full bg-yellow-400/20 px-2 py-0.5 text-xs font-semibold text-yellow-200">
                   Big win 🎉
@@ -218,22 +249,28 @@ export function ScratchcardGame({
             </div>
             <ul className="mt-2 space-y-2">
               {prizeResults.map((prize, index) => {
-                const lineNumber = winningLines[index] ? index + 1 : null
+                const line = winningLines[index]
+                const lineNumber = line ? index + 1 : null
+                const lineSymbol = line ? grid[line.indices[0]] : null
+                const accent = lineAccents[index % lineAccents.length].badge
                 return (
                   <li
                     key={`${prize.label}-${index}`}
-                    className="flex flex-col gap-1 rounded-md border border-purple-400/20 bg-purple-900/30 px-3 py-2 sm:flex-row sm:items-center sm:justify-between"
+                    className="flex flex-col gap-2 rounded-md border border-purple-400/20 bg-purple-900/30 px-3 py-2 sm:flex-row sm:items-center sm:justify-between"
                   >
                     <div className="flex flex-wrap items-center gap-2 text-purple-100/80">
                       {lineNumber && (
-                        <span className="rounded-full bg-purple-500/30 px-2 py-0.5 text-xs font-semibold text-purple-100">
+                        <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${accent}`}>
                           Line {lineNumber}
                         </span>
                       )}
-                      <span className="text-sm font-medium text-purple-50">
-                        {patternLabel(prize.pattern)}
-                      </span>
-                      <span className="text-xs text-purple-200/70">{prize.label}</span>
+                      <div className="flex flex-col text-sm text-purple-50">
+                        <span className="font-semibold">{prize.label}</span>
+                        <span className="text-xs text-purple-200/70">
+                          {patternLabel(prize.pattern)}
+                          {lineSymbol ? ` • Matched ${lineSymbol}` : ''}
+                        </span>
+                      </div>
                     </div>
                     <span className="text-base font-semibold text-purple-50">
                       {currencyLabel(prize.currency)}
