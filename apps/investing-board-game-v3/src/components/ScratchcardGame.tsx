@@ -417,49 +417,64 @@ export function ScratchcardGame({
             </div>
           )}
         </div>
-        <div
-          className="grid gap-2 sm:gap-3 max-w-xs mx-auto"
-          style={{ gridTemplateColumns: `repeat(${tier.grid.columns}, minmax(0, 1fr))` }}
-        >
-          {grid.map((symbol, index) => (
-            <button
-              key={index}
-              onClick={() => handleReveal(index)}
-              disabled={revealed[index] || gameOver}
-              className={`
-                scratch-tile relative aspect-square overflow-hidden rounded-lg text-3xl sm:text-4xl font-bold
-                transition-all duration-300 transform
-                ${revealed[index] 
-                  ? 'bg-gradient-to-br from-white/20 to-white/10 border-2 border-white/30 scale-100' 
-                  : 'bg-gradient-to-br from-purple-600/40 to-pink-600/40 border-2 border-purple-400/60 hover:scale-105 hover:shadow-lg cursor-pointer'
-                }
-                ${gameOver && winningLineIndices.has(index)
-                  ? `ring-2 ${lineHighlightClasses[index]} scratch-tile--win`
-                  : ''}
-                ${gameOver && winningLineIndices.has(index) && isBigWin ? 'scratch-tile--bigwin' : ''}
-                ${!revealed[index] && !gameOver ? 'hover:from-purple-500/50 hover:to-pink-500/50' : ''}
-                flex items-center justify-center
-              `}
-            >
-              {revealed[index] ? symbol : '?'}
-              {gameOver && winningLineIndices.has(index) && lineBadgeByIndex[index] !== null && (
+        <div className="relative mx-auto max-w-xs">
+          {eventOverride && (
+            <div className="scratch-event-badge">
+              <span className="scratch-event-badge__label">Event</span>
+              <span className="scratch-event-badge__title">{eventOverride.title}</span>
+            </div>
+          )}
+          <div
+            className="grid gap-2 sm:gap-3"
+            style={{ gridTemplateColumns: `repeat(${tier.grid.columns}, minmax(0, 1fr))` }}
+          >
+            {grid.map((symbol, index) => (
+              <button
+                key={index}
+                onClick={() => handleReveal(index)}
+                disabled={revealed[index] || gameOver}
+                className={`
+                  scratch-tile relative aspect-square overflow-hidden rounded-lg text-3xl sm:text-4xl font-bold
+                  transition-all duration-300 transform
+                  ${revealed[index] 
+                    ? 'bg-gradient-to-br from-white/20 to-white/10 border-2 border-white/30 scale-100' 
+                    : 'bg-gradient-to-br from-purple-600/40 to-pink-600/40 border-2 border-purple-400/60 hover:scale-105 hover:shadow-lg cursor-pointer'
+                  }
+                  ${gameOver && winningLineIndices.has(index)
+                    ? `ring-2 ${lineHighlightClasses[index]} scratch-tile--win`
+                    : ''}
+                  ${gameOver && winningLineIndices.has(index) && isBigWin ? 'scratch-tile--bigwin' : ''}
+                  ${!revealed[index] && !gameOver ? 'hover:from-purple-500/50 hover:to-pink-500/50' : ''}
+                  ${isEventActive ? 'scratch-tile--event' : ''}
+                  flex items-center justify-center
+                `}
+              >
+                {revealed[index] ? symbol : '?'}
+                {gameOver && winningLineIndices.has(index) && lineBadgeByIndex[index] !== null && (
+                  <span
+                    className={`absolute left-1 top-1 z-10 rounded-full px-2 py-0.5 text-[10px] font-semibold shadow ${lineBadgeClass(
+                      lineBadgeByIndex[index] ?? 0,
+                    )}`}
+                  >
+                    L{(lineBadgeByIndex[index] ?? 0) + 1}
+                  </span>
+                )}
+                {gameOver && winningLineIndices.has(index) && isBigWin && (
+                  <span aria-hidden="true" className="scratch-win-sparkle" />
+                )}
+                {isEventActive && (
+                  <span
+                    aria-hidden="true"
+                    className={`scratch-foil ${revealed[index] ? 'scratch-foil--revealed' : ''}`}
+                  />
+                )}
                 <span
-                  className={`absolute left-1 top-1 z-10 rounded-full px-2 py-0.5 text-[10px] font-semibold shadow ${lineBadgeClass(
-                    lineBadgeByIndex[index] ?? 0,
-                  )}`}
-                >
-                  L{(lineBadgeByIndex[index] ?? 0) + 1}
-                </span>
-              )}
-              {gameOver && winningLineIndices.has(index) && isBigWin && (
-                <span aria-hidden="true" className="scratch-win-sparkle" />
-              )}
-              <span
-                aria-hidden="true"
-                className={`scratch-overlay ${revealed[index] ? 'scratch-overlay--revealed' : ''}`}
-              />
-            </button>
-          ))}
+                  aria-hidden="true"
+                  className={`scratch-overlay ${revealed[index] ? 'scratch-overlay--revealed' : ''}`}
+                />
+              </button>
+            ))}
+          </div>
         </div>
 
         {gameOver && prizeResults.length > 0 && (

@@ -11,7 +11,7 @@ The current scratchcard is a clean, simple win/lose minigame. This guide expands
 ## Status Snapshot (2026-02-23)
 - **Documentation refresh:** Tiered scratchcard plan clarified with a config-first approach.
 - **Code status:** Tier config, configurable grid, and multi-prize logic are implemented; evaluation logic now lives in a shared helper with baseline coverage.
-- **Next slice focus:** Add event-themed scratch surface polish (foil/gradient accents + badge) to match active events.
+- **Next slice focus:** Extend the casino modal with tier preview details (grid size, odds, top prize) to help players choose tickets.
 
 ## AI Plan Execution Rules (always follow)
 **General instructions (always active):**
@@ -22,8 +22,8 @@ The current scratchcard is a clean, simple win/lose minigame. This guide expands
 5. After each completed step, immediately write the next step.
 
 **Progress log (live, always update):**
-- **Done (latest):** Added an active event promo banner + themed styling for scratchcards during events (including boosts callouts).
-- **Next step:** Add event-only scratch surface polish (foil/gradient accents + badge) that matches the active event theme.
+- **Done (latest):** Added event-only scratch surface polish (foil/gradient accents + badge) to match active event themes.
+- **Next step:** Add tier preview details (grid size, odds, top prize) to the casino modal ticket selector.
 
 ## Next Slice (P0 Foundation)
 1. Create `scratchcardTiers` config with tier costs, odds, and prize pools.
