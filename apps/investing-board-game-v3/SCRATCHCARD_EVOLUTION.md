@@ -22,8 +22,8 @@ The current scratchcard is a clean, simple win/lose minigame. This guide expands
 5. After each completed step, immediately write the next step.
 
 **Progress log (live, always update):**
-- **Done (latest):** Added helper test coverage for scratchcard evaluation helpers (deterministic win lines + prize results).
-- **Next step:** Add tier selection UI and win summary polish in `ScratchcardGame` after test coverage.
+- **Done (latest):** Polished `ScratchcardGame` win summary with line counts, jackpot indicator, and totals recap.
+- **Next step:** Add tier selection visuals to `CasinoModal` and reinforce prize line highlights (line badges + color accents).
 
 ## Next Slice (P0 Foundation)
 1. Create `scratchcardTiers` config with tier costs, odds, and prize pools.
