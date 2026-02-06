@@ -8,10 +8,10 @@ The current scratchcard is a clean, simple win/lose minigame. This guide expands
 - **Entry point**: `src/components/CasinoModal.tsx`
 - **Economy hooks**: win payouts and XP/coin rewards are already wired through existing reward hooks and game state.
 
-## Status Snapshot (2026-01-24)
+## Status Snapshot (2026-02-22)
 - **Documentation refresh:** Tiered scratchcard plan clarified with a config-first approach.
 - **Code status:** Tier config, configurable grid, and multi-prize logic are implemented; evaluation logic now lives in a shared helper.
-- **Next slice focus:** Add tier selection + win summary UI polish after helper test coverage.
+- **Next slice focus:** Add odds-helper coverage to keep tier preview EV math consistent.
 
 ## AI Plan Execution Rules (always follow)
 **General instructions (always active):**
@@ -22,8 +22,8 @@ The current scratchcard is a clean, simple win/lose minigame. This guide expands
 5. After each completed step, immediately write the next step.
 
 **Progress log (live, always update):**
-- **Done (latest):** Refined scratch progress messaging with an unlock meter and locked fast-reveal CTA.
-- **Next step:** Extract odds math into a shared helper so tier previews in the Casino modal can reuse the same EV ranges.
+- **Done (latest):** Extracted odds math into a shared helper and reused it for Casino tier previews.
+- **Next step:** Add lightweight coverage for the shared odds helper (EV math stays consistent as tiers evolve).
 
 ## Next Slice (P0 Foundation)
 1. Create `scratchcardTiers` config with tier costs, odds, and prize pools.

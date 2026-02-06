@@ -5,6 +5,30 @@
 
 ## Unreleased
 
+- Added a shared scratchcard odds helper for Casino tier previews.
+
+**Date:** 2026-02-22  
+**Slice:** P3.7 Scratchcard 2.0 odds helper reuse  
+**Summary:**  
+- Extracted scratchcard EV math into a shared helper for consistent odds calculations.  
+- Reused the odds helper in the Casino modal tier preview to show estimated EV ranges alongside prizes.  
+- Updated the scratchcard evolution log with the next validation step.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/components/CasinoModal.tsx  
+- apps/investing-board-game-v3/src/components/ScratchcardGame.tsx  
+- apps/investing-board-game-v3/src/lib/scratchcardOdds.ts  
+- apps/investing-board-game-v3/SCRATCHCARD_EVOLUTION.md  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Open the Casino modal, toggle “See odds + prizes,” and confirm EV ranges appear alongside the prize table.  
+- (manual) Open a scratchcard and confirm the odds & EV panel still shows expected ranges.  
+
 - Added scratchcard win-line pulse animations and big-win sparkles.
 
 **Date:** 2026-02-22  

@@ -15,6 +15,7 @@ import {
   evaluateScratchcardResults,
   getScratchcardWinningLines,
 } from '@/lib/evaluateScratchcard'
+import { getScratchcardOddsSummary } from '@/lib/scratchcardOdds'
 import { useHaptics } from '@/hooks/useHaptics'
 import { useSound } from '@/hooks/useSound'
 import { getRewardSound } from '@/lib/sounds'
@@ -234,44 +235,7 @@ export function ScratchcardGame({
   const hasJackpot = prizeResults.some((prize) => prize.label.toLowerCase().includes('jackpot'))
   const isBigWin =
     prizeResults.length > 1 || hasJackpot || totalWinnings >= tier.entryCost.amount * 10
-  const evByCurrency = useMemo(() => {
-    const totalWeight = tier.prizes.reduce((sum, prize) => sum + prize.weight, 0)
-    const baseline: Record<ScratchcardPrize['currency'], number> = {
-      cash: 0,
-      coins: 0,
-      stars: 0,
-      xp: 0,
-    }
-    if (totalWeight <= 0) return baseline
-    return tier.prizes.reduce((totals, prize) => {
-      const average = (prize.minAmount + prize.maxAmount) / 2
-      totals[prize.currency] += (average * prize.weight) / totalWeight
-      return totals
-    }, baseline)
-  }, [tier.prizes])
-  const evRangeByCurrency = useMemo(() => {
-    const baseline = {
-      cash: { min: 0, max: 0 },
-      coins: { min: 0, max: 0 },
-      stars: { min: 0, max: 0 },
-      xp: { min: 0, max: 0 },
-    }
-    return tier.prizes.reduce((totals, prize) => {
-      const current = totals[prize.currency]
-      current.min = current.min === 0 ? prize.minAmount : Math.min(current.min, prize.minAmount)
-      current.max = Math.max(current.max, prize.maxAmount)
-      return totals
-    }, baseline)
-  }, [tier.prizes])
-  const evSummary = useMemo(() => {
-    return (Object.keys(evByCurrency) as ScratchcardPrize['currency'][]).map((currency) => {
-      const average = tier.odds.winChance * tier.prizeSlots * evByCurrency[currency]
-      const range = evRangeByCurrency[currency]
-      const min = tier.odds.winChance * tier.prizeSlots * range.min
-      const max = tier.odds.winChance * tier.prizeSlots * range.max
-      return { currency, average, min, max }
-    })
-  }, [evByCurrency, evRangeByCurrency, tier.odds.winChance, tier.prizeSlots])
+  const evSummary = useMemo(() => getScratchcardOddsSummary(tier).evSummary, [tier])
   const patternLabel = (pattern: ScratchcardPrizeResult['pattern']) => {
     switch (pattern) {
       case 'row':
