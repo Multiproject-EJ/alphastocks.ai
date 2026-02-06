@@ -65,6 +65,9 @@ export function ScratchcardGame({
   const [gameOver, setGameOver] = useState(false)
   const [prizeResults, setPrizeResults] = useState<ScratchcardPrizeResult[]>([])
   const [winningLineIndices, setWinningLineIndices] = useState<Set<number>>(new Set())
+  const [winningLines, setWinningLines] = useState<
+    ReturnType<typeof getScratchcardWinningLines>
+  >([])
 
   useEffect(() => {
     const freshGrid = buildScratchcardGrid(tier, luckBoost)
@@ -73,6 +76,7 @@ export function ScratchcardGame({
     setGameOver(false)
     setPrizeResults([])
     setWinningLineIndices(new Set())
+    setWinningLines([])
   }, [tier, luckBoost])
 
   const handleReveal = (index: number) => {
@@ -102,6 +106,7 @@ export function ScratchcardGame({
       line.indices.forEach((index) => winningIndices.add(index))
     })
     setWinningLineIndices(winningIndices)
+    setWinningLines(winningLines)
 
     const results = evaluateScratchcardResults(grid, tier)
     if (results.length === 0) {
@@ -111,6 +116,7 @@ export function ScratchcardGame({
       setPrizeResults([])
       onResults?.([])
       setWinningLineIndices(new Set())
+      setWinningLines([])
       return
     }
 
@@ -138,6 +144,18 @@ export function ScratchcardGame({
   const hasJackpot = prizeResults.some((prize) => prize.label.toLowerCase().includes('jackpot'))
   const isBigWin =
     prizeResults.length > 1 || hasJackpot || totalWinnings >= tier.entryCost.amount * 10
+  const patternLabel = (pattern: ScratchcardPrizeResult['pattern']) => {
+    switch (pattern) {
+      case 'row':
+        return 'Row match'
+      case 'diagonal':
+        return 'Diagonal match'
+      case 'bonus':
+        return 'Bonus match'
+      default:
+        return 'Match'
+    }
+  }
 
   return (
     <Card className="w-full max-w-full bg-gradient-to-br from-purple-900/20 to-pink-900/20 border-2 border-purple-500/50 shadow-2xl">
@@ -198,21 +216,33 @@ export function ScratchcardGame({
                 </span>
               )}
             </div>
-            <ul className="mt-2 space-y-1">
-              {prizeResults.map((prize, index) => (
-                <li key={`${prize.label}-${index}`} className="flex items-center justify-between">
-                  <span className="text-purple-100/80">
-                    {prize.pattern === 'row' && 'Row match'}
-                    {prize.pattern === 'diagonal' && 'Diagonal match'}
-                    {prize.pattern === 'bonus' && 'Bonus match'}
-                  </span>
-                  <span className="font-semibold">
-                    {currencyLabel(prize.currency)}
-                    {prize.amount.toLocaleString()}
-                    {prize.multiplier ? ` (${prize.multiplier}x)` : ''}
-                  </span>
-                </li>
-              ))}
+            <ul className="mt-2 space-y-2">
+              {prizeResults.map((prize, index) => {
+                const lineNumber = winningLines[index] ? index + 1 : null
+                return (
+                  <li
+                    key={`${prize.label}-${index}`}
+                    className="flex flex-col gap-1 rounded-md border border-purple-400/20 bg-purple-900/30 px-3 py-2 sm:flex-row sm:items-center sm:justify-between"
+                  >
+                    <div className="flex flex-wrap items-center gap-2 text-purple-100/80">
+                      {lineNumber && (
+                        <span className="rounded-full bg-purple-500/30 px-2 py-0.5 text-xs font-semibold text-purple-100">
+                          Line {lineNumber}
+                        </span>
+                      )}
+                      <span className="text-sm font-medium text-purple-50">
+                        {patternLabel(prize.pattern)}
+                      </span>
+                      <span className="text-xs text-purple-200/70">{prize.label}</span>
+                    </div>
+                    <span className="text-base font-semibold text-purple-50">
+                      {currencyLabel(prize.currency)}
+                      {prize.amount.toLocaleString()}
+                      {prize.multiplier ? ` (${prize.multiplier}x)` : ''}
+                    </span>
+                  </li>
+                )
+              })}
             </ul>
           </div>
         )}
