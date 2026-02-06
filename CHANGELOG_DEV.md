@@ -5,6 +5,29 @@
 
 ## Unreleased
 
+- Added scratchcard event override config for limited-time promos.
+
+**Date:** 2026-02-23  
+**Slice:** P3.10 Scratchcard 2.0 event override config  
+**Summary:**  
+- Added scratchcard event override config to boost odds and swap themed symbols during limited-time promos.  
+- Applied active event overrides to Casino tier previews and scratchcard gameplay tiers.  
+- Updated the scratchcard evolution log with the next UI banner/styling step.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/App.tsx  
+- apps/investing-board-game-v3/src/components/CasinoModal.tsx  
+- apps/investing-board-game-v3/src/lib/scratchcardEvents.ts  
+- apps/investing-board-game-v3/SCRATCHCARD_EVOLUTION.md  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Open the Casino modal during Happy Hour and confirm tier previews and symbols reflect the event override.  
+
 - Added event-aware scratchcard odds modifiers for casino boosts.
 
 **Date:** 2026-02-23  

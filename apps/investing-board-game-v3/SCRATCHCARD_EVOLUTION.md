@@ -11,7 +11,7 @@ The current scratchcard is a clean, simple win/lose minigame. This guide expands
 ## Status Snapshot (2026-02-23)
 - **Documentation refresh:** Tiered scratchcard plan clarified with a config-first approach.
 - **Code status:** Tier config, configurable grid, and multi-prize logic are implemented; evaluation logic now lives in a shared helper with baseline coverage.
-- **Next slice focus:** Add scratchcard event overrides (boosted odds + themed symbols) to align with limited-time promos.
+- **Next slice focus:** Add a scratchcard promo banner + themed styling in the Casino modal for active events.
 
 ## AI Plan Execution Rules (always follow)
 **General instructions (always active):**
@@ -22,8 +22,8 @@ The current scratchcard is a clean, simple win/lose minigame. This guide expands
 5. After each completed step, immediately write the next step.
 
 **Progress log (live, always update):**
-- **Done (latest):** Added event-aware odds modifiers (casino luck + happy hour) to previews and guaranteed-win logic.
-- **Next step:** Add scratchcard event override config for limited-time odds + symbol swaps.
+- **Done (latest):** Added scratchcard event override config for limited-time odds boosts and themed symbol swaps.
+- **Next step:** Add an active event banner + themed ticket styling in the Casino modal.
 
 ## Next Slice (P0 Foundation)
 1. Create `scratchcardTiers` config with tier costs, odds, and prize pools.

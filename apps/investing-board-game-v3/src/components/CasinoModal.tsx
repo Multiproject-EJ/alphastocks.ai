@@ -4,6 +4,10 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { ScratchcardGame } from '@/components/ScratchcardGame'
+import {
+  applyScratchcardEventOverride,
+  type ScratchcardEventOverride,
+} from '@/lib/scratchcardEvents'
 import { getScratchcardOddsSummary } from '@/lib/scratchcardOdds'
 import { scratchcardTiers, type ScratchcardTierId } from '@/lib/scratchcardTiers'
 import { useEffect, useMemo, useState } from 'react'
@@ -15,6 +19,7 @@ interface CasinoModalProps {
   luckBoost?: number
   guaranteedWin?: boolean
   tierId?: ScratchcardTierId
+  scratchcardEventOverride?: ScratchcardEventOverride | null
 }
 
 export function CasinoModal({
@@ -24,13 +29,18 @@ export function CasinoModal({
   luckBoost,
   guaranteedWin,
   tierId,
+  scratchcardEventOverride,
 }: CasinoModalProps) {
   const defaultTier = tierId ?? scratchcardTiers[0]?.id ?? 'bronze'
   const [selectedTierId, setSelectedTierId] = useState<ScratchcardTierId>(defaultTier)
   const [showOdds, setShowOdds] = useState(false)
+  const decoratedTiers = useMemo(
+    () => scratchcardTiers.map((tier) => applyScratchcardEventOverride(tier, scratchcardEventOverride ?? null)),
+    [scratchcardEventOverride],
+  )
   const selectedTier = useMemo(
-    () => scratchcardTiers.find((tier) => tier.id === selectedTierId),
-    [selectedTierId],
+    () => decoratedTiers.find((tier) => tier.id === selectedTierId),
+    [decoratedTiers, selectedTierId],
   )
 
   useEffect(() => {
@@ -62,7 +72,7 @@ export function CasinoModal({
         <div className="rounded-xl border border-purple-500/40 bg-purple-900/30 p-3 sm:p-4 mb-4">
           <p className="text-xs uppercase tracking-wide text-purple-100/70">Choose your ticket</p>
           <div className="mt-3 grid gap-2 sm:grid-cols-2">
-            {scratchcardTiers.map((tier) => {
+            {decoratedTiers.map((tier) => {
               const isSelected = tier.id === selectedTierId
               const tierTopPrize = Math.max(...tier.prizes.map((prize) => prize.maxAmount))
               const tierWinChance = getScratchcardOddsSummary(tier, {
@@ -109,6 +119,11 @@ export function CasinoModal({
                   <p className="text-xs text-purple-100/70">
                     {selectedTier.grid.rows}x{selectedTier.grid.columns} grid · {selectedTier.prizeSlots} prize slots
                   </p>
+                  {scratchcardEventOverride && (
+                    <p className="mt-1 text-[11px] text-emerald-200/80">
+                      {scratchcardEventOverride.title}: {scratchcardEventOverride.description}
+                    </p>
+                  )}
                 </div>
                 <div className="rounded-full border border-purple-400/40 bg-purple-500/20 px-2 py-1 text-[11px] uppercase tracking-wide text-purple-100">
                   {selectedTier.id}
@@ -197,6 +212,7 @@ export function CasinoModal({
           luckBoost={luckBoost}
           guaranteedWin={guaranteedWin}
           tierId={selectedTierId}
+          tier={selectedTier}
         />
       </DialogContent>
     </Dialog>
