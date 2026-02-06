@@ -24,13 +24,16 @@ export const buildScratchcardGrid = (
   tier: ScratchcardTier,
   luckBoost: number,
   rng: () => number = Math.random,
+  guaranteedWin = false,
 ) => {
   const { rows, columns } = tier.grid
   const totalCells = rows * columns
   const symbols = Array.from({ length: totalCells }, () => {
     return tier.symbolPool[Math.floor(rng() * tier.symbolPool.length)]
   })
-  const winChance = tier.odds.winChance + luckBoost
+  const winChance = guaranteedWin
+    ? 1
+    : Math.max(0, Math.min(1, tier.odds.winChance + luckBoost))
   const patterns = tier.winPatterns.filter((pattern) => pattern !== 'multiplier')
   if (rng() < winChance && patterns.length > 0) {
     const winningSymbol = tier.symbolPool[Math.floor(rng() * tier.symbolPool.length)]

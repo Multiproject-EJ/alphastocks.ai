@@ -13,10 +13,18 @@ interface CasinoModalProps {
   onOpenChange: (open: boolean) => void
   onWin?: (amount: number) => void
   luckBoost?: number
+  guaranteedWin?: boolean
   tierId?: ScratchcardTierId
 }
 
-export function CasinoModal({ open, onOpenChange, onWin, luckBoost, tierId }: CasinoModalProps) {
+export function CasinoModal({
+  open,
+  onOpenChange,
+  onWin,
+  luckBoost,
+  guaranteedWin,
+  tierId,
+}: CasinoModalProps) {
   const defaultTier = tierId ?? scratchcardTiers[0]?.id ?? 'bronze'
   const [selectedTierId, setSelectedTierId] = useState<ScratchcardTierId>(defaultTier)
   const [showOdds, setShowOdds] = useState(false)
@@ -38,10 +46,15 @@ export function CasinoModal({ open, onOpenChange, onWin, luckBoost, tierId }: Ca
   const topPrize = selectedTier
     ? Math.max(...selectedTier.prizes.map((prize) => prize.maxAmount))
     : 0
-  const evSummary = useMemo(
-    () => (selectedTier ? getScratchcardOddsSummary(selectedTier).evSummary : []),
-    [selectedTier],
+  const oddsSummary = useMemo(
+    () =>
+      selectedTier
+        ? getScratchcardOddsSummary(selectedTier, { luckBoost, guaranteedWin })
+        : null,
+    [selectedTier, luckBoost, guaranteedWin],
   )
+  const evSummary = oddsSummary?.evSummary ?? []
+  const winChance = oddsSummary?.winChance ?? selectedTier?.odds.winChance ?? 0
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -52,6 +65,10 @@ export function CasinoModal({ open, onOpenChange, onWin, luckBoost, tierId }: Ca
             {scratchcardTiers.map((tier) => {
               const isSelected = tier.id === selectedTierId
               const tierTopPrize = Math.max(...tier.prizes.map((prize) => prize.maxAmount))
+              const tierWinChance = getScratchcardOddsSummary(tier, {
+                luckBoost,
+                guaranteedWin,
+              }).winChance
               return (
                 <Button
                   key={tier.id}
@@ -77,7 +94,7 @@ export function CasinoModal({ open, onOpenChange, onWin, luckBoost, tierId }: Ca
                       {tier.entryCost.amount.toLocaleString()} {tier.entryCost.currency} · {tier.grid.rows}x{tier.grid.columns} grid
                     </span>
                     <span className="text-[11px] text-purple-100/70">
-                      Win {(tier.odds.winChance * 100).toFixed(0)}% · Top prize {tierTopPrize.toLocaleString()}
+                      Win {(tierWinChance * 100).toFixed(0)}% · Top prize {tierTopPrize.toLocaleString()}
                     </span>
                   </span>
                 </Button>
@@ -130,10 +147,18 @@ export function CasinoModal({ open, onOpenChange, onWin, luckBoost, tierId }: Ca
                 {showOdds && (
                   <div className="mt-3 space-y-2 text-xs text-purple-100/70">
                     <p>
-                      Win chance: {(selectedTier.odds.winChance * 100).toFixed(0)}% · Jackpot:{' '}
+                      Win chance: {(winChance * 100).toFixed(0)}% · Jackpot:{' '}
                       {(selectedTier.odds.jackpotChance * 100).toFixed(0)}% · Multiplier:{' '}
                       {(selectedTier.odds.multiplierChance * 100).toFixed(0)}%
                     </p>
+                    {guaranteedWin && (
+                      <p className="text-emerald-200/80">
+                        Happy Hour active: ticket wins are guaranteed.
+                      </p>
+                    )}
+                    {!guaranteedWin && luckBoost && luckBoost > 0 && (
+                      <p>Casino Luck active: +{(luckBoost * 100).toFixed(0)}% win chance.</p>
+                    )}
                     <div className="rounded-md border border-purple-400/20 bg-purple-900/30 px-2 py-1">
                       <p className="text-[11px] uppercase text-purple-200/60">Estimated EV</p>
                       <div className="mt-1 flex flex-wrap gap-2">
@@ -170,6 +195,7 @@ export function CasinoModal({ open, onOpenChange, onWin, luckBoost, tierId }: Ca
           onWin={onWin}
           onClose={() => onOpenChange(false)}
           luckBoost={luckBoost}
+          guaranteedWin={guaranteedWin}
           tierId={selectedTierId}
         />
       </DialogContent>

@@ -261,6 +261,14 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 
 ### P3 — Casino & Scratchcards
 - **P3.1** ✅ Advanced casino games (audit CasinoModal + existing casino hooks and scope the first new game surface)
+- **P3.2** ✅ Scratchcard 2.0 tier selection polish
+- **P3.3** ✅ Scratchcard 2.0 next-level reveal polish
+- **P3.4** ✅ Scratchcard 2.0 tactile feedback
+- **P3.5** ✅ Scratchcard 2.0 win-line sparkles
+- **P3.6** ✅ Scratchcard 2.0 odds peek CTA
+- **P3.7** ✅ Scratchcard 2.0 odds helper reuse
+- **P3.8** ✅ Scratchcard 2.0 odds helper coverage
+- **P3.9** ✅ Scratchcard 2.0 odds modifiers (casino luck + happy hour)
 
 ### P4 — Seasonal & Holiday Events
 - **P4.1** ✅ Holiday event schedule fixtures
@@ -666,6 +674,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Added lightweight Vitest coverage for the shared scratchcard odds helper to lock in EV math expectations.
 - Validated EV ranges and per-currency summaries stay in sync with tier odds + prize tables.
 - Updated the scratchcard evolution doc with the next odds-modifier step.
+
+## P3.9 Slice Notes (Scratchcard 2.0 odds modifiers)
+- Added event-aware odds modifiers (casino luck + happy hour) to the scratchcard odds helper and preview surfaces.
+- Wired guaranteed-win Happy Hour boosts into scratchcard grid generation so outcomes align with the previewed odds.
+- Updated the scratchcard evolution doc with the next event-override step.
 
 ## P3 Slice Notes (IPO Frenzy timed mini-game surface)
 - Built a mobile-first IPO Frenzy timed-event surface with allocation playbooks, pop signals, and roadshow framing for IPO launches.
