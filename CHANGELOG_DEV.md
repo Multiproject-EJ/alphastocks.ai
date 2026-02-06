@@ -5,6 +5,29 @@
 
 ## Unreleased
 
+- Added tier selection callouts in the Casino modal and winning-line badges on scratchcard tiles.
+
+**Date:** 2026-02-20  
+**Slice:** P3.2 Scratchcard 2.0 tier selection polish  
+**Summary:**  
+- Enhanced Casino modal tier cards with odds, grid size, and top-prize context for faster ticket comparison.  
+- Added line-number badges to winning scratchcard tiles while keeping the existing color-accent highlights in sync.  
+- Logged the scratchcard evolution progress and next step in the planning docs.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/components/CasinoModal.tsx  
+- apps/investing-board-game-v3/src/components/ScratchcardGame.tsx  
+- apps/investing-board-game-v3/SCRATCHCARD_EVOLUTION.md  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Open the Casino modal, switch between ticket tiers, and confirm the tier cards show odds/top-prize details.  
+- (manual) Play a scratchcard and confirm winning tiles show line badges matching the win summary list.  
+
 - Activated Tier 1 event tiles with choice-driven rewards and a new event decision modal.
 
 **Date:** 2026-02-05  

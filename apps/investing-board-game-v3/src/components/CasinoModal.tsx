@@ -46,6 +46,7 @@ export function CasinoModal({ open, onOpenChange, onWin, luckBoost, tierId }: Ca
           <div className="mt-3 grid gap-2 sm:grid-cols-2">
             {scratchcardTiers.map((tier) => {
               const isSelected = tier.id === selectedTierId
+              const tierTopPrize = Math.max(...tier.prizes.map((prize) => prize.maxAmount))
               return (
                 <Button
                   key={tier.id}
@@ -54,14 +55,24 @@ export function CasinoModal({ open, onOpenChange, onWin, luckBoost, tierId }: Ca
                   onClick={() => setSelectedTierId(tier.id)}
                   className={
                     isSelected
-                      ? 'bg-purple-500/70 hover:bg-purple-500/90 text-white border-purple-300/70'
-                      : 'border-purple-400/50 text-purple-100/80 hover:text-white'
+                      ? 'bg-gradient-to-br from-purple-500/80 to-pink-500/70 hover:from-purple-500/90 hover:to-pink-500/80 text-white border-purple-300/80 shadow-lg'
+                      : 'border-purple-400/50 text-purple-100/80 hover:text-white hover:border-purple-300/70'
                   }
                 >
-                  <span className="flex w-full flex-col text-left">
-                    <span className="text-sm font-semibold">{tier.name}</span>
+                  <span className="flex w-full flex-col gap-1 text-left">
+                    <span className="flex items-center justify-between gap-2 text-sm font-semibold">
+                      {tier.name}
+                      {isSelected && (
+                        <span className="rounded-full bg-white/20 px-2 py-0.5 text-[10px] uppercase tracking-wide text-white/90">
+                          Selected
+                        </span>
+                      )}
+                    </span>
                     <span className="text-[11px] text-purple-100/70">
-                      {tier.entryCost.amount.toLocaleString()} {tier.entryCost.currency} · {tier.grid.rows}x{tier.grid.columns}
+                      {tier.entryCost.amount.toLocaleString()} {tier.entryCost.currency} · {tier.grid.rows}x{tier.grid.columns} grid
+                    </span>
+                    <span className="text-[11px] text-purple-100/70">
+                      Win {(tier.odds.winChance * 100).toFixed(0)}% · Top prize {tierTopPrize.toLocaleString()}
                     </span>
                   </span>
                 </Button>

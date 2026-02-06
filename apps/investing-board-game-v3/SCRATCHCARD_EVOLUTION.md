@@ -22,8 +22,8 @@ The current scratchcard is a clean, simple win/lose minigame. This guide expands
 5. After each completed step, immediately write the next step.
 
 **Progress log (live, always update):**
-- **Done (latest):** Polished `ScratchcardGame` win summary with line counts, jackpot indicator, and totals recap.
-- **Next step:** Add tier selection visuals to `CasinoModal` and reinforce prize line highlights (line badges + color accents).
+- **Done (latest):** Added tier selection visuals in `CasinoModal` with odds/top-prize callouts, plus line badges and color accents on winning scratchcard tiles.
+- **Next step:** Add a scratch-mask texture (SVG or canvas) with optional fast-reveal CTA after a few scratches.
 
 ## Next Slice (P0 Foundation)
 1. Create `scratchcardTiers` config with tier costs, odds, and prize pools.

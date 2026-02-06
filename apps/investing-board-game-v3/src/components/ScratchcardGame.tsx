@@ -98,7 +98,19 @@ export function ScratchcardGame({
       })
     })
     return classes
-  }, [lineAccents, totalCells, winningLines])
+  }, [totalCells, winningLines])
+  const lineBadgeByIndex = useMemo(() => {
+    const badges: Array<number | null> = Array(totalCells).fill(null)
+    winningLines.forEach((line, lineIndex) => {
+      line.indices.forEach((index) => {
+        if (badges[index] === null) {
+          badges[index] = lineIndex
+        }
+      })
+    })
+    return badges
+  }, [totalCells, winningLines])
+  const lineBadgeClass = (lineIndex: number) => lineAccents[lineIndex % lineAccents.length].badge
 
   useEffect(() => {
     const freshGrid = buildScratchcardGrid(tier, luckBoost)
@@ -250,6 +262,15 @@ export function ScratchcardGame({
               `}
             >
               {revealed[index] ? symbol : '?'}
+              {gameOver && winningLineIndices.has(index) && lineBadgeByIndex[index] !== null && (
+                <span
+                  className={`absolute left-1 top-1 z-10 rounded-full px-2 py-0.5 text-[10px] font-semibold shadow ${lineBadgeClass(
+                    lineBadgeByIndex[index] ?? 0,
+                  )}`}
+                >
+                  L{(lineBadgeByIndex[index] ?? 0) + 1}
+                </span>
+              )}
               <span
                 aria-hidden="true"
                 className={`scratch-overlay ${revealed[index] ? 'scratch-overlay--revealed' : ''}`}
