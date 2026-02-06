@@ -22,8 +22,8 @@ The current scratchcard is a clean, simple win/lose minigame. This guide expands
 5. After each completed step, immediately write the next step.
 
 **Progress log (live, always update):**
-- **Done (latest):** Added event-only scratch surface polish (foil/gradient accents + badge) to match active event themes.
-- **Next step:** Add tier preview details (grid size, odds, top prize) to the casino modal ticket selector.
+- **Done (latest):** Added tier preview details (grid size, odds, top prize) to the casino modal ticket selector.
+- **Next step:** Surface win-pattern highlights (rows/diagonals/bonus) in the casino modal tier preview.
 
 ## Next Slice (P0 Foundation)
 1. Create `scratchcardTiers` config with tier costs, odds, and prize pools.
