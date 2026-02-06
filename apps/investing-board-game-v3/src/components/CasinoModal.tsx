@@ -168,6 +168,9 @@ export function CasinoModal({
                   <p className="text-xs text-purple-100/70">
                     {selectedTier.grid.rows}x{selectedTier.grid.columns} grid · {selectedTier.prizeSlots} prize slots
                   </p>
+                  <p className="text-xs text-purple-100/70">
+                    Win {(winChance * 100).toFixed(0)}% · Top prize {topPrize.toLocaleString()} {selectedTier.prizes[0]?.currency ?? 'coins'}
+                  </p>
                   {scratchcardEventOverride && (
                     <p className="mt-1 text-[11px] text-emerald-200/80">
                       {scratchcardEventOverride.title}: {scratchcardEventOverride.description}
