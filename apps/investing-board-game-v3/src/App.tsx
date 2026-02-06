@@ -316,6 +316,7 @@ import type { UIMode, GamePhase } from '@/lib/uiModeStateMachine'
 import type { RollMultiplier } from '@/lib/constants'
 import { setTelemetryContext, trackTelemetryEvent } from '@/lib/telemetry'
 import { trackInstrumentationEvent } from '@/lib/instrumentation'
+import { getScratchcardEventOverride } from '@/lib/scratchcardEvents'
 
 // Alias for backward compatibility
 type Phase = GamePhase
@@ -1327,6 +1328,10 @@ function App() {
   } = useEvents({ playSound })
 
   const { activeMiniGames, upcomingMiniGames } = useMiniGames()
+  const scratchcardEventOverride = useMemo(
+    () => getScratchcardEventOverride(activeEvents),
+    [activeEvents],
+  )
 
   const shopWindow = useMemo(() => {
     let topDiscount = 0
@@ -4037,6 +4042,7 @@ function App() {
               onWin: handleCasinoWin,
               luckBoost: isPermanentOwned('casino-luck') ? 0.2 : 0,
               guaranteedWin: hasGuaranteedCasinoWin(),
+              scratchcardEventOverride,
             },
             priority: 'normal',
             onClose: () => {

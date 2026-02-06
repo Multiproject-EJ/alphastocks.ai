@@ -269,6 +269,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P3.7** ✅ Scratchcard 2.0 odds helper reuse
 - **P3.8** ✅ Scratchcard 2.0 odds helper coverage
 - **P3.9** ✅ Scratchcard 2.0 odds modifiers (casino luck + happy hour)
+- **P3.10** ✅ Scratchcard 2.0 event override config (odds + symbols)
 
 ### P4 — Seasonal & Holiday Events
 - **P4.1** ✅ Holiday event schedule fixtures
@@ -679,6 +680,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Added event-aware odds modifiers (casino luck + happy hour) to the scratchcard odds helper and preview surfaces.
 - Wired guaranteed-win Happy Hour boosts into scratchcard grid generation so outcomes align with the previewed odds.
 - Updated the scratchcard evolution doc with the next event-override step.
+
+## P3.10 Slice Notes (Scratchcard 2.0 event override config)
+- Added a scratchcard event override config to boost odds and swap themed symbols during limited-time promos.
+- Wired active event overrides into the Casino modal tier previews and scratchcard game tier selection.
+- Updated the scratchcard evolution doc with the next UI banner/styling step.
 
 ## P3 Slice Notes (IPO Frenzy timed mini-game surface)
 - Built a mobile-first IPO Frenzy timed-event surface with allocation playbooks, pop signals, and roadshow framing for IPO launches.
