@@ -65,11 +65,40 @@ export function CasinoModal({
   )
   const evSummary = oddsSummary?.evSummary ?? []
   const winChance = oddsSummary?.winChance ?? selectedTier?.odds.winChance ?? 0
+  const isEventActive = Boolean(scratchcardEventOverride)
+  const eventBannerClasses = isEventActive
+    ? 'border-emerald-300/40 bg-emerald-500/15 text-emerald-50'
+    : 'border-purple-400/40 bg-purple-900/40 text-purple-50'
+  const ticketPanelClasses = isEventActive
+    ? 'border-emerald-400/40 bg-gradient-to-br from-emerald-950/60 via-slate-950/60 to-purple-950/50'
+    : 'border-purple-500/40 bg-purple-900/30'
+  const previewClasses = isEventActive
+    ? 'border-emerald-400/30 bg-emerald-950/30'
+    : 'border-purple-400/30 bg-purple-950/40'
+  const previewCellClasses = isEventActive
+    ? 'border-emerald-300/30 bg-emerald-900/30 text-emerald-50'
+    : 'border-purple-400/30 bg-purple-900/40 text-purple-50'
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bg-transparent border-0 shadow-none max-w-[calc(100vw-2rem)] sm:max-w-md p-0">
-        <div className="rounded-xl border border-purple-500/40 bg-purple-900/30 p-3 sm:p-4 mb-4">
+        {scratchcardEventOverride && (
+          <div className={`mb-3 rounded-xl border px-3 py-2 ${eventBannerClasses}`}>
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-xs uppercase tracking-wide text-emerald-100/80">Active Event</p>
+                <p className="text-sm font-semibold">{scratchcardEventOverride.title}</p>
+                <p className="text-[11px] text-emerald-100/70">
+                  {scratchcardEventOverride.description}
+                </p>
+              </div>
+              <span className="rounded-full bg-emerald-400/20 px-2 py-0.5 text-[10px] uppercase tracking-wide text-emerald-100/80">
+                Event Boost
+              </span>
+            </div>
+          </div>
+        )}
+        <div className={`rounded-xl border p-3 sm:p-4 mb-4 ${ticketPanelClasses}`}>
           <p className="text-xs uppercase tracking-wide text-purple-100/70">Choose your ticket</p>
           <div className="mt-3 grid gap-2 sm:grid-cols-2">
             {decoratedTiers.map((tier) => {
@@ -112,7 +141,7 @@ export function CasinoModal({
             })}
           </div>
           {selectedTier && (
-            <div className="mt-4 rounded-lg border border-purple-400/30 bg-purple-950/40 p-3 text-purple-100/80">
+            <div className={`mt-4 rounded-lg border p-3 text-purple-100/80 ${previewClasses}`}>
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="text-sm font-semibold text-white">{selectedTier.name} preview</p>
@@ -136,7 +165,7 @@ export function CasinoModal({
                 {Array.from({ length: selectedTier.grid.rows * selectedTier.grid.columns }).map((_, index) => (
                   <div
                     key={`${selectedTier.id}-preview-${index}`}
-                    className="flex h-8 items-center justify-center rounded-md border border-purple-400/30 bg-purple-900/40 text-base"
+                    className={`flex h-8 items-center justify-center rounded-md border text-base ${previewCellClasses}`}
                   >
                     {selectedTier.symbolPool[index % selectedTier.symbolPool.length]}
                   </div>
