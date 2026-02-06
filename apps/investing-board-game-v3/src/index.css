@@ -1625,6 +1625,12 @@ h1, h2, h3, h4, h5, h6 {
   overflow: hidden;
 }
 
+.scratch-tile--event {
+  box-shadow:
+    0 0 0 1px rgba(16, 185, 129, 0.45),
+    0 0 18px rgba(56, 189, 248, 0.25);
+}
+
 .scratch-tile--win {
   animation: scratch-win-pulse 1.4s ease-in-out infinite;
 }
@@ -1677,6 +1683,30 @@ h1, h2, h3, h4, h5, h6 {
   animation: scratch-shimmer 2.6s linear infinite;
 }
 
+.scratch-foil {
+  position: absolute;
+  inset: -15%;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0.75;
+  background-image:
+    conic-gradient(
+      from 120deg,
+      rgba(16, 185, 129, 0.45),
+      rgba(56, 189, 248, 0.4),
+      rgba(232, 121, 249, 0.35),
+      rgba(16, 185, 129, 0.45)
+    ),
+    radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.25), transparent 55%);
+  mix-blend-mode: screen;
+  filter: blur(0.3px);
+  animation: scratch-foil-shift 4.5s linear infinite;
+}
+
+.scratch-foil--revealed {
+  animation: scratch-reveal 0.55s ease-out forwards;
+}
+
 .scratch-overlay::before,
 .scratch-overlay::after {
   content: '';
@@ -1708,6 +1738,37 @@ h1, h2, h3, h4, h5, h6 {
     );
   opacity: 0.55;
   mix-blend-mode: soft-light;
+}
+
+.scratch-event-badge {
+  position: absolute;
+  right: -12px;
+  top: -12px;
+  z-index: 10;
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(16, 185, 129, 0.5);
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.35), rgba(56, 189, 248, 0.3));
+  color: #ecfdf5;
+  text-align: center;
+  box-shadow:
+    0 6px 18px rgba(16, 185, 129, 0.25),
+    inset 0 0 12px rgba(255, 255, 255, 0.2);
+}
+
+.scratch-event-badge__label {
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+
+.scratch-event-badge__title {
+  font-size: 11px;
+  font-weight: 600;
 }
 
 .scratch-overlay--revealed {
@@ -1754,6 +1815,18 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
+@keyframes scratch-foil-shift {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(8deg) scale(1.05);
+  }
+  100% {
+    transform: rotate(16deg) scale(1);
+  }
+}
+
 @keyframes scratch-win-pulse {
   0%,
   100% {
@@ -1796,6 +1869,10 @@ h1, h2, h3, h4, h5, h6 {
   .scratch-tile--win,
   .scratch-tile--bigwin .scratch-win-sparkle,
   .scratch-tile--bigwin .scratch-win-sparkle::after {
+    animation: none;
+  }
+
+  .scratch-foil {
     animation: none;
   }
 
