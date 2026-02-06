@@ -22,7 +22,7 @@ The current scratchcard is a clean, simple win/lose minigame. This guide expands
 5. After each completed step, immediately write the next step.
 
 **Progress log (live, always update):**
-- **Done (latest):** Added a “See odds + EV” peek CTA that surfaces win chances, EV estimates, and prize tables.
+- **Done (latest):** Refined scratch progress messaging with an unlock meter and locked fast-reveal CTA.
 - **Next step:** Extract odds math into a shared helper so tier previews in the Casino modal can reuse the same EV ranges.
 
 ## Next Slice (P0 Foundation)

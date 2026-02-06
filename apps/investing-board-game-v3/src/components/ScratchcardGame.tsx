@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Sparkle } from '@phosphor-icons/react'
+import { LockSimple, Sparkle } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import {
   getScratchcardTier,
@@ -229,6 +229,8 @@ export function ScratchcardGame({
   }, [totalsByCurrency])
   const revealedCount = useMemo(() => revealed.filter(Boolean).length, [revealed])
   const revealThreshold = Math.min(3, Math.max(1, totalCells - 1))
+  const fastRevealUnlocked = revealedCount >= revealThreshold
+  const scratchesUntilUnlock = Math.max(revealThreshold - revealedCount, 0)
   const hasJackpot = prizeResults.some((prize) => prize.label.toLowerCase().includes('jackpot'))
   const isBigWin =
     prizeResults.length > 1 || hasJackpot || totalWinnings >= tier.entryCost.amount * 10
@@ -393,8 +395,24 @@ export function ScratchcardGame({
           <span>
             Scratched {revealedCount}/{totalCells}
           </span>
-          {!gameOver && revealedCount < revealThreshold && (
-            <span>Scratch a few tiles to unlock fast reveal.</span>
+          {!gameOver && (
+            <div className="flex flex-col items-center gap-1 text-[11px] text-purple-200/70">
+              <div className="h-1 w-28 overflow-hidden rounded-full bg-white/10">
+                <div
+                  className="h-full bg-purple-300/70 transition-all duration-300"
+                  style={{
+                    width: `${Math.min(100, (revealedCount / revealThreshold) * 100)}%`,
+                  }}
+                />
+              </div>
+              <span>
+                {fastRevealUnlocked
+                  ? 'Fast reveal unlocked.'
+                  : `Fast reveal unlocks in ${scratchesUntilUnlock} scratch${
+                      scratchesUntilUnlock === 1 ? '' : 'es'
+                    }.`}
+              </span>
+            </div>
           )}
         </div>
         <div
@@ -508,13 +526,21 @@ export function ScratchcardGame({
         )}
 
         <div className="flex gap-2 justify-center">
-          {!gameOver && revealedCount >= revealThreshold && (
+          {!gameOver && (
             <Button
               onClick={revealAll}
               variant="outline"
-              className="bg-purple-600/20 hover:bg-purple-600/30 border-purple-400/50"
+              disabled={!fastRevealUnlocked}
+              className="bg-purple-600/20 hover:bg-purple-600/30 border-purple-400/50 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Fast Reveal
+              {fastRevealUnlocked ? (
+                'Fast Reveal'
+              ) : (
+                <span className="inline-flex items-center gap-1">
+                  <LockSimple size={14} />
+                  Fast Reveal ({scratchesUntilUnlock})
+                </span>
+              )}
             </Button>
           )}
           <Button
