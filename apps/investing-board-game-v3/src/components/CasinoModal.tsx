@@ -99,6 +99,12 @@ export function CasinoModal({
   const evRangeLabel = primaryEvEntry
     ? `${primaryEvEntry.min.toFixed(0)}–${primaryEvEntry.max.toFixed(0)} ${primaryEvEntry.currency}`
     : 'EV range —'
+  const evRangeDetails = evSummary
+    .filter((entry) => entry.average > 0)
+    .map((entry) => ({
+      currency: entry.currency,
+      label: `${entry.min.toFixed(0)}–${entry.max.toFixed(0)} ${entry.currency}`,
+    }))
   const winChance = oddsSummary?.winChance ?? selectedTier?.odds.winChance ?? 0
   const hasMultiplier = selectedTier?.winPatterns.includes('multiplier') ?? false
   const multiplierTooltip = selectedTier
@@ -242,6 +248,18 @@ export function CasinoModal({
                   <p className="text-xs text-purple-100/70">
                     EV range {evRangeLabel}
                   </p>
+                  {evRangeDetails.length > 0 && (
+                    <div className="mt-1 flex flex-wrap gap-2 text-[11px] text-purple-100/70">
+                      {evRangeDetails.map((entry) => (
+                        <span
+                          key={`ev-range-${entry.currency}`}
+                          className="rounded-full border border-purple-300/30 bg-purple-950/40 px-2 py-0.5 text-purple-50"
+                        >
+                          {entry.label}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                   <p className="text-xs text-purple-100/70">
                     Multiplier badge
                     <span
