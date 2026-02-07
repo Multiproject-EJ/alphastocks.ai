@@ -4,6 +4,7 @@
  */
 
 import { motion } from 'framer-motion'
+import { useEffect, useRef, useState } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { GameConfig } from '@/lib/gamesConfig'
@@ -19,6 +20,8 @@ interface GameCardProps {
 
 export function GameCard({ game, onClick, isPlayable: isPlayableProp, statusLabel, availabilityLabel }: GameCardProps) {
   const prefersReducedMotion = useReducedMotion()
+  const [counterPulseKey, setCounterPulseKey] = useState(0)
+  const previousCounterRef = useRef(game.counter)
 
   const isPlayable = isPlayableProp ?? game.status === 'playable'
   const actionLabel = statusLabel ?? (isPlayable ? 'Play' : 'Coming Soon')
@@ -35,6 +38,13 @@ export function GameCard({ game, onClick, isPlayable: isPlayableProp, statusLabe
       onClick()
     }
   }
+
+  useEffect(() => {
+    if (previousCounterRef.current !== game.counter) {
+      setCounterPulseKey((current) => current + 1)
+      previousCounterRef.current = game.counter
+    }
+  }, [game.counter])
 
   return (
     <motion.div
@@ -62,12 +72,35 @@ export function GameCard({ game, onClick, isPlayable: isPlayableProp, statusLabe
       >
         {/* Counter Badge */}
         <div className="absolute right-4 top-4">
-          <Badge 
-            variant="secondary" 
-            className="bg-black/50 text-xs font-semibold text-white backdrop-blur"
+          <motion.div
+            key={counterPulseKey}
+            initial={{ scale: 1 }}
+            animate={
+              prefersReducedMotion
+                ? { scale: 1 }
+                : { scale: [1, 1.25, 1], y: [0, -2, 0] }
+            }
+            transition={{ duration: 0.6, ease: 'easeOut' }}
+            className="origin-top-right"
           >
-            {game.counter}
-          </Badge>
+            <Badge
+              variant="secondary"
+              className="bg-black/50 text-xs font-semibold text-white shadow-[0_0_0px_rgba(255,255,255,0.8)] backdrop-blur"
+            >
+              <motion.span
+                initial={{ scale: 1 }}
+                animate={
+                  prefersReducedMotion
+                    ? { scale: 1 }
+                    : { scale: [1, 1.2, 1], textShadow: ['0 0 0 rgba(255,255,255,0)', '0 0 12px rgba(255,255,255,0.6)', '0 0 0 rgba(255,255,255,0)'] }
+                }
+                transition={{ duration: 0.6, ease: 'easeOut' }}
+                className="inline-block"
+              >
+                {game.counter}
+              </motion.span>
+            </Badge>
+          </motion.div>
         </div>
 
         {/* Game Icon */}
