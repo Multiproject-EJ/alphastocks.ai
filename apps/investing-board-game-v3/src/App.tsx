@@ -47,6 +47,7 @@ import { RouletteStatusPanel } from '@/components/RouletteStatusPanel'
 import { RouletteVictoryModal } from '@/components/RouletteVictoryModal'
 import { SHOP2_ENABLED } from '@/lib/featureFlags'
 import { logProToolsDiagnostic } from '@/lib/proToolsDiagnostics'
+import { getCourtOfCapitalDefinition } from '@/lib/courtOfCapital'
 
 // Mobile-first components
 import { MobileGameLayout } from '@/components/MobileGameLayout'
@@ -4055,12 +4056,27 @@ function App() {
           })
         }, 1000)
       } else if (tile.title === 'Court of Capital') {
-        toast.info('Court of Capital', {
-          description: 'Feature coming soon',
+        const courtDefinition = getCourtOfCapitalDefinition()
+        showOverlay({
+          id: 'courtOfCapital',
+          component: EventChoiceModal,
+          props: {
+            title: courtDefinition.title,
+            description: courtDefinition.description,
+            icon: courtDefinition.icon,
+            options: courtDefinition.options,
+            onSelect: (option: EventTileOption) => {
+              handleEventTileChoice(courtDefinition.title, option)
+            },
+          },
+          priority: 'normal',
+          onClose: () => {
+            setTimeout(() => {
+              debugGame('Phase transition: landed -> idle (Court corner)')
+              setPhase('idle')
+            }, 300)
+          },
         })
-        // Immediately transition back to idle (no modal to show)
-        debugGame('Phase transition: landed -> idle (Court corner)')
-        setPhase('idle')
       } else if (tile.title === 'Bias Sanctuary') {
         debugGame('Opening Bias Sanctuary modal')
         const caseStudy = getRandomBiasCaseStudy()
