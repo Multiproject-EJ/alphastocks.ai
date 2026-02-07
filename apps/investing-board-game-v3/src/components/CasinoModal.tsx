@@ -84,6 +84,21 @@ export function CasinoModal({
     }))
   }, [selectedTier])
   const evSummary = oddsSummary?.evSummary ?? []
+  const primaryEvEntry = useMemo(() => {
+    if (!oddsSummary || !selectedTier) {
+      return null
+    }
+    return (
+      oddsSummary.evSummary.find(
+        (entry) => entry.currency === selectedTier.entryCost.currency && entry.average > 0,
+      ) ??
+      oddsSummary.evSummary.find((entry) => entry.average > 0) ??
+      null
+    )
+  }, [oddsSummary, selectedTier])
+  const evRangeLabel = primaryEvEntry
+    ? `${primaryEvEntry.min.toFixed(0)}–${primaryEvEntry.max.toFixed(0)} ${primaryEvEntry.currency}`
+    : 'EV range —'
   const winChance = oddsSummary?.winChance ?? selectedTier?.odds.winChance ?? 0
   const hasMultiplier = selectedTier?.winPatterns.includes('multiplier') ?? false
   const multiplierTooltip = selectedTier
@@ -223,6 +238,9 @@ export function CasinoModal({
                   </p>
                   <p className="text-xs text-purple-100/70">
                     Win {(winChance * 100).toFixed(0)}% · Top prize {topPrize.toLocaleString()} {selectedTier.prizes[0]?.currency ?? 'coins'}
+                  </p>
+                  <p className="text-xs text-purple-100/70">
+                    EV range {evRangeLabel}
                   </p>
                   <p className="text-xs text-purple-100/70">
                     Multiplier badge
