@@ -190,6 +190,9 @@ export function CasinoModal({
               const evLabel = tierPrimaryEv
                 ? `EV ~ ${tierPrimaryEv.average.toFixed(0)} ${tierPrimaryEv.currency}`
                 : 'EV —'
+              const oddsTooltip = `Win ${(tierWinChance * 100).toFixed(0)}% · Jackpot ${jackpotLabel}% · Multiplier ${(
+                tier.odds.multiplierChance * 100
+              ).toFixed(0)}%`
               return (
                 <Button
                   key={tier.id}
@@ -215,7 +218,15 @@ export function CasinoModal({
                       {tier.entryCost.amount.toLocaleString()} {tier.entryCost.currency} · {tier.grid.rows}x{tier.grid.columns} grid
                     </span>
                     <span className="text-[11px] text-purple-100/70">
-                      Win {(tierWinChance * 100).toFixed(0)}% · Top prize {tierTopPrize.toLocaleString()}
+                      <span className="inline-flex items-center gap-1">
+                        Win {(tierWinChance * 100).toFixed(0)}% · Top prize {tierTopPrize.toLocaleString()}
+                        <span
+                          className="inline-flex items-center text-purple-200/70"
+                          title={oddsTooltip}
+                        >
+                          <Info className="h-3.5 w-3.5" aria-hidden="true" />
+                        </span>
+                      </span>
                     </span>
                     <span className="text-[11px] text-purple-100/70">
                       {evLabel} · Jackpot {jackpotLabel}%
