@@ -5,6 +5,27 @@
 
 ## Unreleased
 
+- Activated the Court of Capital corner tile with choice-driven rewards.
+
+**Date:** 2026-02-24  
+**Slice:** M10.3 Court of Capital activation  
+**Summary:**  
+- Added a Court of Capital reward definition with two strategic outcomes.  
+- Wired the corner tile to the event choice modal and existing reward handler for ring-aware payouts.  
+- Updated the dev plan repo map and slice tracker to reflect the new activation.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/App.tsx  
+- apps/investing-board-game-v3/src/lib/courtOfCapital.ts  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Land on the Court of Capital corner tile and confirm the choice modal applies rewards.  
+
 - Added scratchcard event override config for limited-time promos.
 
 **Date:** 2026-02-23  
