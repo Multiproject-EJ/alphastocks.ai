@@ -139,7 +139,7 @@ export function CasinoModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-transparent border-0 shadow-none max-w-[calc(100vw-2rem)] sm:max-w-md p-0">
+      <DialogContent className="bg-transparent border-0 shadow-none max-w-[calc(100vw-2rem)] sm:max-w-md p-0 top-[calc(1rem+var(--safe-area-top-padding))] translate-y-0 sm:top-[50%] sm:translate-y-[-50%] max-h-[calc(100dvh-2rem-var(--safe-area-top-padding)-var(--safe-area-bottom-padding))] overflow-y-auto">
         {scratchcardEventOverride && (
           <div className={`mb-3 rounded-xl border px-3 py-2 ${eventBannerClasses}`}>
             <div className="flex items-center justify-between gap-3">
