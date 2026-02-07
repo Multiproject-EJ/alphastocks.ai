@@ -610,6 +610,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Built a mobile-first Vault Heist event surface with lane selection, crew boost messaging, and alarm risk callouts.
 - Wired the mini-games hub Vault Heist card to show schedule availability and open only during live heist windows.
 - Added live status messaging with countdown-friendly labels to keep the Saturday heist cadence clear.
+- Logged the ongoing Vault Heist evolution plan in `apps/investing-board-game-v3/VAULT_HEIST_EVOLUTION.md`.
 
 ## P2 Slice Notes (Market Mayhem timed mini-game surface)
 - Built a mobile-first Market Mayhem trading-floor surface with flash signal cards, rapid decision buttons, and leaderboard framing.

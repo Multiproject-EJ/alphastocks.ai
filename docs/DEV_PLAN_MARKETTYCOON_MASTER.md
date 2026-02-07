@@ -673,6 +673,7 @@ These are limited-time events that create excitement and FOMO.
 #### 3. Vault Heist 🏦
 **Type:** Special Event (Weekly)
 **Availability:** Saturdays 2pm — 1 hour only
+**Evolution Plan:** `apps/investing-board-game-v3/VAULT_HEIST_EVOLUTION.md`
 **Mechanic:**
 - Player attempts to "crack" 3 vault doors
 - Each door: Mini-game (pattern match, quick math, memory)
