@@ -5,6 +5,27 @@
 
 ## Unreleased
 
+- Polished Tier 2 Market Event headlines and tuned rewards.
+
+**Date:** 2026-02-08  
+**Slice:** M10.7 Tier 2 event tile polish (reward tuning + headline copy sweep)  
+**Summary:**  
+- Tuned Market Event choice rewards to deliver a stronger Tier 2 pulse.  
+- Refreshed Market Event headline strings to read like sharper market tape alerts.  
+- Updated Market Event option previews to match the new tuning.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/lib/eventTiles.ts  
+- apps/investing-board-game-v3/src/lib/mockData.ts  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Land on a Market Event tile and confirm the updated headline copy and reward previews appear in the choice modal.  
+
 - Activated Tier 2 event tiles for Market Event and Wildcard.
 
 **Date:** 2026-02-24  

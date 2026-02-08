@@ -156,13 +156,13 @@ const MARKET_EVENT_OPTIONS: EventTileOption[] = [
   {
     id: 'risk-on-surge',
     title: 'Risk-On Surge',
-    description: 'Lean into the rally for a punchy cash spike.',
+    description: 'Lean into the rally for a cash jolt.',
     emoji: '💰',
-    rewardPreview: '💰 $1,200–$2,200',
+    rewardPreview: '💰 $1,500–$2,800',
     reward: {
       type: 'cash',
-      min: 1200,
-      max: 2200,
+      min: 1500,
+      max: 2800,
     },
   },
   {
@@ -170,11 +170,11 @@ const MARKET_EVENT_OPTIONS: EventTileOption[] = [
     title: 'Safe Harbor Reserve',
     description: 'Play defense and stack steady coins.',
     emoji: '🪙',
-    rewardPreview: '🪙 48–96 Coins',
+    rewardPreview: '🪙 60–120 Coins',
     reward: {
       type: 'coins',
-      min: 48,
-      max: 96,
+      min: 60,
+      max: 120,
     },
   },
   {
@@ -182,11 +182,11 @@ const MARKET_EVENT_OPTIONS: EventTileOption[] = [
     title: 'Macro Masterclass',
     description: 'Convert the headline into XP momentum.',
     emoji: '⚡',
-    rewardPreview: '⚡ 60–120 XP',
+    rewardPreview: '⚡ 80–150 XP',
     reward: {
       type: 'xp',
-      min: 60,
-      max: 120,
+      min: 80,
+      max: 150,
     },
   },
 ]
