@@ -5886,6 +5886,8 @@ function App() {
           onOpenSeasonPass={openSeasonPass}
           dailySpinAvailable={dailySpinAvailable}
           onOpenDailySpin={() => setIsWheelOpen(true)}
+          saturdayVaultAvailable={isSaturday}
+          onOpenSaturdayVault={() => setShowVaultHeist(true)}
           ascendProgress={gameState.stats?.ringAscendProgress ?? 0}
           ascendGoal={ASCEND_PROGRESS_GOAL}
           eventTrackNode={(

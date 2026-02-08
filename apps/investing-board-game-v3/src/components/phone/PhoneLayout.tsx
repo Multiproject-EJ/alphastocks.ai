@@ -1,5 +1,4 @@
 import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
-import { Clock3, TrendingUp } from 'lucide-react';
 import { CompactHUD } from './CompactHUD';
 import { PhoneBottomNav } from './PhoneBottomNav';
 import { MobileBoard3D } from './MobileBoard3D';
@@ -57,6 +56,8 @@ interface PhoneLayoutProps {
   onOpenSeasonPass?: () => void;
   dailySpinAvailable?: boolean;
   onOpenDailySpin?: () => void;
+  saturdayVaultAvailable?: boolean;
+  onOpenSaturdayVault?: () => void;
   eventTrackNode?: ReactNode;
 }
 
@@ -90,6 +91,8 @@ export function PhoneLayout({
   onOpenSeasonPass = () => {},
   dailySpinAvailable = false,
   onOpenDailySpin = () => {},
+  saturdayVaultAvailable = false,
+  onOpenSaturdayVault = () => {},
   eventTrackNode,
   ascendProgress = 0,
   ascendGoal = 100,
@@ -99,6 +102,8 @@ export function PhoneLayout({
   const [currentHour, setCurrentHour] = useState(() => new Date().getHours());
   const [spaceBackgroundEnabled, setSpaceBackgroundEnabled] = useState(false);
   const [valueBotModalOpen, setValueBotModalOpen] = useState(false);
+  const [dealModalOpen, setDealModalOpen] = useState(false);
+  const [dealCountdown, setDealCountdown] = useState('Limited time');
   const [backgroundChoice, setBackgroundChoice] = useState<'cycle' | 'finance-board'>(() => {
     if (typeof window === 'undefined') return 'cycle';
     const savedChoice = localStorage.getItem('alphastocks_phone_background');
@@ -106,7 +111,9 @@ export function PhoneLayout({
     return 'cycle';
   });
   const hideFloatingActions = isRolling;
+  const [fabReady, setFabReady] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const dealEndsAtRef = useRef<Date>(new Date(Date.now() + 2 * 60 * 60 * 1000));
   const { isAuthenticated, loading: authLoading } = useAuth();
   const handleOpenSettings = onOpenSettings
     ? onOpenSettings
@@ -132,6 +139,30 @@ export function PhoneLayout({
     }, 60_000);
 
     return () => window.clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const updateCountdown = () => {
+      const now = Date.now();
+      const diffMs = dealEndsAtRef.current.getTime() - now;
+      if (diffMs <= 0) {
+        setDealCountdown('Deal ended');
+        return;
+      }
+      const totalSeconds = Math.floor(diffMs / 1000);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const hours = Math.floor(totalSeconds / 3600);
+      setDealCountdown(`Ends in ${hours}h ${minutes}m`);
+    };
+
+    updateCountdown();
+    const timer = window.setInterval(updateCountdown, 60_000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setFabReady(true), 250);
+    return () => window.clearTimeout(timer);
   }, []);
 
   useEffect(() => {
@@ -231,27 +262,25 @@ export function PhoneLayout({
         <>
           {/* Left side floating buttons - Shop, Right Now */}
           <div
-            className={`fixed left-4 z-40 flex flex-col gap-2 transition-opacity ${hideFloatingActions ? 'pointer-events-none opacity-0' : 'opacity-100'}`}
+            className={`fixed left-4 z-40 flex flex-col items-center gap-2 transition-opacity ${hideFloatingActions ? 'pointer-events-none opacity-0' : 'opacity-100'}`}
             style={{ bottom: `${BOTTOM_NAV_HEIGHT + 20}px` }}
             aria-hidden={hideFloatingActions}
           >
             <button
-              onClick={onOpenShop}
-              className="flex items-center justify-center rounded-full bg-transparent p-0 shadow-lg shadow-sky-500/30 transition-all hover:shadow-xl"
-              aria-label="Open Shop"
+              onClick={() => setDealModalOpen(true)}
+              className={`phone-fab-slide-in-left flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-rose-500 to-amber-400 text-xs font-semibold text-white shadow-lg shadow-rose-500/30 transition-all hover:shadow-xl ${fabReady ? 'phone-fab-animate' : 'opacity-0'}`}
+              style={{ animationDelay: '0ms' }}
+              aria-label="Open Deal"
             >
-              <img
-                src={`${import.meta.env.BASE_URL}Shop.webp`}
-                alt="Shop"
-                className="h-14 w-14 object-contain"
-              />
+              Deal!
             </button>
             <button
               onClick={onOpenRightNow}
-              className="relative flex items-center gap-2 rounded-full bg-gradient-to-r from-yellow-500 to-orange-500 px-4 py-2 text-sm font-semibold text-white shadow-lg backdrop-blur-sm transition-all hover:shadow-xl"
+              className={`phone-fab-slide-in-left relative flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-r from-yellow-500 to-orange-500 text-lg font-semibold text-white shadow-lg backdrop-blur-sm transition-all hover:shadow-xl ${fabReady ? 'phone-fab-animate' : 'opacity-0'}`}
+              style={{ animationDelay: '120ms' }}
               aria-label="Open Right Now"
             >
-              ⏰ Right Now
+              ⏰
               <span className="absolute -top-1 -right-1 flex h-3 w-3">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-500 opacity-75" />
                 <span className="relative inline-flex h-3 w-3 rounded-full bg-red-500" />
@@ -262,19 +291,32 @@ export function PhoneLayout({
       )}
 
       {/* Right side floating Daily Spin button */}
-      {mode === 'board' && dailySpinAvailable && (
+      {mode === 'board' && (dailySpinAvailable || saturdayVaultAvailable) && (
         <div
-          className={`fixed right-4 z-40 transition-opacity ${hideFloatingActions ? 'pointer-events-none opacity-0' : 'opacity-100'}`}
+          className={`fixed right-4 z-40 flex flex-col items-center gap-2 transition-opacity ${hideFloatingActions ? 'pointer-events-none opacity-0' : 'opacity-100'}`}
           style={{ bottom: `${BOTTOM_NAV_HEIGHT + 20}px` }}
           aria-hidden={hideFloatingActions}
         >
-          <button
-            onClick={onOpenDailySpin}
-            className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/30 transition-all hover:scale-105 hover:shadow-xl"
-            aria-label="Open Daily Spin"
-          >
-            <span className="text-2xl">🎡</span>
-          </button>
+          {dailySpinAvailable && (
+            <button
+              onClick={onOpenDailySpin}
+              className={`phone-fab-slide-in-right flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/30 transition-all hover:scale-105 hover:shadow-xl ${fabReady ? 'phone-fab-animate' : 'opacity-0'}`}
+              style={{ animationDelay: '0ms' }}
+              aria-label="Open Daily Spin"
+            >
+              <span className="text-2xl">🎡</span>
+            </button>
+          )}
+          {saturdayVaultAvailable && (
+            <button
+              onClick={onOpenSaturdayVault}
+              className={`phone-fab-slide-in-right flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-amber-500 to-yellow-400 text-white shadow-lg shadow-amber-500/30 transition-all hover:scale-105 hover:shadow-xl ${fabReady ? 'phone-fab-animate' : 'opacity-0'}`}
+              style={{ animationDelay: dailySpinAvailable ? '120ms' : '0ms' }}
+              aria-label="Open Saturday Vault"
+            >
+              <span className="text-2xl">🏦</span>
+            </button>
+          )}
         </div>
       )}
       
@@ -299,6 +341,42 @@ export function PhoneLayout({
           style={{ top: `calc(${COMPACT_HUD_HEIGHT}px + 12px + var(--safe-area-top-padding))` }}
         >
           {eventTrackNode}
+        </div>
+      )}
+
+      {dealModalOpen && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 px-6">
+          <div className="w-full max-w-xs rounded-2xl border border-white/10 bg-slate-950/95 p-5 text-white shadow-2xl">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-xs uppercase tracking-[0.3em] text-amber-300">Deal!</p>
+                <h3 className="text-lg font-semibold">Lucky Dice Bundle</h3>
+              </div>
+              <button
+                onClick={() => setDealModalOpen(false)}
+                className="rounded-full border border-white/10 px-2 py-1 text-xs text-white/80 hover:bg-white/10"
+                aria-label="Close deal"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="mt-3 space-y-2 text-sm text-white/80">
+              <p className="text-white">+12 bonus rolls + $85,000 cash</p>
+              <p className="text-emerald-300">{dealCountdown}</p>
+              <p className="text-white/60">
+                Limited-time offer for a fast momentum boost while the board is hot.
+              </p>
+            </div>
+            <Button
+              onClick={() => {
+                setDealModalOpen(false);
+                onOpenShop();
+              }}
+              className="mt-4 w-full rounded-full bg-gradient-to-r from-amber-400 to-rose-500 text-slate-900 hover:from-amber-300 hover:to-rose-400"
+            >
+              Claim Deal
+            </Button>
+          </div>
         </div>
       )}
       

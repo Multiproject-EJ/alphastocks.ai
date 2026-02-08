@@ -455,6 +455,50 @@ h1, h2, h3, h4, h5, h6 {
   animation: dice-shake 0.1s ease-in-out infinite;
 }
 
+@keyframes phone-fab-slide-in-left {
+  0% {
+    opacity: 0;
+    transform: translateX(-18px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes phone-fab-slide-in-right {
+  0% {
+    opacity: 0;
+    transform: translateX(18px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+.phone-fab-slide-in-left,
+.phone-fab-slide-in-right {
+  opacity: 0;
+}
+
+.phone-fab-animate.phone-fab-slide-in-left {
+  animation: phone-fab-slide-in-left 0.5s ease forwards;
+}
+
+.phone-fab-animate.phone-fab-slide-in-right {
+  animation: phone-fab-slide-in-right 0.5s ease forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .phone-fab-animate.phone-fab-slide-in-left,
+  .phone-fab-animate.phone-fab-slide-in-right {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
 @keyframes dice-orbit {
   0% {
     transform: translate(0, 0) scale(1);
