@@ -59,6 +59,7 @@ export function VaultHeistModal({
   const [haul, setHaul] = useState({ cash: 0, stars: 0, coins: 0, mysteryBoxes: 0 })
   const [isGameOver, setIsGameOver] = useState(false)
   const [collectedPrizes, setCollectedPrizes] = useState<VaultPrize[]>([])
+  const [isPickResolving, setIsPickResolving] = useState(false)
 
   const maxPicks = 3
   const picksRemaining = maxPicks - picksUsed
@@ -79,14 +80,20 @@ export function VaultHeistModal({
 
   // Handle vault crack
   const crackVault = useCallback((vaultId: number) => {
-    if (picksRemaining <= 0 || isGameOver) return
+    if (picksRemaining <= 0 || isGameOver || isPickResolving) return
     
     const vault = vaults.find(v => v.id === vaultId)
     if (!vault || vault.state !== 'locked') return
 
+    setIsPickResolving(true)
+    setPicksUsed(prev => prev + 1)
+    const nextPicksUsed = picksUsed + 1
+
     // Check if need to pay
     if (pickCost > 0 && !onSpendCoins(pickCost)) {
       playSound('error')
+      setPicksUsed(prev => Math.max(0, prev - 1))
+      setIsPickResolving(false)
       return
     }
 
@@ -129,14 +136,13 @@ export function VaultHeistModal({
         }
       }
 
-      setPicksUsed(prev => prev + 1)
-
       // Check if game over
-      if (picksUsed + 1 >= maxPicks) {
+      if (nextPicksUsed >= maxPicks) {
         setTimeout(() => setIsGameOver(true), 1000)
       }
+      setIsPickResolving(false)
     }, 800) // Crack animation duration
-  }, [vaults, picksRemaining, isGameOver, pickCost, onSpendCoins, selectPrize, ringMultiplier, playSound, picksUsed])
+  }, [vaults, picksRemaining, isGameOver, isPickResolving, pickCost, onSpendCoins, selectPrize, ringMultiplier, playSound, picksUsed])
 
   // Handle game complete
   const handleComplete = useCallback(() => {
@@ -158,6 +164,7 @@ export function VaultHeistModal({
       setHaul({ cash: 0, stars: 0, coins: 0, mysteryBoxes: 0 })
       setIsGameOver(false)
       setCollectedPrizes([])
+      setIsPickResolving(false)
     }
   }, [isOpen])
 
@@ -197,7 +204,7 @@ export function VaultHeistModal({
               <motion.button
                 key={vault.id}
                 onClick={() => crackVault(vault.id)}
-                disabled={vault.state !== 'locked' || picksRemaining <= 0}
+                disabled={vault.state !== 'locked' || picksRemaining <= 0 || isPickResolving}
                 className={`
                   w-16 h-20 rounded-xl flex flex-col items-center justify-center
                   font-bold text-lg transition-all border-2
@@ -265,6 +272,11 @@ export function VaultHeistModal({
               {picksRemaining} picks left
             </span>
           </div>
+          {isPickResolving && (
+            <div className="text-center text-xs text-amber-200 mb-4">
+              Locking vaults…
+            </div>
+          )}
 
           {/* Ring multiplier badge */}
           {ringMultiplier > 1 && (
