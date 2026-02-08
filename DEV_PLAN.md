@@ -282,7 +282,8 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P3.12** ✅ Scratchcard 2.0 event ticket banners
 - **P3.13** ✅ Scratchcard 2.0 in-ticket event banner (ticket view CTA)
 - **P3.14** ✅ Casino lobby entry + High Roller Dice teaser card (config-first stub)
-- **P3.15** High Roller Dice playable demo + Happy Hour guaranteed-win integration
+- **P3.15** ✅ High Roller Dice playable demo + Happy Hour guaranteed-win integration
+- **P3.16** High Roller Dice reward tuning + audio/FX polish
 
 ### P4 — Seasonal & Holiday Events
 - **P4.1** ✅ Holiday event schedule fixtures
@@ -319,7 +320,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P3.15 — High Roller Dice playable demo + Happy Hour guaranteed-win integration.**
+**Recommended next slice:** **P3.16 — High Roller Dice reward tuning + audio/FX polish.**
 
 ## P2.7 Scope Notes (Bias Sanctuary visual story mode)
 ### Story structure & content
@@ -725,6 +726,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Added a config-first Casino lobby entry with game cards so players land on a selection screen before scratchcards.
 - Introduced a High Roller Dice teaser card with a coming-soon CTA alongside the live Scratchcard Vault entry.
 - Seeded a casino lobby config file so future game cards can be tuned without touching component logic.
+
+## P3.15 Slice Notes (High Roller Dice playable demo + Happy Hour guaranteed-win integration)
+- Promoted High Roller Dice from teaser to live with a config-first table, risk tiers, and streak boosts.
+- Built a mobile-first dice surface inside the casino modal with roll outcomes, streak tracking, and payout callouts.
+- Applied Casino Happy Hour guaranteed wins (plus Casino Luck boosts) to the dice roll flow so event effects match scratchcards.
 
 ## P3 Slice Notes (IPO Frenzy timed mini-game surface)
 - Built a mobile-first IPO Frenzy timed-event surface with allocation playbooks, pop signals, and roadshow framing for IPO launches.
