@@ -67,6 +67,7 @@ _Last reviewed: 2026-02-24 (Court of Capital activation)_
 - **Tier 2 event tile scope (plan-only):** `src/lib/eventTileTier2Scope.ts` (Market Event + Wildcard activation notes)
 - **Corner tile activations:** Court of Capital config in `src/lib/courtOfCapital.ts` with rewards wired in `src/App.tsx`
 - **Mini-games hub:** `src/pages/GamesHub.tsx` (grid of mini-games in overlay, schedule-aware availability via `useMiniGames`), `src/components/games/*` (cards, overlay shell, placeholder game surfaces), Wheel of Fortune demo uses `src/components/WheelOfFortuneModal.tsx`
+- **Casino games:** `src/components/CasinoModal.tsx`, `src/components/HighRollerDiceGame.tsx`, dice odds helper in `src/lib/highRollerDiceOdds.ts`
 - **Leaderboards:** `src/components/LeaderboardModal.tsx` + `src/hooks/useLeaderboard.ts` (global/weekly/ring leaderboards)
 - **Season Pass:** `src/hooks/useSeasonPass.ts` + `src/components/SeasonPassModal.tsx` (battle pass progression + reward claims)
 - **Board renderer + tiles:** `src/App.tsx` (ring layout, tile positioning), `src/components/BoardViewport.tsx`, `src/components/Board3DViewport.tsx`, `src/components/Tile.tsx`
@@ -284,7 +285,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P3.14** ✅ Casino lobby entry + High Roller Dice teaser card (config-first stub)
 - **P3.15** ✅ High Roller Dice playable demo + Happy Hour guaranteed-win integration
 - **P3.16** ✅ High Roller Dice reward tuning + audio/FX polish
-- **P3.17** High Roller Dice odds + payout preview helper
+- **P3.17** ✅ High Roller Dice odds + payout preview helper
 
 ### P4 — Seasonal & Holiday Events
 - **P4.1** ✅ Holiday event schedule fixtures
@@ -321,7 +322,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P3.17 — High Roller Dice odds + payout preview helper.**
+**Recommended next slice:** **P3.18 — High Roller Dice streak recap + session stats.**
 
 ## P2.7 Scope Notes (Bias Sanctuary visual story mode)
 ### Story structure & content
@@ -737,6 +738,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Tuned the High Roller Dice config for higher stakes, a longer streak cap, and sharper payout pacing per table.
 - Added roll feedback audio + haptics for dice rolls, landings, wins, and misses to match other casino surfaces.
 - Polished the dice outcome panel with rolling-state feedback, win glow styling, and max streak payout callouts.
+
+## P3.17 Slice Notes (High Roller Dice odds + payout preview helper)
+- Added a shared High Roller Dice odds helper that calculates win chance, streak multipliers, and payout expectations.
+- Surfaced win chance and EV preview copy on each dice table option to help players pick a risk tier.
+- Expanded the dice table summary to show base vs boosted win odds, EV per roll, and max streak payout.
 
 ## P3 Slice Notes (IPO Frenzy timed mini-game surface)
 - Built a mobile-first IPO Frenzy timed-event surface with allocation playbooks, pop signals, and roadshow framing for IPO launches.
