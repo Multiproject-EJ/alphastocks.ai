@@ -16,7 +16,7 @@ Vault Heist is a weekly timed mini-game with a simple “pick a hatch” loop. T
 ## Status Snapshot (2026-02-23)
 - **Code status:** Vault Heist UI is live with 5 hatches, weighted prizes, a 3-pick cap, pick gating, explicit resolution state messaging, crew/gear modifiers, the alarm decision overlay, and an end-of-heist summary.
 - **Known issues:** Heist resolution logic still lives inside the modal (no helper engine).
-- **Next slice focus:** Config-first prize table extraction (P4.2).
+- **Next slice focus:** Config-first cost tuning (pick + bribe) extraction (P4.3).
 
 ---
 
@@ -29,8 +29,8 @@ Vault Heist is a weekly timed mini-game with a simple “pick a hatch” loop. T
 5. If a decision is made (odds, costs, rewards), document it here to keep the plan “alive.”
 
 **Progress log (live, always update):**
-- **Done (latest):** Implemented P4.1 mini heist engine helper + deterministic tests.
-- **Next step:** Extract Vault Heist prize table + alarm settings into a shared config module (P4.2).
+- **Done (latest):** Extracted Vault Heist prize table + alarm weight presets into a shared config module (P4.2).
+- **Next step:** Extract pick + bribe costs into shared config (P4.3).
 
 ---
 
@@ -214,13 +214,27 @@ Vault Heist is a weekly timed mini-game with a simple “pick a hatch” loop. T
 - Added `vaultHeistEngine.ts` with seeded RNG support and a single pick-resolution payload.
 - Unit tests validate deterministic outcomes and multiplier application via config-driven prize tables.
 
-### P4.2 — Config-first prize tables
+### P4.2 — Config-first prize tables ✅
 **Objective:** move prize + alarm tuning into a shared config module for faster balancing.
 
 **Steps:**
 1. Create `vaultHeistRewards.ts` for prize tables + weights.
 2. Add alarm weight presets per stage or ring.
 3. Update the engine + modal to consume the shared config.
+
+**Done when:** prize tables and alarm presets live in shared config and the engine/stage configs import them. ✅
+
+**Decisions:**
+- Moved the weighted prize table and per-stage alarm weight presets into `vaultHeistRewards.ts`.
+- Stage alarm weights now reference the shared preset table to keep tuning centralized.
+
+### P4.3 — Config-first heist costs
+**Objective:** move pick cost + alarm bribe cost into a shared config module for faster balancing.
+
+**Steps:**
+1. Add pick cost/bribe cost constants to the rewards config (or a dedicated heist cost config).
+2. Update the modal to read costs from config instead of inline values.
+3. Surface the cost values in the HUD copy if needed.
 
 ---
 
@@ -234,5 +248,5 @@ When you ship any slice, update this section immediately:
 ---
 
 # Progress log (rolling)
-- **Done (latest):** Implemented P4.1 mini heist engine helper + deterministic tests.
-- **Next step:** Extract Vault Heist prize table + alarm settings into a shared config module (P4.2).
+- **Done (latest):** Extracted Vault Heist prize table + alarm weight presets into a shared config module (P4.2).
+- **Next step:** Extract pick + bribe costs into shared config (P4.3).

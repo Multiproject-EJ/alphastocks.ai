@@ -9,7 +9,8 @@ import {
   getVaultHeistCrew,
   getVaultHeistGear,
 } from '../lib/vaultHeistModifiers'
-import { resolveVaultHeistPick, type VaultPrize } from '../lib/vaultHeistEngine'
+import { resolveVaultHeistPick } from '../lib/vaultHeistEngine'
+import type { VaultPrize } from '../lib/vaultHeistRewards'
 
 interface Vault {
   id: number
