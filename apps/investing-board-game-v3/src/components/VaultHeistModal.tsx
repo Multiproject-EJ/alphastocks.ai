@@ -12,6 +12,11 @@ import {
 import { resolveVaultHeistPick } from '../lib/vaultHeistEngine'
 import type { VaultPrize } from '../lib/vaultHeistRewards'
 import { VAULT_HEIST_BRIBE_COST, VAULT_HEIST_PICK_COST } from '../lib/vaultHeistRewards'
+import {
+  VAULT_HEIST_FREE_PICK_RULE_LABEL,
+  VAULT_HEIST_MAX_PICKS,
+  VAULT_HEIST_PICK_LIMIT_LABEL,
+} from '../lib/vaultHeistRules'
 
 interface Vault {
   id: number
@@ -70,7 +75,7 @@ export function VaultHeistModal({
   const [selectedCrewId, setSelectedCrewId] = useState(VAULT_HEIST_CREWS[0].id)
   const [selectedGearId, setSelectedGearId] = useState(VAULT_HEIST_GEAR[0].id)
 
-  const maxPicks = 3
+  const maxPicks = VAULT_HEIST_MAX_PICKS
   const picksRemaining = maxPicks - picksUsed
   const heistProgress = Math.min(100, Math.round((picksUsed / maxPicks) * 100))
   const currentStage = getVaultHeistStage(picksUsed)
@@ -127,7 +132,7 @@ export function VaultHeistModal({
     const nextPicksUsed = picksUsed + 1
 
     // Check if need to pay
-    if (pickCost > 0 && !onSpendCoins(pickCost)) {
+    if (!onSpendCoins(pickCost)) {
       playSound('error')
       setPicksUsed(prev => Math.max(0, prev - 1))
       setIsPickResolving(false)
@@ -606,6 +611,9 @@ export function VaultHeistModal({
                 ? `Extra picks: ${pickCost} 🪙 each (Balance: ${coins})` 
                 : `Free picks remaining: ${freePicksRemaining}`
               }
+              <div className="mt-1 text-[11px] text-slate-500">
+                {VAULT_HEIST_PICK_LIMIT_LABEL}: {maxPicks} · {VAULT_HEIST_FREE_PICK_RULE_LABEL}
+              </div>
             </div>
           )}
         </div>

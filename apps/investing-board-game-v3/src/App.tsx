@@ -45,6 +45,7 @@ import { VaultHeistModal } from '@/components/VaultHeistModal'
 import { ThroneVictoryModal } from '@/components/ThroneVictoryModal'
 import { RouletteStatusPanel } from '@/components/RouletteStatusPanel'
 import { RouletteVictoryModal } from '@/components/RouletteVictoryModal'
+import { VAULT_HEIST_FREE_PICK_COUNT } from '@/lib/vaultHeistRules'
 import { SHOP2_ENABLED } from '@/lib/featureFlags'
 import { logProToolsDiagnostic } from '@/lib/proToolsDiagnostics'
 import { getCourtOfCapitalDefinition } from '@/lib/courtOfCapital'
@@ -645,7 +646,7 @@ function App() {
 
   // Vault Heist state
   const [showVaultHeist, setShowVaultHeist] = useState(false)
-  const [freeVaultPicks, setFreeVaultPicks] = useState(3)
+  const [freeVaultPicks, setFreeVaultPicks] = useState(VAULT_HEIST_FREE_PICK_COUNT)
 
   // Mobile UI states
   const [activeSection, setActiveSection] = useState<'home' | 'challenges' | 'shop' | 'leaderboard' | 'settings'>('home')
@@ -5725,6 +5726,13 @@ function App() {
         coins={gameState.coins}
         onPickComplete={handleVaultHeistComplete}
         onSpendCoins={(amount) => {
+          if (amount === 0) {
+            if (freeVaultPicks <= 0) {
+              return false
+            }
+            setFreeVaultPicks(prev => Math.max(0, prev - 1))
+            return true
+          }
           if (gameState.coins >= amount) {
             setGameState(prev => ({ ...prev, coins: prev.coins - amount }))
             return true

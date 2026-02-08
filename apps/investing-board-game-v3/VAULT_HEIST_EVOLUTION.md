@@ -29,8 +29,8 @@ Vault Heist is a weekly timed mini-game with a simple “pick a hatch” loop. T
 5. If a decision is made (odds, costs, rewards), document it here to keep the plan “alive.”
 
 **Progress log (live, always update):**
-- **Done (latest):** Extracted pick + bribe costs into shared config (P4.3).
-- **Next step:** Extract pick limits + free pick rules into shared config (P4.4).
+- **Done (latest):** Extracted pick limits + free pick rules into shared config (P4.4).
+- **Next step:** Persist free-pick resets on the Vault Heist schedule window (P4.5).
 
 ---
 
@@ -242,13 +242,27 @@ Vault Heist is a weekly timed mini-game with a simple “pick a hatch” loop. T
 - Added `VAULT_HEIST_PICK_COST` (100) and `VAULT_HEIST_BRIBE_COST` (250) to the rewards config.
 - Modal now reads the cost values from config for pick gating and alarm bribe messaging.
 
-### P4.4 — Config-first pick limits + free pick rules
+### P4.4 — Config-first pick limits + free pick rules ✅
 **Objective:** move max pick limits and free-pick rules into shared config to keep tuning centralized.
 
 **Steps:**
 1. Add max pick count + free-pick thresholds to a heist config module.
 2. Update the modal to read limits and labels from config.
 3. Document the pick-limit behavior in the HUD copy.
+
+**Done when:** max pick limits and free-pick rules are config-driven and surfaced in the HUD. ✅
+
+**Decisions:**
+- Added `vaultHeistRules.ts` with max picks, free pick count, and HUD rule labels.
+- Free picks are consumed before paid picks; HUD copy now reinforces the rule and pick cap.
+
+### P4.5 — Persist free-pick resets
+**Objective:** persist free-pick counts across sessions and reset them on the Vault Heist schedule window.
+
+**Steps:**
+1. Add a localStorage key for remaining free picks.
+2. Hydrate free-pick state on load and clamp to the configured free-pick count.
+3. Reset free-pick counts when the Vault Heist window opens each week.
 
 ---
 
@@ -262,5 +276,5 @@ When you ship any slice, update this section immediately:
 ---
 
 # Progress log (rolling)
-- **Done (latest):** Extracted pick + bribe costs into shared config (P4.3).
-- **Next step:** Extract pick limits + free pick rules into shared config (P4.4).
+- **Done (latest):** Extracted pick limits + free pick rules into shared config (P4.4).
+- **Next step:** Persist free-pick resets on the Vault Heist schedule window (P4.5).
