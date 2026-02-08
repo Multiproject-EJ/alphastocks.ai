@@ -283,7 +283,8 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P3.13** ✅ Scratchcard 2.0 in-ticket event banner (ticket view CTA)
 - **P3.14** ✅ Casino lobby entry + High Roller Dice teaser card (config-first stub)
 - **P3.15** ✅ High Roller Dice playable demo + Happy Hour guaranteed-win integration
-- **P3.16** High Roller Dice reward tuning + audio/FX polish
+- **P3.16** ✅ High Roller Dice reward tuning + audio/FX polish
+- **P3.17** High Roller Dice odds + payout preview helper
 
 ### P4 — Seasonal & Holiday Events
 - **P4.1** ✅ Holiday event schedule fixtures
@@ -320,7 +321,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P3.16 — High Roller Dice reward tuning + audio/FX polish.**
+**Recommended next slice:** **P3.17 — High Roller Dice odds + payout preview helper.**
 
 ## P2.7 Scope Notes (Bias Sanctuary visual story mode)
 ### Story structure & content
@@ -731,6 +732,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Promoted High Roller Dice from teaser to live with a config-first table, risk tiers, and streak boosts.
 - Built a mobile-first dice surface inside the casino modal with roll outcomes, streak tracking, and payout callouts.
 - Applied Casino Happy Hour guaranteed wins (plus Casino Luck boosts) to the dice roll flow so event effects match scratchcards.
+
+## P3.16 Slice Notes (High Roller Dice reward tuning + audio/FX polish)
+- Tuned the High Roller Dice config for higher stakes, a longer streak cap, and sharper payout pacing per table.
+- Added roll feedback audio + haptics for dice rolls, landings, wins, and misses to match other casino surfaces.
+- Polished the dice outcome panel with rolling-state feedback, win glow styling, and max streak payout callouts.
 
 ## P3 Slice Notes (IPO Frenzy timed mini-game surface)
 - Built a mobile-first IPO Frenzy timed-event surface with allocation playbooks, pop signals, and roadshow framing for IPO launches.
