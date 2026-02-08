@@ -14,9 +14,9 @@ Vault Heist is a weekly timed mini-game with a simple “pick a hatch” loop. T
 - **Hub card**: `src/components/games/placeholders/VaultHeist.tsx`
 
 ## Status Snapshot (2026-02-23)
-- **Code status:** Vault Heist UI is live with 5 hatches, weighted prizes, a 3-pick cap, pick gating, explicit resolution state messaging, and crew/gear modifiers.
-- **Known issues:** Strategy layer still lacks the alarm decision flow.
-- **Next slice focus:** Add the alarm decision overlay (P2.1).
+- **Code status:** Vault Heist UI is live with 5 hatches, weighted prizes, a 3-pick cap, pick gating, explicit resolution state messaging, crew/gear modifiers, and the alarm decision overlay.
+- **Known issues:** Heist HUD and meter remain to be added for clarity polish.
+- **Next slice focus:** Add the heist HUD + meter (P3.1).
 
 ---
 
@@ -29,8 +29,8 @@ Vault Heist is a weekly timed mini-game with a simple “pick a hatch” loop. T
 5. If a decision is made (odds, costs, rewards), document it here to keep the plan “alive.”
 
 **Progress log (live, always update):**
-- **Done (latest):** Implemented P1.2 crew + gear modifiers.
-- **Next step:** Implement P2.1 alarm decision overlay.
+- **Done (latest):** Implemented P2.1 alarm decision overlay.
+- **Next step:** Implement P3.1 heist HUD + meter.
 
 ---
 
@@ -153,7 +153,11 @@ Vault Heist is a weekly timed mini-game with a simple “pick a hatch” loop. T
    - **Bribe**: spend coins to continue.
 3. Add a short explanation in the overlay.
 
-**Done when:** alarm triggers always end in a clear, user-chosen outcome.
+**Done when:** alarm triggers always end in a clear, user-chosen outcome. ✅
+
+**Decisions:**
+- Alarm overlay presents Bail (end heist, keep haul) or Bribe (spend 250 coins to continue).
+- Bribe spends coins immediately and reopens the grid for remaining picks.
 
 ---
 
@@ -187,5 +191,5 @@ When you ship any slice, update this section immediately:
 ---
 
 # Progress log (rolling)
-- **Done (latest):** Implemented P1.2 crew + gear modifiers.
-- **Next step:** Implement P2.1 alarm decision overlay.
+- **Done (latest):** Implemented P2.1 alarm decision overlay.
+- **Next step:** Implement P3.1 heist HUD + meter.

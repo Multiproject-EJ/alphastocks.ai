@@ -69,6 +69,7 @@ export function VaultHeistModal({
   const [isGameOver, setIsGameOver] = useState(false)
   const [collectedPrizes, setCollectedPrizes] = useState<VaultPrize[]>([])
   const [isPickResolving, setIsPickResolving] = useState(false)
+  const [isAlarmDecisionActive, setIsAlarmDecisionActive] = useState(false)
   const [resolutionState, setResolutionState] = useState<'idle' | 'cracking' | 'reveal' | 'resolved' | 'alarm'>('idle')
   const [lastResultLabel, setLastResultLabel] = useState('Choose a hatch to start the heist.')
   const [selectedCrewId, setSelectedCrewId] = useState(VAULT_HEIST_CREWS[0].id)
@@ -79,6 +80,7 @@ export function VaultHeistModal({
   const currentStage = getVaultHeistStage(picksUsed)
   const ringMultiplier = currentRing === 3 ? 10 : currentRing === 2 ? 3 : 1
   const pickCost = freePicksRemaining > 0 ? 0 : 100
+  const alarmBribeCost = 250
   const selectedCrew = getVaultHeistCrew(selectedCrewId)
   const selectedGear = getVaultHeistGear(selectedGearId)
   const adjustedOdds = applyVaultHeistModifiers(
@@ -118,7 +120,7 @@ export function VaultHeistModal({
 
   // Handle vault crack
   const crackVault = useCallback((vaultId: number) => {
-    if (picksRemaining <= 0 || isGameOver || isPickResolving) return
+    if (picksRemaining <= 0 || isGameOver || isPickResolving || isAlarmDecisionActive) return
     
     const vault = vaults.find(v => v.id === vaultId)
     if (!vault || vault.state !== 'locked') return
@@ -165,6 +167,8 @@ export function VaultHeistModal({
       if (isAlarm) {
         playSound('error')
         setLastResultLabel('🚨 Alarm triggered! The vault is compromised.')
+        setIsAlarmDecisionActive(true)
+        setIsPickResolving(false)
         // Alarm doesn't give a prize but still consumes a pick
         // The pick counter will be incremented below (line 132) regardless of alarm
       } else {
@@ -193,8 +197,12 @@ export function VaultHeistModal({
         setTimeout(() => setIsGameOver(true), 1000)
       }
       setTimeout(() => {
-        setResolutionState(isAlarm ? 'alarm' : 'resolved')
-        setIsPickResolving(false)
+        if (isAlarm) {
+          setResolutionState('alarm')
+        } else {
+          setResolutionState('resolved')
+          setIsPickResolving(false)
+        }
       }, 350)
     }, 800) // Crack animation duration
   }, [
@@ -202,6 +210,7 @@ export function VaultHeistModal({
     picksRemaining,
     isGameOver,
     isPickResolving,
+    isAlarmDecisionActive,
     pickCost,
     onSpendCoins,
     selectPrize,
@@ -212,6 +221,26 @@ export function VaultHeistModal({
     selectedCrewId,
     selectedGearId,
   ])
+
+  const handleBailOut = useCallback(() => {
+    setIsAlarmDecisionActive(false)
+    setResolutionState('resolved')
+    setLastResultLabel('You bailed out with your haul. Heist over.')
+    setIsGameOver(true)
+  }, [])
+
+  const handleBribe = useCallback(() => {
+    if (!onSpendCoins(alarmBribeCost)) {
+      playSound('error')
+      setLastResultLabel('Not enough coins to bribe the guards.')
+      return
+    }
+    playSound('cha-ching')
+    setIsAlarmDecisionActive(false)
+    setResolutionState('resolved')
+    setLastResultLabel('Bribe paid. The crew is back in action.')
+    setIsPickResolving(false)
+  }, [alarmBribeCost, onSpendCoins, playSound])
 
   // Handle game complete
   const handleComplete = useCallback(() => {
@@ -234,6 +263,7 @@ export function VaultHeistModal({
       setIsGameOver(false)
       setCollectedPrizes([])
       setIsPickResolving(false)
+      setIsAlarmDecisionActive(false)
       setResolutionState('idle')
       setLastResultLabel('Choose a hatch to start the heist.')
       setSelectedCrewId(VAULT_HEIST_CREWS[0].id)
@@ -329,7 +359,7 @@ export function VaultHeistModal({
               <motion.button
                 key={vault.id}
                 onClick={() => crackVault(vault.id)}
-                disabled={vault.state !== 'locked' || picksRemaining <= 0 || isPickResolving}
+                disabled={vault.state !== 'locked' || picksRemaining <= 0 || isPickResolving || isAlarmDecisionActive}
                 className={`
                   w-16 h-20 rounded-xl flex flex-col items-center justify-center
                   font-bold text-lg transition-all border-2
@@ -409,7 +439,7 @@ export function VaultHeistModal({
               : resolutionState === 'reveal'
               ? 'Revealing the haul...'
               : resolutionState === 'alarm'
-              ? 'Alarm locked in — pick again or exit.'
+              ? 'Alarm triggered — choose to bail or bribe.'
               : resolutionState === 'resolved'
               ? lastResultLabel
               : lastResultLabel}
@@ -452,6 +482,35 @@ export function VaultHeistModal({
             </div>
           </div>
         </div>
+
+        {isAlarmDecisionActive && (
+          <div className="absolute inset-0 z-20 flex items-center justify-center bg-slate-950/80 p-6">
+            <div className="w-full max-w-sm rounded-2xl border border-red-400/60 bg-slate-900/95 p-5 text-center shadow-2xl">
+              <h3 className="text-lg font-semibold text-red-300 mb-2">🚨 Alarm Decision</h3>
+              <p className="text-xs text-slate-200 mb-4">
+                Security is on the way. Bail out now to keep your haul, or bribe the guards to keep
+                cracking vaults.
+              </p>
+              <div className="grid gap-3">
+                <button
+                  onClick={handleBailOut}
+                  className="w-full rounded-xl border border-amber-400/60 bg-amber-500/10 py-2 text-sm font-semibold text-amber-200 hover:bg-amber-500/20"
+                >
+                  🏃 Bail &amp; Keep Haul
+                </button>
+                <button
+                  onClick={handleBribe}
+                  className="w-full rounded-xl border border-emerald-400/60 bg-emerald-500/10 py-2 text-sm font-semibold text-emerald-200 hover:bg-emerald-500/20"
+                >
+                  💸 Bribe for {alarmBribeCost} 🪙
+                </button>
+                <p className="text-[11px] text-slate-400">
+                  Bribes spend coins immediately and keep your picks alive.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Footer */}
         <div className="p-4 border-t border-slate-700">
