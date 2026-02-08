@@ -14,9 +14,9 @@ Vault Heist is a weekly timed mini-game with a simple “pick a hatch” loop. T
 - **Hub card**: `src/components/games/placeholders/VaultHeist.tsx`
 
 ## Status Snapshot (2026-02-23)
-- **Code status:** Vault Heist UI is live with 5 hatches, weighted prizes, a 3-pick cap, and pick gating.
-- **Known issues:** Resolution state messaging is minimal during crack → reveal → result.
-- **Next slice focus:** Add explicit resolution states + HUD status line for P0.2.
+- **Code status:** Vault Heist UI is live with 5 hatches, weighted prizes, a 3-pick cap, pick gating, and explicit resolution state messaging.
+- **Known issues:** Strategy layer and odds are still hardcoded in the modal.
+- **Next slice focus:** Configure stage-based odds + multipliers (P1.1).
 
 ---
 
@@ -29,8 +29,8 @@ Vault Heist is a weekly timed mini-game with a simple “pick a hatch” loop. T
 5. If a decision is made (odds, costs, rewards), document it here to keep the plan “alive.”
 
 **Progress log (live, always update):**
-- **Done (latest):** Implemented P0.1 pick gating + lockout with immediate pick consumption and HUD lock messaging.
-- **Next step:** Implement P0.2 explicit resolution states + HUD status line.
+- **Done (latest):** Implemented P0.2 explicit resolution states + HUD status line.
+- **Next step:** Implement P1.1 stage-based odds config.
 
 ---
 
@@ -97,7 +97,11 @@ Vault Heist is a weekly timed mini-game with a simple “pick a hatch” loop. T
 2. Display a short status line in the HUD.
 3. Ensure alarms always show a final outcome state.
 
-**Done when:** state transitions are deterministic and visible in the UI.
+**Done when:** state transitions are deterministic and visible in the UI. ✅
+
+**Decisions:**
+- Added a HUD status line that updates for cracking, reveal, resolved, and alarm outcomes.
+- Alarm outcomes remain in a distinct HUD state until the next pick.
 
 ---
 
@@ -173,5 +177,5 @@ When you ship any slice, update this section immediately:
 ---
 
 # Progress log (rolling)
-- **Done (latest):** Implemented P0.1 pick gating + lockout with immediate pick consumption and HUD lock messaging.
-- **Next step:** Implement P0.2 explicit resolution states + HUD status line.
+- **Done (latest):** Implemented P0.2 explicit resolution states + HUD status line.
+- **Next step:** Implement P1.1 stage-based odds config.
