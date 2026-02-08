@@ -1,8 +1,12 @@
 import { Button } from '@/components/ui/button'
-import { casinoConfig, type CasinoDiceOption } from '@/config/casino'
+import { casinoConfig } from '@/config/casino'
 import { useHaptics } from '@/hooks/useHaptics'
 import { useSound } from '@/hooks/useSound'
 import { getRewardSound } from '@/lib/sounds'
+import {
+  getHighRollerDiceOddsSummary,
+  getHighRollerDiceStreakMultiplier,
+} from '@/lib/highRollerDiceOdds'
 import { useMemo, useState } from 'react'
 
 interface HighRollerDiceGameProps {
@@ -31,9 +35,6 @@ const rollDice = (shouldWin: boolean, target: number) => {
   } while (shouldWin && total < target)
   return { dice: [dieOne, dieTwo] as [number, number], total }
 }
-
-const getStreakMultiplier = (option: CasinoDiceOption, streak: number) =>
-  1 + Math.max(0, streak - 1) * option.streakBonus
 
 export function HighRollerDiceGame({
   onWin,
@@ -84,7 +85,7 @@ export function HighRollerDiceGame({
     }
 
     const nextStreak = isWin ? Math.min(streak + 1, diceConfig.streakCap) : 0
-    const multiplier = getStreakMultiplier(selectedOption, nextStreak)
+    const multiplier = getHighRollerDiceStreakMultiplier(selectedOption, nextStreak)
     const payout = isWin ? Math.round(selectedOption.payout * multiplier) : 0
 
     const outcome: RollOutcome = {
@@ -112,11 +113,21 @@ export function HighRollerDiceGame({
     }, 450)
   }
 
-  const streakMultiplier = getStreakMultiplier(selectedOption, Math.max(1, streak || 1))
-  const maxStreakMultiplier = getStreakMultiplier(selectedOption, diceConfig.streakCap)
+  const streakPreview = Math.max(1, streak || 1)
+  const oddsSummary = getHighRollerDiceOddsSummary(selectedOption, {
+    luckBoost,
+    guaranteedWin,
+    streak: streakPreview,
+    streakCap: diceConfig.streakCap,
+  })
+  const streakMultiplier = oddsSummary.streakMultiplier
+  const maxStreakMultiplier = oddsSummary.maxStreakMultiplier
   const payoutLabel = `${selectedOption.payout.toLocaleString()} cash`
-  const boostedPayoutLabel = `${Math.round(selectedOption.payout * streakMultiplier).toLocaleString()} cash`
-  const maxPayoutLabel = `${Math.round(selectedOption.payout * maxStreakMultiplier).toLocaleString()} cash`
+  const boostedPayoutLabel = `${oddsSummary.payoutPerWin.toLocaleString()} cash`
+  const maxPayoutLabel = `${oddsSummary.maxPayout.toLocaleString()} cash`
+  const winChanceLabel = `${(oddsSummary.adjustedWinChance * 100).toFixed(0)}%`
+  const baseWinChanceLabel = `${(oddsSummary.baseWinChance * 100).toFixed(0)}%`
+  const expectedPayoutLabel = `${Math.round(oddsSummary.expectedPayout).toLocaleString()} cash`
 
   return (
     <div className="rounded-xl border border-purple-500/40 bg-purple-950/50 p-4 text-purple-100/80">
@@ -138,6 +149,12 @@ export function HighRollerDiceGame({
       <div className="mt-4 grid gap-2 sm:grid-cols-3">
         {diceConfig.options.map((option) => {
           const isSelected = option.id === selectedOption.id
+          const optionOddsSummary = getHighRollerDiceOddsSummary(option, {
+            luckBoost,
+            guaranteedWin,
+            streak: 1,
+            streakCap: diceConfig.streakCap,
+          })
           return (
             <Button
               key={option.id}
@@ -155,6 +172,10 @@ export function HighRollerDiceGame({
                 <span className="text-[11px] text-purple-100/70">{option.description}</span>
                 <span className="text-[11px] text-purple-100/70">
                   Target {option.target}+ · Base {option.payout.toLocaleString()} cash
+                </span>
+                <span className="text-[11px] text-purple-100/70">
+                  Win {(optionOddsSummary.adjustedWinChance * 100).toFixed(0)}% · EV ~
+                  {Math.round(optionOddsSummary.expectedPayout).toLocaleString()} cash
                 </span>
               </span>
             </Button>
@@ -176,6 +197,9 @@ export function HighRollerDiceGame({
           </span>
         </div>
         <p className="mt-2 text-[11px] text-purple-100/60">
+          Win chance {winChanceLabel} (base {baseWinChanceLabel}). EV ~{expectedPayoutLabel} per roll.
+        </p>
+        <p className="mt-1 text-[11px] text-purple-100/60">
           Win to grow your streak. Max streak payout hits {maxPayoutLabel}.
         </p>
       </div>

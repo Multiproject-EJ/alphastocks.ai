@@ -5,6 +5,28 @@
 
 ## Unreleased
 
+- Added High Roller Dice odds and payout previews.
+
+**Date:** 2026-02-25  
+**Slice:** P3.17 High Roller Dice odds + payout preview helper  
+**Summary:**  
+- Added a shared High Roller Dice odds helper to calculate win chance, streak multipliers, and payout expectations.  
+- Surfaced win chance + EV previews on the dice table cards to support risk selection.  
+- Expanded the dice summary panel with base vs boosted odds, EV per roll, and max streak payout context.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/lib/highRollerDiceOdds.ts  
+- apps/investing-board-game-v3/src/components/HighRollerDiceGame.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Open the Casino lobby, enter High Roller Dice, and verify win chance + EV preview copy on each tier.  
+- (manual) Roll the dice and confirm the summary panel reflects boosted odds/EV and max streak payout.  
+
 - Tuned High Roller Dice payouts and polished roll feedback.
 
 **Date:** 2026-02-25  
