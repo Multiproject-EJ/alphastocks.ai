@@ -5,6 +5,28 @@
 
 ## Unreleased
 
+- Activated Tier 2 event tiles for Market Event and Wildcard.
+
+**Date:** 2026-02-24  
+**Slice:** M10.6 Tier 2 event tile activation (Market Event + Wildcard)  
+**Summary:**  
+- Routed Wildcard tiles into the existing ring-aware wildcard event flow.  
+- Replaced the Market Event headline modal with choice-driven macro options while preserving Market Shield and event currency logic.  
+- Updated the dev plan with slice completion, notes, and the next polish step.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/App.tsx  
+- apps/investing-board-game-v3/src/lib/eventTiles.ts  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Land on Market Event tiles and confirm the choice modal appears with three options.  
+- (manual) Land on Wildcard tiles and confirm the wildcard event modal opens with ring-aware outcomes.  
+
 - Scoped Tier 2 event tile activation planning for Market Event + Wildcard.
 
 **Date:** 2026-02-24  

@@ -152,6 +152,52 @@ const EVENT_TILE_DEFINITIONS: EventTileDefinition[] = [
 export const getEventTileDefinition = (title: string): EventTileDefinition | undefined =>
   EVENT_TILE_DEFINITIONS.find((definition) => definition.title === title)
 
+const MARKET_EVENT_OPTIONS: EventTileOption[] = [
+  {
+    id: 'risk-on-surge',
+    title: 'Risk-On Surge',
+    description: 'Lean into the rally for a punchy cash spike.',
+    emoji: '💰',
+    rewardPreview: '💰 $1,200–$2,200',
+    reward: {
+      type: 'cash',
+      min: 1200,
+      max: 2200,
+    },
+  },
+  {
+    id: 'safe-harbor',
+    title: 'Safe Harbor Reserve',
+    description: 'Play defense and stack steady coins.',
+    emoji: '🪙',
+    rewardPreview: '🪙 48–96 Coins',
+    reward: {
+      type: 'coins',
+      min: 48,
+      max: 96,
+    },
+  },
+  {
+    id: 'macro-masterclass',
+    title: 'Macro Masterclass',
+    description: 'Convert the headline into XP momentum.',
+    emoji: '⚡',
+    rewardPreview: '⚡ 60–120 XP',
+    reward: {
+      type: 'xp',
+      min: 60,
+      max: 120,
+    },
+  },
+]
+
+export const getMarketEventTileDefinition = (headline: string): EventTileDefinition => ({
+  title: 'Market Event',
+  icon: '📊',
+  description: headline,
+  options: MARKET_EVENT_OPTIONS,
+})
+
 export const EVENT_TILE_REWARD_LABELS: Record<EventTileRewardType, string> = {
   cash: 'Cash',
   stars: 'Stars',

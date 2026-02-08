@@ -8,7 +8,6 @@ import { EconomyWindowStatus } from '@/components/EconomyWindowStatus'
 import { HubModal } from '@/components/HubModal'
 import { CentralStockCard } from '@/components/CentralStockCard'
 import { StockModal } from '@/components/StockModal'
-import { EventModal } from '@/components/EventModal'
 import { EventChoiceModal } from '@/components/EventChoiceModal'
 import { ThriftyPathModal } from '@/components/ThriftyPathModal'
 import { WildcardEventModal } from '@/components/WildcardEventModal'
@@ -251,7 +250,12 @@ import {
   QUICK_REWARD_CONFIG,
   QuickRewardType 
 } from '@/lib/quickRewardTiles'
-import { EVENT_TILE_REWARD_LABELS, getEventTileDefinition, type EventTileOption } from '@/lib/eventTiles'
+import {
+  EVENT_TILE_REWARD_LABELS,
+  getEventTileDefinition,
+  getMarketEventTileDefinition,
+  type EventTileOption,
+} from '@/lib/eventTiles'
 import { getEnergyResetAmount, getResetRollsAmount, getVaultRegenBonusRolls, ENERGY_CONFIG } from '@/lib/energy'
 import { calculateTilePositions, calculateAllRingPositions } from '@/lib/tilePositions'
 import { calculateMovement, getHoppingTiles, getPortalConfigForRing } from '@/lib/movementEngine'
@@ -3892,7 +3896,7 @@ function App() {
             }, 300)
           }
         })
-      } else if (tile.title === '?') {
+      } else if (tile.title === '?' || tile.title === 'Wildcard') {
         debugGame('Opening Wildcard Event modal')
         const wildcardEvent = getRandomWildcardEvent(gameState.currentRing)
         setCurrentWildcardEvent(wildcardEvent)
@@ -3909,7 +3913,7 @@ function App() {
           }
         })
       } else if (tile.title === 'Market Event') {
-        debugGame('Opening Event modal')
+        debugGame('Opening Market Event choice modal')
         handleEventCurrencyEarned('Market Event tile')
         
         // Check if Market Shield is active
@@ -3924,15 +3928,19 @@ function App() {
           setPhase('idle')
         } else {
           const event = getRandomMarketEvent()
+          const eventDefinition = getMarketEventTileDefinition(event)
           setCurrentEvent(event)
           showOverlay({
-            id: 'event',
-            component: EventModal,
+            id: 'market-event',
+            component: EventChoiceModal,
             props: {
-              eventText: event,
-              coins: gameState.coins,
-              canAffordSkip: canAffordCoins(COIN_COSTS.skip_event),
-              onSkip: handleSkipEvent,
+              title: eventDefinition.title,
+              description: eventDefinition.description,
+              icon: eventDefinition.icon,
+              options: eventDefinition.options,
+              onSelect: (option: EventTileOption) => {
+                handleEventTileChoice(eventDefinition.title, option)
+              },
             },
             priority: 'normal',
             onClose: () => {
