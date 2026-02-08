@@ -858,6 +858,10 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Expanded Chance Card outcomes with randomized executive perks alongside the jackpot lift to the Wealth Run for richer mid-ring stakes.
 - Updated Chance Card copy to reflect the broader outcome mix and chance-lift narrative.
 
+## M5 Slice Notes (Property Vault unlock feedback)
+- Added clear error messaging when Property Vault unlocks fail due to insufficient cash.
+- Ensured mobile Vault unlocks only mark ownership after the cash spend succeeds so the UI reflects real purchases.
+
 ## Master Plan Status Sync Slice Notes (Completed ✅)
 - Synced the master plan status table with completed systems so the master doc reflects recent slices.
 - Cleared stale in-progress/planned entries that are now tracked in `DEV_PLAN.md`.

@@ -2647,3 +2647,24 @@
 
 **How to test:**  
 - (manual) Open the Casino scratchcard, tap “See odds & EV,” and confirm win chances, EV ranges, and prize table details appear and toggle.  
+
+**Date:** 2026-02-08  
+**Slice:** M5 Property Vault unlock feedback  
+**Summary:**  
+- Added a clear insufficient-cash toast when attempting to unlock Property Vault items.  
+- Ensured mobile Vault unlocks only mark ownership after the cash spend succeeds.  
+- Logged the slice completion in the run-by-run plan.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/components/shop/PropertyVault.tsx  
+- apps/investing-board-game-v3/src/components/shop/MobileShop.tsx  
+- apps/investing-board-game-v3/src/components/ShopModal.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Open the mobile Shop → Property Vault, tap Unlock with insufficient cash, and confirm the error toast appears.  
+- (manual) Tap Unlock with sufficient cash and confirm the item shows Owned and cash decreases.  
