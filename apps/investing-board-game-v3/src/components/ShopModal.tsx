@@ -110,8 +110,9 @@ export function ShopModal({
   // Handle mobile shop purchase (uses cash instead of stars)
   const handleMobilePurchase = (itemId: string, cost: number, category: ShopCategory) => {
     if (onMobilePurchase) {
-      onMobilePurchase(itemId, cost, category)
+      return onMobilePurchase(itemId, cost, category)
     }
+    return false
   }
 
   // Show mobile shop on mobile devices

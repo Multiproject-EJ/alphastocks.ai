@@ -1,3 +1,4 @@
+import { toast } from 'sonner';
 import { useHaptics } from '@/hooks/useHaptics';
 import {
   PROPERTY_VAULT_ITEMS,
@@ -29,6 +30,9 @@ export function PropertyVault({
   const handleBuy = (itemId: string, cost: number) => {
     if (cash < cost) {
       error();
+      toast.error('Not enough cash', {
+        description: `You need $${cost.toLocaleString()} but only have $${cash.toLocaleString()}.`,
+      });
       return;
     }
     onBuy(itemId, cost);

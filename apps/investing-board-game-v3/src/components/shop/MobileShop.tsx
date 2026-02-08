@@ -11,7 +11,11 @@ import { hasSupabaseConfig, supabaseClient } from '@/lib/supabaseClient';
 
 interface MobileShopProps {
   cash: number;
-  onPurchase: (itemId: string, cost: number, category: ShopCategory) => void;
+  onPurchase: (
+    itemId: string,
+    cost: number,
+    category: ShopCategory,
+  ) => boolean | Promise<boolean>;
   onClose?: () => void;
 }
 
@@ -44,29 +48,30 @@ export function MobileShop({ cash, onPurchase, onClose }: MobileShopProps) {
     }
 
     const success = await purchase(itemId, cost);
-    if (success) {
-      if (category === 'vault') {
-        if (supabaseClient && hasSupabaseConfig && user) {
-          const { error } = await supabaseClient.rpc('shop_vault_purchase', {
-            item_id: itemId,
-          });
+    if (!success) return;
 
-          if (error) {
-            toast.error('Vault purchase failed', {
-              description: error.message,
-            });
-            return;
-          }
-        } else {
-          toast.message('Vault purchase saved locally', {
-            description: 'Connect your account to sync vault ownership.',
+    const purchaseResult = await Promise.resolve(onPurchase(itemId, cost, category));
+    if (!purchaseResult) return;
+
+    if (category === 'vault') {
+      if (supabaseClient && hasSupabaseConfig && user) {
+        const { error } = await supabaseClient.rpc('shop_vault_purchase', {
+          item_id: itemId,
+        });
+
+        if (error) {
+          toast.error('Vault purchase failed', {
+            description: error.message,
           });
+          return;
         }
-
-        setOwnedVaultItems((prev) => new Set(prev).add(itemId));
+      } else {
+        toast.message('Vault purchase saved locally', {
+          description: 'Connect your account to sync vault ownership.',
+        });
       }
 
-      onPurchase(itemId, cost, category);
+      setOwnedVaultItems((prev) => new Set(prev).add(itemId));
     }
   };
 
