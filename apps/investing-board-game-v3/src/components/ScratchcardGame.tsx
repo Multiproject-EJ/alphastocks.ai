@@ -501,6 +501,30 @@ export function ScratchcardGame({
             ))}
           </div>
         </div>
+        {eventOverride && (
+          <div className="rounded-lg border border-emerald-300/30 bg-emerald-500/10 px-3 py-2 text-xs text-emerald-50/90">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <p className="text-[10px] uppercase tracking-wide text-emerald-100/70">
+                  Event ticket bonus
+                </p>
+                <p className="text-sm font-semibold">{eventOverride.title}</p>
+                <p className="text-[11px] text-emerald-100/70">
+                  {eventBoostSummary ?? 'Boosted symbols and odds are live for this ticket.'}
+                </p>
+              </div>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setShowOdds(true)}
+                disabled={showOdds}
+                className="h-7 px-3 text-[11px] text-emerald-50/90 hover:text-emerald-50 disabled:opacity-60"
+              >
+                {showOdds ? 'Viewing boosts' : 'See boosts'}
+              </Button>
+            </div>
+          </div>
+        )}
 
         {gameOver && prizeResults.length > 0 && (
           <div className="rounded-lg border border-purple-400/40 bg-purple-900/20 p-3 text-sm text-purple-100">

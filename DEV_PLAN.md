@@ -279,7 +279,8 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P3.10** ✅ Scratchcard 2.0 event override config (odds + symbols)
 - **P3.11** ✅ Scratchcard 2.0 ticket value chips
 - **P3.12** ✅ Scratchcard 2.0 event ticket banners
-- **P3.13** Scratchcard 2.0 in-ticket event banner (ticket view CTA)
+- **P3.13** ✅ Scratchcard 2.0 in-ticket event banner (ticket view CTA)
+- **P3.14** Casino lobby entry + High Roller Dice teaser card (config-first stub)
 
 ### P4 — Seasonal & Holiday Events
 - **P4.1** ✅ Holiday event schedule fixtures
@@ -316,7 +317,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P3.13 — Scratchcard 2.0 in-ticket event banner (ticket view CTA).**
+**Recommended next slice:** **P3.14 — Casino lobby entry + High Roller Dice teaser card (config-first stub).**
 
 ## P2.7 Scope Notes (Bias Sanctuary visual story mode)
 ### Story structure & content
@@ -711,6 +712,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Added limited-time event banners to each scratchcard ticket option to spotlight promo odds boosts.
 - Included boosted-odds callouts inside the selected ticket preview so the event benefits stay visible during selection.
 - Updated the scratchcard evolution log with the next in-ticket banner step.
+
+## P3.13 Slice Notes (Scratchcard 2.0 in-ticket event banner)
+- Added an in-ticket event bonus banner on the scratchcard surface with a direct CTA to view boosted odds.
+- Mirrored event boost copy in the ticket view so players see the promo context while scratching.
+- Marked the scratchcard event CTA work complete and queued the casino lobby teaser card as the next slice.
 
 ## P3 Slice Notes (IPO Frenzy timed mini-game surface)
 - Built a mobile-first IPO Frenzy timed-event surface with allocation playbooks, pop signals, and roadshow framing for IPO launches.
