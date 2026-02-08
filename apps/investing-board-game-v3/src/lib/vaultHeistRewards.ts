@@ -26,3 +26,6 @@ export const VAULT_HEIST_ALARM_WEIGHTS = {
   2: 7,
   3: 10,
 } as const
+
+export const VAULT_HEIST_PICK_COST = 100
+export const VAULT_HEIST_BRIBE_COST = 250

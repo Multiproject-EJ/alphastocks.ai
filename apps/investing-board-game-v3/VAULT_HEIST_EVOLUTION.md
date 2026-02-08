@@ -16,7 +16,7 @@ Vault Heist is a weekly timed mini-game with a simple “pick a hatch” loop. T
 ## Status Snapshot (2026-02-23)
 - **Code status:** Vault Heist UI is live with 5 hatches, weighted prizes, a 3-pick cap, pick gating, explicit resolution state messaging, crew/gear modifiers, the alarm decision overlay, and an end-of-heist summary.
 - **Known issues:** Heist resolution logic still lives inside the modal (no helper engine).
-- **Next slice focus:** Config-first cost tuning (pick + bribe) extraction (P4.3).
+- **Next slice focus:** Config-first pick limits + free pick rules (P4.4).
 
 ---
 
@@ -29,8 +29,8 @@ Vault Heist is a weekly timed mini-game with a simple “pick a hatch” loop. T
 5. If a decision is made (odds, costs, rewards), document it here to keep the plan “alive.”
 
 **Progress log (live, always update):**
-- **Done (latest):** Extracted Vault Heist prize table + alarm weight presets into a shared config module (P4.2).
-- **Next step:** Extract pick + bribe costs into shared config (P4.3).
+- **Done (latest):** Extracted pick + bribe costs into shared config (P4.3).
+- **Next step:** Extract pick limits + free pick rules into shared config (P4.4).
 
 ---
 
@@ -228,13 +228,27 @@ Vault Heist is a weekly timed mini-game with a simple “pick a hatch” loop. T
 - Moved the weighted prize table and per-stage alarm weight presets into `vaultHeistRewards.ts`.
 - Stage alarm weights now reference the shared preset table to keep tuning centralized.
 
-### P4.3 — Config-first heist costs
+### P4.3 — Config-first heist costs ✅
 **Objective:** move pick cost + alarm bribe cost into a shared config module for faster balancing.
 
 **Steps:**
 1. Add pick cost/bribe cost constants to the rewards config (or a dedicated heist cost config).
 2. Update the modal to read costs from config instead of inline values.
 3. Surface the cost values in the HUD copy if needed.
+
+**Done when:** pick and bribe costs are defined in config and consumed by the modal. ✅
+
+**Decisions:**
+- Added `VAULT_HEIST_PICK_COST` (100) and `VAULT_HEIST_BRIBE_COST` (250) to the rewards config.
+- Modal now reads the cost values from config for pick gating and alarm bribe messaging.
+
+### P4.4 — Config-first pick limits + free pick rules
+**Objective:** move max pick limits and free-pick rules into shared config to keep tuning centralized.
+
+**Steps:**
+1. Add max pick count + free-pick thresholds to a heist config module.
+2. Update the modal to read limits and labels from config.
+3. Document the pick-limit behavior in the HUD copy.
 
 ---
 
@@ -248,5 +262,5 @@ When you ship any slice, update this section immediately:
 ---
 
 # Progress log (rolling)
-- **Done (latest):** Extracted Vault Heist prize table + alarm weight presets into a shared config module (P4.2).
-- **Next step:** Extract pick + bribe costs into shared config (P4.3).
+- **Done (latest):** Extracted pick + bribe costs into shared config (P4.3).
+- **Next step:** Extract pick limits + free pick rules into shared config (P4.4).

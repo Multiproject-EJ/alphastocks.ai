@@ -11,6 +11,7 @@ import {
 } from '../lib/vaultHeistModifiers'
 import { resolveVaultHeistPick } from '../lib/vaultHeistEngine'
 import type { VaultPrize } from '../lib/vaultHeistRewards'
+import { VAULT_HEIST_BRIBE_COST, VAULT_HEIST_PICK_COST } from '../lib/vaultHeistRewards'
 
 interface Vault {
   id: number
@@ -74,8 +75,8 @@ export function VaultHeistModal({
   const heistProgress = Math.min(100, Math.round((picksUsed / maxPicks) * 100))
   const currentStage = getVaultHeistStage(picksUsed)
   const ringMultiplier = currentRing === 3 ? 10 : currentRing === 2 ? 3 : 1
-  const pickCost = freePicksRemaining > 0 ? 0 : 100
-  const alarmBribeCost = 250
+  const pickCost = freePicksRemaining > 0 ? 0 : VAULT_HEIST_PICK_COST
+  const alarmBribeCost = VAULT_HEIST_BRIBE_COST
   const selectedCrew = getVaultHeistCrew(selectedCrewId)
   const selectedGear = getVaultHeistGear(selectedGearId)
   const ringTheme = {
