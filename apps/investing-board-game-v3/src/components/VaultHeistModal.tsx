@@ -60,6 +60,8 @@ export function VaultHeistModal({
   const [isGameOver, setIsGameOver] = useState(false)
   const [collectedPrizes, setCollectedPrizes] = useState<VaultPrize[]>([])
   const [isPickResolving, setIsPickResolving] = useState(false)
+  const [resolutionState, setResolutionState] = useState<'idle' | 'cracking' | 'reveal' | 'resolved' | 'alarm'>('idle')
+  const [lastResultLabel, setLastResultLabel] = useState('Choose a hatch to start the heist.')
 
   const maxPicks = 3
   const picksRemaining = maxPicks - picksUsed
@@ -86,6 +88,8 @@ export function VaultHeistModal({
     if (!vault || vault.state !== 'locked') return
 
     setIsPickResolving(true)
+    setResolutionState('cracking')
+    setLastResultLabel('Cracking vault...')
     setPicksUsed(prev => prev + 1)
     const nextPicksUsed = picksUsed + 1
 
@@ -94,6 +98,8 @@ export function VaultHeistModal({
       playSound('error')
       setPicksUsed(prev => Math.max(0, prev - 1))
       setIsPickResolving(false)
+      setResolutionState('idle')
+      setLastResultLabel('Not enough coins for that pick.')
       return
     }
 
@@ -111,9 +117,11 @@ export function VaultHeistModal({
       setVaults(prev => prev.map(v => 
         v.id === vaultId ? { ...v, state: isAlarm ? 'alarm' : 'opened', prize } : v
       ))
+      setResolutionState(isAlarm ? 'alarm' : 'reveal')
 
       if (isAlarm) {
         playSound('error')
+        setLastResultLabel('🚨 Alarm triggered! The vault is compromised.')
         // Alarm doesn't give a prize but still consumes a pick
         // The pick counter will be incremented below (line 132) regardless of alarm
       } else {
@@ -128,6 +136,7 @@ export function VaultHeistModal({
         }))
         
         setCollectedPrizes(prev => [...prev, { ...prize, amount: multipliedAmount }])
+        setLastResultLabel(`Loot secured: ${prize.label}`)
         
         if (multipliedAmount >= 10000) {
           playSound('big-win')
@@ -140,7 +149,10 @@ export function VaultHeistModal({
       if (nextPicksUsed >= maxPicks) {
         setTimeout(() => setIsGameOver(true), 1000)
       }
-      setIsPickResolving(false)
+      setTimeout(() => {
+        setResolutionState(isAlarm ? 'alarm' : 'resolved')
+        setIsPickResolving(false)
+      }, 350)
     }, 800) // Crack animation duration
   }, [vaults, picksRemaining, isGameOver, isPickResolving, pickCost, onSpendCoins, selectPrize, ringMultiplier, playSound, picksUsed])
 
@@ -165,6 +177,8 @@ export function VaultHeistModal({
       setIsGameOver(false)
       setCollectedPrizes([])
       setIsPickResolving(false)
+      setResolutionState('idle')
+      setLastResultLabel('Choose a hatch to start the heist.')
     }
   }, [isOpen])
 
@@ -271,6 +285,17 @@ export function VaultHeistModal({
             <span className="text-slate-300 text-sm ml-2">
               {picksRemaining} picks left
             </span>
+          </div>
+          <div className="text-center text-xs text-amber-200 mb-4">
+            {resolutionState === 'cracking'
+              ? 'Cracking vault...'
+              : resolutionState === 'reveal'
+              ? 'Revealing the haul...'
+              : resolutionState === 'alarm'
+              ? 'Alarm locked in — pick again or exit.'
+              : resolutionState === 'resolved'
+              ? lastResultLabel
+              : lastResultLabel}
           </div>
           {isPickResolving && (
             <div className="text-center text-xs text-amber-200 mb-4">
