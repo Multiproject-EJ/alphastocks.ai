@@ -16,10 +16,41 @@
         "id": "high-roller-dice",
         "name": "High Roller Dice",
         "description": "Double-down dice throws with streak multipliers and VIP tables.",
-        "status": "teaser",
-        "cta": "Coming soon",
+        "status": "live",
+        "cta": "Roll the dice",
         "tag": "High Stakes",
         "icon": "🎲"
+      }
+    ]
+  },
+  "dice": {
+    "title": "High Roller Dice",
+    "description": "Pick your risk tier, roll two dice, and stack a streak multiplier.",
+    "streakCap": 3,
+    "options": [
+      {
+        "id": "blue-chip",
+        "label": "Blue Chip 7+",
+        "description": "Steady table with a softer win target.",
+        "target": 7,
+        "payout": 2500,
+        "streakBonus": 0.1
+      },
+      {
+        "id": "bull-run",
+        "label": "Bull Run 9+",
+        "description": "Mid-risk table with sharper upside.",
+        "target": 9,
+        "payout": 5000,
+        "streakBonus": 0.15
+      },
+      {
+        "id": "moonshot",
+        "label": "Moonshot 11+",
+        "description": "High stakes table for fearless rollers.",
+        "target": 11,
+        "payout": 9000,
+        "streakBonus": 0.25
       }
     ]
   }

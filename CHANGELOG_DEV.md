@@ -5,6 +5,30 @@
 
 ## Unreleased
 
+- Shipped the High Roller Dice playable demo with Happy Hour guarantees.
+
+**Date:** 2026-02-25  
+**Slice:** P3.15 High Roller Dice playable demo + Happy Hour guaranteed-win integration  
+**Summary:**  
+- Promoted High Roller Dice to a live casino option with config-driven risk tiers and streak payouts.  
+- Added a mobile-first dice game surface with roll outcomes, streak tracking, and payout callouts.  
+- Applied guaranteed-win Happy Hour logic (plus Casino Luck boosts) to the dice flow for event parity.  
+
+**Files changed:**  
+- config/casino.json  
+- apps/investing-board-game-v3/src/config/casino.ts  
+- apps/investing-board-game-v3/src/components/HighRollerDiceGame.tsx  
+- apps/investing-board-game-v3/src/components/CasinoModal.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Open the Casino lobby, enter High Roller Dice, roll a few times, and confirm streak payouts update.  
+- (manual) During Casino Happy Hour, confirm the dice roll always wins and surfaces the guaranteed-win messaging.  
+
 - Centralized tile label overlay logic for board tiles.
 
 **Date:** 2026-02-25  
