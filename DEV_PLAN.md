@@ -282,6 +282,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P3.12** ✅ Scratchcard 2.0 event ticket banners
 - **P3.13** ✅ Scratchcard 2.0 in-ticket event banner (ticket view CTA)
 - **P3.14** ✅ Casino lobby entry + High Roller Dice teaser card (config-first stub)
+- **P3.15** High Roller Dice playable demo + Happy Hour guaranteed-win integration
 
 ### P4 — Seasonal & Holiday Events
 - **P4.1** ✅ Holiday event schedule fixtures
@@ -318,7 +319,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **M7.1 — Audit board renderer + tile overlays.**
+**Recommended next slice:** **P3.15 — High Roller Dice playable demo + Happy Hour guaranteed-win integration.**
 
 ## P2.7 Scope Notes (Bias Sanctuary visual story mode)
 ### Story structure & content
@@ -582,6 +583,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Confirmed board layout rendering lives in `App.tsx` using ring-based `calculateTilePositions` helpers and per-ring scale factors, with `BoardViewport` (classic zoom) + `Board3DViewport` (camera transform) handling layout constraints.
 - Verified tile overlay treatments in `Tile.tsx` including type badges, ownership marker, portal/teleport highlights, and ring state classes (revealing/locked) to inform the upcoming label component.
 - Noted that ring layers and tile overlays are gated by ring visibility/opacity helpers, so new label overlays should follow the same pointer-events and ring-reveal rules.
+- Centralized tile label decision logic in a dedicated helper so overlay auditing and tuning live alongside the board renderer without expanding `App.tsx`.
 
 ## M7.2 Slice Notes (Implement tile label component)
 - Added a reusable `TileLabel` component with tone variants, icon/sublabel support, and mobile-first styling for future price pops.
