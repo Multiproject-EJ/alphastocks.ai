@@ -9,13 +9,7 @@ import {
   getVaultHeistCrew,
   getVaultHeistGear,
 } from '../lib/vaultHeistModifiers'
-
-interface VaultPrize {
-  type: 'cash' | 'stars' | 'coins' | 'mystery' | 'alarm'
-  amount: number
-  emoji: string
-  label: string
-}
+import { resolveVaultHeistPick, type VaultPrize } from '../lib/vaultHeistEngine'
 
 interface Vault {
   id: number
@@ -34,19 +28,6 @@ interface CollectedPrize {
   crewName: string
   gearName: string
 }
-
-const VAULT_PRIZES: { prize: VaultPrize; weight: number }[] = [
-  { prize: { type: 'cash', amount: 500, emoji: '💰', label: '$500' }, weight: 25 },
-  { prize: { type: 'cash', amount: 2000, emoji: '💰', label: '$2,000' }, weight: 20 },
-  { prize: { type: 'cash', amount: 10000, emoji: '💰', label: '$10,000' }, weight: 10 },
-  { prize: { type: 'cash', amount: 50000, emoji: '💵', label: '$50,000 MEGA!' }, weight: 3 },
-  { prize: { type: 'stars', amount: 100, emoji: '⭐', label: '100 Stars' }, weight: 15 },
-  { prize: { type: 'stars', amount: 500, emoji: '⭐', label: '500 Stars' }, weight: 7 },
-  { prize: { type: 'mystery', amount: 1, emoji: '💎', label: 'Mystery Box' }, weight: 8 },
-  { prize: { type: 'coins', amount: 200, emoji: '🪙', label: '200 Coins' }, weight: 7 },
-]
-
-const ALARM_PRIZE: VaultPrize = { type: 'alarm', amount: 0, emoji: '💣', label: 'ALARM!' }
 
 interface VaultHeistModalProps {
   isOpen: boolean
@@ -124,34 +105,6 @@ export function VaultHeistModal({
     selectedGear,
   )
 
-  // Select random prize based on weights
-  const selectPrize = useCallback((alarmWeight: number): VaultPrize => {
-    const totalPrizeWeight = VAULT_PRIZES.reduce((sum, p) => sum + p.weight, 0)
-    const totalWeight = totalPrizeWeight + alarmWeight
-    let random = Math.random() * totalWeight
-
-    if (random <= alarmWeight) return { ...ALARM_PRIZE }
-    random -= alarmWeight
-
-    for (const { prize, weight } of VAULT_PRIZES) {
-      random -= weight
-      if (random <= 0) return { ...prize }
-    }
-    return VAULT_PRIZES[0].prize
-  }, [])
-
-  const applyStageMultiplier = useCallback((prize: VaultPrize, multiplier: number): VaultPrize => {
-    if (prize.type === 'alarm' || prize.type === 'mystery') return prize
-
-    const adjustedAmount = Math.round(prize.amount * multiplier)
-    const label =
-      prize.type === 'cash'
-        ? `$${adjustedAmount.toLocaleString()}`
-        : `${adjustedAmount.toLocaleString()} ${prize.type === 'stars' ? 'Stars' : 'Coins'}`
-
-    return { ...prize, amount: adjustedAmount, label }
-  }, [])
-
   // Handle vault crack
   const crackVault = useCallback((vaultId: number) => {
     if (picksRemaining <= 0 || isGameOver || isPickResolving || isAlarmDecisionActive) return
@@ -189,9 +142,12 @@ export function VaultHeistModal({
 
     // After crack animation, reveal prize
     setTimeout(() => {
-      const prize = selectPrize(odds.alarmWeight)
-      const isAlarm = prize.type === 'alarm'
-      const resolvedPrize = isAlarm ? prize : applyStageMultiplier(prize, rewardMultiplier)
+      const result = resolveVaultHeistPick({
+        alarmWeight: odds.alarmWeight,
+        totalMultiplier: rewardMultiplier,
+      })
+      const resolvedPrize = result.prize
+      const isAlarm = result.isAlarm
 
       setVaults(prev => prev.map(v => 
         v.id === vaultId ? { ...v, state: isAlarm ? 'alarm' : 'opened', prize: resolvedPrize } : v
@@ -210,10 +166,10 @@ export function VaultHeistModal({
         const multipliedAmount = resolvedPrize.type === 'mystery' ? resolvedPrize.amount : resolvedPrize.amount
         
         setHaul(prev => ({
-          cash: prev.cash + (prize.type === 'cash' ? multipliedAmount : 0),
-          stars: prev.stars + (prize.type === 'stars' ? multipliedAmount : 0),
-          coins: prev.coins + (prize.type === 'coins' ? multipliedAmount : 0),
-          mysteryBoxes: prev.mysteryBoxes + (prize.type === 'mystery' ? 1 : 0),
+          cash: prev.cash + (resolvedPrize.type === 'cash' ? multipliedAmount : 0),
+          stars: prev.stars + (resolvedPrize.type === 'stars' ? multipliedAmount : 0),
+          coins: prev.coins + (resolvedPrize.type === 'coins' ? multipliedAmount : 0),
+          mysteryBoxes: prev.mysteryBoxes + (resolvedPrize.type === 'mystery' ? 1 : 0),
         }))
         
         setCollectedPrizes(prev => [
@@ -260,11 +216,9 @@ export function VaultHeistModal({
     isAlarmDecisionActive,
     pickCost,
     onSpendCoins,
-    selectPrize,
     ringMultiplier,
     playSound,
     picksUsed,
-    applyStageMultiplier,
     selectedCrewId,
     selectedGearId,
   ])
