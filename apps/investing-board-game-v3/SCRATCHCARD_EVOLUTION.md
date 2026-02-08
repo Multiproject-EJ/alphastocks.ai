@@ -22,8 +22,8 @@ The current scratchcard is a clean, simple win/lose minigame. This guide expands
 5. After each completed step, immediately write the next step.
 
 **Progress log (live, always update):**
-- **Done (latest):** Added per-tier odds tooltip (win/jackpot/multiplier) in the ticket cards for faster scanning.
-- **Next step:** Add compact “cost vs. EV” chips to each ticket card so players can compare value at a glance.
+- **Done (latest):** Added compact “cost vs. EV” chips to each ticket card so players can compare value at a glance.
+- **Next step:** Add an event-aware ticket banner treatment (limited-time label + boosted odds callout) to spotlight promo scratchcards.
 
 ## Next Slice (P0 Foundation)
 1. Create `scratchcardTiers` config with tier costs, odds, and prize pools.

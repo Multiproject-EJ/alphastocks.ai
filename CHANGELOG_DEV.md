@@ -5,6 +5,27 @@
 
 ## Unreleased
 
+- Added scratchcard ticket value chips for faster tier comparisons.
+
+**Date:** 2026-02-24  
+**Slice:** P3.11 Scratchcard 2.0 ticket value chips  
+**Summary:**  
+- Added compact cost vs. EV chips to each scratchcard tier card for at-a-glance value comparisons.  
+- Kept the tier preview copy aligned with event-aware odds calculations.  
+- Updated the scratchcard evolution log with the next banner styling step.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/components/CasinoModal.tsx  
+- apps/investing-board-game-v3/SCRATCHCARD_EVOLUTION.md  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Open the Casino modal and confirm each ticket card shows cost and EV chips.  
+
 - Activated the Court of Capital corner tile with choice-driven rewards.
 
 **Date:** 2026-02-24  

@@ -185,6 +185,10 @@ export function CasinoModal({
                 ) ??
                 tierOddsSummary.evSummary.find((entry) => entry.average > 0) ??
                 null
+              const tierCostLabel = `${tier.entryCost.amount.toLocaleString()} ${tier.entryCost.currency}`
+              const tierEvLabel = tierPrimaryEv
+                ? `~${tierPrimaryEv.average.toFixed(0)} ${tierPrimaryEv.currency}`
+                : '—'
               const jackpotPercent = tier.odds.jackpotChance * 100
               const jackpotLabel = jackpotPercent < 1 ? jackpotPercent.toFixed(1) : jackpotPercent.toFixed(0)
               const evLabel = tierPrimaryEv
@@ -233,6 +237,14 @@ export function CasinoModal({
                     </span>
                     <span className="text-[11px] text-purple-100/70">
                       {tier.prizeSlots} prize slots · Multiplier {hasMultiplier ? 'active' : 'off'}
+                    </span>
+                    <span className="flex flex-wrap gap-2 text-[10px] text-purple-100/80">
+                      <span className="rounded-full border border-purple-300/40 bg-purple-950/50 px-2 py-0.5 text-purple-50">
+                        Cost {tierCostLabel}
+                      </span>
+                      <span className="rounded-full border border-purple-300/40 bg-purple-950/50 px-2 py-0.5 text-purple-50">
+                        EV {tierEvLabel}
+                      </span>
                     </span>
                   </span>
                 </Button>
