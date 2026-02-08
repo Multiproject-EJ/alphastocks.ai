@@ -64,6 +64,7 @@ _Last reviewed: 2026-02-24 (Court of Capital activation)_
 - **Game loop entry:** `src/App.tsx` (dice roll → `calculateMovement` in `src/lib/movementEngine.ts`), board data in `src/lib/mockData.ts`
 - **UI components:** `src/components/*` (board, modals, overlays, portfolio readout panel), shop UI in `src/components/ShopModal.tsx` + `src/components/shop/*` (mobile shop shell, property vault album cards), roulette win flow in `src/components/RouletteVictoryModal.tsx`
 - **Event tile choices:** `src/components/EventChoiceModal.tsx` + `src/lib/eventTiles.ts` (Tier 1 event tile decision copy + rewards)
+- **Tier 2 event tile scope (plan-only):** `src/lib/eventTileTier2Scope.ts` (Market Event + Wildcard activation notes)
 - **Corner tile activations:** Court of Capital config in `src/lib/courtOfCapital.ts` with rewards wired in `src/App.tsx`
 - **Mini-games hub:** `src/pages/GamesHub.tsx` (grid of mini-games in overlay, schedule-aware availability via `useMiniGames`), `src/components/games/*` (cards, overlay shell, placeholder game surfaces), Wheel of Fortune demo uses `src/components/WheelOfFortuneModal.tsx`
 - **Leaderboards:** `src/components/LeaderboardModal.tsx` + `src/hooks/useLeaderboard.ts` (global/weekly/ring leaderboards)
@@ -234,7 +235,8 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **M10.2** ✅ Implement Tier 1 event tiles (Analyst Call, News Flash, Executive Event, Board Meeting)
 - **M10.3** ✅ Court of Capital activation (corner tile experience)
 - **M10.4** ✅ Event tile copy + reward tuning pass (marketing hooks)
-- **M10.5** Tier 2 event tile activation scope (plan-only)
+- **M10.5** ✅ Tier 2 event tile activation scope (plan-only)
+- **M10.6** Tier 2 event tile activation (Market Event + Wildcard)
 
 ### C1 — Config Strategy (Data-driven tuning)
 - **C1.1** ✅ Economy config seed (energy + vault regen)
@@ -310,7 +312,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **M10.5 — Tier 2 event tile activation scope (plan-only).**
+**Recommended next slice:** **M10.6 — Tier 2 event tile activation (Market Event + Wildcard).**
 
 ## P2.7 Scope Notes (Bias Sanctuary visual story mode)
 ### Story structure & content
@@ -833,6 +835,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Refreshed Tier 1 event tile copy with sharper marketing hooks so each choice reads like a headline moment.
 - Tuned Tier 1 reward ranges for a slightly stronger mid-game pulse while keeping reward types unchanged.
 - Updated Court of Capital copy + reward previews to align with the refreshed headline tone.
+
+## M10.5 Slice Notes (Tier 2 event tile activation scope)
+- Scoped Tier 2 event tiles to focus on Market Event + Wildcard activation as the next shippable slice.
+- Drafted a plan-only Tier 2 tile scope list (intent, reward types, experience notes) to keep upcoming activation work config-first.
+- Documented how Market Event should evolve into a choice-based macro pulse while Wildcard routes into the existing ring-aware wildcard flow.
 
 ## Fall Portals + Chance Lift Slice Notes
 - Added Ring 2 fall portal safety-net rewards so some drops grant a bonus roll, stars, or coins before returning to Street Level.
