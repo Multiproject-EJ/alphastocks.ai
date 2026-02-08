@@ -210,6 +210,17 @@ export function CasinoModal({
                   }
                 >
                   <span className="flex w-full flex-col gap-1 text-left">
+                    {isEventActive && scratchcardEventOverride && (
+                      <span className="flex flex-wrap items-center gap-2 text-[10px] text-emerald-100/90">
+                        <span className="rounded-full bg-emerald-400/20 px-2 py-0.5 uppercase tracking-wide text-emerald-100/90">
+                          Limited-time
+                        </span>
+                        <span className="text-emerald-100/80">{scratchcardEventOverride.title}</span>
+                        {eventBoostSummary && (
+                          <span className="text-emerald-100/70">({eventBoostSummary})</span>
+                        )}
+                      </span>
+                    )}
                     <span className="flex items-center justify-between gap-2 text-sm font-semibold">
                       {tier.name}
                       {isSelected && (
@@ -256,6 +267,17 @@ export function CasinoModal({
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="text-sm font-semibold text-white">{selectedTier.name} preview</p>
+                  {scratchcardEventOverride && (
+                    <div className="mt-1 inline-flex flex-wrap items-center gap-2 rounded-full border border-emerald-300/40 bg-emerald-500/15 px-2 py-0.5 text-[10px] uppercase tracking-wide text-emerald-100/90">
+                      <span>Limited-time</span>
+                      <span className="text-emerald-100/80">{scratchcardEventOverride.title}</span>
+                      {eventBoostSummary && (
+                        <span className="normal-case text-emerald-100/70">
+                          {eventBoostSummary}
+                        </span>
+                      )}
+                    </div>
+                  )}
                   <p className="text-xs text-purple-100/70">
                     {selectedTier.grid.rows}x{selectedTier.grid.columns} grid · {selectedTier.prizeSlots} prize slots
                     <span

@@ -272,6 +272,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P3.9** ✅ Scratchcard 2.0 odds modifiers (casino luck + happy hour)
 - **P3.10** ✅ Scratchcard 2.0 event override config (odds + symbols)
 - **P3.11** ✅ Scratchcard 2.0 ticket value chips
+- **P3.12** ✅ Scratchcard 2.0 event ticket banners
 
 ### P4 — Seasonal & Holiday Events
 - **P4.1** ✅ Holiday event schedule fixtures
@@ -693,6 +694,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Added compact cost vs. EV chips to each scratchcard ticket option so value comparisons are easier at a glance.
 - Kept the chips aligned with the existing tier odds preview and event-aware odds calculations.
 - Updated the scratchcard evolution log with the next event banner styling step.
+
+## P3.12 Slice Notes (Scratchcard 2.0 event ticket banners)
+- Added limited-time event banners to each scratchcard ticket option to spotlight promo odds boosts.
+- Included boosted-odds callouts inside the selected ticket preview so the event benefits stay visible during selection.
+- Updated the scratchcard evolution log with the next in-ticket banner step.
 
 ## P3 Slice Notes (IPO Frenzy timed mini-game surface)
 - Built a mobile-first IPO Frenzy timed-event surface with allocation playbooks, pop signals, and roadshow framing for IPO launches.
