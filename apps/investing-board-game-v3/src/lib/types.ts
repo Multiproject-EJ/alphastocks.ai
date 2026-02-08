@@ -80,6 +80,8 @@ export interface Stock {
   category: TileCategory
   price: number
   description: string
+  lastPrice?: number | null
+  lastClosePrice?: number | null
   scores?: {
     composite: number // Overall rating 0-10
     quality: number // Quality score 0-10

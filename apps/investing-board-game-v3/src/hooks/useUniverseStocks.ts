@@ -44,6 +44,12 @@ function normalizePrice(
   return resolveUniversePrice({ ticker, compositeScore: score, seedIndex, marketPrice })
 }
 
+function toNumber(value: number | string | null | undefined): number | null {
+  if (value === null || value === undefined) return null
+  const parsed = typeof value === 'number' ? value : Number(value)
+  return Number.isFinite(parsed) ? parsed : null
+}
+
 /**
  * Derive numeric scores (0-10) from label strings
  * Matches the logic from api-lib/valuebot/addons/parsers.js
@@ -112,7 +118,9 @@ function deriveScoresFromLabels(
 }
 
 function mapUniverseRowToStock(row: UniverseRow, index: number): Stock {
-  const marketPrice = row.last_price ?? row.price ?? row.last_close_price ?? null
+  const lastPrice = toNumber(row.last_price ?? row.price ?? null)
+  const lastClosePrice = toNumber(row.last_close_price ?? null)
+  const marketPrice = lastPrice ?? lastClosePrice ?? null
 
   return {
     name: row.name?.trim() || row.symbol,
@@ -120,6 +128,8 @@ function mapUniverseRowToStock(row: UniverseRow, index: number): Stock {
     category: deriveCategory(row.symbol, index),
     price: normalizePrice(row.symbol, row.last_composite_score, index, marketPrice),
     description: row.addon_summary?.trim() || 'Saved from your investment universe.',
+    lastPrice,
+    lastClosePrice,
     risk_label: row.last_risk_label,
     quality_label: row.last_quality_label,
     timing_label: row.last_timing_label,
@@ -212,11 +222,17 @@ export function useUniverseStocks() {
     [stocksByCategory]
   )
 
+  const universeStocks = useMemo(
+    () => Object.values(stocksByCategory).flat(),
+    [stocksByCategory]
+  )
+
   return {
     getStockForCategory,
     loading,
     error,
     source,
     universeCount,
+    universeStocks,
   }
 }

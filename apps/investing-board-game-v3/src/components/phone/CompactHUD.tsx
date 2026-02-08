@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { Building2, ChevronDown, ChevronUp, Settings, Sparkles, Star, Trophy, Volume2, VolumeX } from 'lucide-react';
 import { useSound } from '@/hooks/useSound';
 import { formatCoins } from '@/lib/coins';
+import { TickerTape } from './TickerTape';
 
 // Z-index constants for layering
 const Z_INDEX_HUD = 120
@@ -70,6 +71,7 @@ export function CompactHUD({
 
   return (
     <div className={`fixed top-0 left-0 right-0 safe-top`} style={{ zIndex: Z_INDEX_HUD }}>
+      <TickerTape />
       {/* Collapsed view - single row with all controls */}
       <div 
         className="flex items-center justify-between gap-2 px-3 py-2 bg-background/95 backdrop-blur-md border-b shadow-sm"

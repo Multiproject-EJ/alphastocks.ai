@@ -1008,6 +1008,16 @@ h1, h2, h3, h4, h5, h6 {
   to { transform: rotate(360deg); }
 }
 
+@keyframes ticker-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.ticker-track {
+  animation: ticker-scroll var(--ticker-duration, 28s) linear infinite;
+  width: max-content;
+}
+
 /* ===== RING VISUAL HIERARCHY ===== */
 
 /* ===== RING 1: Street Level (Ground) ===== */
