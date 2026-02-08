@@ -48,6 +48,14 @@ export function HighRollerDiceGame({
   const [isRolling, setIsRolling] = useState(false)
   const [streak, setStreak] = useState(0)
   const [lastOutcome, setLastOutcome] = useState<RollOutcome | null>(null)
+  const [currentStreakPayout, setCurrentStreakPayout] = useState(0)
+  const [lastStreakSummary, setLastStreakSummary] = useState<{ length: number; payout: number } | null>(null)
+  const [sessionStats, setSessionStats] = useState({
+    rolls: 0,
+    wins: 0,
+    totalPayout: 0,
+    bestStreak: 0,
+  })
 
   const selectedOption = useMemo(
     () => diceConfig.options.find((option) => option.id === selectedOptionId) ?? diceConfig.options[0],
@@ -101,6 +109,20 @@ export function HighRollerDiceGame({
       setIsRolling(false)
       setLastOutcome(outcome)
       setStreak(nextStreak)
+      setSessionStats((prev) => ({
+        rolls: prev.rolls + 1,
+        wins: prev.wins + (isWin ? 1 : 0),
+        totalPayout: prev.totalPayout + payout,
+        bestStreak: Math.max(prev.bestStreak, nextStreak),
+      }))
+      if (isWin) {
+        setCurrentStreakPayout((prev) => prev + payout)
+      } else {
+        if (streak > 0) {
+          setLastStreakSummary({ length: streak, payout: currentStreakPayout })
+        }
+        setCurrentStreakPayout(0)
+      }
       playSound('dice-land')
       if (isWin && payout > 0) {
         playSound(getRewardSound('cash', payout))
@@ -128,6 +150,8 @@ export function HighRollerDiceGame({
   const winChanceLabel = `${(oddsSummary.adjustedWinChance * 100).toFixed(0)}%`
   const baseWinChanceLabel = `${(oddsSummary.baseWinChance * 100).toFixed(0)}%`
   const expectedPayoutLabel = `${Math.round(oddsSummary.expectedPayout).toLocaleString()} cash`
+  const winRateLabel =
+    sessionStats.rolls > 0 ? `${Math.round((sessionStats.wins / sessionStats.rolls) * 100)}%` : '—'
 
   return (
     <div className="rounded-xl border border-purple-500/40 bg-purple-950/50 p-4 text-purple-100/80">
@@ -204,6 +228,24 @@ export function HighRollerDiceGame({
         </p>
       </div>
 
+      <div className="mt-3 rounded-lg border border-purple-400/20 bg-purple-950/30 p-3 text-xs text-purple-100/70">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <span>
+            Session rolls: <span className="font-semibold text-purple-50">{sessionStats.rolls}</span>
+          </span>
+          <span>
+            Wins: <span className="font-semibold text-purple-50">{sessionStats.wins}</span> ({winRateLabel})
+          </span>
+          <span>
+            Total payout:{' '}
+            <span className="font-semibold text-purple-50">{sessionStats.totalPayout.toLocaleString()} cash</span>
+          </span>
+        </div>
+        <p className="mt-2 text-[11px] text-purple-100/60">
+          Best streak this session: {sessionStats.bestStreak} win{sessionStats.bestStreak === 1 ? '' : 's'}.
+        </p>
+      </div>
+
       {(lastOutcome || isRolling) && (
         <div
           className={`mt-4 rounded-lg border p-3 text-sm ${
@@ -247,6 +289,12 @@ export function HighRollerDiceGame({
                 {!lastOutcome.isWin && (
                   <p className="mt-2 text-sm text-purple-100/70">
                     Tight roll. Streak reset — pick a new table and try again.
+                  </p>
+                )}
+                {!lastOutcome.isWin && lastStreakSummary && lastStreakSummary.length > 0 && (
+                  <p className="mt-1 text-[11px] text-purple-100/70">
+                    Streak recap: {lastStreakSummary.length} win{lastStreakSummary.length === 1 ? '' : 's'} for{' '}
+                    {lastStreakSummary.payout.toLocaleString()} cash.
                   </p>
                 )}
                 {lastOutcome.isWin && lastOutcome.reason !== 'roll' && (
