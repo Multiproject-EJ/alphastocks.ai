@@ -23,6 +23,18 @@ interface Vault {
   prize: VaultPrize | null
 }
 
+interface CollectedPrize {
+  prize: VaultPrize
+  stageId: number
+  stageName: string
+  stageMultiplier: number
+  rewardMultiplier: number
+  ringMultiplier: number
+  totalMultiplier: number
+  crewName: string
+  gearName: string
+}
+
 const VAULT_PRIZES: { prize: VaultPrize; weight: number }[] = [
   { prize: { type: 'cash', amount: 500, emoji: '💰', label: '$500' }, weight: 25 },
   { prize: { type: 'cash', amount: 2000, emoji: '💰', label: '$2,000' }, weight: 20 },
@@ -67,7 +79,7 @@ export function VaultHeistModal({
   const [picksUsed, setPicksUsed] = useState(0)
   const [haul, setHaul] = useState({ cash: 0, stars: 0, coins: 0, mysteryBoxes: 0 })
   const [isGameOver, setIsGameOver] = useState(false)
-  const [collectedPrizes, setCollectedPrizes] = useState<VaultPrize[]>([])
+  const [collectedPrizes, setCollectedPrizes] = useState<CollectedPrize[]>([])
   const [isPickResolving, setIsPickResolving] = useState(false)
   const [isAlarmDecisionActive, setIsAlarmDecisionActive] = useState(false)
   const [resolutionState, setResolutionState] = useState<'idle' | 'cracking' | 'reveal' | 'resolved' | 'alarm'>('idle')
@@ -204,7 +216,20 @@ export function VaultHeistModal({
           mysteryBoxes: prev.mysteryBoxes + (prize.type === 'mystery' ? 1 : 0),
         }))
         
-        setCollectedPrizes(prev => [...prev, resolvedPrize])
+        setCollectedPrizes(prev => [
+          ...prev,
+          {
+            prize: resolvedPrize,
+            stageId: stage.id,
+            stageName: stage.name,
+            stageMultiplier: stage.rewardMultiplier,
+            rewardMultiplier: odds.rewardMultiplier,
+            ringMultiplier,
+            totalMultiplier: rewardMultiplier,
+            crewName: crew.name,
+            gearName: gear.name,
+          },
+        ])
         setLastResultLabel(`Loot secured: ${resolvedPrize.label}`)
         
         if (multipliedAmount >= 10000) {
@@ -266,7 +291,10 @@ export function VaultHeistModal({
 
   // Handle game complete
   const handleComplete = useCallback(() => {
-    onPickComplete(collectedPrizes, haul)
+    onPickComplete(
+      collectedPrizes.map(({ prize }) => prize),
+      haul,
+    )
     onClose()
   }, [collectedPrizes, haul, onPickComplete, onClose])
 
@@ -528,6 +556,54 @@ export function VaultHeistModal({
               </div>
             </div>
           </div>
+
+          {isGameOver && (
+            <div className="bg-slate-800/70 rounded-2xl p-4 mb-4 border border-slate-700/60">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-amber-300 font-semibold">Final Heist Summary</h3>
+                <span className="text-[11px] text-slate-300">
+                  {collectedPrizes.length} prize{collectedPrizes.length === 1 ? '' : 's'}
+                </span>
+              </div>
+              <div className="space-y-3">
+                {collectedPrizes.length === 0 ? (
+                  <div className="text-sm text-slate-300">
+                    No loot recovered. The vault held strong this time.
+                  </div>
+                ) : (
+                  collectedPrizes.map((entry, index) => {
+                    const crewGearDelta = entry.rewardMultiplier - entry.stageMultiplier
+                    return (
+                      <div
+                        key={`${entry.prize.type}-${entry.prize.amount}-${index}`}
+                        className="rounded-xl border border-slate-700/60 bg-slate-900/60 p-3"
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-slate-100">
+                            {entry.prize.emoji} {entry.prize.label}
+                          </span>
+                          <span className="text-xs text-amber-200">
+                            Total {entry.totalMultiplier.toFixed(2)}×
+                          </span>
+                        </div>
+                        <div className="mt-2 text-[11px] text-slate-400">
+                          Stage {entry.stageId} ({entry.stageName}) {entry.stageMultiplier}× · Crew/Gear{' '}
+                          {crewGearDelta >= 0 ? '+' : ''}
+                          {crewGearDelta.toFixed(2)}× · Ring {entry.ringMultiplier}×
+                        </div>
+                        <div className="mt-1 text-[11px] text-slate-500">
+                          Crew: {entry.crewName} · Gear: {entry.gearName}
+                        </div>
+                      </div>
+                    )
+                  })
+                )}
+              </div>
+              <div className="mt-4 text-center text-xs text-amber-200">
+                Play again next Saturday for another shot at the vault.
+              </div>
+            </div>
+          )}
         </div>
 
         {isAlarmDecisionActive && (
