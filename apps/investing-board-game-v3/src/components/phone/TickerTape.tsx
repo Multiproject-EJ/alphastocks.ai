@@ -36,7 +36,7 @@ export function TickerTape() {
   }, [universeStocks])
 
   const trimmedItems = items.slice(0, 40)
-  const duration = Math.max(20, trimmedItems.length * 1.2)
+  const duration = Math.max(30, trimmedItems.length * 1.6)
 
   if (trimmedItems.length === 0) return null
 
