@@ -14,9 +14,9 @@ Vault Heist is a weekly timed mini-game with a simple “pick a hatch” loop. T
 - **Hub card**: `src/components/games/placeholders/VaultHeist.tsx`
 
 ## Status Snapshot (2026-02-23)
-- **Code status:** Vault Heist UI is live with 5 hatches, weighted prizes, and a 3-pick cap.
-- **Known issues:** Players can open multiple hatches rapidly because picks are only consumed after the reveal delay.
-- **Next slice focus:** Add a global pick lock + immediate pick consumption to prevent multi-hatch spam.
+- **Code status:** Vault Heist UI is live with 5 hatches, weighted prizes, a 3-pick cap, and pick gating.
+- **Known issues:** Resolution state messaging is minimal during crack → reveal → result.
+- **Next slice focus:** Add explicit resolution states + HUD status line for P0.2.
 
 ---
 
@@ -29,8 +29,8 @@ Vault Heist is a weekly timed mini-game with a simple “pick a hatch” loop. T
 5. If a decision is made (odds, costs, rewards), document it here to keep the plan “alive.”
 
 **Progress log (live, always update):**
-- **Done (latest):** Drafted the Vault Heist evolution plan with integrity and strategy phases.
-- **Next step:** Implement pick gating + lockout in the modal and update this log with results.
+- **Done (latest):** Implemented P0.1 pick gating + lockout with immediate pick consumption and HUD lock messaging.
+- **Next step:** Implement P0.2 explicit resolution states + HUD status line.
 
 ---
 
@@ -69,7 +69,7 @@ Vault Heist is a weekly timed mini-game with a simple “pick a hatch” loop. T
 ## Phase 0 — Integrity Fix (P0)
 **Goal:** close the multi-hatch exploit and make pick behavior deterministic.
 
-### P0.1 — Pick gating + lockout (NEXT)
+### P0.1 — Pick gating + lockout (DONE)
 **Objective:** prevent more than one hatch from opening per pick.
 
 **Steps (do in order):**
@@ -84,6 +84,10 @@ Vault Heist is a weekly timed mini-game with a simple “pick a hatch” loop. T
 - You cannot open multiple hatches in rapid succession.
 - Pick count decrements as soon as a hatch is selected.
 - Grid re-enables only after the reveal completes.
+
+**Decisions:**
+- Picks are consumed immediately on click; failed coin spend restores the pick and unlocks.
+- Grid remains locked until the reveal completes (after the crack animation).
 
 ### P0.2 — Clear resolution states
 **Objective:** ensure consistent feedback for cracking → reveal → result.
@@ -169,5 +173,5 @@ When you ship any slice, update this section immediately:
 ---
 
 # Progress log (rolling)
-- **Done (latest):** Drafted the Vault Heist evolution plan with integrity and strategy phases.
-- **Next step:** Implement P0.1 pick gating + lockout and update this log with results.
+- **Done (latest):** Implemented P0.1 pick gating + lockout with immediate pick consumption and HUD lock messaging.
+- **Next step:** Implement P0.2 explicit resolution states + HUD status line.
