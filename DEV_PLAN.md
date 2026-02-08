@@ -231,12 +231,13 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **M9.1** Ring 3 upgrade celebration (board spin + UI flash) ✅
 
 ### M10 — Event Tile Activations (Marketing Tiles)
-- **M10.1** Audit event tile gaps + map titles to experiences
+- **M10.1** ✅ Audit event tile gaps + map titles to experiences
 - **M10.2** ✅ Implement Tier 1 event tiles (Analyst Call, News Flash, Executive Event, Board Meeting)
 - **M10.3** ✅ Court of Capital activation (corner tile experience)
 - **M10.4** ✅ Event tile copy + reward tuning pass (marketing hooks)
 - **M10.5** ✅ Tier 2 event tile activation scope (plan-only)
-- **M10.6** Tier 2 event tile activation (Market Event + Wildcard)
+- **M10.6** ✅ Tier 2 event tile activation (Market Event + Wildcard)
+- **M10.7** Tier 2 event tile polish (reward tuning + headline copy sweep)
 
 ### C1 — Config Strategy (Data-driven tuning)
 - **C1.1** ✅ Economy config seed (energy + vault regen)
@@ -312,7 +313,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **M10.6 — Tier 2 event tile activation (Market Event + Wildcard).**
+**Recommended next slice:** **M10.7 — Tier 2 event tile polish (reward tuning + headline copy sweep).**
 
 ## P2.7 Scope Notes (Bias Sanctuary visual story mode)
 ### Story structure & content
@@ -840,6 +841,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Scoped Tier 2 event tiles to focus on Market Event + Wildcard activation as the next shippable slice.
 - Drafted a plan-only Tier 2 tile scope list (intent, reward types, experience notes) to keep upcoming activation work config-first.
 - Documented how Market Event should evolve into a choice-based macro pulse while Wildcard routes into the existing ring-aware wildcard flow.
+
+## M10.6 Slice Notes (Tier 2 event tile activation)
+- Routed Wildcard tiles into the existing ring-aware wildcard flow (including the Ring 2 Hidden Gem vs Fraud split).
+- Replaced the Market Event headline modal with a choice-based macro pulse that offers risk-on, safe-harbor, and XP momentum options.
+- Kept Market Event currency earn + Market Shield protection intact while upgrading the player-facing choice UI.
 
 ## Fall Portals + Chance Lift Slice Notes
 - Added Ring 2 fall portal safety-net rewards so some drops grant a bonus roll, stars, or coins before returning to Street Level.
