@@ -15,8 +15,8 @@ Vault Heist is a weekly timed mini-game with a simple “pick a hatch” loop. T
 
 ## Status Snapshot (2026-02-23)
 - **Code status:** Vault Heist UI is live with 5 hatches, weighted prizes, a 3-pick cap, pick gating, explicit resolution state messaging, crew/gear modifiers, and the alarm decision overlay.
-- **Known issues:** Ring tiers still share identical visuals; needs ring visual identity pass.
-- **Next slice focus:** Ring visual identity (P3.2).
+- **Known issues:** End-of-heist summary view still missing.
+- **Next slice focus:** End-of-heist summary (P3.3).
 
 ---
 
@@ -29,8 +29,8 @@ Vault Heist is a weekly timed mini-game with a simple “pick a hatch” loop. T
 5. If a decision is made (odds, costs, rewards), document it here to keep the plan “alive.”
 
 **Progress log (live, always update):**
-- **Done (latest):** Implemented P3.1 heist HUD + meter.
-- **Next step:** Implement P3.2 ring visual identity.
+- **Done (latest):** Implemented P3.2 ring visual identity.
+- **Next step:** Implement P3.3 end-of-heist summary.
 
 ---
 
@@ -175,10 +175,14 @@ Vault Heist is a weekly timed mini-game with a simple “pick a hatch” loop. T
 - Added a compact HUD card with picks left dots, stage name, and alarm risk label.
 - Heist meter shows percent completion based on picks used.
 
-### P3.2 — Ring visual identity
+### P3.2 — Ring visual identity ✅
 **Steps:**
 1. Color-code ring tiers (1/2/3).
 2. Apply ring colors to hatch borders and rewards.
+
+**Decisions:**
+- Ring colors: Ring 1 = amber, Ring 2 = sky, Ring 3 = purple.
+- Applied ring palette to hatch rings/borders, reward labels, and ring multiplier badge.
 
 ### P3.3 — End-of-heist summary
 **Steps:**
@@ -197,5 +201,5 @@ When you ship any slice, update this section immediately:
 ---
 
 # Progress log (rolling)
-- **Done (latest):** Implemented P3.1 heist HUD + meter.
-- **Next step:** Implement P3.2 ring visual identity.
+- **Done (latest):** Implemented P3.2 ring visual identity.
+- **Next step:** Implement P3.3 end-of-heist summary.

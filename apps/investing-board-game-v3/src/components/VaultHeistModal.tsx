@@ -84,6 +84,27 @@ export function VaultHeistModal({
   const alarmBribeCost = 250
   const selectedCrew = getVaultHeistCrew(selectedCrewId)
   const selectedGear = getVaultHeistGear(selectedGearId)
+  const ringTheme = {
+    1: {
+      ring: 'ring-amber-400/50',
+      border: 'border-amber-400/70',
+      reward: 'text-amber-100',
+      badge: 'bg-amber-500/20 text-amber-200 border-amber-400/40',
+    },
+    2: {
+      ring: 'ring-sky-400/50',
+      border: 'border-sky-400/70',
+      reward: 'text-sky-100',
+      badge: 'bg-sky-500/20 text-sky-200 border-sky-400/40',
+    },
+    3: {
+      ring: 'ring-purple-400/50',
+      border: 'border-purple-400/70',
+      reward: 'text-purple-100',
+      badge: 'bg-purple-500/20 text-purple-200 border-purple-400/40',
+    },
+  } as const
+  const ringVisual = ringTheme[currentRing]
   const adjustedOdds = applyVaultHeistModifiers(
     currentStage.alarmWeight,
     currentStage.rewardMultiplier,
@@ -402,9 +423,9 @@ export function VaultHeistModal({
                 disabled={vault.state !== 'locked' || picksRemaining <= 0 || isPickResolving || isAlarmDecisionActive}
                 className={`
                   w-16 h-20 rounded-xl flex flex-col items-center justify-center
-                  font-bold text-lg transition-all border-2
+                  font-bold text-lg transition-all border-2 ring-2 ring-offset-2 ring-offset-slate-900 ${ringVisual.ring}
                   ${vault.state === 'locked' 
-                    ? 'bg-slate-700 border-slate-500 hover:border-amber-400 hover:bg-slate-600 cursor-pointer' 
+                    ? `bg-slate-700 ${ringVisual.border} hover:border-amber-300 hover:bg-slate-600 cursor-pointer` 
                     : vault.state === 'cracking'
                     ? 'bg-amber-600 border-amber-400 animate-pulse'
                     : vault.state === 'alarm'
@@ -431,7 +452,7 @@ export function VaultHeistModal({
                 {vault.state === 'opened' && vault.prize && (
                   <>
                     <span className="text-2xl">{vault.prize.emoji}</span>
-                    <span className="text-[10px] text-white">
+                    <span className={`text-[10px] ${ringVisual.reward}`}>
                       {vault.prize.type === 'cash' 
                         ? `$${vault.prize.amount.toLocaleString()}` 
                         : vault.prize.type === 'stars'
@@ -479,7 +500,7 @@ export function VaultHeistModal({
           {/* Ring multiplier badge */}
           {ringMultiplier > 1 && (
             <div className="text-center mb-4">
-              <span className="px-3 py-1 bg-purple-600/30 rounded-full text-purple-300 text-sm font-bold">
+              <span className={`px-3 py-1 rounded-full text-sm font-bold border ${ringVisual.badge}`}>
                 🔓 Ring {currentRing} = {ringMultiplier}× Rewards!
               </span>
             </div>
