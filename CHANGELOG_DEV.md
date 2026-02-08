@@ -5,6 +5,27 @@
 
 ## Unreleased
 
+- Added scratchcard event ticket banners for promo boosts.
+
+**Date:** 2026-02-24  
+**Slice:** P3.12 Scratchcard 2.0 event ticket banners  
+**Summary:**  
+- Added limited-time event banners to each scratchcard ticket option for promo visibility.  
+- Surfaced boosted-odds callouts in the selected ticket preview for active events.  
+- Updated the scratchcard evolution log with the next in-ticket banner step.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/components/CasinoModal.tsx  
+- apps/investing-board-game-v3/SCRATCHCARD_EVOLUTION.md  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Open the Casino modal during an active scratchcard event and confirm ticket cards show limited-time banners with boost callouts.  
+
 - Added scratchcard ticket value chips for faster tier comparisons.
 
 **Date:** 2026-02-24  
