@@ -5,6 +5,28 @@
 
 ## Unreleased
 
+- Seeded event tile config for Tier 1 and Market Event rewards.
+
+**Date:** 2026-02-24  
+**Slice:** C1.5 Event tile config seed (headlines + reward tuning)  
+**Summary:**  
+- Added a dedicated event tile config seed for Tier 1 choices and Market Event options.  
+- Normalized event tile config loading with fallbacks for rewards and copy.  
+- Updated event tile lookups to use the shared config source of truth.  
+
+**Files changed:**  
+- config/event_tiles.json  
+- apps/investing-board-game-v3/src/config/eventTiles.ts  
+- apps/investing-board-game-v3/src/lib/eventTiles.ts  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Land on a Tier 1 event tile or Market Event tile and confirm the choice modal displays the same rewards and copy as before.  
+
 - Polished Tier 2 Market Event headlines and tuned rewards.
 
 **Date:** 2026-02-08  

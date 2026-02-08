@@ -127,6 +127,7 @@ _Last reviewed: 2026-02-24 (Court of Capital activation)_
 #### Config (new)
 - **Economy config seed:** `/config/economy.json` (energy + vault regen defaults) + `apps/investing-board-game-v3/src/lib/economyConfig.ts` (normalization + exports)
 - **Ring config seed:** `/config/rings.json` (ring rewards + portal defaults) + `apps/investing-board-game-v3/src/config/rings.ts` (normalization + exports)
+- **Event tile config seed:** `/config/event_tiles.json` (Tier 1 + Market Event rewards) + `apps/investing-board-game-v3/src/config/eventTiles.ts` (normalization + exports)
 
 #### ProTools (read-only)
 - **Integration docs:** `apps/investing-board-game-v3/PRO_TOOLS_INTEGRATION.md`
@@ -244,7 +245,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **C1.2** ✅ Shop vault config seed (seasons, discounts, and level curve)
 - **C1.3** ✅ Ring config seed (ring rewards + portals)
 - **C1.4** ✅ Learning config seed (learning tiles + streak rewards)
-- **C1.5** Event tile config seed (headlines + reward tuning)
+- **C1.5** ✅ Event tile config seed (headlines + reward tuning)
 
 ### P1 — Mini-Games Hub
 - **P1.1** ✅ Wheel of Fortune playable demo in Games Hub
@@ -278,6 +279,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P3.10** ✅ Scratchcard 2.0 event override config (odds + symbols)
 - **P3.11** ✅ Scratchcard 2.0 ticket value chips
 - **P3.12** ✅ Scratchcard 2.0 event ticket banners
+- **P3.13** Scratchcard 2.0 in-ticket event banner (ticket view CTA)
 
 ### P4 — Seasonal & Holiday Events
 - **P4.1** ✅ Holiday event schedule fixtures
@@ -314,7 +316,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **C1.5 — Event tile config seed (headlines + reward tuning).**
+**Recommended next slice:** **P3.13 — Scratchcard 2.0 in-ticket event banner (ticket view CTA).**
 
 ## P2.7 Scope Notes (Bias Sanctuary visual story mode)
 ### Story structure & content
@@ -375,6 +377,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Seeded `config/learning.json` with learning tile definitions, category styling, question bank fixtures, and reward tuning.
 - Normalized the in-app learning config loader to read from the JSON seed with deterministic fallbacks.
 - Preserved existing exports so learning tiles, question bank, and reward helpers remain unchanged.
+
+## C1.5 Slice Notes (Event tile config seed)
+- Seeded `config/event_tiles.json` with Tier 1 and Market Event choice rewards for event tiles.
+- Added a config loader that normalizes event tile definitions and market event options with fallbacks.
+- Rewired event tile lookups to read from the shared config seed while keeping the public exports stable.
 
 ## Event Window Unification Slice Notes (Completed ✅)
 - Added a shared window-scheduling helper so recurring events and mini-games use the same timing logic.
