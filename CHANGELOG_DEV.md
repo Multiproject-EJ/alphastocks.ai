@@ -5,6 +5,26 @@
 
 ## Unreleased
 
+- Scoped Tier 2 event tile activation planning for Market Event + Wildcard.
+
+**Date:** 2026-02-24  
+**Slice:** M10.5 Tier 2 event tile activation scope (plan-only)  
+**Summary:**  
+- Scoped Tier 2 event tiles to Market Event and Wildcard with experience notes and reward intents.  
+- Added a plan-only Tier 2 scope list to keep upcoming activation work config-first.  
+- Updated the dev plan with slice completion and the next activation step.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/lib/eventTileTier2Scope.ts  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (not applicable; plan-only data addition)  
+
 - Refreshed Tier 1 event tile marketing copy and tuned reward ranges.
 
 **Date:** 2026-02-24  
