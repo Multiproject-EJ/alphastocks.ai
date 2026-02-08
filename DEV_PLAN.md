@@ -233,7 +233,8 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **M10.1** Audit event tile gaps + map titles to experiences
 - **M10.2** ✅ Implement Tier 1 event tiles (Analyst Call, News Flash, Executive Event, Board Meeting)
 - **M10.3** ✅ Court of Capital activation (corner tile experience)
-- **M10.4** Event tile copy + reward tuning pass (marketing hooks)
+- **M10.4** ✅ Event tile copy + reward tuning pass (marketing hooks)
+- **M10.5** Tier 2 event tile activation scope (plan-only)
 
 ### C1 — Config Strategy (Data-driven tuning)
 - **C1.1** ✅ Economy config seed (energy + vault regen)
@@ -309,7 +310,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **M10.4 — Event tile copy + reward tuning pass (marketing hooks).**
+**Recommended next slice:** **M10.5 — Tier 2 event tile activation scope (plan-only).**
 
 ## P2.7 Scope Notes (Bias Sanctuary visual story mode)
 ### Story structure & content
@@ -827,6 +828,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Added a Court of Capital corner tile reward briefing with two strategy options and mobile-first copy.
 - Wired the corner tile to reuse the event choice modal and reward handler so ring multipliers and telemetry stay consistent.
 - Updated the repo map and next slice pointer to reflect the new corner tile activation.
+
+## M10.4 Slice Notes (Event tile copy + reward tuning pass)
+- Refreshed Tier 1 event tile copy with sharper marketing hooks so each choice reads like a headline moment.
+- Tuned Tier 1 reward ranges for a slightly stronger mid-game pulse while keeping reward types unchanged.
+- Updated Court of Capital copy + reward previews to align with the refreshed headline tone.
 
 ## Fall Portals + Chance Lift Slice Notes
 - Added Ring 2 fall portal safety-net rewards so some drops grant a bonus roll, stars, or coins before returning to Street Level.
