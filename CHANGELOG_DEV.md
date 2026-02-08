@@ -5,6 +5,27 @@
 
 ## Unreleased
 
+- Refreshed Tier 1 event tile marketing copy and tuned reward ranges.
+
+**Date:** 2026-02-24  
+**Slice:** M10.4 Event tile copy + reward tuning pass (marketing hooks)  
+**Summary:**  
+- Refined Tier 1 event tile copy to read like market headlines and stronger hooks.  
+- Tuned Tier 1 event reward ranges upward for a more satisfying mid-game pulse.  
+- Updated Court of Capital messaging + reward previews to match the new tone.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/lib/eventTiles.ts  
+- apps/investing-board-game-v3/src/lib/courtOfCapital.ts  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Land on Tier 1 event tiles and Court of Capital to verify updated copy and reward ranges appear in the choice modal.  
+
 - Added scratchcard event ticket banners for promo boosts.
 
 **Date:** 2026-02-24  
