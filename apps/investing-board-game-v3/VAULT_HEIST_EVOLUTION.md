@@ -14,9 +14,9 @@ Vault Heist is a weekly timed mini-game with a simple “pick a hatch” loop. T
 - **Hub card**: `src/components/games/placeholders/VaultHeist.tsx`
 
 ## Status Snapshot (2026-02-23)
-- **Code status:** Vault Heist UI is live with 5 hatches, weighted prizes, a 3-pick cap, pick gating, explicit resolution state messaging, crew/gear modifiers, and the alarm decision overlay.
-- **Known issues:** End-of-heist summary view still missing.
-- **Next slice focus:** End-of-heist summary (P3.3).
+- **Code status:** Vault Heist UI is live with 5 hatches, weighted prizes, a 3-pick cap, pick gating, explicit resolution state messaging, crew/gear modifiers, the alarm decision overlay, and an end-of-heist summary.
+- **Known issues:** Heist resolution logic still lives inside the modal (no helper engine).
+- **Next slice focus:** Mini heist engine helper (P4.1).
 
 ---
 
@@ -29,8 +29,8 @@ Vault Heist is a weekly timed mini-game with a simple “pick a hatch” loop. T
 5. If a decision is made (odds, costs, rewards), document it here to keep the plan “alive.”
 
 **Progress log (live, always update):**
-- **Done (latest):** Implemented P3.2 ring visual identity.
-- **Next step:** Implement P3.3 end-of-heist summary.
+- **Done (latest):** Implemented P3.3 end-of-heist summary.
+- **Next step:** Draft P4.1 lightweight heist engine helper for deterministic pick resolution.
 
 ---
 
@@ -189,6 +189,25 @@ Vault Heist is a weekly timed mini-game with a simple “pick a hatch” loop. T
 1. Display a clean summary with all prizes + multipliers.
 2. Add a CTA to “Play again next Saturday.”
 
+**Done when:** the end-of-heist view lists each prize with multiplier context and a replay CTA. ✅
+
+**Decisions:**
+- Summary cards list each prize with stage/crew/gear/ring multiplier context plus a total multiplier line.
+- Added a replay CTA line to reinforce the Saturday schedule.
+
+---
+
+## Phase 4 — Engine Prep (P4)
+**Goal:** prep a minimal helper layer without a rewrite.
+
+### P4.1 — Mini heist engine helper
+**Objective:** extract deterministic pick resolution into a lightweight helper.
+
+**Steps:**
+1. Create `vaultHeistEngine.ts` to encapsulate prize selection + multiplier math.
+2. Return a single payload for the UI (prize, multipliers, alarm flag).
+3. Add unit-style tests for deterministic output with seeded RNG.
+
 ---
 
 # “Alive Plan” Update Checklist (do after every implementation)
@@ -201,5 +220,5 @@ When you ship any slice, update this section immediately:
 ---
 
 # Progress log (rolling)
-- **Done (latest):** Implemented P3.2 ring visual identity.
-- **Next step:** Implement P3.3 end-of-heist summary.
+- **Done (latest):** Implemented P3.3 end-of-heist summary.
+- **Next step:** Draft P4.1 lightweight heist engine helper for deterministic pick resolution.
