@@ -322,7 +322,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P3.18 — High Roller Dice streak recap + session stats.**
+**Recommended next slice:** **P3.19 — High Roller Dice session reset + buy-in selector.**
 
 ## P2.7 Scope Notes (Bias Sanctuary visual story mode)
 ### Story structure & content
@@ -935,3 +935,8 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Verified portal rules in `movementEngine` and `App.tsx` match the master plan: Ring 1 ascends only on exact landings, and Ring 2/3 start tiles remain stable anchors on both pass and land.
 - Confirmed portal behavior is driven by `PORTAL_CONFIG` with optional overrides for event-driven exceptions (e.g., Bull Market window), keeping transitions deterministic and configurable.
 - Documented the ring/portal flow so future portal adjustments can stay repo-first and avoid movement engine rewrites.
+
+## P3.18 Slice Notes (High Roller Dice streak recap + session stats)
+- Added session stats for High Roller Dice to track rolls, win rate, total payout, and best streak during a casino visit.
+- Added a streak recap line when a streak ends so players can see the length and payout of their latest run.
+- Updated the next slice pointer to focus on a follow-up session reset + buy-in selector pass.

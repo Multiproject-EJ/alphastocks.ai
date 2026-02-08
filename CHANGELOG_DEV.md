@@ -2820,3 +2820,21 @@
 
 **How to test:**  
 - (manual) Land on the Casino tile, confirm the lobby view appears with Scratchcard Vault + High Roller Dice cards, then enter Scratchcards and verify the existing ticket flow still works.  
+
+**Date:** 2026-02-10  
+**Slice:** P3.18 High Roller Dice streak recap + session stats  
+**Summary:**  
+- Added session stat tracking for High Roller Dice including rolls, wins, win rate, total payout, and best streak.  
+- Added a streak recap line when a streak ends to summarize the latest run’s wins and payout.  
+- Logged the slice completion and updated the next slice pointer in the master plan.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/components/HighRollerDiceGame.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Open the Casino → High Roller Dice table, roll a few wins and a loss, and confirm session stats + streak recap update.  
