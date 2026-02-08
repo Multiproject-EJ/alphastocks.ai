@@ -128,6 +128,7 @@ _Last reviewed: 2026-02-24 (Court of Capital activation)_
 - **Economy config seed:** `/config/economy.json` (energy + vault regen defaults) + `apps/investing-board-game-v3/src/lib/economyConfig.ts` (normalization + exports)
 - **Ring config seed:** `/config/rings.json` (ring rewards + portal defaults) + `apps/investing-board-game-v3/src/config/rings.ts` (normalization + exports)
 - **Event tile config seed:** `/config/event_tiles.json` (Tier 1 + Market Event rewards) + `apps/investing-board-game-v3/src/config/eventTiles.ts` (normalization + exports)
+- **Casino lobby config seed:** `/config/casino.json` (Casino lobby + game cards) + `apps/investing-board-game-v3/src/config/casino.ts` (normalization + exports)
 
 #### ProTools (read-only)
 - **Integration docs:** `apps/investing-board-game-v3/PRO_TOOLS_INTEGRATION.md`
@@ -280,7 +281,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P3.11** ✅ Scratchcard 2.0 ticket value chips
 - **P3.12** ✅ Scratchcard 2.0 event ticket banners
 - **P3.13** ✅ Scratchcard 2.0 in-ticket event banner (ticket view CTA)
-- **P3.14** Casino lobby entry + High Roller Dice teaser card (config-first stub)
+- **P3.14** ✅ Casino lobby entry + High Roller Dice teaser card (config-first stub)
 
 ### P4 — Seasonal & Holiday Events
 - **P4.1** ✅ Holiday event schedule fixtures
@@ -317,7 +318,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P3.14 — Casino lobby entry + High Roller Dice teaser card (config-first stub).**
+**Recommended next slice:** **M7.1 — Audit board renderer + tile overlays.**
 
 ## P2.7 Scope Notes (Bias Sanctuary visual story mode)
 ### Story structure & content
@@ -717,6 +718,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Added an in-ticket event bonus banner on the scratchcard surface with a direct CTA to view boosted odds.
 - Mirrored event boost copy in the ticket view so players see the promo context while scratching.
 - Marked the scratchcard event CTA work complete and queued the casino lobby teaser card as the next slice.
+
+## P3.14 Slice Notes (Casino lobby entry + High Roller Dice teaser card)
+- Added a config-first Casino lobby entry with game cards so players land on a selection screen before scratchcards.
+- Introduced a High Roller Dice teaser card with a coming-soon CTA alongside the live Scratchcard Vault entry.
+- Seeded a casino lobby config file so future game cards can be tuned without touching component logic.
 
 ## P3 Slice Notes (IPO Frenzy timed mini-game surface)
 - Built a mobile-first IPO Frenzy timed-event surface with allocation playbooks, pop signals, and roadshow framing for IPO launches.

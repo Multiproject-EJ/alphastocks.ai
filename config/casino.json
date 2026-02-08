@@ -1,0 +1,26 @@
+{
+  "lobby": {
+    "title": "Casino Floor",
+    "description": "Pick a table and chase a lucky streak. New games rotate in with special events.",
+    "games": [
+      {
+        "id": "scratchcard",
+        "name": "Scratchcard Vault",
+        "description": "Instant reveal tickets with boosted odds during Casino Happy Hour.",
+        "status": "live",
+        "cta": "Play scratchcards",
+        "tag": "Signature",
+        "icon": "🎟️"
+      },
+      {
+        "id": "high-roller-dice",
+        "name": "High Roller Dice",
+        "description": "Double-down dice throws with streak multipliers and VIP tables.",
+        "status": "teaser",
+        "cta": "Coming soon",
+        "tag": "High Stakes",
+        "icon": "🎲"
+      }
+    ]
+  }
+}

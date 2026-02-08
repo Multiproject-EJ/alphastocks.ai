@@ -2710,3 +2710,23 @@
 **How to test:**  
 - (manual) Open the mobile Shop → Property Vault, tap Unlock with insufficient cash, and confirm the error toast appears.  
 - (manual) Tap Unlock with sufficient cash and confirm the item shows Owned and cash decreases.  
+
+**Date:** 2026-02-09  
+**Slice:** P3.14 Casino lobby entry + High Roller Dice teaser card  
+**Summary:**  
+- Added a config-driven Casino lobby entry that surfaces game cards before scratchcard play.  
+- Introduced a High Roller Dice teaser card with a coming-soon CTA next to the live Scratchcard Vault.  
+- Seeded casino lobby config data so future game cards can be tuned outside component logic.  
+
+**Files changed:**  
+- config/casino.json  
+- apps/investing-board-game-v3/src/config/casino.ts  
+- apps/investing-board-game-v3/src/components/CasinoModal.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Land on the Casino tile, confirm the lobby view appears with Scratchcard Vault + High Roller Dice cards, then enter Scratchcards and verify the existing ticket flow still works.  
