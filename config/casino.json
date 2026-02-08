@@ -26,31 +26,31 @@
   "dice": {
     "title": "High Roller Dice",
     "description": "Pick your risk tier, roll two dice, and stack a streak multiplier.",
-    "streakCap": 3,
+    "streakCap": 4,
     "options": [
       {
         "id": "blue-chip",
         "label": "Blue Chip 7+",
         "description": "Steady table with a softer win target.",
         "target": 7,
-        "payout": 2500,
-        "streakBonus": 0.1
+        "payout": 3000,
+        "streakBonus": 0.12
       },
       {
         "id": "bull-run",
         "label": "Bull Run 9+",
         "description": "Mid-risk table with sharper upside.",
         "target": 9,
-        "payout": 5000,
-        "streakBonus": 0.15
+        "payout": 6500,
+        "streakBonus": 0.18
       },
       {
         "id": "moonshot",
         "label": "Moonshot 11+",
         "description": "High stakes table for fearless rollers.",
         "target": 11,
-        "payout": 9000,
-        "streakBonus": 0.25
+        "payout": 12000,
+        "streakBonus": 0.3
       }
     ]
   }

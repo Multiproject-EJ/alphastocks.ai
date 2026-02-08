@@ -5,6 +5,28 @@
 
 ## Unreleased
 
+- Tuned High Roller Dice payouts and polished roll feedback.
+
+**Date:** 2026-02-25  
+**Slice:** P3.16 High Roller Dice reward tuning + audio/FX polish  
+**Summary:**  
+- Tuned High Roller Dice payout/streak pacing with a higher streak cap and sharper table rewards.  
+- Added dice roll audio + haptics for roll, land, win, and miss outcomes.  
+- Polished the roll outcome panel with rolling-state feedback and win glow styling.  
+
+**Files changed:**  
+- config/casino.json  
+- apps/investing-board-game-v3/src/components/HighRollerDiceGame.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Open the Casino lobby, play High Roller Dice, and confirm new payouts + streak cap appear.  
+- (manual) Roll the dice and verify roll/land/win/miss audio + haptic feedback fire appropriately.  
+
 - Shipped the High Roller Dice playable demo with Happy Hour guarantees.
 
 **Date:** 2026-02-25  

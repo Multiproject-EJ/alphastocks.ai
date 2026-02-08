@@ -1,5 +1,8 @@
 import { Button } from '@/components/ui/button'
 import { casinoConfig, type CasinoDiceOption } from '@/config/casino'
+import { useHaptics } from '@/hooks/useHaptics'
+import { useSound } from '@/hooks/useSound'
+import { getRewardSound } from '@/lib/sounds'
 import { useMemo, useState } from 'react'
 
 interface HighRollerDiceGameProps {
@@ -38,6 +41,8 @@ export function HighRollerDiceGame({
   guaranteedWin,
 }: HighRollerDiceGameProps) {
   const diceConfig = casinoConfig.dice
+  const { play: playSound } = useSound()
+  const { roll: hapticRoll, success: hapticSuccess, warning: hapticWarning } = useHaptics()
   const [selectedOptionId, setSelectedOptionId] = useState(diceConfig.options[0]?.id ?? '')
   const [isRolling, setIsRolling] = useState(false)
   const [streak, setStreak] = useState(0)
@@ -56,6 +61,8 @@ export function HighRollerDiceGame({
     if (isRolling) {
       return
     }
+    playSound('dice-roll')
+    hapticRoll()
     setIsRolling(true)
 
     const shouldGuaranteeWin = Boolean(guaranteedWin)
@@ -93,15 +100,23 @@ export function HighRollerDiceGame({
       setIsRolling(false)
       setLastOutcome(outcome)
       setStreak(nextStreak)
+      playSound('dice-land')
       if (isWin && payout > 0) {
+        playSound(getRewardSound('cash', payout))
+        hapticSuccess()
         onWin?.(payout)
+      } else if (!isWin) {
+        playSound('swipe-no')
+        hapticWarning()
       }
     }, 450)
   }
 
   const streakMultiplier = getStreakMultiplier(selectedOption, Math.max(1, streak || 1))
+  const maxStreakMultiplier = getStreakMultiplier(selectedOption, diceConfig.streakCap)
   const payoutLabel = `${selectedOption.payout.toLocaleString()} cash`
   const boostedPayoutLabel = `${Math.round(selectedOption.payout * streakMultiplier).toLocaleString()} cash`
+  const maxPayoutLabel = `${Math.round(selectedOption.payout * maxStreakMultiplier).toLocaleString()} cash`
 
   return (
     <div className="rounded-xl border border-purple-500/40 bg-purple-950/50 p-4 text-purple-100/80">
@@ -161,45 +176,64 @@ export function HighRollerDiceGame({
           </span>
         </div>
         <p className="mt-2 text-[11px] text-purple-100/60">
-          Win to grow your streak. Each streak step boosts payout until the streak cap.
+          Win to grow your streak. Max streak payout hits {maxPayoutLabel}.
         </p>
       </div>
 
-      {lastOutcome && (
-        <div className="mt-4 rounded-lg border border-purple-400/30 bg-purple-900/30 p-3 text-sm">
+      {(lastOutcome || isRolling) && (
+        <div
+          className={`mt-4 rounded-lg border p-3 text-sm ${
+            lastOutcome?.isWin
+              ? 'border-emerald-400/40 bg-emerald-500/10 shadow-[0_0_18px_rgba(16,185,129,0.35)]'
+              : 'border-purple-400/30 bg-purple-900/30'
+          } ${isRolling ? 'animate-pulse' : ''}`}
+        >
           <div className="flex items-center justify-between gap-2">
             <span className="text-xs uppercase tracking-wide text-purple-100/60">Last roll</span>
             <span
               className={`rounded-full px-2 py-0.5 text-[10px] uppercase tracking-wide ${
-                lastOutcome.isWin ? 'bg-emerald-400/20 text-emerald-100/80' : 'bg-slate-700/40 text-slate-200/80'
+                lastOutcome?.isWin
+                  ? 'bg-emerald-400/20 text-emerald-100/80'
+                  : 'bg-slate-700/40 text-slate-200/80'
               }`}
             >
-              {lastOutcome.isWin ? 'Win' : 'Miss'}
+              {isRolling ? 'Rolling' : lastOutcome?.isWin ? 'Win' : 'Miss'}
             </span>
           </div>
-          <div className="mt-2 flex items-center gap-3 text-lg font-semibold text-white">
-            <span className="rounded-md border border-purple-400/30 bg-purple-950/60 px-3 py-1">
-              🎲 {lastOutcome.dice[0]}
-            </span>
-            <span className="rounded-md border border-purple-400/30 bg-purple-950/60 px-3 py-1">
-              🎲 {lastOutcome.dice[1]}
-            </span>
-            <span className="text-purple-100/80">Total {lastOutcome.total}</span>
-          </div>
-          {lastOutcome.isWin && (
-            <p className="mt-2 text-sm text-emerald-100/80">
-              +{lastOutcome.payout.toLocaleString()} cash awarded · x{lastOutcome.multiplier.toFixed(2)} streak boost.
-            </p>
-          )}
-          {!lastOutcome.isWin && (
-            <p className="mt-2 text-sm text-purple-100/70">
-              Tight roll. Streak reset — pick a new table and try again.
-            </p>
-          )}
-          {lastOutcome.isWin && lastOutcome.reason !== 'roll' && (
-            <p className="mt-1 text-[11px] text-emerald-200/80">
-              {lastOutcome.reason === 'guaranteed' ? 'Happy Hour locked the win.' : 'Casino Luck saved the roll.'}
-            </p>
+          {isRolling ? (
+            <p className="mt-2 text-sm text-purple-100/70">Dice are in the air…</p>
+          ) : (
+            lastOutcome && (
+              <>
+                <div className="mt-2 flex items-center gap-3 text-lg font-semibold text-white">
+                  <span className="rounded-md border border-purple-400/30 bg-purple-950/60 px-3 py-1">
+                    🎲 {lastOutcome.dice[0]}
+                  </span>
+                  <span className="rounded-md border border-purple-400/30 bg-purple-950/60 px-3 py-1">
+                    🎲 {lastOutcome.dice[1]}
+                  </span>
+                  <span className="text-purple-100/80">Total {lastOutcome.total}</span>
+                </div>
+                {lastOutcome.isWin && (
+                  <p className="mt-2 text-sm text-emerald-100/80">
+                    +{lastOutcome.payout.toLocaleString()} cash awarded · x{lastOutcome.multiplier.toFixed(2)} streak
+                    boost.
+                  </p>
+                )}
+                {!lastOutcome.isWin && (
+                  <p className="mt-2 text-sm text-purple-100/70">
+                    Tight roll. Streak reset — pick a new table and try again.
+                  </p>
+                )}
+                {lastOutcome.isWin && lastOutcome.reason !== 'roll' && (
+                  <p className="mt-1 text-[11px] text-emerald-200/80">
+                    {lastOutcome.reason === 'guaranteed'
+                      ? 'Happy Hour locked the win.'
+                      : 'Casino Luck saved the roll.'}
+                  </p>
+                )}
+              </>
+            )
           )}
         </div>
       )}
