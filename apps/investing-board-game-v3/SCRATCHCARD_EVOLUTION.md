@@ -22,8 +22,8 @@ The current scratchcard is a clean, simple win/lose minigame. This guide expands
 5. After each completed step, immediately write the next step.
 
 **Progress log (live, always update):**
-- **Done (latest):** Added event-aware ticket banners with limited-time labels and boosted-odds callouts to spotlight promo scratchcards.
-- **Next step:** Mirror the event banner treatment inside the scratchcard play header so the active ticket callout stays visible during play.
+- **Done (latest):** Mirrored the event banner treatment inside the scratchcard play header so active ticket callouts stay visible during play.
+- **Next step:** Add a compact tier summary row in the play header (grid size, win chance, top prize) to keep ticket context without opening odds.
 
 ## Next Slice (P0 Foundation)
 1. Create `scratchcardTiers` config with tier costs, odds, and prize pools.

@@ -130,9 +130,24 @@ export function ScratchcardGame({
   const cardClasses = isEventActive
     ? 'w-full max-w-full bg-gradient-to-br from-emerald-950/40 via-purple-950/30 to-emerald-900/30 border-2 border-emerald-400/50 shadow-[0_0_30px_rgba(16,185,129,0.25)]'
     : 'w-full max-w-full bg-gradient-to-br from-purple-900/20 to-pink-900/20 border-2 border-purple-500/50 shadow-2xl'
-  const headerBadgeClasses = isEventActive
-    ? 'border-emerald-300/40 bg-emerald-500/20 text-emerald-100'
-    : 'border-purple-300/40 bg-purple-500/20 text-purple-100'
+  const eventBannerClasses = isEventActive
+    ? 'border-emerald-300/40 bg-emerald-500/15 text-emerald-50'
+    : 'border-purple-400/40 bg-purple-900/40 text-purple-50'
+  const eventBoostSummary = eventOverride?.oddsBoost
+    ? [
+        eventOverride.oddsBoost.winChance
+          ? `+${(eventOverride.oddsBoost.winChance * 100).toFixed(0)}% win`
+          : null,
+        eventOverride.oddsBoost.jackpotChance
+          ? `+${(eventOverride.oddsBoost.jackpotChance * 100).toFixed(0)}% jackpot`
+          : null,
+        eventOverride.oddsBoost.multiplierChance
+          ? `+${(eventOverride.oddsBoost.multiplierChance * 100).toFixed(0)}% multiplier`
+          : null,
+      ]
+        .filter(Boolean)
+        .join(' · ')
+    : null
 
   useEffect(() => {
     const freshGrid = buildScratchcardGrid(tier, luckBoost, Math.random, guaranteedWin)
@@ -280,12 +295,22 @@ export function ScratchcardGame({
           Scratch to reveal! Win lines pay out multiple prizes.
         </p>
         {eventOverride && (
-          <div className="mt-3 flex items-center justify-center">
-            <span
-              className={`rounded-full border px-3 py-1 text-[11px] uppercase tracking-wide ${headerBadgeClasses}`}
-            >
-              Event Boost: {eventOverride.title}
-            </span>
+          <div className={`mt-3 rounded-xl border px-3 py-2 ${eventBannerClasses}`}>
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-xs uppercase tracking-wide text-emerald-100/80">Active Event</p>
+                <p className="text-sm font-semibold">{eventOverride.title}</p>
+                <p className="text-[11px] text-emerald-100/70">{eventOverride.description}</p>
+                {eventBoostSummary && (
+                  <p className="mt-1 text-[11px] text-emerald-100/70">
+                    Boosts: {eventBoostSummary}
+                  </p>
+                )}
+              </div>
+              <span className="rounded-full bg-emerald-400/20 px-2 py-0.5 text-[10px] uppercase tracking-wide text-emerald-100/80">
+                Event Boost
+              </span>
+            </div>
           </div>
         )}
         <p className="text-xs text-center text-muted-foreground mt-1">
