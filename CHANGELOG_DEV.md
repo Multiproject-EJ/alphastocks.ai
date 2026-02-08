@@ -5,6 +5,26 @@
 
 ## Unreleased
 
+- Added an in-ticket event bonus CTA to scratchcards.
+
+**Date:** 2026-02-25  
+**Slice:** P3.13 Scratchcard 2.0 in-ticket event banner (ticket view CTA)  
+**Summary:**  
+- Added an event bonus banner to the scratchcard ticket view with a CTA that surfaces boosted odds.  
+- Kept event boost messaging visible during scratching so promo context stays in-frame.  
+- Updated the dev plan to mark the scratchcard CTA slice complete and queue the casino lobby teaser card next.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/components/ScratchcardGame.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Open the Casino scratchcard during an active event and confirm the in-ticket event banner shows a CTA that opens the odds/EV panel.  
+
 - Seeded event tile config for Tier 1 and Market Event rewards.
 
 **Date:** 2026-02-24  
