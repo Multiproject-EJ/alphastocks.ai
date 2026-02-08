@@ -2,6 +2,13 @@ import { useState, useCallback, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { X } from 'lucide-react'
 import { getVaultHeistStage } from '../lib/vaultHeistStages'
+import {
+  VAULT_HEIST_CREWS,
+  VAULT_HEIST_GEAR,
+  applyVaultHeistModifiers,
+  getVaultHeistCrew,
+  getVaultHeistGear,
+} from '../lib/vaultHeistModifiers'
 
 interface VaultPrize {
   type: 'cash' | 'stars' | 'coins' | 'mystery' | 'alarm'
@@ -64,12 +71,22 @@ export function VaultHeistModal({
   const [isPickResolving, setIsPickResolving] = useState(false)
   const [resolutionState, setResolutionState] = useState<'idle' | 'cracking' | 'reveal' | 'resolved' | 'alarm'>('idle')
   const [lastResultLabel, setLastResultLabel] = useState('Choose a hatch to start the heist.')
+  const [selectedCrewId, setSelectedCrewId] = useState(VAULT_HEIST_CREWS[0].id)
+  const [selectedGearId, setSelectedGearId] = useState(VAULT_HEIST_GEAR[0].id)
 
   const maxPicks = 3
   const picksRemaining = maxPicks - picksUsed
   const currentStage = getVaultHeistStage(picksUsed)
   const ringMultiplier = currentRing === 3 ? 10 : currentRing === 2 ? 3 : 1
   const pickCost = freePicksRemaining > 0 ? 0 : 100
+  const selectedCrew = getVaultHeistCrew(selectedCrewId)
+  const selectedGear = getVaultHeistGear(selectedGearId)
+  const adjustedOdds = applyVaultHeistModifiers(
+    currentStage.alarmWeight,
+    currentStage.rewardMultiplier,
+    selectedCrew,
+    selectedGear,
+  )
 
   // Select random prize based on weights
   const selectPrize = useCallback((alarmWeight: number): VaultPrize => {
@@ -107,7 +124,10 @@ export function VaultHeistModal({
     if (!vault || vault.state !== 'locked') return
 
     const stage = getVaultHeistStage(picksUsed)
-    const rewardMultiplier = ringMultiplier * stage.rewardMultiplier
+    const crew = getVaultHeistCrew(selectedCrewId)
+    const gear = getVaultHeistGear(selectedGearId)
+    const odds = applyVaultHeistModifiers(stage.alarmWeight, stage.rewardMultiplier, crew, gear)
+    const rewardMultiplier = ringMultiplier * odds.rewardMultiplier
 
     setIsPickResolving(true)
     setResolutionState('cracking')
@@ -133,7 +153,7 @@ export function VaultHeistModal({
 
     // After crack animation, reveal prize
     setTimeout(() => {
-      const prize = selectPrize(stage.alarmWeight)
+      const prize = selectPrize(odds.alarmWeight)
       const isAlarm = prize.type === 'alarm'
       const resolvedPrize = isAlarm ? prize : applyStageMultiplier(prize, rewardMultiplier)
 
@@ -177,7 +197,21 @@ export function VaultHeistModal({
         setIsPickResolving(false)
       }, 350)
     }, 800) // Crack animation duration
-  }, [vaults, picksRemaining, isGameOver, isPickResolving, pickCost, onSpendCoins, selectPrize, ringMultiplier, playSound, picksUsed, applyStageMultiplier])
+  }, [
+    vaults,
+    picksRemaining,
+    isGameOver,
+    isPickResolving,
+    pickCost,
+    onSpendCoins,
+    selectPrize,
+    ringMultiplier,
+    playSound,
+    picksUsed,
+    applyStageMultiplier,
+    selectedCrewId,
+    selectedGearId,
+  ])
 
   // Handle game complete
   const handleComplete = useCallback(() => {
@@ -202,6 +236,8 @@ export function VaultHeistModal({
       setIsPickResolving(false)
       setResolutionState('idle')
       setLastResultLabel('Choose a hatch to start the heist.')
+      setSelectedCrewId(VAULT_HEIST_CREWS[0].id)
+      setSelectedGearId(VAULT_HEIST_GEAR[0].id)
     }
   }, [isOpen])
 
@@ -232,6 +268,58 @@ export function VaultHeistModal({
             🏦 VAULT HEIST 🏦
           </h2>
           <p className="text-amber-100 text-sm mt-1">Saturday Special!</p>
+        </div>
+
+        {/* Pre-heist selections */}
+        <div className="px-6 pt-6">
+          <div className="bg-slate-700/40 rounded-2xl p-4 mb-4">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-sm font-semibold text-amber-300">Crew &amp; Gear (optional)</h3>
+              {picksUsed > 0 && (
+                <span className="text-[11px] text-slate-300">Locked after first pick</span>
+              )}
+            </div>
+            <div className="mb-3">
+              <p className="text-[11px] text-slate-300 mb-2">Choose a crew</p>
+              <div className="flex flex-wrap gap-2">
+                {VAULT_HEIST_CREWS.map(crew => (
+                  <button
+                    key={crew.id}
+                    onClick={() => setSelectedCrewId(crew.id)}
+                    disabled={picksUsed > 0 || isPickResolving}
+                    className={`px-3 py-1 rounded-full text-[11px] border transition ${
+                      crew.id === selectedCrewId
+                        ? 'bg-amber-500/20 border-amber-400 text-amber-200'
+                        : 'border-slate-600 text-slate-300 hover:border-amber-400'
+                    } ${picksUsed > 0 || isPickResolving ? 'opacity-60 cursor-not-allowed' : ''}`}
+                    title={crew.description}
+                  >
+                    {crew.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <p className="text-[11px] text-slate-300 mb-2">Choose gear</p>
+              <div className="flex flex-wrap gap-2">
+                {VAULT_HEIST_GEAR.map(gear => (
+                  <button
+                    key={gear.id}
+                    onClick={() => setSelectedGearId(gear.id)}
+                    disabled={picksUsed > 0 || isPickResolving}
+                    className={`px-3 py-1 rounded-full text-[11px] border transition ${
+                      gear.id === selectedGearId
+                        ? 'bg-purple-500/20 border-purple-400 text-purple-200'
+                        : 'border-slate-600 text-slate-300 hover:border-purple-400'
+                    } ${picksUsed > 0 || isPickResolving ? 'opacity-60 cursor-not-allowed' : ''}`}
+                    title={gear.description}
+                  >
+                    {gear.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Vaults Grid */}
@@ -311,6 +399,9 @@ export function VaultHeistModal({
           </div>
           <div className="text-center text-xs text-slate-200 mb-2">
             Stage {currentStage.id}: {currentStage.name} · Alarm: {currentStage.alarmRiskLabel} · Bonus: {currentStage.rewardMultiplier}×
+          </div>
+          <div className="text-center text-[11px] text-slate-300 mb-2">
+            Crew: {selectedCrew.name} · Gear: {selectedGear.name} · Alarm weight {adjustedOdds.alarmWeight} · Bonus {adjustedOdds.rewardMultiplier.toFixed(2)}×
           </div>
           <div className="text-center text-xs text-amber-200 mb-4">
             {resolutionState === 'cracking'

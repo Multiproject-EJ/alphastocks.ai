@@ -14,9 +14,9 @@ Vault Heist is a weekly timed mini-game with a simple “pick a hatch” loop. T
 - **Hub card**: `src/components/games/placeholders/VaultHeist.tsx`
 
 ## Status Snapshot (2026-02-23)
-- **Code status:** Vault Heist UI is live with 5 hatches, weighted prizes, a 3-pick cap, pick gating, and explicit resolution state messaging.
-- **Known issues:** Strategy layer still lacks crew/gear modifiers and alarm decision flow.
-- **Next slice focus:** Add crew + gear modifiers (P1.2).
+- **Code status:** Vault Heist UI is live with 5 hatches, weighted prizes, a 3-pick cap, pick gating, explicit resolution state messaging, and crew/gear modifiers.
+- **Known issues:** Strategy layer still lacks the alarm decision flow.
+- **Next slice focus:** Add the alarm decision overlay (P2.1).
 
 ---
 
@@ -29,8 +29,8 @@ Vault Heist is a weekly timed mini-game with a simple “pick a hatch” loop. T
 5. If a decision is made (odds, costs, rewards), document it here to keep the plan “alive.”
 
 **Progress log (live, always update):**
-- **Done (latest):** Implemented P1.1 stage-based odds config + HUD stage readout.
-- **Next step:** Implement P1.2 crew + gear modifiers.
+- **Done (latest):** Implemented P1.2 crew + gear modifiers.
+- **Next step:** Implement P2.1 alarm decision overlay.
 
 ---
 
@@ -131,7 +131,12 @@ Vault Heist is a weekly timed mini-game with a simple “pick a hatch” loop. T
 2. Apply modifier deltas to odds at pick time.
 3. Surface the modifiers in the HUD.
 
-**Done when:** modifiers affect odds in a visible, deterministic way.
+**Done when:** modifiers affect odds in a visible, deterministic way. ✅
+
+**Decisions:**
+- Added crew + gear config lists with alarm weight deltas and reward multiplier deltas.
+- Pre-heist selections lock after the first pick to keep the session deterministic.
+- Adjusted alarm weight clamps to a minimum of 1 and reward multipliers to a minimum of 0.5.
 
 ---
 
@@ -182,5 +187,5 @@ When you ship any slice, update this section immediately:
 ---
 
 # Progress log (rolling)
-- **Done (latest):** Implemented P1.1 stage-based odds config + HUD stage readout.
-- **Next step:** Implement P1.2 crew + gear modifiers.
+- **Done (latest):** Implemented P1.2 crew + gear modifiers.
+- **Next step:** Implement P2.1 alarm decision overlay.
