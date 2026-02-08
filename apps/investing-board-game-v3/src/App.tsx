@@ -263,6 +263,7 @@ import { isJackpotWeek } from '@/lib/events'
 import { applyRingMultiplier, getMultiplierDisplay } from '@/lib/rewardMultiplier'
 import { getLearningTileDefinition } from '@/lib/learningTiles'
 import { getStockCategoryDefinition } from '@/lib/stockCategories'
+import { getTileLabelConfig } from '@/lib/tileLabels'
 import { getLearningQuestionCount } from '@/lib/learningQuestionBank'
 import { getLearningRewardSummary } from '@/lib/learningRewards'
 import { getDailyStreakUpdate } from '@/lib/streaks'
@@ -920,86 +921,14 @@ function App() {
     []
   )
 
-  const getTileLabelConfig = useCallback(
-    (tile: TileType, ring: RingNumber) => {
-      if (tile.type === 'quick-reward') return undefined
+  const tileLabelContext = useMemo(
+    () => ({ rouletteModeActive, compactCurrencyFormatter }),
+    [rouletteModeActive, compactCurrencyFormatter]
+  )
 
-      if (rouletteModeActive) {
-        const reward = ROULETTE_REWARDS[(tile.id + ring * 2) % ROULETTE_REWARDS.length]
-        return {
-          label: reward.type === 'mystery' ? 'Mystery Box' : reward.label,
-          tone: 'premium',
-          icon: reward.icon,
-          sublabel: 'Roulette',
-        }
-      }
-
-      if (tile.specialAction === 'ring-fall') {
-        return {
-          label: 'Drop',
-          tone: 'warning',
-          icon: '⬇️',
-          sublabel: 'Fall',
-        }
-      }
-
-      if (tile.specialAction === 'chance') {
-        return {
-          label: 'Chance',
-          tone: 'accent',
-          icon: '🎴',
-        }
-      }
-
-      if (ring === 3 && tile.ring3Reward && tile.isWinTile) {
-        return {
-          label: `$${compactCurrencyFormatter.format(tile.ring3Reward)}`,
-          tone: 'premium',
-          icon: '👑',
-          sublabel: 'Win',
-        }
-      }
-
-      if (tile.type === 'learning') {
-        return {
-          label: 'Quiz',
-          tone: 'success',
-          icon: '📚',
-        }
-      }
-
-      if (tile.type === 'event') {
-        return {
-          label: 'Event',
-          tone: 'warning',
-          icon: '⚡',
-        }
-      }
-
-      if (tile.type === 'category') {
-        const ringBoost = ring === 3 ? 'x10' : ring === 2 ? 'x3' : undefined
-        const categoryDefinition = tile.category ? getStockCategoryDefinition(tile.category) : undefined
-
-        if (categoryDefinition?.tier === 'expansion') {
-          return {
-            label: 'Expansion',
-            tone: 'premium',
-            icon: '✨',
-            sublabel: ringBoost ? `Bonus ${ringBoost}` : 'Bonus',
-          }
-        }
-
-        return {
-          label: 'Stock',
-          tone: ring === 3 ? 'premium' : 'accent',
-          icon: '📈',
-          sublabel: ringBoost,
-        }
-      }
-
-      return undefined
-    },
-    [compactCurrencyFormatter, rouletteModeActive]
+  const getTileLabelConfigForTile = useCallback(
+    (tile: TileType, ring: RingNumber) => getTileLabelConfig(tile, ring, tileLabelContext),
+    [tileLabelContext]
   )
 
   // Coins and Thrift Path hooks
@@ -5209,7 +5138,7 @@ function App() {
                           isLanded={tile.id === gameState.position && phase === 'landed'}
                           hasOwnership={tile.category ? ownedCategories.has(tile.category) : false}
                           ringNumber={1}
-                          tileLabel={getTileLabelConfig(tile, 1)}
+                          tileLabel={getTileLabelConfigForTile(tile, 1)}
                           isTeleporting={isTeleportingTile(tile.id)}
                           isPortal={tile.id === ring1PortalTileId}
                           onClick={() => {
@@ -5314,7 +5243,7 @@ function App() {
                               isHopping={hoppingTiles.includes(tile.id)}
                               isLanded={false}
                               ringNumber={2}
-                              tileLabel={getTileLabelConfig(tile, 2)}
+                              tileLabel={getTileLabelConfigForTile(tile, 2)}
                               isTeleporting={isTeleportingTile(tile.id)}
                               isPortal={tile.specialAction === 'ring-fall'}
                               onClick={() => {
@@ -5364,7 +5293,7 @@ function App() {
                               isHopping={hoppingTiles.includes(tile.id)}
                               isLanded={false}
                               ringNumber={3}
-                              tileLabel={getTileLabelConfig(tile, 3)}
+                              tileLabel={getTileLabelConfigForTile(tile, 3)}
                               isRing3Revealed={ring3Revealed}
                               isRing3Revealing={ring3Revealing}
                               isTeleporting={isTeleportingTile(tile.id)}

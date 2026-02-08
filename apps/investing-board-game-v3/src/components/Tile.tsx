@@ -8,15 +8,9 @@ import { QuickRewardTile } from './QuickRewardTile'
 import { QuickRewardType } from '@/lib/quickRewardTiles'
 import { TILE_WIDTH, TILE_HEIGHT } from '@/lib/constants'
 import { getLearningTileDefinition, LEARNING_CATEGORY_STYLES, LEARNING_GRAPHIC_TEMPLATES } from '@/lib/learningTiles'
-import { TileLabel, TileLabelTone } from '@/components/TileLabel'
+import { TileLabel } from '@/components/TileLabel'
+import type { TileLabelConfig } from '@/lib/tileLabels'
 import { getStockCategoryDefinition } from '@/lib/stockCategories'
-
-interface TileLabelConfig {
-  label: string
-  tone?: TileLabelTone
-  icon?: string
-  sublabel?: string
-}
 
 interface TileProps {
   tile: TileType

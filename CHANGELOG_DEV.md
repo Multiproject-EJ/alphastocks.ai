@@ -5,6 +5,28 @@
 
 ## Unreleased
 
+- Centralized tile label overlay logic for board tiles.
+
+**Date:** 2026-02-25  
+**Slice:** M7.1 Audit board renderer + tile overlays (label helper consolidation)  
+**Summary:**  
+- Moved tile label decision logic into a shared helper to keep board overlay rules centralized and easier to tune.  
+- Preserved existing roulette, ring reward, and category label behavior with the new helper.  
+- Updated the dev plan to point to the next casino slice.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/App.tsx  
+- apps/investing-board-game-v3/src/components/Tile.tsx  
+- apps/investing-board-game-v3/src/lib/tileLabels.ts  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Load the board and confirm tile labels still appear for stock, event, learning, and roulette tiles.  
+
 - Added an in-ticket event bonus CTA to scratchcards.
 
 **Date:** 2026-02-25  
