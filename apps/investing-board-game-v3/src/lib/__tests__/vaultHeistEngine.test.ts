@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { resolveVaultHeistPick, type VaultPrizeTableEntry } from '../vaultHeistEngine'
+import { resolveVaultHeistPick } from '../vaultHeistEngine'
+import type { VaultPrizeTableEntry } from '../vaultHeistRewards'
 
 describe('resolveVaultHeistPick', () => {
   it('returns deterministic results for the same seed', () => {
