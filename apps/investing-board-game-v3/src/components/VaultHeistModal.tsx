@@ -77,6 +77,7 @@ export function VaultHeistModal({
 
   const maxPicks = 3
   const picksRemaining = maxPicks - picksUsed
+  const heistProgress = Math.min(100, Math.round((picksUsed / maxPicks) * 100))
   const currentStage = getVaultHeistStage(picksUsed)
   const ringMultiplier = currentRing === 3 ? 10 : currentRing === 2 ? 3 : 1
   const pickCost = freePicksRemaining > 0 ? 0 : 100
@@ -352,6 +353,45 @@ export function VaultHeistModal({
           </div>
         </div>
 
+        {/* Heist HUD */}
+        <div className="px-6">
+          <div className="bg-slate-800/60 rounded-2xl p-4 mb-4 border border-slate-700/60">
+            <div className="flex flex-wrap items-center justify-between gap-3 text-[11px] text-slate-200">
+              <div className="flex items-center gap-2">
+                <div className="flex gap-1">
+                  {Array.from({ length: maxPicks }).map((_, i) => (
+                    <div
+                      key={i}
+                      className={`w-3 h-3 rounded-full ${
+                        i < picksRemaining ? 'bg-amber-400' : 'bg-slate-600'
+                      }`}
+                    />
+                  ))}
+                </div>
+                <span className="text-slate-300">{picksRemaining} picks left</span>
+              </div>
+              <div className="text-slate-300">
+                Stage {currentStage.id}: <span className="text-white">{currentStage.name}</span>
+              </div>
+              <div className="text-slate-300">
+                Alarm risk: <span className="text-amber-200">{currentStage.alarmRiskLabel}</span>
+              </div>
+            </div>
+            <div className="mt-3">
+              <div className="flex items-center justify-between text-[11px] text-slate-400 mb-1">
+                <span>Heist meter</span>
+                <span>{heistProgress}%</span>
+              </div>
+              <div className="h-2 w-full rounded-full bg-slate-700 overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-amber-400 via-orange-400 to-emerald-400 transition-all"
+                  style={{ width: `${heistProgress}%` }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Vaults Grid */}
         <div className="p-6">
           <div className="flex justify-center gap-3 mb-6">
@@ -413,25 +453,11 @@ export function VaultHeistModal({
             ))}
           </div>
 
-          {/* Picks indicator */}
-          <div className="flex justify-center gap-2 mb-4">
-            {Array.from({ length: maxPicks }).map((_, i) => (
-              <div
-                key={i}
-                className={`w-4 h-4 rounded-full ${
-                  i < picksRemaining ? 'bg-amber-400' : 'bg-slate-600'
-                }`}
-              />
-            ))}
-            <span className="text-slate-300 text-sm ml-2">
-              {picksRemaining} picks left
-            </span>
-          </div>
           <div className="text-center text-xs text-slate-200 mb-2">
-            Stage {currentStage.id}: {currentStage.name} · Alarm: {currentStage.alarmRiskLabel} · Bonus: {currentStage.rewardMultiplier}×
+            Stage bonus: {currentStage.rewardMultiplier}× · Alarm weight {adjustedOdds.alarmWeight}
           </div>
           <div className="text-center text-[11px] text-slate-300 mb-2">
-            Crew: {selectedCrew.name} · Gear: {selectedGear.name} · Alarm weight {adjustedOdds.alarmWeight} · Bonus {adjustedOdds.rewardMultiplier.toFixed(2)}×
+            Crew: {selectedCrew.name} · Gear: {selectedGear.name} · Bonus {adjustedOdds.rewardMultiplier.toFixed(2)}×
           </div>
           <div className="text-center text-xs text-amber-200 mb-4">
             {resolutionState === 'cracking'

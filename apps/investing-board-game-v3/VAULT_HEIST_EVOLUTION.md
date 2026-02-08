@@ -15,8 +15,8 @@ Vault Heist is a weekly timed mini-game with a simple “pick a hatch” loop. T
 
 ## Status Snapshot (2026-02-23)
 - **Code status:** Vault Heist UI is live with 5 hatches, weighted prizes, a 3-pick cap, pick gating, explicit resolution state messaging, crew/gear modifiers, and the alarm decision overlay.
-- **Known issues:** Heist HUD and meter remain to be added for clarity polish.
-- **Next slice focus:** Add the heist HUD + meter (P3.1).
+- **Known issues:** Ring tiers still share identical visuals; needs ring visual identity pass.
+- **Next slice focus:** Ring visual identity (P3.2).
 
 ---
 
@@ -29,8 +29,8 @@ Vault Heist is a weekly timed mini-game with a simple “pick a hatch” loop. T
 5. If a decision is made (odds, costs, rewards), document it here to keep the plan “alive.”
 
 **Progress log (live, always update):**
-- **Done (latest):** Implemented P2.1 alarm decision overlay.
-- **Next step:** Implement P3.1 heist HUD + meter.
+- **Done (latest):** Implemented P3.1 heist HUD + meter.
+- **Next step:** Implement P3.2 ring visual identity.
 
 ---
 
@@ -164,10 +164,16 @@ Vault Heist is a weekly timed mini-game with a simple “pick a hatch” loop. T
 ## Phase 3 — UX + Polish (P3)
 **Goal:** improve clarity and visual tension.
 
-### P3.1 — Heist HUD + meter
+### P3.1 — Heist HUD + meter ✅
 **Steps:**
 1. Add a compact HUD showing picks left, stage, and alarm risk.
 2. Add a “heist meter” progress bar.
+
+**Done when:** a compact HUD summarizes picks left, stage, and alarm risk, and a visible progress bar tracks heist completion. ✅
+
+**Decisions:**
+- Added a compact HUD card with picks left dots, stage name, and alarm risk label.
+- Heist meter shows percent completion based on picks used.
 
 ### P3.2 — Ring visual identity
 **Steps:**
@@ -191,5 +197,5 @@ When you ship any slice, update this section immediately:
 ---
 
 # Progress log (rolling)
-- **Done (latest):** Implemented P2.1 alarm decision overlay.
-- **Next step:** Implement P3.1 heist HUD + meter.
+- **Done (latest):** Implemented P3.1 heist HUD + meter.
+- **Next step:** Implement P3.2 ring visual identity.
