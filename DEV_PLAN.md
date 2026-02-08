@@ -237,13 +237,14 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **M10.4** ✅ Event tile copy + reward tuning pass (marketing hooks)
 - **M10.5** ✅ Tier 2 event tile activation scope (plan-only)
 - **M10.6** ✅ Tier 2 event tile activation (Market Event + Wildcard)
-- **M10.7** Tier 2 event tile polish (reward tuning + headline copy sweep)
+- **M10.7** ✅ Tier 2 event tile polish (reward tuning + headline copy sweep)
 
 ### C1 — Config Strategy (Data-driven tuning)
 - **C1.1** ✅ Economy config seed (energy + vault regen)
 - **C1.2** ✅ Shop vault config seed (seasons, discounts, and level curve)
 - **C1.3** ✅ Ring config seed (ring rewards + portals)
 - **C1.4** ✅ Learning config seed (learning tiles + streak rewards)
+- **C1.5** Event tile config seed (headlines + reward tuning)
 
 ### P1 — Mini-Games Hub
 - **P1.1** ✅ Wheel of Fortune playable demo in Games Hub
@@ -313,7 +314,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **M10.7 — Tier 2 event tile polish (reward tuning + headline copy sweep).**
+**Recommended next slice:** **C1.5 — Event tile config seed (headlines + reward tuning).**
 
 ## P2.7 Scope Notes (Bias Sanctuary visual story mode)
 ### Story structure & content
@@ -846,6 +847,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Routed Wildcard tiles into the existing ring-aware wildcard flow (including the Ring 2 Hidden Gem vs Fraud split).
 - Replaced the Market Event headline modal with a choice-based macro pulse that offers risk-on, safe-harbor, and XP momentum options.
 - Kept Market Event currency earn + Market Shield protection intact while upgrading the player-facing choice UI.
+
+## M10.7 Slice Notes (Tier 2 event tile polish)
+- Tuned Market Event reward ranges so the Tier 2 choice options feel like a meaningful mid-game pulse.
+- Refreshed Market Event headline strings to read like sharper market tape alerts.
+- Updated Market Event option callouts to match the new reward tuning.
 
 ## Fall Portals + Chance Lift Slice Notes
 - Added Ring 2 fall portal safety-net rewards so some drops grant a bonus roll, stars, or coins before returning to Street Level.

@@ -641,11 +641,11 @@ export const MOCK_STOCKS: Record<string, Stock[]> = {
 }
 
 export const MARKET_EVENTS = [
-  'Federal Reserve cuts interest rates by 0.5% - Market surges!',
-  'Unexpected inflation report shakes investor confidence.',
-  'Tech earnings season exceeds expectations across the board.',
-  'Geopolitical tensions cause market volatility spike.',
-  'Major index hits all-time high on economic optimism.',
+  'Fed surprise rate cut sparks a risk-on stampede.',
+  'Inflation print rattles desks as futures whip around.',
+  'Big Tech earnings blowout lifts the tape higher.',
+  'Geopolitical flare-up sends volatility across sectors.',
+  'Blue-chip index prints a fresh all-time high on optimism.',
 ]
 
 export const THRIFTY_CHALLENGES: ThriftyChallenge[] = [
