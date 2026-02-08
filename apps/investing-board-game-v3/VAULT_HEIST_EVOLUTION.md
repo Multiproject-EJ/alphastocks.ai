@@ -15,8 +15,8 @@ Vault Heist is a weekly timed mini-game with a simple “pick a hatch” loop. T
 
 ## Status Snapshot (2026-02-23)
 - **Code status:** Vault Heist UI is live with 5 hatches, weighted prizes, a 3-pick cap, pick gating, and explicit resolution state messaging.
-- **Known issues:** Strategy layer and odds are still hardcoded in the modal.
-- **Next slice focus:** Configure stage-based odds + multipliers (P1.1).
+- **Known issues:** Strategy layer still lacks crew/gear modifiers and alarm decision flow.
+- **Next slice focus:** Add crew + gear modifiers (P1.2).
 
 ---
 
@@ -29,8 +29,8 @@ Vault Heist is a weekly timed mini-game with a simple “pick a hatch” loop. T
 5. If a decision is made (odds, costs, rewards), document it here to keep the plan “alive.”
 
 **Progress log (live, always update):**
-- **Done (latest):** Implemented P0.2 explicit resolution states + HUD status line.
-- **Next step:** Implement P1.1 stage-based odds config.
+- **Done (latest):** Implemented P1.1 stage-based odds config + HUD stage readout.
+- **Next step:** Implement P1.2 crew + gear modifiers.
 
 ---
 
@@ -116,7 +116,12 @@ Vault Heist is a weekly timed mini-game with a simple “pick a hatch” loop. T
 2. Use stage data to drive prize odds and alarm chance.
 3. Display current stage in the HUD.
 
-**Done when:** stage-specific odds are used instead of hardcoded values.
+**Done when:** stage-specific odds are used instead of hardcoded values. ✅
+
+**Decisions:**
+- Added a `vaultHeistStages.ts` config with three stages, each defining alarm weight and reward multiplier.
+- Alarm chance scales by stage (low → high), while stage reward multipliers stack with ring multipliers.
+- HUD now displays the current stage, alarm risk label, and stage bonus multiplier.
 
 ### P1.2 — Crew + gear modifiers
 **Objective:** add lightweight strategic modifiers before the heist starts.
@@ -177,5 +182,5 @@ When you ship any slice, update this section immediately:
 ---
 
 # Progress log (rolling)
-- **Done (latest):** Implemented P0.2 explicit resolution states + HUD status line.
-- **Next step:** Implement P1.1 stage-based odds config.
+- **Done (latest):** Implemented P1.1 stage-based odds config + HUD stage readout.
+- **Next step:** Implement P1.2 crew + gear modifiers.

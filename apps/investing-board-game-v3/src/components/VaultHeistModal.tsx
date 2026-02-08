@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { X } from 'lucide-react'
+import { getVaultHeistStage } from '../lib/vaultHeistStages'
 
 interface VaultPrize {
   type: 'cash' | 'stars' | 'coins' | 'mystery' | 'alarm'
@@ -24,8 +25,9 @@ const VAULT_PRIZES: { prize: VaultPrize; weight: number }[] = [
   { prize: { type: 'stars', amount: 500, emoji: '⭐', label: '500 Stars' }, weight: 7 },
   { prize: { type: 'mystery', amount: 1, emoji: '💎', label: 'Mystery Box' }, weight: 8 },
   { prize: { type: 'coins', amount: 200, emoji: '🪙', label: '200 Coins' }, weight: 7 },
-  { prize: { type: 'alarm', amount: 0, emoji: '💣', label: 'ALARM!' }, weight: 5 },
 ]
+
+const ALARM_PRIZE: VaultPrize = { type: 'alarm', amount: 0, emoji: '💣', label: 'ALARM!' }
 
 interface VaultHeistModalProps {
   isOpen: boolean
@@ -65,19 +67,36 @@ export function VaultHeistModal({
 
   const maxPicks = 3
   const picksRemaining = maxPicks - picksUsed
+  const currentStage = getVaultHeistStage(picksUsed)
   const ringMultiplier = currentRing === 3 ? 10 : currentRing === 2 ? 3 : 1
   const pickCost = freePicksRemaining > 0 ? 0 : 100
 
   // Select random prize based on weights
-  const selectPrize = useCallback((): VaultPrize => {
-    const totalWeight = VAULT_PRIZES.reduce((sum, p) => sum + p.weight, 0)
+  const selectPrize = useCallback((alarmWeight: number): VaultPrize => {
+    const totalPrizeWeight = VAULT_PRIZES.reduce((sum, p) => sum + p.weight, 0)
+    const totalWeight = totalPrizeWeight + alarmWeight
     let random = Math.random() * totalWeight
-    
+
+    if (random <= alarmWeight) return { ...ALARM_PRIZE }
+    random -= alarmWeight
+
     for (const { prize, weight } of VAULT_PRIZES) {
       random -= weight
       if (random <= 0) return { ...prize }
     }
     return VAULT_PRIZES[0].prize
+  }, [])
+
+  const applyStageMultiplier = useCallback((prize: VaultPrize, multiplier: number): VaultPrize => {
+    if (prize.type === 'alarm' || prize.type === 'mystery') return prize
+
+    const adjustedAmount = Math.round(prize.amount * multiplier)
+    const label =
+      prize.type === 'cash'
+        ? `$${adjustedAmount.toLocaleString()}`
+        : `${adjustedAmount.toLocaleString()} ${prize.type === 'stars' ? 'Stars' : 'Coins'}`
+
+    return { ...prize, amount: adjustedAmount, label }
   }, [])
 
   // Handle vault crack
@@ -86,6 +105,9 @@ export function VaultHeistModal({
     
     const vault = vaults.find(v => v.id === vaultId)
     if (!vault || vault.state !== 'locked') return
+
+    const stage = getVaultHeistStage(picksUsed)
+    const rewardMultiplier = ringMultiplier * stage.rewardMultiplier
 
     setIsPickResolving(true)
     setResolutionState('cracking')
@@ -111,11 +133,12 @@ export function VaultHeistModal({
 
     // After crack animation, reveal prize
     setTimeout(() => {
-      const prize = selectPrize()
+      const prize = selectPrize(stage.alarmWeight)
       const isAlarm = prize.type === 'alarm'
+      const resolvedPrize = isAlarm ? prize : applyStageMultiplier(prize, rewardMultiplier)
 
       setVaults(prev => prev.map(v => 
-        v.id === vaultId ? { ...v, state: isAlarm ? 'alarm' : 'opened', prize } : v
+        v.id === vaultId ? { ...v, state: isAlarm ? 'alarm' : 'opened', prize: resolvedPrize } : v
       ))
       setResolutionState(isAlarm ? 'alarm' : 'reveal')
 
@@ -126,7 +149,7 @@ export function VaultHeistModal({
         // The pick counter will be incremented below (line 132) regardless of alarm
       } else {
         // Apply multiplier and add to haul
-        const multipliedAmount = prize.type === 'mystery' ? prize.amount : prize.amount * ringMultiplier
+        const multipliedAmount = resolvedPrize.type === 'mystery' ? resolvedPrize.amount : resolvedPrize.amount
         
         setHaul(prev => ({
           cash: prev.cash + (prize.type === 'cash' ? multipliedAmount : 0),
@@ -135,8 +158,8 @@ export function VaultHeistModal({
           mysteryBoxes: prev.mysteryBoxes + (prize.type === 'mystery' ? 1 : 0),
         }))
         
-        setCollectedPrizes(prev => [...prev, { ...prize, amount: multipliedAmount }])
-        setLastResultLabel(`Loot secured: ${prize.label}`)
+        setCollectedPrizes(prev => [...prev, resolvedPrize])
+        setLastResultLabel(`Loot secured: ${resolvedPrize.label}`)
         
         if (multipliedAmount >= 10000) {
           playSound('big-win')
@@ -154,7 +177,7 @@ export function VaultHeistModal({
         setIsPickResolving(false)
       }, 350)
     }, 800) // Crack animation duration
-  }, [vaults, picksRemaining, isGameOver, isPickResolving, pickCost, onSpendCoins, selectPrize, ringMultiplier, playSound, picksUsed])
+  }, [vaults, picksRemaining, isGameOver, isPickResolving, pickCost, onSpendCoins, selectPrize, ringMultiplier, playSound, picksUsed, applyStageMultiplier])
 
   // Handle game complete
   const handleComplete = useCallback(() => {
@@ -252,11 +275,11 @@ export function VaultHeistModal({
                     <span className="text-2xl">{vault.prize.emoji}</span>
                     <span className="text-[10px] text-white">
                       {vault.prize.type === 'cash' 
-                        ? `$${(vault.prize.amount * ringMultiplier).toLocaleString()}` 
+                        ? `$${vault.prize.amount.toLocaleString()}` 
                         : vault.prize.type === 'stars'
-                        ? `${(vault.prize.amount * ringMultiplier).toLocaleString()}`
+                        ? `${vault.prize.amount.toLocaleString()}`
                         : vault.prize.type === 'coins'
-                        ? `${(vault.prize.amount * ringMultiplier).toLocaleString()}`
+                        ? `${vault.prize.amount.toLocaleString()}`
                         : vault.prize.label
                       }
                     </span>
@@ -285,6 +308,9 @@ export function VaultHeistModal({
             <span className="text-slate-300 text-sm ml-2">
               {picksRemaining} picks left
             </span>
+          </div>
+          <div className="text-center text-xs text-slate-200 mb-2">
+            Stage {currentStage.id}: {currentStage.name} · Alarm: {currentStage.alarmRiskLabel} · Bonus: {currentStage.rewardMultiplier}×
           </div>
           <div className="text-center text-xs text-amber-200 mb-4">
             {resolutionState === 'cracking'
