@@ -16,7 +16,7 @@ Vault Heist is a weekly timed mini-game with a simple “pick a hatch” loop. T
 ## Status Snapshot (2026-02-23)
 - **Code status:** Vault Heist UI is live with 5 hatches, weighted prizes, a 3-pick cap, pick gating, explicit resolution state messaging, crew/gear modifiers, the alarm decision overlay, and an end-of-heist summary.
 - **Known issues:** Heist resolution logic still lives inside the modal (no helper engine).
-- **Next slice focus:** Mini heist engine helper (P4.1).
+- **Next slice focus:** Config-first prize table extraction (P4.2).
 
 ---
 
@@ -29,8 +29,8 @@ Vault Heist is a weekly timed mini-game with a simple “pick a hatch” loop. T
 5. If a decision is made (odds, costs, rewards), document it here to keep the plan “alive.”
 
 **Progress log (live, always update):**
-- **Done (latest):** Implemented P3.3 end-of-heist summary.
-- **Next step:** Draft P4.1 lightweight heist engine helper for deterministic pick resolution.
+- **Done (latest):** Implemented P4.1 mini heist engine helper + deterministic tests.
+- **Next step:** Extract Vault Heist prize table + alarm settings into a shared config module (P4.2).
 
 ---
 
@@ -208,6 +208,20 @@ Vault Heist is a weekly timed mini-game with a simple “pick a hatch” loop. T
 2. Return a single payload for the UI (prize, multipliers, alarm flag).
 3. Add unit-style tests for deterministic output with seeded RNG.
 
+**Done when:** Vault Heist uses the helper for deterministic pick resolution and seeded tests validate output. ✅
+
+**Decisions:**
+- Added `vaultHeistEngine.ts` with seeded RNG support and a single pick-resolution payload.
+- Unit tests validate deterministic outcomes and multiplier application via config-driven prize tables.
+
+### P4.2 — Config-first prize tables
+**Objective:** move prize + alarm tuning into a shared config module for faster balancing.
+
+**Steps:**
+1. Create `vaultHeistRewards.ts` for prize tables + weights.
+2. Add alarm weight presets per stage or ring.
+3. Update the engine + modal to consume the shared config.
+
 ---
 
 # “Alive Plan” Update Checklist (do after every implementation)
@@ -220,5 +234,5 @@ When you ship any slice, update this section immediately:
 ---
 
 # Progress log (rolling)
-- **Done (latest):** Implemented P3.3 end-of-heist summary.
-- **Next step:** Draft P4.1 lightweight heist engine helper for deterministic pick resolution.
+- **Done (latest):** Implemented P4.1 mini heist engine helper + deterministic tests.
+- **Next step:** Extract Vault Heist prize table + alarm settings into a shared config module (P4.2).
