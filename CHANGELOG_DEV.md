@@ -5,6 +5,29 @@
 
 ## Unreleased
 
+- Added High Roller Dice buy-in spending and balance guardrails.
+
+**Date:** 2026-02-25  
+**Slice:** P3.20 High Roller Dice buy-in spend + balance guardrails  
+**Summary:**  
+- Deducted the dice buy-in entry cost on each roll before outcomes resolve.  
+- Added cash balance checks to block unaffordable buy-ins and prevent rolls without enough funds.  
+- Surfaced balance + shortfall copy in the dice table UI for mobile clarity.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/App.tsx  
+- apps/investing-board-game-v3/src/components/CasinoModal.tsx  
+- apps/investing-board-game-v3/src/components/HighRollerDiceGame.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Open the Casino lobby, enter High Roller Dice, and confirm each roll deducts the selected buy-in from cash.  
+- (manual) Drop cash below a buy-in entry to see the roll button disable and the shortfall copy appear.  
+
 - Added a High Roller Dice buy-in selector with session resets.
 
 **Date:** 2026-02-25  

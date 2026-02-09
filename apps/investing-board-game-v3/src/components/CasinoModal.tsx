@@ -23,6 +23,8 @@ interface CasinoModalProps {
   guaranteedWin?: boolean
   tierId?: ScratchcardTierId
   scratchcardEventOverride?: ScratchcardEventOverride | null
+  cashBalance: number
+  onSpendCash?: (amount: number) => boolean
 }
 
 export function CasinoModal({
@@ -33,6 +35,8 @@ export function CasinoModal({
   guaranteedWin,
   tierId,
   scratchcardEventOverride,
+  cashBalance,
+  onSpendCash,
 }: CasinoModalProps) {
   const defaultTier = tierId ?? scratchcardTiers[0]?.id ?? 'bronze'
   const [selectedTierId, setSelectedTierId] = useState<ScratchcardTierId>(defaultTier)
@@ -543,6 +547,8 @@ export function CasinoModal({
                 onWin={onWin}
                 luckBoost={luckBoost}
                 guaranteedWin={guaranteedWin}
+                cashBalance={cashBalance}
+                onSpend={onSpendCash}
               />
             )}
           </>
