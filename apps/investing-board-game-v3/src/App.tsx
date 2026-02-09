@@ -44,6 +44,9 @@ import { VaultHeistModal } from '@/components/VaultHeistModal'
 import { ThroneVictoryModal } from '@/components/ThroneVictoryModal'
 import { RouletteStatusPanel } from '@/components/RouletteStatusPanel'
 import { RouletteVictoryModal } from '@/components/RouletteVictoryModal'
+import { VAULT_HEIST_CONFIG } from '@/config/vaultHeist'
+import { getActiveScheduleWindow } from '@/lib/windowSchedule'
+import { getMiniGameSchedule } from '@/lib/miniGameSchedule'
 import { VAULT_HEIST_FREE_PICK_COUNT } from '@/lib/vaultHeistRules'
 import { SHOP2_ENABLED } from '@/lib/featureFlags'
 import { logProToolsDiagnostic } from '@/lib/proToolsDiagnostics'
@@ -93,6 +96,8 @@ if (import.meta.env.DEV || import.meta.env.VITE_DEVTOOLS === '1') {
 const DAILY_WHEEL_SPIN_DATE_KEY = 'dailyWheelSpinDate'
 const DAILY_WHEEL_SPIN_LIMIT_KEY = 'dailyWheelSpinLimit'
 const DAILY_WHEEL_SPIN_USED_KEY = 'dailyWheelSpinUsed'
+const VAULT_HEIST_FREE_PICKS_KEY = 'vaultHeistFreePicks'
+const VAULT_HEIST_WINDOW_KEY = 'vaultHeistWindowKey'
 const DAILY_WHEEL_SPIN_MIN = 3
 const DAILY_WHEEL_SPIN_MAX = 5
 const getTodayKey = () => new Date().toLocaleDateString('en-CA')
@@ -651,7 +656,26 @@ function App() {
 
   // Vault Heist state
   const [showVaultHeist, setShowVaultHeist] = useState(false)
+  const vaultHeistSchedule = useMemo(() => getMiniGameSchedule('vault-heist')?.schedule ?? null, [])
+  const getActiveVaultHeistWindowKey = useCallback(() => {
+    if (!vaultHeistSchedule || !VAULT_HEIST_CONFIG.resetOnWindowStart) {
+      return null
+    }
+    const activeWindow = getActiveScheduleWindow(vaultHeistSchedule, new Date())
+    return activeWindow ? activeWindow.start.toISOString() : null
+  }, [vaultHeistSchedule])
+  const [vaultHeistWindowKey, setVaultHeistWindowKey] = useState<string | null>(() => getActiveVaultHeistWindowKey())
   const [freeVaultPicks, setFreeVaultPicks] = useState(VAULT_HEIST_FREE_PICK_COUNT)
+  const persistVaultHeistFreePicks = useCallback((remaining: number, windowKey: string | null) => {
+    try {
+      localStorage.setItem(VAULT_HEIST_FREE_PICKS_KEY, String(remaining))
+      if (windowKey) {
+        localStorage.setItem(VAULT_HEIST_WINDOW_KEY, windowKey)
+      }
+    } catch {
+      // Ignore storage access errors
+    }
+  }, [])
 
   // Mobile UI states
   const [activeSection, setActiveSection] = useState<'home' | 'challenges' | 'shop' | 'leaderboard' | 'settings'>('home')
@@ -704,6 +728,53 @@ function App() {
 
     return () => window.clearInterval(interval)
   }, [])
+
+  useEffect(() => {
+    const activeWindowKey = getActiveVaultHeistWindowKey()
+    setVaultHeistWindowKey(activeWindowKey)
+    try {
+      const storedWindowKey = localStorage.getItem(VAULT_HEIST_WINDOW_KEY)
+      const storedPicks = Number(localStorage.getItem(VAULT_HEIST_FREE_PICKS_KEY))
+      if (activeWindowKey && storedWindowKey === activeWindowKey && Number.isFinite(storedPicks)) {
+        setFreeVaultPicks(Math.max(0, Math.min(storedPicks, VAULT_HEIST_FREE_PICK_COUNT)))
+        return
+      }
+      if (!activeWindowKey && Number.isFinite(storedPicks)) {
+        setFreeVaultPicks(Math.max(0, Math.min(storedPicks, VAULT_HEIST_FREE_PICK_COUNT)))
+        return
+      }
+      if (activeWindowKey && VAULT_HEIST_CONFIG.resetOnWindowStart) {
+        setFreeVaultPicks(VAULT_HEIST_FREE_PICK_COUNT)
+        persistVaultHeistFreePicks(VAULT_HEIST_FREE_PICK_COUNT, activeWindowKey)
+        return
+      }
+    } catch {
+      // Ignore storage access errors
+    }
+    setFreeVaultPicks(VAULT_HEIST_FREE_PICK_COUNT)
+  }, [getActiveVaultHeistWindowKey, persistVaultHeistFreePicks])
+
+  useEffect(() => {
+    if (!VAULT_HEIST_CONFIG.resetOnWindowStart) return
+    const interval = window.setInterval(() => {
+      const nextKey = getActiveVaultHeistWindowKey()
+      setVaultHeistWindowKey(prev => (prev === nextKey ? prev : nextKey))
+    }, 60_000)
+
+    return () => window.clearInterval(interval)
+  }, [getActiveVaultHeistWindowKey])
+
+  useEffect(() => {
+    if (!vaultHeistWindowKey || !VAULT_HEIST_CONFIG.resetOnWindowStart) return
+    try {
+      const storedWindowKey = localStorage.getItem(VAULT_HEIST_WINDOW_KEY)
+      if (storedWindowKey === vaultHeistWindowKey) return
+      setFreeVaultPicks(VAULT_HEIST_FREE_PICK_COUNT)
+      persistVaultHeistFreePicks(VAULT_HEIST_FREE_PICK_COUNT, vaultHeistWindowKey)
+    } catch {
+      setFreeVaultPicks(VAULT_HEIST_FREE_PICK_COUNT)
+    }
+  }, [vaultHeistWindowKey, persistVaultHeistFreePicks])
 
   const dailyWheelSpinsRemaining = Math.max(0, dailyWheelSpinLimit - dailyWheelSpinsUsed)
   const dailySpinAvailable = dailyWheelSpinsRemaining > 0
@@ -5687,7 +5758,11 @@ function App() {
             if (freeVaultPicks <= 0) {
               return false
             }
-            setFreeVaultPicks(prev => Math.max(0, prev - 1))
+            setFreeVaultPicks(prev => {
+              const next = Math.max(0, prev - 1)
+              persistVaultHeistFreePicks(next, vaultHeistWindowKey)
+              return next
+            })
             return true
           }
           if (gameState.coins >= amount) {
