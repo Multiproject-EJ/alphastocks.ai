@@ -5,6 +5,27 @@
 
 ## Unreleased
 
+- Added a HUD tile label legend in Settings.
+
+**Date:** 2026-02-09  
+**Slice:** M7.5 Tile label legend + HUD help reference (config-first)  
+**Summary:**  
+- Added a HUD help legend in Settings that lists quick reward and special-action tile labels from config.  
+- Included a config reference so HUD label tuning remains data-driven.  
+- Logged the next Vault Heist evolution step in the master plan for continuity.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/components/SettingsModal.tsx  
+- apps/investing-board-game-v3/src/components/TileLabel.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Open Settings → HUD Help and confirm the tile label legend matches the labels shown on the board.  
+
 - Added config-driven labels for quick reward and special tiles.
 
 **Date:** 2026-02-27  

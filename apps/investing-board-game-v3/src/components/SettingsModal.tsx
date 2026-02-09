@@ -1,14 +1,17 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Slider } from '@/components/ui/slider'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
+import { TILE_LABEL_TONE_STYLES } from '@/components/TileLabel'
+import { TILE_LABELS_CONFIG } from '@/config/tileLabels'
 import { useNotificationPreferences } from '@/hooks/useNotificationPreferences'
 import { useSound } from '@/hooks/useSound'
 import { useAuth } from '@/context/AuthContext'
 import { hasSupabaseConfig, supabaseClient } from '@/lib/supabaseClient'
+import { cn } from '@/lib/utils'
 
 interface SettingsModalProps {
   open: boolean
@@ -35,6 +38,13 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
   const soundVolume = Math.round(volume * 100)
   const toggleClassName =
     'data-[state=checked]:bg-emerald-500 data-[state=unchecked]:bg-slate-600/70'
+  const tileLabelLegendGroups = useMemo(
+    () => [
+      { title: 'Quick Rewards', entries: Object.entries(TILE_LABELS_CONFIG.quickRewards) },
+      { title: 'Special Actions', entries: Object.entries(TILE_LABELS_CONFIG.specialActions) },
+    ],
+    []
+  )
   
   // Check for mobile device
   useEffect(() => {
@@ -554,6 +564,43 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
               <Separator />
             </>
           )}
+
+          <div className="space-y-4">
+            <h3 className="font-semibold text-sm">HUD Help</h3>
+            <p className="text-xs text-muted-foreground">
+              Tile callouts use the labels in <span className="font-semibold">config/tile_labels.json</span>.
+            </p>
+            <div className="space-y-3 rounded-xl border border-white/10 bg-muted/20 px-3 py-3">
+              {tileLabelLegendGroups.map((group) => (
+                <div key={group.title} className="space-y-2">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-muted-foreground">
+                    {group.title}
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {group.entries.map(([key, entry]) => (
+                      <div
+                        key={key}
+                        className={cn(
+                          'flex items-center gap-2 rounded-full border px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.25em] shadow-sm',
+                          TILE_LABEL_TONE_STYLES[entry.tone ?? 'default']
+                        )}
+                      >
+                        {entry.icon && <span className="text-[10px] leading-none">{entry.icon}</span>}
+                        <span>{entry.label}</span>
+                        {entry.sublabel && (
+                          <span className="text-[8px] font-medium uppercase tracking-[0.3em] text-white/70">
+                            {entry.sublabel}
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <Separator />
 
           {/* Developer Mode */}
           <div className="space-y-4">

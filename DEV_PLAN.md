@@ -55,7 +55,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 - `AI_IMPLEMENTATION.md`, `IMPLEMENTATION_SUMMARY.md`, `DEVLOG.md` (project-wide status/context)
 
 ### Repo Map (paths verified)
-_Last reviewed: 2026-02-27 (tile label config expansion)_
+_Last reviewed: 2026-02-09 (HUD tile label legend help)_
 #### Frontend
 - **Legacy static pages entry:** `/index.html`, `/about.html`, `/faq.html`, `/monthly/`, `/weekly/`, `/superinvestor/`
 - **Vite + Preact app:** `/apps/investing-board-game-v3` (built into `/public/board-game-v3` via `npm run build:board-game-v3`)
@@ -227,7 +227,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **M7.2** ✅ Implement tile label component
 - **M7.3** ✅ Hook labels to tile data
 - **M7.4** ✅ Expand labels for quick-reward + special tiles (config-first)
-- **M7.5** Add tile label legend + config reference in HUD help (config-first)
+- **M7.5** ✅ Add tile label legend + config reference in HUD help (config-first)
 
 ### M8 — Telemetry & Tuning
 - **M8.1** ✅ Economy telemetry sinks
@@ -299,6 +299,10 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P4.2** ✅ Rare event calendar callouts
 - **P4.3** ✅ Mega Jackpot boost (Jackpot Week payout bonus)
 
+### P5 — Vault Heist Evolution
+- **P5.1** ✅ Config-first pick limits + free pick rules
+- **P5.2** Persist free-pick resets on the Vault Heist schedule window (config-first)
+
 ---
 
 ## Config Strategy
@@ -329,7 +333,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **M7.5 — Add tile label legend + config reference in HUD help (config-first).**
+**Recommended next slice:** **P5.2 — Persist free-pick resets on the Vault Heist schedule window (config-first).**
+
+## Progress Log (rolling)
+- **Done (latest):** M7.5 HUD tile label legend + config reference shipped (config-first).
+- **Next step:** P5.2 Persist free-pick resets on the Vault Heist schedule window (config-first).
 
 ## P2.7 Scope Notes (Bias Sanctuary visual story mode)
 ### Story structure & content
@@ -372,6 +380,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Added a config-driven tile label catalog for quick rewards and special actions so labels can be tuned without code edits.
 - Wired quick reward tiles to pull label + sublabel copy from the new config to keep the reward callouts consistent.
 - Expanded special-action labels (fall portal, chance, big fish portal, roulette) using the shared config helper.
+
+## M7.5 Slice Notes (Tile label legend + HUD help reference)
+- Added a HUD help legend in Settings that lists tile label callouts from the shared tile label config.
+- Included a config reference in the HUD help copy so label tuning stays data-driven.
+- Logged the next Vault Heist evolution step to keep the plan actionable.
 
 ## Config Strategy Kickoff Slice Notes (Completed ✅)
 - Moved ring configuration, Ring 3 settings, and portal configuration into a dedicated config module to kick off the central config strategy.
