@@ -307,7 +307,8 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P5.5** ✅ Replace Saturday-only gating with schedule-aware Vault Heist availability (config-first)
 - **P5.6** ✅ Add schedule-aware Vault Heist availability messaging to the HUD/CTA (config-first)
 - **P5.7** ✅ Add a Vault Heist CTA fallback that opens the Games Hub when the heist is upcoming (config-first)
-- **P5.8** ⬜ Add a Vault Heist Games Hub teaser panel + upcoming countdown copy (config-first)
+- **P5.8** ✅ Add a Vault Heist Games Hub teaser panel + upcoming countdown copy (config-first)
+- **P6.0** ⬜ Plan next milestone slices from the master plan (doc-only, keep steps small + config-first)
 
 ---
 
@@ -339,11 +340,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P5.8 — Add a Vault Heist Games Hub teaser panel + upcoming countdown copy (config-first).**
+**Recommended next slice:** **P6.0 — Plan next milestone slices from the master plan (doc-only, keep steps small + config-first).**
 
 ## Progress Log (rolling)
-- **Done (latest):** P5.7 Add a Vault Heist CTA fallback that opens the Games Hub when the heist is upcoming (config-first).
-- **Next step:** P5.8 Add a Vault Heist Games Hub teaser panel + upcoming countdown copy (config-first).
+- **Done (latest):** P5.8 Add a Vault Heist Games Hub teaser panel + upcoming countdown copy (config-first).
+- **Next step:** P6.0 Plan next milestone slices from the master plan (doc-only, keep steps small + config-first).
 
 ## P2.7 Scope Notes (Bias Sanctuary visual story mode)
 ### Story structure & content
@@ -1016,3 +1017,8 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Added a config-driven action flag to route upcoming Vault Heist CTAs into the Games Hub instead of hard-disabling the button.
 - Enabled the desktop + phone Vault Heist floating buttons to open the Games Hub when the heist is upcoming.
 - Kept live windows routed directly into the Vault Heist modal while preserving the status pill copy.
+
+## P5.8 Slice Notes (Vault Heist Games Hub teaser + countdown copy)
+- Added a Vault Heist teaser panel to the Games Hub so upcoming windows get a dedicated callout ahead of the grid.
+- Introduced config-driven teaser copy (headline, description, CTA labels) to keep the panel tuned without code edits.
+- Swapped the upcoming heist label to use a config-driven countdown string for more urgent availability messaging.

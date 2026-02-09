@@ -9,7 +9,16 @@
     "ctaLive": "Heist live",
     "ctaUpcoming": "Next heist",
     "ctaOffline": "Heist standby",
-    "ctaUpcomingAction": "games-hub"
+    "ctaUpcomingAction": "games-hub",
+    "upcomingCountdown": "Heist launches in {time}"
+  },
+  "gamesHubTeaser": {
+    "eyebrow": "Weekly vault raid",
+    "headline": "Vault Heist",
+    "description": "Assemble a crew, pick a lane, and crack the vault for the biggest coin haul of the week.",
+    "ctaLive": "Enter heist",
+    "ctaUpcoming": "View schedule",
+    "ctaOffline": "Review playbook"
   },
   "schedule": {
     "type": "weekly",

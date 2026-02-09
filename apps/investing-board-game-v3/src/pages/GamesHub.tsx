@@ -11,6 +11,7 @@ import { GameOverlay } from '@/components/games/GameOverlay'
 import { GameLoadingScreen } from '@/components/games/GameLoadingScreen'
 import { WheelOfFortuneModal } from '@/components/WheelOfFortuneModal'
 import { GAMES_CONFIG } from '@/lib/gamesConfig'
+import { VAULT_HEIST_CONFIG } from '@/config/vaultHeist'
 import { useGameOverlay } from '@/hooks/useGameOverlay'
 import { useMiniGames } from '@/hooks/useMiniGames'
 import { useSound } from '@/hooks/useSound'
@@ -33,11 +34,19 @@ interface GamesHubProps {
 const DEMO_WHEEL_SPINS_LIMIT = 3
 const DEMO_WHEEL_FREE_SPINS = 1
 const DEMO_WHEEL_STARTING_COINS = 250
+const formatCountdown = (target: Date) => {
+  const totalMinutes = Math.max(0, Math.floor((target.getTime() - Date.now()) / 60000))
+  const hours = Math.floor(totalMinutes / 60)
+  const minutes = totalMinutes % 60
+
+  return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`
+}
 
 export function GamesHub({ onBack }: GamesHubProps) {
   const { activeGame, isLoading, openGame, closeGame } = useGameOverlay()
   const { play: playSound } = useSound()
   const { activeMiniGames, upcomingMiniGames, getTimeRemaining } = useMiniGames()
+  const vaultHeistTeaser = VAULT_HEIST_CONFIG.gamesHubTeaser
   const [wheelCoins, setWheelCoins] = useState(DEMO_WHEEL_STARTING_COINS)
   const [wheelSpinsRemaining, setWheelSpinsRemaining] = useState(DEMO_WHEEL_SPINS_LIMIT)
   const [wheelFreeSpins, setWheelFreeSpins] = useState(DEMO_WHEEL_FREE_SPINS)
@@ -175,12 +184,18 @@ export function GamesHub({ onBack }: GamesHubProps) {
     const upcomingHeist = upcomingMiniGames.find(game => game.id === 'vault-heist')
     const remaining = activeHeist ? getTimeRemaining(activeHeist) : null
     const formatTime = (date: Date) => date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+    const upcomingCountdown = upcomingHeist
+      ? VAULT_HEIST_CONFIG.scheduleCopy.upcomingCountdown.replace('{time}', formatCountdown(upcomingHeist.startsAt))
+      : null
 
     if (activeHeist) {
       return {
         isPlayable: true,
         statusLabel: 'Play',
         availabilityLabel: remaining ? `Heist live • ${remaining.display} left` : 'Heist live',
+        detailLabel: remaining ? `Live now • ${remaining.display} left` : 'Live now',
+        upcomingHeist,
+        remaining,
       }
     }
 
@@ -188,8 +203,11 @@ export function GamesHub({ onBack }: GamesHubProps) {
       isPlayable: false,
       statusLabel: 'Closed',
       availabilityLabel: upcomingHeist
-        ? `Next heist • ${formatTime(upcomingHeist.startsAt)}`
+        ? upcomingCountdown ?? `Next heist • ${formatTime(upcomingHeist.startsAt)}`
         : 'Heist schedule pending',
+      detailLabel: upcomingCountdown ?? (upcomingHeist ? `Next heist • ${formatTime(upcomingHeist.startsAt)}` : null),
+      upcomingHeist,
+      remaining,
     }
   }, [activeMiniGames, upcomingMiniGames, getTimeRemaining])
 
@@ -354,6 +372,18 @@ export function GamesHub({ onBack }: GamesHubProps) {
     }
   }, [activeMiniGames, upcomingMiniGames, getTimeRemaining])
 
+  const vaultHeistStatusLabel = vaultHeistAvailability.isPlayable
+    ? VAULT_HEIST_CONFIG.scheduleCopy.ctaLive
+    : vaultHeistAvailability.upcomingHeist
+      ? VAULT_HEIST_CONFIG.scheduleCopy.ctaUpcoming
+      : VAULT_HEIST_CONFIG.scheduleCopy.ctaOffline
+
+  const vaultHeistCtaLabel = vaultHeistAvailability.isPlayable
+    ? vaultHeistTeaser.ctaLive
+    : vaultHeistAvailability.upcomingHeist
+      ? vaultHeistTeaser.ctaUpcoming
+      : vaultHeistTeaser.ctaOffline
+
   return (
     <>
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-4 md:p-8">
@@ -378,6 +408,48 @@ export function GamesHub({ onBack }: GamesHubProps) {
               </div>
             </div>
             <div className="w-24" /> {/* Spacer for centering */}
+          </div>
+
+          {/* Vault Heist Teaser */}
+          <div className="mb-10 rounded-3xl border border-slate-800/80 bg-slate-900/60 p-5 shadow-lg backdrop-blur sm:p-6">
+            <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-purple-300">
+                  {vaultHeistTeaser.eyebrow}
+                </p>
+                <h2 className="mt-2 text-2xl font-bold text-white sm:text-3xl">
+                  {vaultHeistTeaser.headline}
+                </h2>
+                <p className="mt-2 max-w-xl text-sm text-slate-300 sm:text-base">
+                  {vaultHeistTeaser.description}
+                </p>
+                <div className="mt-3 flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-wide text-amber-300">
+                  <span className="rounded-full bg-amber-400/10 px-3 py-1">
+                    {vaultHeistStatusLabel}
+                  </span>
+                  {vaultHeistAvailability.detailLabel && (
+                    <span className="text-slate-400 normal-case">
+                      {vaultHeistAvailability.detailLabel}
+                    </span>
+                  )}
+                </div>
+              </div>
+              <div className="sm:min-w-[200px]">
+                <Button
+                  className={`
+                    w-full
+                    ${vaultHeistAvailability.isPlayable
+                      ? 'bg-gradient-to-r from-amber-400 via-orange-500 to-pink-500 text-white hover:opacity-90'
+                      : 'bg-slate-700 text-slate-300 cursor-not-allowed'
+                    }
+                  `}
+                  disabled={!vaultHeistAvailability.isPlayable}
+                  onClick={() => handleGameSelect('vault-heist', vaultHeistAvailability.isPlayable)}
+                >
+                  {vaultHeistCtaLabel}
+                </Button>
+              </div>
+            </div>
           </div>
 
           {/* Games Grid */}
