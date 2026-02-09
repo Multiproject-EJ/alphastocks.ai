@@ -3036,3 +3036,20 @@
 
 **How to test:**  
 - (manual) Open Vault Heist and confirm the schedule overview, window detail, signal callouts, and duration label match the vault heist config.  
+
+**Date:** 2026-02-10  
+**Slice:** P5.5 Vault Heist schedule-aware availability  
+**Summary:**  
+- Replaced the Saturday-only Vault Heist gating with schedule-aware availability driven by the mini-game schedule engine.  
+- Updated the HUD entry to respect live Vault Heist windows instead of a hardcoded weekday check.  
+  
+**Files changed:**  
+- apps/investing-board-game-v3/src/App.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+  
+**SQL migrations:**  
+- (none)  
+  
+**How to test:**  
+- (manual) Open the app during a Vault Heist window and confirm the HUD button is visible; verify it is hidden outside the scheduled window.  

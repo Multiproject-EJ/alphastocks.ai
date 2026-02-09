@@ -854,11 +854,6 @@ function App() {
     return () => window.removeEventListener('resize', updateRadius)
   }, [calculateFittingRadius])
 
-  // Check if Saturday
-  const isSaturday = useMemo(() => {
-    return new Date().getDay() === 6
-  }, [])
-
   // Safe area insets
   const safeArea = useSafeArea()
 
@@ -1352,6 +1347,10 @@ function App() {
   } = useEvents({ playSound })
 
   const { activeMiniGames, upcomingMiniGames } = useMiniGames()
+  const vaultHeistAvailable = useMemo(
+    () => activeMiniGames.some(game => game.id === 'vault-heist'),
+    [activeMiniGames],
+  )
   const scratchcardEventOverride = useMemo(
     () => getScratchcardEventOverride(activeEvents),
     [activeEvents],
@@ -5820,8 +5819,8 @@ function App() {
         </button>
       )}
 
-      {/* Saturday Vault Heist Button */}
-      {isSaturday && (
+      {/* Vault Heist Button */}
+      {vaultHeistAvailable && (
         <button
           onClick={() => setShowVaultHeist(true)}
           className="fixed bottom-24 right-20 p-4 bg-gradient-to-r from-amber-600 to-yellow-600 rounded-full shadow-lg animate-bounce hover:scale-110 transition-transform z-50"
@@ -5918,7 +5917,7 @@ function App() {
           onOpenSeasonPass={openSeasonPass}
           dailySpinAvailable={dailySpinAvailable}
           onOpenDailySpin={() => setIsWheelOpen(true)}
-          saturdayVaultAvailable={isSaturday}
+          saturdayVaultAvailable={vaultHeistAvailable}
           onOpenSaturdayVault={() => setShowVaultHeist(true)}
           ascendProgress={gameState.stats?.ringAscendProgress ?? 0}
           ascendGoal={ASCEND_PROGRESS_GOAL}

@@ -55,7 +55,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 - `AI_IMPLEMENTATION.md`, `IMPLEMENTATION_SUMMARY.md`, `DEVLOG.md` (project-wide status/context)
 
 ### Repo Map (paths verified)
-_Last reviewed: 2026-02-09 (HUD tile label legend help)_
+_Last reviewed: 2026-02-10 (Vault Heist schedule gating)_
 #### Frontend
 - **Legacy static pages entry:** `/index.html`, `/about.html`, `/faq.html`, `/monthly/`, `/weekly/`, `/superinvestor/`
 - **Vite + Preact app:** `/apps/investing-board-game-v3` (built into `/public/board-game-v3` via `npm run build:board-game-v3`)
@@ -304,7 +304,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P5.2** ✅ Persist free-pick resets on the Vault Heist schedule window (config-first)
 - **P5.3** ✅ Move Vault Heist schedule + reset rules into config (config-first)
 - **P5.4** ✅ Add Vault Heist schedule copy to config-driven UI callouts (config-first)
-- **P5.5** ⏳ Replace Saturday-only gating with schedule-aware Vault Heist availability (config-first)
+- **P5.5** ✅ Replace Saturday-only gating with schedule-aware Vault Heist availability (config-first)
 
 ---
 
@@ -336,11 +336,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P5.5 — Replace Saturday-only gating with schedule-aware Vault Heist availability (config-first).**
+**Recommended next slice:** **P5.6 — Add schedule-aware Vault Heist availability messaging to the HUD/CTA (config-first).**
 
 ## Progress Log (rolling)
-- **Done (latest):** P5.4 Add Vault Heist schedule copy to config-driven UI callouts (config-first).
-- **Next step:** P5.5 Replace Saturday-only gating with schedule-aware Vault Heist availability (config-first).
+- **Done (latest):** P5.5 Replace Saturday-only gating with schedule-aware Vault Heist availability (config-first).
+- **Next step:** P5.6 Add schedule-aware Vault Heist availability messaging to the HUD/CTA (config-first).
 
 ## P2.7 Scope Notes (Bias Sanctuary visual story mode)
 ### Story structure & content
@@ -999,3 +999,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Added config-driven schedule copy for the Vault Heist surface so timing messaging can be tuned without code edits.
 - Wired the Vault Heist UI callouts to read overview, window detail, and signal copy from the Vault Heist config.
 - Made the heist window duration label derive from the schedule config to keep UI aligned with timing rules.
+
+## P5.5 Slice Notes (Vault Heist schedule-aware availability)
+- Replaced Saturday-only Vault Heist gating with schedule-aware availability derived from the mini-game schedule engine.
+- Updated HUD entry availability to follow the live Vault Heist window instead of a hardcoded weekday check.
