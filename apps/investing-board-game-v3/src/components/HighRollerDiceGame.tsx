@@ -45,6 +45,7 @@ export function HighRollerDiceGame({
   const { play: playSound } = useSound()
   const { roll: hapticRoll, success: hapticSuccess, warning: hapticWarning } = useHaptics()
   const [selectedOptionId, setSelectedOptionId] = useState(diceConfig.options[0]?.id ?? '')
+  const [selectedBuyInId, setSelectedBuyInId] = useState(diceConfig.buyIns[0]?.id ?? '')
   const [isRolling, setIsRolling] = useState(false)
   const [streak, setStreak] = useState(0)
   const [lastOutcome, setLastOutcome] = useState<RollOutcome | null>(null)
@@ -57,13 +58,43 @@ export function HighRollerDiceGame({
     bestStreak: 0,
   })
 
+  const selectedBuyIn = useMemo(
+    () => diceConfig.buyIns.find((buyIn) => buyIn.id === selectedBuyInId) ?? diceConfig.buyIns[0],
+    [diceConfig.buyIns, selectedBuyInId],
+  )
+
   const selectedOption = useMemo(
     () => diceConfig.options.find((option) => option.id === selectedOptionId) ?? diceConfig.options[0],
     [diceConfig.options, selectedOptionId],
   )
 
-  if (!selectedOption) {
+  if (!selectedOption || !selectedBuyIn) {
     return null
+  }
+
+  const buyInMultiplier = selectedBuyIn.multiplier
+  const adjustedOption = useMemo(
+    () => ({
+      ...selectedOption,
+      payout: Math.round(selectedOption.payout * buyInMultiplier),
+    }),
+    [selectedOption, buyInMultiplier],
+  )
+
+  const resetSession = () => {
+    if (isRolling) {
+      return
+    }
+    setStreak(0)
+    setLastOutcome(null)
+    setCurrentStreakPayout(0)
+    setLastStreakSummary(null)
+    setSessionStats({
+      rolls: 0,
+      wins: 0,
+      totalPayout: 0,
+      bestStreak: 0,
+    })
   }
 
   const handleRoll = () => {
@@ -75,12 +106,12 @@ export function HighRollerDiceGame({
     setIsRolling(true)
 
     const shouldGuaranteeWin = Boolean(guaranteedWin)
-    const roll = rollDice(shouldGuaranteeWin, selectedOption.target)
-    let isWin = roll.total >= selectedOption.target
+    const roll = rollDice(shouldGuaranteeWin, adjustedOption.target)
+    let isWin = roll.total >= adjustedOption.target
     let reason: RollOutcome['reason'] = 'roll'
 
     if (!isWin && luckBoost && luckBoost > 0 && Math.random() < luckBoost) {
-      const luckyRoll = rollDice(true, selectedOption.target)
+      const luckyRoll = rollDice(true, adjustedOption.target)
       roll.dice = luckyRoll.dice
       roll.total = luckyRoll.total
       isWin = true
@@ -93,8 +124,8 @@ export function HighRollerDiceGame({
     }
 
     const nextStreak = isWin ? Math.min(streak + 1, diceConfig.streakCap) : 0
-    const multiplier = getHighRollerDiceStreakMultiplier(selectedOption, nextStreak)
-    const payout = isWin ? Math.round(selectedOption.payout * multiplier) : 0
+    const multiplier = getHighRollerDiceStreakMultiplier(adjustedOption, nextStreak)
+    const payout = isWin ? Math.round(adjustedOption.payout * multiplier) : 0
 
     const outcome: RollOutcome = {
       dice: roll.dice,
@@ -136,7 +167,7 @@ export function HighRollerDiceGame({
   }
 
   const streakPreview = Math.max(1, streak || 1)
-  const oddsSummary = getHighRollerDiceOddsSummary(selectedOption, {
+  const oddsSummary = getHighRollerDiceOddsSummary(adjustedOption, {
     luckBoost,
     guaranteedWin,
     streak: streakPreview,
@@ -144,7 +175,7 @@ export function HighRollerDiceGame({
   })
   const streakMultiplier = oddsSummary.streakMultiplier
   const maxStreakMultiplier = oddsSummary.maxStreakMultiplier
-  const payoutLabel = `${selectedOption.payout.toLocaleString()} cash`
+  const payoutLabel = `${adjustedOption.payout.toLocaleString()} cash`
   const boostedPayoutLabel = `${oddsSummary.payoutPerWin.toLocaleString()} cash`
   const maxPayoutLabel = `${oddsSummary.maxPayout.toLocaleString()} cash`
   const winChanceLabel = `${(oddsSummary.adjustedWinChance * 100).toFixed(0)}%`
@@ -152,6 +183,8 @@ export function HighRollerDiceGame({
   const expectedPayoutLabel = `${Math.round(oddsSummary.expectedPayout).toLocaleString()} cash`
   const winRateLabel =
     sessionStats.rolls > 0 ? `${Math.round((sessionStats.wins / sessionStats.rolls) * 100)}%` : '—'
+  const buyInEntryLabel = `${selectedBuyIn.entry.toLocaleString()} cash`
+  const buyInMultiplierLabel = `x${buyInMultiplier.toFixed(2)}`
 
   return (
     <div className="rounded-xl border border-purple-500/40 bg-purple-950/50 p-4 text-purple-100/80">
@@ -171,9 +204,47 @@ export function HighRollerDiceGame({
       )}
 
       <div className="mt-4 grid gap-2 sm:grid-cols-3">
+        {diceConfig.buyIns.map((buyIn) => {
+          const isSelected = buyIn.id === selectedBuyIn.id
+          return (
+            <Button
+              key={buyIn.id}
+              type="button"
+              variant={isSelected ? 'default' : 'outline'}
+              onClick={() => {
+                if (isRolling) {
+                  return
+                }
+                setSelectedBuyInId(buyIn.id)
+                resetSession()
+              }}
+              className={
+                isSelected
+                  ? 'h-auto min-h-[84px] items-start whitespace-normal border-emerald-300/80 bg-gradient-to-br from-emerald-500/80 to-teal-500/70 px-3 py-2 text-left text-white'
+                  : 'h-auto min-h-[84px] items-start whitespace-normal border-emerald-300/30 px-3 py-2 text-left text-emerald-100/80'
+              }
+              disabled={isRolling}
+            >
+              <span className="flex w-full flex-col gap-1">
+                <span className="text-sm font-semibold">{buyIn.label}</span>
+                <span className="text-[11px] text-emerald-100/70">{buyIn.description}</span>
+                <span className="text-[11px] text-emerald-100/70">
+                  Buy-in {buyIn.entry.toLocaleString()} cash · Payout {`x${buyIn.multiplier.toFixed(2)}`}
+                </span>
+              </span>
+            </Button>
+          )
+        })}
+      </div>
+
+      <div className="mt-4 grid gap-2 sm:grid-cols-3">
         {diceConfig.options.map((option) => {
           const isSelected = option.id === selectedOption.id
-          const optionOddsSummary = getHighRollerDiceOddsSummary(option, {
+          const adjustedTableOption = {
+            ...option,
+            payout: Math.round(option.payout * buyInMultiplier),
+          }
+          const optionOddsSummary = getHighRollerDiceOddsSummary(adjustedTableOption, {
             luckBoost,
             guaranteedWin,
             streak: 1,
@@ -195,7 +266,7 @@ export function HighRollerDiceGame({
                 <span className="text-sm font-semibold">{option.label}</span>
                 <span className="text-[11px] text-purple-100/70">{option.description}</span>
                 <span className="text-[11px] text-purple-100/70">
-                  Target {option.target}+ · Base {option.payout.toLocaleString()} cash
+                  Target {option.target}+ · Payout {adjustedTableOption.payout.toLocaleString()} cash
                 </span>
                 <span className="text-[11px] text-purple-100/70">
                   Win {(optionOddsSummary.adjustedWinChance * 100).toFixed(0)}% · EV ~
@@ -217,7 +288,13 @@ export function HighRollerDiceGame({
             Payout: <span className="font-semibold text-purple-50">{payoutLabel}</span>
           </span>
           <span>
+            Buy-in: <span className="font-semibold text-purple-50">{buyInEntryLabel}</span>
+          </span>
+          <span>
             Streak boost: <span className="font-semibold text-purple-50">x{streakMultiplier.toFixed(2)}</span>
+          </span>
+          <span>
+            Buy-in boost: <span className="font-semibold text-purple-50">{buyInMultiplierLabel}</span>
           </span>
         </div>
         <p className="mt-2 text-[11px] text-purple-100/60">
@@ -244,6 +321,21 @@ export function HighRollerDiceGame({
         <p className="mt-2 text-[11px] text-purple-100/60">
           Best streak this session: {sessionStats.bestStreak} win{sessionStats.bestStreak === 1 ? '' : 's'}.
         </p>
+        <p className="mt-1 text-[11px] text-purple-100/60">
+          Buy-in tier: <span className="font-semibold text-purple-50">{selectedBuyIn.label}</span>
+        </p>
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={resetSession}
+            disabled={isRolling}
+            className="h-8 border-purple-300/40 text-purple-100/80 hover:text-white"
+          >
+            Reset session
+          </Button>
+          <span className="text-[11px] text-purple-100/50">Resets streak + session stats.</span>
+        </div>
       </div>
 
       {(lastOutcome || isRolling) && (
@@ -312,7 +404,7 @@ export function HighRollerDiceGame({
 
       <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
         <span className="text-xs text-purple-100/60">
-          Target {selectedOption.target}+ · Next payout {boostedPayoutLabel}
+          Target {adjustedOption.target}+ · Next payout {boostedPayoutLabel}
         </span>
         <Button
           type="button"

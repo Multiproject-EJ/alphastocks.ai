@@ -27,6 +27,29 @@
     "title": "High Roller Dice",
     "description": "Pick your risk tier, roll two dice, and stack a streak multiplier.",
     "streakCap": 4,
+    "buyIns": [
+      {
+        "id": "floor",
+        "label": "Floor Seats",
+        "description": "Warm up with the lowest buy-in.",
+        "entry": 2000,
+        "multiplier": 1
+      },
+      {
+        "id": "vip",
+        "label": "VIP Lounge",
+        "description": "Bigger chips, bigger upside.",
+        "entry": 5000,
+        "multiplier": 1.5
+      },
+      {
+        "id": "whale",
+        "label": "Whale Suite",
+        "description": "High-roller buy-in with max payouts.",
+        "entry": 10000,
+        "multiplier": 2
+      }
+    ],
     "options": [
       {
         "id": "blue-chip",

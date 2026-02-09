@@ -27,10 +27,19 @@ export type CasinoDiceOption = {
   streakBonus: number
 }
 
+export type CasinoDiceBuyIn = {
+  id: string
+  label: string
+  description: string
+  entry: number
+  multiplier: number
+}
+
 export type CasinoDiceConfig = {
   title: string
   description: string
   streakCap: number
+  buyIns: CasinoDiceBuyIn[]
   options: CasinoDiceOption[]
 }
 
@@ -68,6 +77,29 @@ const DEFAULT_CASINO_CONFIG: CasinoConfig = {
     title: 'High Roller Dice',
     description: 'Pick your risk tier, roll two dice, and stack a streak multiplier.',
     streakCap: 3,
+    buyIns: [
+      {
+        id: 'floor',
+        label: 'Floor Seats',
+        description: 'Warm up with the lowest buy-in.',
+        entry: 2000,
+        multiplier: 1,
+      },
+      {
+        id: 'vip',
+        label: 'VIP Lounge',
+        description: 'Bigger chips, bigger upside.',
+        entry: 5000,
+        multiplier: 1.5,
+      },
+      {
+        id: 'whale',
+        label: 'Whale Suite',
+        description: 'High-roller buy-in with max payouts.',
+        entry: 10000,
+        multiplier: 2,
+      },
+    ],
     options: [
       {
         id: 'blue-chip',
@@ -103,6 +135,9 @@ const normalizeLobbyGames = (games: CasinoLobbyGame[]) =>
 const normalizeDiceOptions = (options: CasinoDiceOption[]) =>
   options.filter((option) => option.id && option.label && option.description)
 
+const normalizeDiceBuyIns = (buyIns: CasinoDiceBuyIn[]) =>
+  buyIns.filter((buyIn) => buyIn.id && buyIn.label && buyIn.description)
+
 const normalizeCasinoConfig = (config: CasinoConfig): CasinoConfig => {
   return {
     lobby: {
@@ -116,6 +151,13 @@ const normalizeCasinoConfig = (config: CasinoConfig): CasinoConfig => {
       streakCap: Number.isFinite(config.dice.streakCap)
         ? Math.max(1, Math.floor(config.dice.streakCap))
         : DEFAULT_CASINO_CONFIG.dice.streakCap,
+      buyIns: normalizeDiceBuyIns(
+        config.dice.buyIns?.length ? config.dice.buyIns : DEFAULT_CASINO_CONFIG.dice.buyIns,
+      ).map((buyIn) => ({
+        ...buyIn,
+        entry: Number.isFinite(buyIn.entry) ? Math.max(0, buyIn.entry) : 0,
+        multiplier: Number.isFinite(buyIn.multiplier) ? Math.max(0.1, buyIn.multiplier) : 1,
+      })),
       options: normalizeDiceOptions(
         config.dice.options.length ? config.dice.options : DEFAULT_CASINO_CONFIG.dice.options,
       ),
