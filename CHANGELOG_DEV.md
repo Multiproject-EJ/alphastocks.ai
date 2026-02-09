@@ -3139,3 +3139,22 @@
 
 **How to test:**  
 - (not run; documentation-only update)  
+
+**Date:** 2026-02-09  
+**Slice:** P6.1 Choose the next advanced casino game + add a config-first stub entry  
+**Summary:**  
+- Selected Market Blackjack as the next advanced casino game and documented the decision in the plan.  
+- Added a config-first stub for Market Blackjack, including lobby teaser copy, table limits, and side bets.  
+- Advanced the DEV_PLAN next slice pointer to the minimal playable loop build.  
+
+**Files changed:**  
+- config/casino.json  
+- apps/investing-board-game-v3/src/config/casino.ts  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (not run; config and documentation updates only)  

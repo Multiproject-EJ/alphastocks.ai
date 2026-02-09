@@ -55,7 +55,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 - `AI_IMPLEMENTATION.md`, `IMPLEMENTATION_SUMMARY.md`, `DEVLOG.md` (project-wide status/context)
 
 ### Repo Map (paths verified)
-_Last reviewed: 2026-02-11 (Vault Heist CTA fallback)_
+_Last reviewed: 2026-02-09 (Casino config stub planning)_
 #### Frontend
 - **Legacy static pages entry:** `/index.html`, `/about.html`, `/faq.html`, `/monthly/`, `/weekly/`, `/superinvestor/`
 - **Vite + Preact app:** `/apps/investing-board-game-v3` (built into `/public/board-game-v3` via `npm run build:board-game-v3`)
@@ -311,7 +311,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 
 ### P6 — Long-Term Content (Master Plan P3)
 - **P6.0** ✅ Plan next milestone slices from the master plan (doc-only, keep steps small + config-first)
-- **P6.1** ⬜ Choose the next advanced casino game + add a config-first stub entry (config-first + doc-first)
+- **P6.1** ✅ Choose the next advanced casino game + add a config-first stub entry (config-first + doc-first)
 - **P6.2** ⬜ Build the minimal playable loop for the new casino game (mobile-first surface)
 - **P6.3** ⬜ Add payout tuning + odds helper coverage for the new casino game (config-first)
 - **P6.4** ⬜ Add telemetry + session stats hooks for the new casino game (config-first)
@@ -347,11 +347,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P6.1 — Choose the next advanced casino game + add a config-first stub entry (config-first + doc-first).**
+**Recommended next slice:** **P6.2 — Build the minimal playable loop for the new casino game (mobile-first surface).**
 
 ## Progress Log (rolling)
-- **Done (latest):** P6.0 Plan next milestone slices from the master plan (doc-only, keep steps small + config-first).
-- **Next step:** P6.1 Choose the next advanced casino game + add a config-first stub entry (config-first + doc-first).
+- **Done (latest):** P6.1 Choose the next advanced casino game + add a config-first stub entry (config-first + doc-first).
+- **Next step:** P6.2 Build the minimal playable loop for the new casino game (mobile-first surface).
 
 ## P2.7 Scope Notes (Bias Sanctuary visual story mode)
 ### Story structure & content
@@ -1029,3 +1029,8 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Added a Vault Heist teaser panel to the Games Hub so upcoming windows get a dedicated callout ahead of the grid.
 - Introduced config-driven teaser copy (headline, description, CTA labels) to keep the panel tuned without code edits.
 - Swapped the upcoming heist label to use a config-driven countdown string for more urgent availability messaging.
+
+## P6.1 Slice Notes (Advanced casino game selection + config stub)
+- Chose Market Blackjack as the next advanced casino game, framed around volatility hands and earnings-season side bets.
+- Added a config-first stub for the Market Blackjack lobby card, table limits, and side bet hooks to keep the next slice implementation-ready.
+- Logged the slice completion and advanced the next step to the minimal playable loop build.
