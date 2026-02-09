@@ -6,6 +6,7 @@
 import { ClockCountdown, LockKey, Siren, Sparkle, X } from '@phosphor-icons/react'
 import { useMemo } from 'react'
 import { Button } from '@/components/ui/button'
+import { VAULT_HEIST_CONFIG } from '@/config/vaultHeist'
 import { useMiniGames } from '@/hooks/useMiniGames'
 
 interface VaultHeistProps {
@@ -38,11 +39,13 @@ const HEIST_LOCKERS = [
 
 export function VaultHeist({ onClose }: VaultHeistProps) {
   const { activeMiniGames, upcomingMiniGames, getTimeRemaining } = useMiniGames()
+  const { schedule, scheduleCopy } = VAULT_HEIST_CONFIG
 
   const activeHeist = activeMiniGames.find(game => game.id === 'vault-heist')
   const upcomingHeist = upcomingMiniGames.find(game => game.id === 'vault-heist')
   const remaining = activeHeist ? getTimeRemaining(activeHeist) : null
   const formatTime = (date: Date) => date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+  const windowDurationLabel = `${schedule.durationMinutes} min`
 
   const statusLabel = useMemo(() => {
     if (activeHeist) {
@@ -77,7 +80,7 @@ export function VaultHeist({ onClose }: VaultHeistProps) {
             <div>
               <h1 className="text-3xl font-bold sm:text-5xl">Crack the vault before the alarm hits.</h1>
               <p className="mt-3 max-w-xl text-sm text-amber-100/70 sm:text-base">
-                Vault Heist goes live on Saturdays. Build your crew, pick a lane, and claim the biggest coin haul of the week.
+                {scheduleCopy.overview}
               </p>
             </div>
             <div className="flex items-center gap-2 rounded-full border border-amber-500/40 bg-amber-500/10 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-amber-100">
@@ -90,9 +93,9 @@ export function VaultHeist({ onClose }: VaultHeistProps) {
         <section className="grid gap-4 rounded-3xl border border-amber-500/30 bg-amber-950/40 p-5 shadow-[0_20px_60px_rgba(251,191,36,0.12)] sm:grid-cols-3 sm:gap-6 sm:p-6">
           <div className="rounded-2xl border border-amber-400/20 bg-black/30 p-4">
             <p className="text-xs uppercase tracking-[0.3em] text-amber-200/70">Heist Window</p>
-            <p className="mt-2 text-3xl font-bold text-white">60 min</p>
+            <p className="mt-2 text-3xl font-bold text-white">{windowDurationLabel}</p>
             <p className="mt-2 text-xs text-amber-100/70">
-              Limited-time Saturday run with exclusive vault payouts.
+              {scheduleCopy.windowDetail}
             </p>
           </div>
           <div className="rounded-2xl border border-amber-400/20 bg-black/30 p-4">
@@ -180,9 +183,9 @@ export function VaultHeist({ onClose }: VaultHeistProps) {
               <p className="text-xs font-semibold uppercase tracking-[0.3em] text-amber-200/70">
                 Heist Signal
               </p>
-              <p className="mt-3 text-2xl font-bold text-white">VAULT OPEN</p>
+              <p className="mt-3 text-2xl font-bold text-white">{scheduleCopy.signalHeadline}</p>
               <p className="mt-2 text-xs text-amber-100/70">
-                Coin rewards spike during the Saturday window.
+                {scheduleCopy.signalDetail}
               </p>
             </div>
             <div className="mt-6 rounded-2xl border border-amber-400/20 bg-black/40 p-4 text-xs text-amber-100/70">

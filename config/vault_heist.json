@@ -1,6 +1,12 @@
 {
   "freePickCount": 3,
   "resetOnWindowStart": true,
+  "scheduleCopy": {
+    "overview": "Vault Heist goes live on Saturdays. Build your crew, pick a lane, and claim the biggest coin haul of the week.",
+    "windowDetail": "Limited-time Saturday run with exclusive vault payouts.",
+    "signalHeadline": "VAULT OPEN",
+    "signalDetail": "Coin rewards spike during the Saturday window."
+  },
   "schedule": {
     "type": "weekly",
     "days": [6],

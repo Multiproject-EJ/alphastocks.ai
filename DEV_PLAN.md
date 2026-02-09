@@ -303,6 +303,8 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P5.1** ✅ Config-first pick limits + free pick rules
 - **P5.2** ✅ Persist free-pick resets on the Vault Heist schedule window (config-first)
 - **P5.3** ✅ Move Vault Heist schedule + reset rules into config (config-first)
+- **P5.4** ✅ Add Vault Heist schedule copy to config-driven UI callouts (config-first)
+- **P5.5** ⏳ Replace Saturday-only gating with schedule-aware Vault Heist availability (config-first)
 
 ---
 
@@ -334,11 +336,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P5.4 — Add Vault Heist schedule copy to config-driven UI callouts (config-first).**
+**Recommended next slice:** **P5.5 — Replace Saturday-only gating with schedule-aware Vault Heist availability (config-first).**
 
 ## Progress Log (rolling)
-- **Done (latest):** P5.3 Move Vault Heist schedule + reset rules into config (config-first).
-- **Next step:** P5.4 Add Vault Heist schedule copy to config-driven UI callouts (config-first).
+- **Done (latest):** P5.4 Add Vault Heist schedule copy to config-driven UI callouts (config-first).
+- **Next step:** P5.5 Replace Saturday-only gating with schedule-aware Vault Heist availability (config-first).
 
 ## P2.7 Scope Notes (Bias Sanctuary visual story mode)
 ### Story structure & content
@@ -992,3 +994,8 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Moved the Vault Heist schedule definition into config so window timing is data-driven.
 - Centralized Vault Heist schedule defaults in the config loader with validation fallbacks.
 - Updated mini-game scheduling to read the Vault Heist window from config.
+
+## P5.4 Slice Notes (Vault Heist schedule copy callouts)
+- Added config-driven schedule copy for the Vault Heist surface so timing messaging can be tuned without code edits.
+- Wired the Vault Heist UI callouts to read overview, window detail, and signal copy from the Vault Heist config.
+- Made the heist window duration label derive from the schedule config to keep UI aligned with timing rules.

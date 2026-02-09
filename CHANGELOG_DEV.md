@@ -3016,3 +3016,23 @@
 
 **How to test:**  
 - (manual) Adjust the Vault Heist schedule config and confirm Games Hub/Right Now surfaces reflect the new window timing.  
+
+**Date:** 2026-02-10  
+**Slice:** P5.4 Vault Heist schedule copy callouts  
+**Summary:**  
+- Added schedule copy fields to the Vault Heist config for overview, window detail, and signal callouts.  
+- Wired the Vault Heist surface to read schedule messaging and window duration from config.  
+- Kept Vault Heist schedule callouts aligned with the timing rules for config-first tuning.  
+
+**Files changed:**  
+- config/vault_heist.json  
+- apps/investing-board-game-v3/src/config/vaultHeist.ts  
+- apps/investing-board-game-v3/src/components/games/placeholders/VaultHeist.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Open Vault Heist and confirm the schedule overview, window detail, signal callouts, and duration label match the vault heist config.  
