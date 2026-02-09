@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import { getQuickRewardLabelConfig } from '@/config/tileLabels'
 import { QUICK_REWARD_CONFIG, QUICK_REWARD_TILE_STYLES, QuickRewardType, getPremiumTileStyle, PREMIUM_TILE_CONFIG } from '../lib/quickRewardTiles'
 import { TILE_WIDTH, TILE_HEIGHT } from '../lib/constants'
 
@@ -30,6 +31,9 @@ export function QuickRewardTile({
 }: QuickRewardTileProps) {
   const config = QUICK_REWARD_CONFIG[type]
   const styles = isPremium ? getPremiumTileStyle() : QUICK_REWARD_TILE_STYLES[type]
+  const labelConfig = getQuickRewardLabelConfig(type)
+  const quickRewardLabel = labelConfig?.label ?? styles.label
+  const quickRewardSublabel = labelConfig?.sublabel
   const ringClass = !ringNumber || ringNumber === 1
     ? 'ring-1-tile'
     : ringNumber === 2
@@ -128,12 +132,18 @@ export function QuickRewardTile({
         
         {/* Label - white with drop shadow for readability */}
         <span className="text-[10px] sm:text-xs font-semibold text-white text-center leading-tight mt-1 drop-shadow-sm">
-          {isPremium ? 'PREMIUM' : styles.label}
+          {isPremium ? 'PREMIUM' : quickRewardLabel}
         </span>
-        {isPremium && (
+        {isPremium ? (
           <span className="text-[8px] sm:text-[9px] font-medium text-yellow-100 text-center leading-tight">
-            {QUICK_REWARD_TILE_STYLES[type].label}
+            {quickRewardLabel}
           </span>
+        ) : (
+          quickRewardSublabel && (
+            <span className="text-[8px] sm:text-[9px] font-medium text-white/90 text-center leading-tight">
+              {quickRewardSublabel}
+            </span>
+          )
         )}
       </div>
 

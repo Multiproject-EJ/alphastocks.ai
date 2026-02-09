@@ -5,6 +5,30 @@
 
 ## Unreleased
 
+- Added config-driven labels for quick reward and special tiles.
+
+**Date:** 2026-02-27  
+**Slice:** M7.4 Expand labels for quick-reward + special tiles (config-first)  
+**Summary:**  
+- Added a tile label config seed for quick rewards and special actions so label copy stays data-driven.  
+- Wired quick reward tiles to display label + sublabel copy from the new config helper.  
+- Expanded special-action tile labels (fall portal, chance, big fish portal, roulette) using the shared config map.  
+
+**Files changed:**  
+- config/tile_labels.json  
+- apps/investing-board-game-v3/src/config/tileLabels.ts  
+- apps/investing-board-game-v3/src/components/QuickRewardTile.tsx  
+- apps/investing-board-game-v3/src/lib/tileLabels.ts  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Open the board and confirm quick reward tiles show the updated label + sublabel lines.  
+- (manual) Land on or inspect special tiles (Big Fish Portal, Chance, Fall Portal) to see the new labels.  
+
 - Added ring-aware sizing for tile labels.
 
 **Date:** 2026-02-26  

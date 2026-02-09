@@ -2,6 +2,7 @@ import type { Tile as TileType, RingNumber } from '@/lib/types'
 import type { TileLabelTone } from '@/components/TileLabel'
 import { ROULETTE_REWARDS } from '@/lib/mockData'
 import { getStockCategoryDefinition } from '@/lib/stockCategories'
+import { getQuickRewardLabelConfig, getSpecialActionLabelConfig } from '@/config/tileLabels'
 
 export interface TileLabelConfig {
   label: string
@@ -20,8 +21,6 @@ export const getTileLabelConfig = (
   ring: RingNumber,
   context: TileLabelContext
 ): TileLabelConfig | undefined => {
-  if (tile.type === 'quick-reward') return undefined
-
   if (context.rouletteModeActive) {
     const reward = ROULETTE_REWARDS[(tile.id + ring * 2) % ROULETTE_REWARDS.length]
     return {
@@ -32,20 +31,27 @@ export const getTileLabelConfig = (
     }
   }
 
-  if (tile.specialAction === 'ring-fall') {
-    return {
-      label: 'Drop',
-      tone: 'warning',
-      icon: '⬇️',
-      sublabel: 'Fall',
+  if (tile.type === 'quick-reward') {
+    const quickRewardLabel = tile.quickRewardType ? getQuickRewardLabelConfig(tile.quickRewardType) : undefined
+    if (quickRewardLabel) {
+      return {
+        label: quickRewardLabel.label,
+        tone: quickRewardLabel.tone ?? 'accent',
+        icon: quickRewardLabel.icon,
+        sublabel: quickRewardLabel.sublabel,
+      }
     }
   }
 
-  if (tile.specialAction === 'chance') {
-    return {
-      label: 'Chance',
-      tone: 'accent',
-      icon: '🎴',
+  if (tile.specialAction) {
+    const specialActionLabel = getSpecialActionLabelConfig(tile.specialAction)
+    if (specialActionLabel) {
+      return {
+        label: specialActionLabel.label,
+        tone: specialActionLabel.tone ?? 'accent',
+        icon: specialActionLabel.icon,
+        sublabel: specialActionLabel.sublabel,
+      }
     }
   }
 

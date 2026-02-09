@@ -1,0 +1,72 @@
+{
+  "quickRewards": {
+    "cash": {
+      "label": "Cash",
+      "sublabel": "Bonus",
+      "icon": "💰",
+      "tone": "success"
+    },
+    "stars": {
+      "label": "Stars",
+      "sublabel": "Boost",
+      "icon": "⭐",
+      "tone": "premium"
+    },
+    "coins": {
+      "label": "Coins",
+      "sublabel": "Drop",
+      "icon": "🪙",
+      "tone": "accent"
+    },
+    "bonus-roll": {
+      "label": "Bonus Roll",
+      "sublabel": "Extra Turn",
+      "icon": "🎲",
+      "tone": "premium"
+    },
+    "xp": {
+      "label": "XP",
+      "sublabel": "Boost",
+      "icon": "⚡",
+      "tone": "success"
+    },
+    "mystery": {
+      "label": "Mystery",
+      "sublabel": "Reveal",
+      "icon": "🎁",
+      "tone": "premium"
+    },
+    "chameleon": {
+      "label": "Chameleon",
+      "sublabel": "Shifts",
+      "icon": "🔄",
+      "tone": "accent"
+    }
+  },
+  "specialActions": {
+    "ring-fall": {
+      "label": "Fall Portal",
+      "sublabel": "Drop",
+      "icon": "⬇️",
+      "tone": "warning"
+    },
+    "chance": {
+      "label": "Chance",
+      "sublabel": "Draw",
+      "icon": "🎴",
+      "tone": "accent"
+    },
+    "big-fish-portal": {
+      "label": "Big Fish",
+      "sublabel": "Portal",
+      "icon": "🌀",
+      "tone": "premium"
+    },
+    "roulette-reward": {
+      "label": "Roulette",
+      "sublabel": "Spin",
+      "icon": "🎡",
+      "tone": "premium"
+    }
+  }
+}

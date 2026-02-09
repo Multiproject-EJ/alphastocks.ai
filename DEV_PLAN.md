@@ -55,7 +55,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 - `AI_IMPLEMENTATION.md`, `IMPLEMENTATION_SUMMARY.md`, `DEVLOG.md` (project-wide status/context)
 
 ### Repo Map (paths verified)
-_Last reviewed: 2026-02-24 (Court of Capital activation)_
+_Last reviewed: 2026-02-27 (tile label config expansion)_
 #### Frontend
 - **Legacy static pages entry:** `/index.html`, `/about.html`, `/faq.html`, `/monthly/`, `/weekly/`, `/superinvestor/`
 - **Vite + Preact app:** `/apps/investing-board-game-v3` (built into `/public/board-game-v3` via `npm run build:board-game-v3`)
@@ -130,6 +130,7 @@ _Last reviewed: 2026-02-24 (Court of Capital activation)_
 - **Ring config seed:** `/config/rings.json` (ring rewards + portal defaults) + `apps/investing-board-game-v3/src/config/rings.ts` (normalization + exports)
 - **Event tile config seed:** `/config/event_tiles.json` (Tier 1 + Market Event rewards) + `apps/investing-board-game-v3/src/config/eventTiles.ts` (normalization + exports)
 - **Casino lobby config seed:** `/config/casino.json` (Casino lobby + game cards) + `apps/investing-board-game-v3/src/config/casino.ts` (normalization + exports)
+- **Tile label config seed:** `/config/tile_labels.json` (quick reward + special tile labels) + `apps/investing-board-game-v3/src/config/tileLabels.ts` (normalization + exports)
 
 #### ProTools (read-only)
 - **Integration docs:** `apps/investing-board-game-v3/PRO_TOOLS_INTEGRATION.md`
@@ -225,7 +226,8 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **M7.1** ✅ Audit board renderer + tile overlays
 - **M7.2** ✅ Implement tile label component
 - **M7.3** ✅ Hook labels to tile data
-- **M7.4** Expand labels for quick-reward + special tiles (config-first)
+- **M7.4** ✅ Expand labels for quick-reward + special tiles (config-first)
+- **M7.5** Add tile label legend + config reference in HUD help (config-first)
 
 ### M8 — Telemetry & Tuning
 - **M8.1** ✅ Economy telemetry sinks
@@ -327,7 +329,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **M7.4 — Expand labels for quick-reward + special tiles (config-first).**
+**Recommended next slice:** **M7.5 — Add tile label legend + config reference in HUD help (config-first).**
 
 ## P2.7 Scope Notes (Bias Sanctuary visual story mode)
 ### Story structure & content
@@ -365,6 +367,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Added a shared economy window status pill so HUD and phone dice controls display the same countdown + bonus info.
 - Surfaced active economy windows in overlay mode with a fixed banner, keeping window bonuses visible while modals are open.
 - Centralized economy window timer formatting to keep countdowns consistent across HUD and overlay surfaces.
+
+## M7.4 Slice Notes (Expand labels for quick-reward + special tiles)
+- Added a config-driven tile label catalog for quick rewards and special actions so labels can be tuned without code edits.
+- Wired quick reward tiles to pull label + sublabel copy from the new config to keep the reward callouts consistent.
+- Expanded special-action labels (fall portal, chance, big fish portal, roulette) using the shared config helper.
 
 ## Config Strategy Kickoff Slice Notes (Completed ✅)
 - Moved ring configuration, Ring 3 settings, and portal configuration into a dedicated config module to kick off the central config strategy.
