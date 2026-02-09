@@ -22,6 +22,15 @@ const DEFAULT_CONFIG = {
     ctaUpcoming: 'Next heist',
     ctaOffline: 'Heist standby',
     ctaUpcomingAction: 'games-hub',
+    upcomingCountdown: 'Heist launches in {time}',
+  },
+  gamesHubTeaser: {
+    eyebrow: 'Weekly vault raid',
+    headline: 'Vault Heist',
+    description: 'Assemble a crew, pick a lane, and crack the vault for the biggest coin haul of the week.',
+    ctaLive: 'Enter heist',
+    ctaUpcoming: 'View schedule',
+    ctaOffline: 'Review playbook',
   },
   schedule: DEFAULT_SCHEDULE,
 }
@@ -117,6 +126,29 @@ export const vaultHeistConfig = {
       rawVaultHeistConfig?.scheduleCopy?.ctaUpcomingAction,
       DEFAULT_CONFIG.scheduleCopy.ctaUpcomingAction,
     ),
+    upcomingCountdown: typeof rawVaultHeistConfig?.scheduleCopy?.upcomingCountdown === 'string'
+      ? rawVaultHeistConfig.scheduleCopy.upcomingCountdown
+      : DEFAULT_CONFIG.scheduleCopy.upcomingCountdown,
+  },
+  gamesHubTeaser: {
+    eyebrow: typeof rawVaultHeistConfig?.gamesHubTeaser?.eyebrow === 'string'
+      ? rawVaultHeistConfig.gamesHubTeaser.eyebrow
+      : DEFAULT_CONFIG.gamesHubTeaser.eyebrow,
+    headline: typeof rawVaultHeistConfig?.gamesHubTeaser?.headline === 'string'
+      ? rawVaultHeistConfig.gamesHubTeaser.headline
+      : DEFAULT_CONFIG.gamesHubTeaser.headline,
+    description: typeof rawVaultHeistConfig?.gamesHubTeaser?.description === 'string'
+      ? rawVaultHeistConfig.gamesHubTeaser.description
+      : DEFAULT_CONFIG.gamesHubTeaser.description,
+    ctaLive: typeof rawVaultHeistConfig?.gamesHubTeaser?.ctaLive === 'string'
+      ? rawVaultHeistConfig.gamesHubTeaser.ctaLive
+      : DEFAULT_CONFIG.gamesHubTeaser.ctaLive,
+    ctaUpcoming: typeof rawVaultHeistConfig?.gamesHubTeaser?.ctaUpcoming === 'string'
+      ? rawVaultHeistConfig.gamesHubTeaser.ctaUpcoming
+      : DEFAULT_CONFIG.gamesHubTeaser.ctaUpcoming,
+    ctaOffline: typeof rawVaultHeistConfig?.gamesHubTeaser?.ctaOffline === 'string'
+      ? rawVaultHeistConfig.gamesHubTeaser.ctaOffline
+      : DEFAULT_CONFIG.gamesHubTeaser.ctaOffline,
   },
   schedule: coerceWindowSchedule(rawVaultHeistConfig?.schedule, DEFAULT_CONFIG.schedule),
 }

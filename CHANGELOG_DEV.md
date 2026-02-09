@@ -5,6 +5,30 @@
 
 ## Unreleased
 
+- Added a Vault Heist teaser panel to the Games Hub with config-driven copy and CTA labels.
+- Swapped Vault Heist upcoming availability messaging to a config-driven countdown label.
+
+**Date:** 2026-02-11  
+**Slice:** P5.8 Vault Heist Games Hub teaser + upcoming countdown copy (config-first)  
+**Summary:**  
+- Added a Vault Heist teaser panel to the Games Hub with live/upcoming status callouts.  
+- Introduced config-driven teaser copy and CTA labels for the Games Hub panel.  
+- Updated the Vault Heist upcoming label to use a countdown string from config.  
+
+**Files changed:**  
+- config/vault_heist.json  
+- apps/investing-board-game-v3/src/config/vaultHeist.ts  
+- apps/investing-board-game-v3/src/pages/GamesHub.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Open Games Hub and confirm the Vault Heist teaser shows status, countdown, and CTA copy from config.  
+- (manual) Adjust the `scheduleCopy.upcomingCountdown` string in `config/vault_heist.json` and confirm the Vault Heist availability label updates.  
+
 - Added a config-driven fallback so upcoming Vault Heist CTAs route into the Games Hub.
 - Enabled the upcoming Vault Heist floating buttons on desktop and phone to open the Games Hub.
 
