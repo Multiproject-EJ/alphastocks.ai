@@ -12,16 +12,20 @@ interface BoardDebugProps {
 }
 
 export function BoardDebugOverlay({ currentPosition, camera, isVisible }: BoardDebugProps) {
-  if (!isVisible) return null;
-  
   const [diagnostics, setDiagnostics] = useState(() => getProToolsDiagnostics().slice(0, 4));
 
   useEffect(() => {
+    if (!isVisible) {
+      return;
+    }
+
     setDiagnostics(getProToolsDiagnostics().slice(0, 4));
     return subscribeToProToolsDiagnostics(() => {
       setDiagnostics(getProToolsDiagnostics().slice(0, 4));
     });
-  }, []);
+  }, [isVisible]);
+
+  if (!isVisible) return null;
 
   return (
     <div style={{
