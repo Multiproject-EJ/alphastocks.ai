@@ -371,6 +371,7 @@ const TileComponent = ({
           tone={tileLabel.tone}
           icon={tileLabel.icon}
           sublabel={tileLabel.sublabel}
+          size={ringNumber === 3 ? 'compact' : 'standard'}
         />
       )}
 

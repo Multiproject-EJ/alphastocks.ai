@@ -225,6 +225,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **M7.1** ✅ Audit board renderer + tile overlays
 - **M7.2** ✅ Implement tile label component
 - **M7.3** ✅ Hook labels to tile data
+- **M7.4** Expand labels for quick-reward + special tiles (config-first)
 
 ### M8 — Telemetry & Tuning
 - **M8.1** ✅ Economy telemetry sinks
@@ -326,7 +327,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **M7.2 — Implement tile label component.**
+**Recommended next slice:** **M7.4 — Expand labels for quick-reward + special tiles (config-first).**
 
 ## P2.7 Scope Notes (Bias Sanctuary visual story mode)
 ### Story structure & content
@@ -595,6 +596,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ## M7.2 Slice Notes (Implement tile label component)
 - Added a reusable `TileLabel` component with tone variants, icon/sublabel support, and mobile-first styling for future price pops.
 - Extended the `Tile` renderer to accept an optional label config and render the overlay when ring content is visible.
+- Tuned the label sizing to support compact Ring 3 layouts while keeping Ring 1/2 labels readable.
 
 ## M7.3 Slice Notes (Hook labels to tile data)
 - Added ring-aware tile label configuration so category, event, and learning tiles surface compact labels without new layout wrappers.

@@ -5,6 +5,27 @@
 
 ## Unreleased
 
+- Added ring-aware sizing for tile labels.
+
+**Date:** 2026-02-26  
+**Slice:** M7.2 Implement tile label component  
+**Summary:**  
+- Added size-aware styling to the tile label pill so compact layouts stay readable on Ring 3.  
+- Updated tile rendering to pass ring-aware sizing to the label component.  
+- Logged the next slice to wire labels deeper into tile data.  
+
+**Files changed:**  
+- apps/investing-board-game-v3/src/components/Tile.tsx  
+- apps/investing-board-game-v3/src/components/TileLabel.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Open the board, inspect Ring 1 vs Ring 3 tiles, and confirm tile labels render at different sizes.  
+
 - Added High Roller Dice bankroll guidance and balance recovery CTA.
 
 **Date:** 2026-02-25  
