@@ -12,6 +12,13 @@ const DEFAULT_SCHEDULE: WindowSchedule = {
 const DEFAULT_CONFIG = {
   freePickCount: 3,
   resetOnWindowStart: true,
+  scheduleCopy: {
+    overview:
+      'Vault Heist goes live on Saturdays. Build your crew, pick a lane, and claim the biggest coin haul of the week.',
+    windowDetail: 'Limited-time Saturday run with exclusive vault payouts.',
+    signalHeadline: 'VAULT OPEN',
+    signalDetail: 'Coin rewards spike during the Saturday window.',
+  },
   schedule: DEFAULT_SCHEDULE,
 }
 
@@ -75,6 +82,20 @@ const coerceWindowSchedule = (value: unknown, fallback: WindowSchedule): WindowS
 export const vaultHeistConfig = {
   freePickCount: Math.max(0, Math.floor(coerceNumber(rawVaultHeistConfig?.freePickCount, DEFAULT_CONFIG.freePickCount))),
   resetOnWindowStart: coerceBoolean(rawVaultHeistConfig?.resetOnWindowStart, DEFAULT_CONFIG.resetOnWindowStart),
+  scheduleCopy: {
+    overview: typeof rawVaultHeistConfig?.scheduleCopy?.overview === 'string'
+      ? rawVaultHeistConfig.scheduleCopy.overview
+      : DEFAULT_CONFIG.scheduleCopy.overview,
+    windowDetail: typeof rawVaultHeistConfig?.scheduleCopy?.windowDetail === 'string'
+      ? rawVaultHeistConfig.scheduleCopy.windowDetail
+      : DEFAULT_CONFIG.scheduleCopy.windowDetail,
+    signalHeadline: typeof rawVaultHeistConfig?.scheduleCopy?.signalHeadline === 'string'
+      ? rawVaultHeistConfig.scheduleCopy.signalHeadline
+      : DEFAULT_CONFIG.scheduleCopy.signalHeadline,
+    signalDetail: typeof rawVaultHeistConfig?.scheduleCopy?.signalDetail === 'string'
+      ? rawVaultHeistConfig.scheduleCopy.signalDetail
+      : DEFAULT_CONFIG.scheduleCopy.signalDetail,
+  },
   schedule: coerceWindowSchedule(rawVaultHeistConfig?.schedule, DEFAULT_CONFIG.schedule),
 }
 
