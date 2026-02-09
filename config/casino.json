@@ -20,6 +20,15 @@
         "cta": "Roll the dice",
         "tag": "High Stakes",
         "icon": "🎲"
+      },
+      {
+        "id": "market-blackjack",
+        "name": "Market Blackjack",
+        "description": "Volatility-driven blackjack hands with earnings-season side bets.",
+        "status": "teaser",
+        "cta": "Coming soon",
+        "tag": "Strategy",
+        "icon": "🂡"
       }
     ]
   },
@@ -85,6 +94,32 @@
         "description": "Need to rebuild cash? Take a lower-entry spin in Scratchcard Vault and come back with a buffer.",
         "cta": "Play scratchcards"
       }
+    }
+  },
+  "blackjack": {
+    "title": "Market Blackjack",
+    "description": "Time the volatility tape, pick a side bet, and aim for a market-perfect hand.",
+    "tableLimits": {
+      "minBet": 1000,
+      "maxBet": 15000
+    },
+    "sideBets": [
+      {
+        "id": "earnings-beat",
+        "label": "Earnings Beat",
+        "description": "Bonus payout for dealer 17+ when the earnings bell rings.",
+        "payout": 4
+      },
+      {
+        "id": "macro-momentum",
+        "label": "Macro Momentum",
+        "description": "Boosted payout if the player hits 20 on the first draw.",
+        "payout": 6
+      }
+    ],
+    "teaser": {
+      "headline": "New table loading",
+      "details": "Market Blackjack opens soon with volatility hands and earnings-season side bets."
     }
   }
 }
