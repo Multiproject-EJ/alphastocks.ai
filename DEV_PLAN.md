@@ -305,6 +305,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P5.3** ✅ Move Vault Heist schedule + reset rules into config (config-first)
 - **P5.4** ✅ Add Vault Heist schedule copy to config-driven UI callouts (config-first)
 - **P5.5** ✅ Replace Saturday-only gating with schedule-aware Vault Heist availability (config-first)
+- **P5.6** ✅ Add schedule-aware Vault Heist availability messaging to the HUD/CTA (config-first)
 
 ---
 
@@ -336,11 +337,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P5.6 — Add schedule-aware Vault Heist availability messaging to the HUD/CTA (config-first).**
+**Recommended next slice:** **P5.7 — Add a Vault Heist CTA fallback that opens the Games Hub when the heist is upcoming (config-first).**
 
 ## Progress Log (rolling)
-- **Done (latest):** P5.5 Replace Saturday-only gating with schedule-aware Vault Heist availability (config-first).
-- **Next step:** P5.6 Add schedule-aware Vault Heist availability messaging to the HUD/CTA (config-first).
+- **Done (latest):** P5.6 Add schedule-aware Vault Heist availability messaging to the HUD/CTA (config-first).
+- **Next step:** P5.7 Add a Vault Heist CTA fallback that opens the Games Hub when the heist is upcoming (config-first).
 
 ## P2.7 Scope Notes (Bias Sanctuary visual story mode)
 ### Story structure & content
@@ -1003,3 +1004,8 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ## P5.5 Slice Notes (Vault Heist schedule-aware availability)
 - Replaced Saturday-only Vault Heist gating with schedule-aware availability derived from the mini-game schedule engine.
 - Updated HUD entry availability to follow the live Vault Heist window instead of a hardcoded weekday check.
+
+## P5.6 Slice Notes (Vault Heist HUD/CTA availability messaging)
+- Added config-driven CTA messaging for Vault Heist live/upcoming status so HUD buttons show time-aware availability callouts.
+- Displayed Vault Heist status badges on desktop + phone floating buttons, including countdowns during live windows.
+- Kept the CTA styling mobile-first while disabling the vault button when the heist is upcoming.
