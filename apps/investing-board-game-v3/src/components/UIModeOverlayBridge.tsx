@@ -5,11 +5,12 @@
  * It bridges the UIMode state machine with the overlay manager system.
  */
 
-import { useEffect, useRef, lazy } from 'react'
+import { useEffect, useRef } from 'react'
 import { useUIMode } from '@/hooks/useUIMode'
 import { useOverlayManager } from '@/hooks/useOverlayManager'
 import type { UIMode } from '@/lib/uiModeStateMachine'
 import { SHOP2_ENABLED } from '@/lib/featureFlags'
+import { OVERLAY_REGISTRY, type OverlayType } from '@/lib/overlayRegistry'
 
 // Map UI modes to overlay IDs
 const MODE_TO_OVERLAY_MAP: Partial<Record<UIMode, string>> = {
@@ -92,50 +93,33 @@ export function UIModeOverlayBridge({
     // Open the appropriate overlay
     console.log('[UIModeOverlayBridge] Opening overlay:', overlayId)
 
+    const component = OVERLAY_REGISTRY[overlayId as OverlayType]
+    if (!component) {
+      console.warn('[UIModeOverlayBridge] Overlay component missing for id:', overlayId)
+      return
+    }
+
     // Prepare overlay props based on mode
     let props: any = {}
-    let component: any
 
     switch (mode) {
       case 'shop':
-        component = SHOP2_ENABLED
-          ? lazy(() => import('@/components/Shop2Modal'))
-          : lazy(() => import('@/components/ShopModal'))
         props = shopProps || {}
         break
       case 'stockExchangeBuilder':
-        component = lazy(() => import('@/components/StockExchangeBuilderModal'))
         props = stockExchangeBuilderProps || {}
         break
       case 'gallery':
-        component = lazy(() => import('@/components/NetWorthGalleryModal'))
         props = galleryProps || {}
         break
       case 'leaderboard':
-        component = lazy(() => import('@/components/LeaderboardModal'))
         props = leaderboardProps || {}
         break
       case 'challenges':
-        component = lazy(() => import('@/components/ChallengesModal'))
         props = challengesProps || {}
         break
       case 'portfolio':
-        component = lazy(() =>
-          import('@/components/PortfolioModal').then((module) => ({ default: module.PortfolioModal }))
-        )
         props = portfolioProps || {}
-        break
-      case 'settings':
-        component = lazy(() => import('@/components/SettingsModal'))
-        break
-      case 'casino':
-        component = lazy(() => import('@/components/CasinoModal'))
-        break
-      case 'biasSanctuary':
-        component = lazy(() => import('@/components/BiasSanctuaryModal'))
-        break
-      case 'hub':
-        component = lazy(() => import('@/components/HubModal'))
         break
       default:
         console.warn('[UIModeOverlayBridge] Unhandled mode:', mode)
