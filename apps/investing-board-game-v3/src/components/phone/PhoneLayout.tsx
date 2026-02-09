@@ -56,12 +56,14 @@ interface PhoneLayoutProps {
   onOpenSeasonPass?: () => void;
   dailySpinAvailable?: boolean;
   onOpenDailySpin?: () => void;
+  onOpenGamesHub?: () => void;
   saturdayVaultAvailable?: boolean;
   onOpenSaturdayVault?: () => void;
   vaultHeistStatus?: {
     headline: string;
     detail: string;
     isLive: boolean;
+    ctaAction: 'heist' | 'games-hub' | 'disabled';
   };
   eventTrackNode?: ReactNode;
 }
@@ -96,6 +98,7 @@ export function PhoneLayout({
   onOpenSeasonPass = () => {},
   dailySpinAvailable = false,
   onOpenDailySpin = () => {},
+  onOpenGamesHub = () => {},
   saturdayVaultAvailable = false,
   onOpenSaturdayVault = () => {},
   vaultHeistStatus,
@@ -126,6 +129,17 @@ export function PhoneLayout({
     : () => {
         transitionTo('settings');
       };
+  const vaultHeistCtaDisabled = vaultHeistStatus?.ctaAction === 'disabled';
+  const handleVaultHeistCta = () => {
+    if (!vaultHeistStatus || vaultHeistCtaDisabled) return;
+    if (vaultHeistStatus.ctaAction === 'heist') {
+      onOpenSaturdayVault();
+      return;
+    }
+    if (vaultHeistStatus.ctaAction === 'games-hub') {
+      onOpenGamesHub();
+    }
+  };
   
   const camera = {
     perspective: 800,
@@ -316,16 +330,24 @@ export function PhoneLayout({
           {vaultHeistStatus && (
             <div className="flex flex-col items-center gap-1">
               <button
-                onClick={vaultHeistStatus.isLive ? onOpenSaturdayVault : undefined}
+                onClick={vaultHeistCtaDisabled ? undefined : handleVaultHeistCta}
                 className={`phone-fab-slide-in-right flex h-14 w-14 items-center justify-center rounded-full text-white shadow-lg shadow-amber-500/30 transition-all ${
                   vaultHeistStatus.isLive
                     ? 'bg-gradient-to-br from-amber-500 to-yellow-400 hover:scale-105 hover:shadow-xl'
-                    : 'bg-gradient-to-br from-amber-500/70 to-yellow-400/70 opacity-80 cursor-not-allowed'
+                    : vaultHeistCtaDisabled
+                    ? 'bg-gradient-to-br from-amber-500/70 to-yellow-400/70 opacity-80 cursor-not-allowed'
+                    : 'bg-gradient-to-br from-amber-500/80 to-yellow-400/80 opacity-90 hover:scale-105 hover:shadow-xl'
                 } ${fabReady ? 'phone-fab-animate' : 'opacity-0'}`}
                 style={{ animationDelay: dailySpinAvailable ? '120ms' : '0ms' }}
-                aria-label={vaultHeistStatus.isLive ? 'Open Vault Heist' : 'Vault Heist upcoming'}
-                aria-disabled={!vaultHeistStatus.isLive}
-                disabled={!vaultHeistStatus.isLive}
+                aria-label={
+                  vaultHeistStatus.isLive
+                    ? 'Open Vault Heist'
+                    : vaultHeistCtaDisabled
+                    ? 'Vault Heist upcoming'
+                    : 'Open Mini-Games Hub'
+                }
+                aria-disabled={vaultHeistCtaDisabled}
+                disabled={vaultHeistCtaDisabled}
                 title={`${vaultHeistStatus.headline} • ${vaultHeistStatus.detail}`}
               >
                 <span className="text-2xl">🏦</span>

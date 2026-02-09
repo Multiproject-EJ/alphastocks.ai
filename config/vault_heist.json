@@ -8,7 +8,8 @@
     "signalDetail": "Coin rewards spike during the Saturday window.",
     "ctaLive": "Heist live",
     "ctaUpcoming": "Next heist",
-    "ctaOffline": "Heist standby"
+    "ctaOffline": "Heist standby",
+    "ctaUpcomingAction": "games-hub"
   },
   "schedule": {
     "type": "weekly",

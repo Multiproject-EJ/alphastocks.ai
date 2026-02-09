@@ -21,6 +21,7 @@ const DEFAULT_CONFIG = {
     ctaLive: 'Heist live',
     ctaUpcoming: 'Next heist',
     ctaOffline: 'Heist standby',
+    ctaUpcomingAction: 'games-hub',
   },
   schedule: DEFAULT_SCHEDULE,
 }
@@ -33,6 +34,8 @@ const SCHEDULE_TYPES: WindowScheduleType[] = [
   'monthly-random',
   'custom',
 ]
+const UPCOMING_ACTIONS = ['games-hub', 'disabled'] as const
+type UpcomingAction = (typeof UPCOMING_ACTIONS)[number]
 
 const coerceBoolean = (value: unknown, fallback: boolean): boolean =>
   typeof value === 'boolean' ? value : fallback
@@ -56,6 +59,9 @@ const coerceNumberArray = (value: unknown, fallback: number[] | undefined): numb
 
 const coerceScheduleType = (value: unknown, fallback: WindowScheduleType): WindowScheduleType =>
   typeof value === 'string' && SCHEDULE_TYPES.includes(value as WindowScheduleType) ? (value as WindowScheduleType) : fallback
+
+const coerceUpcomingAction = (value: unknown, fallback: UpcomingAction): UpcomingAction =>
+  typeof value === 'string' && UPCOMING_ACTIONS.includes(value as UpcomingAction) ? (value as UpcomingAction) : fallback
 
 const coerceWindowSchedule = (value: unknown, fallback: WindowSchedule): WindowSchedule => {
   if (!value || typeof value !== 'object') {
@@ -107,6 +113,10 @@ export const vaultHeistConfig = {
     ctaOffline: typeof rawVaultHeistConfig?.scheduleCopy?.ctaOffline === 'string'
       ? rawVaultHeistConfig.scheduleCopy.ctaOffline
       : DEFAULT_CONFIG.scheduleCopy.ctaOffline,
+    ctaUpcomingAction: coerceUpcomingAction(
+      rawVaultHeistConfig?.scheduleCopy?.ctaUpcomingAction,
+      DEFAULT_CONFIG.scheduleCopy.ctaUpcomingAction,
+    ),
   },
   schedule: coerceWindowSchedule(rawVaultHeistConfig?.schedule, DEFAULT_CONFIG.schedule),
 }

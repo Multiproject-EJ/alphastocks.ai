@@ -1363,20 +1363,34 @@ function App() {
         headline: VAULT_HEIST_CONFIG.scheduleCopy.ctaLive,
         detail: remaining ? `${remaining.display} left` : VAULT_HEIST_CONFIG.scheduleCopy.signalDetail,
         isLive: true,
+        ctaAction: 'heist',
       }
     }
 
     if (upcomingVaultHeist) {
       const formatTime = (date: Date) => date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+      const upcomingAction = VAULT_HEIST_CONFIG.scheduleCopy.ctaUpcomingAction === 'games-hub' ? 'games-hub' : 'disabled'
       return {
         headline: VAULT_HEIST_CONFIG.scheduleCopy.ctaUpcoming,
         detail: formatTime(upcomingVaultHeist.startsAt),
         isLive: false,
+        ctaAction: upcomingAction,
       }
     }
 
     return null
   }, [activeVaultHeist, upcomingVaultHeist, getTimeRemaining])
+  const vaultHeistCtaDisabled = vaultHeistStatus?.ctaAction === 'disabled'
+  const handleVaultHeistCta = useCallback(() => {
+    if (!vaultHeistStatus) return
+    if (vaultHeistStatus.ctaAction === 'heist') {
+      setShowVaultHeist(true)
+      return
+    }
+    if (vaultHeistStatus.ctaAction === 'games-hub') {
+      openGamesHub()
+    }
+  }, [openGamesHub, vaultHeistStatus])
   const scratchcardEventOverride = useMemo(
     () => getScratchcardEventOverride(activeEvents),
     [activeEvents],
@@ -1479,6 +1493,17 @@ function App() {
       priority: 'normal',
     })
   }, [activeEvents, upcomingEvents, activeMiniGames, upcomingMiniGames, showOverlay])
+
+  const openGamesHub = useCallback(() => {
+    showOverlay({
+      id: 'gamesHub',
+      component: GamesHub,
+      props: {
+        onBack: () => closeCurrent(),
+      },
+      priority: 'normal',
+    })
+  }, [closeCurrent, showOverlay])
 
   const openSeasonPass = useCallback(() => {
     showOverlay({
@@ -5036,16 +5061,7 @@ function App() {
                 Stars
               </Button>
               <Button
-                onClick={() => {
-                  showOverlay({
-                    id: 'gamesHub',
-                    component: GamesHub,
-                    props: {
-                      onBack: () => closeCurrent(),
-                    },
-                    priority: 'normal',
-                  })
-                }}
+                onClick={openGamesHub}
                 className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white shadow-lg hover:shadow-xl transition-all backdrop-blur-sm rounded-full h-14 px-6 text-base font-semibold flex items-center gap-2"
                 aria-label="Open Mini-Games Hub"
               >
@@ -5849,15 +5865,23 @@ function App() {
       {vaultHeistStatus && (
         <div className="fixed bottom-24 right-20 z-50 flex flex-col items-center gap-1">
           <button
-            onClick={vaultHeistStatus.isLive ? () => setShowVaultHeist(true) : undefined}
+            onClick={vaultHeistCtaDisabled ? undefined : handleVaultHeistCta}
             className={`p-4 rounded-full shadow-lg transition-transform ${
               vaultHeistStatus.isLive
                 ? 'bg-gradient-to-r from-amber-600 to-yellow-600 animate-bounce hover:scale-110'
-                : 'bg-gradient-to-r from-amber-600/70 to-yellow-600/70 opacity-80 cursor-not-allowed'
+                : vaultHeistCtaDisabled
+                ? 'bg-gradient-to-r from-amber-600/70 to-yellow-600/70 opacity-80 cursor-not-allowed'
+                : 'bg-gradient-to-r from-amber-600/80 to-yellow-600/80 opacity-90 hover:scale-110'
             }`}
-            aria-label={vaultHeistStatus.isLive ? 'Open Vault Heist' : 'Vault Heist upcoming'}
-            aria-disabled={!vaultHeistStatus.isLive}
-            disabled={!vaultHeistStatus.isLive}
+            aria-label={
+              vaultHeistStatus.isLive
+                ? 'Open Vault Heist'
+                : vaultHeistCtaDisabled
+                ? 'Vault Heist upcoming'
+                : 'Open Mini-Games Hub'
+            }
+            aria-disabled={vaultHeistCtaDisabled}
+            disabled={vaultHeistCtaDisabled}
             title={`${vaultHeistStatus.headline} • ${vaultHeistStatus.detail}`}
           >
             <span className="text-3xl">🏦</span>
@@ -5958,6 +5982,7 @@ function App() {
           onOpenSeasonPass={openSeasonPass}
           dailySpinAvailable={dailySpinAvailable}
           onOpenDailySpin={() => setIsWheelOpen(true)}
+          onOpenGamesHub={openGamesHub}
           saturdayVaultAvailable={vaultHeistAvailable}
           vaultHeistStatus={vaultHeistStatus ?? undefined}
           onOpenSaturdayVault={() => setShowVaultHeist(true)}
