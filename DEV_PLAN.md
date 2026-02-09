@@ -322,7 +322,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P3.19 — High Roller Dice session reset + buy-in selector.**
+**Recommended next slice:** **P3.20 — High Roller Dice buy-in spend + balance guardrails.**
 
 ## P2.7 Scope Notes (Bias Sanctuary visual story mode)
 ### Story structure & content
@@ -940,3 +940,8 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Added session stats for High Roller Dice to track rolls, win rate, total payout, and best streak during a casino visit.
 - Added a streak recap line when a streak ends so players can see the length and payout of their latest run.
 - Updated the next slice pointer to focus on a follow-up session reset + buy-in selector pass.
+
+## P3.19 Slice Notes (High Roller Dice session reset + buy-in selector)
+- Added a config-first buy-in selector with tiered entries and payout multipliers for High Roller Dice.
+- Scaled table payouts/EV previews based on the selected buy-in and surfaced the boost alongside streak stats.
+- Added a session reset control to clear streak + session stats when swapping buy-ins or restarting a run.

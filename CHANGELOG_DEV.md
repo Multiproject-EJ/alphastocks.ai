@@ -5,6 +5,29 @@
 
 ## Unreleased
 
+- Added a High Roller Dice buy-in selector with session resets.
+
+**Date:** 2026-02-25  
+**Slice:** P3.19 High Roller Dice session reset + buy-in selector  
+**Summary:**  
+- Added config-driven buy-in tiers for High Roller Dice, scaling payouts and EV previews per tier.  
+- Surfaced buy-in details in the dice summary and session stats panels for clearer context.  
+- Added a session reset control that clears streak + session stats when restarting a run.  
+
+**Files changed:**  
+- config/casino.json  
+- apps/investing-board-game-v3/src/config/casino.ts  
+- apps/investing-board-game-v3/src/components/HighRollerDiceGame.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Open the Casino lobby, enter High Roller Dice, and swap buy-in tiers to confirm payouts/EV update.  
+- (manual) Use "Reset session" to clear stats and confirm streak + totals reset.  
+
 - Added High Roller Dice odds and payout previews.
 
 **Date:** 2026-02-25  
