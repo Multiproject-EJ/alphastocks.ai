@@ -1,4 +1,10 @@
 {
   "freePickCount": 3,
-  "resetOnWindowStart": true
+  "resetOnWindowStart": true,
+  "schedule": {
+    "type": "weekly",
+    "days": [6],
+    "times": ["14:00"],
+    "durationMinutes": 60
+  }
 }

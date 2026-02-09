@@ -302,7 +302,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 ### P5 — Vault Heist Evolution
 - **P5.1** ✅ Config-first pick limits + free pick rules
 - **P5.2** ✅ Persist free-pick resets on the Vault Heist schedule window (config-first)
-- **P5.3** Move Vault Heist schedule + reset rules into config (config-first)
+- **P5.3** ✅ Move Vault Heist schedule + reset rules into config (config-first)
 
 ---
 
@@ -334,11 +334,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P5.3 — Move Vault Heist schedule + reset rules into config (config-first).**
+**Recommended next slice:** **P5.4 — Add Vault Heist schedule copy to config-driven UI callouts (config-first).**
 
 ## Progress Log (rolling)
-- **Done (latest):** P5.2 Persist free-pick resets on the Vault Heist schedule window (config-first).
-- **Next step:** P5.3 Move Vault Heist schedule + reset rules into config (config-first).
+- **Done (latest):** P5.3 Move Vault Heist schedule + reset rules into config (config-first).
+- **Next step:** P5.4 Add Vault Heist schedule copy to config-driven UI callouts (config-first).
 
 ## P2.7 Scope Notes (Bias Sanctuary visual story mode)
 ### Story structure & content
@@ -987,3 +987,8 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Added config-driven Vault Heist free-pick reset rules with window-aware persistence.
 - Stored remaining free picks per Vault Heist window so reloads keep the same allowance during the live event.
 - Reset the free-pick counter automatically when a new Vault Heist window starts.
+
+## P5.3 Slice Notes (Vault Heist schedule + reset rules config)
+- Moved the Vault Heist schedule definition into config so window timing is data-driven.
+- Centralized Vault Heist schedule defaults in the config loader with validation fallbacks.
+- Updated mini-game scheduling to read the Vault Heist window from config.
