@@ -8,11 +8,14 @@ import {
   getHighRollerDiceStreakMultiplier,
 } from '@/lib/highRollerDiceOdds'
 import { useMemo, useState } from 'react'
+import { toast } from 'sonner'
 
 interface HighRollerDiceGameProps {
   onWin?: (amount: number) => void
   luckBoost?: number
   guaranteedWin?: boolean
+  cashBalance: number
+  onSpend?: (amount: number) => boolean
 }
 
 type RollOutcome = {
@@ -40,6 +43,8 @@ export function HighRollerDiceGame({
   onWin,
   luckBoost,
   guaranteedWin,
+  cashBalance,
+  onSpend,
 }: HighRollerDiceGameProps) {
   const diceConfig = casinoConfig.dice
   const { play: playSound } = useSound()
@@ -73,6 +78,9 @@ export function HighRollerDiceGame({
   }
 
   const buyInMultiplier = selectedBuyIn.multiplier
+  const buyInEntry = selectedBuyIn.entry
+  const isBuyInAffordable = cashBalance >= buyInEntry
+  const buyInShortfall = Math.max(0, buyInEntry - cashBalance)
   const adjustedOption = useMemo(
     () => ({
       ...selectedOption,
@@ -99,6 +107,15 @@ export function HighRollerDiceGame({
 
   const handleRoll = () => {
     if (isRolling) {
+      return
+    }
+    if (!isBuyInAffordable) {
+      toast.error('Not enough cash for the buy-in', {
+        description: `You need $${buyInShortfall.toLocaleString()} more to cover the ${selectedBuyIn.label} entry.`,
+      })
+      return
+    }
+    if (onSpend && !onSpend(buyInEntry)) {
       return
     }
     playSound('dice-roll')
@@ -185,6 +202,8 @@ export function HighRollerDiceGame({
     sessionStats.rolls > 0 ? `${Math.round((sessionStats.wins / sessionStats.rolls) * 100)}%` : '—'
   const buyInEntryLabel = `${selectedBuyIn.entry.toLocaleString()} cash`
   const buyInMultiplierLabel = `x${buyInMultiplier.toFixed(2)}`
+  const cashBalanceLabel = `$${cashBalance.toLocaleString()}`
+  const buyInShortfallLabel = `$${buyInShortfall.toLocaleString()} more`
 
   return (
     <div className="rounded-xl border border-purple-500/40 bg-purple-950/50 p-4 text-purple-100/80">
@@ -206,6 +225,7 @@ export function HighRollerDiceGame({
       <div className="mt-4 grid gap-2 sm:grid-cols-3">
         {diceConfig.buyIns.map((buyIn) => {
           const isSelected = buyIn.id === selectedBuyIn.id
+          const isAffordable = cashBalance >= buyIn.entry
           return (
             <Button
               key={buyIn.id}
@@ -223,7 +243,7 @@ export function HighRollerDiceGame({
                   ? 'h-auto min-h-[84px] items-start whitespace-normal border-emerald-300/80 bg-gradient-to-br from-emerald-500/80 to-teal-500/70 px-3 py-2 text-left text-white'
                   : 'h-auto min-h-[84px] items-start whitespace-normal border-emerald-300/30 px-3 py-2 text-left text-emerald-100/80'
               }
-              disabled={isRolling}
+              disabled={isRolling || (!isAffordable && !isSelected)}
             >
               <span className="flex w-full flex-col gap-1">
                 <span className="text-sm font-semibold">{buyIn.label}</span>
@@ -231,6 +251,11 @@ export function HighRollerDiceGame({
                 <span className="text-[11px] text-emerald-100/70">
                   Buy-in {buyIn.entry.toLocaleString()} cash · Payout {`x${buyIn.multiplier.toFixed(2)}`}
                 </span>
+                {!isAffordable && (
+                  <span className="text-[10px] uppercase tracking-wide text-amber-200/80">
+                    Need {`$${(buyIn.entry - cashBalance).toLocaleString()}`} more
+                  </span>
+                )}
               </span>
             </Button>
           )
@@ -296,6 +321,9 @@ export function HighRollerDiceGame({
           <span>
             Buy-in boost: <span className="font-semibold text-purple-50">{buyInMultiplierLabel}</span>
           </span>
+          <span>
+            Balance: <span className="font-semibold text-purple-50">{cashBalanceLabel}</span>
+          </span>
         </div>
         <p className="mt-2 text-[11px] text-purple-100/60">
           Win chance {winChanceLabel} (base {baseWinChanceLabel}). EV ~{expectedPayoutLabel} per roll.
@@ -303,6 +331,11 @@ export function HighRollerDiceGame({
         <p className="mt-1 text-[11px] text-purple-100/60">
           Win to grow your streak. Max streak payout hits {maxPayoutLabel}.
         </p>
+        {!isBuyInAffordable && (
+          <p className="mt-2 text-[11px] text-amber-200/80">
+            Insufficient cash for this buy-in. Add {buyInShortfallLabel} to roll.
+          </p>
+        )}
       </div>
 
       <div className="mt-3 rounded-lg border border-purple-400/20 bg-purple-950/30 p-3 text-xs text-purple-100/70">
@@ -409,10 +442,10 @@ export function HighRollerDiceGame({
         <Button
           type="button"
           onClick={handleRoll}
-          disabled={isRolling}
+          disabled={isRolling || !isBuyInAffordable}
           className="h-10 bg-gradient-to-r from-purple-500/90 to-pink-500/80 text-white"
         >
-          {isRolling ? 'Rolling...' : 'Roll the dice'}
+          {isRolling ? 'Rolling...' : !isBuyInAffordable ? `Need ${buyInShortfallLabel}` : 'Roll the dice'}
         </Button>
       </div>
     </div>

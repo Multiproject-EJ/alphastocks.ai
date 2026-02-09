@@ -1199,6 +1199,24 @@ function App() {
     return true
   }, [gameState.cash, setGameState, setRollsRemaining, playSound])
 
+  const handleCasinoBuyIn = useCallback(
+    (amount: number) => {
+      if (gameState.cash < amount) {
+        toast.error('Not enough cash', {
+          description: `You need $${amount.toLocaleString()} but only have $${gameState.cash.toLocaleString()}`,
+        })
+        return false
+      }
+
+      setGameState((prev) => ({
+        ...prev,
+        cash: prev.cash - amount,
+      }))
+      return true
+    },
+    [gameState.cash, setGameState],
+  )
+
   const {
     seasonPoints,
     currentTier: currentSeasonTier,
@@ -3982,6 +4000,8 @@ function App() {
               luckBoost: isPermanentOwned('casino-luck') ? 0.2 : 0,
               guaranteedWin: hasGuaranteedCasinoWin(),
               scratchcardEventOverride,
+              cashBalance: gameState.cash,
+              onSpendCash: handleCasinoBuyIn,
             },
             priority: 'normal',
             onClose: () => {

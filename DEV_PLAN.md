@@ -286,6 +286,9 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P3.15** ✅ High Roller Dice playable demo + Happy Hour guaranteed-win integration
 - **P3.16** ✅ High Roller Dice reward tuning + audio/FX polish
 - **P3.17** ✅ High Roller Dice odds + payout preview helper
+- **P3.18** ✅ High Roller Dice streak recap + session stats
+- **P3.19** ✅ High Roller Dice session reset + buy-in selector
+- **P3.20** ✅ High Roller Dice buy-in spend + balance guardrails
 
 ### P4 — Seasonal & Holiday Events
 - **P4.1** ✅ Holiday event schedule fixtures
@@ -322,7 +325,7 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P3.20 — High Roller Dice buy-in spend + balance guardrails.**
+**Recommended next slice:** **P3.21 — High Roller Dice bankroll guidance + balance recovery CTA.**
 
 ## P2.7 Scope Notes (Bias Sanctuary visual story mode)
 ### Story structure & content
@@ -945,3 +948,8 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Added a config-first buy-in selector with tiered entries and payout multipliers for High Roller Dice.
 - Scaled table payouts/EV previews based on the selected buy-in and surfaced the boost alongside streak stats.
 - Added a session reset control to clear streak + session stats when swapping buy-ins or restarting a run.
+
+## P3.20 Slice Notes (High Roller Dice buy-in spend + balance guardrails)
+- Deducted the selected buy-in entry cost on each High Roller Dice roll so payouts sit on real bankroll spend.
+- Added cash-balance guardrails that block unaffordable buy-ins and disable rolls until players can cover the entry.
+- Surfaced balance + shortfall messaging in the dice table UI to keep buy-in requirements clear on mobile.
