@@ -2996,3 +2996,23 @@
 
 **How to test:**  
 - (manual) Wait for a Vault Heist window to start or adjust system time, then open Vault Heist and confirm free picks reset at window start and persist across reloads.  
+
+**Date:** 2026-02-10  
+**Slice:** P5.3 Vault Heist schedule + reset rules config  
+**Summary:**  
+- Moved the Vault Heist schedule into config so timing can be tuned without code changes.  
+- Added validation fallbacks for the schedule config in the Vault Heist config loader.  
+- Updated mini-game scheduling to read the Vault Heist window from config.  
+
+**Files changed:**  
+- config/vault_heist.json  
+- apps/investing-board-game-v3/src/config/vaultHeist.ts  
+- apps/investing-board-game-v3/src/lib/miniGameSchedule.ts  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Adjust the Vault Heist schedule config and confirm Games Hub/Right Now surfaces reflect the new window timing.  

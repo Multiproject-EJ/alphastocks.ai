@@ -9,6 +9,7 @@ import {
   getNextWindowStart,
   getScheduleTimeRemaining,
 } from '@/lib/windowSchedule'
+import { VAULT_HEIST_CONFIG } from '@/config/vaultHeist'
 
 export interface MiniGameSchedule {
   id: string
@@ -129,12 +130,7 @@ export const MINI_GAME_CONFIG: MiniGameSchedule[] = [
     name: 'Vault Heist',
     category: 'special',
     isActive: false,
-    schedule: {
-      type: 'weekly',
-      days: [6], // Saturday
-      times: ['14:00'],
-      durationMinutes: 60,
-    },
+    schedule: VAULT_HEIST_CONFIG.schedule,
   },
   {
     id: 'market-mayhem',
