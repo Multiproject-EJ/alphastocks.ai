@@ -16,6 +16,7 @@ interface HighRollerDiceGameProps {
   guaranteedWin?: boolean
   cashBalance: number
   onSpend?: (amount: number) => boolean
+  onRecoveryAction?: () => void
 }
 
 type RollOutcome = {
@@ -45,6 +46,7 @@ export function HighRollerDiceGame({
   guaranteedWin,
   cashBalance,
   onSpend,
+  onRecoveryAction,
 }: HighRollerDiceGameProps) {
   const diceConfig = casinoConfig.dice
   const { play: playSound } = useSound()
@@ -81,6 +83,18 @@ export function HighRollerDiceGame({
   const buyInEntry = selectedBuyIn.entry
   const isBuyInAffordable = cashBalance >= buyInEntry
   const buyInShortfall = Math.max(0, buyInEntry - cashBalance)
+  const bankrollGuidance = diceConfig.bankrollGuidance
+  const bankrollBuffer = bankrollGuidance.buffer
+  const recommendedBuyIn = useMemo(() => {
+    const affordableWithBuffer = diceConfig.buyIns.filter(
+      (buyIn) => cashBalance >= buyIn.entry * bankrollBuffer,
+    )
+    return affordableWithBuffer[affordableWithBuffer.length - 1] ?? diceConfig.buyIns[0]
+  }, [diceConfig.buyIns, cashBalance, bankrollBuffer])
+  const isAboveRecommended = selectedBuyIn.entry > recommendedBuyIn.entry
+  const bankrollTarget = selectedBuyIn.entry * bankrollBuffer
+  const bankrollTargetShortfall = Math.max(0, bankrollTarget - cashBalance)
+  const isBelowBufferTarget = bankrollTargetShortfall > 0
   const adjustedOption = useMemo(
     () => ({
       ...selectedOption,
@@ -204,6 +218,8 @@ export function HighRollerDiceGame({
   const buyInMultiplierLabel = `x${buyInMultiplier.toFixed(2)}`
   const cashBalanceLabel = `$${cashBalance.toLocaleString()}`
   const buyInShortfallLabel = `$${buyInShortfall.toLocaleString()} more`
+  const bankrollTargetLabel = `$${bankrollTarget.toLocaleString()}`
+  const bankrollShortfallLabel = `$${bankrollTargetShortfall.toLocaleString()} more`
 
   return (
     <div className="rounded-xl border border-purple-500/40 bg-purple-950/50 p-4 text-purple-100/80">
@@ -369,6 +385,53 @@ export function HighRollerDiceGame({
           </Button>
           <span className="text-[11px] text-purple-100/50">Resets streak + session stats.</span>
         </div>
+      </div>
+
+      <div className="mt-3 rounded-lg border border-purple-400/20 bg-purple-950/40 p-3 text-xs text-purple-100/70">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <span className="text-[10px] uppercase tracking-wide text-purple-100/60">
+            {bankrollGuidance.title}
+          </span>
+          <span className="text-[10px] text-purple-100/50">Target {bankrollBuffer}x buy-in</span>
+        </div>
+        <p className="mt-2 text-[11px] text-purple-100/70">{bankrollGuidance.description}</p>
+        <p className="mt-2 text-[11px] text-purple-100/70">
+          Recommended table:{' '}
+          <span className="font-semibold text-purple-50">{recommendedBuyIn.label}</span> · Buffer goal{' '}
+          <span className="font-semibold text-purple-50">{bankrollTargetLabel}</span>
+        </p>
+        {isAboveRecommended && (
+          <p className="mt-1 text-[11px] text-amber-200/80">
+            Suggested: drop to {recommendedBuyIn.label} until you hit {bankrollTargetLabel}.
+          </p>
+        )}
+        {isBelowBufferTarget && (
+          <p className="mt-1 text-[11px] text-purple-100/60">
+            Add {bankrollShortfallLabel} to keep the {bankrollBuffer}x buffer on this table.
+          </p>
+        )}
+        {!isBuyInAffordable && (
+          <div className="mt-3 rounded-lg border border-amber-300/30 bg-amber-500/10 p-3 text-[11px] text-amber-100/80">
+            <p className="text-xs font-semibold text-amber-50">{bankrollGuidance.recovery.title}</p>
+            <p className="mt-1 text-[11px] text-amber-100/80">
+              {bankrollGuidance.recovery.description}
+            </p>
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onRecoveryAction}
+                className="h-8 border-amber-200/60 text-amber-50 hover:text-white"
+                disabled={!onRecoveryAction}
+              >
+                {bankrollGuidance.recovery.cta}
+              </Button>
+              <span className="text-[10px] text-amber-100/70">
+                You are {buyInShortfallLabel} short for this buy-in.
+              </span>
+            </div>
+          </div>
+        )}
       </div>
 
       {(lastOutcome || isRolling) && (

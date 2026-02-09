@@ -35,12 +35,24 @@ export type CasinoDiceBuyIn = {
   multiplier: number
 }
 
+export type CasinoDiceBankrollGuidance = {
+  buffer: number
+  title: string
+  description: string
+  recovery: {
+    title: string
+    description: string
+    cta: string
+  }
+}
+
 export type CasinoDiceConfig = {
   title: string
   description: string
   streakCap: number
   buyIns: CasinoDiceBuyIn[]
   options: CasinoDiceOption[]
+  bankrollGuidance: CasinoDiceBankrollGuidance
 }
 
 type CasinoConfig = {
@@ -126,6 +138,16 @@ const DEFAULT_CASINO_CONFIG: CasinoConfig = {
         streakBonus: 0.25,
       },
     ],
+    bankrollGuidance: {
+      buffer: 3,
+      title: 'Bankroll coach',
+      description: 'Keep a cushion of at least 3x the buy-in to ride a streak.',
+      recovery: {
+        title: 'Balance recovery',
+        description: 'Need to rebuild cash? Take a lower-entry spin and return with a buffer.',
+        cta: 'Play scratchcards',
+      },
+    },
   },
 }
 
@@ -137,6 +159,24 @@ const normalizeDiceOptions = (options: CasinoDiceOption[]) =>
 
 const normalizeDiceBuyIns = (buyIns: CasinoDiceBuyIn[]) =>
   buyIns.filter((buyIn) => buyIn.id && buyIn.label && buyIn.description)
+
+const normalizeBankrollGuidance = (
+  guidance: CasinoDiceBankrollGuidance | undefined,
+  fallback: CasinoDiceBankrollGuidance,
+): CasinoDiceBankrollGuidance => {
+  const buffer =
+    guidance && Number.isFinite(guidance.buffer) ? Math.max(1, Math.floor(guidance.buffer)) : fallback.buffer
+  return {
+    buffer,
+    title: guidance?.title || fallback.title,
+    description: guidance?.description || fallback.description,
+    recovery: {
+      title: guidance?.recovery?.title || fallback.recovery.title,
+      description: guidance?.recovery?.description || fallback.recovery.description,
+      cta: guidance?.recovery?.cta || fallback.recovery.cta,
+    },
+  }
+}
 
 const normalizeCasinoConfig = (config: CasinoConfig): CasinoConfig => {
   return {
@@ -160,6 +200,10 @@ const normalizeCasinoConfig = (config: CasinoConfig): CasinoConfig => {
       })),
       options: normalizeDiceOptions(
         config.dice.options.length ? config.dice.options : DEFAULT_CASINO_CONFIG.dice.options,
+      ),
+      bankrollGuidance: normalizeBankrollGuidance(
+        config.dice.bankrollGuidance,
+        DEFAULT_CASINO_CONFIG.dice.bankrollGuidance,
       ),
     },
   }

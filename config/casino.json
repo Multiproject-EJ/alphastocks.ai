@@ -75,6 +75,16 @@
         "payout": 12000,
         "streakBonus": 0.3
       }
-    ]
+    ],
+    "bankrollGuidance": {
+      "buffer": 3,
+      "title": "Bankroll coach",
+      "description": "Keep a cushion of at least 3x the buy-in to ride a streak.",
+      "recovery": {
+        "title": "Balance recovery",
+        "description": "Need to rebuild cash? Take a lower-entry spin in Scratchcard Vault and come back with a buffer.",
+        "cta": "Play scratchcards"
+      }
+    }
   }
 }
