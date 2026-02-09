@@ -5,6 +5,30 @@
 
 ## Unreleased
 
+- Added a config-driven fallback so upcoming Vault Heist CTAs route into the Games Hub.
+- Enabled the upcoming Vault Heist floating buttons on desktop and phone to open the Games Hub.
+
+**Date:** 2026-02-11  
+**Slice:** P5.7 Vault Heist CTA fallback to Games Hub (config-first)  
+**Summary:**  
+- Added a config flag to control the upcoming Vault Heist CTA action.  
+- Routed upcoming Vault Heist CTAs to the Games Hub while keeping live windows opening the heist modal.  
+- Updated desktop and mobile HUD CTA buttons to respect the new fallback behavior.  
+
+**Files changed:**  
+- config/vault_heist.json  
+- apps/investing-board-game-v3/src/config/vaultHeist.ts  
+- apps/investing-board-game-v3/src/App.tsx  
+- apps/investing-board-game-v3/src/components/phone/PhoneLayout.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Set the Vault Heist schedule to an upcoming window and confirm the floating CTA opens the Games Hub on desktop + mobile.  
+
 - Added schedule-aware Vault Heist status messaging to the HUD CTA buttons.
 - Added a HUD tile label legend in Settings.
 

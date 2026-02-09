@@ -55,7 +55,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 - `AI_IMPLEMENTATION.md`, `IMPLEMENTATION_SUMMARY.md`, `DEVLOG.md` (project-wide status/context)
 
 ### Repo Map (paths verified)
-_Last reviewed: 2026-02-10 (Vault Heist schedule gating)_
+_Last reviewed: 2026-02-11 (Vault Heist CTA fallback)_
 #### Frontend
 - **Legacy static pages entry:** `/index.html`, `/about.html`, `/faq.html`, `/monthly/`, `/weekly/`, `/superinvestor/`
 - **Vite + Preact app:** `/apps/investing-board-game-v3` (built into `/public/board-game-v3` via `npm run build:board-game-v3`)
@@ -306,6 +306,8 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P5.4** ✅ Add Vault Heist schedule copy to config-driven UI callouts (config-first)
 - **P5.5** ✅ Replace Saturday-only gating with schedule-aware Vault Heist availability (config-first)
 - **P5.6** ✅ Add schedule-aware Vault Heist availability messaging to the HUD/CTA (config-first)
+- **P5.7** ✅ Add a Vault Heist CTA fallback that opens the Games Hub when the heist is upcoming (config-first)
+- **P5.8** ⬜ Add a Vault Heist Games Hub teaser panel + upcoming countdown copy (config-first)
 
 ---
 
@@ -337,11 +339,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P5.7 — Add a Vault Heist CTA fallback that opens the Games Hub when the heist is upcoming (config-first).**
+**Recommended next slice:** **P5.8 — Add a Vault Heist Games Hub teaser panel + upcoming countdown copy (config-first).**
 
 ## Progress Log (rolling)
-- **Done (latest):** P5.6 Add schedule-aware Vault Heist availability messaging to the HUD/CTA (config-first).
-- **Next step:** P5.7 Add a Vault Heist CTA fallback that opens the Games Hub when the heist is upcoming (config-first).
+- **Done (latest):** P5.7 Add a Vault Heist CTA fallback that opens the Games Hub when the heist is upcoming (config-first).
+- **Next step:** P5.8 Add a Vault Heist Games Hub teaser panel + upcoming countdown copy (config-first).
 
 ## P2.7 Scope Notes (Bias Sanctuary visual story mode)
 ### Story structure & content
@@ -1009,3 +1011,8 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Added config-driven CTA messaging for Vault Heist live/upcoming status so HUD buttons show time-aware availability callouts.
 - Displayed Vault Heist status badges on desktop + phone floating buttons, including countdowns during live windows.
 - Kept the CTA styling mobile-first while disabling the vault button when the heist is upcoming.
+
+## P5.7 Slice Notes (Vault Heist CTA fallback to Games Hub)
+- Added a config-driven action flag to route upcoming Vault Heist CTAs into the Games Hub instead of hard-disabling the button.
+- Enabled the desktop + phone Vault Heist floating buttons to open the Games Hub when the heist is upcoming.
+- Kept live windows routed directly into the Vault Heist modal while preserving the status pill copy.
