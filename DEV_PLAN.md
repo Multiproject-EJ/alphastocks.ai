@@ -308,7 +308,14 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P5.6** ✅ Add schedule-aware Vault Heist availability messaging to the HUD/CTA (config-first)
 - **P5.7** ✅ Add a Vault Heist CTA fallback that opens the Games Hub when the heist is upcoming (config-first)
 - **P5.8** ✅ Add a Vault Heist Games Hub teaser panel + upcoming countdown copy (config-first)
-- **P6.0** ⬜ Plan next milestone slices from the master plan (doc-only, keep steps small + config-first)
+
+### P6 — Long-Term Content (Master Plan P3)
+- **P6.0** ✅ Plan next milestone slices from the master plan (doc-only, keep steps small + config-first)
+- **P6.1** ⬜ Choose the next advanced casino game + add a config-first stub entry (config-first + doc-first)
+- **P6.2** ⬜ Build the minimal playable loop for the new casino game (mobile-first surface)
+- **P6.3** ⬜ Add payout tuning + odds helper coverage for the new casino game (config-first)
+- **P6.4** ⬜ Add telemetry + session stats hooks for the new casino game (config-first)
+- **P6.5** ⬜ Scope the AI investment insights surface (doc-first + fixtures)
 
 ---
 
@@ -340,11 +347,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P6.0 — Plan next milestone slices from the master plan (doc-only, keep steps small + config-first).**
+**Recommended next slice:** **P6.1 — Choose the next advanced casino game + add a config-first stub entry (config-first + doc-first).**
 
 ## Progress Log (rolling)
-- **Done (latest):** P5.8 Add a Vault Heist Games Hub teaser panel + upcoming countdown copy (config-first).
-- **Next step:** P6.0 Plan next milestone slices from the master plan (doc-only, keep steps small + config-first).
+- **Done (latest):** P6.0 Plan next milestone slices from the master plan (doc-only, keep steps small + config-first).
+- **Next step:** P6.1 Choose the next advanced casino game + add a config-first stub entry (config-first + doc-first).
 
 ## P2.7 Scope Notes (Bias Sanctuary visual story mode)
 ### Story structure & content
