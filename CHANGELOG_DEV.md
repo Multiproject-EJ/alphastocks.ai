@@ -3123,3 +3123,19 @@
   
 **How to test:**  
 - (manual) Open the app during a Vault Heist window and confirm the HUD button is visible; verify it is hidden outside the scheduled window.  
+
+**Date:** 2026-02-11  
+**Slice:** P6.0 Plan next milestone slices from the master plan (doc-only)  
+**Summary:**  
+- Added a P6 long-term content milestone series to keep advanced casino game work and AI insights scoped in small, config-first steps.  
+- Marked P6.0 complete and advanced the next slice pointer to the first casino expansion planning step.  
+
+**Files changed:**  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (not run; documentation-only update)  
