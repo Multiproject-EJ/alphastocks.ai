@@ -549,6 +549,7 @@ export function CasinoModal({
                 guaranteedWin={guaranteedWin}
                 cashBalance={cashBalance}
                 onSpend={onSpendCash}
+                onRecoveryAction={() => setActiveView('scratchcard')}
               />
             )}
           </>

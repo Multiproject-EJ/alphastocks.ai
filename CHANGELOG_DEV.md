@@ -5,6 +5,30 @@
 
 ## Unreleased
 
+- Added High Roller Dice bankroll guidance and balance recovery CTA.
+
+**Date:** 2026-02-25  
+**Slice:** P3.21 High Roller Dice bankroll guidance + balance recovery CTA  
+**Summary:**  
+- Added a config-driven bankroll guidance panel with buffer targets and recommended buy-in cues.  
+- Surfaced a balance recovery CTA that routes players to Scratchcard Vault when cash is too low.  
+- Kept bankroll messaging aligned with buy-in buffer math for actionable table guidance.  
+
+**Files changed:**  
+- config/casino.json  
+- apps/investing-board-game-v3/src/config/casino.ts  
+- apps/investing-board-game-v3/src/components/CasinoModal.tsx  
+- apps/investing-board-game-v3/src/components/HighRollerDiceGame.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Open Casino → High Roller Dice, verify the bankroll guidance panel shows buffer targets and recommended buy-in.  
+- (manual) Drop cash below a buy-in and confirm the recovery CTA appears and routes to Scratchcard Vault.  
+
 - Added High Roller Dice buy-in spending and balance guardrails.
 
 **Date:** 2026-02-25  
