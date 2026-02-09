@@ -1346,11 +1346,37 @@ function App() {
     getCustomEffects,
   } = useEvents({ playSound })
 
-  const { activeMiniGames, upcomingMiniGames } = useMiniGames()
-  const vaultHeistAvailable = useMemo(
-    () => activeMiniGames.some(game => game.id === 'vault-heist'),
+  const { activeMiniGames, upcomingMiniGames, getTimeRemaining } = useMiniGames()
+  const activeVaultHeist = useMemo(
+    () => activeMiniGames.find(game => game.id === 'vault-heist'),
     [activeMiniGames],
   )
+  const upcomingVaultHeist = useMemo(
+    () => upcomingMiniGames.find(game => game.id === 'vault-heist'),
+    [upcomingMiniGames],
+  )
+  const vaultHeistAvailable = Boolean(activeVaultHeist)
+  const vaultHeistStatus = useMemo(() => {
+    if (activeVaultHeist) {
+      const remaining = getTimeRemaining(activeVaultHeist)
+      return {
+        headline: VAULT_HEIST_CONFIG.scheduleCopy.ctaLive,
+        detail: remaining ? `${remaining.display} left` : VAULT_HEIST_CONFIG.scheduleCopy.signalDetail,
+        isLive: true,
+      }
+    }
+
+    if (upcomingVaultHeist) {
+      const formatTime = (date: Date) => date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+      return {
+        headline: VAULT_HEIST_CONFIG.scheduleCopy.ctaUpcoming,
+        detail: formatTime(upcomingVaultHeist.startsAt),
+        isLive: false,
+      }
+    }
+
+    return null
+  }, [activeVaultHeist, upcomingVaultHeist, getTimeRemaining])
   const scratchcardEventOverride = useMemo(
     () => getScratchcardEventOverride(activeEvents),
     [activeEvents],
@@ -5820,14 +5846,29 @@ function App() {
       )}
 
       {/* Vault Heist Button */}
-      {vaultHeistAvailable && (
-        <button
-          onClick={() => setShowVaultHeist(true)}
-          className="fixed bottom-24 right-20 p-4 bg-gradient-to-r from-amber-600 to-yellow-600 rounded-full shadow-lg animate-bounce hover:scale-110 transition-transform z-50"
-          aria-label="Open Vault Heist"
-        >
-          <span className="text-3xl">🏦</span>
-        </button>
+      {vaultHeistStatus && (
+        <div className="fixed bottom-24 right-20 z-50 flex flex-col items-center gap-1">
+          <button
+            onClick={vaultHeistStatus.isLive ? () => setShowVaultHeist(true) : undefined}
+            className={`p-4 rounded-full shadow-lg transition-transform ${
+              vaultHeistStatus.isLive
+                ? 'bg-gradient-to-r from-amber-600 to-yellow-600 animate-bounce hover:scale-110'
+                : 'bg-gradient-to-r from-amber-600/70 to-yellow-600/70 opacity-80 cursor-not-allowed'
+            }`}
+            aria-label={vaultHeistStatus.isLive ? 'Open Vault Heist' : 'Vault Heist upcoming'}
+            aria-disabled={!vaultHeistStatus.isLive}
+            disabled={!vaultHeistStatus.isLive}
+            title={`${vaultHeistStatus.headline} • ${vaultHeistStatus.detail}`}
+          >
+            <span className="text-3xl">🏦</span>
+          </button>
+          <div className="rounded-full bg-black/70 px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-amber-100 shadow">
+            <span>{vaultHeistStatus.headline}</span>
+            <span className="ml-2 text-[9px] font-medium normal-case text-amber-200/80">
+              {vaultHeistStatus.detail}
+            </span>
+          </div>
+        </div>
       )}
 
       {/* Money Celebration for Ring 3 wins */}
@@ -5918,6 +5959,7 @@ function App() {
           dailySpinAvailable={dailySpinAvailable}
           onOpenDailySpin={() => setIsWheelOpen(true)}
           saturdayVaultAvailable={vaultHeistAvailable}
+          vaultHeistStatus={vaultHeistStatus ?? undefined}
           onOpenSaturdayVault={() => setShowVaultHeist(true)}
           ascendProgress={gameState.stats?.ringAscendProgress ?? 0}
           ascendGoal={ASCEND_PROGRESS_GOAL}

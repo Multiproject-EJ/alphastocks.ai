@@ -18,6 +18,9 @@ const DEFAULT_CONFIG = {
     windowDetail: 'Limited-time Saturday run with exclusive vault payouts.',
     signalHeadline: 'VAULT OPEN',
     signalDetail: 'Coin rewards spike during the Saturday window.',
+    ctaLive: 'Heist live',
+    ctaUpcoming: 'Next heist',
+    ctaOffline: 'Heist standby',
   },
   schedule: DEFAULT_SCHEDULE,
 }
@@ -95,6 +98,15 @@ export const vaultHeistConfig = {
     signalDetail: typeof rawVaultHeistConfig?.scheduleCopy?.signalDetail === 'string'
       ? rawVaultHeistConfig.scheduleCopy.signalDetail
       : DEFAULT_CONFIG.scheduleCopy.signalDetail,
+    ctaLive: typeof rawVaultHeistConfig?.scheduleCopy?.ctaLive === 'string'
+      ? rawVaultHeistConfig.scheduleCopy.ctaLive
+      : DEFAULT_CONFIG.scheduleCopy.ctaLive,
+    ctaUpcoming: typeof rawVaultHeistConfig?.scheduleCopy?.ctaUpcoming === 'string'
+      ? rawVaultHeistConfig.scheduleCopy.ctaUpcoming
+      : DEFAULT_CONFIG.scheduleCopy.ctaUpcoming,
+    ctaOffline: typeof rawVaultHeistConfig?.scheduleCopy?.ctaOffline === 'string'
+      ? rawVaultHeistConfig.scheduleCopy.ctaOffline
+      : DEFAULT_CONFIG.scheduleCopy.ctaOffline,
   },
   schedule: coerceWindowSchedule(rawVaultHeistConfig?.schedule, DEFAULT_CONFIG.schedule),
 }

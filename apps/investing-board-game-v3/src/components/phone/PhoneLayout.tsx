@@ -58,6 +58,11 @@ interface PhoneLayoutProps {
   onOpenDailySpin?: () => void;
   saturdayVaultAvailable?: boolean;
   onOpenSaturdayVault?: () => void;
+  vaultHeistStatus?: {
+    headline: string;
+    detail: string;
+    isLive: boolean;
+  };
   eventTrackNode?: ReactNode;
 }
 
@@ -93,6 +98,7 @@ export function PhoneLayout({
   onOpenDailySpin = () => {},
   saturdayVaultAvailable = false,
   onOpenSaturdayVault = () => {},
+  vaultHeistStatus,
   eventTrackNode,
   ascendProgress = 0,
   ascendGoal = 100,
@@ -291,7 +297,7 @@ export function PhoneLayout({
       )}
 
       {/* Right side floating Daily Spin button */}
-      {mode === 'board' && (dailySpinAvailable || saturdayVaultAvailable) && (
+      {mode === 'board' && (dailySpinAvailable || saturdayVaultAvailable || Boolean(vaultHeistStatus)) && (
         <div
           className={`fixed right-4 z-40 flex flex-col items-center gap-2 transition-opacity ${hideFloatingActions ? 'pointer-events-none opacity-0' : 'opacity-100'}`}
           style={{ bottom: `${BOTTOM_NAV_HEIGHT + 20}px` }}
@@ -307,15 +313,30 @@ export function PhoneLayout({
               <span className="text-2xl">🎡</span>
             </button>
           )}
-          {saturdayVaultAvailable && (
-            <button
-              onClick={onOpenSaturdayVault}
-              className={`phone-fab-slide-in-right flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-amber-500 to-yellow-400 text-white shadow-lg shadow-amber-500/30 transition-all hover:scale-105 hover:shadow-xl ${fabReady ? 'phone-fab-animate' : 'opacity-0'}`}
-              style={{ animationDelay: dailySpinAvailable ? '120ms' : '0ms' }}
-              aria-label="Open Saturday Vault"
-            >
-              <span className="text-2xl">🏦</span>
-            </button>
+          {vaultHeistStatus && (
+            <div className="flex flex-col items-center gap-1">
+              <button
+                onClick={vaultHeistStatus.isLive ? onOpenSaturdayVault : undefined}
+                className={`phone-fab-slide-in-right flex h-14 w-14 items-center justify-center rounded-full text-white shadow-lg shadow-amber-500/30 transition-all ${
+                  vaultHeistStatus.isLive
+                    ? 'bg-gradient-to-br from-amber-500 to-yellow-400 hover:scale-105 hover:shadow-xl'
+                    : 'bg-gradient-to-br from-amber-500/70 to-yellow-400/70 opacity-80 cursor-not-allowed'
+                } ${fabReady ? 'phone-fab-animate' : 'opacity-0'}`}
+                style={{ animationDelay: dailySpinAvailable ? '120ms' : '0ms' }}
+                aria-label={vaultHeistStatus.isLive ? 'Open Vault Heist' : 'Vault Heist upcoming'}
+                aria-disabled={!vaultHeistStatus.isLive}
+                disabled={!vaultHeistStatus.isLive}
+                title={`${vaultHeistStatus.headline} • ${vaultHeistStatus.detail}`}
+              >
+                <span className="text-2xl">🏦</span>
+              </button>
+              <div className="rounded-full bg-black/70 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-amber-100 shadow">
+                <span>{vaultHeistStatus.headline}</span>
+                <span className="ml-1 text-[8px] font-medium normal-case text-amber-200/80">
+                  {vaultHeistStatus.detail}
+                </span>
+              </div>
+            </div>
           )}
         </div>
       )}

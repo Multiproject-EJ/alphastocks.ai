@@ -5,7 +5,29 @@
 
 ## Unreleased
 
+- Added schedule-aware Vault Heist status messaging to the HUD CTA buttons.
 - Added a HUD tile label legend in Settings.
+
+**Date:** 2026-02-10  
+**Slice:** P5.6 Vault Heist HUD/CTA availability messaging  
+**Summary:**  
+- Added config-driven CTA copy for live and upcoming Vault Heist windows.  
+- Displayed schedule-aware status badges on the floating Vault Heist buttons for desktop and phone.  
+- Disabled the Vault Heist CTA when the window is upcoming to keep availability cues clear.  
+
+**Files changed:**  
+- config/vault_heist.json  
+- apps/investing-board-game-v3/src/config/vaultHeist.ts  
+- apps/investing-board-game-v3/src/App.tsx  
+- apps/investing-board-game-v3/src/components/phone/PhoneLayout.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Adjust the Vault Heist schedule config and confirm the floating CTA badge updates for live/upcoming windows on desktop and mobile.  
 
 **Date:** 2026-02-09  
 **Slice:** M7.5 Tile label legend + HUD help reference (config-first)  
