@@ -227,6 +227,10 @@ export const MINI_GAME_CONFIG: MiniGameSchedule[] = [
   },
 ]
 
+export function getMiniGameSchedule(gameId: string): MiniGameSchedule | undefined {
+  return MINI_GAME_CONFIG.find(game => game.id === gameId)
+}
+
 /**
  * Get currently active mini-games
  */

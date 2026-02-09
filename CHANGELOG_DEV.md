@@ -2974,3 +2974,25 @@
 
 **How to test:**  
 - (manual) Open the Casino → High Roller Dice table, roll a few wins and a loss, and confirm session stats + streak recap update.  
+
+**Date:** 2026-02-10  
+**Slice:** P5.2 Vault Heist free-pick window reset persistence  
+**Summary:**  
+- Added config-driven Vault Heist free-pick reset rules and window-key persistence.  
+- Stored remaining free picks per schedule window so reloads retain the active allowance.  
+- Reset the free-pick counter automatically when a new Vault Heist window begins.  
+
+**Files changed:**  
+- config/vault_heist.json  
+- apps/investing-board-game-v3/src/config/vaultHeist.ts  
+- apps/investing-board-game-v3/src/lib/vaultHeistRules.ts  
+- apps/investing-board-game-v3/src/lib/miniGameSchedule.ts  
+- apps/investing-board-game-v3/src/App.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (manual) Wait for a Vault Heist window to start or adjust system time, then open Vault Heist and confirm free picks reset at window start and persist across reloads.  
