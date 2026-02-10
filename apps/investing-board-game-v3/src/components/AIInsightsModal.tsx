@@ -1,3 +1,5 @@
+import { useMemo, useState } from 'react'
+
 import {
   Dialog,
   DialogContent,
@@ -14,8 +16,25 @@ interface AIInsightsModalProps {
   onOpenChange: (open: boolean) => void
 }
 
+const ALL_FILTER_VALUE = 'all'
+
 export function AIInsightsModal({ open, onOpenChange }: AIInsightsModalProps) {
   const dialogClass = useResponsiveDialogClass('medium')
+  const [activeHorizon, setActiveHorizon] = useState<string>(ALL_FILTER_VALUE)
+  const [activeConfidenceTier, setActiveConfidenceTier] = useState<string>(ALL_FILTER_VALUE)
+
+  const visibleInsights = useMemo(() => {
+    return AI_INSIGHTS_FIXTURES.filter((insight) => {
+      const horizonMatch = activeHorizon === ALL_FILTER_VALUE || insight.horizon === activeHorizon
+
+      const selectedTier = AI_INSIGHTS_SURFACE.filters.confidenceTiers.find((tier) => tier.id === activeConfidenceTier)
+      const confidenceMatch =
+        !selectedTier ||
+        (insight.confidence >= selectedTier.min && insight.confidence <= selectedTier.max)
+
+      return horizonMatch && confidenceMatch
+    })
+  }, [activeConfidenceTier, activeHorizon])
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -35,8 +54,68 @@ export function AIInsightsModal({ open, onOpenChange }: AIInsightsModalProps) {
             </div>
           </div>
 
+          <div className="space-y-2 rounded-lg border border-border/70 bg-muted/20 p-2.5">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                {AI_INSIGHTS_SURFACE.filters.horizonLabel}
+              </p>
+              <div className="mt-1 flex flex-wrap gap-1.5">
+                <Button
+                  size="sm"
+                  variant={activeHorizon === ALL_FILTER_VALUE ? 'default' : 'outline'}
+                  className="h-7 rounded-full px-3 text-[11px]"
+                  onClick={() => setActiveHorizon(ALL_FILTER_VALUE)}
+                >
+                  {AI_INSIGHTS_SURFACE.filters.allHorizonLabel}
+                </Button>
+                {AI_INSIGHTS_SURFACE.filters.horizons.map((horizon) => (
+                  <Button
+                    key={horizon.id}
+                    size="sm"
+                    variant={activeHorizon === horizon.id ? 'default' : 'outline'}
+                    className="h-7 rounded-full px-3 text-[11px]"
+                    onClick={() => setActiveHorizon(horizon.id)}
+                  >
+                    {horizon.label}
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                {AI_INSIGHTS_SURFACE.filters.confidenceLabel}
+              </p>
+              <div className="mt-1 flex flex-wrap gap-1.5">
+                <Button
+                  size="sm"
+                  variant={activeConfidenceTier === ALL_FILTER_VALUE ? 'default' : 'outline'}
+                  className="h-7 rounded-full px-3 text-[11px]"
+                  onClick={() => setActiveConfidenceTier(ALL_FILTER_VALUE)}
+                >
+                  {AI_INSIGHTS_SURFACE.filters.allConfidenceLabel}
+                </Button>
+                {AI_INSIGHTS_SURFACE.filters.confidenceTiers.map((tier) => (
+                  <Button
+                    key={tier.id}
+                    size="sm"
+                    variant={activeConfidenceTier === tier.id ? 'default' : 'outline'}
+                    className="h-7 rounded-full px-3 text-[11px]"
+                    onClick={() => setActiveConfidenceTier(tier.id)}
+                  >
+                    {tier.label}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <p className="text-[11px] text-muted-foreground">
+            Showing {visibleInsights.length} insight{visibleInsights.length === 1 ? '' : 's'}
+          </p>
+
           <div className="space-y-2">
-            {AI_INSIGHTS_FIXTURES.map((insight) => (
+            {visibleInsights.map((insight) => (
               <div key={insight.id} className="rounded-lg border border-border/80 bg-muted/30 p-3">
                 <div className="flex items-center justify-between gap-2">
                   <p className="text-sm font-semibold text-foreground">{insight.symbol}</p>

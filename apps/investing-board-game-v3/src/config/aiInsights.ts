@@ -19,6 +19,14 @@ export type AIInsightsSurfaceConfig = {
   disclaimer: string
   refreshMinutes: number
   ctaLabel: string
+  filters: {
+    horizonLabel: string
+    confidenceLabel: string
+    allHorizonLabel: string
+    allConfidenceLabel: string
+    horizons: { id: InsightHorizon, label: string }[]
+    confidenceTiers: { id: string, label: string, min: number, max: number }[]
+  }
 }
 
 type AIInsightsConfig = {
@@ -33,6 +41,22 @@ const DEFAULT_AI_INSIGHTS_CONFIG: AIInsightsConfig = {
     disclaimer: 'Educational only — not investment advice.',
     refreshMinutes: 30,
     ctaLabel: 'Request fresh insight',
+    filters: {
+      horizonLabel: 'Horizon',
+      confidenceLabel: 'Confidence',
+      allHorizonLabel: 'All horizons',
+      allConfidenceLabel: 'All confidence',
+      horizons: [
+        { id: 'intraday', label: 'Intraday' },
+        { id: 'swing', label: 'Swing' },
+        { id: 'position', label: 'Position' },
+      ],
+      confidenceTiers: [
+        { id: 'high', label: 'High', min: 0.75, max: 1 },
+        { id: 'medium', label: 'Medium', min: 0.6, max: 0.74 },
+        { id: 'watch', label: 'Watch', min: 0, max: 0.59 },
+      ],
+    },
   },
   fixtures: [
     {
@@ -55,6 +79,64 @@ const coerceString = (value: unknown, fallback: string): string =>
 
 const coerceNumber = (value: unknown, fallback: number): number =>
   typeof value === 'number' && Number.isFinite(value) ? value : fallback
+
+const coerceHorizonOptions = (value: unknown): { id: InsightHorizon, label: string }[] => {
+  if (!Array.isArray(value)) {
+    return DEFAULT_AI_INSIGHTS_CONFIG.surface.filters.horizons
+  }
+
+  const options = value
+    .map((option) => {
+      if (!option || typeof option !== 'object') {
+        return null
+      }
+
+      const candidate = option as { id?: unknown, label?: unknown }
+      if (!ALLOWED_HORIZONS.includes(candidate.id as InsightHorizon)) {
+        return null
+      }
+
+      return {
+        id: candidate.id as InsightHorizon,
+        label: coerceString(candidate.label, String(candidate.id)),
+      }
+    })
+    .filter((option): option is { id: InsightHorizon, label: string } => option !== null)
+
+  return options.length > 0 ? options : DEFAULT_AI_INSIGHTS_CONFIG.surface.filters.horizons
+}
+
+const coerceConfidenceTiers = (value: unknown): { id: string, label: string, min: number, max: number }[] => {
+  if (!Array.isArray(value)) {
+    return DEFAULT_AI_INSIGHTS_CONFIG.surface.filters.confidenceTiers
+  }
+
+  const tiers = value
+    .map((tier) => {
+      if (!tier || typeof tier !== 'object') {
+        return null
+      }
+
+      const candidate = tier as { id?: unknown, label?: unknown, min?: unknown, max?: unknown }
+      const id = coerceString(candidate.id, '')
+      if (!id) {
+        return null
+      }
+
+      const min = Math.min(1, Math.max(0, coerceNumber(candidate.min, 0)))
+      const max = Math.min(1, Math.max(min, coerceNumber(candidate.max, 1)))
+
+      return {
+        id,
+        label: coerceString(candidate.label, id),
+        min,
+        max,
+      }
+    })
+    .filter((tier): tier is { id: string, label: string, min: number, max: number } => tier !== null)
+
+  return tiers.length > 0 ? tiers : DEFAULT_AI_INSIGHTS_CONFIG.surface.filters.confidenceTiers
+}
 
 const normalizeFixture = (fixture: unknown, fallback: AIInsightFixture): AIInsightFixture => {
   if (!fixture || typeof fixture !== 'object') {
@@ -100,6 +182,14 @@ const normalizeConfig = (config: unknown): AIInsightsConfig => {
       disclaimer: coerceString(candidate.surface?.disclaimer, DEFAULT_AI_INSIGHTS_CONFIG.surface.disclaimer),
       refreshMinutes: Math.max(5, coerceNumber(candidate.surface?.refreshMinutes, DEFAULT_AI_INSIGHTS_CONFIG.surface.refreshMinutes)),
       ctaLabel: coerceString(candidate.surface?.ctaLabel, DEFAULT_AI_INSIGHTS_CONFIG.surface.ctaLabel),
+      filters: {
+        horizonLabel: coerceString(candidate.surface?.filters?.horizonLabel, DEFAULT_AI_INSIGHTS_CONFIG.surface.filters.horizonLabel),
+        confidenceLabel: coerceString(candidate.surface?.filters?.confidenceLabel, DEFAULT_AI_INSIGHTS_CONFIG.surface.filters.confidenceLabel),
+        allHorizonLabel: coerceString(candidate.surface?.filters?.allHorizonLabel, DEFAULT_AI_INSIGHTS_CONFIG.surface.filters.allHorizonLabel),
+        allConfidenceLabel: coerceString(candidate.surface?.filters?.allConfidenceLabel, DEFAULT_AI_INSIGHTS_CONFIG.surface.filters.allConfidenceLabel),
+        horizons: coerceHorizonOptions(candidate.surface?.filters?.horizons),
+        confidenceTiers: coerceConfidenceTiers(candidate.surface?.filters?.confidenceTiers),
+      },
     },
     fixtures: fixtures.length > 0 ? fixtures : DEFAULT_AI_INSIGHTS_CONFIG.fixtures,
   }

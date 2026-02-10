@@ -317,7 +317,8 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P6.4** ✅ Add telemetry + session stats hooks for the new casino game (config-first)
 - **P6.5** ✅ Scope the AI investment insights surface (doc-first + fixtures)
 - **P6.6** ✅ Wire AI insights fixture panel into a dedicated modal entry point (mobile-first shell)
-- **P6.7** ⬜ Add config-first AI insights filter chips (horizon + confidence tiers) in the dedicated modal
+- **P6.7** ✅ Add config-first AI insights filter chips (horizon + confidence tiers) in the dedicated modal
+- **P6.8** ⬜ Add config-first empty-state + reset CTA copy for AI insights filters
 
 ---
 
@@ -349,11 +350,16 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P6.7 — Add config-first AI insights filter chips (horizon + confidence tiers) in the dedicated modal.**
+**Recommended next slice:** **P6.8 — Add config-first empty-state + reset CTA copy for AI insights filters.**
 
 ## Progress Log (rolling)
-- **Done (latest):** P6.6 Wire AI insights fixture panel into a dedicated modal entry point (mobile-first shell).
-- **Next step:** P6.7 Add config-first AI insights filter chips (horizon + confidence tiers) in the dedicated modal.
+- **Done (latest):** P6.7 Add config-first AI insights filter chips (horizon + confidence tiers) in the dedicated modal.
+- **Next step:** P6.8 Add config-first empty-state + reset CTA copy for AI insights filters.
+
+## P6.7 Slice Notes (AI insights filter chips)
+- Extended the AI insights config schema with filter metadata so horizon/confidence chips are config-driven rather than hardcoded in the modal.
+- Added mobile-first filter chip groups in the dedicated AI insights modal for horizon and confidence tiers, including an always-available "all" reset path per group.
+- Wired filtered fixture rendering and count feedback so users can quickly narrow insight cards without changing provider wiring.
 
 ## P6.6 Slice Notes (AI insights dedicated modal entry point)
 - Added a dedicated `AIInsightsModal` overlay that renders the fixture feed in a standalone mobile-first shell so the surface can evolve independently from Hub tabs.
