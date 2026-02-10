@@ -6,6 +6,28 @@
 ## Unreleased
 
 
+**Date:** 2026-02-12
+**Slice:** P6.6 AI insights dedicated modal entry point (mobile-first shell)
+**Summary:**
+- Added a dedicated AI Insights modal overlay to host the fixture feed in a standalone mobile-first surface.
+- Updated the Hub Insights tab CTA to open the dedicated modal entry point instead of a disabled placeholder button.
+- Surfaced full fixture cards in the dedicated modal with confidence and last-updated metadata while keeping provider refresh wiring deferred.
+
+**Files changed:**
+- apps/investing-board-game-v3/src/components/AIInsightsModal.tsx
+- apps/investing-board-game-v3/src/components/HubModal.tsx
+- apps/investing-board-game-v3/src/App.tsx
+- DEV_PLAN.md
+- CHANGELOG_DEV.md
+
+**SQL migrations:**
+- (none)
+
+**How to test:**
+- `cd apps/investing-board-game-v3 && npm run test -- src/config/__tests__/aiInsights.test.ts`
+- (manual) Open Stars Hub → Insights and tap "Open AI Insights panel" to verify Hub closes and the dedicated insights modal opens.
+
+
 
 **Date:** 2026-02-12
 **Slice:** P6.5 Scope AI investment insights surface (doc-first + fixtures)

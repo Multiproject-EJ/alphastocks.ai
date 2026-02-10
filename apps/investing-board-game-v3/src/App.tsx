@@ -6,6 +6,7 @@ import { Tile } from '@/components/Tile'
 import { DiceHUD } from '@/components/DiceHUD'
 import { EconomyWindowStatus } from '@/components/EconomyWindowStatus'
 import { HubModal } from '@/components/HubModal'
+import { AIInsightsModal } from '@/components/AIInsightsModal'
 import { CentralStockCard } from '@/components/CentralStockCard'
 import { StockModal } from '@/components/StockModal'
 import { EventChoiceModal } from '@/components/EventChoiceModal'
@@ -5050,6 +5051,13 @@ function App() {
                         })
                       },
                       onOpenStockExchangeBuilder: openStockExchangeOverlay,
+                      onOpenAIInsights: () => {
+                        showOverlay({
+                          id: 'ai-insights',
+                          component: AIInsightsModal,
+                          priority: 'normal',
+                        })
+                      },
                     },
                     priority: 'normal',
                   })
