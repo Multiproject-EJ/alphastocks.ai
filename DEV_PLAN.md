@@ -330,6 +330,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P6.17** ✅ Add config-first AI insights refresh-status helper copy spacing/tone polish for the cooldown chip row
 - **P6.18** ✅ Add config-first AI insights refresh-status emphasis copy token for due-now countdown urgency
 - **P6.19** ✅ Add config-first AI insights refresh-status due-now countdown separator token for urgency chip phrasing polish
+- **P6.20** ✅ Add config-first AI insights refresh-status due-now countdown template token for urgency chip phrasing polish
 
 ---
 
@@ -361,17 +362,22 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P6.20 — Add config-first AI insights refresh-status due-now countdown template token for urgency chip phrasing polish.**
+**Recommended next slice:** **P6.21 — Add config-first AI insights refresh-status due-now countdown fallback template guardrails for placeholder-safe copy.**
 
 ## Progress Log (rolling)
-- **Done (latest):** P6.19 Add config-first AI insights refresh-status due-now countdown separator token for urgency chip phrasing polish.
-- **Next step:** P6.20 Add config-first AI insights refresh-status due-now countdown template token for urgency chip phrasing polish.
+- **Done (latest):** P6.20 Add config-first AI insights refresh-status due-now countdown template token for urgency chip phrasing polish.
+- **Next step:** P6.21 Add config-first AI insights refresh-status due-now countdown fallback template guardrails for placeholder-safe copy.
 
 
 
 
 
 
+
+## P6.20 Slice Notes (AI insights due-now countdown template token)
+- Extended AI insights auto-refresh status config with a `dueNowCountdownTemplate` token so due-now chip phrasing order stays config-tunable without hardcoded component formatting.
+- Updated config normalization defaults/tests to guarantee the due-now countdown template always includes countdown placeholder support.
+- Updated the AI Insights modal due-now cooldown copy to compose emphasis, separator, and countdown using the new template token while preserving on-track copy behavior.
 
 ## P6.19 Slice Notes (AI insights due-now countdown separator token)
 - Extended AI insights auto-refresh status config with a `dueNowCountdownSeparator` token so due-now chip phrasing stays config-tunable without hardcoded punctuation in the modal.
