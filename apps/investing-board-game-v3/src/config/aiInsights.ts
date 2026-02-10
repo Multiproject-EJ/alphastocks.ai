@@ -18,6 +18,10 @@ export type AIInsightsSurfaceConfig = {
   description: string
   disclaimer: string
   refreshMinutes: number
+  autoRefresh: {
+    helperTemplate: string
+    cooldownTemplate: string
+  }
   ctaLabel: string
   resetFiltersLabel: string
   freshness: {
@@ -62,6 +66,10 @@ const DEFAULT_AI_INSIGHTS_CONFIG: AIInsightsConfig = {
     description: 'Quick, mobile-first market briefs powered by fixtures.',
     disclaimer: 'Educational only — not investment advice.',
     refreshMinutes: 30,
+    autoRefresh: {
+      helperTemplate: 'Auto-refreshes every {minutes}m while this panel is open.',
+      cooldownTemplate: 'Next refresh in {minutes}m',
+    },
     ctaLabel: 'Request fresh insight',
     resetFiltersLabel: 'Reset all filters',
     freshness: {
@@ -225,6 +233,16 @@ const normalizeConfig = (config: unknown): AIInsightsConfig => {
       description: coerceString(candidate.surface?.description, DEFAULT_AI_INSIGHTS_CONFIG.surface.description),
       disclaimer: coerceString(candidate.surface?.disclaimer, DEFAULT_AI_INSIGHTS_CONFIG.surface.disclaimer),
       refreshMinutes: Math.max(5, coerceNumber(candidate.surface?.refreshMinutes, DEFAULT_AI_INSIGHTS_CONFIG.surface.refreshMinutes)),
+      autoRefresh: {
+        helperTemplate: coerceString(
+          candidate.surface?.autoRefresh?.helperTemplate,
+          DEFAULT_AI_INSIGHTS_CONFIG.surface.autoRefresh.helperTemplate,
+        ),
+        cooldownTemplate: coerceString(
+          candidate.surface?.autoRefresh?.cooldownTemplate,
+          DEFAULT_AI_INSIGHTS_CONFIG.surface.autoRefresh.cooldownTemplate,
+        ),
+      },
       ctaLabel: coerceString(candidate.surface?.ctaLabel, DEFAULT_AI_INSIGHTS_CONFIG.surface.ctaLabel),
       resetFiltersLabel: coerceString(candidate.surface?.resetFiltersLabel, DEFAULT_AI_INSIGHTS_CONFIG.surface.resetFiltersLabel),
       freshness: {
