@@ -21,6 +21,7 @@ export type AIInsightsSurfaceConfig = {
   autoRefresh: {
     helperTemplate: string
     cooldownTemplate: string
+    cooldownRowClass: string
     statusTones: {
       onTrackLabel: string
       dueNowLabel: string
@@ -30,8 +31,12 @@ export type AIInsightsSurfaceConfig = {
       dueNowColorClass: string
       onTrackChipClass: string
       dueNowChipClass: string
+      onTrackHelperClass: string
+      dueNowHelperClass: string
       onTrackDescription: string
       dueNowDescription: string
+      onTrackDescriptionClass: string
+      dueNowDescriptionClass: string
     }
   }
   ctaLabel: string
@@ -81,6 +86,7 @@ const DEFAULT_AI_INSIGHTS_CONFIG: AIInsightsConfig = {
     autoRefresh: {
       helperTemplate: 'Auto-refreshes every {minutes}m while this panel is open.',
       cooldownTemplate: 'Next refresh in {minutes}m',
+      cooldownRowClass: 'mt-1.5 flex items-center',
       statusTones: {
         onTrackLabel: 'On track',
         dueNowLabel: 'Due now',
@@ -90,8 +96,12 @@ const DEFAULT_AI_INSIGHTS_CONFIG: AIInsightsConfig = {
         dueNowColorClass: 'text-amber-200',
         onTrackChipClass: 'border border-emerald-400/40 bg-emerald-500/10',
         dueNowChipClass: 'border border-amber-400/50 bg-amber-500/10',
+        onTrackHelperClass: 'text-muted-foreground',
+        dueNowHelperClass: 'text-amber-100/90',
         onTrackDescription: 'Data is still within the refresh window.',
         dueNowDescription: 'Refresh now to keep signals timely.',
+        onTrackDescriptionClass: 'text-muted-foreground',
+        dueNowDescriptionClass: 'text-amber-100/90',
       },
     },
     ctaLabel: 'Request fresh insight',
@@ -266,6 +276,10 @@ const normalizeConfig = (config: unknown): AIInsightsConfig => {
           candidate.surface?.autoRefresh?.cooldownTemplate,
           DEFAULT_AI_INSIGHTS_CONFIG.surface.autoRefresh.cooldownTemplate,
         ),
+        cooldownRowClass: coerceString(
+          candidate.surface?.autoRefresh?.cooldownRowClass,
+          DEFAULT_AI_INSIGHTS_CONFIG.surface.autoRefresh.cooldownRowClass,
+        ),
         statusTones: {
           onTrackLabel: coerceString(
             candidate.surface?.autoRefresh?.statusTones?.onTrackLabel,
@@ -299,6 +313,14 @@ const normalizeConfig = (config: unknown): AIInsightsConfig => {
             candidate.surface?.autoRefresh?.statusTones?.dueNowChipClass,
             DEFAULT_AI_INSIGHTS_CONFIG.surface.autoRefresh.statusTones.dueNowChipClass,
           ),
+          onTrackHelperClass: coerceString(
+            candidate.surface?.autoRefresh?.statusTones?.onTrackHelperClass,
+            DEFAULT_AI_INSIGHTS_CONFIG.surface.autoRefresh.statusTones.onTrackHelperClass,
+          ),
+          dueNowHelperClass: coerceString(
+            candidate.surface?.autoRefresh?.statusTones?.dueNowHelperClass,
+            DEFAULT_AI_INSIGHTS_CONFIG.surface.autoRefresh.statusTones.dueNowHelperClass,
+          ),
           onTrackDescription: coerceString(
             candidate.surface?.autoRefresh?.statusTones?.onTrackDescription,
             DEFAULT_AI_INSIGHTS_CONFIG.surface.autoRefresh.statusTones.onTrackDescription,
@@ -306,6 +328,14 @@ const normalizeConfig = (config: unknown): AIInsightsConfig => {
           dueNowDescription: coerceString(
             candidate.surface?.autoRefresh?.statusTones?.dueNowDescription,
             DEFAULT_AI_INSIGHTS_CONFIG.surface.autoRefresh.statusTones.dueNowDescription,
+          ),
+          onTrackDescriptionClass: coerceString(
+            candidate.surface?.autoRefresh?.statusTones?.onTrackDescriptionClass,
+            DEFAULT_AI_INSIGHTS_CONFIG.surface.autoRefresh.statusTones.onTrackDescriptionClass,
+          ),
+          dueNowDescriptionClass: coerceString(
+            candidate.surface?.autoRefresh?.statusTones?.dueNowDescriptionClass,
+            DEFAULT_AI_INSIGHTS_CONFIG.surface.autoRefresh.statusTones.dueNowDescriptionClass,
           ),
         },
       },
