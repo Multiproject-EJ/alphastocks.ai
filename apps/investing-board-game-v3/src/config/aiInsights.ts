@@ -181,6 +181,13 @@ export const normalizeDueNowCountdownTemplate = (template: string, fallback: str
   return hasAllTokens ? normalizedTemplate : fallback
 }
 
+export const normalizeDueNowCountdownToken = (tokenValue: string, fallback: string): string => {
+  const normalizedTokenValue = coerceString(tokenValue, fallback)
+  const reusesTemplateToken = DUE_NOW_COUNTDOWN_TEMPLATE_TOKENS.some((token) => normalizedTokenValue.includes(token))
+
+  return reusesTemplateToken ? fallback : normalizedTokenValue
+}
+
 const coerceHorizonOptions = (value: unknown): { id: InsightHorizon, label: string }[] => {
   if (!Array.isArray(value)) {
     return DEFAULT_AI_INSIGHTS_CONFIG.surface.filters.horizons
@@ -352,12 +359,18 @@ const normalizeConfig = (config: unknown): AIInsightsConfig => {
             candidate.surface?.autoRefresh?.statusTones?.dueNowDescriptionClass,
             DEFAULT_AI_INSIGHTS_CONFIG.surface.autoRefresh.statusTones.dueNowDescriptionClass,
           ),
-          dueNowCountdownEmphasis: coerceString(
-            candidate.surface?.autoRefresh?.statusTones?.dueNowCountdownEmphasis,
+          dueNowCountdownEmphasis: normalizeDueNowCountdownToken(
+            coerceString(
+              candidate.surface?.autoRefresh?.statusTones?.dueNowCountdownEmphasis,
+              DEFAULT_AI_INSIGHTS_CONFIG.surface.autoRefresh.statusTones.dueNowCountdownEmphasis,
+            ),
             DEFAULT_AI_INSIGHTS_CONFIG.surface.autoRefresh.statusTones.dueNowCountdownEmphasis,
           ),
-          dueNowCountdownSeparator: coerceString(
-            candidate.surface?.autoRefresh?.statusTones?.dueNowCountdownSeparator,
+          dueNowCountdownSeparator: normalizeDueNowCountdownToken(
+            coerceString(
+              candidate.surface?.autoRefresh?.statusTones?.dueNowCountdownSeparator,
+              DEFAULT_AI_INSIGHTS_CONFIG.surface.autoRefresh.statusTones.dueNowCountdownSeparator,
+            ),
             DEFAULT_AI_INSIGHTS_CONFIG.surface.autoRefresh.statusTones.dueNowCountdownSeparator,
           ),
           dueNowCountdownTemplate: coerceString(
