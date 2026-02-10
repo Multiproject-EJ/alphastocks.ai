@@ -7,6 +7,30 @@
 
 
 **Date:** 2026-02-12  
+**Slice:** P6.4 Market Blackjack telemetry + session stats hooks (config-first)  
+**Summary:**  
+- Added config-driven telemetry controls for Market Blackjack (`enabled` + `eventPrefix`) so rollout and event naming stay tunable from config.  
+- Wired telemetry hooks for hand deal, hand settle, and manual session reset to support casino analytics without changing game outcomes.  
+- Added reusable session-stats helpers and surfaced a mobile-first session stats panel in Market Blackjack (hands, win rate, blackjacks, pushes, best payout, net cash).  
+
+**Files changed:**  
+- config/casino.json  
+- apps/investing-board-game-v3/src/config/casino.ts  
+- apps/investing-board-game-v3/src/lib/marketBlackjackTelemetry.ts  
+- apps/investing-board-game-v3/src/lib/__tests__/marketBlackjackTelemetry.test.ts  
+- apps/investing-board-game-v3/src/components/MarketBlackjackGame.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- `cd apps/investing-board-game-v3 && npm run test -- src/lib/__tests__/marketBlackjackTelemetry.test.ts src/lib/__tests__/marketBlackjackOdds.test.ts`  
+- (manual) Open Casino → Market Blackjack, play a few hands, and verify Session stats update plus telemetry events are emitted when telemetry consent is enabled.  
+
+
+**Date:** 2026-02-12  
 **Slice:** P6.3 Market Blackjack payout tuning + odds helper coverage (config-first)  
 **Summary:**  
 - Added config-driven Market Blackjack odds assumptions (main hand + side-bet win chances) for tuning outside the app bundle.  

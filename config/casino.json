@@ -119,6 +119,10 @@
         "macro-momentum": 0.06
       }
     },
+    "telemetry": {
+      "enabled": true,
+      "eventPrefix": "casino_blackjack"
+    },
     "sideBets": [
       {
         "id": "earnings-beat",

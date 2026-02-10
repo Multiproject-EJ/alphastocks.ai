@@ -314,7 +314,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P6.1** ✅ Choose the next advanced casino game + add a config-first stub entry (config-first + doc-first)
 - **P6.2** ✅ Build the minimal playable loop for the new casino game (mobile-first surface)
 - **P6.3** ✅ Add payout tuning + odds helper coverage for the new casino game (config-first)
-- **P6.4** ⬜ Add telemetry + session stats hooks for the new casino game (config-first)
+- **P6.4** ✅ Add telemetry + session stats hooks for the new casino game (config-first)
 - **P6.5** ⬜ Scope the AI investment insights surface (doc-first + fixtures)
 
 ---
@@ -347,11 +347,16 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P6.4 — Add telemetry + session stats hooks for the new casino game (config-first).**
+**Recommended next slice:** **P6.5 — Scope the AI investment insights surface (doc-first + fixtures).**
 
 ## Progress Log (rolling)
-- **Done (latest):** P6.3 Add payout tuning + odds helper coverage for the new casino game (config-first).
-- **Next step:** P6.4 Add telemetry + session stats hooks for the new casino game (config-first).
+- **Done (latest):** P6.4 Add telemetry + session stats hooks for the new casino game (config-first).
+- **Next step:** P6.5 Scope the AI investment insights surface (doc-first + fixtures).
+
+## P6.4 Slice Notes (Market Blackjack telemetry + session stats hooks)
+- Added config-driven telemetry controls for Market Blackjack (`blackjack.telemetry.enabled` + `eventPrefix`) so event naming and rollout stay data-driven.
+- Wired hand lifecycle telemetry hooks (deal, settle, manual reset) behind config-gated tracking.
+- Added lightweight in-table session stats (hands, win rate, blackjacks, pushes, best payout, net cash) with a reusable helper and unit coverage.
 
 ## P2.7 Scope Notes (Bias Sanctuary visual story mode)
 ### Story structure & content

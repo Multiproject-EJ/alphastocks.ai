@@ -7,6 +7,12 @@ import {
   getMarketBlackjackOddsSummary,
   getMarketBlackjackSideBetSummary,
 } from '@/lib/marketBlackjackOdds'
+import {
+  createInitialMarketBlackjackSessionStats,
+  getMarketBlackjackWinRate,
+  updateMarketBlackjackSessionStats,
+} from '@/lib/marketBlackjackTelemetry'
+import { trackTelemetryEvent } from '@/lib/telemetry'
 import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
 
@@ -112,6 +118,7 @@ export function MarketBlackjackGame({
   const [roundStatus, setRoundStatus] = useState<RoundStatus>('idle')
   const [roundResult, setRoundResult] = useState<RoundResult | null>(null)
   const [initialPlayerTotal, setInitialPlayerTotal] = useState<number | null>(null)
+  const [sessionStats, setSessionStats] = useState(createInitialMarketBlackjackSessionStats)
 
   const minBet = blackjackConfig.tableLimits.minBet
   const maxBet = blackjackConfig.tableLimits.maxBet
@@ -135,6 +142,16 @@ export function MarketBlackjackGame({
   const dealerTotal = useMemo(() => scoreHand(dealerHand), [dealerHand])
   const playerHasBlackjack = useMemo(() => isBlackjack(playerHand), [playerHand])
   const dealerHasBlackjack = useMemo(() => isBlackjack(dealerHand), [dealerHand])
+
+  const telemetryPrefix = blackjackConfig.telemetry.eventPrefix
+  const telemetryEnabled = blackjackConfig.telemetry.enabled
+
+  const trackBlackjackTelemetry = (eventName: string, payload: Record<string, unknown>) => {
+    if (!telemetryEnabled) {
+      return
+    }
+    trackTelemetryEvent(`${telemetryPrefix}_${eventName}`, payload)
+  }
 
   const resetRoundState = () => {
     setRoundStatus('idle')
@@ -190,6 +207,25 @@ export function MarketBlackjackGame({
     const sidePayout = sideBetWin && selectedSideBet ? Math.round(sideBetCost * selectedSideBet.payout) : 0
     const totalPayout = payout + sidePayout
 
+    setSessionStats((previous) =>
+      updateMarketBlackjackSessionStats(previous, {
+        outcome,
+        payout: totalPayout,
+        stake: totalStake,
+      }),
+    )
+    trackBlackjackTelemetry('hand_settled', {
+      outcome,
+      betAmount: clampedBet,
+      sideBetId: sideBetId ?? 'none',
+      stake: totalStake,
+      payout: totalPayout,
+      netCash: totalPayout - totalStake,
+      playerTotal: finalPlayerTotal,
+      dealerTotal: finalDealerTotal,
+      sideBetWin,
+    })
+
     setRoundResult({
       outcome,
       payout,
@@ -237,6 +273,12 @@ export function MarketBlackjackGame({
     }
     play('button-click')
     lightTap()
+    trackBlackjackTelemetry('hand_dealt', {
+      betAmount: clampedBet,
+      sideBetId: sideBetId ?? 'none',
+      stake: totalStake,
+      cashBalance,
+    })
 
     const freshDeck = shuffleDeck(buildDeck())
     let workingDeck = freshDeck
@@ -481,6 +523,30 @@ export function MarketBlackjackGame({
           </div>
         </div>
 
+        <div className="mt-4 rounded-lg border border-emerald-300/20 bg-slate-950/40 px-3 py-2 text-xs text-emerald-100/80">
+          <p className="text-[11px] uppercase text-emerald-100/60">Session stats</p>
+          <div className="mt-2 flex flex-wrap gap-2 text-[11px]">
+            <span className="rounded-full border border-emerald-300/30 bg-slate-950/50 px-2 py-0.5">
+              Hands {sessionStats.hands}
+            </span>
+            <span className="rounded-full border border-emerald-300/30 bg-slate-950/50 px-2 py-0.5">
+              Win rate {Math.round(getMarketBlackjackWinRate(sessionStats) * 100)}%
+            </span>
+            <span className="rounded-full border border-emerald-300/30 bg-slate-950/50 px-2 py-0.5">
+              Blackjacks {sessionStats.blackjacks}
+            </span>
+            <span className="rounded-full border border-emerald-300/30 bg-slate-950/50 px-2 py-0.5">
+              Pushes {sessionStats.pushes}
+            </span>
+            <span className="rounded-full border border-emerald-300/30 bg-slate-950/50 px-2 py-0.5">
+              Best payout ${sessionStats.bestPayout.toLocaleString()}
+            </span>
+            <span className="rounded-full border border-emerald-300/30 bg-slate-950/50 px-2 py-0.5">
+              Session net {sessionStats.netCash >= 0 ? '+' : ''}${sessionStats.netCash.toLocaleString()}
+            </span>
+          </div>
+        </div>
+
         {roundResult && (
           <div className="mt-4 rounded-lg border border-emerald-300/20 bg-emerald-950/40 px-3 py-2 text-xs text-emerald-100/80">
             <p className="text-[11px] uppercase text-emerald-100/60">Round recap</p>
@@ -544,7 +610,11 @@ export function MarketBlackjackGame({
               <Button
                 type="button"
                 variant="outline"
-                onClick={resetRoundState}
+                onClick={() => {
+                  resetRoundState()
+                  setSessionStats(createInitialMarketBlackjackSessionStats())
+                  trackBlackjackTelemetry('session_reset', { reason: 'manual_reset' })
+                }}
                 disabled={roundStatus === 'player' || roundStatus === 'dealer'}
                 className="flex-1 border-emerald-300/40 text-emerald-100 hover:text-white"
               >
