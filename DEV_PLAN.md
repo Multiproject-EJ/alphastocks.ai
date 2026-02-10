@@ -332,6 +332,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P6.19** ✅ Add config-first AI insights refresh-status due-now countdown separator token for urgency chip phrasing polish
 - **P6.20** ✅ Add config-first AI insights refresh-status due-now countdown template token for urgency chip phrasing polish
 - **P6.21** ✅ Add config-first AI insights refresh-status due-now countdown fallback template guardrails for placeholder-safe copy
+- **P6.22** ✅ Add config-first AI insights refresh-status due-now emphasis/separator fallback guardrails for empty-token-safe chip copy
 
 ---
 
@@ -363,15 +364,22 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P6.22 — Add config-first AI insights refresh-status due-now emphasis/separator fallback guardrails for empty-token-safe chip copy.**
+**Recommended next slice:** **P6.23 — Add config-first AI insights due-now cooldown phrase formatter helper to keep chip copy assembly centralized.**
 
 ## Progress Log (rolling)
-- **Done (latest):** P6.21 Add config-first AI insights refresh-status due-now countdown fallback template guardrails for placeholder-safe copy.
-- **Next step:** P6.22 Add config-first AI insights refresh-status due-now emphasis/separator fallback guardrails for empty-token-safe chip copy.
+- **Done (latest):** P6.22 Add config-first AI insights refresh-status due-now emphasis/separator fallback guardrails for empty-token-safe chip copy.
+- **Next step:** P6.23 Add config-first AI insights due-now cooldown phrase formatter helper to keep chip copy assembly centralized.
 
 
 
 
+
+
+
+## P6.22 Slice Notes (AI insights due-now emphasis/separator guardrails)
+- Added typed due-now token guardrails so emphasis and separator config values now fall back when empty or when they reuse template placeholders.
+- Updated AI insights config normalization to apply the token guardrail helper to due-now emphasis + separator before modal rendering uses them.
+- Added unit coverage for valid, empty, and placeholder-reuse token values so due-now chip copy remains empty-token-safe.
 
 
 

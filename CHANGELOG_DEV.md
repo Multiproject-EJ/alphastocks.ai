@@ -7,6 +7,28 @@
 
 
 **Date:** 2026-02-12
+**Slice:** P6.22 AI insights refresh-status due-now emphasis/separator fallback guardrails for empty-token-safe chip copy (config-first)
+**Summary:**
+- Added a due-now token guardrail helper so emphasis and separator fields fall back when they are empty or reuse template placeholders.
+- Updated AI insights config normalization to apply the new guardrails before due-now cooldown chip copy is composed.
+- Extended AI insights config tests with token guardrail coverage for valid, empty, and placeholder-reuse variants.
+
+**Files changed:**
+- apps/investing-board-game-v3/src/config/aiInsights.ts
+- apps/investing-board-game-v3/src/config/__tests__/aiInsights.test.ts
+- DEV_PLAN.md
+- CHANGELOG_DEV.md
+
+**SQL migrations:**
+- (none)
+
+**How to test:**
+- `cd apps/investing-board-game-v3 && npm run test -- src/config/__tests__/aiInsights.test.ts`
+- (manual) Open Hub → Insights → AI Insights modal and verify due-now cooldown chip copy still renders with urgency emphasis + separator text when config tokens are present.
+
+
+
+**Date:** 2026-02-12
 **Slice:** P6.20 AI insights refresh-status due-now countdown template token for urgency chip phrasing polish (config-first)
 **Summary:**
 - Added a config-driven due-now countdown template token so urgency chip copy order stays content-tunable.

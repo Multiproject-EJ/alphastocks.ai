@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import {
   AI_INSIGHTS_FIXTURES,
   AI_INSIGHTS_SURFACE,
+  normalizeDueNowCountdownToken,
   normalizeDueNowCountdownTemplate,
 } from '@/config/aiInsights'
 
@@ -58,6 +59,13 @@ describe('aiInsights config', () => {
     expect(normalizeDueNowCountdownTemplate('{countdown}', fallback)).toBe(fallback)
     expect(normalizeDueNowCountdownTemplate('{emphasis}{countdown}', fallback)).toBe(fallback)
     expect(normalizeDueNowCountdownTemplate('due soon', fallback)).toBe(fallback)
+  })
+
+  it('applies due-now emphasis/separator guardrails for empty-token-safe chip copy', () => {
+    expect(normalizeDueNowCountdownToken('Refresh now', 'Refresh now')).toBe('Refresh now')
+    expect(normalizeDueNowCountdownToken('', 'Refresh now')).toBe('Refresh now')
+    expect(normalizeDueNowCountdownToken('{countdown}', 'Refresh now')).toBe('Refresh now')
+    expect(normalizeDueNowCountdownToken('{separator}', ' · ')).toBe(' · ')
   })
 
   it('provides config-first filter chips for horizon and confidence tiers', () => {
