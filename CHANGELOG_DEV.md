@@ -6,6 +6,29 @@
 ## Unreleased
 
 **Date:** 2026-02-12
+**Slice:** P6.14 AI insights refresh-status icons for cooldown tiers (config-first)
+**Summary:**
+- Added config-driven refresh-status icons for on-track and due-now AI insights cooldown states.
+- Extended AI insights config typing/normalization and tests to enforce icon token availability for both cooldown tiers.
+- Updated the AI Insights modal cooldown status line to prepend the configured icon alongside the tier label and countdown copy.
+
+**Files changed:**
+- config/ai_insights.json
+- apps/investing-board-game-v3/src/config/aiInsights.ts
+- apps/investing-board-game-v3/src/components/AIInsightsModal.tsx
+- apps/investing-board-game-v3/src/config/__tests__/aiInsights.test.ts
+- DEV_PLAN.md
+- CHANGELOG_DEV.md
+
+**SQL migrations:**
+- (none)
+
+**How to test:**
+- `cd apps/investing-board-game-v3 && npm run test -- src/config/__tests__/aiInsights.test.ts`
+- (manual) Open Hub → Insights → AI Insights modal and verify cooldown status prepends the on-track icon while minutes remain and the due-now icon at 0 minutes.
+
+
+**Date:** 2026-02-12
 **Slice:** P6.12 AI insights refresh-status tone tiers for cooldown label (config-first)
 **Summary:**
 - Added config-driven AI insights auto-refresh status tone labels for on-track vs due-now cooldown messaging.

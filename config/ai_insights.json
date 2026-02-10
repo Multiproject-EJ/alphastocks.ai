@@ -10,6 +10,8 @@
       "statusTones": {
         "onTrackLabel": "On track",
         "dueNowLabel": "Due now",
+        "onTrackIcon": "⏱️",
+        "dueNowIcon": "⚠️",
         "onTrackDescription": "Data is still within the refresh window.",
         "dueNowDescription": "Refresh now to keep signals timely."
       }
