@@ -8,9 +8,10 @@ import { useResponsiveDialogClass } from '@/hooks/useResponsiveDialogClass'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Coins, TrendUp, Trophy, Target, Buildings } from '@phosphor-icons/react'
+import { Coins, TrendUp, Trophy, Target, Buildings, Sparkle } from '@phosphor-icons/react'
 import { GameState } from '@/lib/types'
 import { AI_PLAYERS } from '@/lib/mockData'
+import { AI_INSIGHTS_FIXTURES, AI_INSIGHTS_SURFACE } from '@/lib/aiInsightsFixtures'
 
 interface HubModalProps {
   open: boolean
@@ -46,8 +47,9 @@ export function HubModal({ open, onOpenChange, gameState, onOpenChallenges, onOp
         </DialogHeader>
 
         <Tabs defaultValue="stats" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="stats">Stats</TabsTrigger>
+            <TabsTrigger value="insights">Insights</TabsTrigger>
             <TabsTrigger value="leaderboard">Leaderboard</TabsTrigger>
           </TabsList>
 
@@ -168,6 +170,41 @@ export function HubModal({ open, onOpenChange, gameState, onOpenChallenges, onOp
                 )
               })}
             </div>
+          </TabsContent>
+
+          <TabsContent value="insights" className="space-y-3 mt-4">
+            <div className="rounded-xl border border-accent/30 bg-accent/10 p-3">
+              <div className="flex items-start gap-2">
+                <Sparkle size={18} className="mt-0.5 text-accent" />
+                <div>
+                  <p className="text-sm font-semibold text-foreground">{AI_INSIGHTS_SURFACE.title}</p>
+                  <p className="text-xs text-muted-foreground">{AI_INSIGHTS_SURFACE.description}</p>
+                </div>
+              </div>
+              <p className="mt-2 text-[11px] text-muted-foreground">{AI_INSIGHTS_SURFACE.disclaimer}</p>
+            </div>
+
+            <div className="space-y-2">
+              {AI_INSIGHTS_FIXTURES.slice(0, 3).map((insight) => (
+                <div key={insight.id} className="rounded-lg border border-border/80 bg-muted/30 p-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-sm font-semibold text-foreground">{insight.symbol}</p>
+                    <span className="rounded-full border border-accent/30 bg-accent/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-accent">
+                      {insight.horizon}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-xs font-medium text-foreground">{insight.headline}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{insight.summary}</p>
+                  <p className="mt-2 text-[11px] text-muted-foreground">
+                    Confidence: {(insight.confidence * 100).toFixed(0)}%
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            <Button variant="outline" className="w-full" disabled>
+              {AI_INSIGHTS_SURFACE.ctaLabel} (coming soon)
+            </Button>
           </TabsContent>
         </Tabs>
       </DialogContent>

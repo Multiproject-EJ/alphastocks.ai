@@ -1,0 +1,41 @@
+{
+  "surface": {
+    "title": "AI Investment Insights",
+    "description": "Quick, mobile-first market briefs powered by fixture data until live model hooks are enabled.",
+    "disclaimer": "Educational only — not investment advice.",
+    "refreshMinutes": 30,
+    "ctaLabel": "Request fresh insight"
+  },
+  "fixtures": [
+    {
+      "id": "mega-cap-momentum",
+      "symbol": "NVDA",
+      "headline": "Momentum remains elevated after earnings",
+      "summary": "Revenue guidance and data-center demand are still the dominant tailwinds, but valuation sensitivity is high.",
+      "confidence": 0.78,
+      "horizon": "swing",
+      "signals": ["earnings-revision-up", "relative-strength-strong", "valuation-stretched"],
+      "updatedAt": "2026-02-12T14:30:00.000Z"
+    },
+    {
+      "id": "defensive-rotation",
+      "symbol": "JNJ",
+      "headline": "Defensive rotation may cushion volatility",
+      "summary": "Healthcare breadth has improved while macro uncertainty rises, supporting lower-beta allocation ideas.",
+      "confidence": 0.66,
+      "horizon": "position",
+      "signals": ["sector-rotation", "low-beta-demand", "macro-uncertainty"],
+      "updatedAt": "2026-02-12T13:45:00.000Z"
+    },
+    {
+      "id": "small-cap-breakout-watch",
+      "symbol": "IWM",
+      "headline": "Small-cap breakout watchlist is expanding",
+      "summary": "Breadth improved over the past week; confirmation still depends on sustained volume and rate expectations.",
+      "confidence": 0.59,
+      "horizon": "intraday",
+      "signals": ["breadth-improving", "volume-confirmation-needed", "rates-sensitive"],
+      "updatedAt": "2026-02-12T12:20:00.000Z"
+    }
+  ]
+}

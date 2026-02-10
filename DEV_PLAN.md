@@ -315,7 +315,8 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P6.2** ✅ Build the minimal playable loop for the new casino game (mobile-first surface)
 - **P6.3** ✅ Add payout tuning + odds helper coverage for the new casino game (config-first)
 - **P6.4** ✅ Add telemetry + session stats hooks for the new casino game (config-first)
-- **P6.5** ⬜ Scope the AI investment insights surface (doc-first + fixtures)
+- **P6.5** ✅ Scope the AI investment insights surface (doc-first + fixtures)
+- **P6.6** ⬜ Wire AI insights fixture panel into a dedicated modal entry point (mobile-first shell)
 
 ---
 
@@ -347,11 +348,16 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P6.5 — Scope the AI investment insights surface (doc-first + fixtures).**
+**Recommended next slice:** **P6.6 — Wire AI insights fixture panel into a dedicated modal entry point (mobile-first shell).**
 
 ## Progress Log (rolling)
-- **Done (latest):** P6.4 Add telemetry + session stats hooks for the new casino game (config-first).
-- **Next step:** P6.5 Scope the AI investment insights surface (doc-first + fixtures).
+- **Done (latest):** P6.5 Scope the AI investment insights surface (doc-first + fixtures).
+- **Next step:** P6.6 Wire AI insights fixture panel into a dedicated modal entry point (mobile-first shell).
+
+## P6.5 Slice Notes (AI investment insights scope + fixtures)
+- Added a config-first AI insights seed (`config/ai_insights.json`) with mobile-friendly surface copy plus fixture insight cards (symbol, horizon, confidence, and signal metadata).
+- Added a typed config loader + normalizer (`src/config/aiInsights.ts`) so future provider wiring can swap fixture data without refactoring consuming UI.
+- Added a lightweight fixture export layer and surfaced the first insights list inside Hub as a new mobile-first “Insights” tab to validate copy hierarchy before wiring live model calls.
 
 ## P6.4 Slice Notes (Market Blackjack telemetry + session stats hooks)
 - Added config-driven telemetry controls for Market Blackjack (`blackjack.telemetry.enabled` + `eventPrefix`) so event naming and rollout stay data-driven.
