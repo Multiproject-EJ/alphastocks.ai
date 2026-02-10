@@ -62,13 +62,22 @@ export type CasinoBlackjackSideBet = {
   payout: number
 }
 
+export type CasinoBlackjackPayouts = {
+  win: number
+  blackjack: number
+  push: number
+}
+
 export type CasinoBlackjackConfig = {
   title: string
   description: string
+  dealerStand: number
+  sideBetCostRate: number
   tableLimits: {
     minBet: number
     maxBet: number
   }
+  payouts: CasinoBlackjackPayouts
   sideBets: CasinoBlackjackSideBet[]
   teaser: {
     headline: string
@@ -104,6 +113,15 @@ const DEFAULT_CASINO_CONFIG: CasinoConfig = {
         cta: 'Coming soon',
         tag: 'High Stakes',
         icon: '🎲',
+      },
+      {
+        id: 'market-blackjack',
+        name: 'Market Blackjack',
+        description: 'Volatility-driven blackjack hands with earnings-season side bets.',
+        status: 'teaser',
+        cta: 'Coming soon',
+        tag: 'Strategy',
+        icon: '🂡',
       },
     ],
   },
@@ -174,9 +192,16 @@ const DEFAULT_CASINO_CONFIG: CasinoConfig = {
   blackjack: {
     title: 'Market Blackjack',
     description: 'Time the volatility tape, pick a side bet, and aim for a market-perfect hand.',
+    dealerStand: 17,
+    sideBetCostRate: 0.25,
     tableLimits: {
       minBet: 1000,
       maxBet: 15000,
+    },
+    payouts: {
+      win: 2,
+      blackjack: 2.5,
+      push: 1,
     },
     sideBets: [
       {
@@ -210,6 +235,15 @@ const normalizeDiceBuyIns = (buyIns: CasinoDiceBuyIn[]) =>
 
 const normalizeBlackjackSideBets = (sideBets: CasinoBlackjackSideBet[]) =>
   sideBets.filter((sideBet) => sideBet.id && sideBet.label && sideBet.description)
+
+const normalizeBlackjackPayouts = (
+  payouts: CasinoBlackjackPayouts | undefined,
+  fallback: CasinoBlackjackPayouts,
+): CasinoBlackjackPayouts => ({
+  win: Number.isFinite(payouts?.win) ? Math.max(1, payouts!.win) : fallback.win,
+  blackjack: Number.isFinite(payouts?.blackjack) ? Math.max(1, payouts!.blackjack) : fallback.blackjack,
+  push: Number.isFinite(payouts?.push) ? Math.max(0, payouts!.push) : fallback.push,
+})
 
 const normalizeBankrollGuidance = (
   guidance: CasinoDiceBankrollGuidance | undefined,
@@ -261,6 +295,12 @@ const normalizeCasinoConfig = (config: CasinoConfig): CasinoConfig => {
     blackjack: {
       title: blackjackConfig.title || DEFAULT_CASINO_CONFIG.blackjack.title,
       description: blackjackConfig.description || DEFAULT_CASINO_CONFIG.blackjack.description,
+      dealerStand: Number.isFinite(blackjackConfig.dealerStand)
+        ? Math.max(15, Math.floor(blackjackConfig.dealerStand))
+        : DEFAULT_CASINO_CONFIG.blackjack.dealerStand,
+      sideBetCostRate: Number.isFinite(blackjackConfig.sideBetCostRate)
+        ? Math.min(1, Math.max(0, blackjackConfig.sideBetCostRate))
+        : DEFAULT_CASINO_CONFIG.blackjack.sideBetCostRate,
       tableLimits: {
         minBet: Number.isFinite(blackjackConfig.tableLimits?.minBet)
           ? Math.max(0, blackjackConfig.tableLimits.minBet)
@@ -272,6 +312,7 @@ const normalizeCasinoConfig = (config: CasinoConfig): CasinoConfig => {
             )
           : DEFAULT_CASINO_CONFIG.blackjack.tableLimits.maxBet,
       },
+      payouts: normalizeBlackjackPayouts(blackjackConfig.payouts, DEFAULT_CASINO_CONFIG.blackjack.payouts),
       sideBets: normalizeBlackjackSideBets(
         blackjackConfig.sideBets?.length ? blackjackConfig.sideBets : DEFAULT_CASINO_CONFIG.blackjack.sideBets,
       ).map((sideBet) => ({

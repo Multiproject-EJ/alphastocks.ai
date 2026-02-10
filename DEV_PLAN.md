@@ -55,7 +55,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 - `AI_IMPLEMENTATION.md`, `IMPLEMENTATION_SUMMARY.md`, `DEVLOG.md` (project-wide status/context)
 
 ### Repo Map (paths verified)
-_Last reviewed: 2026-02-09 (Casino config stub planning)_
+_Last reviewed: 2026-02-12 (Market Blackjack loop)_
 #### Frontend
 - **Legacy static pages entry:** `/index.html`, `/about.html`, `/faq.html`, `/monthly/`, `/weekly/`, `/superinvestor/`
 - **Vite + Preact app:** `/apps/investing-board-game-v3` (built into `/public/board-game-v3` via `npm run build:board-game-v3`)
@@ -67,7 +67,7 @@ _Last reviewed: 2026-02-09 (Casino config stub planning)_
 - **Tier 2 event tile scope (plan-only):** `src/lib/eventTileTier2Scope.ts` (Market Event + Wildcard activation notes)
 - **Corner tile activations:** Court of Capital config in `src/lib/courtOfCapital.ts` with rewards wired in `src/App.tsx`
 - **Mini-games hub:** `src/pages/GamesHub.tsx` (grid of mini-games in overlay, schedule-aware availability via `useMiniGames`), `src/components/games/*` (cards, overlay shell, placeholder game surfaces), Wheel of Fortune demo uses `src/components/WheelOfFortuneModal.tsx`
-- **Casino games:** `src/components/CasinoModal.tsx`, `src/components/HighRollerDiceGame.tsx`, dice odds helper in `src/lib/highRollerDiceOdds.ts`
+- **Casino games:** `src/components/CasinoModal.tsx`, `src/components/HighRollerDiceGame.tsx`, `src/components/MarketBlackjackGame.tsx`, dice odds helper in `src/lib/highRollerDiceOdds.ts`
 - **Leaderboards:** `src/components/LeaderboardModal.tsx` + `src/hooks/useLeaderboard.ts` (global/weekly/ring leaderboards)
 - **Season Pass:** `src/hooks/useSeasonPass.ts` + `src/components/SeasonPassModal.tsx` (battle pass progression + reward claims)
 - **Board renderer + tiles:** `src/App.tsx` (ring layout, tile positioning), `src/components/BoardViewport.tsx`, `src/components/Board3DViewport.tsx`, `src/components/Tile.tsx`
@@ -312,7 +312,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 ### P6 — Long-Term Content (Master Plan P3)
 - **P6.0** ✅ Plan next milestone slices from the master plan (doc-only, keep steps small + config-first)
 - **P6.1** ✅ Choose the next advanced casino game + add a config-first stub entry (config-first + doc-first)
-- **P6.2** ⬜ Build the minimal playable loop for the new casino game (mobile-first surface)
+- **P6.2** ✅ Build the minimal playable loop for the new casino game (mobile-first surface)
 - **P6.3** ⬜ Add payout tuning + odds helper coverage for the new casino game (config-first)
 - **P6.4** ⬜ Add telemetry + session stats hooks for the new casino game (config-first)
 - **P6.5** ⬜ Scope the AI investment insights surface (doc-first + fixtures)
@@ -347,11 +347,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P6.2 — Build the minimal playable loop for the new casino game (mobile-first surface).**
+**Recommended next slice:** **P6.3 — Add payout tuning + odds helper coverage for the new casino game (config-first).**
 
 ## Progress Log (rolling)
-- **Done (latest):** P6.1 Choose the next advanced casino game + add a config-first stub entry (config-first + doc-first).
-- **Next step:** P6.2 Build the minimal playable loop for the new casino game (mobile-first surface).
+- **Done (latest):** P6.2 Build the minimal playable loop for the new casino game (mobile-first surface).
+- **Next step:** P6.3 Add payout tuning + odds helper coverage for the new casino game (config-first).
 
 ## P2.7 Scope Notes (Bias Sanctuary visual story mode)
 ### Story structure & content
@@ -1034,3 +1034,8 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Chose Market Blackjack as the next advanced casino game, framed around volatility hands and earnings-season side bets.
 - Added a config-first stub for the Market Blackjack lobby card, table limits, and side bet hooks to keep the next slice implementation-ready.
 - Logged the slice completion and advanced the next step to the minimal playable loop build.
+
+## P6.2 Slice Notes (Market Blackjack minimal playable loop)
+- Built a mobile-first Market Blackjack table with bet controls, side bet toggles, and a playable hit/stand loop.
+- Added configurable payout and side bet tuning inputs (dealer stand rule, side bet cost rate, payout multipliers).
+- Wired Market Blackjack into the casino lobby as a live table with round recaps and cash balance guardrails.

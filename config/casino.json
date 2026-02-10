@@ -25,8 +25,8 @@
         "id": "market-blackjack",
         "name": "Market Blackjack",
         "description": "Volatility-driven blackjack hands with earnings-season side bets.",
-        "status": "teaser",
-        "cta": "Coming soon",
+        "status": "live",
+        "cta": "Play blackjack",
         "tag": "Strategy",
         "icon": "🂡"
       }
@@ -99,9 +99,16 @@
   "blackjack": {
     "title": "Market Blackjack",
     "description": "Time the volatility tape, pick a side bet, and aim for a market-perfect hand.",
+    "dealerStand": 17,
+    "sideBetCostRate": 0.25,
     "tableLimits": {
       "minBet": 1000,
       "maxBet": 15000
+    },
+    "payouts": {
+      "win": 2,
+      "blackjack": 2.5,
+      "push": 1
     },
     "sideBets": [
       {
