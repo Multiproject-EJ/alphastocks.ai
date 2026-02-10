@@ -23,7 +23,8 @@
         "dueNowDescription": "Refresh now to keep signals timely.",
         "onTrackDescriptionClass": "text-muted-foreground",
         "dueNowDescriptionClass": "text-amber-100/90",
-        "dueNowCountdownEmphasis": "Refresh now"
+        "dueNowCountdownEmphasis": "Refresh now",
+        "dueNowCountdownSeparator": " · "
       }
     },
     "ctaLabel": "Request fresh insight",

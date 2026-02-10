@@ -7,6 +7,29 @@
 
 
 **Date:** 2026-02-12
+**Slice:** P6.19 AI insights refresh-status due-now countdown separator token for urgency chip phrasing polish (config-first)
+**Summary:**
+- Added a config-driven due-now countdown separator token so urgency chip punctuation and spacing stay content-tunable.
+- Extended AI insights config typing/normalization and tests to enforce due-now separator token availability.
+- Updated the AI Insights modal cooldown chip to compose due-now urgency emphasis + countdown copy using the configured separator token.
+
+**Files changed:**
+- config/ai_insights.json
+- apps/investing-board-game-v3/src/config/aiInsights.ts
+- apps/investing-board-game-v3/src/components/AIInsightsModal.tsx
+- apps/investing-board-game-v3/src/config/__tests__/aiInsights.test.ts
+- DEV_PLAN.md
+- CHANGELOG_DEV.md
+
+**SQL migrations:**
+- (none)
+
+**How to test:**
+- `cd apps/investing-board-game-v3 && npm run test -- src/config/__tests__/aiInsights.test.ts`
+- (manual) Open Hub → Insights → AI Insights modal and verify due-now cooldown chips render urgency emphasis + countdown with the configured separator token while on-track chips remain unchanged.
+
+
+**Date:** 2026-02-12
 **Slice:** P6.18 AI insights refresh-status due-now countdown urgency emphasis copy token (config-first)
 **Summary:**
 - Added a config-driven due-now countdown urgency emphasis token so cooldown chip phrasing stays content-tunable.
