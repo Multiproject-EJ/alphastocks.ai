@@ -12,6 +12,8 @@
         "dueNowLabel": "Due now",
         "onTrackIcon": "⏱️",
         "dueNowIcon": "⚠️",
+        "onTrackColorClass": "text-emerald-200",
+        "dueNowColorClass": "text-amber-200",
         "onTrackDescription": "Data is still within the refresh window.",
         "dueNowDescription": "Refresh now to keep signals timely."
       }
