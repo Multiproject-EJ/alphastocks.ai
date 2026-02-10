@@ -75,6 +75,11 @@ export type CasinoBlackjackOdds = {
   sideBetWinChances: Record<string, number>
 }
 
+export type CasinoBlackjackTelemetryConfig = {
+  enabled: boolean
+  eventPrefix: string
+}
+
 export type CasinoBlackjackConfig = {
   title: string
   description: string
@@ -86,6 +91,7 @@ export type CasinoBlackjackConfig = {
   }
   payouts: CasinoBlackjackPayouts
   odds: CasinoBlackjackOdds
+  telemetry: CasinoBlackjackTelemetryConfig
   sideBets: CasinoBlackjackSideBet[]
   teaser: {
     headline: string
@@ -220,6 +226,10 @@ const DEFAULT_CASINO_CONFIG: CasinoConfig = {
         'macro-momentum': 0.06,
       },
     },
+    telemetry: {
+      enabled: true,
+      eventPrefix: 'casino_blackjack',
+    },
     sideBets: [
       {
         id: 'earnings-beat',
@@ -282,6 +292,14 @@ const normalizeBlackjackOdds = (
       Number.isFinite(winChance) ? clampProbability(winChance) : 0,
     ]),
   ),
+})
+
+const normalizeBlackjackTelemetry = (
+  telemetry: CasinoBlackjackTelemetryConfig | undefined,
+  fallback: CasinoBlackjackTelemetryConfig,
+): CasinoBlackjackTelemetryConfig => ({
+  enabled: typeof telemetry?.enabled === 'boolean' ? telemetry.enabled : fallback.enabled,
+  eventPrefix: telemetry?.eventPrefix?.trim() || fallback.eventPrefix,
 })
 
 const normalizeBankrollGuidance = (
@@ -353,6 +371,10 @@ const normalizeCasinoConfig = (config: CasinoConfig): CasinoConfig => {
       },
       payouts: normalizeBlackjackPayouts(blackjackConfig.payouts, DEFAULT_CASINO_CONFIG.blackjack.payouts),
       odds: normalizeBlackjackOdds(blackjackConfig.odds, DEFAULT_CASINO_CONFIG.blackjack.odds),
+      telemetry: normalizeBlackjackTelemetry(
+        blackjackConfig.telemetry,
+        DEFAULT_CASINO_CONFIG.blackjack.telemetry,
+      ),
       sideBets: normalizeBlackjackSideBets(
         blackjackConfig.sideBets?.length ? blackjackConfig.sideBets : DEFAULT_CASINO_CONFIG.blackjack.sideBets,
       ).map((sideBet) => ({
