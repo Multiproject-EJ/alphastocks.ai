@@ -19,9 +19,17 @@ interface HubModalProps {
   gameState: GameState
   onOpenChallenges?: () => void
   onOpenStockExchangeBuilder?: () => void
+  onOpenAIInsights?: () => void
 }
 
-export function HubModal({ open, onOpenChange, gameState, onOpenChallenges, onOpenStockExchangeBuilder }: HubModalProps) {
+export function HubModal({
+  open,
+  onOpenChange,
+  gameState,
+  onOpenChallenges,
+  onOpenStockExchangeBuilder,
+  onOpenAIInsights,
+}: HubModalProps) {
   const dialogClass = useResponsiveDialogClass('medium')
   // Combine human player with AI players for leaderboard
   const allPlayers = [
@@ -202,8 +210,15 @@ export function HubModal({ open, onOpenChange, gameState, onOpenChallenges, onOp
               ))}
             </div>
 
-            <Button variant="outline" className="w-full" disabled>
-              {AI_INSIGHTS_SURFACE.ctaLabel} (coming soon)
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => {
+                onOpenChange(false)
+                onOpenAIInsights?.()
+              }}
+            >
+              Open AI Insights panel
             </Button>
           </TabsContent>
         </Tabs>

@@ -316,7 +316,8 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P6.3** ✅ Add payout tuning + odds helper coverage for the new casino game (config-first)
 - **P6.4** ✅ Add telemetry + session stats hooks for the new casino game (config-first)
 - **P6.5** ✅ Scope the AI investment insights surface (doc-first + fixtures)
-- **P6.6** ⬜ Wire AI insights fixture panel into a dedicated modal entry point (mobile-first shell)
+- **P6.6** ✅ Wire AI insights fixture panel into a dedicated modal entry point (mobile-first shell)
+- **P6.7** ⬜ Add config-first AI insights filter chips (horizon + confidence tiers) in the dedicated modal
 
 ---
 
@@ -348,11 +349,16 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P6.6 — Wire AI insights fixture panel into a dedicated modal entry point (mobile-first shell).**
+**Recommended next slice:** **P6.7 — Add config-first AI insights filter chips (horizon + confidence tiers) in the dedicated modal.**
 
 ## Progress Log (rolling)
-- **Done (latest):** P6.5 Scope the AI investment insights surface (doc-first + fixtures).
-- **Next step:** P6.6 Wire AI insights fixture panel into a dedicated modal entry point (mobile-first shell).
+- **Done (latest):** P6.6 Wire AI insights fixture panel into a dedicated modal entry point (mobile-first shell).
+- **Next step:** P6.7 Add config-first AI insights filter chips (horizon + confidence tiers) in the dedicated modal.
+
+## P6.6 Slice Notes (AI insights dedicated modal entry point)
+- Added a dedicated `AIInsightsModal` overlay that renders the fixture feed in a standalone mobile-first shell so the surface can evolve independently from Hub tabs.
+- Wired Hub's Insights tab CTA to close the Hub and open the new dedicated modal entry point instead of a disabled placeholder button.
+- Kept provider wiring deferred while surfacing fixture metadata (confidence + last-updated timestamp) to make the modal more actionable for testing.
 
 ## P6.5 Slice Notes (AI investment insights scope + fixtures)
 - Added a config-first AI insights seed (`config/ai_insights.json`) with mobile-friendly surface copy plus fixture insight cards (symbol, horizon, confidence, and signal metadata).
