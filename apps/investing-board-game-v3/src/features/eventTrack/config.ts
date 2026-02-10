@@ -3,6 +3,44 @@ import type { EventTrackDefinition } from './types'
 
 const DEFAULT_TRACK_ID = 'market-rally'
 
+export interface EventTrackCtaCostConfig {
+  jump: {
+    minimum: number
+    pointsMultiplier: number
+  }
+  finish: {
+    minimum: number
+    remainingRewardsMultiplier: number
+  }
+}
+
+export const EVENT_TRACK_CTA_COST_CONFIG: EventTrackCtaCostConfig = {
+  jump: {
+    minimum: 40,
+    pointsMultiplier: 6,
+  },
+  finish: {
+    minimum: 120,
+    remainingRewardsMultiplier: 150,
+  },
+}
+
+export const getEventTrackCtaCosts = ({
+  pointsToNext,
+  remainingRewards,
+  costConfig = EVENT_TRACK_CTA_COST_CONFIG,
+}: {
+  pointsToNext: number
+  remainingRewards: number
+  costConfig?: EventTrackCtaCostConfig
+}) => ({
+  jumpCost: Math.max(costConfig.jump.minimum, pointsToNext * costConfig.jump.pointsMultiplier),
+  finishCost: Math.max(
+    costConfig.finish.minimum,
+    remainingRewards * costConfig.finish.remainingRewardsMultiplier
+  ),
+})
+
 export const getEventTrackDefinition = (
   activeEvent: GameEvent | null,
   fallbackEventId?: string | null
