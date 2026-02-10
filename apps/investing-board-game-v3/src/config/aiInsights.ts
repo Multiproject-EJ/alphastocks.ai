@@ -172,6 +172,15 @@ const coerceString = (value: unknown, fallback: string): string =>
 const coerceNumber = (value: unknown, fallback: number): number =>
   typeof value === 'number' && Number.isFinite(value) ? value : fallback
 
+const DUE_NOW_COUNTDOWN_TEMPLATE_TOKENS = ['{countdown}', '{emphasis}', '{separator}'] as const
+
+export const normalizeDueNowCountdownTemplate = (template: string, fallback: string): string => {
+  const normalizedTemplate = coerceString(template, fallback)
+  const hasAllTokens = DUE_NOW_COUNTDOWN_TEMPLATE_TOKENS.every((token) => normalizedTemplate.includes(token))
+
+  return hasAllTokens ? normalizedTemplate : fallback
+}
+
 const coerceHorizonOptions = (value: unknown): { id: InsightHorizon, label: string }[] => {
   if (!Array.isArray(value)) {
     return DEFAULT_AI_INSIGHTS_CONFIG.surface.filters.horizons
@@ -352,7 +361,13 @@ const normalizeConfig = (config: unknown): AIInsightsConfig => {
             DEFAULT_AI_INSIGHTS_CONFIG.surface.autoRefresh.statusTones.dueNowCountdownSeparator,
           ),
           dueNowCountdownTemplate: coerceString(
-            candidate.surface?.autoRefresh?.statusTones?.dueNowCountdownTemplate,
+            normalizeDueNowCountdownTemplate(
+              coerceString(
+                candidate.surface?.autoRefresh?.statusTones?.dueNowCountdownTemplate,
+                DEFAULT_AI_INSIGHTS_CONFIG.surface.autoRefresh.statusTones.dueNowCountdownTemplate,
+              ),
+              DEFAULT_AI_INSIGHTS_CONFIG.surface.autoRefresh.statusTones.dueNowCountdownTemplate,
+            ),
             DEFAULT_AI_INSIGHTS_CONFIG.surface.autoRefresh.statusTones.dueNowCountdownTemplate,
           ),
         },

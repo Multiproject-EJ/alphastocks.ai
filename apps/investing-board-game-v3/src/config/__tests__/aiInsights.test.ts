@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest'
 
-import { AI_INSIGHTS_FIXTURES, AI_INSIGHTS_SURFACE } from '@/config/aiInsights'
+import {
+  AI_INSIGHTS_FIXTURES,
+  AI_INSIGHTS_SURFACE,
+  normalizeDueNowCountdownTemplate,
+} from '@/config/aiInsights'
 
 describe('aiInsights config', () => {
   it('loads a usable mobile-first surface config', () => {
@@ -44,6 +48,17 @@ describe('aiInsights config', () => {
     expect(AI_INSIGHTS_SURFACE.emptyState.ctaLabel.length).toBeGreaterThan(0)
   })
 
+
+  it('applies due-now countdown template guardrails for placeholder-safe copy', () => {
+    const fallback = '{emphasis}{separator}{countdown}'
+
+    expect(normalizeDueNowCountdownTemplate('{emphasis}{separator}{countdown}', fallback)).toBe(
+      '{emphasis}{separator}{countdown}',
+    )
+    expect(normalizeDueNowCountdownTemplate('{countdown}', fallback)).toBe(fallback)
+    expect(normalizeDueNowCountdownTemplate('{emphasis}{countdown}', fallback)).toBe(fallback)
+    expect(normalizeDueNowCountdownTemplate('due soon', fallback)).toBe(fallback)
+  })
 
   it('provides config-first filter chips for horizon and confidence tiers', () => {
     expect(AI_INSIGHTS_SURFACE.filters.horizons.length).toBeGreaterThan(0)

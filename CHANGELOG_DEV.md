@@ -3586,3 +3586,22 @@
 
 **How to test:**
 - Run `npm test -- src/config/__tests__/aiInsights.test.ts` inside `apps/investing-board-game-v3`.
+
+**Date:** 2026-02-10
+**Slice:** P6.21 AI insights due-now countdown fallback template guardrails
+**Summary:**
+- Added config-first due-now countdown template guardrails that only accept template overrides when all required placeholders are present.
+- Updated AI insights config normalization to fall back to the default due-now countdown template when config values are missing placeholders.
+- Added unit coverage for valid and invalid due-now template variants so placeholder-safe fallback behavior is locked in.
+
+**Files changed:**
+- apps/investing-board-game-v3/src/config/aiInsights.ts
+- apps/investing-board-game-v3/src/config/__tests__/aiInsights.test.ts
+- DEV_PLAN.md
+- CHANGELOG_DEV.md
+
+**SQL migrations:**
+- (none)
+
+**How to test:**
+- Run `npm test -- src/config/__tests__/aiInsights.test.ts` inside `apps/investing-board-game-v3`.
