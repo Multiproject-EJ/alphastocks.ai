@@ -322,7 +322,8 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P6.9** ✅ Add config-first AI insights freshness badge + stale-state callout
 - **P6.10** ✅ Add config-first AI insights relative age copy (minutes-ago) on insight cards
 - **P6.11** ✅ Add config-first AI insights auto-refresh helper copy + cooldown label
-- **P6.12** ⬜ Add config-first AI insights refresh-status tone tiers (on-track/due-now) for the cooldown label
+- **P6.12** ✅ Add config-first AI insights refresh-status tone tiers (on-track/due-now) for the cooldown label
+- **P6.13** ⬜ Add config-first AI insights refresh-status helper descriptions for on-track/due-now tiers
 
 ---
 
@@ -354,12 +355,18 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P6.12 — Add config-first AI insights refresh-status tone tiers (on-track/due-now) for the cooldown label.**
+**Recommended next slice:** **P6.13 — Add config-first AI insights refresh-status helper descriptions for on-track/due-now tiers.**
 
 ## Progress Log (rolling)
-- **Done (latest):** P6.11 Add config-first AI insights auto-refresh helper copy + cooldown label.
-- **Next step:** P6.12 Add config-first AI insights refresh-status tone tiers (on-track/due-now) for the cooldown label.
+- **Done (latest):** P6.12 Add config-first AI insights refresh-status tone tiers (on-track/due-now) for the cooldown label.
+- **Next step:** P6.13 Add config-first AI insights refresh-status helper descriptions for on-track/due-now tiers.
 
+
+
+## P6.12 Slice Notes (AI insights refresh-status tone tiers)
+- Extended AI insights auto-refresh config with `statusTones` labels (`onTrackLabel`, `dueNowLabel`) so cooldown status language stays content-tunable.
+- Updated the AI Insights modal cooldown row to derive an on-track vs due-now status tier from computed refresh timing and prepend the matching config label.
+- Applied tier-aware text treatment in the cooldown label so due-now states are visually elevated while on-track states retain the default accent tone.
 
 ## P6.11 Slice Notes (AI insights auto-refresh helper copy + cooldown label)
 - Added config-driven auto-refresh copy templates (`helperTemplate`, `cooldownTemplate`) so timing guidance remains content-tunable without component edits.

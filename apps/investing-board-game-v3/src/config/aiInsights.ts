@@ -21,6 +21,10 @@ export type AIInsightsSurfaceConfig = {
   autoRefresh: {
     helperTemplate: string
     cooldownTemplate: string
+    statusTones: {
+      onTrackLabel: string
+      dueNowLabel: string
+    }
   }
   ctaLabel: string
   resetFiltersLabel: string
@@ -69,6 +73,10 @@ const DEFAULT_AI_INSIGHTS_CONFIG: AIInsightsConfig = {
     autoRefresh: {
       helperTemplate: 'Auto-refreshes every {minutes}m while this panel is open.',
       cooldownTemplate: 'Next refresh in {minutes}m',
+      statusTones: {
+        onTrackLabel: 'On track',
+        dueNowLabel: 'Due now',
+      },
     },
     ctaLabel: 'Request fresh insight',
     resetFiltersLabel: 'Reset all filters',
@@ -242,6 +250,16 @@ const normalizeConfig = (config: unknown): AIInsightsConfig => {
           candidate.surface?.autoRefresh?.cooldownTemplate,
           DEFAULT_AI_INSIGHTS_CONFIG.surface.autoRefresh.cooldownTemplate,
         ),
+        statusTones: {
+          onTrackLabel: coerceString(
+            candidate.surface?.autoRefresh?.statusTones?.onTrackLabel,
+            DEFAULT_AI_INSIGHTS_CONFIG.surface.autoRefresh.statusTones.onTrackLabel,
+          ),
+          dueNowLabel: coerceString(
+            candidate.surface?.autoRefresh?.statusTones?.dueNowLabel,
+            DEFAULT_AI_INSIGHTS_CONFIG.surface.autoRefresh.statusTones.dueNowLabel,
+          ),
+        },
       },
       ctaLabel: coerceString(candidate.surface?.ctaLabel, DEFAULT_AI_INSIGHTS_CONFIG.surface.ctaLabel),
       resetFiltersLabel: coerceString(candidate.surface?.resetFiltersLabel, DEFAULT_AI_INSIGHTS_CONFIG.surface.resetFiltersLabel),
