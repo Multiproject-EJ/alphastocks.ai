@@ -318,7 +318,8 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P6.5** ✅ Scope the AI investment insights surface (doc-first + fixtures)
 - **P6.6** ✅ Wire AI insights fixture panel into a dedicated modal entry point (mobile-first shell)
 - **P6.7** ✅ Add config-first AI insights filter chips (horizon + confidence tiers) in the dedicated modal
-- **P6.8** ⬜ Add config-first empty-state + reset CTA copy for AI insights filters
+- **P6.8** ✅ Add config-first empty-state + reset CTA copy for AI insights filters
+- **P6.9** ⬜ Add config-first AI insights freshness badge + stale-state callout
 
 ---
 
@@ -350,11 +351,16 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P6.8 — Add config-first empty-state + reset CTA copy for AI insights filters.**
+**Recommended next slice:** **P6.9 — Add config-first AI insights freshness badge + stale-state callout.**
 
 ## Progress Log (rolling)
-- **Done (latest):** P6.7 Add config-first AI insights filter chips (horizon + confidence tiers) in the dedicated modal.
-- **Next step:** P6.8 Add config-first empty-state + reset CTA copy for AI insights filters.
+- **Done (latest):** P6.8 Add config-first empty-state + reset CTA copy for AI insights filters.
+- **Next step:** P6.9 Add config-first AI insights freshness badge + stale-state callout.
+
+## P6.8 Slice Notes (AI insights empty-state + reset CTA copy)
+- Extended AI insights config with reset CTA and empty-state copy fields so filter UX copy can be tuned without code edits.
+- Added a shared reset-filters CTA in the modal filter header that appears when horizon/confidence filters are active.
+- Rendered a dedicated empty-state card when filters produce zero matches, including a config-driven reset action that restores all fixtures in one tap.
 
 ## P6.7 Slice Notes (AI insights filter chips)
 - Extended the AI insights config schema with filter metadata so horizon/confidence chips are config-driven rather than hardcoded in the modal.

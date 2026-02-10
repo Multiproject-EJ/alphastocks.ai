@@ -19,6 +19,12 @@ export type AIInsightsSurfaceConfig = {
   disclaimer: string
   refreshMinutes: number
   ctaLabel: string
+  resetFiltersLabel: string
+  emptyState: {
+    title: string
+    description: string
+    ctaLabel: string
+  }
   filters: {
     horizonLabel: string
     confidenceLabel: string
@@ -41,6 +47,12 @@ const DEFAULT_AI_INSIGHTS_CONFIG: AIInsightsConfig = {
     disclaimer: 'Educational only — not investment advice.',
     refreshMinutes: 30,
     ctaLabel: 'Request fresh insight',
+    resetFiltersLabel: 'Reset all filters',
+    emptyState: {
+      title: 'No insights match these filters yet',
+      description: 'Try widening your filters to bring fixture insights back.',
+      ctaLabel: 'Reset filters',
+    },
     filters: {
       horizonLabel: 'Horizon',
       confidenceLabel: 'Confidence',
@@ -182,6 +194,12 @@ const normalizeConfig = (config: unknown): AIInsightsConfig => {
       disclaimer: coerceString(candidate.surface?.disclaimer, DEFAULT_AI_INSIGHTS_CONFIG.surface.disclaimer),
       refreshMinutes: Math.max(5, coerceNumber(candidate.surface?.refreshMinutes, DEFAULT_AI_INSIGHTS_CONFIG.surface.refreshMinutes)),
       ctaLabel: coerceString(candidate.surface?.ctaLabel, DEFAULT_AI_INSIGHTS_CONFIG.surface.ctaLabel),
+      resetFiltersLabel: coerceString(candidate.surface?.resetFiltersLabel, DEFAULT_AI_INSIGHTS_CONFIG.surface.resetFiltersLabel),
+      emptyState: {
+        title: coerceString(candidate.surface?.emptyState?.title, DEFAULT_AI_INSIGHTS_CONFIG.surface.emptyState.title),
+        description: coerceString(candidate.surface?.emptyState?.description, DEFAULT_AI_INSIGHTS_CONFIG.surface.emptyState.description),
+        ctaLabel: coerceString(candidate.surface?.emptyState?.ctaLabel, DEFAULT_AI_INSIGHTS_CONFIG.surface.emptyState.ctaLabel),
+      },
       filters: {
         horizonLabel: coerceString(candidate.surface?.filters?.horizonLabel, DEFAULT_AI_INSIGHTS_CONFIG.surface.filters.horizonLabel),
         confidenceLabel: coerceString(candidate.surface?.filters?.confidenceLabel, DEFAULT_AI_INSIGHTS_CONFIG.surface.filters.confidenceLabel),

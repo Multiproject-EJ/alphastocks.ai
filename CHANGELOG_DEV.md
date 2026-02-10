@@ -3294,3 +3294,24 @@
 
 **How to test:**
 - Run `npm test -- src/config/__tests__/aiInsights.test.ts` inside `apps/investing-board-game-v3`.
+
+**Date:** 2026-02-10
+**Slice:** P6.8 AI insights empty-state + reset CTA copy
+**Summary:**
+- Added config-first AI insights surface copy for reset actions and empty-state messaging.
+- Updated the dedicated AI insights modal to show a reset-filters CTA when filters are active and to render a config-driven empty state when no fixtures match.
+- Extended AI insights config coverage tests to validate reset and empty-state copy fields.
+
+**Files changed:**
+- config/ai_insights.json
+- apps/investing-board-game-v3/src/config/aiInsights.ts
+- apps/investing-board-game-v3/src/components/AIInsightsModal.tsx
+- apps/investing-board-game-v3/src/config/__tests__/aiInsights.test.ts
+- DEV_PLAN.md
+- CHANGELOG_DEV.md
+
+**SQL migrations:**
+- (none)
+
+**How to test:**
+- Run `npm test -- src/config/__tests__/aiInsights.test.ts` inside `apps/investing-board-game-v3`.

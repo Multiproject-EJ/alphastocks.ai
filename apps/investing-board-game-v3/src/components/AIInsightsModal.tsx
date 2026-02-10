@@ -23,6 +23,13 @@ export function AIInsightsModal({ open, onOpenChange }: AIInsightsModalProps) {
   const [activeHorizon, setActiveHorizon] = useState<string>(ALL_FILTER_VALUE)
   const [activeConfidenceTier, setActiveConfidenceTier] = useState<string>(ALL_FILTER_VALUE)
 
+  const resetFilters = () => {
+    setActiveHorizon(ALL_FILTER_VALUE)
+    setActiveConfidenceTier(ALL_FILTER_VALUE)
+  }
+
+  const hasActiveFilters = activeHorizon !== ALL_FILTER_VALUE || activeConfidenceTier !== ALL_FILTER_VALUE
+
   const visibleInsights = useMemo(() => {
     return AI_INSIGHTS_FIXTURES.filter((insight) => {
       const horizonMatch = activeHorizon === ALL_FILTER_VALUE || insight.horizon === activeHorizon
@@ -55,6 +62,20 @@ export function AIInsightsModal({ open, onOpenChange }: AIInsightsModalProps) {
           </div>
 
           <div className="space-y-2 rounded-lg border border-border/70 bg-muted/20 p-2.5">
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Filters</p>
+              {hasActiveFilters ? (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="h-7 px-2 text-[11px]"
+                  onClick={resetFilters}
+                >
+                  {AI_INSIGHTS_SURFACE.resetFiltersLabel}
+                </Button>
+              ) : null}
+            </div>
+
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                 {AI_INSIGHTS_SURFACE.filters.horizonLabel}
@@ -115,22 +136,34 @@ export function AIInsightsModal({ open, onOpenChange }: AIInsightsModalProps) {
           </p>
 
           <div className="space-y-2">
-            {visibleInsights.map((insight) => (
-              <div key={insight.id} className="rounded-lg border border-border/80 bg-muted/30 p-3">
-                <div className="flex items-center justify-between gap-2">
-                  <p className="text-sm font-semibold text-foreground">{insight.symbol}</p>
-                  <span className="rounded-full border border-accent/30 bg-accent/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-accent">
-                    {insight.horizon}
-                  </span>
+            {visibleInsights.length > 0 ? (
+              visibleInsights.map((insight) => (
+                <div key={insight.id} className="rounded-lg border border-border/80 bg-muted/30 p-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-sm font-semibold text-foreground">{insight.symbol}</p>
+                    <span className="rounded-full border border-accent/30 bg-accent/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-accent">
+                      {insight.horizon}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-xs font-medium text-foreground">{insight.headline}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{insight.summary}</p>
+                  <div className="mt-2 flex items-center justify-between gap-2 text-[11px] text-muted-foreground">
+                    <span>Confidence: {(insight.confidence * 100).toFixed(0)}%</span>
+                    <span>{new Date(insight.updatedAt).toLocaleString()}</span>
+                  </div>
                 </div>
-                <p className="mt-1 text-xs font-medium text-foreground">{insight.headline}</p>
-                <p className="mt-1 text-xs text-muted-foreground">{insight.summary}</p>
-                <div className="mt-2 flex items-center justify-between gap-2 text-[11px] text-muted-foreground">
-                  <span>Confidence: {(insight.confidence * 100).toFixed(0)}%</span>
-                  <span>{new Date(insight.updatedAt).toLocaleString()}</span>
-                </div>
+              ))
+            ) : (
+              <div className="rounded-lg border border-dashed border-border/80 bg-muted/20 p-4 text-center">
+                <p className="text-sm font-semibold text-foreground">{AI_INSIGHTS_SURFACE.emptyState.title}</p>
+                <p className="mt-1 text-xs text-muted-foreground">{AI_INSIGHTS_SURFACE.emptyState.description}</p>
+                {hasActiveFilters ? (
+                  <Button size="sm" variant="outline" className="mt-3" onClick={resetFilters}>
+                    {AI_INSIGHTS_SURFACE.emptyState.ctaLabel}
+                  </Button>
+                ) : null}
               </div>
-            ))}
+            )}
           </div>
 
           <Button variant="outline" className="w-full" disabled>
