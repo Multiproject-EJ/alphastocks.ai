@@ -24,6 +24,8 @@ export type AIInsightsSurfaceConfig = {
     statusTones: {
       onTrackLabel: string
       dueNowLabel: string
+      onTrackIcon: string
+      dueNowIcon: string
       onTrackDescription: string
       dueNowDescription: string
     }
@@ -78,6 +80,8 @@ const DEFAULT_AI_INSIGHTS_CONFIG: AIInsightsConfig = {
       statusTones: {
         onTrackLabel: 'On track',
         dueNowLabel: 'Due now',
+        onTrackIcon: '⏱️',
+        dueNowIcon: '⚠️',
         onTrackDescription: 'Data is still within the refresh window.',
         dueNowDescription: 'Refresh now to keep signals timely.',
       },
@@ -262,6 +266,14 @@ const normalizeConfig = (config: unknown): AIInsightsConfig => {
           dueNowLabel: coerceString(
             candidate.surface?.autoRefresh?.statusTones?.dueNowLabel,
             DEFAULT_AI_INSIGHTS_CONFIG.surface.autoRefresh.statusTones.dueNowLabel,
+          ),
+          onTrackIcon: coerceString(
+            candidate.surface?.autoRefresh?.statusTones?.onTrackIcon,
+            DEFAULT_AI_INSIGHTS_CONFIG.surface.autoRefresh.statusTones.onTrackIcon,
+          ),
+          dueNowIcon: coerceString(
+            candidate.surface?.autoRefresh?.statusTones?.dueNowIcon,
+            DEFAULT_AI_INSIGHTS_CONFIG.surface.autoRefresh.statusTones.dueNowIcon,
           ),
           onTrackDescription: coerceString(
             candidate.surface?.autoRefresh?.statusTones?.onTrackDescription,
