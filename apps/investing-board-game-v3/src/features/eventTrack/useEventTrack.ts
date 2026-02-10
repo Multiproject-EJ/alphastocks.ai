@@ -3,7 +3,7 @@ import type { Dispatch, SetStateAction } from 'react'
 import type { GameEvent } from '@/lib/events'
 import type { GameState } from '@/lib/types'
 import { toast } from 'sonner'
-import { getEventTrackDefinition } from './config'
+import { getEventTrackCtaCosts, getEventTrackDefinition } from './config'
 import {
   clampPoints,
   createEventTrackProgress,
@@ -145,8 +145,10 @@ export const useEventTrack = ({
     if (!nextMilestonePoints) return null
 
     const pointsToNext = Math.max(nextMilestonePoints - progress.points, 0)
-    const jumpCost = Math.max(40, pointsToNext * 6)
-    const finishCost = Math.max(120, remainingRewards * 150)
+    const { jumpCost, finishCost } = getEventTrackCtaCosts({
+      pointsToNext,
+      remainingRewards,
+    })
 
     if (pointsToNext <= definition.jumpThreshold) {
       return {
