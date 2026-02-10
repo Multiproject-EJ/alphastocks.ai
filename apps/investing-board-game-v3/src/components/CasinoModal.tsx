@@ -4,6 +4,7 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { HighRollerDiceGame } from '@/components/HighRollerDiceGame'
+import { MarketBlackjackGame } from '@/components/MarketBlackjackGame'
 import { ScratchcardGame } from '@/components/ScratchcardGame'
 import { casinoConfig } from '@/config/casino'
 import {
@@ -41,7 +42,7 @@ export function CasinoModal({
   const defaultTier = tierId ?? scratchcardTiers[0]?.id ?? 'bronze'
   const [selectedTierId, setSelectedTierId] = useState<ScratchcardTierId>(defaultTier)
   const [showOdds, setShowOdds] = useState(false)
-  const [activeView, setActiveView] = useState<'lobby' | 'scratchcard' | 'dice'>('lobby')
+  const [activeView, setActiveView] = useState<'lobby' | 'scratchcard' | 'dice' | 'blackjack'>('lobby')
   const lobbyConfig = casinoConfig.lobby
   const decoratedTiers = useMemo(
     () => scratchcardTiers.map((tier) => applyScratchcardEventOverride(tier, scratchcardEventOverride ?? null)),
@@ -223,6 +224,8 @@ export function CasinoModal({
                               setActiveView('scratchcard')
                             } else if (game.id === 'high-roller-dice') {
                               setActiveView('dice')
+                            } else if (game.id === 'market-blackjack') {
+                              setActiveView('blackjack')
                             }
                           }
                         }}
@@ -253,7 +256,11 @@ export function CasinoModal({
                 ← Back to lobby
               </Button>
               <span className="text-[10px] uppercase tracking-wide text-purple-100/60">
-                {activeView === 'scratchcard' ? 'Scratchcards' : 'High Roller Dice'}
+                {activeView === 'scratchcard'
+                  ? 'Scratchcards'
+                  : activeView === 'dice'
+                    ? 'High Roller Dice'
+                    : 'Market Blackjack'}
               </span>
             </div>
             {activeView === 'scratchcard' && scratchcardEventOverride && (
@@ -542,7 +549,7 @@ export function CasinoModal({
                   eventOverride={scratchcardEventOverride}
                 />
               </>
-            ) : (
+            ) : activeView === 'dice' ? (
               <HighRollerDiceGame
                 onWin={onWin}
                 luckBoost={luckBoost}
@@ -550,6 +557,13 @@ export function CasinoModal({
                 cashBalance={cashBalance}
                 onSpend={onSpendCash}
                 onRecoveryAction={() => setActiveView('scratchcard')}
+              />
+            ) : (
+              <MarketBlackjackGame
+                cashBalance={cashBalance}
+                onSpend={onSpendCash}
+                onWin={onWin}
+                luckBoost={luckBoost}
               />
             )}
           </>

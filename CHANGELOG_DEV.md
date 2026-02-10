@@ -8,6 +8,27 @@
 - Added a Vault Heist teaser panel to the Games Hub with config-driven copy and CTA labels.
 - Swapped Vault Heist upcoming availability messaging to a config-driven countdown label.
 
+**Date:** 2026-02-12  
+**Slice:** P6.2 Market Blackjack minimal playable loop  
+**Summary:**  
+- Built a mobile-first Market Blackjack table with hit/stand flow, bet controls, and side bet toggles.  
+- Added config-driven payout tuning (dealer stand rule, payout multipliers, side bet cost rate) and made the lobby card live.  
+- Wired round recaps, cash guardrails, and payout handling into the casino flow.  
+
+**Files changed:**  
+- config/casino.json  
+- apps/investing-board-game-v3/src/config/casino.ts  
+- apps/investing-board-game-v3/src/components/MarketBlackjackGame.tsx  
+- apps/investing-board-game-v3/src/components/CasinoModal.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- (not run) Launch the board game app, open Casino, and play a Market Blackjack hand to verify betting, payouts, and side bets.  
+
 **Date:** 2026-02-11  
 **Slice:** P5.8 Vault Heist Games Hub teaser + upcoming countdown copy (config-first)  
 **Summary:**  
