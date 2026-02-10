@@ -11,6 +11,12 @@
       "freshLabel": "Fresh",
       "staleLabel": "Stale",
       "staleAfterMinutes": 45,
+      "relativeAge": {
+        "updatedLabel": "Updated",
+        "justNowLabel": "Just now",
+        "minutesAgoTemplate": "{minutes}m ago",
+        "unavailableLabel": "Time unavailable"
+      },
       "staleCallout": {
         "title": "Stale insights detected",
         "description": "One or more cards are older than 45 minutes. Request a fresh insight before acting."

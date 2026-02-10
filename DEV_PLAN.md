@@ -320,7 +320,8 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P6.7** ✅ Add config-first AI insights filter chips (horizon + confidence tiers) in the dedicated modal
 - **P6.8** ✅ Add config-first empty-state + reset CTA copy for AI insights filters
 - **P6.9** ✅ Add config-first AI insights freshness badge + stale-state callout
-- **P6.10** ⬜ Add config-first AI insights relative age copy (minutes-ago) on insight cards
+- **P6.10** ✅ Add config-first AI insights relative age copy (minutes-ago) on insight cards
+- **P6.11** ⬜ Add config-first AI insights auto-refresh helper copy + cooldown label
 
 ---
 
@@ -352,11 +353,16 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P6.10 — Add config-first AI insights relative age copy (minutes-ago) on insight cards.**
+**Recommended next slice:** **P6.11 — Add config-first AI insights auto-refresh helper copy + cooldown label.**
 
 ## Progress Log (rolling)
-- **Done (latest):** P6.9 Add config-first AI insights freshness badge + stale-state callout.
-- **Next step:** P6.10 Add config-first AI insights relative age copy (minutes-ago) on insight cards.
+- **Done (latest):** P6.10 Add config-first AI insights relative age copy (minutes-ago) on insight cards.
+- **Next step:** P6.11 Add config-first AI insights auto-refresh helper copy + cooldown label.
+
+## P6.10 Slice Notes (AI insights relative age copy)
+- Extended the AI insights freshness config with relative-age copy tokens (`updatedLabel`, `justNowLabel`, `minutesAgoTemplate`, `unavailableLabel`) so card timestamp language stays config-first.
+- Added a reusable relative-age formatter in the AI Insights modal that renders fixture update ages as config-driven minutes-ago strings.
+- Replaced the raw locale timestamp on each insight card with config-driven relative age copy to keep the mobile card metadata compact.
 
 ## P6.9 Slice Notes (AI insights freshness badge + stale-state callout)
 - Extended AI insights config with a freshness block (labels, stale threshold minutes, and stale callout copy) so status tuning stays config-first.

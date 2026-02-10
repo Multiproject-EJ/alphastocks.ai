@@ -6,6 +6,29 @@
 ## Unreleased
 
 **Date:** 2026-02-12
+**Slice:** P6.10 AI insights relative age copy on cards (config-first)
+**Summary:**
+- Added config-driven relative age copy tokens for AI insights freshness metadata (updated label, just-now, minutes-ago template, unavailable fallback).
+- Replaced per-card absolute timestamps in the AI Insights modal with compact relative-age copy rendered from config.
+- Added config tests that validate relative-age copy tokens and template safety.
+
+**Files changed:**
+- config/ai_insights.json
+- apps/investing-board-game-v3/src/config/aiInsights.ts
+- apps/investing-board-game-v3/src/components/AIInsightsModal.tsx
+- apps/investing-board-game-v3/src/config/__tests__/aiInsights.test.ts
+- DEV_PLAN.md
+- CHANGELOG_DEV.md
+
+**SQL migrations:**
+- (none)
+
+**How to test:**
+- `cd apps/investing-board-game-v3 && npm run test -- src/config/__tests__/aiInsights.test.ts`
+- (manual) Open Hub → Insights → AI Insights modal and verify each card shows "Updated: Xm ago" style copy from config.
+
+
+**Date:** 2026-02-12
 **Slice:** P6.9 AI insights freshness badge + stale-state callout (config-first)
 **Summary:**
 - Added a config-driven freshness section for AI insights surface copy, stale thresholds, and stale-state callout text.
