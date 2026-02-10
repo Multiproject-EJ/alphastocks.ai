@@ -39,6 +39,7 @@ export type AIInsightsSurfaceConfig = {
       dueNowDescriptionClass: string
       dueNowCountdownEmphasis: string
       dueNowCountdownSeparator: string
+      dueNowCountdownTemplate: string
     }
   }
   ctaLabel: string
@@ -106,6 +107,7 @@ const DEFAULT_AI_INSIGHTS_CONFIG: AIInsightsConfig = {
         dueNowDescriptionClass: 'text-amber-100/90',
         dueNowCountdownEmphasis: 'Refresh now',
         dueNowCountdownSeparator: ' · ',
+        dueNowCountdownTemplate: '{emphasis}{separator}{countdown}',
       },
     },
     ctaLabel: 'Request fresh insight',
@@ -348,6 +350,10 @@ const normalizeConfig = (config: unknown): AIInsightsConfig => {
           dueNowCountdownSeparator: coerceString(
             candidate.surface?.autoRefresh?.statusTones?.dueNowCountdownSeparator,
             DEFAULT_AI_INSIGHTS_CONFIG.surface.autoRefresh.statusTones.dueNowCountdownSeparator,
+          ),
+          dueNowCountdownTemplate: coerceString(
+            candidate.surface?.autoRefresh?.statusTones?.dueNowCountdownTemplate,
+            DEFAULT_AI_INSIGHTS_CONFIG.surface.autoRefresh.statusTones.dueNowCountdownTemplate,
           ),
         },
       },

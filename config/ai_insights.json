@@ -24,7 +24,8 @@
         "onTrackDescriptionClass": "text-muted-foreground",
         "dueNowDescriptionClass": "text-amber-100/90",
         "dueNowCountdownEmphasis": "Refresh now",
-        "dueNowCountdownSeparator": " · "
+        "dueNowCountdownSeparator": " · ",
+        "dueNowCountdownTemplate": "{emphasis}{separator}{countdown}"
       }
     },
     "ctaLabel": "Request fresh insight",
