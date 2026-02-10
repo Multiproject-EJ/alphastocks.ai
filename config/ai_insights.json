@@ -6,7 +6,11 @@
     "refreshMinutes": 30,
     "autoRefresh": {
       "helperTemplate": "Auto-refreshes every {minutes}m while this panel is open.",
-      "cooldownTemplate": "Next refresh in {minutes}m"
+      "cooldownTemplate": "Next refresh in {minutes}m",
+      "statusTones": {
+        "onTrackLabel": "On track",
+        "dueNowLabel": "Due now"
+      }
     },
     "ctaLabel": "Request fresh insight",
     "resetFiltersLabel": "Reset all filters",

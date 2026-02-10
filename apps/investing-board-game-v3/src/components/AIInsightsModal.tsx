@@ -46,6 +46,9 @@ const formatRelativeInsightAge = (updatedAt: string): string => {
 const formatAutoRefreshCopy = (template: string, minutes: number): string =>
   template.replace('{minutes}', String(minutes))
 
+const getCooldownTone = (nextAutoRefreshInMinutes: number): 'on-track' | 'due-now' =>
+  nextAutoRefreshInMinutes <= 0 ? 'due-now' : 'on-track'
+
 export function AIInsightsModal({ open, onOpenChange }: AIInsightsModalProps) {
   const dialogClass = useResponsiveDialogClass('medium')
   const [activeHorizon, setActiveHorizon] = useState<string>(ALL_FILTER_VALUE)
@@ -88,6 +91,13 @@ export function AIInsightsModal({ open, onOpenChange }: AIInsightsModalProps) {
     const remainingMinutes = AI_INSIGHTS_SURFACE.refreshMinutes - freshestAge
     return Math.max(0, Math.ceil(remainingMinutes))
   }, [visibleInsights])
+
+
+  const cooldownTone = getCooldownTone(nextAutoRefreshInMinutes)
+  const cooldownToneLabel =
+    cooldownTone === 'due-now'
+      ? AI_INSIGHTS_SURFACE.autoRefresh.statusTones.dueNowLabel
+      : AI_INSIGHTS_SURFACE.autoRefresh.statusTones.onTrackLabel
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -196,8 +206,13 @@ export function AIInsightsModal({ open, onOpenChange }: AIInsightsModalProps) {
             <p className="text-[11px] text-muted-foreground">
               {formatAutoRefreshCopy(AI_INSIGHTS_SURFACE.autoRefresh.helperTemplate, AI_INSIGHTS_SURFACE.refreshMinutes)}
             </p>
-            <p className="mt-1 text-[11px] font-medium text-accent">
-              {formatAutoRefreshCopy(AI_INSIGHTS_SURFACE.autoRefresh.cooldownTemplate, nextAutoRefreshInMinutes)}
+            <p
+              className={`mt-1 text-[11px] font-semibold ${cooldownTone === 'due-now'
+                ? 'text-amber-200'
+                : 'text-accent'
+                }`}
+            >
+              {cooldownToneLabel}: {formatAutoRefreshCopy(AI_INSIGHTS_SURFACE.autoRefresh.cooldownTemplate, nextAutoRefreshInMinutes)}
             </p>
           </div>
 
