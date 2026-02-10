@@ -9,6 +9,25 @@ describe('aiInsights config', () => {
     expect(AI_INSIGHTS_SURFACE.refreshMinutes).toBeGreaterThanOrEqual(5)
   })
 
+
+  it('provides config-first filter chips for horizon and confidence tiers', () => {
+    expect(AI_INSIGHTS_SURFACE.filters.horizons.length).toBeGreaterThan(0)
+    expect(AI_INSIGHTS_SURFACE.filters.confidenceTiers.length).toBeGreaterThan(0)
+
+    for (const horizon of AI_INSIGHTS_SURFACE.filters.horizons) {
+      expect(['intraday', 'swing', 'position']).toContain(horizon.id)
+      expect(horizon.label.length).toBeGreaterThan(0)
+    }
+
+    for (const tier of AI_INSIGHTS_SURFACE.filters.confidenceTiers) {
+      expect(tier.id.length).toBeGreaterThan(0)
+      expect(tier.label.length).toBeGreaterThan(0)
+      expect(tier.min).toBeGreaterThanOrEqual(0)
+      expect(tier.max).toBeLessThanOrEqual(1)
+      expect(tier.max).toBeGreaterThanOrEqual(tier.min)
+    }
+  })
+
   it('exposes fixture cards with normalized confidence and symbols', () => {
     expect(AI_INSIGHTS_FIXTURES.length).toBeGreaterThan(0)
 

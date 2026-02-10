@@ -3273,3 +3273,24 @@
 
 **How to test:**
 - (not run; config and documentation updates only)
+
+**Date:** 2026-02-10
+**Slice:** P6.7 AI insights filter chips (horizon + confidence tiers)
+**Summary:**
+- Extended the AI insights config seed and loader to include config-first filter chip metadata for horizon and confidence tiers.
+- Added mobile-first filter chips in the dedicated AI insights modal and wired fixture filtering + visible-count feedback.
+- Added config coverage tests for the new AI insights filter metadata normalization contract.
+
+**Files changed:**
+- config/ai_insights.json
+- apps/investing-board-game-v3/src/config/aiInsights.ts
+- apps/investing-board-game-v3/src/components/AIInsightsModal.tsx
+- apps/investing-board-game-v3/src/config/__tests__/aiInsights.test.ts
+- DEV_PLAN.md
+- CHANGELOG_DEV.md
+
+**SQL migrations:**
+- (none)
+
+**How to test:**
+- Run `npm test -- src/config/__tests__/aiInsights.test.ts` inside `apps/investing-board-game-v3`.

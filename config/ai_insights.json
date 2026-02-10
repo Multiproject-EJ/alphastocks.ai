@@ -4,7 +4,23 @@
     "description": "Quick, mobile-first market briefs powered by fixture data until live model hooks are enabled.",
     "disclaimer": "Educational only — not investment advice.",
     "refreshMinutes": 30,
-    "ctaLabel": "Request fresh insight"
+    "ctaLabel": "Request fresh insight",
+    "filters": {
+      "horizonLabel": "Horizon",
+      "confidenceLabel": "Confidence",
+      "allHorizonLabel": "All horizons",
+      "allConfidenceLabel": "All confidence",
+      "horizons": [
+        { "id": "intraday", "label": "Intraday" },
+        { "id": "swing", "label": "Swing" },
+        { "id": "position", "label": "Position" }
+      ],
+      "confidenceTiers": [
+        { "id": "high", "label": "High", "min": 0.75, "max": 1 },
+        { "id": "medium", "label": "Medium", "min": 0.6, "max": 0.74 },
+        { "id": "watch", "label": "Watch", "min": 0, "max": 0.59 }
+      ]
+    }
   },
   "fixtures": [
     {
