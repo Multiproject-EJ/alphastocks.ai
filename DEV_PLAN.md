@@ -331,6 +331,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P6.18** ✅ Add config-first AI insights refresh-status emphasis copy token for due-now countdown urgency
 - **P6.19** ✅ Add config-first AI insights refresh-status due-now countdown separator token for urgency chip phrasing polish
 - **P6.20** ✅ Add config-first AI insights refresh-status due-now countdown template token for urgency chip phrasing polish
+- **P6.21** ✅ Add config-first AI insights refresh-status due-now countdown fallback template guardrails for placeholder-safe copy
 
 ---
 
@@ -362,16 +363,22 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P6.21 — Add config-first AI insights refresh-status due-now countdown fallback template guardrails for placeholder-safe copy.**
+**Recommended next slice:** **P6.22 — Add config-first AI insights refresh-status due-now emphasis/separator fallback guardrails for empty-token-safe chip copy.**
 
 ## Progress Log (rolling)
-- **Done (latest):** P6.20 Add config-first AI insights refresh-status due-now countdown template token for urgency chip phrasing polish.
-- **Next step:** P6.21 Add config-first AI insights refresh-status due-now countdown fallback template guardrails for placeholder-safe copy.
+- **Done (latest):** P6.21 Add config-first AI insights refresh-status due-now countdown fallback template guardrails for placeholder-safe copy.
+- **Next step:** P6.22 Add config-first AI insights refresh-status due-now emphasis/separator fallback guardrails for empty-token-safe chip copy.
 
 
 
 
 
+
+
+## P6.21 Slice Notes (AI insights due-now countdown template guardrails)
+- Added a typed template normalizer guardrail that requires all due-now countdown placeholders (`{emphasis}`, `{separator}`, `{countdown}`) before accepting config overrides.
+- Updated AI insights config normalization to fall back to the default template whenever placeholder coverage is incomplete, keeping chip copy placeholder-safe.
+- Added unit coverage for valid templates plus invalid/missing-token variants so fallback behavior remains deterministic.
 
 
 ## P6.20 Slice Notes (AI insights due-now countdown template token)
