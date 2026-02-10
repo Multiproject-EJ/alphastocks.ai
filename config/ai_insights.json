@@ -5,6 +5,12 @@
     "disclaimer": "Educational only — not investment advice.",
     "refreshMinutes": 30,
     "ctaLabel": "Request fresh insight",
+    "resetFiltersLabel": "Reset all filters",
+    "emptyState": {
+      "title": "No insights match these filters yet",
+      "description": "Try widening your horizon or confidence filters to bring fixture insights back.",
+      "ctaLabel": "Reset filters"
+    },
     "filters": {
       "horizonLabel": "Horizon",
       "confidenceLabel": "Confidence",
