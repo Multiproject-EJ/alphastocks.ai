@@ -11,6 +11,8 @@ describe('aiInsights config', () => {
     expect(AI_INSIGHTS_SURFACE.autoRefresh.cooldownTemplate).toContain('{minutes}')
     expect(AI_INSIGHTS_SURFACE.autoRefresh.statusTones.onTrackLabel.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.autoRefresh.statusTones.dueNowLabel.length).toBeGreaterThan(0)
+    expect(AI_INSIGHTS_SURFACE.autoRefresh.statusTones.onTrackDescription.length).toBeGreaterThan(0)
+    expect(AI_INSIGHTS_SURFACE.autoRefresh.statusTones.dueNowDescription.length).toBeGreaterThan(0)
 
     expect(AI_INSIGHTS_SURFACE.resetFiltersLabel.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.freshness.label.length).toBeGreaterThan(0)

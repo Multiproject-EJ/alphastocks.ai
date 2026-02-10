@@ -323,7 +323,8 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P6.10** ✅ Add config-first AI insights relative age copy (minutes-ago) on insight cards
 - **P6.11** ✅ Add config-first AI insights auto-refresh helper copy + cooldown label
 - **P6.12** ✅ Add config-first AI insights refresh-status tone tiers (on-track/due-now) for the cooldown label
-- **P6.13** ⬜ Add config-first AI insights refresh-status helper descriptions for on-track/due-now tiers
+- **P6.13** ✅ Add config-first AI insights refresh-status helper descriptions for on-track/due-now tiers
+- **P6.14** ⬜ Add config-first AI insights refresh-status icons for on-track/due-now tiers
 
 ---
 
@@ -355,13 +356,18 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P6.13 — Add config-first AI insights refresh-status helper descriptions for on-track/due-now tiers.**
+**Recommended next slice:** **P6.14 — Add config-first AI insights refresh-status icons for on-track/due-now tiers.**
 
 ## Progress Log (rolling)
-- **Done (latest):** P6.12 Add config-first AI insights refresh-status tone tiers (on-track/due-now) for the cooldown label.
-- **Next step:** P6.13 Add config-first AI insights refresh-status helper descriptions for on-track/due-now tiers.
+- **Done (latest):** P6.13 Add config-first AI insights refresh-status helper descriptions for on-track/due-now tiers.
+- **Next step:** P6.14 Add config-first AI insights refresh-status icons for on-track/due-now tiers.
 
 
+
+## P6.13 Slice Notes (AI insights refresh-status helper descriptions)
+- Extended AI insights auto-refresh status config with helper descriptions (`onTrackDescription`, `dueNowDescription`) so explanatory copy is content-tunable.
+- Updated the AI Insights modal cooldown block to render a tier-aware helper description under the status label, reusing the same due-now vs on-track tone logic.
+- Added config coverage assertions for the new status helper description fields.
 
 ## P6.12 Slice Notes (AI insights refresh-status tone tiers)
 - Extended AI insights auto-refresh config with `statusTones` labels (`onTrackLabel`, `dueNowLabel`) so cooldown status language stays content-tunable.

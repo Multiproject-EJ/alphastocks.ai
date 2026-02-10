@@ -9,7 +9,9 @@
       "cooldownTemplate": "Next refresh in {minutes}m",
       "statusTones": {
         "onTrackLabel": "On track",
-        "dueNowLabel": "Due now"
+        "dueNowLabel": "Due now",
+        "onTrackDescription": "Data is still within the refresh window.",
+        "dueNowDescription": "Refresh now to keep signals timely."
       }
     },
     "ctaLabel": "Request fresh insight",
