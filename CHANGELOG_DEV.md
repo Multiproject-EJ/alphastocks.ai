@@ -5,6 +5,30 @@
 
 ## Unreleased
 
+
+**Date:** 2026-02-12  
+**Slice:** P6.3 Market Blackjack payout tuning + odds helper coverage (config-first)  
+**Summary:**  
+- Added config-driven Market Blackjack odds assumptions (main hand + side-bet win chances) for tuning outside the app bundle.  
+- Added a reusable odds helper module that computes expected payouts and net value for main wagers and side bets.  
+- Wired a mobile-first odds helper panel into the live table and added unit tests for odds and EV calculations.  
+
+**Files changed:**  
+- config/casino.json  
+- apps/investing-board-game-v3/src/config/casino.ts  
+- apps/investing-board-game-v3/src/lib/marketBlackjackOdds.ts  
+- apps/investing-board-game-v3/src/lib/__tests__/marketBlackjackOdds.test.ts  
+- apps/investing-board-game-v3/src/components/MarketBlackjackGame.tsx  
+- DEV_PLAN.md  
+- CHANGELOG_DEV.md  
+
+**SQL migrations:**  
+- (none)  
+
+**How to test:**  
+- `cd apps/investing-board-game-v3 && npm run test -- src/lib/__tests__/marketBlackjackOdds.test.ts`  
+- (manual) Open Casino → Market Blackjack and verify the Odds helper values react to bet amount and side-bet selection.  
+
 - Added a Vault Heist teaser panel to the Games Hub with config-driven copy and CTA labels.
 - Swapped Vault Heist upcoming availability messaging to a config-driven countdown label.
 

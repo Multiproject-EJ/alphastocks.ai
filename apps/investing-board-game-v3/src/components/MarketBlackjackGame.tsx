@@ -3,6 +3,10 @@ import { casinoConfig } from '@/config/casino'
 import { useHaptics } from '@/hooks/useHaptics'
 import { useSound } from '@/hooks/useSound'
 import { getRewardSound } from '@/lib/sounds'
+import {
+  getMarketBlackjackOddsSummary,
+  getMarketBlackjackSideBetSummary,
+} from '@/lib/marketBlackjackOdds'
 import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
 
@@ -112,14 +116,20 @@ export function MarketBlackjackGame({
   const minBet = blackjackConfig.tableLimits.minBet
   const maxBet = blackjackConfig.tableLimits.maxBet
   const clampedBet = Math.min(maxBet, Math.max(minBet, Math.floor(betAmount || minBet)))
-  const sideBetCost = sideBetId
-    ? Math.max(1, Math.round(clampedBet * blackjackConfig.sideBetCostRate))
-    : 0
+  const selectedSideBet = blackjackConfig.sideBets.find((sideBet) => sideBet.id === sideBetId)
+  const sideBetSummary = useMemo(
+    () => getMarketBlackjackSideBetSummary(blackjackConfig, selectedSideBet ?? null, clampedBet),
+    [blackjackConfig, clampedBet, selectedSideBet],
+  )
+  const sideBetCost = sideBetSummary.sideBetCost
   const totalStake = clampedBet + sideBetCost
   const isActionLocked = roundStatus === 'player' || roundStatus === 'dealer'
   const dealerStand = blackjackConfig.dealerStand
   const payouts = blackjackConfig.payouts
-  const selectedSideBet = blackjackConfig.sideBets.find((sideBet) => sideBet.id === sideBetId)
+  const oddsSummary = useMemo(
+    () => getMarketBlackjackOddsSummary(blackjackConfig, clampedBet, luckBoost),
+    [blackjackConfig, clampedBet, luckBoost],
+  )
 
   const playerTotal = useMemo(() => scoreHand(playerHand), [playerHand])
   const dealerTotal = useMemo(() => scoreHand(dealerHand), [dealerHand])
@@ -177,9 +187,7 @@ export function MarketBlackjackGame({
         : sideBetId === 'earnings-beat'
           ? finalDealerTotal >= dealerStand
           : false
-    const sidePayout = sideBetWin && selectedSideBet
-      ? Math.round(sideBetCost * selectedSideBet.payout)
-      : 0
+    const sidePayout = sideBetWin && selectedSideBet ? Math.round(sideBetCost * selectedSideBet.payout) : 0
     const totalPayout = payout + sidePayout
 
     setRoundResult({
@@ -545,6 +553,24 @@ export function MarketBlackjackGame({
             </>
           )}
         </div>
+        <div className="mt-3 rounded-lg border border-emerald-300/20 bg-slate-950/40 px-3 py-2 text-[11px] text-emerald-100/70">
+          <p className="uppercase text-emerald-100/60">Odds helper</p>
+          <p className="mt-1">
+            Win {Math.round(oddsSummary.adjustedWinChance * 100)}% · Blackjack {Math.round(oddsSummary.blackjackChance * 100)}% · Push{' '}
+            {Math.round(oddsSummary.pushChance * 100)}%
+          </p>
+          <p className="mt-1">
+            Expected main return: ${Math.round(oddsSummary.expectedMainPayout).toLocaleString()} ({oddsSummary.expectedMainNet >= 0 ? '+' : ''}
+            ${Math.round(oddsSummary.expectedMainNet).toLocaleString()})
+          </p>
+          {sideBetId && selectedSideBet && (
+            <p className="mt-1">
+              {selectedSideBet.label} hit chance {Math.round(sideBetSummary.sideBetWinChance * 100)}% · expected net {' '}
+              {sideBetSummary.sideBetExpectedNet >= 0 ? '+' : ''}${Math.round(sideBetSummary.sideBetExpectedNet).toLocaleString()}
+            </p>
+          )}
+        </div>
+
         <p className="mt-3 text-[11px] text-emerald-100/60">
           Dealer stands on {dealerStand}. Side bets cost {Math.round(blackjackConfig.sideBetCostRate * 100)}% of the
           main wager.

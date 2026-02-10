@@ -68,6 +68,13 @@ export type CasinoBlackjackPayouts = {
   push: number
 }
 
+export type CasinoBlackjackOdds = {
+  baseWinChance: number
+  blackjackChance: number
+  pushChance: number
+  sideBetWinChances: Record<string, number>
+}
+
 export type CasinoBlackjackConfig = {
   title: string
   description: string
@@ -78,6 +85,7 @@ export type CasinoBlackjackConfig = {
     maxBet: number
   }
   payouts: CasinoBlackjackPayouts
+  odds: CasinoBlackjackOdds
   sideBets: CasinoBlackjackSideBet[]
   teaser: {
     headline: string
@@ -203,6 +211,15 @@ const DEFAULT_CASINO_CONFIG: CasinoConfig = {
       blackjack: 2.5,
       push: 1,
     },
+    odds: {
+      baseWinChance: 0.42,
+      blackjackChance: 0.048,
+      pushChance: 0.09,
+      sideBetWinChances: {
+        'earnings-beat': 0.43,
+        'macro-momentum': 0.06,
+      },
+    },
     sideBets: [
       {
         id: 'earnings-beat',
@@ -243,6 +260,28 @@ const normalizeBlackjackPayouts = (
   win: Number.isFinite(payouts?.win) ? Math.max(1, payouts!.win) : fallback.win,
   blackjack: Number.isFinite(payouts?.blackjack) ? Math.max(1, payouts!.blackjack) : fallback.blackjack,
   push: Number.isFinite(payouts?.push) ? Math.max(0, payouts!.push) : fallback.push,
+})
+
+
+const clampProbability = (value: number) => Math.max(0, Math.min(1, value))
+
+const normalizeBlackjackOdds = (
+  odds: CasinoBlackjackOdds | undefined,
+  fallback: CasinoBlackjackOdds,
+): CasinoBlackjackOdds => ({
+  baseWinChance: Number.isFinite(odds?.baseWinChance)
+    ? clampProbability(odds!.baseWinChance)
+    : fallback.baseWinChance,
+  blackjackChance: Number.isFinite(odds?.blackjackChance)
+    ? clampProbability(odds!.blackjackChance)
+    : fallback.blackjackChance,
+  pushChance: Number.isFinite(odds?.pushChance) ? clampProbability(odds!.pushChance) : fallback.pushChance,
+  sideBetWinChances: Object.fromEntries(
+    Object.entries(odds?.sideBetWinChances ?? fallback.sideBetWinChances).map(([sideBetId, winChance]) => [
+      sideBetId,
+      Number.isFinite(winChance) ? clampProbability(winChance) : 0,
+    ]),
+  ),
 })
 
 const normalizeBankrollGuidance = (
@@ -313,6 +352,7 @@ const normalizeCasinoConfig = (config: CasinoConfig): CasinoConfig => {
           : DEFAULT_CASINO_CONFIG.blackjack.tableLimits.maxBet,
       },
       payouts: normalizeBlackjackPayouts(blackjackConfig.payouts, DEFAULT_CASINO_CONFIG.blackjack.payouts),
+      odds: normalizeBlackjackOdds(blackjackConfig.odds, DEFAULT_CASINO_CONFIG.blackjack.odds),
       sideBets: normalizeBlackjackSideBets(
         blackjackConfig.sideBets?.length ? blackjackConfig.sideBets : DEFAULT_CASINO_CONFIG.blackjack.sideBets,
       ).map((sideBet) => ({
