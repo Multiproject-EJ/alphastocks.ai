@@ -4,6 +4,10 @@
     "description": "Quick, mobile-first market briefs powered by fixture data until live model hooks are enabled.",
     "disclaimer": "Educational only — not investment advice.",
     "refreshMinutes": 30,
+    "autoRefresh": {
+      "helperTemplate": "Auto-refreshes every {minutes}m while this panel is open.",
+      "cooldownTemplate": "Next refresh in {minutes}m"
+    },
     "ctaLabel": "Request fresh insight",
     "resetFiltersLabel": "Reset all filters",
     "freshness": {

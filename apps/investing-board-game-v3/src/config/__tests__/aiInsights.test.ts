@@ -7,6 +7,8 @@ describe('aiInsights config', () => {
     expect(AI_INSIGHTS_SURFACE.title.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.description.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.refreshMinutes).toBeGreaterThanOrEqual(5)
+    expect(AI_INSIGHTS_SURFACE.autoRefresh.helperTemplate).toContain('{minutes}')
+    expect(AI_INSIGHTS_SURFACE.autoRefresh.cooldownTemplate).toContain('{minutes}')
 
     expect(AI_INSIGHTS_SURFACE.resetFiltersLabel.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.freshness.label.length).toBeGreaterThan(0)

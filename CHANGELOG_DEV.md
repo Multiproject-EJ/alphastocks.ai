@@ -6,6 +6,28 @@
 ## Unreleased
 
 **Date:** 2026-02-12
+**Slice:** P6.11 AI insights auto-refresh helper copy + cooldown label (config-first)
+**Summary:**
+- Added config-driven AI insights auto-refresh copy templates for helper + cooldown labels.
+- Rendered a mobile-first auto-refresh helper block in the AI Insights modal to explain cadence and show time to next refresh.
+- Derived cooldown minutes from fixture freshness and configured refresh window so status messaging stays deterministic before provider wiring.
+
+**Files changed:**
+- config/ai_insights.json
+- apps/investing-board-game-v3/src/config/aiInsights.ts
+- apps/investing-board-game-v3/src/components/AIInsightsModal.tsx
+- apps/investing-board-game-v3/src/config/__tests__/aiInsights.test.ts
+- DEV_PLAN.md
+- CHANGELOG_DEV.md
+
+**SQL migrations:**
+- (none)
+
+**How to test:**
+- `cd apps/investing-board-game-v3 && npm run test -- src/config/__tests__/aiInsights.test.ts`
+- (manual) Open Hub → Insights → AI Insights modal and verify auto-refresh helper text + cooldown label render from config templates.
+
+**Date:** 2026-02-12
 **Slice:** P6.10 AI insights relative age copy on cards (config-first)
 **Summary:**
 - Added config-driven relative age copy tokens for AI insights freshness metadata (updated label, just-now, minutes-ago template, unavailable fallback).

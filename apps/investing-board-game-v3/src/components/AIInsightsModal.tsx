@@ -43,6 +43,9 @@ const formatRelativeInsightAge = (updatedAt: string): string => {
   return AI_INSIGHTS_SURFACE.freshness.relativeAge.minutesAgoTemplate.replace('{minutes}', String(roundedAgeMinutes))
 }
 
+const formatAutoRefreshCopy = (template: string, minutes: number): string =>
+  template.replace('{minutes}', String(minutes))
+
 export function AIInsightsModal({ open, onOpenChange }: AIInsightsModalProps) {
   const dialogClass = useResponsiveDialogClass('medium')
   const [activeHorizon, setActiveHorizon] = useState<string>(ALL_FILTER_VALUE)
@@ -71,6 +74,20 @@ export function AIInsightsModal({ open, onOpenChange }: AIInsightsModalProps) {
   const hasStaleInsights = visibleInsights.some(
     (insight) => getInsightAgeMinutes(insight.updatedAt) >= AI_INSIGHTS_SURFACE.freshness.staleAfterMinutes,
   )
+
+  const nextAutoRefreshInMinutes = useMemo(() => {
+    const finiteAges = visibleInsights
+      .map((insight) => getInsightAgeMinutes(insight.updatedAt))
+      .filter((ageMinutes) => Number.isFinite(ageMinutes))
+
+    if (finiteAges.length === 0) {
+      return AI_INSIGHTS_SURFACE.refreshMinutes
+    }
+
+    const freshestAge = Math.min(...finiteAges)
+    const remainingMinutes = AI_INSIGHTS_SURFACE.refreshMinutes - freshestAge
+    return Math.max(0, Math.ceil(remainingMinutes))
+  }, [visibleInsights])
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -174,6 +191,16 @@ export function AIInsightsModal({ open, onOpenChange }: AIInsightsModalProps) {
           <p className="text-[11px] text-muted-foreground">
             Showing {visibleInsights.length} insight{visibleInsights.length === 1 ? '' : 's'}
           </p>
+
+          <div className="rounded-lg border border-border/70 bg-muted/20 p-2.5">
+            <p className="text-[11px] text-muted-foreground">
+              {formatAutoRefreshCopy(AI_INSIGHTS_SURFACE.autoRefresh.helperTemplate, AI_INSIGHTS_SURFACE.refreshMinutes)}
+            </p>
+            <p className="mt-1 text-[11px] font-medium text-accent">
+              {formatAutoRefreshCopy(AI_INSIGHTS_SURFACE.autoRefresh.cooldownTemplate, nextAutoRefreshInMinutes)}
+            </p>
+          </div>
+
 
           <div className="space-y-2">
             {visibleInsights.length > 0 ? (

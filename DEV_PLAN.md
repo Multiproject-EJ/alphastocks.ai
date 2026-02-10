@@ -321,7 +321,8 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P6.8** ✅ Add config-first empty-state + reset CTA copy for AI insights filters
 - **P6.9** ✅ Add config-first AI insights freshness badge + stale-state callout
 - **P6.10** ✅ Add config-first AI insights relative age copy (minutes-ago) on insight cards
-- **P6.11** ⬜ Add config-first AI insights auto-refresh helper copy + cooldown label
+- **P6.11** ✅ Add config-first AI insights auto-refresh helper copy + cooldown label
+- **P6.12** ⬜ Add config-first AI insights refresh-status tone tiers (on-track/due-now) for the cooldown label
 
 ---
 
@@ -353,11 +354,17 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P6.11 — Add config-first AI insights auto-refresh helper copy + cooldown label.**
+**Recommended next slice:** **P6.12 — Add config-first AI insights refresh-status tone tiers (on-track/due-now) for the cooldown label.**
 
 ## Progress Log (rolling)
-- **Done (latest):** P6.10 Add config-first AI insights relative age copy (minutes-ago) on insight cards.
-- **Next step:** P6.11 Add config-first AI insights auto-refresh helper copy + cooldown label.
+- **Done (latest):** P6.11 Add config-first AI insights auto-refresh helper copy + cooldown label.
+- **Next step:** P6.12 Add config-first AI insights refresh-status tone tiers (on-track/due-now) for the cooldown label.
+
+
+## P6.11 Slice Notes (AI insights auto-refresh helper copy + cooldown label)
+- Added config-driven auto-refresh copy templates (`helperTemplate`, `cooldownTemplate`) so timing guidance remains content-tunable without component edits.
+- Added a mobile-friendly auto-refresh helper block in the AI Insights modal that explains refresh cadence and shows a derived “next refresh” cooldown label.
+- Computed the cooldown label from fixture recency + configured refresh window to keep the copy deterministic while provider wiring remains deferred.
 
 ## P6.10 Slice Notes (AI insights relative age copy)
 - Extended the AI insights freshness config with relative-age copy tokens (`updatedLabel`, `justNowLabel`, `minutesAgoTemplate`, `unavailableLabel`) so card timestamp language stays config-first.
