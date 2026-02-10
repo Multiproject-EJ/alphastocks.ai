@@ -3404,3 +3404,24 @@
 
 **How to test:**
 - Run `npm test -- src/config/__tests__/aiInsights.test.ts` inside `apps/investing-board-game-v3`.
+
+**Date:** 2026-02-10
+**Slice:** P6.13 AI insights refresh-status helper descriptions (on-track/due-now tiers)
+**Summary:**
+- Extended the AI insights auto-refresh config seed + loader with status helper descriptions so due-now/on-track guidance stays config-first.
+- Updated the AI Insights modal cooldown card to show a tier-aware helper description beneath the cooldown status line.
+- Expanded AI insights config tests to validate the new helper-description fields.
+
+**Files changed:**
+- config/ai_insights.json
+- apps/investing-board-game-v3/src/config/aiInsights.ts
+- apps/investing-board-game-v3/src/components/AIInsightsModal.tsx
+- apps/investing-board-game-v3/src/config/__tests__/aiInsights.test.ts
+- DEV_PLAN.md
+- CHANGELOG_DEV.md
+
+**SQL migrations:**
+- (none)
+
+**How to test:**
+- Run `npm test -- src/config/__tests__/aiInsights.test.ts` inside `apps/investing-board-game-v3`.
