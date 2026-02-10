@@ -5,6 +5,28 @@
 
 ## Unreleased
 
+**Date:** 2026-02-12
+**Slice:** P6.9 AI insights freshness badge + stale-state callout (config-first)
+**Summary:**
+- Added a config-driven freshness section for AI insights surface copy, stale thresholds, and stale-state callout text.
+- Rendered per-card freshness badges in the AI Insights modal so fixture cards visibly mark Fresh vs Stale status.
+- Added a stale callout banner whenever any visible insight exceeds the configured freshness window.
+
+**Files changed:**
+- config/ai_insights.json
+- apps/investing-board-game-v3/src/config/aiInsights.ts
+- apps/investing-board-game-v3/src/components/AIInsightsModal.tsx
+- apps/investing-board-game-v3/src/config/__tests__/aiInsights.test.ts
+- DEV_PLAN.md
+- CHANGELOG_DEV.md
+
+**SQL migrations:**
+- (none)
+
+**How to test:**
+- `cd apps/investing-board-game-v3 && npm run test -- src/config/__tests__/aiInsights.test.ts`
+- (manual) Open Hub → Insights → AI Insights modal and verify freshness badges + stale banner appear based on fixture timestamps.
+
 
 **Date:** 2026-02-12
 **Slice:** P6.6 AI insights dedicated modal entry point (mobile-first shell)

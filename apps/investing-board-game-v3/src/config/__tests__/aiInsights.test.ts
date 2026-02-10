@@ -9,6 +9,12 @@ describe('aiInsights config', () => {
     expect(AI_INSIGHTS_SURFACE.refreshMinutes).toBeGreaterThanOrEqual(5)
 
     expect(AI_INSIGHTS_SURFACE.resetFiltersLabel.length).toBeGreaterThan(0)
+    expect(AI_INSIGHTS_SURFACE.freshness.label.length).toBeGreaterThan(0)
+    expect(AI_INSIGHTS_SURFACE.freshness.freshLabel.length).toBeGreaterThan(0)
+    expect(AI_INSIGHTS_SURFACE.freshness.staleLabel.length).toBeGreaterThan(0)
+    expect(AI_INSIGHTS_SURFACE.freshness.staleAfterMinutes).toBeGreaterThanOrEqual(5)
+    expect(AI_INSIGHTS_SURFACE.freshness.staleCallout.title.length).toBeGreaterThan(0)
+    expect(AI_INSIGHTS_SURFACE.freshness.staleCallout.description.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.emptyState.title.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.emptyState.description.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.emptyState.ctaLabel.length).toBeGreaterThan(0)
