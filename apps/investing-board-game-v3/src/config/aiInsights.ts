@@ -20,6 +20,16 @@ export type AIInsightsSurfaceConfig = {
   refreshMinutes: number
   ctaLabel: string
   resetFiltersLabel: string
+  freshness: {
+    label: string
+    freshLabel: string
+    staleLabel: string
+    staleAfterMinutes: number
+    staleCallout: {
+      title: string
+      description: string
+    }
+  }
   emptyState: {
     title: string
     description: string
@@ -48,6 +58,16 @@ const DEFAULT_AI_INSIGHTS_CONFIG: AIInsightsConfig = {
     refreshMinutes: 30,
     ctaLabel: 'Request fresh insight',
     resetFiltersLabel: 'Reset all filters',
+    freshness: {
+      label: 'Data freshness',
+      freshLabel: 'Fresh',
+      staleLabel: 'Stale',
+      staleAfterMinutes: 60,
+      staleCallout: {
+        title: 'Some insights are getting stale',
+        description: 'Request a fresh insight when cards are older than this window.',
+      },
+    },
     emptyState: {
       title: 'No insights match these filters yet',
       description: 'Try widening your filters to bring fixture insights back.',
@@ -195,6 +215,25 @@ const normalizeConfig = (config: unknown): AIInsightsConfig => {
       refreshMinutes: Math.max(5, coerceNumber(candidate.surface?.refreshMinutes, DEFAULT_AI_INSIGHTS_CONFIG.surface.refreshMinutes)),
       ctaLabel: coerceString(candidate.surface?.ctaLabel, DEFAULT_AI_INSIGHTS_CONFIG.surface.ctaLabel),
       resetFiltersLabel: coerceString(candidate.surface?.resetFiltersLabel, DEFAULT_AI_INSIGHTS_CONFIG.surface.resetFiltersLabel),
+      freshness: {
+        label: coerceString(candidate.surface?.freshness?.label, DEFAULT_AI_INSIGHTS_CONFIG.surface.freshness.label),
+        freshLabel: coerceString(candidate.surface?.freshness?.freshLabel, DEFAULT_AI_INSIGHTS_CONFIG.surface.freshness.freshLabel),
+        staleLabel: coerceString(candidate.surface?.freshness?.staleLabel, DEFAULT_AI_INSIGHTS_CONFIG.surface.freshness.staleLabel),
+        staleAfterMinutes: Math.max(
+          5,
+          coerceNumber(candidate.surface?.freshness?.staleAfterMinutes, DEFAULT_AI_INSIGHTS_CONFIG.surface.freshness.staleAfterMinutes),
+        ),
+        staleCallout: {
+          title: coerceString(
+            candidate.surface?.freshness?.staleCallout?.title,
+            DEFAULT_AI_INSIGHTS_CONFIG.surface.freshness.staleCallout.title,
+          ),
+          description: coerceString(
+            candidate.surface?.freshness?.staleCallout?.description,
+            DEFAULT_AI_INSIGHTS_CONFIG.surface.freshness.staleCallout.description,
+          ),
+        },
+      },
       emptyState: {
         title: coerceString(candidate.surface?.emptyState?.title, DEFAULT_AI_INSIGHTS_CONFIG.surface.emptyState.title),
         description: coerceString(candidate.surface?.emptyState?.description, DEFAULT_AI_INSIGHTS_CONFIG.surface.emptyState.description),

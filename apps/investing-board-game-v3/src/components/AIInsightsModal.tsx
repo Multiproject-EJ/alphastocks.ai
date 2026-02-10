@@ -18,6 +18,16 @@ interface AIInsightsModalProps {
 
 const ALL_FILTER_VALUE = 'all'
 
+const getInsightAgeMinutes = (updatedAt: string): number => {
+  const updatedTimestamp = new Date(updatedAt).getTime()
+
+  if (!Number.isFinite(updatedTimestamp)) {
+    return Number.POSITIVE_INFINITY
+  }
+
+  return Math.max(0, (Date.now() - updatedTimestamp) / 60000)
+}
+
 export function AIInsightsModal({ open, onOpenChange }: AIInsightsModalProps) {
   const dialogClass = useResponsiveDialogClass('medium')
   const [activeHorizon, setActiveHorizon] = useState<string>(ALL_FILTER_VALUE)
@@ -42,6 +52,10 @@ export function AIInsightsModal({ open, onOpenChange }: AIInsightsModalProps) {
       return horizonMatch && confidenceMatch
     })
   }, [activeConfidenceTier, activeHorizon])
+
+  const hasStaleInsights = visibleInsights.some(
+    (insight) => getInsightAgeMinutes(insight.updatedAt) >= AI_INSIGHTS_SURFACE.freshness.staleAfterMinutes,
+  )
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -131,6 +145,17 @@ export function AIInsightsModal({ open, onOpenChange }: AIInsightsModalProps) {
             </div>
           </div>
 
+          {hasStaleInsights ? (
+            <div className="rounded-lg border border-amber-400/40 bg-amber-500/10 p-3">
+              <p className="text-xs font-semibold text-amber-200">
+                {AI_INSIGHTS_SURFACE.freshness.staleCallout.title}
+              </p>
+              <p className="mt-1 text-[11px] text-amber-100/90">
+                {AI_INSIGHTS_SURFACE.freshness.staleCallout.description}
+              </p>
+            </div>
+          ) : null}
+
           <p className="text-[11px] text-muted-foreground">
             Showing {visibleInsights.length} insight{visibleInsights.length === 1 ? '' : 's'}
           </p>
@@ -141,9 +166,22 @@ export function AIInsightsModal({ open, onOpenChange }: AIInsightsModalProps) {
                 <div key={insight.id} className="rounded-lg border border-border/80 bg-muted/30 p-3">
                   <div className="flex items-center justify-between gap-2">
                     <p className="text-sm font-semibold text-foreground">{insight.symbol}</p>
-                    <span className="rounded-full border border-accent/30 bg-accent/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-accent">
-                      {insight.horizon}
-                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <span className="rounded-full border border-accent/30 bg-accent/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-accent">
+                        {insight.horizon}
+                      </span>
+                      <span
+                        className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${getInsightAgeMinutes(insight.updatedAt) >= AI_INSIGHTS_SURFACE.freshness.staleAfterMinutes
+                          ? 'border border-amber-400/50 bg-amber-500/10 text-amber-200'
+                          : 'border border-emerald-400/40 bg-emerald-500/10 text-emerald-200'
+                          }`}
+                      >
+                        {AI_INSIGHTS_SURFACE.freshness.label}:{' '}
+                        {getInsightAgeMinutes(insight.updatedAt) >= AI_INSIGHTS_SURFACE.freshness.staleAfterMinutes
+                          ? AI_INSIGHTS_SURFACE.freshness.staleLabel
+                          : AI_INSIGHTS_SURFACE.freshness.freshLabel}
+                      </span>
+                    </div>
                   </div>
                   <p className="mt-1 text-xs font-medium text-foreground">{insight.headline}</p>
                   <p className="mt-1 text-xs text-muted-foreground">{insight.summary}</p>

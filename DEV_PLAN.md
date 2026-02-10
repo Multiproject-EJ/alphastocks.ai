@@ -319,7 +319,8 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P6.6** ✅ Wire AI insights fixture panel into a dedicated modal entry point (mobile-first shell)
 - **P6.7** ✅ Add config-first AI insights filter chips (horizon + confidence tiers) in the dedicated modal
 - **P6.8** ✅ Add config-first empty-state + reset CTA copy for AI insights filters
-- **P6.9** ⬜ Add config-first AI insights freshness badge + stale-state callout
+- **P6.9** ✅ Add config-first AI insights freshness badge + stale-state callout
+- **P6.10** ⬜ Add config-first AI insights relative age copy (minutes-ago) on insight cards
 
 ---
 
@@ -351,11 +352,16 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P6.9 — Add config-first AI insights freshness badge + stale-state callout.**
+**Recommended next slice:** **P6.10 — Add config-first AI insights relative age copy (minutes-ago) on insight cards.**
 
 ## Progress Log (rolling)
-- **Done (latest):** P6.8 Add config-first empty-state + reset CTA copy for AI insights filters.
-- **Next step:** P6.9 Add config-first AI insights freshness badge + stale-state callout.
+- **Done (latest):** P6.9 Add config-first AI insights freshness badge + stale-state callout.
+- **Next step:** P6.10 Add config-first AI insights relative age copy (minutes-ago) on insight cards.
+
+## P6.9 Slice Notes (AI insights freshness badge + stale-state callout)
+- Extended AI insights config with a freshness block (labels, stale threshold minutes, and stale callout copy) so status tuning stays config-first.
+- Added freshness badges to each insight card that mark entries as Fresh/Stale based on config-driven stale thresholds and card timestamps.
+- Added a stale-state callout banner that appears when any visible insight exceeds the stale threshold, nudging players to request refreshed insights.
 
 ## P6.8 Slice Notes (AI insights empty-state + reset CTA copy)
 - Extended AI insights config with reset CTA and empty-state copy fields so filter UX copy can be tuned without code edits.
