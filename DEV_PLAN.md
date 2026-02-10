@@ -327,6 +327,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P6.14** ✅ Add config-first AI insights refresh-status icons for on-track/due-now tiers
 - **P6.15** ✅ Add config-first AI insights refresh-status icon colors for on-track/due-now tiers
 - **P6.16** ✅ Add config-first AI insights refresh-status chip background/border classes for on-track/due-now tiers
+- **P6.17** ✅ Add config-first AI insights refresh-status helper copy spacing/tone polish for the cooldown chip row
 
 ---
 
@@ -358,11 +359,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P6.17 — Add config-first AI insights refresh-status helper copy spacing/tone polish for the cooldown chip row.**
+**Recommended next slice:** **P6.18 — Add config-first AI insights refresh-status emphasis copy token for due-now countdown urgency.**
 
 ## Progress Log (rolling)
-- **Done (latest):** P6.16 Add config-first AI insights refresh-status chip background/border classes for on-track/due-now tiers.
-- **Next step:** P6.17 Add config-first AI insights refresh-status helper copy spacing/tone polish for the cooldown chip row.
+- **Done (latest):** P6.17 Add config-first AI insights refresh-status helper copy spacing/tone polish for the cooldown chip row.
+- **Next step:** P6.18 Add config-first AI insights refresh-status emphasis copy token for due-now countdown urgency.
 
 
 
@@ -1125,3 +1126,8 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Added config-first blackjack odds assumptions (main hand + side-bet hit chances) so payout tuning remains data-driven.
 - Added a Market Blackjack odds helper module that computes expected payouts and side-bet EV from config and current wager.
 - Surfaced an in-table odds helper panel and added vitest coverage for bounded probabilities, luck-boost effects, and side-bet math.
+
+## P6.17 Slice Notes (AI insights cooldown row spacing/tone polish)
+- Added config-driven spacing and tone tokens for the AI insights auto-refresh cooldown row to keep layout polish tunable without modal rewrites.
+- Updated the AI Insights modal helper and description copy to use due-now vs on-track tone classes from config, improving urgency signaling in stale states.
+- Kept chip row spacing config-first with a dedicated cooldown row class token so future UI tweaks stay data-driven.

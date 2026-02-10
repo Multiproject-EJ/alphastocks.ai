@@ -7,6 +7,29 @@
 
 
 **Date:** 2026-02-12
+**Slice:** P6.17 AI insights refresh-status helper copy spacing/tone polish for cooldown chip row (config-first)
+**Summary:**
+- Added config-driven cooldown row spacing and tone class tokens for on-track vs due-now AI insights refresh states.
+- Extended AI insights config typing/normalization and tests to enforce helper + description tone classes and cooldown row spacing token coverage.
+- Updated the AI Insights modal helper/description copy and cooldown row container to read spacing/tone polish directly from config.
+
+**Files changed:**
+- config/ai_insights.json
+- apps/investing-board-game-v3/src/config/aiInsights.ts
+- apps/investing-board-game-v3/src/components/AIInsightsModal.tsx
+- apps/investing-board-game-v3/src/config/__tests__/aiInsights.test.ts
+- DEV_PLAN.md
+- CHANGELOG_DEV.md
+
+**SQL migrations:**
+- (none)
+
+**How to test:**
+- `cd apps/investing-board-game-v3 && npm run test -- src/config/__tests__/aiInsights.test.ts`
+- (manual) Open Hub → Insights → AI Insights modal and verify helper/description tone and cooldown row spacing shift between on-track and due-now states via config tokens.
+
+
+**Date:** 2026-02-12
 **Slice:** P6.16 AI insights refresh-status chip background/border classes for cooldown tiers (config-first)
 **Summary:**
 - Added config-driven chip container class tokens for on-track and due-now AI insights cooldown status tiers.

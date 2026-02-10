@@ -7,6 +7,7 @@
     "autoRefresh": {
       "helperTemplate": "Auto-refreshes every {minutes}m while this panel is open.",
       "cooldownTemplate": "Next refresh in {minutes}m",
+      "cooldownRowClass": "mt-1.5 flex items-center",
       "statusTones": {
         "onTrackLabel": "On track",
         "dueNowLabel": "Due now",
@@ -16,8 +17,12 @@
         "dueNowColorClass": "text-amber-200",
         "onTrackChipClass": "border border-emerald-400/40 bg-emerald-500/10",
         "dueNowChipClass": "border border-amber-400/50 bg-amber-500/10",
+        "onTrackHelperClass": "text-muted-foreground",
+        "dueNowHelperClass": "text-amber-100/90",
         "onTrackDescription": "Data is still within the refresh window.",
-        "dueNowDescription": "Refresh now to keep signals timely."
+        "dueNowDescription": "Refresh now to keep signals timely.",
+        "onTrackDescriptionClass": "text-muted-foreground",
+        "dueNowDescriptionClass": "text-amber-100/90"
       }
     },
     "ctaLabel": "Request fresh insight",
