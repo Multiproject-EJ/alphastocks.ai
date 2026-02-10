@@ -326,6 +326,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P6.13** ✅ Add config-first AI insights refresh-status helper descriptions for on-track/due-now tiers
 - **P6.14** ✅ Add config-first AI insights refresh-status icons for on-track/due-now tiers
 - **P6.15** ✅ Add config-first AI insights refresh-status icon colors for on-track/due-now tiers
+- **P6.16** ✅ Add config-first AI insights refresh-status chip background/border classes for on-track/due-now tiers
 
 ---
 
@@ -357,15 +358,21 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P6.16 — Add config-first AI insights refresh-status chip background/border classes for on-track/due-now tiers.**
+**Recommended next slice:** **P6.17 — Add config-first AI insights refresh-status helper copy spacing/tone polish for the cooldown chip row.**
 
 ## Progress Log (rolling)
-- **Done (latest):** P6.15 Add config-first AI insights refresh-status icon colors for on-track/due-now tiers.
-- **Next step:** P6.16 Add config-first AI insights refresh-status chip background/border classes for on-track/due-now tiers.
+- **Done (latest):** P6.16 Add config-first AI insights refresh-status chip background/border classes for on-track/due-now tiers.
+- **Next step:** P6.17 Add config-first AI insights refresh-status helper copy spacing/tone polish for the cooldown chip row.
 
 
 
 
+
+
+## P6.16 Slice Notes (AI insights refresh-status chip classes)
+- Added config-driven chip container classes for on-track and due-now auto-refresh tiers so border/background styling is tuneable without component edits.
+- Extended AI insights config typing and normalization to enforce chip class fallbacks for both cooldown status tiers.
+- Updated the AI Insights modal cooldown row to render a compact status chip that applies the configured tone text + chip container classes.
 
 ## P6.15 Slice Notes (AI insights refresh-status icon colors)
 - Extended AI insights auto-refresh status-tone config with `onTrackColorClass` and `dueNowColorClass` so status color treatment is content-tunable.

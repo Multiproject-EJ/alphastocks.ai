@@ -15,6 +15,8 @@ describe('aiInsights config', () => {
     expect(AI_INSIGHTS_SURFACE.autoRefresh.statusTones.dueNowIcon.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.autoRefresh.statusTones.onTrackColorClass.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.autoRefresh.statusTones.dueNowColorClass.length).toBeGreaterThan(0)
+    expect(AI_INSIGHTS_SURFACE.autoRefresh.statusTones.onTrackChipClass.length).toBeGreaterThan(0)
+    expect(AI_INSIGHTS_SURFACE.autoRefresh.statusTones.dueNowChipClass.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.autoRefresh.statusTones.onTrackDescription.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.autoRefresh.statusTones.dueNowDescription.length).toBeGreaterThan(0)
 
