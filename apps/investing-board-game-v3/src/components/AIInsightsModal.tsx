@@ -110,6 +110,10 @@ export function AIInsightsModal({ open, onOpenChange }: AIInsightsModalProps) {
     cooldownTone === 'due-now'
       ? AI_INSIGHTS_SURFACE.autoRefresh.statusTones.dueNowColorClass
       : AI_INSIGHTS_SURFACE.autoRefresh.statusTones.onTrackColorClass
+  const cooldownToneChipClass =
+    cooldownTone === 'due-now'
+      ? AI_INSIGHTS_SURFACE.autoRefresh.statusTones.dueNowChipClass
+      : AI_INSIGHTS_SURFACE.autoRefresh.statusTones.onTrackChipClass
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -218,8 +222,13 @@ export function AIInsightsModal({ open, onOpenChange }: AIInsightsModalProps) {
             <p className="text-[11px] text-muted-foreground">
               {formatAutoRefreshCopy(AI_INSIGHTS_SURFACE.autoRefresh.helperTemplate, AI_INSIGHTS_SURFACE.refreshMinutes)}
             </p>
-            <p className={`mt-1 text-[11px] font-semibold ${cooldownToneColorClass}`}>
-              {cooldownToneIcon} {cooldownToneLabel}: {formatAutoRefreshCopy(AI_INSIGHTS_SURFACE.autoRefresh.cooldownTemplate, nextAutoRefreshInMinutes)}
+            <p className="mt-1">
+              <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-[11px] font-semibold ${cooldownToneChipClass} ${cooldownToneColorClass}`}>
+                <span aria-hidden>{cooldownToneIcon}</span>
+                <span>
+                  {cooldownToneLabel}: {formatAutoRefreshCopy(AI_INSIGHTS_SURFACE.autoRefresh.cooldownTemplate, nextAutoRefreshInMinutes)}
+                </span>
+              </span>
             </p>
             <p className="mt-1 text-[11px] text-muted-foreground">{cooldownToneDescription}</p>
           </div>
