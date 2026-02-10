@@ -28,6 +28,21 @@ const getInsightAgeMinutes = (updatedAt: string): number => {
   return Math.max(0, (Date.now() - updatedTimestamp) / 60000)
 }
 
+const formatRelativeInsightAge = (updatedAt: string): string => {
+  const ageMinutes = getInsightAgeMinutes(updatedAt)
+
+  if (!Number.isFinite(ageMinutes)) {
+    return AI_INSIGHTS_SURFACE.freshness.relativeAge.unavailableLabel
+  }
+
+  const roundedAgeMinutes = Math.floor(ageMinutes)
+  if (roundedAgeMinutes <= 0) {
+    return AI_INSIGHTS_SURFACE.freshness.relativeAge.justNowLabel
+  }
+
+  return AI_INSIGHTS_SURFACE.freshness.relativeAge.minutesAgoTemplate.replace('{minutes}', String(roundedAgeMinutes))
+}
+
 export function AIInsightsModal({ open, onOpenChange }: AIInsightsModalProps) {
   const dialogClass = useResponsiveDialogClass('medium')
   const [activeHorizon, setActiveHorizon] = useState<string>(ALL_FILTER_VALUE)
@@ -187,7 +202,10 @@ export function AIInsightsModal({ open, onOpenChange }: AIInsightsModalProps) {
                   <p className="mt-1 text-xs text-muted-foreground">{insight.summary}</p>
                   <div className="mt-2 flex items-center justify-between gap-2 text-[11px] text-muted-foreground">
                     <span>Confidence: {(insight.confidence * 100).toFixed(0)}%</span>
-                    <span>{new Date(insight.updatedAt).toLocaleString()}</span>
+                    <span>
+                      {AI_INSIGHTS_SURFACE.freshness.relativeAge.updatedLabel}:{' '}
+                      {formatRelativeInsightAge(insight.updatedAt)}
+                    </span>
                   </div>
                 </div>
               ))

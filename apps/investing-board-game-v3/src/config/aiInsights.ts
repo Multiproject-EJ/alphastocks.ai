@@ -25,6 +25,12 @@ export type AIInsightsSurfaceConfig = {
     freshLabel: string
     staleLabel: string
     staleAfterMinutes: number
+    relativeAge: {
+      updatedLabel: string
+      justNowLabel: string
+      minutesAgoTemplate: string
+      unavailableLabel: string
+    }
     staleCallout: {
       title: string
       description: string
@@ -63,6 +69,12 @@ const DEFAULT_AI_INSIGHTS_CONFIG: AIInsightsConfig = {
       freshLabel: 'Fresh',
       staleLabel: 'Stale',
       staleAfterMinutes: 60,
+      relativeAge: {
+        updatedLabel: 'Updated',
+        justNowLabel: 'Just now',
+        minutesAgoTemplate: '{minutes}m ago',
+        unavailableLabel: 'Time unavailable',
+      },
       staleCallout: {
         title: 'Some insights are getting stale',
         description: 'Request a fresh insight when cards are older than this window.',
@@ -223,6 +235,24 @@ const normalizeConfig = (config: unknown): AIInsightsConfig => {
           5,
           coerceNumber(candidate.surface?.freshness?.staleAfterMinutes, DEFAULT_AI_INSIGHTS_CONFIG.surface.freshness.staleAfterMinutes),
         ),
+        relativeAge: {
+          updatedLabel: coerceString(
+            candidate.surface?.freshness?.relativeAge?.updatedLabel,
+            DEFAULT_AI_INSIGHTS_CONFIG.surface.freshness.relativeAge.updatedLabel,
+          ),
+          justNowLabel: coerceString(
+            candidate.surface?.freshness?.relativeAge?.justNowLabel,
+            DEFAULT_AI_INSIGHTS_CONFIG.surface.freshness.relativeAge.justNowLabel,
+          ),
+          minutesAgoTemplate: coerceString(
+            candidate.surface?.freshness?.relativeAge?.minutesAgoTemplate,
+            DEFAULT_AI_INSIGHTS_CONFIG.surface.freshness.relativeAge.minutesAgoTemplate,
+          ),
+          unavailableLabel: coerceString(
+            candidate.surface?.freshness?.relativeAge?.unavailableLabel,
+            DEFAULT_AI_INSIGHTS_CONFIG.surface.freshness.relativeAge.unavailableLabel,
+          ),
+        },
         staleCallout: {
           title: coerceString(
             candidate.surface?.freshness?.staleCallout?.title,
