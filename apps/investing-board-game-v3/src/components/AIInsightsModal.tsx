@@ -123,6 +123,7 @@ export function AIInsightsModal({ open, onOpenChange }: AIInsightsModalProps) {
       ? AI_INSIGHTS_SURFACE.autoRefresh.statusTones.dueNowDescriptionClass
       : AI_INSIGHTS_SURFACE.autoRefresh.statusTones.onTrackDescriptionClass
   const dueNowCountdownEmphasis = AI_INSIGHTS_SURFACE.autoRefresh.statusTones.dueNowCountdownEmphasis
+  const dueNowCountdownSeparator = AI_INSIGHTS_SURFACE.autoRefresh.statusTones.dueNowCountdownSeparator
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -235,7 +236,7 @@ export function AIInsightsModal({ open, onOpenChange }: AIInsightsModalProps) {
               <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-[11px] font-semibold ${cooldownToneChipClass} ${cooldownToneColorClass}`}>
                 <span aria-hidden>{cooldownToneIcon}</span>
                 <span>
-                  {cooldownToneLabel}: {cooldownTone === 'due-now' ? `${dueNowCountdownEmphasis} · ` : ''}
+                  {cooldownToneLabel}: {cooldownTone === 'due-now' ? `${dueNowCountdownEmphasis}${dueNowCountdownSeparator}` : ''}
                   {formatAutoRefreshCopy(AI_INSIGHTS_SURFACE.autoRefresh.cooldownTemplate, nextAutoRefreshInMinutes)}
                 </span>
               </span>

@@ -328,6 +328,8 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P6.15** ✅ Add config-first AI insights refresh-status icon colors for on-track/due-now tiers
 - **P6.16** ✅ Add config-first AI insights refresh-status chip background/border classes for on-track/due-now tiers
 - **P6.17** ✅ Add config-first AI insights refresh-status helper copy spacing/tone polish for the cooldown chip row
+- **P6.18** ✅ Add config-first AI insights refresh-status emphasis copy token for due-now countdown urgency
+- **P6.19** ✅ Add config-first AI insights refresh-status due-now countdown separator token for urgency chip phrasing polish
 
 ---
 
@@ -359,16 +361,22 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P6.19 — Add config-first AI insights refresh-status due-now countdown separator token for urgency chip phrasing polish.**
+**Recommended next slice:** **P6.20 — Add config-first AI insights refresh-status due-now countdown template token for urgency chip phrasing polish.**
 
 ## Progress Log (rolling)
-- **Done (latest):** P6.18 Add config-first AI insights refresh-status emphasis copy token for due-now countdown urgency.
-- **Next step:** P6.19 Add config-first AI insights refresh-status due-now countdown separator token for urgency chip phrasing polish.
+- **Done (latest):** P6.19 Add config-first AI insights refresh-status due-now countdown separator token for urgency chip phrasing polish.
+- **Next step:** P6.20 Add config-first AI insights refresh-status due-now countdown template token for urgency chip phrasing polish.
 
 
 
 
 
+
+
+## P6.19 Slice Notes (AI insights due-now countdown separator token)
+- Extended AI insights auto-refresh status config with a `dueNowCountdownSeparator` token so due-now chip phrasing stays config-tunable without hardcoded punctuation in the modal.
+- Updated config normalization defaults/tests to guarantee the due-now separator token is always present when config values are missing.
+- Updated the AI Insights modal due-now cooldown copy to compose urgency emphasis and countdown text using the new separator token.
 
 ## P6.18 Slice Notes (AI insights due-now countdown urgency emphasis token)
 - Extended AI insights auto-refresh status config with a `dueNowCountdownEmphasis` token so urgency phrasing remains content-tunable without component edits.
