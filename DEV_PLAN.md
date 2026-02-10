@@ -325,6 +325,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P6.12** ✅ Add config-first AI insights refresh-status tone tiers (on-track/due-now) for the cooldown label
 - **P6.13** ✅ Add config-first AI insights refresh-status helper descriptions for on-track/due-now tiers
 - **P6.14** ✅ Add config-first AI insights refresh-status icons for on-track/due-now tiers
+- **P6.15** ✅ Add config-first AI insights refresh-status icon colors for on-track/due-now tiers
 
 ---
 
@@ -356,14 +357,20 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P6.15 — Add config-first AI insights refresh-status icon colors for on-track/due-now tiers.**
+**Recommended next slice:** **P6.16 — Add config-first AI insights refresh-status chip background/border classes for on-track/due-now tiers.**
 
 ## Progress Log (rolling)
-- **Done (latest):** P6.14 Add config-first AI insights refresh-status icons for on-track/due-now tiers.
-- **Next step:** P6.15 Add config-first AI insights refresh-status icon colors for on-track/due-now tiers.
+- **Done (latest):** P6.15 Add config-first AI insights refresh-status icon colors for on-track/due-now tiers.
+- **Next step:** P6.16 Add config-first AI insights refresh-status chip background/border classes for on-track/due-now tiers.
 
 
 
+
+
+## P6.15 Slice Notes (AI insights refresh-status icon colors)
+- Extended AI insights auto-refresh status-tone config with `onTrackColorClass` and `dueNowColorClass` so status color treatment is content-tunable.
+- Updated config normalization defaults/tests to guarantee both cooldown tiers always expose non-empty color classes.
+- Rewired the AI insights cooldown status row to consume config-driven color classes instead of hardcoded due-now/on-track text color branches.
 
 ## P6.14 Slice Notes (AI insights refresh-status icons)
 - Added config-driven refresh-status icons (`onTrackIcon`, `dueNowIcon`) so cooldown state visuals can be tuned without component edits.

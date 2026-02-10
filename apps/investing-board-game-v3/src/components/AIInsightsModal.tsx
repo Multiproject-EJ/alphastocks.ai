@@ -106,6 +106,10 @@ export function AIInsightsModal({ open, onOpenChange }: AIInsightsModalProps) {
     cooldownTone === 'due-now'
       ? AI_INSIGHTS_SURFACE.autoRefresh.statusTones.dueNowIcon
       : AI_INSIGHTS_SURFACE.autoRefresh.statusTones.onTrackIcon
+  const cooldownToneColorClass =
+    cooldownTone === 'due-now'
+      ? AI_INSIGHTS_SURFACE.autoRefresh.statusTones.dueNowColorClass
+      : AI_INSIGHTS_SURFACE.autoRefresh.statusTones.onTrackColorClass
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -214,12 +218,7 @@ export function AIInsightsModal({ open, onOpenChange }: AIInsightsModalProps) {
             <p className="text-[11px] text-muted-foreground">
               {formatAutoRefreshCopy(AI_INSIGHTS_SURFACE.autoRefresh.helperTemplate, AI_INSIGHTS_SURFACE.refreshMinutes)}
             </p>
-            <p
-              className={`mt-1 text-[11px] font-semibold ${cooldownTone === 'due-now'
-                ? 'text-amber-200'
-                : 'text-accent'
-                }`}
-            >
+            <p className={`mt-1 text-[11px] font-semibold ${cooldownToneColorClass}`}>
               {cooldownToneIcon} {cooldownToneLabel}: {formatAutoRefreshCopy(AI_INSIGHTS_SURFACE.autoRefresh.cooldownTemplate, nextAutoRefreshInMinutes)}
             </p>
             <p className="mt-1 text-[11px] text-muted-foreground">{cooldownToneDescription}</p>

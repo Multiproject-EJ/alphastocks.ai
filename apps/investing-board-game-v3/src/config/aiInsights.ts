@@ -26,6 +26,8 @@ export type AIInsightsSurfaceConfig = {
       dueNowLabel: string
       onTrackIcon: string
       dueNowIcon: string
+      onTrackColorClass: string
+      dueNowColorClass: string
       onTrackDescription: string
       dueNowDescription: string
     }
@@ -82,6 +84,8 @@ const DEFAULT_AI_INSIGHTS_CONFIG: AIInsightsConfig = {
         dueNowLabel: 'Due now',
         onTrackIcon: '⏱️',
         dueNowIcon: '⚠️',
+        onTrackColorClass: 'text-emerald-200',
+        dueNowColorClass: 'text-amber-200',
         onTrackDescription: 'Data is still within the refresh window.',
         dueNowDescription: 'Refresh now to keep signals timely.',
       },
@@ -274,6 +278,14 @@ const normalizeConfig = (config: unknown): AIInsightsConfig => {
           dueNowIcon: coerceString(
             candidate.surface?.autoRefresh?.statusTones?.dueNowIcon,
             DEFAULT_AI_INSIGHTS_CONFIG.surface.autoRefresh.statusTones.dueNowIcon,
+          ),
+          onTrackColorClass: coerceString(
+            candidate.surface?.autoRefresh?.statusTones?.onTrackColorClass,
+            DEFAULT_AI_INSIGHTS_CONFIG.surface.autoRefresh.statusTones.onTrackColorClass,
+          ),
+          dueNowColorClass: coerceString(
+            candidate.surface?.autoRefresh?.statusTones?.dueNowColorClass,
+            DEFAULT_AI_INSIGHTS_CONFIG.surface.autoRefresh.statusTones.dueNowColorClass,
           ),
           onTrackDescription: coerceString(
             candidate.surface?.autoRefresh?.statusTones?.onTrackDescription,
