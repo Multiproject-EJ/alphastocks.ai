@@ -5018,7 +5018,7 @@ function App() {
                   onClaim={claimMilestone}
                   onCTA={purchaseCTA}
                   ctaLabel={eventTrackCTA?.label ?? null}
-                  ctaDisabled={!eventTrackCTA}
+                  ctaDisabled={!eventTrackCTA || eventTrackCTA.disabled}
                   commentary={eventTrackCommentary}
                 />
               </div>
@@ -6003,7 +6003,7 @@ function App() {
               onClaim={claimMilestone}
               onCTA={purchaseCTA}
               ctaLabel={eventTrackCTA?.label ?? null}
-              ctaDisabled={!eventTrackCTA}
+              ctaDisabled={!eventTrackCTA || eventTrackCTA.disabled}
               compactByDefault
               commentary={eventTrackCommentary}
             />

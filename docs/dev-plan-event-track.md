@@ -59,6 +59,24 @@
 ## Telemetry/Analytics (optional)
 - Log CTA clicks, milestone claims, and completion rate (if analytics hooks exist).
 
+## Execution Rules
+- Keep slices small and shippable (single behavior change per slice when possible).
+- Prefer config-first updates before introducing new hard-coded logic.
+- After each slice: update this plan, mark the slice status, and write the next concrete step.
+
+## Progress Tracker
+- [x] Slice 1 — Create Event Track module
+- [x] Slice 2 — Add UI component
+- [x] Slice 3 — Persist and model state
+- [x] Slice 4 — Gameplay integration
+- [x] Slice 5 — Polish and UX baseline (reduced motion + responsive placement)
+- [x] Slice 6 — CTA affordability guardrails (disable CTA when coins are insufficient)
+- [ ] Slice 7 — Config-first CTA tuning (cost multipliers + thresholds in config)
+
+## Progress Log
+- 2026-02-10: Completed Slice 6 by wiring CTA disabled state to current coin balance in `useEventTrack` and propagating that disabled state to desktop + compact `EventTrackBar` usage in `App.tsx`. This prevents "boost" taps that cannot succeed and keeps the CTA honest.
+- Next step: Implement Slice 7 by moving jump/finish CTA cost constants into `features/eventTrack/config.ts`, then add a small pure helper test pass for cost calculations.
+
 ## Step-by-Step Dev Plan
 1. **Create Event Track module**
    - **Goal**: Establish a clean feature boundary with types, store helpers, reward engine, and integration adapter.

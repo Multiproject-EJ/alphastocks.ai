@@ -153,7 +153,7 @@ export const useEventTrack = ({
         label: `Jump to next milestone — ${jumpCost} coins`,
         cost: jumpCost,
         mode: 'jump',
-        disabled: false,
+        disabled: gameState.coins < jumpCost,
       }
     }
 
@@ -161,12 +161,13 @@ export const useEventTrack = ({
       label: `Finish ${remainingRewards} rewards — ${finishCost} coins`,
       cost: finishCost,
       mode: 'finish',
-      disabled: false,
+      disabled: gameState.coins < finishCost,
     }
-  }, [definition, nextMilestonePoints, progress.points, remainingRewards])
+  }, [definition, gameState.coins, nextMilestonePoints, progress.points, remainingRewards])
 
   const purchaseCTA = useCallback(() => {
     if (!cta) return
+    if (cta.disabled) return
 
     if (!spendCoins(cta.cost, 'Event Track boost')) {
       return
