@@ -359,16 +359,21 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P6.18 — Add config-first AI insights refresh-status emphasis copy token for due-now countdown urgency.**
+**Recommended next slice:** **P6.19 — Add config-first AI insights refresh-status due-now countdown separator token for urgency chip phrasing polish.**
 
 ## Progress Log (rolling)
-- **Done (latest):** P6.17 Add config-first AI insights refresh-status helper copy spacing/tone polish for the cooldown chip row.
-- **Next step:** P6.18 Add config-first AI insights refresh-status emphasis copy token for due-now countdown urgency.
+- **Done (latest):** P6.18 Add config-first AI insights refresh-status emphasis copy token for due-now countdown urgency.
+- **Next step:** P6.19 Add config-first AI insights refresh-status due-now countdown separator token for urgency chip phrasing polish.
 
 
 
 
 
+
+## P6.18 Slice Notes (AI insights due-now countdown urgency emphasis token)
+- Extended AI insights auto-refresh status config with a `dueNowCountdownEmphasis` token so urgency phrasing remains content-tunable without component edits.
+- Updated config normalization defaults/tests to guarantee due-now urgency emphasis copy is always available even when config entries are incomplete.
+- Updated the AI Insights modal cooldown chip copy to prepend the configured urgency emphasis only when refresh status is due-now.
 
 ## P6.16 Slice Notes (AI insights refresh-status chip classes)
 - Added config-driven chip container classes for on-track and due-now auto-refresh tiers so border/background styling is tuneable without component edits.

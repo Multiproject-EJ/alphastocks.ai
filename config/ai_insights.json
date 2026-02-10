@@ -22,7 +22,8 @@
         "onTrackDescription": "Data is still within the refresh window.",
         "dueNowDescription": "Refresh now to keep signals timely.",
         "onTrackDescriptionClass": "text-muted-foreground",
-        "dueNowDescriptionClass": "text-amber-100/90"
+        "dueNowDescriptionClass": "text-amber-100/90",
+        "dueNowCountdownEmphasis": "Refresh now"
       }
     },
     "ctaLabel": "Request fresh insight",

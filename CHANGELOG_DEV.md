@@ -7,6 +7,29 @@
 
 
 **Date:** 2026-02-12
+**Slice:** P6.18 AI insights refresh-status due-now countdown urgency emphasis copy token (config-first)
+**Summary:**
+- Added a config-driven due-now countdown urgency emphasis token so cooldown chip phrasing stays content-tunable.
+- Extended AI insights config typing/normalization and tests to enforce due-now urgency emphasis token availability.
+- Updated the AI Insights modal cooldown chip to prepend urgency emphasis copy only when auto-refresh is due now.
+
+**Files changed:**
+- config/ai_insights.json
+- apps/investing-board-game-v3/src/config/aiInsights.ts
+- apps/investing-board-game-v3/src/components/AIInsightsModal.tsx
+- apps/investing-board-game-v3/src/config/__tests__/aiInsights.test.ts
+- DEV_PLAN.md
+- CHANGELOG_DEV.md
+
+**SQL migrations:**
+- (none)
+
+**How to test:**
+- `cd apps/investing-board-game-v3 && npm run test -- src/config/__tests__/aiInsights.test.ts`
+- (manual) Open Hub → Insights → AI Insights modal and verify due-now cooldown chips prepend the configured urgency emphasis copy while on-track chips do not.
+
+
+**Date:** 2026-02-12
 **Slice:** P6.17 AI insights refresh-status helper copy spacing/tone polish for cooldown chip row (config-first)
 **Summary:**
 - Added config-driven cooldown row spacing and tone class tokens for on-track vs due-now AI insights refresh states.

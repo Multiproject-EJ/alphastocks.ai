@@ -24,6 +24,7 @@ describe('aiInsights config', () => {
     expect(AI_INSIGHTS_SURFACE.autoRefresh.statusTones.dueNowDescription.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.autoRefresh.statusTones.onTrackDescriptionClass.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.autoRefresh.statusTones.dueNowDescriptionClass.length).toBeGreaterThan(0)
+    expect(AI_INSIGHTS_SURFACE.autoRefresh.statusTones.dueNowCountdownEmphasis.length).toBeGreaterThan(0)
 
     expect(AI_INSIGHTS_SURFACE.resetFiltersLabel.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.freshness.label.length).toBeGreaterThan(0)
