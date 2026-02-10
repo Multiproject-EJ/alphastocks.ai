@@ -55,7 +55,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 - `AI_IMPLEMENTATION.md`, `IMPLEMENTATION_SUMMARY.md`, `DEVLOG.md` (project-wide status/context)
 
 ### Repo Map (paths verified)
-_Last reviewed: 2026-02-12 (Market Blackjack loop)_
+_Last reviewed: 2026-02-12 (Market Blackjack payout tuning + odds helper)_
 #### Frontend
 - **Legacy static pages entry:** `/index.html`, `/about.html`, `/faq.html`, `/monthly/`, `/weekly/`, `/superinvestor/`
 - **Vite + Preact app:** `/apps/investing-board-game-v3` (built into `/public/board-game-v3` via `npm run build:board-game-v3`)
@@ -313,7 +313,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P6.0** ✅ Plan next milestone slices from the master plan (doc-only, keep steps small + config-first)
 - **P6.1** ✅ Choose the next advanced casino game + add a config-first stub entry (config-first + doc-first)
 - **P6.2** ✅ Build the minimal playable loop for the new casino game (mobile-first surface)
-- **P6.3** ⬜ Add payout tuning + odds helper coverage for the new casino game (config-first)
+- **P6.3** ✅ Add payout tuning + odds helper coverage for the new casino game (config-first)
 - **P6.4** ⬜ Add telemetry + session stats hooks for the new casino game (config-first)
 - **P6.5** ⬜ Scope the AI investment insights surface (doc-first + fixtures)
 
@@ -347,11 +347,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P6.3 — Add payout tuning + odds helper coverage for the new casino game (config-first).**
+**Recommended next slice:** **P6.4 — Add telemetry + session stats hooks for the new casino game (config-first).**
 
 ## Progress Log (rolling)
-- **Done (latest):** P6.2 Build the minimal playable loop for the new casino game (mobile-first surface).
-- **Next step:** P6.3 Add payout tuning + odds helper coverage for the new casino game (config-first).
+- **Done (latest):** P6.3 Add payout tuning + odds helper coverage for the new casino game (config-first).
+- **Next step:** P6.4 Add telemetry + session stats hooks for the new casino game (config-first).
 
 ## P2.7 Scope Notes (Bias Sanctuary visual story mode)
 ### Story structure & content
@@ -1039,3 +1039,8 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 - Built a mobile-first Market Blackjack table with bet controls, side bet toggles, and a playable hit/stand loop.
 - Added configurable payout and side bet tuning inputs (dealer stand rule, side bet cost rate, payout multipliers).
 - Wired Market Blackjack into the casino lobby as a live table with round recaps and cash balance guardrails.
+
+## P6.3 Slice Notes (Market Blackjack payout tuning + odds helper coverage)
+- Added config-first blackjack odds assumptions (main hand + side-bet hit chances) so payout tuning remains data-driven.
+- Added a Market Blackjack odds helper module that computes expected payouts and side-bet EV from config and current wager.
+- Surfaced an in-table odds helper panel and added vitest coverage for bounded probabilities, luck-boost effects, and side-bet math.

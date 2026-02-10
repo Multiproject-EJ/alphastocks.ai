@@ -110,6 +110,15 @@
       "blackjack": 2.5,
       "push": 1
     },
+    "odds": {
+      "baseWinChance": 0.42,
+      "blackjackChance": 0.048,
+      "pushChance": 0.09,
+      "sideBetWinChances": {
+        "earnings-beat": 0.43,
+        "macro-momentum": 0.06
+      }
+    },
     "sideBets": [
       {
         "id": "earnings-beat",
