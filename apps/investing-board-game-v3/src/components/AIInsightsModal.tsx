@@ -9,6 +9,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { useResponsiveDialogClass } from '@/hooks/useResponsiveDialogClass'
 import { AI_INSIGHTS_FIXTURES, AI_INSIGHTS_SURFACE } from '@/lib/aiInsightsFixtures'
+import { formatDueNowCooldownPhrase } from '@/config/aiInsights'
 import { Sparkle } from '@phosphor-icons/react'
 
 interface AIInsightsModalProps {
@@ -238,13 +239,15 @@ export function AIInsightsModal({ open, onOpenChange }: AIInsightsModalProps) {
                 <span aria-hidden>{cooldownToneIcon}</span>
                 <span>
                   {cooldownToneLabel}: {cooldownTone === 'due-now'
-                    ? dueNowCountdownTemplate
-                      .replace('{emphasis}', dueNowCountdownEmphasis)
-                      .replace('{separator}', dueNowCountdownSeparator)
-                      .replace(
-                        '{countdown}',
-                        formatAutoRefreshCopy(AI_INSIGHTS_SURFACE.autoRefresh.cooldownTemplate, nextAutoRefreshInMinutes),
-                      )
+                    ? formatDueNowCooldownPhrase({
+                      countdownTemplate: dueNowCountdownTemplate,
+                      emphasis: dueNowCountdownEmphasis,
+                      separator: dueNowCountdownSeparator,
+                      countdown: formatAutoRefreshCopy(
+                        AI_INSIGHTS_SURFACE.autoRefresh.cooldownTemplate,
+                        nextAutoRefreshInMinutes,
+                      ),
+                    })
                     : formatAutoRefreshCopy(AI_INSIGHTS_SURFACE.autoRefresh.cooldownTemplate, nextAutoRefreshInMinutes)}
                 </span>
               </span>
