@@ -37,7 +37,7 @@ const getInsightAgeMinutes = (updatedAt: string): number => {
   return Math.max(0, (Date.now() - updatedTimestamp) / 60000)
 }
 
-const formatRelativeInsightAge = (updatedAt: string): string => {
+export const formatRelativeInsightAge = (updatedAt: string): string => {
   const ageMinutes = getInsightAgeMinutes(updatedAt)
   const relativeAgeConfig = AI_INSIGHTS_SURFACE.freshness.relativeAge
 

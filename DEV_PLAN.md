@@ -349,7 +349,8 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P6.36** ✅ Add config-first AI insights relative-age hour-count divisor token so hour labels stay tunable independently from threshold boundaries
 - **P6.37** ✅ Add config-first AI insights relative-age hour-count minimum token so hour labels remain human-friendly when divisor tuning is aggressive
 - **P6.38** ✅ Add config-first AI insights relative-age day-count minimum token so day labels remain human-friendly when divisor tuning is aggressive
-- **P6.39** ⏳ Add config-first AI insights relative-age day-count minimum coverage in modal age rendering tests (small follow-up)
+- **P6.39** ✅ Add config-first AI insights relative-age day-count minimum coverage in modal age rendering tests (small follow-up)
+- **P6.40** ⏳ Add config-first AI insights relative-age unavailable-label coverage in modal age rendering tests (small follow-up)
 
 ---
 
@@ -381,11 +382,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P6.39 — Add config-first AI insights relative-age day-count minimum coverage in modal age rendering tests (small follow-up).**
+**Recommended next slice:** **P6.40 — Add config-first AI insights relative-age unavailable-label coverage in modal age rendering tests (small follow-up).**
 
 ## Progress Log (rolling)
-- **Done (latest):** P6.38 Add config-first AI insights relative-age day-count minimum token so day labels remain human-friendly when divisor tuning is aggressive.
-- **Next step:** P6.39 Add config-first AI insights relative-age day-count minimum coverage in modal age rendering tests (small follow-up).
+- **Done (latest):** P6.39 Add config-first AI insights relative-age day-count minimum coverage in modal age rendering tests (small follow-up).
+- **Next step:** P6.40 Add config-first AI insights relative-age unavailable-label coverage in modal age rendering tests (small follow-up).
 
 
 
@@ -393,6 +394,12 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 
 
 
+
+
+## P6.39 Slice Notes (AI insights relative-age day-count minimum modal test coverage)
+- Exported the AI insights relative-age formatter helper from the modal module so rendering-specific age copy can be validated without mounting the full dialog tree.
+- Added focused modal helper coverage asserting config-first `dayCountMinimum` clamp behavior when day divisor math would otherwise render a lower value.
+- Added a companion modal helper case confirming computed day labels remain unchanged when they already exceed the configured `dayCountMinimum` floor.
 
 
 ## P6.38 Slice Notes (AI insights relative-age day-count minimum token)
