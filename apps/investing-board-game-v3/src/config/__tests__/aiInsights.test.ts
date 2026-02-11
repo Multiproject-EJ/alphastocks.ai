@@ -10,6 +10,8 @@ import {
   normalizeMinutesTemplate,
   normalizeOnTrackCooldownTemplate,
   normalizeRelativeAgeFallbackTemplate,
+  normalizeRelativeAgeThresholdMinutes,
+  normalizeRelativeAgeDayCountDivisorMinutes,
   formatDueNowCooldownPhrase,
   formatOnTrackCooldownPhrase,
   formatRelativeAgeDaysPhrase,
@@ -55,6 +57,11 @@ describe('aiInsights config', () => {
     expect(AI_INSIGHTS_SURFACE.freshness.relativeAge.minutesAgoTemplate).toContain('{minutes}')
     expect(AI_INSIGHTS_SURFACE.freshness.relativeAge.hoursAgoTemplate).toContain('{hours}')
     expect(AI_INSIGHTS_SURFACE.freshness.relativeAge.daysAgoTemplate).toContain('{days}')
+    expect(AI_INSIGHTS_SURFACE.freshness.relativeAge.hoursThresholdMinutes).toBeGreaterThanOrEqual(1)
+    expect(AI_INSIGHTS_SURFACE.freshness.relativeAge.daysThresholdMinutes).toBeGreaterThan(
+      AI_INSIGHTS_SURFACE.freshness.relativeAge.hoursThresholdMinutes,
+    )
+    expect(AI_INSIGHTS_SURFACE.freshness.relativeAge.dayCountDivisorMinutes).toBeGreaterThanOrEqual(1)
     expect(AI_INSIGHTS_SURFACE.freshness.relativeAge.fallbackTemplate).toContain('{label}')
     expect(AI_INSIGHTS_SURFACE.freshness.relativeAge.unavailableLabel.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.freshness.staleCallout.title.length).toBeGreaterThan(0)
@@ -132,6 +139,60 @@ describe('aiInsights config', () => {
     expect(normalizeHoursTemplate('{hours} hours ago', fallback)).toBe('{hours} hours ago')
     expect(normalizeHoursTemplate('older', fallback)).toBe(fallback)
     expect(normalizeHoursTemplate('', fallback)).toBe(fallback)
+  })
+
+  it('applies relative-age hour/day threshold guardrails for deterministic long-age switching', () => {
+    expect(normalizeRelativeAgeThresholdMinutes({
+      hoursThresholdMinutes: 90,
+      daysThresholdMinutes: 1800,
+    })).toEqual({
+      hoursThresholdMinutes: 90,
+      daysThresholdMinutes: 1800,
+    })
+
+    expect(normalizeRelativeAgeThresholdMinutes({
+      hoursThresholdMinutes: 0,
+      daysThresholdMinutes: 30,
+    })).toEqual({
+      hoursThresholdMinutes: 1,
+      daysThresholdMinutes: 30,
+    })
+
+    expect(normalizeRelativeAgeThresholdMinutes({
+      hoursThresholdMinutes: 240,
+      daysThresholdMinutes: 120,
+    })).toEqual({
+      hoursThresholdMinutes: 240,
+      daysThresholdMinutes: 241,
+    })
+
+    expect(normalizeRelativeAgeThresholdMinutes({
+      hoursThresholdMinutes: Number.NaN,
+      daysThresholdMinutes: Number.NaN,
+    })).toEqual({
+      hoursThresholdMinutes: 60,
+      daysThresholdMinutes: 1440,
+    })
+  })
+
+  it('applies relative-age day-count divisor guardrails for deterministic day label math', () => {
+    expect(normalizeRelativeAgeDayCountDivisorMinutes({
+      dayCountDivisorMinutes: 720,
+    })).toBe(720)
+
+    expect(normalizeRelativeAgeDayCountDivisorMinutes({
+      dayCountDivisorMinutes: 0,
+    })).toBe(1)
+
+    expect(normalizeRelativeAgeDayCountDivisorMinutes({
+      dayCountDivisorMinutes: Number.NaN,
+      fallbackDayCountDivisorMinutes: 2880,
+    })).toBe(2880)
+
+    expect(normalizeRelativeAgeDayCountDivisorMinutes({
+      dayCountDivisorMinutes: Number.NaN,
+      fallbackDayCountDivisorMinutes: 0,
+    })).toBe(1440)
   })
 
   it('applies relative-age fallback template guardrails for non-minute labels', () => {

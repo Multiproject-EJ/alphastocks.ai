@@ -41,6 +41,9 @@
         "minutesAgoTemplate": "{minutes}m ago",
         "hoursAgoTemplate": "{hours}h ago",
         "daysAgoTemplate": "{days}d ago",
+        "hoursThresholdMinutes": 60,
+        "daysThresholdMinutes": 1440,
+        "dayCountDivisorMinutes": 1440,
         "fallbackTemplate": "{label}",
         "unavailableLabel": "Time unavailable"
       },

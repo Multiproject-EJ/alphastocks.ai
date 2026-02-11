@@ -1,4 +1,46 @@
 **Date:** 2026-02-12
+**Slice:** P6.35 AI insights relative-age day-count divisor token
+**Summary:**
+- Added config-first `dayCountDivisorMinutes` under AI insights relative-age settings so day-label math is tunable independently from threshold switching boundaries.
+- Added normalization guardrails for the day-count divisor to enforce finite, non-negative, minimum-one-minute values with deterministic fallback behavior.
+- Updated AI Insights modal day-age formatting to use the configured divisor and expanded AI insights config tests for divisor coverage.
+
+**Files changed:**
+- config/ai_insights.json
+- apps/investing-board-game-v3/src/config/aiInsights.ts
+- apps/investing-board-game-v3/src/components/AIInsightsModal.tsx
+- apps/investing-board-game-v3/src/config/__tests__/aiInsights.test.ts
+- DEV_PLAN.md
+- CHANGELOG_DEV.md
+
+**SQL migrations:**
+- (none)
+
+**How to test:**
+- `cd apps/investing-board-game-v3 && npm run test -- src/config/__tests__/aiInsights.test.ts`
+
+**Date:** 2026-02-12
+**Slice:** P6.34 AI insights relative-age hour/day fallback threshold guardrails
+**Summary:**
+- Added config-first relative-age threshold fields (`hoursThresholdMinutes`, `daysThresholdMinutes`) so long-age copy switching is tunable without hardcoded modal boundaries.
+- Added a shared threshold normalization helper that enforces finite, non-negative values and guarantees day-threshold ordering above the hour threshold.
+- Updated the AI Insights modal to consume normalized threshold config and expanded config tests for threshold guardrail/fallback behavior.
+
+**Files changed:**
+- config/ai_insights.json
+- apps/investing-board-game-v3/src/config/aiInsights.ts
+- apps/investing-board-game-v3/src/components/AIInsightsModal.tsx
+- apps/investing-board-game-v3/src/config/__tests__/aiInsights.test.ts
+- DEV_PLAN.md
+- CHANGELOG_DEV.md
+
+**SQL migrations:**
+- (none)
+
+**How to test:**
+- `cd apps/investing-board-game-v3 && npm run test -- src/config/__tests__/aiInsights.test.ts`
+
+**Date:** 2026-02-12
 **Slice:** P6.33 AI insights relative-age day template guardrails
 **Summary:**
 - Hardened AI insights relative-age day template normalization so invalid override + invalid fallback inputs deterministically collapse to a canonical `{days}` template.
