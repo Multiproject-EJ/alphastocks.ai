@@ -350,7 +350,8 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P6.37** ✅ Add config-first AI insights relative-age hour-count minimum token so hour labels remain human-friendly when divisor tuning is aggressive
 - **P6.38** ✅ Add config-first AI insights relative-age day-count minimum token so day labels remain human-friendly when divisor tuning is aggressive
 - **P6.39** ✅ Add config-first AI insights relative-age day-count minimum coverage in modal age rendering tests (small follow-up)
-- **P6.40** ⏳ Add config-first AI insights relative-age unavailable-label coverage in modal age rendering tests (small follow-up)
+- **P6.40** ✅ Add config-first AI insights relative-age unavailable-label coverage in modal age rendering tests (small follow-up)
+- **P6.41** ⏳ Add config-first AI insights relative-age unavailable-label override coverage in config normalization tests (small follow-up)
 
 ---
 
@@ -382,11 +383,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P6.40 — Add config-first AI insights relative-age unavailable-label coverage in modal age rendering tests (small follow-up).**
+**Recommended next slice:** **P6.41 — Add config-first AI insights relative-age unavailable-label override coverage in config normalization tests (small follow-up).**
 
 ## Progress Log (rolling)
-- **Done (latest):** P6.39 Add config-first AI insights relative-age day-count minimum coverage in modal age rendering tests (small follow-up).
-- **Next step:** P6.40 Add config-first AI insights relative-age unavailable-label coverage in modal age rendering tests (small follow-up).
+- **Done (latest):** P6.40 Add config-first AI insights relative-age unavailable-label coverage in modal age rendering tests (small follow-up).
+- **Next step:** P6.41 Add config-first AI insights relative-age unavailable-label override coverage in config normalization tests (small follow-up).
 
 
 
@@ -394,6 +395,12 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 
 
 
+
+
+## P6.40 Slice Notes (AI insights relative-age unavailable-label modal test coverage)
+- Added focused modal helper coverage asserting invalid insight timestamps render the config-driven `unavailableLabel` fallback text.
+- Reset the mutable `unavailableLabel` fixture override in modal test teardown so relative-age tests stay deterministic across runs.
+- Advanced the next slice pointer to config normalization coverage for unavailable-label overrides.
 
 
 ## P6.39 Slice Notes (AI insights relative-age day-count minimum modal test coverage)

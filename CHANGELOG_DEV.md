@@ -206,6 +206,25 @@
 
 
 **Date:** 2026-02-12
+**Slice:** P6.40 AI insights relative-age unavailable-label coverage in modal age rendering tests
+**Summary:**
+- Added modal relative-age helper coverage to assert invalid timestamps render config-driven `unavailableLabel` copy.
+- Hardened modal test teardown to reset mutable `unavailableLabel` fixture overrides between cases for deterministic runs.
+- Updated the execution plan pointer to P6.41 for config normalization coverage of unavailable-label overrides.
+
+**Files changed:**
+- apps/investing-board-game-v3/src/components/__tests__/AIInsightsModal.test.ts
+- DEV_PLAN.md
+- CHANGELOG_DEV.md
+
+**SQL migrations:**
+- (none)
+
+**How to test:**
+- `cd apps/investing-board-game-v3 && npm run test -- src/components/__tests__/AIInsightsModal.test.ts`
+
+
+**Date:** 2026-02-12
 **Slice:** P6.22 AI insights refresh-status due-now emphasis/separator fallback guardrails for empty-token-safe chip copy (config-first)
 **Summary:**
 - Added a due-now token guardrail helper so emphasis and separator fields fall back when they are empty or reuse template placeholders.
