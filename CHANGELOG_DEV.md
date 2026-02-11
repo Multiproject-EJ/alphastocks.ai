@@ -4008,3 +4008,22 @@
 
 **How to test:**
 - Run `npm test -- src/config/__tests__/aiInsights.test.ts` inside `apps/investing-board-game-v3`.
+
+**Date:** 2026-02-11
+**Slice:** P6.42 AI insights relative-age fallback-template override coverage in config normalization tests
+**Summary:**
+- Exported a typed `normalizeAIInsightsConfig` helper so config normalization behavior can be unit-tested without relying on module initialization side effects.
+- Added focused config normalization tests that verify valid relative-age `fallbackTemplate` overrides are preserved.
+- Added complementary coverage asserting token-missing `fallbackTemplate` overrides deterministically fall back to `{label}`.
+
+**Files changed:**
+- apps/investing-board-game-v3/src/config/aiInsights.ts
+- apps/investing-board-game-v3/src/config/__tests__/aiInsights.test.ts
+- DEV_PLAN.md
+- CHANGELOG_DEV.md
+
+**SQL migrations:**
+- (none)
+
+**How to test:**
+- Run `npm test -- src/config/__tests__/aiInsights.test.ts` inside `apps/investing-board-game-v3`.

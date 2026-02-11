@@ -352,7 +352,8 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P6.39** ✅ Add config-first AI insights relative-age day-count minimum coverage in modal age rendering tests (small follow-up)
 - **P6.40** ✅ Add config-first AI insights relative-age unavailable-label coverage in modal age rendering tests (small follow-up)
 - **P6.41** ✅ Add config-first AI insights relative-age unavailable-label override coverage in config normalization tests (small follow-up)
-- **P6.42** ⏳ Add config-first AI insights relative-age fallback-template override coverage in config normalization tests (small follow-up)
+- **P6.42** ✅ Add config-first AI insights relative-age fallback-template override coverage in config normalization tests (small follow-up)
+- **P6.43** ⏳ Add config-first AI insights fallback-template override coverage in modal relative-age rendering tests (small follow-up)
 
 ---
 
@@ -384,18 +385,17 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P6.42 — Add config-first AI insights relative-age fallback-template override coverage in config normalization tests (small follow-up).**
+**Recommended next slice:** **P6.43 — Add config-first AI insights fallback-template override coverage in modal relative-age rendering tests (small follow-up).**
 
 ## Progress Log (rolling)
-- **Done (latest):** P6.41 Add config-first AI insights relative-age unavailable-label override coverage in config normalization tests (small follow-up).
-- **Next step:** P6.42 Add config-first AI insights relative-age fallback-template override coverage in config normalization tests (small follow-up).
+- **Done (latest):** P6.42 Add config-first AI insights relative-age fallback-template override coverage in config normalization tests (small follow-up).
+- **Next step:** P6.43 Add config-first AI insights fallback-template override coverage in modal relative-age rendering tests (small follow-up).
 
 
-
-
-
-
-
+## P6.42 Slice Notes (AI insights relative-age fallback-template config normalization coverage)
+- Exported a typed AI insights config normalizer helper so config-level fallback-template behavior can be unit-tested without relying on module-load side effects.
+- Added focused config normalization tests that confirm valid fallback-template overrides are retained while token-missing overrides deterministically fall back to `{label}`.
+- Advanced the next slice pointer to modal-level fallback-template override coverage so guardrails are validated from config through rendering.
 
 
 ## P6.41 Slice Notes (AI insights relative-age unavailable-label config normalization coverage)
