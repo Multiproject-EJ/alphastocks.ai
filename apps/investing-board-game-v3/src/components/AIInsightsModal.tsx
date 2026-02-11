@@ -11,6 +11,7 @@ import { useResponsiveDialogClass } from '@/hooks/useResponsiveDialogClass'
 import { AI_INSIGHTS_FIXTURES, AI_INSIGHTS_SURFACE } from '@/lib/aiInsightsFixtures'
 import {
   formatDueNowCooldownPhrase,
+  formatRelativeAgeDaysPhrase,
   formatOnTrackCooldownPhrase,
   formatRelativeAgeFallbackPhrase,
   formatRelativeAgeHoursPhrase,
@@ -56,6 +57,13 @@ const formatRelativeInsightAge = (updatedAt: string): string => {
   }
 
   if (roundedAgeMinutes >= 60) {
+    if (roundedAgeMinutes >= 1440) {
+      return formatRelativeAgeDaysPhrase({
+        daysAgoTemplate: relativeAgeConfig.daysAgoTemplate,
+        daysAgo: Math.floor(roundedAgeMinutes / 1440),
+      })
+    }
+
     return formatRelativeAgeHoursPhrase({
       hoursAgoTemplate: relativeAgeConfig.hoursAgoTemplate,
       hoursAgo: Math.floor(roundedAgeMinutes / 60),
