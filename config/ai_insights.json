@@ -42,7 +42,9 @@
         "hoursAgoTemplate": "{hours}h ago",
         "daysAgoTemplate": "{days}d ago",
         "fallbackTemplate": "{label}",
-        "unavailableLabel": "Time unavailable"
+        "unavailableLabel": "Time unavailable",
+        "hoursThresholdMinutes": 60,
+        "daysThresholdMinutes": 1440
       },
       "staleCallout": {
         "title": "Stale insights detected",
