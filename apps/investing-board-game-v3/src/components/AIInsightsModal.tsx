@@ -9,7 +9,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { useResponsiveDialogClass } from '@/hooks/useResponsiveDialogClass'
 import { AI_INSIGHTS_FIXTURES, AI_INSIGHTS_SURFACE } from '@/lib/aiInsightsFixtures'
-import { formatDueNowCooldownPhrase } from '@/config/aiInsights'
+import { formatDueNowCooldownPhrase, formatOnTrackCooldownPhrase } from '@/config/aiInsights'
 import { Sparkle } from '@phosphor-icons/react'
 
 interface AIInsightsModalProps {
@@ -248,7 +248,10 @@ export function AIInsightsModal({ open, onOpenChange }: AIInsightsModalProps) {
                         nextAutoRefreshInMinutes,
                       ),
                     })
-                    : formatAutoRefreshCopy(AI_INSIGHTS_SURFACE.autoRefresh.cooldownTemplate, nextAutoRefreshInMinutes)}
+                    : formatOnTrackCooldownPhrase({
+                      countdownTemplate: AI_INSIGHTS_SURFACE.autoRefresh.cooldownTemplate,
+                      countdown: String(nextAutoRefreshInMinutes),
+                    })}
                 </span>
               </span>
             </p>
