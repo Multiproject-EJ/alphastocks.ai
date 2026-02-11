@@ -5,6 +5,7 @@ import {
   AI_INSIGHTS_SURFACE,
   normalizeDueNowCountdownToken,
   normalizeDueNowCountdownTemplate,
+  normalizeOnTrackCooldownTemplate,
   formatDueNowCooldownPhrase,
   formatOnTrackCooldownPhrase,
 } from '@/config/aiInsights'
@@ -68,6 +69,19 @@ describe('aiInsights config', () => {
     expect(normalizeDueNowCountdownToken('', 'Refresh now')).toBe('Refresh now')
     expect(normalizeDueNowCountdownToken('{countdown}', 'Refresh now')).toBe('Refresh now')
     expect(normalizeDueNowCountdownToken('{separator}', ' · ')).toBe(' · ')
+  })
+
+  it('applies on-track cooldown template guardrails for placeholder-safe copy', () => {
+    const fallback = 'Next refresh in {minutes}m'
+
+    expect(normalizeOnTrackCooldownTemplate('Next refresh in {minutes}m', fallback)).toBe(
+      'Next refresh in {minutes}m',
+    )
+    expect(normalizeOnTrackCooldownTemplate('{minutes} minutes to next refresh', fallback)).toBe(
+      '{minutes} minutes to next refresh',
+    )
+    expect(normalizeOnTrackCooldownTemplate('Refresh soon', fallback)).toBe(fallback)
+    expect(normalizeOnTrackCooldownTemplate('', fallback)).toBe(fallback)
   })
 
 

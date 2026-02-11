@@ -1,4 +1,23 @@
 **Date:** 2026-02-12
+**Slice:** P6.25 AI insights on-track cooldown template guardrails
+**Summary:**
+- Added an on-track cooldown template guardrail helper so config overrides must include the `{minutes}` placeholder before they are accepted.
+- Updated AI insights config normalization to apply the guardrail to on-track cooldown templates and automatically fall back to default copy when placeholder coverage is missing.
+- Expanded AI insights config tests with valid/invalid on-track template cases to keep formatter input placeholder-safe.
+
+**Files changed:**
+- apps/investing-board-game-v3/src/config/aiInsights.ts
+- apps/investing-board-game-v3/src/config/__tests__/aiInsights.test.ts
+- DEV_PLAN.md
+- CHANGELOG_DEV.md
+
+**SQL migrations:**
+- (none)
+
+**How to test:**
+- `cd apps/investing-board-game-v3 && npm run test -- src/config/__tests__/aiInsights.test.ts`
+
+**Date:** 2026-02-12
 **Slice:** P6.24 AI insights on-track cooldown phrase formatter helper
 **Summary:**
 - Added a shared AI insights formatter helper that assembles on-track cooldown chip phrases from template + countdown inputs in one place.

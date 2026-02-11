@@ -173,6 +173,7 @@ const coerceNumber = (value: unknown, fallback: number): number =>
   typeof value === 'number' && Number.isFinite(value) ? value : fallback
 
 const DUE_NOW_COUNTDOWN_TEMPLATE_TOKENS = ['{countdown}', '{emphasis}', '{separator}'] as const
+const ON_TRACK_COUNTDOWN_TEMPLATE_TOKENS = ['{minutes}'] as const
 
 export const normalizeDueNowCountdownTemplate = (template: string, fallback: string): string => {
   const normalizedTemplate = coerceString(template, fallback)
@@ -186,6 +187,13 @@ export const normalizeDueNowCountdownToken = (tokenValue: string, fallback: stri
   const reusesTemplateToken = DUE_NOW_COUNTDOWN_TEMPLATE_TOKENS.some((token) => normalizedTokenValue.includes(token))
 
   return reusesTemplateToken ? fallback : normalizedTokenValue
+}
+
+export const normalizeOnTrackCooldownTemplate = (template: string, fallback: string): string => {
+  const normalizedTemplate = coerceString(template, fallback)
+  const hasAllTokens = ON_TRACK_COUNTDOWN_TEMPLATE_TOKENS.every((token) => normalizedTemplate.includes(token))
+
+  return hasAllTokens ? normalizedTemplate : fallback
 }
 
 export const formatDueNowCooldownPhrase = ({
@@ -321,8 +329,11 @@ const normalizeConfig = (config: unknown): AIInsightsConfig => {
           candidate.surface?.autoRefresh?.helperTemplate,
           DEFAULT_AI_INSIGHTS_CONFIG.surface.autoRefresh.helperTemplate,
         ),
-        cooldownTemplate: coerceString(
-          candidate.surface?.autoRefresh?.cooldownTemplate,
+        cooldownTemplate: normalizeOnTrackCooldownTemplate(
+          coerceString(
+            candidate.surface?.autoRefresh?.cooldownTemplate,
+            DEFAULT_AI_INSIGHTS_CONFIG.surface.autoRefresh.cooldownTemplate,
+          ),
           DEFAULT_AI_INSIGHTS_CONFIG.surface.autoRefresh.cooldownTemplate,
         ),
         cooldownRowClass: coerceString(
