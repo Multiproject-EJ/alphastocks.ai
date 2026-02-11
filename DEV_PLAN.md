@@ -343,7 +343,8 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P6.30** ✅ Add config-first AI insights relative-age fallback phrase token so non-minute timestamps stay centrally tunable
 - **P6.31** ✅ Add config-first AI insights relative-age hour template token so long-age timestamps stay centrally tunable
 - **P6.32** ✅ Add config-first AI insights relative-age day template token so extra-long timestamps stay centrally tunable
-- **P6.33** ⏳ Add config-first AI insights relative-age day template guardrails so `{days}` placeholder safety stays deterministic
+- **P6.33** ✅ Add config-first AI insights relative-age day template guardrails so `{days}` placeholder safety stays deterministic
+- **P6.34** ⏳ Add config-first AI insights relative-age hour/day fallback threshold guardrails so long-age copy switching stays deterministic
 
 ---
 
@@ -375,15 +376,21 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P6.33 — Add config-first AI insights relative-age day template guardrails so `{days}` placeholder safety stays deterministic.**
+**Recommended next slice:** **P6.34 — Add config-first AI insights relative-age hour/day fallback threshold guardrails so long-age copy switching stays deterministic.**
 
 ## Progress Log (rolling)
-- **Done (latest):** P6.32 Add config-first AI insights relative-age day template token so extra-long timestamps stay centrally tunable.
-- **Next step:** P6.33 Add config-first AI insights relative-age day template guardrails so `{days}` placeholder safety stays deterministic.
+- **Done (latest):** P6.33 Add config-first AI insights relative-age day template guardrails so `{days}` placeholder safety stays deterministic.
+- **Next step:** P6.34 Add config-first AI insights relative-age hour/day fallback threshold guardrails so long-age copy switching stays deterministic.
 
 
 
 
+
+
+## P6.33 Slice Notes (AI insights relative-age day template guardrails)
+- Extended the relative-age day template guardrail helper to deterministically fall back to a canonical `{days}` template when override and fallback inputs both omit the placeholder token.
+- Added focused unit coverage for invalid day-template fallback input so normalization always returns placeholder-safe copy.
+- Updated the run-by-run progress log to mark P6.33 complete and queue a threshold-guardrail follow-up slice for long-age copy switching.
 
 
 ## P6.32 Slice Notes (AI insights relative-age day template token)

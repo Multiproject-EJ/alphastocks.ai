@@ -123,6 +123,7 @@ describe('aiInsights config', () => {
     expect(normalizeDaysTemplate('{days} days ago', fallback)).toBe('{days} days ago')
     expect(normalizeDaysTemplate('older', fallback)).toBe(fallback)
     expect(normalizeDaysTemplate('', fallback)).toBe(fallback)
+    expect(normalizeDaysTemplate('older', 'days ago')).toBe('{days}d ago')
   })
 
   it('applies relative-age hour template guardrails for long-age labels', () => {

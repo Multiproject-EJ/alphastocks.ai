@@ -183,6 +183,7 @@ const MINUTES_TEMPLATE_TOKENS = ['{minutes}'] as const
 const HOURS_TEMPLATE_TOKENS = ['{hours}'] as const
 const DAYS_TEMPLATE_TOKENS = ['{days}'] as const
 const FALLBACK_TEMPLATE_TOKENS = ['{label}'] as const
+const DEFAULT_DAYS_TEMPLATE_FALLBACK = '{days}d ago'
 
 export const normalizeCooldownCountdownValue = (value: unknown, fallback = 0): number => {
   const normalizedFallback =
@@ -235,10 +236,13 @@ export const normalizeHoursTemplate = (template: string, fallback: string): stri
 }
 
 export const normalizeDaysTemplate = (template: string, fallback: string): string => {
+  const normalizedFallback = DAYS_TEMPLATE_TOKENS.every((token) => fallback.includes(token))
+    ? fallback
+    : DEFAULT_DAYS_TEMPLATE_FALLBACK
   const normalizedTemplate = coerceString(template, fallback)
   const hasAllTokens = DAYS_TEMPLATE_TOKENS.every((token) => normalizedTemplate.includes(token))
 
-  return hasAllTokens ? normalizedTemplate : fallback
+  return hasAllTokens ? normalizedTemplate : normalizedFallback
 }
 
 export const formatDueNowCooldownPhrase = ({
