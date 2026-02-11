@@ -3744,3 +3744,23 @@
 
 **How to test:**
 - Run `npm test -- src/config/__tests__/aiInsights.test.ts` inside `apps/investing-board-game-v3`.
+
+**Date:** 2026-02-12
+**Slice:** P6.29 AI insights relative-age phrase formatter helper
+**Summary:**
+- Added a centralized relative-age phrase formatter helper in AI insights config so `{minutes}` copy assembly stays in one place.
+- Updated the AI Insights modal to reuse the new formatter when rendering relative-age timestamps on insight cards.
+- Added unit coverage for integer, decimal, and invalid relative-age inputs to keep formatter behavior deterministic.
+
+**Files changed:**
+- apps/investing-board-game-v3/src/config/aiInsights.ts
+- apps/investing-board-game-v3/src/components/AIInsightsModal.tsx
+- apps/investing-board-game-v3/src/config/__tests__/aiInsights.test.ts
+- DEV_PLAN.md
+- CHANGELOG_DEV.md
+
+**SQL migrations:**
+- (none)
+
+**How to test:**
+- Run `npm test -- src/config/__tests__/aiInsights.test.ts` inside `apps/investing-board-game-v3`.

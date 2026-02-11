@@ -12,6 +12,7 @@ import { AI_INSIGHTS_FIXTURES, AI_INSIGHTS_SURFACE } from '@/lib/aiInsightsFixtu
 import {
   formatDueNowCooldownPhrase,
   formatOnTrackCooldownPhrase,
+  formatRelativeAgePhrase,
   normalizeCooldownCountdownValue,
 } from '@/config/aiInsights'
 import { Sparkle } from '@phosphor-icons/react'
@@ -45,7 +46,10 @@ const formatRelativeInsightAge = (updatedAt: string): string => {
     return AI_INSIGHTS_SURFACE.freshness.relativeAge.justNowLabel
   }
 
-  return AI_INSIGHTS_SURFACE.freshness.relativeAge.minutesAgoTemplate.replace('{minutes}', String(roundedAgeMinutes))
+  return formatRelativeAgePhrase({
+    minutesAgoTemplate: AI_INSIGHTS_SURFACE.freshness.relativeAge.minutesAgoTemplate,
+    minutesAgo: roundedAgeMinutes,
+  })
 }
 
 const formatAutoRefreshCopy = (template: string, minutes: number): string =>
