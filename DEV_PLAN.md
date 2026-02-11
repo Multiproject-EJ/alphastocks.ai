@@ -346,7 +346,8 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P6.33** ✅ Add config-first AI insights relative-age day template guardrails so `{days}` placeholder safety stays deterministic
 - **P6.34** ✅ Add config-first AI insights relative-age hour/day fallback threshold guardrails so long-age copy switching stays deterministic
 - **P6.35** ✅ Add config-first AI insights relative-age day-count divisor token so long-age labels stay tunable without changing threshold boundaries
-- **P6.36** ⏳ Add config-first AI insights relative-age hour-count divisor token so hour labels stay tunable independently from threshold boundaries
+- **P6.36** ✅ Add config-first AI insights relative-age hour-count divisor token so hour labels stay tunable independently from threshold boundaries
+- **P6.37** ⏳ Add config-first AI insights relative-age hour-count minimum token so hour labels remain human-friendly when divisor tuning is aggressive
 
 ---
 
@@ -378,16 +379,23 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P6.36 — Add config-first AI insights relative-age hour-count divisor token so hour labels stay tunable independently from threshold boundaries.**
+**Recommended next slice:** **P6.37 — Add config-first AI insights relative-age hour-count minimum token so hour labels remain human-friendly when divisor tuning is aggressive.**
 
 ## Progress Log (rolling)
-- **Done (latest):** P6.35 Add config-first AI insights relative-age day-count divisor token so long-age labels stay tunable without changing threshold boundaries.
-- **Next step:** P6.36 Add config-first AI insights relative-age hour-count divisor token so hour labels stay tunable independently from threshold boundaries.
+- **Done (latest):** P6.36 Add config-first AI insights relative-age hour-count divisor token so hour labels stay tunable independently from threshold boundaries.
+- **Next step:** P6.37 Add config-first AI insights relative-age hour-count minimum token so hour labels remain human-friendly when divisor tuning is aggressive.
 
 
 
 
 
+
+
+
+## P6.36 Slice Notes (AI insights relative-age hour-count divisor token)
+- Added config-first `hourCountDivisorMinutes` for AI insights relative-age copy so hour-label math can be tuned independently from hour/day threshold switching boundaries.
+- Added a dedicated hour divisor normalization guardrail helper that keeps divisor values finite and at least one minute, with deterministic fallback behavior.
+- Updated AI Insights modal hour-label math to use the divisor token and expanded config tests for hour divisor guardrails + surface coverage.
 
 
 ## P6.35 Slice Notes (AI insights relative-age day-count divisor token)

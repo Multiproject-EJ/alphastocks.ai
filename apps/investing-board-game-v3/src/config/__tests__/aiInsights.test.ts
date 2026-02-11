@@ -12,6 +12,7 @@ import {
   normalizeRelativeAgeFallbackTemplate,
   normalizeRelativeAgeThresholdMinutes,
   normalizeRelativeAgeDayCountDivisorMinutes,
+  normalizeRelativeAgeHourCountDivisorMinutes,
   formatDueNowCooldownPhrase,
   formatOnTrackCooldownPhrase,
   formatRelativeAgeDaysPhrase,
@@ -58,6 +59,7 @@ describe('aiInsights config', () => {
     expect(AI_INSIGHTS_SURFACE.freshness.relativeAge.hoursAgoTemplate).toContain('{hours}')
     expect(AI_INSIGHTS_SURFACE.freshness.relativeAge.daysAgoTemplate).toContain('{days}')
     expect(AI_INSIGHTS_SURFACE.freshness.relativeAge.hoursThresholdMinutes).toBeGreaterThanOrEqual(1)
+    expect(AI_INSIGHTS_SURFACE.freshness.relativeAge.hourCountDivisorMinutes).toBeGreaterThanOrEqual(1)
     expect(AI_INSIGHTS_SURFACE.freshness.relativeAge.daysThresholdMinutes).toBeGreaterThan(
       AI_INSIGHTS_SURFACE.freshness.relativeAge.hoursThresholdMinutes,
     )
@@ -173,6 +175,27 @@ describe('aiInsights config', () => {
       hoursThresholdMinutes: 60,
       daysThresholdMinutes: 1440,
     })
+  })
+
+
+  it('applies relative-age hour-count divisor guardrails for deterministic hour label math', () => {
+    expect(normalizeRelativeAgeHourCountDivisorMinutes({
+      hourCountDivisorMinutes: 30,
+    })).toBe(30)
+
+    expect(normalizeRelativeAgeHourCountDivisorMinutes({
+      hourCountDivisorMinutes: 0,
+    })).toBe(1)
+
+    expect(normalizeRelativeAgeHourCountDivisorMinutes({
+      hourCountDivisorMinutes: Number.NaN,
+      fallbackHourCountDivisorMinutes: 120,
+    })).toBe(120)
+
+    expect(normalizeRelativeAgeHourCountDivisorMinutes({
+      hourCountDivisorMinutes: Number.NaN,
+      fallbackHourCountDivisorMinutes: 0,
+    })).toBe(60)
   })
 
   it('applies relative-age day-count divisor guardrails for deterministic day label math', () => {
