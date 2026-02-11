@@ -46,6 +46,7 @@
         "hourCountMinimum": 1,
         "daysThresholdMinutes": 1440,
         "dayCountDivisorMinutes": 1440,
+        "dayCountMinimum": 1,
         "fallbackTemplate": "{label}",
         "unavailableLabel": "Time unavailable"
       },

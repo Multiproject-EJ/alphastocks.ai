@@ -348,7 +348,8 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P6.35** ✅ Add config-first AI insights relative-age day-count divisor token so long-age labels stay tunable without changing threshold boundaries
 - **P6.36** ✅ Add config-first AI insights relative-age hour-count divisor token so hour labels stay tunable independently from threshold boundaries
 - **P6.37** ✅ Add config-first AI insights relative-age hour-count minimum token so hour labels remain human-friendly when divisor tuning is aggressive
-- **P6.38** ⏳ Add config-first AI insights relative-age day-count minimum token so day labels remain human-friendly when divisor tuning is aggressive
+- **P6.38** ✅ Add config-first AI insights relative-age day-count minimum token so day labels remain human-friendly when divisor tuning is aggressive
+- **P6.39** ⏳ Add config-first AI insights relative-age day-count minimum coverage in modal age rendering tests (small follow-up)
 
 ---
 
@@ -380,17 +381,24 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P6.38 — Add config-first AI insights relative-age day-count minimum token so day labels remain human-friendly when divisor tuning is aggressive.**
+**Recommended next slice:** **P6.39 — Add config-first AI insights relative-age day-count minimum coverage in modal age rendering tests (small follow-up).**
 
 ## Progress Log (rolling)
-- **Done (latest):** P6.37 Add config-first AI insights relative-age hour-count minimum token so hour labels remain human-friendly when divisor tuning is aggressive.
-- **Next step:** P6.38 Add config-first AI insights relative-age day-count minimum token so day labels remain human-friendly when divisor tuning is aggressive.
+- **Done (latest):** P6.38 Add config-first AI insights relative-age day-count minimum token so day labels remain human-friendly when divisor tuning is aggressive.
+- **Next step:** P6.39 Add config-first AI insights relative-age day-count minimum coverage in modal age rendering tests (small follow-up).
 
 
 
 
 
 
+
+
+
+## P6.38 Slice Notes (AI insights relative-age day-count minimum token)
+- Added config-first `dayCountMinimum` under AI insights relative-age settings so day labels keep a human-friendly floor even when divisor tuning is aggressive.
+- Extended AI insights config normalization with a dedicated day-minimum guardrail helper that keeps values finite and at least one.
+- Updated AI Insights day-label rendering to clamp computed day counts against the config minimum and expanded tests for new guardrails + surface coverage.
 
 
 ## P6.37 Slice Notes (AI insights relative-age hour-count minimum token)
