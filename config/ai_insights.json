@@ -43,6 +43,7 @@
         "daysAgoTemplate": "{days}d ago",
         "hoursThresholdMinutes": 60,
         "hourCountDivisorMinutes": 60,
+        "hourCountMinimum": 1,
         "daysThresholdMinutes": 1440,
         "dayCountDivisorMinutes": 1440,
         "fallbackTemplate": "{label}",

@@ -51,6 +51,7 @@ const formatRelativeInsightAge = (updatedAt: string): string => {
   const roundedAgeMinutes = Math.floor(ageMinutes)
   const hoursThresholdMinutes = AI_INSIGHTS_SURFACE.freshness.relativeAge.hoursThresholdMinutes
   const hourCountDivisorMinutes = AI_INSIGHTS_SURFACE.freshness.relativeAge.hourCountDivisorMinutes
+  const hourCountMinimum = AI_INSIGHTS_SURFACE.freshness.relativeAge.hourCountMinimum
   const daysThresholdMinutes = AI_INSIGHTS_SURFACE.freshness.relativeAge.daysThresholdMinutes
   const dayCountDivisorMinutes = AI_INSIGHTS_SURFACE.freshness.relativeAge.dayCountDivisorMinutes
 
@@ -71,7 +72,7 @@ const formatRelativeInsightAge = (updatedAt: string): string => {
 
     return formatRelativeAgeHoursPhrase({
       hoursAgoTemplate: relativeAgeConfig.hoursAgoTemplate,
-      hoursAgo: Math.floor(roundedAgeMinutes / hourCountDivisorMinutes),
+      hoursAgo: Math.max(hourCountMinimum, Math.floor(roundedAgeMinutes / hourCountDivisorMinutes)),
     })
   }
 

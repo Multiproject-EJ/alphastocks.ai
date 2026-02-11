@@ -3909,3 +3909,24 @@
 
 **How to test:**
 - Run `npm test -- src/config/__tests__/aiInsights.test.ts` inside `apps/investing-board-game-v3`.
+
+**Date:** 2026-02-11
+**Slice:** P6.37 AI insights relative-age hour-count minimum token
+**Summary:**
+- Added a config-first `hourCountMinimum` token in AI insights relative-age settings so hour labels keep a human-friendly floor when divisor tuning is aggressive.
+- Extended AI insights config normalization with hour-count minimum guardrails that keep values finite and at least one, with deterministic fallback behavior.
+- Updated AI Insights hour-label rendering to clamp computed hour values against the new minimum token and expanded config tests for guardrails + surface coverage.
+
+**Files changed:**
+- config/ai_insights.json
+- apps/investing-board-game-v3/src/config/aiInsights.ts
+- apps/investing-board-game-v3/src/components/AIInsightsModal.tsx
+- apps/investing-board-game-v3/src/config/__tests__/aiInsights.test.ts
+- DEV_PLAN.md
+- CHANGELOG_DEV.md
+
+**SQL migrations:**
+- (none)
+
+**How to test:**
+- Run `npm test -- src/config/__tests__/aiInsights.test.ts` inside `apps/investing-board-game-v3`.

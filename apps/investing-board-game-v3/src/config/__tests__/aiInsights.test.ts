@@ -13,6 +13,7 @@ import {
   normalizeRelativeAgeThresholdMinutes,
   normalizeRelativeAgeDayCountDivisorMinutes,
   normalizeRelativeAgeHourCountDivisorMinutes,
+  normalizeRelativeAgeHourCountMinimum,
   formatDueNowCooldownPhrase,
   formatOnTrackCooldownPhrase,
   formatRelativeAgeDaysPhrase,
@@ -60,6 +61,7 @@ describe('aiInsights config', () => {
     expect(AI_INSIGHTS_SURFACE.freshness.relativeAge.daysAgoTemplate).toContain('{days}')
     expect(AI_INSIGHTS_SURFACE.freshness.relativeAge.hoursThresholdMinutes).toBeGreaterThanOrEqual(1)
     expect(AI_INSIGHTS_SURFACE.freshness.relativeAge.hourCountDivisorMinutes).toBeGreaterThanOrEqual(1)
+    expect(AI_INSIGHTS_SURFACE.freshness.relativeAge.hourCountMinimum).toBeGreaterThanOrEqual(1)
     expect(AI_INSIGHTS_SURFACE.freshness.relativeAge.daysThresholdMinutes).toBeGreaterThan(
       AI_INSIGHTS_SURFACE.freshness.relativeAge.hoursThresholdMinutes,
     )
@@ -196,6 +198,26 @@ describe('aiInsights config', () => {
       hourCountDivisorMinutes: Number.NaN,
       fallbackHourCountDivisorMinutes: 0,
     })).toBe(60)
+  })
+
+  it('applies relative-age hour-count minimum guardrails for human-friendly hour labels', () => {
+    expect(normalizeRelativeAgeHourCountMinimum({
+      hourCountMinimum: 2,
+    })).toBe(2)
+
+    expect(normalizeRelativeAgeHourCountMinimum({
+      hourCountMinimum: 0,
+    })).toBe(1)
+
+    expect(normalizeRelativeAgeHourCountMinimum({
+      hourCountMinimum: Number.NaN,
+      fallbackHourCountMinimum: 3,
+    })).toBe(3)
+
+    expect(normalizeRelativeAgeHourCountMinimum({
+      hourCountMinimum: Number.NaN,
+      fallbackHourCountMinimum: 0,
+    })).toBe(1)
   })
 
   it('applies relative-age day-count divisor guardrails for deterministic day label math', () => {
