@@ -1382,16 +1382,6 @@ function App() {
     return null
   }, [activeVaultHeist, upcomingVaultHeist, getTimeRemaining])
   const vaultHeistCtaDisabled = vaultHeistStatus?.ctaAction === 'disabled'
-  const handleVaultHeistCta = useCallback(() => {
-    if (!vaultHeistStatus) return
-    if (vaultHeistStatus.ctaAction === 'heist') {
-      setShowVaultHeist(true)
-      return
-    }
-    if (vaultHeistStatus.ctaAction === 'games-hub') {
-      openGamesHub()
-    }
-  }, [openGamesHub, vaultHeistStatus])
   const scratchcardEventOverride = useMemo(
     () => getScratchcardEventOverride(activeEvents),
     [activeEvents],
@@ -1505,6 +1495,17 @@ function App() {
       priority: 'normal',
     })
   }, [closeCurrent, showOverlay])
+
+  const handleVaultHeistCta = useCallback(() => {
+    if (!vaultHeistStatus) return
+    if (vaultHeistStatus.ctaAction === 'heist') {
+      setShowVaultHeist(true)
+      return
+    }
+    if (vaultHeistStatus.ctaAction === 'games-hub') {
+      openGamesHub()
+    }
+  }, [openGamesHub, vaultHeistStatus])
 
   const openSeasonPass = useCallback(() => {
     showOverlay({
