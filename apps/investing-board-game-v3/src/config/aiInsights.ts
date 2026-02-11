@@ -54,6 +54,7 @@ export type AIInsightsSurfaceConfig = {
       justNowLabel: string
       minutesAgoTemplate: string
       hoursAgoTemplate: string
+      daysAgoTemplate: string
       fallbackTemplate: string
       unavailableLabel: string
     }
@@ -124,6 +125,7 @@ const DEFAULT_AI_INSIGHTS_CONFIG: AIInsightsConfig = {
         justNowLabel: 'Just now',
         minutesAgoTemplate: '{minutes}m ago',
         hoursAgoTemplate: '{hours}h ago',
+        daysAgoTemplate: '{days}d ago',
         fallbackTemplate: '{label}',
         unavailableLabel: 'Time unavailable',
       },
@@ -179,6 +181,7 @@ const coerceNumber = (value: unknown, fallback: number): number =>
 const DUE_NOW_COUNTDOWN_TEMPLATE_TOKENS = ['{countdown}', '{emphasis}', '{separator}'] as const
 const MINUTES_TEMPLATE_TOKENS = ['{minutes}'] as const
 const HOURS_TEMPLATE_TOKENS = ['{hours}'] as const
+const DAYS_TEMPLATE_TOKENS = ['{days}'] as const
 const FALLBACK_TEMPLATE_TOKENS = ['{label}'] as const
 
 export const normalizeCooldownCountdownValue = (value: unknown, fallback = 0): number => {
@@ -227,6 +230,13 @@ export const normalizeRelativeAgeFallbackTemplate = (template: string, fallback:
 export const normalizeHoursTemplate = (template: string, fallback: string): string => {
   const normalizedTemplate = coerceString(template, fallback)
   const hasAllTokens = HOURS_TEMPLATE_TOKENS.every((token) => normalizedTemplate.includes(token))
+
+  return hasAllTokens ? normalizedTemplate : fallback
+}
+
+export const normalizeDaysTemplate = (template: string, fallback: string): string => {
+  const normalizedTemplate = coerceString(template, fallback)
+  const hasAllTokens = DAYS_TEMPLATE_TOKENS.every((token) => normalizedTemplate.includes(token))
 
   return hasAllTokens ? normalizedTemplate : fallback
 }
@@ -282,6 +292,18 @@ export const formatRelativeAgeHoursPhrase = ({
   const normalizedHoursAgo = normalizeCooldownCountdownValue(hoursAgo)
 
   return hoursAgoTemplate.replace('{hours}', String(normalizedHoursAgo))
+}
+
+export const formatRelativeAgeDaysPhrase = ({
+  daysAgoTemplate,
+  daysAgo,
+}: {
+  daysAgoTemplate: string
+  daysAgo: unknown
+}): string => {
+  const normalizedDaysAgo = normalizeCooldownCountdownValue(daysAgo)
+
+  return daysAgoTemplate.replace('{days}', String(normalizedDaysAgo))
 }
 
 export const formatRelativeAgeFallbackPhrase = ({
@@ -529,6 +551,13 @@ const normalizeConfig = (config: unknown): AIInsightsConfig => {
               DEFAULT_AI_INSIGHTS_CONFIG.surface.freshness.relativeAge.hoursAgoTemplate,
             ),
             DEFAULT_AI_INSIGHTS_CONFIG.surface.freshness.relativeAge.hoursAgoTemplate,
+          ),
+          daysAgoTemplate: normalizeDaysTemplate(
+            coerceString(
+              candidate.surface?.freshness?.relativeAge?.daysAgoTemplate,
+              DEFAULT_AI_INSIGHTS_CONFIG.surface.freshness.relativeAge.daysAgoTemplate,
+            ),
+            DEFAULT_AI_INSIGHTS_CONFIG.surface.freshness.relativeAge.daysAgoTemplate,
           ),
           fallbackTemplate: normalizeRelativeAgeFallbackTemplate(
             coerceString(

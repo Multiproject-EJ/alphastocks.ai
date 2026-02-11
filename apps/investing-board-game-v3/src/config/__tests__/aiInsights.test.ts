@@ -5,12 +5,14 @@ import {
   AI_INSIGHTS_SURFACE,
   normalizeDueNowCountdownToken,
   normalizeDueNowCountdownTemplate,
+  normalizeDaysTemplate,
   normalizeHoursTemplate,
   normalizeMinutesTemplate,
   normalizeOnTrackCooldownTemplate,
   normalizeRelativeAgeFallbackTemplate,
   formatDueNowCooldownPhrase,
   formatOnTrackCooldownPhrase,
+  formatRelativeAgeDaysPhrase,
   formatRelativeAgeFallbackPhrase,
   formatRelativeAgeHoursPhrase,
   formatRelativeAgePhrase,
@@ -52,6 +54,7 @@ describe('aiInsights config', () => {
     expect(AI_INSIGHTS_SURFACE.freshness.relativeAge.justNowLabel.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.freshness.relativeAge.minutesAgoTemplate).toContain('{minutes}')
     expect(AI_INSIGHTS_SURFACE.freshness.relativeAge.hoursAgoTemplate).toContain('{hours}')
+    expect(AI_INSIGHTS_SURFACE.freshness.relativeAge.daysAgoTemplate).toContain('{days}')
     expect(AI_INSIGHTS_SURFACE.freshness.relativeAge.fallbackTemplate).toContain('{label}')
     expect(AI_INSIGHTS_SURFACE.freshness.relativeAge.unavailableLabel.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.freshness.staleCallout.title.length).toBeGreaterThan(0)
@@ -113,6 +116,14 @@ describe('aiInsights config', () => {
     expect(normalizeMinutesTemplate('', fallback)).toBe(fallback)
   })
 
+
+  it('applies relative-age day template guardrails for extra-long-age labels', () => {
+    const fallback = '{days}d ago'
+
+    expect(normalizeDaysTemplate('{days} days ago', fallback)).toBe('{days} days ago')
+    expect(normalizeDaysTemplate('older', fallback)).toBe(fallback)
+    expect(normalizeDaysTemplate('', fallback)).toBe(fallback)
+  })
 
   it('applies relative-age hour template guardrails for long-age labels', () => {
     const fallback = '{hours}h ago'
@@ -189,6 +200,23 @@ describe('aiInsights config', () => {
       minutesAgoTemplate: '{minutes}m ago',
       minutesAgo: Number.NaN,
     })).toBe('0m ago')
+  })
+
+  it('formats relative-age day phrases with centralized token assembly', () => {
+    expect(formatRelativeAgeDaysPhrase({
+      daysAgoTemplate: '{days}d ago',
+      daysAgo: 3,
+    })).toBe('3d ago')
+
+    expect(formatRelativeAgeDaysPhrase({
+      daysAgoTemplate: '{days} days ago',
+      daysAgo: 1.9,
+    })).toBe('1 days ago')
+
+    expect(formatRelativeAgeDaysPhrase({
+      daysAgoTemplate: '{days}d ago',
+      daysAgo: Number.NaN,
+    })).toBe('0d ago')
   })
 
   it('formats relative-age hour phrases with centralized token assembly', () => {

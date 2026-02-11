@@ -342,6 +342,8 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P6.29** ✅ Add config-first AI insights relative-age phrase formatter helper so timestamp copy assembly stays centralized
 - **P6.30** ✅ Add config-first AI insights relative-age fallback phrase token so non-minute timestamps stay centrally tunable
 - **P6.31** ✅ Add config-first AI insights relative-age hour template token so long-age timestamps stay centrally tunable
+- **P6.32** ✅ Add config-first AI insights relative-age day template token so extra-long timestamps stay centrally tunable
+- **P6.33** ⏳ Add config-first AI insights relative-age day template guardrails so `{days}` placeholder safety stays deterministic
 
 ---
 
@@ -373,16 +375,21 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P6.32 — Add config-first AI insights relative-age day template token so extra-long timestamps stay centrally tunable.**
+**Recommended next slice:** **P6.33 — Add config-first AI insights relative-age day template guardrails so `{days}` placeholder safety stays deterministic.**
 
 ## Progress Log (rolling)
-- **Done (latest):** P6.31 Add config-first AI insights relative-age hour template token so long-age timestamps stay centrally tunable.
-- **Next step:** P6.32 Add config-first AI insights relative-age day template token so extra-long timestamps stay centrally tunable.
+- **Done (latest):** P6.32 Add config-first AI insights relative-age day template token so extra-long timestamps stay centrally tunable.
+- **Next step:** P6.33 Add config-first AI insights relative-age day template guardrails so `{days}` placeholder safety stays deterministic.
 
 
 
 
 
+
+## P6.32 Slice Notes (AI insights relative-age day template token)
+- Added a config-first relative-age `daysAgoTemplate` token so extra-long insight timestamps remain tunable without modal code edits.
+- Extended AI insights config normalization to load the new day-level token and keep defaults deterministic when config values are absent.
+- Updated AI Insights relative-age rendering to switch to day-based copy for 24h+ ages and added formatter/unit coverage for the new helper path.
 
 ## P6.31 Slice Notes (AI insights relative-age hour template token)
 - Added a config-first relative-age `hoursAgoTemplate` token so long-age insight timestamps stay tunable without modal code edits.

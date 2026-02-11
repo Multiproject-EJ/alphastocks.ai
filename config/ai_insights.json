@@ -39,9 +39,10 @@
         "updatedLabel": "Updated",
         "justNowLabel": "Just now",
         "minutesAgoTemplate": "{minutes}m ago",
+        "hoursAgoTemplate": "{hours}h ago",
+        "daysAgoTemplate": "{days}d ago",
         "fallbackTemplate": "{label}",
-        "unavailableLabel": "Time unavailable",
-        "hoursAgoTemplate": "{hours}h ago"
+        "unavailableLabel": "Time unavailable"
       },
       "staleCallout": {
         "title": "Stale insights detected",
