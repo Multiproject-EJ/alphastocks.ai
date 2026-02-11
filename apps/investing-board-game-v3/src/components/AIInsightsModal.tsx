@@ -12,6 +12,7 @@ import { AI_INSIGHTS_FIXTURES, AI_INSIGHTS_SURFACE } from '@/lib/aiInsightsFixtu
 import {
   formatDueNowCooldownPhrase,
   formatOnTrackCooldownPhrase,
+  formatRelativeAgeFallbackPhrase,
   formatRelativeAgePhrase,
   normalizeCooldownCountdownValue,
 } from '@/config/aiInsights'
@@ -36,18 +37,25 @@ const getInsightAgeMinutes = (updatedAt: string): number => {
 
 const formatRelativeInsightAge = (updatedAt: string): string => {
   const ageMinutes = getInsightAgeMinutes(updatedAt)
+  const relativeAgeConfig = AI_INSIGHTS_SURFACE.freshness.relativeAge
 
   if (!Number.isFinite(ageMinutes)) {
-    return AI_INSIGHTS_SURFACE.freshness.relativeAge.unavailableLabel
+    return formatRelativeAgeFallbackPhrase({
+      fallbackTemplate: relativeAgeConfig.fallbackTemplate,
+      label: relativeAgeConfig.unavailableLabel,
+    })
   }
 
   const roundedAgeMinutes = Math.floor(ageMinutes)
   if (roundedAgeMinutes <= 0) {
-    return AI_INSIGHTS_SURFACE.freshness.relativeAge.justNowLabel
+    return formatRelativeAgeFallbackPhrase({
+      fallbackTemplate: relativeAgeConfig.fallbackTemplate,
+      label: relativeAgeConfig.justNowLabel,
+    })
   }
 
   return formatRelativeAgePhrase({
-    minutesAgoTemplate: AI_INSIGHTS_SURFACE.freshness.relativeAge.minutesAgoTemplate,
+    minutesAgoTemplate: relativeAgeConfig.minutesAgoTemplate,
     minutesAgo: roundedAgeMinutes,
   })
 }

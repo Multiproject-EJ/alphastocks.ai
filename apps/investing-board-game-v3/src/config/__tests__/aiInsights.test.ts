@@ -7,8 +7,10 @@ import {
   normalizeDueNowCountdownTemplate,
   normalizeMinutesTemplate,
   normalizeOnTrackCooldownTemplate,
+  normalizeRelativeAgeFallbackTemplate,
   formatDueNowCooldownPhrase,
   formatOnTrackCooldownPhrase,
+  formatRelativeAgeFallbackPhrase,
   formatRelativeAgePhrase,
   normalizeCooldownCountdownValue,
 } from '@/config/aiInsights'
@@ -47,6 +49,7 @@ describe('aiInsights config', () => {
     expect(AI_INSIGHTS_SURFACE.freshness.relativeAge.updatedLabel.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.freshness.relativeAge.justNowLabel.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.freshness.relativeAge.minutesAgoTemplate).toContain('{minutes}')
+    expect(AI_INSIGHTS_SURFACE.freshness.relativeAge.fallbackTemplate).toContain('{label}')
     expect(AI_INSIGHTS_SURFACE.freshness.relativeAge.unavailableLabel.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.freshness.staleCallout.title.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.freshness.staleCallout.description.length).toBeGreaterThan(0)
@@ -110,6 +113,15 @@ describe('aiInsights config', () => {
 
 
 
+  it('applies relative-age fallback template guardrails for non-minute labels', () => {
+    const fallback = '{label}'
+
+    expect(normalizeRelativeAgeFallbackTemplate('Updated: {label}', fallback)).toBe('Updated: {label}')
+    expect(normalizeRelativeAgeFallbackTemplate('Updated recently', fallback)).toBe(fallback)
+    expect(normalizeRelativeAgeFallbackTemplate('', fallback)).toBe(fallback)
+  })
+
+
   it('normalizes cooldown countdown values to finite non-negative whole minutes', () => {
     expect(normalizeCooldownCountdownValue(9.8)).toBe(9)
     expect(normalizeCooldownCountdownValue(-2)).toBe(0)
@@ -168,6 +180,18 @@ describe('aiInsights config', () => {
       minutesAgoTemplate: '{minutes}m ago',
       minutesAgo: Number.NaN,
     })).toBe('0m ago')
+  })
+
+  it('formats relative-age fallback phrases with centralized label token assembly', () => {
+    expect(formatRelativeAgeFallbackPhrase({
+      fallbackTemplate: '{label}',
+      label: 'Just now',
+    })).toBe('Just now')
+
+    expect(formatRelativeAgeFallbackPhrase({
+      fallbackTemplate: 'Updated: {label}',
+      label: 'Time unavailable',
+    })).toBe('Updated: Time unavailable')
   })
 
   it('provides config-first filter chips for horizon and confidence tiers', () => {

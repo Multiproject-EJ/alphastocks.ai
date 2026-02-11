@@ -53,6 +53,7 @@ export type AIInsightsSurfaceConfig = {
       updatedLabel: string
       justNowLabel: string
       minutesAgoTemplate: string
+      fallbackTemplate: string
       unavailableLabel: string
     }
     staleCallout: {
@@ -121,6 +122,7 @@ const DEFAULT_AI_INSIGHTS_CONFIG: AIInsightsConfig = {
         updatedLabel: 'Updated',
         justNowLabel: 'Just now',
         minutesAgoTemplate: '{minutes}m ago',
+        fallbackTemplate: '{label}',
         unavailableLabel: 'Time unavailable',
       },
       staleCallout: {
@@ -174,6 +176,7 @@ const coerceNumber = (value: unknown, fallback: number): number =>
 
 const DUE_NOW_COUNTDOWN_TEMPLATE_TOKENS = ['{countdown}', '{emphasis}', '{separator}'] as const
 const MINUTES_TEMPLATE_TOKENS = ['{minutes}'] as const
+const FALLBACK_TEMPLATE_TOKENS = ['{label}'] as const
 
 export const normalizeCooldownCountdownValue = (value: unknown, fallback = 0): number => {
   const normalizedFallback =
@@ -207,6 +210,13 @@ export const normalizeOnTrackCooldownTemplate = (template: string, fallback: str
 export const normalizeMinutesTemplate = (template: string, fallback: string): string => {
   const normalizedTemplate = coerceString(template, fallback)
   const hasAllTokens = MINUTES_TEMPLATE_TOKENS.every((token) => normalizedTemplate.includes(token))
+
+  return hasAllTokens ? normalizedTemplate : fallback
+}
+
+export const normalizeRelativeAgeFallbackTemplate = (template: string, fallback: string): string => {
+  const normalizedTemplate = coerceString(template, fallback)
+  const hasAllTokens = FALLBACK_TEMPLATE_TOKENS.every((token) => normalizedTemplate.includes(token))
 
   return hasAllTokens ? normalizedTemplate : fallback
 }
@@ -250,6 +260,16 @@ export const formatRelativeAgePhrase = ({
   const normalizedMinutesAgo = normalizeCooldownCountdownValue(minutesAgo)
 
   return minutesAgoTemplate.replace('{minutes}', String(normalizedMinutesAgo))
+}
+
+export const formatRelativeAgeFallbackPhrase = ({
+  fallbackTemplate,
+  label,
+}: {
+  fallbackTemplate: string
+  label: string
+}): string => {
+  return fallbackTemplate.replace('{label}', label)
 }
 
 const coerceHorizonOptions = (value: unknown): { id: InsightHorizon, label: string }[] => {
@@ -480,6 +500,13 @@ const normalizeConfig = (config: unknown): AIInsightsConfig => {
               DEFAULT_AI_INSIGHTS_CONFIG.surface.freshness.relativeAge.minutesAgoTemplate,
             ),
             DEFAULT_AI_INSIGHTS_CONFIG.surface.freshness.relativeAge.minutesAgoTemplate,
+          ),
+          fallbackTemplate: normalizeRelativeAgeFallbackTemplate(
+            coerceString(
+              candidate.surface?.freshness?.relativeAge?.fallbackTemplate,
+              DEFAULT_AI_INSIGHTS_CONFIG.surface.freshness.relativeAge.fallbackTemplate,
+            ),
+            DEFAULT_AI_INSIGHTS_CONFIG.surface.freshness.relativeAge.fallbackTemplate,
           ),
           unavailableLabel: coerceString(
             candidate.surface?.freshness?.relativeAge?.unavailableLabel,

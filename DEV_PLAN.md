@@ -340,6 +340,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P6.27** ✅ Add config-first AI insights helper/cooldown minutes template guardrails so both strings stay `{minutes}` placeholder-safe
 - **P6.28** ✅ Add config-first AI insights relative-age minutes template guardrails so age copy stays `{minutes}` placeholder-safe
 - **P6.29** ✅ Add config-first AI insights relative-age phrase formatter helper so timestamp copy assembly stays centralized
+- **P6.30** ✅ Add config-first AI insights relative-age fallback phrase token so non-minute timestamps stay centrally tunable
 
 ---
 
@@ -371,15 +372,20 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P6.30 — Add config-first AI insights relative-age fallback phrase token so non-minute timestamps stay centrally tunable.**
+**Recommended next slice:** **P6.31 — Add config-first AI insights relative-age hour template token so long-age timestamps stay centrally tunable.**
 
 ## Progress Log (rolling)
-- **Done (latest):** P6.29 Add config-first AI insights relative-age phrase formatter helper so timestamp copy assembly stays centralized.
-- **Next step:** P6.30 Add config-first AI insights relative-age fallback phrase token so non-minute timestamps stay centrally tunable.
+- **Done (latest):** P6.30 Add config-first AI insights relative-age fallback phrase token so non-minute timestamps stay centrally tunable.
+- **Next step:** P6.31 Add config-first AI insights relative-age hour template token so long-age timestamps stay centrally tunable.
 
 
 
 
+
+## P6.30 Slice Notes (AI insights relative-age fallback phrase token)
+- Added a config-first relative-age `fallbackTemplate` token so non-minute timestamp labels (for example, just-now and unavailable states) stay centrally tunable.
+- Extended AI insights config normalization with fallback-template guardrails that require a `{label}` placeholder before accepting overrides.
+- Updated the AI Insights modal to render non-minute timestamp labels via a shared fallback phrase formatter helper and added unit coverage for guardrails + formatter output.
 
 ## P6.29 Slice Notes (AI insights relative-age phrase formatter helper)
 - Added a shared `formatRelativeAgePhrase` helper in the AI insights config module so `{minutes}` timestamp copy assembly is centralized in one formatter path.

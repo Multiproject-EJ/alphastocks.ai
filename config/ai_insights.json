@@ -39,6 +39,7 @@
         "updatedLabel": "Updated",
         "justNowLabel": "Just now",
         "minutesAgoTemplate": "{minutes}m ago",
+        "fallbackTemplate": "{label}",
         "unavailableLabel": "Time unavailable"
       },
       "staleCallout": {
