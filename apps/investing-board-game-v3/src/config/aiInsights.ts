@@ -240,6 +240,18 @@ export const formatOnTrackCooldownPhrase = ({
   return countdownTemplate.replace('{minutes}', String(normalizedCountdown))
 }
 
+export const formatRelativeAgePhrase = ({
+  minutesAgoTemplate,
+  minutesAgo,
+}: {
+  minutesAgoTemplate: string
+  minutesAgo: unknown
+}): string => {
+  const normalizedMinutesAgo = normalizeCooldownCountdownValue(minutesAgo)
+
+  return minutesAgoTemplate.replace('{minutes}', String(normalizedMinutesAgo))
+}
+
 const coerceHorizonOptions = (value: unknown): { id: InsightHorizon, label: string }[] => {
   if (!Array.isArray(value)) {
     return DEFAULT_AI_INSIGHTS_CONFIG.surface.filters.horizons

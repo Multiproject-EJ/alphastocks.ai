@@ -9,6 +9,7 @@ import {
   normalizeOnTrackCooldownTemplate,
   formatDueNowCooldownPhrase,
   formatOnTrackCooldownPhrase,
+  formatRelativeAgePhrase,
   normalizeCooldownCountdownValue,
 } from '@/config/aiInsights'
 
@@ -149,6 +150,24 @@ describe('aiInsights config', () => {
       countdownTemplate: 'Next refresh in {minutes}m',
       countdown: Number.NaN,
     })).toBe('Next refresh in 0m')
+  })
+
+
+  it('formats relative-age phrases with centralized token assembly', () => {
+    expect(formatRelativeAgePhrase({
+      minutesAgoTemplate: '{minutes}m ago',
+      minutesAgo: 8,
+    })).toBe('8m ago')
+
+    expect(formatRelativeAgePhrase({
+      minutesAgoTemplate: '{minutes} minutes ago',
+      minutesAgo: 2.9,
+    })).toBe('2 minutes ago')
+
+    expect(formatRelativeAgePhrase({
+      minutesAgoTemplate: '{minutes}m ago',
+      minutesAgo: Number.NaN,
+    })).toBe('0m ago')
   })
 
   it('provides config-first filter chips for horizon and confidence tiers', () => {

@@ -339,6 +339,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P6.26** ✅ Add config-first AI insights cooldown countdown value guardrails so formatter output remains numeric-placeholder-safe
 - **P6.27** ✅ Add config-first AI insights helper/cooldown minutes template guardrails so both strings stay `{minutes}` placeholder-safe
 - **P6.28** ✅ Add config-first AI insights relative-age minutes template guardrails so age copy stays `{minutes}` placeholder-safe
+- **P6.29** ✅ Add config-first AI insights relative-age phrase formatter helper so timestamp copy assembly stays centralized
 
 ---
 
@@ -370,15 +371,20 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P6.29 — Add config-first AI insights relative-age phrase formatter helper so timestamp copy assembly stays centralized.**
+**Recommended next slice:** **P6.30 — Add config-first AI insights relative-age fallback phrase token so non-minute timestamps stay centrally tunable.**
 
 ## Progress Log (rolling)
-- **Done (latest):** P6.28 Add config-first AI insights relative-age minutes template guardrails so age copy stays `{minutes}` placeholder-safe.
-- **Next step:** P6.29 Add config-first AI insights relative-age phrase formatter helper so timestamp copy assembly stays centralized.
+- **Done (latest):** P6.29 Add config-first AI insights relative-age phrase formatter helper so timestamp copy assembly stays centralized.
+- **Next step:** P6.30 Add config-first AI insights relative-age fallback phrase token so non-minute timestamps stay centrally tunable.
 
 
 
 
+
+## P6.29 Slice Notes (AI insights relative-age phrase formatter helper)
+- Added a shared `formatRelativeAgePhrase` helper in the AI insights config module so `{minutes}` timestamp copy assembly is centralized in one formatter path.
+- Updated the AI Insights modal relative-age renderer to use the shared formatter instead of inline template replacement.
+- Added unit coverage for integer, decimal, and invalid relative-age minute inputs so formatter output stays deterministic.
 
 ## P6.28 Slice Notes (AI insights relative-age minutes template guardrails)
 - Applied the shared `{minutes}` template guardrail to AI insights relative-age `minutesAgoTemplate` config normalization.
