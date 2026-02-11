@@ -347,7 +347,8 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P6.34** ✅ Add config-first AI insights relative-age hour/day fallback threshold guardrails so long-age copy switching stays deterministic
 - **P6.35** ✅ Add config-first AI insights relative-age day-count divisor token so long-age labels stay tunable without changing threshold boundaries
 - **P6.36** ✅ Add config-first AI insights relative-age hour-count divisor token so hour labels stay tunable independently from threshold boundaries
-- **P6.37** ⏳ Add config-first AI insights relative-age hour-count minimum token so hour labels remain human-friendly when divisor tuning is aggressive
+- **P6.37** ✅ Add config-first AI insights relative-age hour-count minimum token so hour labels remain human-friendly when divisor tuning is aggressive
+- **P6.38** ⏳ Add config-first AI insights relative-age day-count minimum token so day labels remain human-friendly when divisor tuning is aggressive
 
 ---
 
@@ -379,17 +380,23 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P6.37 — Add config-first AI insights relative-age hour-count minimum token so hour labels remain human-friendly when divisor tuning is aggressive.**
+**Recommended next slice:** **P6.38 — Add config-first AI insights relative-age day-count minimum token so day labels remain human-friendly when divisor tuning is aggressive.**
 
 ## Progress Log (rolling)
-- **Done (latest):** P6.36 Add config-first AI insights relative-age hour-count divisor token so hour labels stay tunable independently from threshold boundaries.
-- **Next step:** P6.37 Add config-first AI insights relative-age hour-count minimum token so hour labels remain human-friendly when divisor tuning is aggressive.
+- **Done (latest):** P6.37 Add config-first AI insights relative-age hour-count minimum token so hour labels remain human-friendly when divisor tuning is aggressive.
+- **Next step:** P6.38 Add config-first AI insights relative-age day-count minimum token so day labels remain human-friendly when divisor tuning is aggressive.
 
 
 
 
 
 
+
+
+## P6.37 Slice Notes (AI insights relative-age hour-count minimum token)
+- Added config-first `hourCountMinimum` under AI insights relative-age settings so hour labels keep a human-friendly floor even when divisor tuning is aggressive.
+- Extended AI insights config normalization with a dedicated hour-minimum guardrail helper that keeps values finite and at least one.
+- Updated AI Insights hour-label rendering to clamp computed hours against the config minimum and expanded tests for new guardrails + surface coverage.
 
 
 ## P6.36 Slice Notes (AI insights relative-age hour-count divisor token)

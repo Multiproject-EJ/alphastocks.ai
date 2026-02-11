@@ -57,6 +57,7 @@ export type AIInsightsSurfaceConfig = {
       daysAgoTemplate: string
       hoursThresholdMinutes: number
       hourCountDivisorMinutes: number
+      hourCountMinimum: number
       daysThresholdMinutes: number
       dayCountDivisorMinutes: number
       fallbackTemplate: string
@@ -132,6 +133,7 @@ const DEFAULT_AI_INSIGHTS_CONFIG: AIInsightsConfig = {
         daysAgoTemplate: '{days}d ago',
         hoursThresholdMinutes: 60,
         hourCountDivisorMinutes: 60,
+        hourCountMinimum: 1,
         daysThresholdMinutes: 1440,
         dayCountDivisorMinutes: 1440,
         fallbackTemplate: '{label}',
@@ -194,6 +196,7 @@ const FALLBACK_TEMPLATE_TOKENS = ['{label}'] as const
 const DEFAULT_DAYS_TEMPLATE_FALLBACK = '{days}d ago'
 const DEFAULT_HOURS_THRESHOLD_MINUTES = 60
 const DEFAULT_DAYS_THRESHOLD_MINUTES = 1440
+const DEFAULT_HOUR_COUNT_MINIMUM = 1
 
 export const normalizeCooldownCountdownValue = (value: unknown, fallback = 0): number => {
   const normalizedFallback =
@@ -292,6 +295,21 @@ export const normalizeRelativeAgeHourCountDivisorMinutes = ({
   )
 
   return Math.max(1, normalizeCooldownCountdownValue(hourCountDivisorMinutes, normalizedFallback))
+}
+
+export const normalizeRelativeAgeHourCountMinimum = ({
+  hourCountMinimum,
+  fallbackHourCountMinimum = DEFAULT_HOUR_COUNT_MINIMUM,
+}: {
+  hourCountMinimum: unknown
+  fallbackHourCountMinimum?: number
+}): number => {
+  const normalizedFallback = Math.max(
+    1,
+    normalizeCooldownCountdownValue(fallbackHourCountMinimum, DEFAULT_HOUR_COUNT_MINIMUM),
+  )
+
+  return Math.max(1, normalizeCooldownCountdownValue(hourCountMinimum, normalizedFallback))
 }
 
 export const normalizeHoursTemplate = (template: string, fallback: string): string => {
@@ -498,6 +516,11 @@ const normalizeConfig = (config: unknown): AIInsightsConfig => {
     fallbackHourCountDivisorMinutes: DEFAULT_AI_INSIGHTS_CONFIG.surface.freshness.relativeAge.hourCountDivisorMinutes,
   })
 
+  const relativeAgeHourCountMinimum = normalizeRelativeAgeHourCountMinimum({
+    hourCountMinimum: candidate.surface?.freshness?.relativeAge?.hourCountMinimum,
+    fallbackHourCountMinimum: DEFAULT_AI_INSIGHTS_CONFIG.surface.freshness.relativeAge.hourCountMinimum,
+  })
+
   return {
     surface: {
       title: coerceString(candidate.surface?.title, DEFAULT_AI_INSIGHTS_CONFIG.surface.title),
@@ -648,6 +671,7 @@ const normalizeConfig = (config: unknown): AIInsightsConfig => {
           ),
           hoursThresholdMinutes: relativeAgeThresholds.hoursThresholdMinutes,
           hourCountDivisorMinutes: relativeAgeHourCountDivisorMinutes,
+          hourCountMinimum: relativeAgeHourCountMinimum,
           daysThresholdMinutes: relativeAgeThresholds.daysThresholdMinutes,
           dayCountDivisorMinutes: relativeAgeDayCountDivisorMinutes,
           fallbackTemplate: normalizeRelativeAgeFallbackTemplate(
