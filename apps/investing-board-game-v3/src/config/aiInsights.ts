@@ -743,7 +743,9 @@ const normalizeConfig = (config: unknown): AIInsightsConfig => {
   }
 }
 
-const aiInsightsConfig = normalizeConfig(rawAiInsightsConfig)
+export const normalizeAIInsightsConfig = (config: unknown): AIInsightsConfig => normalizeConfig(config)
+
+const aiInsightsConfig = normalizeAIInsightsConfig(rawAiInsightsConfig)
 
 export const AI_INSIGHTS_SURFACE = aiInsightsConfig.surface
 export const AI_INSIGHTS_FIXTURES = aiInsightsConfig.fixtures

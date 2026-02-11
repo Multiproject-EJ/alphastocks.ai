@@ -16,6 +16,7 @@ import {
   normalizeRelativeAgeHourCountDivisorMinutes,
   normalizeRelativeAgeHourCountMinimum,
   normalizeRelativeAgeDayCountMinimum,
+  normalizeAIInsightsConfig,
   formatDueNowCooldownPhrase,
   formatOnTrackCooldownPhrase,
   formatRelativeAgeDaysPhrase,
@@ -278,6 +279,31 @@ describe('aiInsights config', () => {
     expect(normalizeRelativeAgeUnavailableLabel('Feed offline', fallback)).toBe('Feed offline')
     expect(normalizeRelativeAgeUnavailableLabel('  ', fallback)).toBe(fallback)
     expect(normalizeRelativeAgeUnavailableLabel(undefined, fallback)).toBe(fallback)
+  })
+
+  it('applies relative-age fallback-template override guardrails in config normalization output', () => {
+    const validOverrideConfig = normalizeAIInsightsConfig({
+      surface: {
+        freshness: {
+          relativeAge: {
+            fallbackTemplate: 'Updated: {label}',
+          },
+        },
+      },
+    })
+
+    const invalidOverrideConfig = normalizeAIInsightsConfig({
+      surface: {
+        freshness: {
+          relativeAge: {
+            fallbackTemplate: 'Updated recently',
+          },
+        },
+      },
+    })
+
+    expect(validOverrideConfig.surface.freshness.relativeAge.fallbackTemplate).toBe('Updated: {label}')
+    expect(invalidOverrideConfig.surface.freshness.relativeAge.fallbackTemplate).toBe('{label}')
   })
 
 
