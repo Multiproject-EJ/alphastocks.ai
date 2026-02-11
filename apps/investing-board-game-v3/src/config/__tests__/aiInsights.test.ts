@@ -306,6 +306,31 @@ describe('aiInsights config', () => {
     expect(invalidOverrideConfig.surface.freshness.relativeAge.fallbackTemplate).toBe('{label}')
   })
 
+  it('applies relative-age just-now-label override guardrails in config normalization output', () => {
+    const validOverrideConfig = normalizeAIInsightsConfig({
+      surface: {
+        freshness: {
+          relativeAge: {
+            justNowLabel: 'Moments ago',
+          },
+        },
+      },
+    })
+
+    const invalidOverrideConfig = normalizeAIInsightsConfig({
+      surface: {
+        freshness: {
+          relativeAge: {
+            justNowLabel: '   ',
+          },
+        },
+      },
+    })
+
+    expect(validOverrideConfig.surface.freshness.relativeAge.justNowLabel).toBe('Moments ago')
+    expect(invalidOverrideConfig.surface.freshness.relativeAge.justNowLabel).toBe('Just now')
+  })
+
 
   it('normalizes cooldown countdown values to finite non-negative whole minutes', () => {
     expect(normalizeCooldownCountdownValue(9.8)).toBe(9)

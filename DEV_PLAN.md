@@ -354,7 +354,8 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P6.41** ✅ Add config-first AI insights relative-age unavailable-label override coverage in config normalization tests (small follow-up)
 - **P6.42** ✅ Add config-first AI insights relative-age fallback-template override coverage in config normalization tests (small follow-up)
 - **P6.43** ✅ Add config-first AI insights fallback-template override coverage in modal relative-age rendering tests (small follow-up)
-- **P6.44** ⏳ Add config-first AI insights just-now-label override coverage in config normalization tests (small follow-up)
+- **P6.44** ✅ Add config-first AI insights just-now-label override coverage in config normalization tests (small follow-up)
+- **P6.45** ⏳ Add config-first AI insights just-now-label override coverage in modal relative-age rendering tests (small follow-up)
 
 ---
 
@@ -386,11 +387,17 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P6.44 — Add config-first AI insights just-now-label override coverage in config normalization tests (small follow-up).**
+**Recommended next slice:** **P6.45 — Add config-first AI insights just-now-label override coverage in modal relative-age rendering tests (small follow-up).**
 
 ## Progress Log (rolling)
-- **Done (latest):** P6.43 Add config-first AI insights fallback-template override coverage in modal relative-age rendering tests (small follow-up).
-- **Next step:** P6.44 Add config-first AI insights just-now-label override coverage in config normalization tests (small follow-up).
+- **Done (latest):** P6.44 Add config-first AI insights just-now-label override coverage in config normalization tests (small follow-up).
+- **Next step:** P6.45 Add config-first AI insights just-now-label override coverage in modal relative-age rendering tests (small follow-up).
+
+
+## P6.44 Slice Notes (AI insights relative-age just-now-label config normalization coverage)
+- Added focused AI insights config normalization coverage asserting valid `justNowLabel` overrides are retained.
+- Added fallback coverage asserting blank `justNowLabel` overrides deterministically collapse to the default `Just now` copy.
+- Advanced the next slice pointer to modal-level just-now-label rendering coverage so config and UI assertions stay incrementally aligned.
 
 
 ## P6.43 Slice Notes (AI insights relative-age fallback-template modal rendering coverage)

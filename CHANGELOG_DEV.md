@@ -206,6 +206,25 @@
 
 
 **Date:** 2026-02-12
+**Slice:** P6.44 AI insights relative-age just-now-label override coverage in config normalization tests
+**Summary:**
+- Added focused AI insights config normalization tests to verify valid `justNowLabel` overrides are retained.
+- Added fallback coverage proving blank `justNowLabel` overrides deterministically revert to the default `Just now` label.
+- Updated the run plan pointers to queue modal-level just-now-label rendering coverage as the next incremental slice.
+
+**Files changed:**
+- apps/investing-board-game-v3/src/config/__tests__/aiInsights.test.ts
+- DEV_PLAN.md
+- CHANGELOG_DEV.md
+
+**SQL migrations:**
+- (none)
+
+**How to test:**
+- `cd apps/investing-board-game-v3 && npm run test -- src/config/__tests__/aiInsights.test.ts`
+
+
+**Date:** 2026-02-12
 **Slice:** P6.40 AI insights relative-age unavailable-label coverage in modal age rendering tests
 **Summary:**
 - Added modal relative-age helper coverage to assert invalid timestamps render config-driven `unavailableLabel` copy.
