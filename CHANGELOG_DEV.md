@@ -3989,3 +3989,22 @@
 
 **How to test:**
 - Run `npm test -- src/components/__tests__/AIInsightsModal.test.ts src/config/__tests__/aiInsights.test.ts` inside `apps/investing-board-game-v3`.
+
+**Date:** 2026-02-11
+**Slice:** P6.41 AI insights relative-age unavailable-label override coverage in config normalization tests
+**Summary:**
+- Added a dedicated `normalizeRelativeAgeUnavailableLabel` helper in AI insights config normalization so unavailable-label fallback behavior is centralized and reusable.
+- Added unit coverage that verifies valid unavailable-label overrides are retained while blank or missing values fall back to default copy.
+- Updated the master dev plan progress log to mark P6.41 complete and queue P6.42 as the next small config-first normalization slice.
+
+**Files changed:**
+- apps/investing-board-game-v3/src/config/aiInsights.ts
+- apps/investing-board-game-v3/src/config/__tests__/aiInsights.test.ts
+- DEV_PLAN.md
+- CHANGELOG_DEV.md
+
+**SQL migrations:**
+- (none)
+
+**How to test:**
+- Run `npm test -- src/config/__tests__/aiInsights.test.ts` inside `apps/investing-board-game-v3`.

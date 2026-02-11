@@ -351,7 +351,8 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P6.38** ✅ Add config-first AI insights relative-age day-count minimum token so day labels remain human-friendly when divisor tuning is aggressive
 - **P6.39** ✅ Add config-first AI insights relative-age day-count minimum coverage in modal age rendering tests (small follow-up)
 - **P6.40** ✅ Add config-first AI insights relative-age unavailable-label coverage in modal age rendering tests (small follow-up)
-- **P6.41** ⏳ Add config-first AI insights relative-age unavailable-label override coverage in config normalization tests (small follow-up)
+- **P6.41** ✅ Add config-first AI insights relative-age unavailable-label override coverage in config normalization tests (small follow-up)
+- **P6.42** ⏳ Add config-first AI insights relative-age fallback-template override coverage in config normalization tests (small follow-up)
 
 ---
 
@@ -383,11 +384,11 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P6.41 — Add config-first AI insights relative-age unavailable-label override coverage in config normalization tests (small follow-up).**
+**Recommended next slice:** **P6.42 — Add config-first AI insights relative-age fallback-template override coverage in config normalization tests (small follow-up).**
 
 ## Progress Log (rolling)
-- **Done (latest):** P6.40 Add config-first AI insights relative-age unavailable-label coverage in modal age rendering tests (small follow-up).
-- **Next step:** P6.41 Add config-first AI insights relative-age unavailable-label override coverage in config normalization tests (small follow-up).
+- **Done (latest):** P6.41 Add config-first AI insights relative-age unavailable-label override coverage in config normalization tests (small follow-up).
+- **Next step:** P6.42 Add config-first AI insights relative-age fallback-template override coverage in config normalization tests (small follow-up).
 
 
 
@@ -395,6 +396,12 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 
 
 
+
+
+## P6.41 Slice Notes (AI insights relative-age unavailable-label config normalization coverage)
+- Added a dedicated relative-age unavailable-label normalizer helper so fallback behavior is centralized in the AI insights config module.
+- Added config normalization tests that confirm valid unavailable-label overrides are accepted while blank or missing values deterministically fall back.
+- Advanced the next slice pointer to fallback-template override normalization coverage to keep guardrail tests incremental and focused.
 
 
 ## P6.40 Slice Notes (AI insights relative-age unavailable-label modal test coverage)

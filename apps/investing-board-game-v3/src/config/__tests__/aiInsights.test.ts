@@ -10,6 +10,7 @@ import {
   normalizeMinutesTemplate,
   normalizeOnTrackCooldownTemplate,
   normalizeRelativeAgeFallbackTemplate,
+  normalizeRelativeAgeUnavailableLabel,
   normalizeRelativeAgeThresholdMinutes,
   normalizeRelativeAgeDayCountDivisorMinutes,
   normalizeRelativeAgeHourCountDivisorMinutes,
@@ -269,6 +270,14 @@ describe('aiInsights config', () => {
     expect(normalizeRelativeAgeFallbackTemplate('Updated: {label}', fallback)).toBe('Updated: {label}')
     expect(normalizeRelativeAgeFallbackTemplate('Updated recently', fallback)).toBe(fallback)
     expect(normalizeRelativeAgeFallbackTemplate('', fallback)).toBe(fallback)
+  })
+
+  it('applies relative-age unavailable-label override guardrails in config normalization', () => {
+    const fallback = 'Time unavailable'
+
+    expect(normalizeRelativeAgeUnavailableLabel('Feed offline', fallback)).toBe('Feed offline')
+    expect(normalizeRelativeAgeUnavailableLabel('  ', fallback)).toBe(fallback)
+    expect(normalizeRelativeAgeUnavailableLabel(undefined, fallback)).toBe(fallback)
   })
 
 
