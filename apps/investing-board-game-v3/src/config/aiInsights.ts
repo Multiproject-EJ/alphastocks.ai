@@ -244,6 +244,10 @@ export const normalizeRelativeAgeFallbackTemplate = (template: string, fallback:
   return hasAllTokens ? normalizedTemplate : fallback
 }
 
+export const normalizeRelativeAgeUnavailableLabel = (label: unknown, fallback: string): string => {
+  return coerceString(label, fallback)
+}
+
 export const normalizeRelativeAgeThresholdMinutes = ({
   hoursThresholdMinutes,
   daysThresholdMinutes,
@@ -705,7 +709,7 @@ const normalizeConfig = (config: unknown): AIInsightsConfig => {
             ),
             DEFAULT_AI_INSIGHTS_CONFIG.surface.freshness.relativeAge.fallbackTemplate,
           ),
-          unavailableLabel: coerceString(
+          unavailableLabel: normalizeRelativeAgeUnavailableLabel(
             candidate.surface?.freshness?.relativeAge?.unavailableLabel,
             DEFAULT_AI_INSIGHTS_CONFIG.surface.freshness.relativeAge.unavailableLabel,
           ),
