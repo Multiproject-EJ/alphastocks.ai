@@ -353,7 +353,8 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P6.40** ✅ Add config-first AI insights relative-age unavailable-label coverage in modal age rendering tests (small follow-up)
 - **P6.41** ✅ Add config-first AI insights relative-age unavailable-label override coverage in config normalization tests (small follow-up)
 - **P6.42** ✅ Add config-first AI insights relative-age fallback-template override coverage in config normalization tests (small follow-up)
-- **P6.43** ⏳ Add config-first AI insights fallback-template override coverage in modal relative-age rendering tests (small follow-up)
+- **P6.43** ✅ Add config-first AI insights fallback-template override coverage in modal relative-age rendering tests (small follow-up)
+- **P6.44** ⏳ Add config-first AI insights just-now-label override coverage in config normalization tests (small follow-up)
 
 ---
 
@@ -385,11 +386,17 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P6.43 — Add config-first AI insights fallback-template override coverage in modal relative-age rendering tests (small follow-up).**
+**Recommended next slice:** **P6.44 — Add config-first AI insights just-now-label override coverage in config normalization tests (small follow-up).**
 
 ## Progress Log (rolling)
-- **Done (latest):** P6.42 Add config-first AI insights relative-age fallback-template override coverage in config normalization tests (small follow-up).
-- **Next step:** P6.43 Add config-first AI insights fallback-template override coverage in modal relative-age rendering tests (small follow-up).
+- **Done (latest):** P6.43 Add config-first AI insights fallback-template override coverage in modal relative-age rendering tests (small follow-up).
+- **Next step:** P6.44 Add config-first AI insights just-now-label override coverage in config normalization tests (small follow-up).
+
+
+## P6.43 Slice Notes (AI insights relative-age fallback-template modal rendering coverage)
+- Extended modal-level relative-age formatter tests to cover config-first `fallbackTemplate` overrides for both just-now and unavailable label paths.
+- Added deterministic fixture reset coverage for fallback template + just-now labels in test teardown so mutable config overrides stay isolated across runs.
+- Advanced the next slice pointer to config normalization coverage for just-now label overrides to keep follow-up guardrails incremental.
 
 
 ## P6.42 Slice Notes (AI insights relative-age fallback-template config normalization coverage)
