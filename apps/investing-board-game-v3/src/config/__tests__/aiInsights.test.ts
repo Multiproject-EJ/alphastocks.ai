@@ -5,12 +5,14 @@ import {
   AI_INSIGHTS_SURFACE,
   normalizeDueNowCountdownToken,
   normalizeDueNowCountdownTemplate,
+  normalizeHoursTemplate,
   normalizeMinutesTemplate,
   normalizeOnTrackCooldownTemplate,
   normalizeRelativeAgeFallbackTemplate,
   formatDueNowCooldownPhrase,
   formatOnTrackCooldownPhrase,
   formatRelativeAgeFallbackPhrase,
+  formatRelativeAgeHoursPhrase,
   formatRelativeAgePhrase,
   normalizeCooldownCountdownValue,
 } from '@/config/aiInsights'
@@ -49,6 +51,7 @@ describe('aiInsights config', () => {
     expect(AI_INSIGHTS_SURFACE.freshness.relativeAge.updatedLabel.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.freshness.relativeAge.justNowLabel.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.freshness.relativeAge.minutesAgoTemplate).toContain('{minutes}')
+    expect(AI_INSIGHTS_SURFACE.freshness.relativeAge.hoursAgoTemplate).toContain('{hours}')
     expect(AI_INSIGHTS_SURFACE.freshness.relativeAge.fallbackTemplate).toContain('{label}')
     expect(AI_INSIGHTS_SURFACE.freshness.relativeAge.unavailableLabel.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.freshness.staleCallout.title.length).toBeGreaterThan(0)
@@ -111,7 +114,13 @@ describe('aiInsights config', () => {
   })
 
 
+  it('applies relative-age hour template guardrails for long-age labels', () => {
+    const fallback = '{hours}h ago'
 
+    expect(normalizeHoursTemplate('{hours} hours ago', fallback)).toBe('{hours} hours ago')
+    expect(normalizeHoursTemplate('older', fallback)).toBe(fallback)
+    expect(normalizeHoursTemplate('', fallback)).toBe(fallback)
+  })
 
   it('applies relative-age fallback template guardrails for non-minute labels', () => {
     const fallback = '{label}'
@@ -180,6 +189,23 @@ describe('aiInsights config', () => {
       minutesAgoTemplate: '{minutes}m ago',
       minutesAgo: Number.NaN,
     })).toBe('0m ago')
+  })
+
+  it('formats relative-age hour phrases with centralized token assembly', () => {
+    expect(formatRelativeAgeHoursPhrase({
+      hoursAgoTemplate: '{hours}h ago',
+      hoursAgo: 4,
+    })).toBe('4h ago')
+
+    expect(formatRelativeAgeHoursPhrase({
+      hoursAgoTemplate: '{hours} hours ago',
+      hoursAgo: 2.9,
+    })).toBe('2 hours ago')
+
+    expect(formatRelativeAgeHoursPhrase({
+      hoursAgoTemplate: '{hours}h ago',
+      hoursAgo: Number.NaN,
+    })).toBe('0h ago')
   })
 
   it('formats relative-age fallback phrases with centralized label token assembly', () => {

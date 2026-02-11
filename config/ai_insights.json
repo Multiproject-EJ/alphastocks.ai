@@ -2,7 +2,7 @@
   "surface": {
     "title": "AI Investment Insights",
     "description": "Quick, mobile-first market briefs powered by fixture data until live model hooks are enabled.",
-    "disclaimer": "Educational only — not investment advice.",
+    "disclaimer": "Educational only \u2014 not investment advice.",
     "refreshMinutes": 30,
     "autoRefresh": {
       "helperTemplate": "Auto-refreshes every {minutes}m while this panel is open.",
@@ -11,8 +11,8 @@
       "statusTones": {
         "onTrackLabel": "On track",
         "dueNowLabel": "Due now",
-        "onTrackIcon": "⏱️",
-        "dueNowIcon": "⚠️",
+        "onTrackIcon": "\u23f1\ufe0f",
+        "dueNowIcon": "\u26a0\ufe0f",
         "onTrackColorClass": "text-emerald-200",
         "dueNowColorClass": "text-amber-200",
         "onTrackChipClass": "border border-emerald-400/40 bg-emerald-500/10",
@@ -24,7 +24,7 @@
         "onTrackDescriptionClass": "text-muted-foreground",
         "dueNowDescriptionClass": "text-amber-100/90",
         "dueNowCountdownEmphasis": "Refresh now",
-        "dueNowCountdownSeparator": " · ",
+        "dueNowCountdownSeparator": " \u00b7 ",
         "dueNowCountdownTemplate": "{emphasis}{separator}{countdown}"
       }
     },
@@ -40,7 +40,8 @@
         "justNowLabel": "Just now",
         "minutesAgoTemplate": "{minutes}m ago",
         "fallbackTemplate": "{label}",
-        "unavailableLabel": "Time unavailable"
+        "unavailableLabel": "Time unavailable",
+        "hoursAgoTemplate": "{hours}h ago"
       },
       "staleCallout": {
         "title": "Stale insights detected",
@@ -58,14 +59,38 @@
       "allHorizonLabel": "All horizons",
       "allConfidenceLabel": "All confidence",
       "horizons": [
-        { "id": "intraday", "label": "Intraday" },
-        { "id": "swing", "label": "Swing" },
-        { "id": "position", "label": "Position" }
+        {
+          "id": "intraday",
+          "label": "Intraday"
+        },
+        {
+          "id": "swing",
+          "label": "Swing"
+        },
+        {
+          "id": "position",
+          "label": "Position"
+        }
       ],
       "confidenceTiers": [
-        { "id": "high", "label": "High", "min": 0.75, "max": 1 },
-        { "id": "medium", "label": "Medium", "min": 0.6, "max": 0.74 },
-        { "id": "watch", "label": "Watch", "min": 0, "max": 0.59 }
+        {
+          "id": "high",
+          "label": "High",
+          "min": 0.75,
+          "max": 1
+        },
+        {
+          "id": "medium",
+          "label": "Medium",
+          "min": 0.6,
+          "max": 0.74
+        },
+        {
+          "id": "watch",
+          "label": "Watch",
+          "min": 0,
+          "max": 0.59
+        }
       ]
     }
   },
@@ -77,7 +102,11 @@
       "summary": "Revenue guidance and data-center demand are still the dominant tailwinds, but valuation sensitivity is high.",
       "confidence": 0.78,
       "horizon": "swing",
-      "signals": ["earnings-revision-up", "relative-strength-strong", "valuation-stretched"],
+      "signals": [
+        "earnings-revision-up",
+        "relative-strength-strong",
+        "valuation-stretched"
+      ],
       "updatedAt": "2026-02-12T14:30:00.000Z"
     },
     {
@@ -87,7 +116,11 @@
       "summary": "Healthcare breadth has improved while macro uncertainty rises, supporting lower-beta allocation ideas.",
       "confidence": 0.66,
       "horizon": "position",
-      "signals": ["sector-rotation", "low-beta-demand", "macro-uncertainty"],
+      "signals": [
+        "sector-rotation",
+        "low-beta-demand",
+        "macro-uncertainty"
+      ],
       "updatedAt": "2026-02-12T13:45:00.000Z"
     },
     {
@@ -97,7 +130,11 @@
       "summary": "Breadth improved over the past week; confirmation still depends on sustained volume and rate expectations.",
       "confidence": 0.59,
       "horizon": "intraday",
-      "signals": ["breadth-improving", "volume-confirmation-needed", "rates-sensitive"],
+      "signals": [
+        "breadth-improving",
+        "volume-confirmation-needed",
+        "rates-sensitive"
+      ],
       "updatedAt": "2026-02-12T12:20:00.000Z"
     }
   ]
