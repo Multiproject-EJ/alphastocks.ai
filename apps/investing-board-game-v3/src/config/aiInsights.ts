@@ -175,6 +175,17 @@ const coerceNumber = (value: unknown, fallback: number): number =>
 const DUE_NOW_COUNTDOWN_TEMPLATE_TOKENS = ['{countdown}', '{emphasis}', '{separator}'] as const
 const ON_TRACK_COUNTDOWN_TEMPLATE_TOKENS = ['{minutes}'] as const
 
+export const normalizeCooldownCountdownValue = (value: unknown, fallback = 0): number => {
+  const normalizedFallback =
+    typeof fallback === 'number' && Number.isFinite(fallback) ? Math.max(0, Math.floor(fallback)) : 0
+
+  if (typeof value !== 'number' || !Number.isFinite(value)) {
+    return normalizedFallback
+  }
+
+  return Math.max(0, Math.floor(value))
+}
+
 export const normalizeDueNowCountdownTemplate = (template: string, fallback: string): string => {
   const normalizedTemplate = coerceString(template, fallback)
   const hasAllTokens = DUE_NOW_COUNTDOWN_TEMPLATE_TOKENS.every((token) => normalizedTemplate.includes(token))
@@ -218,9 +229,11 @@ export const formatOnTrackCooldownPhrase = ({
   countdown,
 }: {
   countdownTemplate: string
-  countdown: string
+  countdown: unknown
 }): string => {
-  return countdownTemplate.replace('{minutes}', countdown)
+  const normalizedCountdown = normalizeCooldownCountdownValue(countdown)
+
+  return countdownTemplate.replace('{minutes}', String(normalizedCountdown))
 }
 
 const coerceHorizonOptions = (value: unknown): { id: InsightHorizon, label: string }[] => {
