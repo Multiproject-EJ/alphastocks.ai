@@ -345,7 +345,8 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P6.32** ✅ Add config-first AI insights relative-age day template token so extra-long timestamps stay centrally tunable
 - **P6.33** ✅ Add config-first AI insights relative-age day template guardrails so `{days}` placeholder safety stays deterministic
 - **P6.34** ✅ Add config-first AI insights relative-age hour/day fallback threshold guardrails so long-age copy switching stays deterministic
-- **P6.35** ⏳ Add config-first AI insights relative-age day-count divisor token so long-age labels stay tunable without changing threshold boundaries
+- **P6.35** ✅ Add config-first AI insights relative-age day-count divisor token so long-age labels stay tunable without changing threshold boundaries
+- **P6.36** ⏳ Add config-first AI insights relative-age hour-count divisor token so hour labels stay tunable independently from threshold boundaries
 
 ---
 
@@ -377,17 +378,22 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P6.35 — Add config-first AI insights relative-age day-count divisor token so long-age labels stay tunable without changing threshold boundaries.**
+**Recommended next slice:** **P6.36 — Add config-first AI insights relative-age hour-count divisor token so hour labels stay tunable independently from threshold boundaries.**
 
 ## Progress Log (rolling)
-- **Done (latest):** P6.34 Add config-first AI insights relative-age hour/day fallback threshold guardrails so long-age copy switching stays deterministic.
-- **Next step:** P6.35 Add config-first AI insights relative-age day-count divisor token so long-age labels stay tunable without changing threshold boundaries.
+- **Done (latest):** P6.35 Add config-first AI insights relative-age day-count divisor token so long-age labels stay tunable without changing threshold boundaries.
+- **Next step:** P6.36 Add config-first AI insights relative-age hour-count divisor token so hour labels stay tunable independently from threshold boundaries.
 
 
 
 
 
 
+
+## P6.35 Slice Notes (AI insights relative-age day-count divisor token)
+- Added config-first `dayCountDivisorMinutes` for AI insights relative-age copy so day-label math can be tuned separately from threshold switching boundaries.
+- Added a dedicated divisor normalization guardrail helper that keeps divisor values finite and at least one minute, with deterministic fallback behavior.
+- Updated AI Insights modal day-label math to use the divisor token and expanded config tests for divisor guardrails + surface coverage.
 
 ## P6.34 Slice Notes (AI insights relative-age hour/day threshold guardrails)
 - Added config-first `hoursThresholdMinutes` and `daysThresholdMinutes` knobs for AI insights relative-age copy switching so long-age thresholds are no longer hardcoded in the modal.

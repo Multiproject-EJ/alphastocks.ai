@@ -57,6 +57,7 @@ export type AIInsightsSurfaceConfig = {
       daysAgoTemplate: string
       hoursThresholdMinutes: number
       daysThresholdMinutes: number
+      dayCountDivisorMinutes: number
       fallbackTemplate: string
       unavailableLabel: string
     }
@@ -130,6 +131,7 @@ const DEFAULT_AI_INSIGHTS_CONFIG: AIInsightsConfig = {
         daysAgoTemplate: '{days}d ago',
         hoursThresholdMinutes: 60,
         daysThresholdMinutes: 1440,
+        dayCountDivisorMinutes: 1440,
         fallbackTemplate: '{label}',
         unavailableLabel: 'Time unavailable',
       },
@@ -258,6 +260,21 @@ export const normalizeRelativeAgeThresholdMinutes = ({
     hoursThresholdMinutes: normalizedHoursThresholdMinutes,
     daysThresholdMinutes: normalizedDaysCandidate,
   }
+}
+
+export const normalizeRelativeAgeDayCountDivisorMinutes = ({
+  dayCountDivisorMinutes,
+  fallbackDayCountDivisorMinutes = DEFAULT_DAYS_THRESHOLD_MINUTES,
+}: {
+  dayCountDivisorMinutes: unknown
+  fallbackDayCountDivisorMinutes?: number
+}): number => {
+  const normalizedFallback = Math.max(
+    1,
+    normalizeCooldownCountdownValue(fallbackDayCountDivisorMinutes, DEFAULT_DAYS_THRESHOLD_MINUTES),
+  )
+
+  return Math.max(1, normalizeCooldownCountdownValue(dayCountDivisorMinutes, normalizedFallback))
 }
 
 export const normalizeHoursTemplate = (template: string, fallback: string): string => {
@@ -454,6 +471,11 @@ const normalizeConfig = (config: unknown): AIInsightsConfig => {
     fallbackDaysThresholdMinutes: DEFAULT_AI_INSIGHTS_CONFIG.surface.freshness.relativeAge.daysThresholdMinutes,
   })
 
+  const relativeAgeDayCountDivisorMinutes = normalizeRelativeAgeDayCountDivisorMinutes({
+    dayCountDivisorMinutes: candidate.surface?.freshness?.relativeAge?.dayCountDivisorMinutes,
+    fallbackDayCountDivisorMinutes: DEFAULT_AI_INSIGHTS_CONFIG.surface.freshness.relativeAge.dayCountDivisorMinutes,
+  })
+
   return {
     surface: {
       title: coerceString(candidate.surface?.title, DEFAULT_AI_INSIGHTS_CONFIG.surface.title),
@@ -604,6 +626,7 @@ const normalizeConfig = (config: unknown): AIInsightsConfig => {
           ),
           hoursThresholdMinutes: relativeAgeThresholds.hoursThresholdMinutes,
           daysThresholdMinutes: relativeAgeThresholds.daysThresholdMinutes,
+          dayCountDivisorMinutes: relativeAgeDayCountDivisorMinutes,
           fallbackTemplate: normalizeRelativeAgeFallbackTemplate(
             coerceString(
               candidate.surface?.freshness?.relativeAge?.fallbackTemplate,

@@ -11,6 +11,7 @@ import {
   normalizeOnTrackCooldownTemplate,
   normalizeRelativeAgeFallbackTemplate,
   normalizeRelativeAgeThresholdMinutes,
+  normalizeRelativeAgeDayCountDivisorMinutes,
   formatDueNowCooldownPhrase,
   formatOnTrackCooldownPhrase,
   formatRelativeAgeDaysPhrase,
@@ -60,6 +61,7 @@ describe('aiInsights config', () => {
     expect(AI_INSIGHTS_SURFACE.freshness.relativeAge.daysThresholdMinutes).toBeGreaterThan(
       AI_INSIGHTS_SURFACE.freshness.relativeAge.hoursThresholdMinutes,
     )
+    expect(AI_INSIGHTS_SURFACE.freshness.relativeAge.dayCountDivisorMinutes).toBeGreaterThanOrEqual(1)
     expect(AI_INSIGHTS_SURFACE.freshness.relativeAge.fallbackTemplate).toContain('{label}')
     expect(AI_INSIGHTS_SURFACE.freshness.relativeAge.unavailableLabel.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.freshness.staleCallout.title.length).toBeGreaterThan(0)
@@ -171,6 +173,26 @@ describe('aiInsights config', () => {
       hoursThresholdMinutes: 60,
       daysThresholdMinutes: 1440,
     })
+  })
+
+  it('applies relative-age day-count divisor guardrails for deterministic day label math', () => {
+    expect(normalizeRelativeAgeDayCountDivisorMinutes({
+      dayCountDivisorMinutes: 720,
+    })).toBe(720)
+
+    expect(normalizeRelativeAgeDayCountDivisorMinutes({
+      dayCountDivisorMinutes: 0,
+    })).toBe(1)
+
+    expect(normalizeRelativeAgeDayCountDivisorMinutes({
+      dayCountDivisorMinutes: Number.NaN,
+      fallbackDayCountDivisorMinutes: 2880,
+    })).toBe(2880)
+
+    expect(normalizeRelativeAgeDayCountDivisorMinutes({
+      dayCountDivisorMinutes: Number.NaN,
+      fallbackDayCountDivisorMinutes: 0,
+    })).toBe(1440)
   })
 
   it('applies relative-age fallback template guardrails for non-minute labels', () => {

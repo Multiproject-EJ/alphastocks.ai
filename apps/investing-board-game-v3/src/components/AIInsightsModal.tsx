@@ -51,6 +51,7 @@ const formatRelativeInsightAge = (updatedAt: string): string => {
   const roundedAgeMinutes = Math.floor(ageMinutes)
   const hoursThresholdMinutes = AI_INSIGHTS_SURFACE.freshness.relativeAge.hoursThresholdMinutes
   const daysThresholdMinutes = AI_INSIGHTS_SURFACE.freshness.relativeAge.daysThresholdMinutes
+  const dayCountDivisorMinutes = AI_INSIGHTS_SURFACE.freshness.relativeAge.dayCountDivisorMinutes
 
   if (roundedAgeMinutes <= 0) {
     return formatRelativeAgeFallbackPhrase({
@@ -63,7 +64,7 @@ const formatRelativeInsightAge = (updatedAt: string): string => {
     if (roundedAgeMinutes >= daysThresholdMinutes) {
       return formatRelativeAgeDaysPhrase({
         daysAgoTemplate: relativeAgeConfig.daysAgoTemplate,
-        daysAgo: Math.floor(roundedAgeMinutes / daysThresholdMinutes),
+        daysAgo: Math.floor(roundedAgeMinutes / dayCountDivisorMinutes),
       })
     }
 
