@@ -3059,6 +3059,7 @@ function App() {
     setGameState(prev => ({
       ...prev,
       energyRolls: (prev.energyRolls ?? DAILY_ROLL_LIMIT) + pack.rolls,
+      cash: prev.cash + (pack.bonusCashMillions ? pack.bonusCashMillions * 1_000_000 : 0),
       stats: {
         ...prev.stats,
         rollsPurchased: (prev.stats.rollsPurchased ?? 0) + pack.rolls,
@@ -3066,7 +3067,7 @@ function App() {
     }))
 
     toast.success(`Added ${pack.rolls} Dice Rolls`, {
-      description: `Purchase: ${pack.priceKr} kr pack applied to your rolls.`
+      description: `Purchase: $${pack.priceUsd} pack applied${pack.bonusCashMillions ? ` (+$${pack.bonusCashMillions}M cash)` : ''}.`
     })
 
     closeCurrent()
