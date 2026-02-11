@@ -4027,3 +4027,21 @@
 
 **How to test:**
 - Run `npm test -- src/config/__tests__/aiInsights.test.ts` inside `apps/investing-board-game-v3`.
+
+**Date:** 2026-02-11
+**Slice:** P6.43 AI insights relative-age fallback-template override coverage in modal rendering tests
+**Summary:**
+- Extended modal helper tests to verify config-first relative-age `fallbackTemplate` overrides are applied when rendering both just-now and unavailable labels.
+- Added teardown resets for mutable fallback-template and just-now label fixture fields so test isolation stays deterministic across runs.
+- Updated the master dev plan to mark P6.43 complete and point the next slice to just-now-label normalization coverage.
+
+**Files changed:**
+- apps/investing-board-game-v3/src/components/__tests__/AIInsightsModal.test.ts
+- DEV_PLAN.md
+- CHANGELOG_DEV.md
+
+**SQL migrations:**
+- (none)
+
+**How to test:**
+- Run `npm test -- src/components/__tests__/AIInsightsModal.test.ts` inside `apps/investing-board-game-v3`.
