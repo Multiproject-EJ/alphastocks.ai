@@ -337,6 +337,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P6.24** ✅ Add config-first AI insights on-track cooldown phrase formatter helper so both tone paths share centralized copy assembly
 - **P6.25** ✅ Add config-first AI insights on-track cooldown template guardrails so formatter input remains placeholder-safe
 - **P6.26** ✅ Add config-first AI insights cooldown countdown value guardrails so formatter output remains numeric-placeholder-safe
+- **P6.27** ✅ Add config-first AI insights helper/cooldown minutes template guardrails so both strings stay `{minutes}` placeholder-safe
 
 ---
 
@@ -368,14 +369,20 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P6.27 — Add config-first AI insights helper/cooldown minutes template guardrails so both strings stay `{minutes}` placeholder-safe.**
+**Recommended next slice:** **P6.28 — Add config-first AI insights relative-age minutes template guardrails so freshness copy stays `{minutes}` placeholder-safe.**
 
 ## Progress Log (rolling)
-- **Done (latest):** P6.26 Add config-first AI insights cooldown countdown value guardrails so formatter output remains numeric-placeholder-safe.
-- **Next step:** P6.27 Add config-first AI insights helper/cooldown minutes template guardrails so both strings stay `{minutes}` placeholder-safe.
+- **Done (latest):** P6.27 Add config-first AI insights helper/cooldown minutes template guardrails so both strings stay `{minutes}` placeholder-safe.
+- **Next step:** P6.28 Add config-first AI insights relative-age minutes template guardrails so freshness copy stays `{minutes}` placeholder-safe.
 
 
 
+
+
+## P6.27 Slice Notes (AI insights helper/cooldown minutes template guardrails)
+- Added a shared `{minutes}` template guardrail helper so helper/cooldown copy follows the same placeholder-safe validation path.
+- Updated AI insights config normalization to run both auto-refresh helper and cooldown templates through the shared guardrail fallback.
+- Added unit coverage for valid/invalid `{minutes}` template variants so helper and cooldown copy remains config-first and deterministic.
 
 ## P6.26 Slice Notes (AI insights cooldown countdown value guardrails)
 - Added a shared countdown value guardrail helper that normalizes cooldown minutes to finite, non-negative whole numbers before formatting copy.

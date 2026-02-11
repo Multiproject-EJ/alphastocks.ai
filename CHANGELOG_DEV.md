@@ -3706,3 +3706,23 @@
 
 **How to test:**
 - Run `npm test -- src/config/__tests__/aiInsights.test.ts` inside `apps/investing-board-game-v3`.
+
+**Date:** 2026-02-12
+**Slice:** P6.27 AI insights helper/cooldown minutes template guardrails
+**Summary:**
+- Added a shared `{minutes}` template guardrail helper in AI insights config so helper and cooldown copy validation is centralized.
+- Updated AI insights config normalization to apply placeholder-safe fallback behavior to both `autoRefresh.helperTemplate` and `autoRefresh.cooldownTemplate`.
+- Extended AI insights unit coverage for valid/invalid `{minutes}` template overrides to lock deterministic copy behavior.
+
+**Files changed:**
+- apps/investing-board-game-v3/src/config/aiInsights.ts
+- apps/investing-board-game-v3/src/config/__tests__/aiInsights.test.ts
+- DEV_PLAN.md
+- CHANGELOG_DEV.md
+
+**SQL migrations:**
+- (none)
+
+**How to test:**
+- Run `npm test -- src/config/__tests__/aiInsights.test.ts` inside `apps/investing-board-game-v3`.
+

@@ -5,6 +5,7 @@ import {
   AI_INSIGHTS_SURFACE,
   normalizeDueNowCountdownToken,
   normalizeDueNowCountdownTemplate,
+  normalizeMinutesTemplate,
   normalizeOnTrackCooldownTemplate,
   formatDueNowCooldownPhrase,
   formatOnTrackCooldownPhrase,
@@ -83,6 +84,19 @@ describe('aiInsights config', () => {
     )
     expect(normalizeOnTrackCooldownTemplate('Refresh soon', fallback)).toBe(fallback)
     expect(normalizeOnTrackCooldownTemplate('', fallback)).toBe(fallback)
+  })
+
+  it('applies shared minutes-template guardrails for helper/cooldown placeholder-safe copy', () => {
+    const fallback = 'Auto-refreshes every {minutes}m while this panel is open.'
+
+    expect(normalizeMinutesTemplate('Auto-refreshes every {minutes}m while this panel is open.', fallback)).toBe(
+      'Auto-refreshes every {minutes}m while this panel is open.',
+    )
+    expect(normalizeMinutesTemplate('Refresh every {minutes} minutes', fallback)).toBe(
+      'Refresh every {minutes} minutes',
+    )
+    expect(normalizeMinutesTemplate('Auto-refreshes every minute', fallback)).toBe(fallback)
+    expect(normalizeMinutesTemplate('', fallback)).toBe(fallback)
   })
 
 

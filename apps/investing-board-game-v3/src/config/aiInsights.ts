@@ -175,6 +175,13 @@ const coerceNumber = (value: unknown, fallback: number): number =>
 const DUE_NOW_COUNTDOWN_TEMPLATE_TOKENS = ['{countdown}', '{emphasis}', '{separator}'] as const
 const ON_TRACK_COUNTDOWN_TEMPLATE_TOKENS = ['{minutes}'] as const
 
+export const normalizeMinutesTemplate = (template: string, fallback: string): string => {
+  const normalizedTemplate = coerceString(template, fallback)
+  const hasAllTokens = ON_TRACK_COUNTDOWN_TEMPLATE_TOKENS.every((token) => normalizedTemplate.includes(token))
+
+  return hasAllTokens ? normalizedTemplate : fallback
+}
+
 export const normalizeCooldownCountdownValue = (value: unknown, fallback = 0): number => {
   const normalizedFallback =
     typeof fallback === 'number' && Number.isFinite(fallback) ? Math.max(0, Math.floor(fallback)) : 0
@@ -201,10 +208,7 @@ export const normalizeDueNowCountdownToken = (tokenValue: string, fallback: stri
 }
 
 export const normalizeOnTrackCooldownTemplate = (template: string, fallback: string): string => {
-  const normalizedTemplate = coerceString(template, fallback)
-  const hasAllTokens = ON_TRACK_COUNTDOWN_TEMPLATE_TOKENS.every((token) => normalizedTemplate.includes(token))
-
-  return hasAllTokens ? normalizedTemplate : fallback
+  return normalizeMinutesTemplate(template, fallback)
 }
 
 export const formatDueNowCooldownPhrase = ({
@@ -338,11 +342,14 @@ const normalizeConfig = (config: unknown): AIInsightsConfig => {
       disclaimer: coerceString(candidate.surface?.disclaimer, DEFAULT_AI_INSIGHTS_CONFIG.surface.disclaimer),
       refreshMinutes: Math.max(5, coerceNumber(candidate.surface?.refreshMinutes, DEFAULT_AI_INSIGHTS_CONFIG.surface.refreshMinutes)),
       autoRefresh: {
-        helperTemplate: coerceString(
-          candidate.surface?.autoRefresh?.helperTemplate,
+        helperTemplate: normalizeMinutesTemplate(
+          coerceString(
+            candidate.surface?.autoRefresh?.helperTemplate,
+            DEFAULT_AI_INSIGHTS_CONFIG.surface.autoRefresh.helperTemplate,
+          ),
           DEFAULT_AI_INSIGHTS_CONFIG.surface.autoRefresh.helperTemplate,
         ),
-        cooldownTemplate: normalizeOnTrackCooldownTemplate(
+        cooldownTemplate: normalizeMinutesTemplate(
           coerceString(
             candidate.surface?.autoRefresh?.cooldownTemplate,
             DEFAULT_AI_INSIGHTS_CONFIG.surface.autoRefresh.cooldownTemplate,
