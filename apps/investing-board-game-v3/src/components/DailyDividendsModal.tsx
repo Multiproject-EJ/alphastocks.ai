@@ -88,6 +88,14 @@ export function DailyDividendsModal({
   const [revealed, setRevealed] = useState(false)
   const [revealedReward, setRevealedReward] = useState<DailyDividendReward | null>(null)
 
+  const completedDays = status.currentDay === 1 && status.totalCollected > 0
+    ? 7
+    : Math.max(0, status.currentDay - 1)
+  const progressPercent = Math.max(8, (completedDays / 7) * 100)
+  const streakMultiplier = 1 + (completedDays * 0.12)
+  const todayPreview = getRewardPreviewForDay(status.currentDay)
+  const streakBonusPreview = Math.round(todayPreview.bonusCash * (streakMultiplier - 1))
+
   useEffect(() => {
     if (errorMessage) {
       setCollectError(errorMessage)
@@ -221,7 +229,10 @@ export function DailyDividendsModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[90vw] sm:max-w-md p-0 overflow-hidden border-2 border-emerald-500/50 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+      <DialogContent className="max-w-[90vw] sm:max-w-md p-0 overflow-hidden border-2 border-emerald-400/50 bg-gradient-to-br from-[#061118] via-[#0b1f2b] to-[#080d17] shadow-[0_0_60px_rgba(16,185,129,0.2)]">
+        <div className="pointer-events-none absolute -left-20 -top-20 h-56 w-56 rounded-full bg-emerald-400/20 blur-3xl" />
+        <div className="pointer-events-none absolute -right-24 top-24 h-56 w-56 rounded-full bg-amber-300/20 blur-3xl" />
+        <div className="pointer-events-none absolute bottom-0 left-1/2 h-40 w-80 -translate-x-1/2 rounded-full bg-emerald-500/15 blur-3xl" />
         {/* Header */}
         <DialogHeader className="px-4 pt-10 pb-3 sm:px-6 sm:pt-12 sm:pb-4 bg-gradient-to-b from-emerald-900/40 to-transparent">
           <DialogTitle className="flex items-center gap-3 text-xl sm:text-2xl font-bold text-white">
@@ -237,6 +248,18 @@ export function DailyDividendsModal({
 
         {/* Content */}
         <div className="px-4 pb-4 sm:px-6 sm:pb-6">
+          <div className="mb-3 rounded-xl border border-emerald-300/30 bg-gradient-to-r from-emerald-500/15 to-amber-400/10 p-3 sm:mb-4">
+            <div className="flex items-center justify-between">
+              <p className="text-xs font-semibold uppercase tracking-wide text-emerald-200">Streak Bonus</p>
+              <p className="text-xs font-bold text-amber-200">x{streakMultiplier.toFixed(2)} multiplier</p>
+            </div>
+            <p className="mt-1 text-sm text-emerald-100">
+              {status.canCollect
+                ? `Claim now for +$${streakBonusPreview.toLocaleString()} streak bonus cash 🔥`
+                : 'Come back tomorrow to keep your streak glow alive.'}
+            </p>
+          </div>
+
           {/* Days 1-3: Top row */}
           <div className="mb-3 sm:mb-4">
             <div className="flex justify-center gap-2 sm:gap-3 mb-2">
@@ -261,7 +284,7 @@ export function DailyDividendsModal({
           </div>
 
           {/* Progress indicator */}
-          <div className="mt-4 sm:mt-6 rounded-lg bg-slate-800/50 p-3 sm:p-4">
+          <div className="mt-4 sm:mt-6 rounded-lg border border-emerald-300/20 bg-slate-900/60 p-3 shadow-[0_0_35px_rgba(52,211,153,0.2)] backdrop-blur sm:p-4">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs text-slate-300">Progress</span>
               <span className="text-xs text-emerald-400 font-bold">
@@ -272,11 +295,15 @@ export function DailyDividendsModal({
               <motion.div
                 className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-green-400"
                 initial={{ width: 0 }}
-                animate={{ width: `${((status.currentDay - 1) / 7) * 100}%` }}
+                animate={{ width: `${progressPercent}%` }}
                 transition={{ duration: 0.5, ease: "easeOut" }}
               />
             </div>
-            <p className="text-[11px] sm:text-xs text-slate-400 mt-2 text-center">
+            <div className="mt-2 flex items-center justify-between text-[10px] sm:text-xs">
+              <span className="text-emerald-200/80">🔥 Streak power is building daily</span>
+              <span className="font-semibold text-amber-200">+${streakBonusPreview.toLocaleString()}</span>
+            </div>
+            <p className="text-[11px] sm:text-xs text-slate-300 mt-2 text-center">
               {status.currentDay === 7 
                 ? 'Complete Day 7 to restart the cycle!' 
                 : 'Keep your streak going!'}
@@ -305,16 +332,16 @@ export function DailyDividendsModal({
               type="button"
               onClick={handleCollect}
               disabled={!status.canCollect || collecting}
-              className={`w-full rounded-lg px-4 py-3 text-sm font-semibold transition-all ${
+              className={`w-full rounded-full border px-4 py-3 text-sm font-semibold transition-all ${
                 status.canCollect && !collecting
-                  ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/30 hover:bg-emerald-400'
-                  : 'bg-slate-700/60 text-slate-300'
+                  ? 'border-emerald-200/60 bg-gradient-to-r from-emerald-400 via-green-400 to-emerald-500 text-white shadow-[0_0_30px_rgba(16,185,129,0.55)] hover:brightness-110'
+                  : 'border-slate-600/40 bg-slate-700/60 text-slate-300'
               }`}
             >
               {collecting
                 ? 'Collecting...'
                 : status.canCollect
-                ? 'Collect Today’s Reward'
+                ? '🎲 Collect Reward'
                 : 'Come back tomorrow'}
             </button>
             {collectError && (
