@@ -462,8 +462,11 @@ const normalizeConfig = (config: unknown): AIInsightsConfig => {
             candidate.surface?.freshness?.relativeAge?.justNowLabel,
             DEFAULT_AI_INSIGHTS_CONFIG.surface.freshness.relativeAge.justNowLabel,
           ),
-          minutesAgoTemplate: coerceString(
-            candidate.surface?.freshness?.relativeAge?.minutesAgoTemplate,
+          minutesAgoTemplate: normalizeMinutesTemplate(
+            coerceString(
+              candidate.surface?.freshness?.relativeAge?.minutesAgoTemplate,
+              DEFAULT_AI_INSIGHTS_CONFIG.surface.freshness.relativeAge.minutesAgoTemplate,
+            ),
             DEFAULT_AI_INSIGHTS_CONFIG.surface.freshness.relativeAge.minutesAgoTemplate,
           ),
           unavailableLabel: coerceString(
