@@ -335,6 +335,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P6.22** ✅ Add config-first AI insights refresh-status due-now emphasis/separator fallback guardrails for empty-token-safe chip copy
 - **P6.23** ✅ Add config-first AI insights due-now cooldown phrase formatter helper to keep chip copy assembly centralized
 - **P6.24** ✅ Add config-first AI insights on-track cooldown phrase formatter helper so both tone paths share centralized copy assembly
+- **P6.25** ✅ Add config-first AI insights on-track cooldown template guardrails so formatter input remains placeholder-safe
 
 ---
 
@@ -366,18 +367,19 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P6.25 — Add config-first AI insights on-track cooldown template guardrails so formatter input remains placeholder-safe.**
+**Recommended next slice:** **P6.26 — Add config-first AI insights cooldown countdown value guardrails so formatter output remains numeric-placeholder-safe.**
 
 ## Progress Log (rolling)
-- **Done (latest):** P6.24 Add config-first AI insights on-track cooldown phrase formatter helper so both tone paths share centralized copy assembly.
-- **Next step:** P6.25 Add config-first AI insights on-track cooldown template guardrails so formatter input remains placeholder-safe.
+- **Done (latest):** P6.25 Add config-first AI insights on-track cooldown template guardrails so formatter input remains placeholder-safe.
+- **Next step:** P6.26 Add config-first AI insights cooldown countdown value guardrails so formatter output remains numeric-placeholder-safe.
 
 
 
 
-
-
-
+## P6.25 Slice Notes (AI insights on-track cooldown template guardrails)
+- Added a typed AI insights config guardrail helper for on-track cooldown templates so overrides must include the `{minutes}` placeholder before being accepted.
+- Updated AI insights config normalization to run on-track cooldown template values through the new guardrail helper and fall back to defaults when placeholder coverage is missing.
+- Added unit coverage for valid and invalid on-track templates so fallback behavior stays deterministic and placeholder-safe.
 
 ## P6.24 Slice Notes (AI insights on-track cooldown phrase formatter helper)
 - Added a shared AI insights config helper that formats on-track cooldown phrases from the config template + countdown value so on-track copy assembly is centralized.
