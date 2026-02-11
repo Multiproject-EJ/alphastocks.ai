@@ -333,6 +333,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P6.20** ✅ Add config-first AI insights refresh-status due-now countdown template token for urgency chip phrasing polish
 - **P6.21** ✅ Add config-first AI insights refresh-status due-now countdown fallback template guardrails for placeholder-safe copy
 - **P6.22** ✅ Add config-first AI insights refresh-status due-now emphasis/separator fallback guardrails for empty-token-safe chip copy
+- **P6.23** ✅ Add config-first AI insights due-now cooldown phrase formatter helper to keep chip copy assembly centralized
 
 ---
 
@@ -364,16 +365,22 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P6.23 — Add config-first AI insights due-now cooldown phrase formatter helper to keep chip copy assembly centralized.**
+**Recommended next slice:** **P6.24 — Add config-first AI insights on-track cooldown phrase formatter helper so both tone paths share centralized copy assembly.**
 
 ## Progress Log (rolling)
-- **Done (latest):** P6.22 Add config-first AI insights refresh-status due-now emphasis/separator fallback guardrails for empty-token-safe chip copy.
-- **Next step:** P6.23 Add config-first AI insights due-now cooldown phrase formatter helper to keep chip copy assembly centralized.
+- **Done (latest):** P6.23 Add config-first AI insights due-now cooldown phrase formatter helper to keep chip copy assembly centralized.
+- **Next step:** P6.24 Add config-first AI insights on-track cooldown phrase formatter helper so both tone paths share centralized copy assembly.
 
 
 
 
 
+
+
+## P6.23 Slice Notes (AI insights due-now cooldown phrase formatter helper)
+- Added a shared AI insights config helper that formats due-now cooldown phrases from template + token inputs so copy assembly is centralized.
+- Updated the AI Insights modal due-now cooldown chip path to use the shared formatter instead of inline string replacement chaining.
+- Added unit coverage for default and reordered template formats to verify centralized due-now phrase composition remains config-driven.
 
 
 ## P6.22 Slice Notes (AI insights due-now emphasis/separator guardrails)

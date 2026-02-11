@@ -188,6 +188,23 @@ export const normalizeDueNowCountdownToken = (tokenValue: string, fallback: stri
   return reusesTemplateToken ? fallback : normalizedTokenValue
 }
 
+export const formatDueNowCooldownPhrase = ({
+  countdownTemplate,
+  emphasis,
+  separator,
+  countdown,
+}: {
+  countdownTemplate: string
+  emphasis: string
+  separator: string
+  countdown: string
+}): string => {
+  return countdownTemplate
+    .replace('{emphasis}', emphasis)
+    .replace('{separator}', separator)
+    .replace('{countdown}', countdown)
+}
+
 const coerceHorizonOptions = (value: unknown): { id: InsightHorizon, label: string }[] => {
   if (!Array.isArray(value)) {
     return DEFAULT_AI_INSIGHTS_CONFIG.surface.filters.horizons

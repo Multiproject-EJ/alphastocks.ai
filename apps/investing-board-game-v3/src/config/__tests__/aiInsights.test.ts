@@ -5,6 +5,7 @@ import {
   AI_INSIGHTS_SURFACE,
   normalizeDueNowCountdownToken,
   normalizeDueNowCountdownTemplate,
+  formatDueNowCooldownPhrase,
 } from '@/config/aiInsights'
 
 describe('aiInsights config', () => {
@@ -66,6 +67,23 @@ describe('aiInsights config', () => {
     expect(normalizeDueNowCountdownToken('', 'Refresh now')).toBe('Refresh now')
     expect(normalizeDueNowCountdownToken('{countdown}', 'Refresh now')).toBe('Refresh now')
     expect(normalizeDueNowCountdownToken('{separator}', ' · ')).toBe(' · ')
+  })
+
+
+  it('formats due-now cooldown phrases with centralized token assembly', () => {
+    expect(formatDueNowCooldownPhrase({
+      countdownTemplate: '{emphasis}{separator}{countdown}',
+      emphasis: 'Refresh now',
+      separator: ' · ',
+      countdown: 'Next refresh in 0m',
+    })).toBe('Refresh now · Next refresh in 0m')
+
+    expect(formatDueNowCooldownPhrase({
+      countdownTemplate: '{countdown}{separator}{emphasis}',
+      emphasis: 'Refresh now',
+      separator: ' — ',
+      countdown: 'Next refresh in 0m',
+    })).toBe('Next refresh in 0m — Refresh now')
   })
 
   it('provides config-first filter chips for horizon and confidence tiers', () => {
