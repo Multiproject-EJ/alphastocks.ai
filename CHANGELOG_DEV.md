@@ -1,4 +1,23 @@
 **Date:** 2026-02-12
+**Slice:** P6.33 AI insights relative-age day template guardrails
+**Summary:**
+- Hardened AI insights relative-age day template normalization so invalid override + invalid fallback inputs deterministically collapse to a canonical `{days}` template.
+- Kept day-level freshness copy config-first while preventing placeholderless fallback strings from leaking into rendered card metadata.
+- Expanded AI insights config unit coverage for invalid day-template fallback handling.
+
+**Files changed:**
+- apps/investing-board-game-v3/src/config/aiInsights.ts
+- apps/investing-board-game-v3/src/config/__tests__/aiInsights.test.ts
+- DEV_PLAN.md
+- CHANGELOG_DEV.md
+
+**SQL migrations:**
+- (none)
+
+**How to test:**
+- `cd apps/investing-board-game-v3 && npm run test -- src/config/__tests__/aiInsights.test.ts`
+
+**Date:** 2026-02-12
 **Slice:** P6.32 AI insights relative-age day template token
 **Summary:**
 - Added a config-first `daysAgoTemplate` token to AI insights freshness copy so extra-long relative-age labels stay centrally tunable.
