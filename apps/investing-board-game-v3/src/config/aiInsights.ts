@@ -205,6 +205,16 @@ export const formatDueNowCooldownPhrase = ({
     .replace('{countdown}', countdown)
 }
 
+export const formatOnTrackCooldownPhrase = ({
+  countdownTemplate,
+  countdown,
+}: {
+  countdownTemplate: string
+  countdown: string
+}): string => {
+  return countdownTemplate.replace('{minutes}', countdown)
+}
+
 const coerceHorizonOptions = (value: unknown): { id: InsightHorizon, label: string }[] => {
   if (!Array.isArray(value)) {
     return DEFAULT_AI_INSIGHTS_CONFIG.surface.filters.horizons

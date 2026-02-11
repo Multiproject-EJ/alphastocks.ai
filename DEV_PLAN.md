@@ -334,6 +334,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P6.21** ✅ Add config-first AI insights refresh-status due-now countdown fallback template guardrails for placeholder-safe copy
 - **P6.22** ✅ Add config-first AI insights refresh-status due-now emphasis/separator fallback guardrails for empty-token-safe chip copy
 - **P6.23** ✅ Add config-first AI insights due-now cooldown phrase formatter helper to keep chip copy assembly centralized
+- **P6.24** ✅ Add config-first AI insights on-track cooldown phrase formatter helper so both tone paths share centralized copy assembly
 
 ---
 
@@ -365,16 +366,23 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P6.24 — Add config-first AI insights on-track cooldown phrase formatter helper so both tone paths share centralized copy assembly.**
+**Recommended next slice:** **P6.25 — Add config-first AI insights on-track cooldown template guardrails so formatter input remains placeholder-safe.**
 
 ## Progress Log (rolling)
-- **Done (latest):** P6.23 Add config-first AI insights due-now cooldown phrase formatter helper to keep chip copy assembly centralized.
-- **Next step:** P6.24 Add config-first AI insights on-track cooldown phrase formatter helper so both tone paths share centralized copy assembly.
+- **Done (latest):** P6.24 Add config-first AI insights on-track cooldown phrase formatter helper so both tone paths share centralized copy assembly.
+- **Next step:** P6.25 Add config-first AI insights on-track cooldown template guardrails so formatter input remains placeholder-safe.
 
 
 
 
 
+
+
+
+## P6.24 Slice Notes (AI insights on-track cooldown phrase formatter helper)
+- Added a shared AI insights config helper that formats on-track cooldown phrases from the config template + countdown value so on-track copy assembly is centralized.
+- Updated the AI Insights modal on-track cooldown chip path to use the shared formatter helper rather than inline template substitution.
+- Added unit coverage for default and reordered on-track template formats so both cooldown tone paths now share helper-backed phrase composition.
 
 
 ## P6.23 Slice Notes (AI insights due-now cooldown phrase formatter helper)

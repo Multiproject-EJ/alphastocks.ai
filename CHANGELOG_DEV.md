@@ -1,4 +1,24 @@
 **Date:** 2026-02-12
+**Slice:** P6.24 AI insights on-track cooldown phrase formatter helper
+**Summary:**
+- Added a shared AI insights formatter helper that assembles on-track cooldown chip phrases from template + countdown inputs in one place.
+- Updated AIInsightsModal to call the shared formatter for on-track cooldown copy so both cooldown tone paths use centralized phrase builders.
+- Expanded AI insights config tests with coverage for default and reordered on-track template composition.
+
+**Files changed:**
+- apps/investing-board-game-v3/src/config/aiInsights.ts
+- apps/investing-board-game-v3/src/components/AIInsightsModal.tsx
+- apps/investing-board-game-v3/src/config/__tests__/aiInsights.test.ts
+- DEV_PLAN.md
+- CHANGELOG_DEV.md
+
+**SQL migrations:**
+- (none)
+
+**How to test:**
+- Run `npm test -- src/config/__tests__/aiInsights.test.ts` inside `apps/investing-board-game-v3`.
+
+**Date:** 2026-02-12
 **Slice:** P6.23 AI insights due-now cooldown phrase formatter helper
 **Summary:**
 - Added a shared AI insights formatter helper that assembles due-now cooldown chip phrases from config template/tokens in one place.

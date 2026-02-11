@@ -6,6 +6,7 @@ import {
   normalizeDueNowCountdownToken,
   normalizeDueNowCountdownTemplate,
   formatDueNowCooldownPhrase,
+  formatOnTrackCooldownPhrase,
 } from '@/config/aiInsights'
 
 describe('aiInsights config', () => {
@@ -84,6 +85,19 @@ describe('aiInsights config', () => {
       separator: ' — ',
       countdown: 'Next refresh in 0m',
     })).toBe('Next refresh in 0m — Refresh now')
+  })
+
+
+  it('formats on-track cooldown phrases with centralized token assembly', () => {
+    expect(formatOnTrackCooldownPhrase({
+      countdownTemplate: 'Next refresh in {minutes}m',
+      countdown: '12',
+    })).toBe('Next refresh in 12m')
+
+    expect(formatOnTrackCooldownPhrase({
+      countdownTemplate: '{minutes} minutes to next refresh',
+      countdown: '3',
+    })).toBe('3 minutes to next refresh')
   })
 
   it('provides config-first filter chips for horizon and confidence tiers', () => {
