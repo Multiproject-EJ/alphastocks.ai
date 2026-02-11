@@ -60,6 +60,7 @@ export type AIInsightsSurfaceConfig = {
       hourCountMinimum: number
       daysThresholdMinutes: number
       dayCountDivisorMinutes: number
+      dayCountMinimum: number
       fallbackTemplate: string
       unavailableLabel: string
     }
@@ -136,6 +137,7 @@ const DEFAULT_AI_INSIGHTS_CONFIG: AIInsightsConfig = {
         hourCountMinimum: 1,
         daysThresholdMinutes: 1440,
         dayCountDivisorMinutes: 1440,
+        dayCountMinimum: 1,
         fallbackTemplate: '{label}',
         unavailableLabel: 'Time unavailable',
       },
@@ -197,6 +199,7 @@ const DEFAULT_DAYS_TEMPLATE_FALLBACK = '{days}d ago'
 const DEFAULT_HOURS_THRESHOLD_MINUTES = 60
 const DEFAULT_DAYS_THRESHOLD_MINUTES = 1440
 const DEFAULT_HOUR_COUNT_MINIMUM = 1
+const DEFAULT_DAY_COUNT_MINIMUM = 1
 
 export const normalizeCooldownCountdownValue = (value: unknown, fallback = 0): number => {
   const normalizedFallback =
@@ -310,6 +313,21 @@ export const normalizeRelativeAgeHourCountMinimum = ({
   )
 
   return Math.max(1, normalizeCooldownCountdownValue(hourCountMinimum, normalizedFallback))
+}
+
+export const normalizeRelativeAgeDayCountMinimum = ({
+  dayCountMinimum,
+  fallbackDayCountMinimum = DEFAULT_DAY_COUNT_MINIMUM,
+}: {
+  dayCountMinimum: unknown
+  fallbackDayCountMinimum?: number
+}): number => {
+  const normalizedFallback = Math.max(
+    1,
+    normalizeCooldownCountdownValue(fallbackDayCountMinimum, DEFAULT_DAY_COUNT_MINIMUM),
+  )
+
+  return Math.max(1, normalizeCooldownCountdownValue(dayCountMinimum, normalizedFallback))
 }
 
 export const normalizeHoursTemplate = (template: string, fallback: string): string => {
@@ -521,6 +539,11 @@ const normalizeConfig = (config: unknown): AIInsightsConfig => {
     fallbackHourCountMinimum: DEFAULT_AI_INSIGHTS_CONFIG.surface.freshness.relativeAge.hourCountMinimum,
   })
 
+  const relativeAgeDayCountMinimum = normalizeRelativeAgeDayCountMinimum({
+    dayCountMinimum: candidate.surface?.freshness?.relativeAge?.dayCountMinimum,
+    fallbackDayCountMinimum: DEFAULT_AI_INSIGHTS_CONFIG.surface.freshness.relativeAge.dayCountMinimum,
+  })
+
   return {
     surface: {
       title: coerceString(candidate.surface?.title, DEFAULT_AI_INSIGHTS_CONFIG.surface.title),
@@ -674,6 +697,7 @@ const normalizeConfig = (config: unknown): AIInsightsConfig => {
           hourCountMinimum: relativeAgeHourCountMinimum,
           daysThresholdMinutes: relativeAgeThresholds.daysThresholdMinutes,
           dayCountDivisorMinutes: relativeAgeDayCountDivisorMinutes,
+          dayCountMinimum: relativeAgeDayCountMinimum,
           fallbackTemplate: normalizeRelativeAgeFallbackTemplate(
             coerceString(
               candidate.surface?.freshness?.relativeAge?.fallbackTemplate,
