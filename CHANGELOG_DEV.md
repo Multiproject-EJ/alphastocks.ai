@@ -3951,3 +3951,22 @@
 
 **How to test:**
 - Run `npm test -- src/config/__tests__/aiInsights.test.ts` inside `apps/investing-board-game-v3`.
+
+**Date:** 2026-02-11
+**Slice:** P6.39 AI insights relative-age day-count minimum modal test coverage
+**Summary:**
+- Exported the AI insights modal relative-age formatter helper so timestamp rendering behavior can be unit-tested without dialog mounting.
+- Added focused modal helper tests that verify config-first `dayCountMinimum` clamp behavior for day-age labels when divisor math would otherwise produce lower values.
+- Added companion modal helper coverage proving computed day counts render unchanged when already above the configured `dayCountMinimum` floor.
+
+**Files changed:**
+- apps/investing-board-game-v3/src/components/AIInsightsModal.tsx
+- apps/investing-board-game-v3/src/components/__tests__/AIInsightsModal.test.ts
+- DEV_PLAN.md
+- CHANGELOG_DEV.md
+
+**SQL migrations:**
+- (none)
+
+**How to test:**
+- Run `npm test -- src/components/__tests__/AIInsightsModal.test.ts src/config/__tests__/aiInsights.test.ts` inside `apps/investing-board-game-v3`.
