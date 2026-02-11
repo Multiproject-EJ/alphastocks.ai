@@ -9,7 +9,11 @@ import {
 import { Button } from '@/components/ui/button'
 import { useResponsiveDialogClass } from '@/hooks/useResponsiveDialogClass'
 import { AI_INSIGHTS_FIXTURES, AI_INSIGHTS_SURFACE } from '@/lib/aiInsightsFixtures'
-import { formatDueNowCooldownPhrase, formatOnTrackCooldownPhrase } from '@/config/aiInsights'
+import {
+  formatDueNowCooldownPhrase,
+  formatOnTrackCooldownPhrase,
+  normalizeCooldownCountdownValue,
+} from '@/config/aiInsights'
 import { Sparkle } from '@phosphor-icons/react'
 
 interface AIInsightsModalProps {
@@ -45,7 +49,7 @@ const formatRelativeInsightAge = (updatedAt: string): string => {
 }
 
 const formatAutoRefreshCopy = (template: string, minutes: number): string =>
-  template.replace('{minutes}', String(minutes))
+  template.replace('{minutes}', String(normalizeCooldownCountdownValue(minutes)))
 
 const getCooldownTone = (nextAutoRefreshInMinutes: number): 'on-track' | 'due-now' =>
   nextAutoRefreshInMinutes <= 0 ? 'due-now' : 'on-track'
@@ -250,7 +254,7 @@ export function AIInsightsModal({ open, onOpenChange }: AIInsightsModalProps) {
                     })
                     : formatOnTrackCooldownPhrase({
                       countdownTemplate: AI_INSIGHTS_SURFACE.autoRefresh.cooldownTemplate,
-                      countdown: String(nextAutoRefreshInMinutes),
+                      countdown: nextAutoRefreshInMinutes,
                     })}
                 </span>
               </span>

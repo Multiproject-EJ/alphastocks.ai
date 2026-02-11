@@ -8,6 +8,7 @@ import {
   normalizeOnTrackCooldownTemplate,
   formatDueNowCooldownPhrase,
   formatOnTrackCooldownPhrase,
+  normalizeCooldownCountdownValue,
 } from '@/config/aiInsights'
 
 describe('aiInsights config', () => {
@@ -85,6 +86,16 @@ describe('aiInsights config', () => {
   })
 
 
+
+
+  it('normalizes cooldown countdown values to finite non-negative whole minutes', () => {
+    expect(normalizeCooldownCountdownValue(9.8)).toBe(9)
+    expect(normalizeCooldownCountdownValue(-2)).toBe(0)
+    expect(normalizeCooldownCountdownValue(Number.NaN, 4)).toBe(4)
+    expect(normalizeCooldownCountdownValue(Number.POSITIVE_INFINITY, 3)).toBe(3)
+    expect(normalizeCooldownCountdownValue(undefined, 2.6)).toBe(2)
+  })
+
   it('formats due-now cooldown phrases with centralized token assembly', () => {
     expect(formatDueNowCooldownPhrase({
       countdownTemplate: '{emphasis}{separator}{countdown}',
@@ -105,13 +116,18 @@ describe('aiInsights config', () => {
   it('formats on-track cooldown phrases with centralized token assembly', () => {
     expect(formatOnTrackCooldownPhrase({
       countdownTemplate: 'Next refresh in {minutes}m',
-      countdown: '12',
+      countdown: 12,
     })).toBe('Next refresh in 12m')
 
     expect(formatOnTrackCooldownPhrase({
       countdownTemplate: '{minutes} minutes to next refresh',
-      countdown: '3',
+      countdown: 3,
     })).toBe('3 minutes to next refresh')
+
+    expect(formatOnTrackCooldownPhrase({
+      countdownTemplate: 'Next refresh in {minutes}m',
+      countdown: Number.NaN,
+    })).toBe('Next refresh in 0m')
   })
 
   it('provides config-first filter chips for horizon and confidence tiers', () => {

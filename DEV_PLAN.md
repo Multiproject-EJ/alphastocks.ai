@@ -336,6 +336,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P6.23** ✅ Add config-first AI insights due-now cooldown phrase formatter helper to keep chip copy assembly centralized
 - **P6.24** ✅ Add config-first AI insights on-track cooldown phrase formatter helper so both tone paths share centralized copy assembly
 - **P6.25** ✅ Add config-first AI insights on-track cooldown template guardrails so formatter input remains placeholder-safe
+- **P6.26** ✅ Add config-first AI insights cooldown countdown value guardrails so formatter output remains numeric-placeholder-safe
 
 ---
 
@@ -367,14 +368,19 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P6.26 — Add config-first AI insights cooldown countdown value guardrails so formatter output remains numeric-placeholder-safe.**
+**Recommended next slice:** **P6.27 — Add config-first AI insights helper/cooldown minutes template guardrails so both strings stay `{minutes}` placeholder-safe.**
 
 ## Progress Log (rolling)
-- **Done (latest):** P6.25 Add config-first AI insights on-track cooldown template guardrails so formatter input remains placeholder-safe.
-- **Next step:** P6.26 Add config-first AI insights cooldown countdown value guardrails so formatter output remains numeric-placeholder-safe.
+- **Done (latest):** P6.26 Add config-first AI insights cooldown countdown value guardrails so formatter output remains numeric-placeholder-safe.
+- **Next step:** P6.27 Add config-first AI insights helper/cooldown minutes template guardrails so both strings stay `{minutes}` placeholder-safe.
 
 
 
+
+## P6.26 Slice Notes (AI insights cooldown countdown value guardrails)
+- Added a shared countdown value guardrail helper that normalizes cooldown minutes to finite, non-negative whole numbers before formatting copy.
+- Updated AI Insights modal countdown rendering to pass through guardrailed countdown values so helper/cooldown text never interpolates non-numeric placeholders.
+- Added unit coverage for NaN/infinite/negative countdown inputs plus formatter fallback behavior to keep cooldown chip output deterministic.
 
 ## P6.25 Slice Notes (AI insights on-track cooldown template guardrails)
 - Added a typed AI insights config guardrail helper for on-track cooldown templates so overrides must include the `{minutes}` placeholder before being accepted.

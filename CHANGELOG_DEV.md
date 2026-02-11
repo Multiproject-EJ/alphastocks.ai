@@ -1,4 +1,24 @@
 **Date:** 2026-02-12
+**Slice:** P6.26 AI insights cooldown countdown value guardrails
+**Summary:**
+- Added a shared AI insights cooldown countdown value guardrail so formatter inputs normalize to finite, non-negative whole minutes.
+- Updated AIInsightsModal countdown/helper formatting to use normalized countdown values and avoid non-numeric placeholder output.
+- Expanded AI insights config tests with countdown value guardrail and formatter fallback coverage.
+
+**Files changed:**
+- apps/investing-board-game-v3/src/config/aiInsights.ts
+- apps/investing-board-game-v3/src/components/AIInsightsModal.tsx
+- apps/investing-board-game-v3/src/config/__tests__/aiInsights.test.ts
+- DEV_PLAN.md
+- CHANGELOG_DEV.md
+
+**SQL migrations:**
+- (none)
+
+**How to test:**
+- `cd apps/investing-board-game-v3 && npm run test -- src/config/__tests__/aiInsights.test.ts`
+
+**Date:** 2026-02-12
 **Slice:** P6.25 AI insights on-track cooldown template guardrails
 **Summary:**
 - Added an on-track cooldown template guardrail helper so config overrides must include the `{minutes}` placeholder before they are accepted.
