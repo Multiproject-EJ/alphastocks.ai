@@ -98,6 +98,14 @@ describe('aiInsights config', () => {
     expect(normalizeMinutesTemplate('', cooldownFallback)).toBe(cooldownFallback)
   })
 
+  it('applies relative-age minutes template guardrails for placeholder-safe copy', () => {
+    const fallback = '{minutes}m ago'
+
+    expect(normalizeMinutesTemplate('{minutes} minutes ago', fallback)).toBe('{minutes} minutes ago')
+    expect(normalizeMinutesTemplate('moments ago', fallback)).toBe(fallback)
+    expect(normalizeMinutesTemplate('', fallback)).toBe(fallback)
+  })
+
 
 
 

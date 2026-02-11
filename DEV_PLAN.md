@@ -338,6 +338,7 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P6.25** ✅ Add config-first AI insights on-track cooldown template guardrails so formatter input remains placeholder-safe
 - **P6.26** ✅ Add config-first AI insights cooldown countdown value guardrails so formatter output remains numeric-placeholder-safe
 - **P6.27** ✅ Add config-first AI insights helper/cooldown minutes template guardrails so both strings stay `{minutes}` placeholder-safe
+- **P6.28** ✅ Add config-first AI insights relative-age minutes template guardrails so age copy stays `{minutes}` placeholder-safe
 
 ---
 
@@ -369,15 +370,20 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P6.28 — Add config-first AI insights relative-age minutes template guardrails so age copy stays `{minutes}` placeholder-safe.**
+**Recommended next slice:** **P6.29 — Add config-first AI insights relative-age phrase formatter helper so timestamp copy assembly stays centralized.**
 
 ## Progress Log (rolling)
-- **Done (latest):** P6.27 Add config-first AI insights helper/cooldown minutes template guardrails so both strings stay `{minutes}` placeholder-safe.
-- **Next step:** P6.28 Add config-first AI insights relative-age minutes template guardrails so age copy stays `{minutes}` placeholder-safe.
+- **Done (latest):** P6.28 Add config-first AI insights relative-age minutes template guardrails so age copy stays `{minutes}` placeholder-safe.
+- **Next step:** P6.29 Add config-first AI insights relative-age phrase formatter helper so timestamp copy assembly stays centralized.
 
 
 
 
+
+## P6.28 Slice Notes (AI insights relative-age minutes template guardrails)
+- Applied the shared `{minutes}` template guardrail to AI insights relative-age `minutesAgoTemplate` config normalization.
+- Ensured malformed relative-age template overrides deterministically fall back to the default placeholder-safe copy.
+- Added unit coverage for valid and fallback relative-age minute template variants to keep config-driven age labels stable.
 
 ## P6.27 Slice Notes (AI insights helper/cooldown minutes template guardrails)
 - Added a shared minutes-template guardrail helper that requires the `{minutes}` token before template overrides are accepted.

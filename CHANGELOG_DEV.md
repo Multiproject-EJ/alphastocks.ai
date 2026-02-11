@@ -1,4 +1,23 @@
 **Date:** 2026-02-12
+**Slice:** P6.28 AI insights relative-age minutes template guardrails
+**Summary:**
+- Applied the shared `{minutes}` template guardrail to AI insights relative-age template normalization so override copy remains placeholder-safe.
+- Updated config normalization to fall back to default relative-age copy whenever a custom minutes-ago template omits the `{minutes}` token.
+- Added AI insights config unit coverage for valid and invalid relative-age minute templates.
+
+**Files changed:**
+- apps/investing-board-game-v3/src/config/aiInsights.ts
+- apps/investing-board-game-v3/src/config/__tests__/aiInsights.test.ts
+- DEV_PLAN.md
+- CHANGELOG_DEV.md
+
+**SQL migrations:**
+- (none)
+
+**How to test:**
+- `cd apps/investing-board-game-v3 && npm run test -- src/config/__tests__/aiInsights.test.ts`
+
+**Date:** 2026-02-12
 **Slice:** P6.27 AI insights helper/cooldown minutes template guardrails
 **Summary:**
 - Added a shared `{minutes}` template guardrail helper so config-driven minute templates only apply when placeholder coverage is valid.
