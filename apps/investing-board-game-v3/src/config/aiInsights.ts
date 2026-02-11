@@ -55,6 +55,8 @@ export type AIInsightsSurfaceConfig = {
       minutesAgoTemplate: string
       hoursAgoTemplate: string
       daysAgoTemplate: string
+      hoursThresholdMinutes: number
+      daysThresholdMinutes: number
       fallbackTemplate: string
       unavailableLabel: string
     }
@@ -126,6 +128,8 @@ const DEFAULT_AI_INSIGHTS_CONFIG: AIInsightsConfig = {
         minutesAgoTemplate: '{minutes}m ago',
         hoursAgoTemplate: '{hours}h ago',
         daysAgoTemplate: '{days}d ago',
+        hoursThresholdMinutes: 60,
+        daysThresholdMinutes: 1440,
         fallbackTemplate: '{label}',
         unavailableLabel: 'Time unavailable',
       },
@@ -184,6 +188,8 @@ const HOURS_TEMPLATE_TOKENS = ['{hours}'] as const
 const DAYS_TEMPLATE_TOKENS = ['{days}'] as const
 const FALLBACK_TEMPLATE_TOKENS = ['{label}'] as const
 const DEFAULT_DAYS_TEMPLATE_FALLBACK = '{days}d ago'
+const DEFAULT_HOURS_THRESHOLD_MINUTES = 60
+const DEFAULT_DAYS_THRESHOLD_MINUTES = 1440
 
 export const normalizeCooldownCountdownValue = (value: unknown, fallback = 0): number => {
   const normalizedFallback =
@@ -226,6 +232,32 @@ export const normalizeRelativeAgeFallbackTemplate = (template: string, fallback:
   const hasAllTokens = FALLBACK_TEMPLATE_TOKENS.every((token) => normalizedTemplate.includes(token))
 
   return hasAllTokens ? normalizedTemplate : fallback
+}
+
+export const normalizeRelativeAgeThresholdMinutes = ({
+  hoursThresholdMinutes,
+  daysThresholdMinutes,
+  fallbackHoursThresholdMinutes = DEFAULT_HOURS_THRESHOLD_MINUTES,
+  fallbackDaysThresholdMinutes = DEFAULT_DAYS_THRESHOLD_MINUTES,
+}: {
+  hoursThresholdMinutes: unknown
+  daysThresholdMinutes: unknown
+  fallbackHoursThresholdMinutes?: number
+  fallbackDaysThresholdMinutes?: number
+}): { hoursThresholdMinutes: number, daysThresholdMinutes: number } => {
+  const normalizedHoursFallback = normalizeCooldownCountdownValue(fallbackHoursThresholdMinutes, DEFAULT_HOURS_THRESHOLD_MINUTES)
+  const normalizedDaysFallback = normalizeCooldownCountdownValue(fallbackDaysThresholdMinutes, DEFAULT_DAYS_THRESHOLD_MINUTES)
+
+  const normalizedHoursThresholdMinutes = Math.max(1, normalizeCooldownCountdownValue(hoursThresholdMinutes, normalizedHoursFallback))
+  const normalizedDaysCandidate = Math.max(
+    normalizedHoursThresholdMinutes + 1,
+    normalizeCooldownCountdownValue(daysThresholdMinutes, normalizedDaysFallback),
+  )
+
+  return {
+    hoursThresholdMinutes: normalizedHoursThresholdMinutes,
+    daysThresholdMinutes: normalizedDaysCandidate,
+  }
 }
 
 export const normalizeHoursTemplate = (template: string, fallback: string): string => {
@@ -415,6 +447,13 @@ const normalizeConfig = (config: unknown): AIInsightsConfig => {
     )
     : DEFAULT_AI_INSIGHTS_CONFIG.fixtures
 
+  const relativeAgeThresholds = normalizeRelativeAgeThresholdMinutes({
+    hoursThresholdMinutes: candidate.surface?.freshness?.relativeAge?.hoursThresholdMinutes,
+    daysThresholdMinutes: candidate.surface?.freshness?.relativeAge?.daysThresholdMinutes,
+    fallbackHoursThresholdMinutes: DEFAULT_AI_INSIGHTS_CONFIG.surface.freshness.relativeAge.hoursThresholdMinutes,
+    fallbackDaysThresholdMinutes: DEFAULT_AI_INSIGHTS_CONFIG.surface.freshness.relativeAge.daysThresholdMinutes,
+  })
+
   return {
     surface: {
       title: coerceString(candidate.surface?.title, DEFAULT_AI_INSIGHTS_CONFIG.surface.title),
@@ -563,6 +602,8 @@ const normalizeConfig = (config: unknown): AIInsightsConfig => {
             ),
             DEFAULT_AI_INSIGHTS_CONFIG.surface.freshness.relativeAge.daysAgoTemplate,
           ),
+          hoursThresholdMinutes: relativeAgeThresholds.hoursThresholdMinutes,
+          daysThresholdMinutes: relativeAgeThresholds.daysThresholdMinutes,
           fallbackTemplate: normalizeRelativeAgeFallbackTemplate(
             coerceString(
               candidate.surface?.freshness?.relativeAge?.fallbackTemplate,

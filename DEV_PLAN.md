@@ -344,7 +344,8 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P6.31** ✅ Add config-first AI insights relative-age hour template token so long-age timestamps stay centrally tunable
 - **P6.32** ✅ Add config-first AI insights relative-age day template token so extra-long timestamps stay centrally tunable
 - **P6.33** ✅ Add config-first AI insights relative-age day template guardrails so `{days}` placeholder safety stays deterministic
-- **P6.34** ⏳ Add config-first AI insights relative-age hour/day fallback threshold guardrails so long-age copy switching stays deterministic
+- **P6.34** ✅ Add config-first AI insights relative-age hour/day fallback threshold guardrails so long-age copy switching stays deterministic
+- **P6.35** ⏳ Add config-first AI insights relative-age day-count divisor token so long-age labels stay tunable without changing threshold boundaries
 
 ---
 
@@ -376,16 +377,22 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P6.34 — Add config-first AI insights relative-age hour/day fallback threshold guardrails so long-age copy switching stays deterministic.**
+**Recommended next slice:** **P6.35 — Add config-first AI insights relative-age day-count divisor token so long-age labels stay tunable without changing threshold boundaries.**
 
 ## Progress Log (rolling)
-- **Done (latest):** P6.33 Add config-first AI insights relative-age day template guardrails so `{days}` placeholder safety stays deterministic.
-- **Next step:** P6.34 Add config-first AI insights relative-age hour/day fallback threshold guardrails so long-age copy switching stays deterministic.
+- **Done (latest):** P6.34 Add config-first AI insights relative-age hour/day fallback threshold guardrails so long-age copy switching stays deterministic.
+- **Next step:** P6.35 Add config-first AI insights relative-age day-count divisor token so long-age labels stay tunable without changing threshold boundaries.
 
 
 
 
 
+
+
+## P6.34 Slice Notes (AI insights relative-age hour/day threshold guardrails)
+- Added config-first `hoursThresholdMinutes` and `daysThresholdMinutes` knobs for AI insights relative-age copy switching so long-age thresholds are no longer hardcoded in the modal.
+- Added a normalization guardrail helper that keeps thresholds finite/non-negative and guarantees day-threshold minutes always remain above the hour threshold for deterministic copy tier switching.
+- Updated AI insights config tests to cover threshold fallback and ordering behavior, and updated progress log entries to queue a small divisor-token follow-up slice.
 
 ## P6.33 Slice Notes (AI insights relative-age day template guardrails)
 - Extended the relative-age day template guardrail helper to deterministically fall back to a canonical `{days}` template when override and fallback inputs both omit the placeholder token.
