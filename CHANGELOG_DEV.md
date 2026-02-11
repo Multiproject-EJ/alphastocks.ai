@@ -3764,3 +3764,24 @@
 
 **How to test:**
 - Run `npm test -- src/config/__tests__/aiInsights.test.ts` inside `apps/investing-board-game-v3`.
+
+**Date:** 2026-02-12
+**Slice:** P6.30 AI insights relative-age fallback phrase token
+**Summary:**
+- Added a config-first relative-age fallback template token so non-minute timestamp labels can be tuned without code edits.
+- Extended AI insights config normalization and helpers with `{label}` fallback-template guardrails plus centralized fallback phrase formatting.
+- Updated the AI Insights modal to render just-now/unavailable timestamp labels through the shared fallback formatter and expanded unit coverage.
+
+**Files changed:**
+- config/ai_insights.json
+- apps/investing-board-game-v3/src/config/aiInsights.ts
+- apps/investing-board-game-v3/src/components/AIInsightsModal.tsx
+- apps/investing-board-game-v3/src/config/__tests__/aiInsights.test.ts
+- DEV_PLAN.md
+- CHANGELOG_DEV.md
+
+**SQL migrations:**
+- (none)
+
+**How to test:**
+- Run `npm test -- src/config/__tests__/aiInsights.test.ts` inside `apps/investing-board-game-v3`.
