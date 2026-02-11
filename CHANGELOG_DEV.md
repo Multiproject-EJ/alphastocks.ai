@@ -3785,3 +3785,24 @@
 
 **How to test:**
 - Run `npm test -- src/config/__tests__/aiInsights.test.ts` inside `apps/investing-board-game-v3`.
+
+**Date:** 2026-02-12
+**Slice:** P6.31 AI insights relative-age hour template token
+**Summary:**
+- Added a config-first relative-age `hoursAgoTemplate` token so long-age timestamp copy can be tuned without component changes.
+- Extended AI insights normalization/helpers with `{hours}` template guardrails and a centralized hour-phrase formatter for placeholder-safe copy.
+- Updated the AI Insights modal to switch from minute to hour copy at 60+ minutes and expanded unit tests for guardrails + formatter behavior.
+
+**Files changed:**
+- config/ai_insights.json
+- apps/investing-board-game-v3/src/config/aiInsights.ts
+- apps/investing-board-game-v3/src/components/AIInsightsModal.tsx
+- apps/investing-board-game-v3/src/config/__tests__/aiInsights.test.ts
+- DEV_PLAN.md
+- CHANGELOG_DEV.md
+
+**SQL migrations:**
+- (none)
+
+**How to test:**
+- Run `npm test -- src/config/__tests__/aiInsights.test.ts` inside `apps/investing-board-game-v3`.

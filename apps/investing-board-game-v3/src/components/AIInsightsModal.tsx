@@ -13,6 +13,7 @@ import {
   formatDueNowCooldownPhrase,
   formatOnTrackCooldownPhrase,
   formatRelativeAgeFallbackPhrase,
+  formatRelativeAgeHoursPhrase,
   formatRelativeAgePhrase,
   normalizeCooldownCountdownValue,
 } from '@/config/aiInsights'
@@ -51,6 +52,13 @@ const formatRelativeInsightAge = (updatedAt: string): string => {
     return formatRelativeAgeFallbackPhrase({
       fallbackTemplate: relativeAgeConfig.fallbackTemplate,
       label: relativeAgeConfig.justNowLabel,
+    })
+  }
+
+  if (roundedAgeMinutes >= 60) {
+    return formatRelativeAgeHoursPhrase({
+      hoursAgoTemplate: relativeAgeConfig.hoursAgoTemplate,
+      hoursAgo: Math.floor(roundedAgeMinutes / 60),
     })
   }
 
