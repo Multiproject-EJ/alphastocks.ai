@@ -45,7 +45,9 @@
         "daysThresholdMinutes": 1440,
         "dayCountDivisorMinutes": 1440,
         "fallbackTemplate": "{label}",
-        "unavailableLabel": "Time unavailable"
+        "unavailableLabel": "Time unavailable",
+        "hoursThresholdMinutes": 60,
+        "daysThresholdMinutes": 1440
       },
       "staleCallout": {
         "title": "Stale insights detected",
