@@ -355,7 +355,9 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P6.42** ✅ Add config-first AI insights relative-age fallback-template override coverage in config normalization tests (small follow-up)
 - **P6.43** ✅ Add config-first AI insights fallback-template override coverage in modal relative-age rendering tests (small follow-up)
 - **P6.44** ✅ Add config-first AI insights just-now-label override coverage in config normalization tests (small follow-up)
-- **P6.45** ⏳ Add config-first AI insights just-now-label override coverage in modal relative-age rendering tests (small follow-up)
+- **P6.45** ✅ Add config-first AI insights just-now-label override coverage in modal relative-age rendering tests (small follow-up)
+- **P6.46** ✅ Wrap AI insights relative-age hardening track and queue the next non-test product slice (plan hygiene follow-up)
+- **P6.47** ⏳ Add config-first AI insights sort controls (freshness/confidence) in the dedicated modal (non-test product slice)
 
 ---
 
@@ -387,11 +389,23 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P6.45 — Add config-first AI insights just-now-label override coverage in modal relative-age rendering tests (small follow-up).**
+**Recommended next slice:** **P6.47 — Add config-first AI insights sort controls (freshness/confidence) in the dedicated modal (non-test product slice).**
 
 ## Progress Log (rolling)
-- **Done (latest):** P6.44 Add config-first AI insights just-now-label override coverage in config normalization tests (small follow-up).
-- **Next step:** P6.45 Add config-first AI insights just-now-label override coverage in modal relative-age rendering tests (small follow-up).
+- **Done (latest):** P6.46 Wrap AI insights relative-age hardening track and queue the next non-test product slice (plan hygiene follow-up).
+- **Next step:** P6.47 Add config-first AI insights sort controls (freshness/confidence) in the dedicated modal (non-test product slice).
+
+
+## P6.46 Slice Notes (AI insights relative-age hardening track wrap-up)
+- Closed the long P6.18–P6.45 AI insights relative-age hardening thread as complete after both config normalization and modal rendering guardrails were landed for every fallback token path.
+- Queued the first non-test product follow-up as P6.47 to rebalance this milestone toward player-facing progress while keeping the same config-first workflow.
+- Tightened the next-slice pointer language so future runs avoid extending this guardrail-only chain unless a regression appears.
+
+
+## P6.45 Slice Notes (AI insights relative-age just-now-label modal rendering coverage)
+- Added focused modal helper coverage asserting config-first `justNowLabel` overrides are applied when rendering zero-minute insight ages.
+- Used a custom fallback template in the modal test to verify the override is exercised through the same centralized fallback phrase path as production rendering.
+- Advanced the next slice pointer to a plan-hygiene wrap-up so this long AI insights guardrail sequence can close and hand off to the next non-test product slice.
 
 
 ## P6.44 Slice Notes (AI insights relative-age just-now-label config normalization coverage)

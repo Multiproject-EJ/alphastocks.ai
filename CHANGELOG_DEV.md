@@ -4064,3 +4064,38 @@
 
 **How to test:**
 - Run `npm test -- src/components/__tests__/AIInsightsModal.test.ts` inside `apps/investing-board-game-v3`.
+
+**Date:** 2026-02-12
+**Slice:** P6.45 AI insights relative-age just-now-label override coverage in modal rendering tests
+**Summary:**
+- Added focused modal formatter coverage to verify config-first `justNowLabel` overrides are reflected in rendered zero-minute relative-age copy.
+- Used a custom fallback template in the test to validate the just-now override through the same centralized fallback phrase path used by production rendering.
+- Updated `DEV_PLAN.md` to mark P6.45 complete, append P6.45 slice notes, and queue P6.46 as a plan-hygiene handoff slice.
+
+**Files changed:**
+- apps/investing-board-game-v3/src/components/__tests__/AIInsightsModal.test.ts
+- DEV_PLAN.md
+- CHANGELOG_DEV.md
+
+**SQL migrations:**
+- (none)
+
+**How to test:**
+- Run `npm test -- src/components/__tests__/AIInsightsModal.test.ts` inside `apps/investing-board-game-v3`.
+
+**Date:** 2026-02-12
+**Slice:** P6.46 AI insights relative-age hardening track wrap-up (plan hygiene)
+**Summary:**
+- Marked P6.46 complete in `DEV_PLAN.md` to formally close the AI insights relative-age hardening sequence (P6.18–P6.45).
+- Added wrap-up slice notes clarifying that the guardrail thread is complete and should not continue unless regression work is needed.
+- Queued P6.47 as the next actionable non-test product slice: config-first AI insights sort controls (freshness/confidence) in the dedicated modal.
+
+**Files changed:**
+- DEV_PLAN.md
+- CHANGELOG_DEV.md
+
+**SQL migrations:**
+- (none)
+
+**How to test:**
+- Documentation-only slice; verify `DEV_PLAN.md` Next Slice + Progress Log now point to P6.47.
