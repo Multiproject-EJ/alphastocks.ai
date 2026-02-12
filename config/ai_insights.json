@@ -30,6 +30,7 @@
     },
     "ctaLabel": "Request fresh insight",
     "resetFiltersLabel": "Reset all filters",
+    "hubEntrypointCopy": "Tap below to open the full AI Insights module with filters and freshness controls.",
     "freshness": {
       "label": "Data freshness",
       "freshLabel": "Fresh",

@@ -220,6 +220,9 @@ export function HubModal({
             >
               Open AI Insights panel
             </Button>
+            <p className="text-[11px] text-muted-foreground">
+              {AI_INSIGHTS_SURFACE.hubEntrypointCopy}
+            </p>
           </TabsContent>
         </Tabs>
       </DialogContent>
