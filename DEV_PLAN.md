@@ -357,7 +357,8 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P6.44** ✅ Add config-first AI insights just-now-label override coverage in config normalization tests (small follow-up)
 - **P6.45** ✅ Add config-first AI insights just-now-label override coverage in modal relative-age rendering tests (small follow-up)
 - **P6.46** ✅ Wrap AI insights relative-age hardening track and queue the next non-test product slice (plan hygiene follow-up)
-- **P6.47** ⏳ Add config-first AI insights sort controls (freshness/confidence) in the dedicated modal (non-test product slice)
+- **P6.47** ✅ Add config-first AI insights sort controls (freshness/confidence) in the dedicated modal (non-test product slice)
+- **P6.48** ⏳ Add config-first AI insights sort helper copy so active ordering intent is explicit in the modal
 
 ---
 
@@ -389,11 +390,17 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P6.47 — Add config-first AI insights sort controls (freshness/confidence) in the dedicated modal (non-test product slice).**
+**Recommended next slice:** **P6.48 — Add config-first AI insights sort helper copy so active ordering intent is explicit in the modal.**
 
 ## Progress Log (rolling)
-- **Done (latest):** P6.46 Wrap AI insights relative-age hardening track and queue the next non-test product slice (plan hygiene follow-up).
-- **Next step:** P6.47 Add config-first AI insights sort controls (freshness/confidence) in the dedicated modal (non-test product slice).
+- **Done (latest):** P6.47 Add config-first AI insights sort controls (freshness/confidence) in the dedicated modal (non-test product slice).
+- **Next step:** P6.48 Add config-first AI insights sort helper copy so active ordering intent is explicit in the modal.
+
+
+## P6.47 Slice Notes (AI insights sort controls)
+- Added config-first sort control metadata (`sortLabel`, `defaultSortId`, and `sortOptions`) so freshness/confidence ordering can be tuned without touching modal logic.
+- Wired dedicated modal sort chips that switch between freshness-first and confidence-first ordering while preserving deterministic tie-breakers.
+- Added focused config + modal helper tests for sort normalization guardrails and ordering behavior; queued P6.48 to add concise helper copy that surfaces the active sort intent to players.
 
 
 ## P6.46 Slice Notes (AI insights relative-age hardening track wrap-up)
