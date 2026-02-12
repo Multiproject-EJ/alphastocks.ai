@@ -295,6 +295,7 @@ export function TutorialTooltip() {
   if (typeof document === 'undefined') return null
 
   const step = tutorialSteps[currentStep]
+  const tooltipWidth = isPhone ? 'calc(100vw - 24px)' : 'min(90vw, 360px)'
 
   return createPortal(
     <AnimatePresence>
@@ -325,10 +326,16 @@ export function TutorialTooltip() {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
             ref={tooltipRef}
-            className="fixed z-[100] w-[min(90vw,360px)] rounded-2xl border border-white/10 bg-card/80 p-4 text-foreground shadow-[0_0_30px_rgba(99,102,241,0.25)] backdrop-blur-md"
+            className="fixed z-[100] rounded-2xl border border-white/10 bg-card/80 p-4 text-foreground shadow-[0_0_30px_rgba(99,102,241,0.25)] backdrop-blur-md"
             style={{
               left: position.x,
               top: position.y,
+              width: tooltipWidth,
+              maxWidth: '360px',
+              maxHeight: isPhone
+                ? 'calc(100vh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 24px)'
+                : undefined,
+              overflowY: isPhone ? 'auto' : undefined,
               transform:
                 placement === 'top'
                   ? 'translate(-50%, -100%)'
@@ -394,8 +401,8 @@ export function TutorialTooltip() {
               </div>
             )}
             
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex gap-1">
+            <div className={`flex gap-2 ${isPhone ? 'flex-col items-stretch' : 'items-center justify-between'}`}>
+              <div className="flex gap-1 justify-center">
                 {tutorialSteps.map((_, i) => (
                   <div
                     key={i}
@@ -406,7 +413,7 @@ export function TutorialTooltip() {
                 ))}
               </div>
               
-              <div className="flex gap-2">
+              <div className={`flex gap-2 ${isPhone ? 'flex-wrap justify-end' : ''}`}>
                 <Button
                   size="sm"
                   variant="ghost"
