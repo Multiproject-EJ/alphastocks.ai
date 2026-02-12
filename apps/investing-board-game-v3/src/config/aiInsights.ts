@@ -79,12 +79,16 @@ export type AIInsightsSurfaceConfig = {
     confidenceLabel: string
     sortLabel: string
     sortHelperTemplate: string
+    sortHelperContainerClass: string
+    sortHelperContainerFallbackToneClass: string
+    sortHelperTextClass: string
+    sortHelperTextWrapClass: string
     allHorizonLabel: string
     allConfidenceLabel: string
     defaultSortId: 'freshness' | 'confidence'
     horizons: { id: InsightHorizon, label: string }[]
     confidenceTiers: { id: string, label: string, min: number, max: number }[]
-    sortOptions: { id: 'freshness' | 'confidence', label: string, description: string }[]
+    sortOptions: { id: 'freshness' | 'confidence', label: string, description: string, helperToneClass: string, helperContainerToneClass: string }[]
   }
 }
 
@@ -160,6 +164,10 @@ const DEFAULT_AI_INSIGHTS_CONFIG: AIInsightsConfig = {
       confidenceLabel: 'Confidence',
       sortLabel: 'Sort by',
       sortHelperTemplate: 'Ordering: {description}',
+      sortHelperContainerClass: 'mt-1 rounded-md border px-2 py-1',
+      sortHelperContainerFallbackToneClass: 'border-border/60 bg-muted/20',
+      sortHelperTextClass: 'text-[11px]',
+      sortHelperTextWrapClass: 'leading-relaxed break-words',
       allHorizonLabel: 'All horizons',
       allConfidenceLabel: 'All confidence',
       defaultSortId: 'freshness',
@@ -174,8 +182,20 @@ const DEFAULT_AI_INSIGHTS_CONFIG: AIInsightsConfig = {
         { id: 'watch', label: 'Watch', min: 0, max: 0.59 },
       ],
       sortOptions: [
-        { id: 'freshness', label: 'Freshness', description: 'Newest updates first; confidence breaks ties.' },
-        { id: 'confidence', label: 'Confidence', description: 'Highest confidence first; freshness breaks ties.' },
+        {
+          id: 'freshness',
+          label: 'Freshness',
+          description: 'Newest updates first; confidence breaks ties.',
+          helperToneClass: 'text-sky-100/95',
+          helperContainerToneClass: 'border-sky-400/40 bg-sky-500/10',
+        },
+        {
+          id: 'confidence',
+          label: 'Confidence',
+          description: 'Highest confidence first; freshness breaks ties.',
+          helperToneClass: 'text-violet-100/95',
+          helperContainerToneClass: 'border-violet-400/40 bg-violet-500/10',
+        },
       ],
     },
   },
@@ -498,7 +518,9 @@ const coerceConfidenceTiers = (value: unknown): { id: string, label: string, min
   return tiers.length > 0 ? tiers : DEFAULT_AI_INSIGHTS_CONFIG.surface.filters.confidenceTiers
 }
 
-const coerceSortOptions = (value: unknown): { id: InsightSortId, label: string, description: string }[] => {
+const coerceSortOptions = (
+  value: unknown,
+): { id: InsightSortId, label: string, description: string, helperToneClass: string, helperContainerToneClass: string }[] => {
   if (!Array.isArray(value)) {
     return DEFAULT_AI_INSIGHTS_CONFIG.surface.filters.sortOptions
   }
@@ -509,7 +531,7 @@ const coerceSortOptions = (value: unknown): { id: InsightSortId, label: string, 
         return null
       }
 
-      const candidate = option as { id?: unknown, label?: unknown, description?: unknown }
+      const candidate = option as { id?: unknown, label?: unknown, description?: unknown, helperToneClass?: unknown, helperContainerToneClass?: unknown }
       if (!ALLOWED_SORT_IDS.includes(candidate.id as InsightSortId)) {
         return null
       }
@@ -523,9 +545,17 @@ const coerceSortOptions = (value: unknown): { id: InsightSortId, label: string, 
         id: candidate.id as InsightSortId,
         label: coerceString(candidate.label, String(candidate.id)),
         description: coerceString(candidate.description, fallbackDescription),
+        helperToneClass: coerceString(candidate.helperToneClass, fallbackOption?.helperToneClass ?? 'text-muted-foreground'),
+        helperContainerToneClass: coerceString(
+          candidate.helperContainerToneClass,
+          fallbackOption?.helperContainerToneClass ?? 'border-border/60 bg-muted/20',
+        ),
       }
     })
-    .filter((option): option is { id: InsightSortId, label: string, description: string } => option !== null)
+    .filter(
+      (option): option is { id: InsightSortId, label: string, description: string, helperToneClass: string, helperContainerToneClass: string } =>
+        option !== null,
+    )
 
   return options.length > 0 ? options : DEFAULT_AI_INSIGHTS_CONFIG.surface.filters.sortOptions
 }
@@ -802,6 +832,22 @@ const normalizeConfig = (config: unknown): AIInsightsConfig => {
         sortHelperTemplate: normalizeSortHelperTemplate(
           coerceString(candidate.surface?.filters?.sortHelperTemplate, DEFAULT_AI_INSIGHTS_CONFIG.surface.filters.sortHelperTemplate),
           DEFAULT_AI_INSIGHTS_CONFIG.surface.filters.sortHelperTemplate,
+        ),
+        sortHelperContainerClass: coerceString(
+          candidate.surface?.filters?.sortHelperContainerClass,
+          DEFAULT_AI_INSIGHTS_CONFIG.surface.filters.sortHelperContainerClass,
+        ),
+        sortHelperContainerFallbackToneClass: coerceString(
+          candidate.surface?.filters?.sortHelperContainerFallbackToneClass,
+          DEFAULT_AI_INSIGHTS_CONFIG.surface.filters.sortHelperContainerFallbackToneClass,
+        ),
+        sortHelperTextClass: coerceString(
+          candidate.surface?.filters?.sortHelperTextClass,
+          DEFAULT_AI_INSIGHTS_CONFIG.surface.filters.sortHelperTextClass,
+        ),
+        sortHelperTextWrapClass: coerceString(
+          candidate.surface?.filters?.sortHelperTextWrapClass,
+          DEFAULT_AI_INSIGHTS_CONFIG.surface.filters.sortHelperTextWrapClass,
         ),
         allHorizonLabel: coerceString(candidate.surface?.filters?.allHorizonLabel, DEFAULT_AI_INSIGHTS_CONFIG.surface.filters.allHorizonLabel),
         allConfidenceLabel: coerceString(candidate.surface?.filters?.allConfidenceLabel, DEFAULT_AI_INSIGHTS_CONFIG.surface.filters.allConfidenceLabel),

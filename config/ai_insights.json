@@ -106,14 +106,22 @@
         {
           "id": "freshness",
           "label": "Freshness",
-          "description": "Newest updates first; confidence breaks ties."
+          "description": "Newest updates first; confidence breaks ties.",
+          "helperToneClass": "text-sky-100/95",
+          "helperContainerToneClass": "border-sky-400/40 bg-sky-500/10"
         },
         {
           "id": "confidence",
           "label": "Confidence",
-          "description": "Highest confidence first; freshness breaks ties."
+          "description": "Highest confidence first; freshness breaks ties.",
+          "helperToneClass": "text-violet-100/95",
+          "helperContainerToneClass": "border-violet-400/40 bg-violet-500/10"
         }
-      ]
+      ],
+      "sortHelperContainerClass": "mt-1 rounded-md border px-2 py-1",
+      "sortHelperContainerFallbackToneClass": "border-border/60 bg-muted/20",
+      "sortHelperTextClass": "text-[11px]",
+      "sortHelperTextWrapClass": "leading-relaxed break-words"
     }
   },
   "fixtures": [

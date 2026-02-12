@@ -118,8 +118,11 @@ const formatAutoRefreshCopy = (template: string, minutes: number): string =>
   template.replace('{minutes}', String(normalizeCooldownCountdownValue(minutes)))
 
 
+export const getSortHelperOption = (sortId: InsightSortId) =>
+  AI_INSIGHTS_SURFACE.filters.sortOptions.find((option) => option.id === sortId)
+
 export const getSortHelperCopy = (sortId: InsightSortId): string => {
-  const activeSortOption = AI_INSIGHTS_SURFACE.filters.sortOptions.find((option) => option.id === sortId)
+  const activeSortOption = getSortHelperOption(sortId)
 
   if (!activeSortOption) {
     return formatSortHelperCopy({
@@ -168,6 +171,7 @@ export function AIInsightsModal({ open, onOpenChange }: AIInsightsModalProps) {
   const hasStaleInsights = visibleInsights.some(
     (insight) => getInsightAgeMinutes(insight.updatedAt) >= AI_INSIGHTS_SURFACE.freshness.staleAfterMinutes,
   )
+  const activeSortHelperOption = getSortHelperOption(activeSortId)
   const activeSortHelperCopy = getSortHelperCopy(activeSortId)
 
   const nextAutoRefreshInMinutes = useMemo(() => {
@@ -323,7 +327,9 @@ export function AIInsightsModal({ open, onOpenChange }: AIInsightsModalProps) {
                   </Button>
                 ))}
               </div>
-              <p className="mt-1 text-[11px] text-muted-foreground">{activeSortHelperCopy}</p>
+              <div className={`${AI_INSIGHTS_SURFACE.filters.sortHelperContainerClass} ${activeSortHelperOption?.helperContainerToneClass ?? AI_INSIGHTS_SURFACE.filters.sortHelperContainerFallbackToneClass}`}>
+                <p className={`${AI_INSIGHTS_SURFACE.filters.sortHelperTextClass} ${AI_INSIGHTS_SURFACE.filters.sortHelperTextWrapClass} ${activeSortHelperOption?.helperToneClass ?? 'text-muted-foreground'}`}>{activeSortHelperCopy}</p>
+              </div>
             </div>
           </div>
 
