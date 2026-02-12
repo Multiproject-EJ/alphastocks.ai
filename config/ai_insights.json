@@ -64,6 +64,7 @@
       "horizonLabel": "Horizon",
       "confidenceLabel": "Confidence",
       "sortLabel": "Sort by",
+      "sortHelperTemplate": "Ordering: {description}",
       "allHorizonLabel": "All horizons",
       "allConfidenceLabel": "All confidence",
       "defaultSortId": "freshness",
@@ -104,11 +105,13 @@
       "sortOptions": [
         {
           "id": "freshness",
-          "label": "Freshness"
+          "label": "Freshness",
+          "description": "Newest updates first; confidence breaks ties."
         },
         {
           "id": "confidence",
-          "label": "Confidence"
+          "label": "Confidence",
+          "description": "Highest confidence first; freshness breaks ties."
         }
       ]
     }

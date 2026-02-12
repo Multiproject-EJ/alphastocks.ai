@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { formatRelativeInsightAge, sortInsightsForDisplay } from '@/components/AIInsightsModal'
+import { formatRelativeInsightAge, getSortHelperCopy, sortInsightsForDisplay } from '@/components/AIInsightsModal'
 import { AI_INSIGHTS_SURFACE } from '@/lib/aiInsightsFixtures'
 
 const DEFAULT_RELATIVE_AGE_CONFIG = {
@@ -86,4 +86,13 @@ describe('AIInsightsModal sort controls', () => {
 
     expect(sorted.map((insight) => insight.id)).toEqual(['newer-high', 'older-high', 'low'])
   })
+
+  it('builds helper copy for freshness sort using config-first descriptions', () => {
+    expect(getSortHelperCopy('freshness')).toBe('Ordering: Newest updates first; confidence breaks ties.')
+  })
+
+  it('builds helper copy for confidence sort using config-first descriptions', () => {
+    expect(getSortHelperCopy('confidence')).toBe('Ordering: Highest confidence first; freshness breaks ties.')
+  })
+
 })

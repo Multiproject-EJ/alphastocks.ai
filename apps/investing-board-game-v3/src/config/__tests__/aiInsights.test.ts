@@ -23,7 +23,9 @@ import {
   formatRelativeAgeFallbackPhrase,
   formatRelativeAgeHoursPhrase,
   formatRelativeAgePhrase,
+  formatSortHelperCopy,
   normalizeCooldownCountdownValue,
+  normalizeSortHelperTemplate,
 } from '@/config/aiInsights'
 
 describe('aiInsights config', () => {
@@ -75,6 +77,7 @@ describe('aiInsights config', () => {
     expect(AI_INSIGHTS_SURFACE.freshness.staleCallout.title.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.freshness.staleCallout.description.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.filters.sortLabel.length).toBeGreaterThan(0)
+    expect(AI_INSIGHTS_SURFACE.filters.sortHelperTemplate).toContain('{description}')
     expect(AI_INSIGHTS_SURFACE.filters.defaultSortId.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.filters.sortOptions.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.emptyState.title.length).toBeGreaterThan(0)
@@ -100,8 +103,25 @@ describe('aiInsights config', () => {
     })
 
     expect(normalized.surface.filters.sortLabel).toBe('Sort by')
+    expect(normalized.surface.filters.sortHelperTemplate).toBe('Ordering: {description}')
     expect(normalized.surface.filters.defaultSortId).toBe('freshness')
     expect(normalized.surface.filters.sortOptions.map((option) => option.id)).toEqual(['freshness', 'confidence'])
+    expect(normalized.surface.filters.sortOptions[0].description).toBe('Newest updates first; confidence breaks ties.')
+  })
+
+  it('applies sort helper template guardrails for placeholder-safe copy', () => {
+    const fallback = 'Ordering: {description}'
+
+    expect(normalizeSortHelperTemplate('Now showing {description}', fallback)).toBe('Now showing {description}')
+    expect(normalizeSortHelperTemplate('Now showing', fallback)).toBe(fallback)
+    expect(normalizeSortHelperTemplate('', fallback)).toBe(fallback)
+  })
+
+  it('formats sort helper copy from config-first template + description', () => {
+    expect(formatSortHelperCopy({
+      template: 'Ordering: {description}',
+      description: 'Highest confidence first; freshness breaks ties.',
+    })).toBe('Ordering: Highest confidence first; freshness breaks ties.')
   })
   it('applies due-now countdown template guardrails for placeholder-safe copy', () => {
     const fallback = '{emphasis}{separator}{countdown}'

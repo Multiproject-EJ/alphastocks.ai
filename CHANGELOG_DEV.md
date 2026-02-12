@@ -1,4 +1,26 @@
 **Date:** 2026-02-12
+**Slice:** P6.48 AI insights sort helper copy
+**Summary:**
+- Added config-first sort helper copy tokens (`sortHelperTemplate` and per-option `description`) so ordering guidance text is data-driven instead of hardcoded.
+- Updated AI Insights modal sort controls to show helper copy for the active sort option so ordering intent is explicit for players.
+- Added focused config + modal helper tests covering sort-helper template guardrails and formatted helper-copy output.
+
+**Files changed:**
+- config/ai_insights.json
+- apps/investing-board-game-v3/src/config/aiInsights.ts
+- apps/investing-board-game-v3/src/components/AIInsightsModal.tsx
+- apps/investing-board-game-v3/src/config/__tests__/aiInsights.test.ts
+- apps/investing-board-game-v3/src/components/__tests__/AIInsightsModal.test.ts
+- DEV_PLAN.md
+- CHANGELOG_DEV.md
+
+**SQL migrations:**
+- (none)
+
+**How to test:**
+- `cd apps/investing-board-game-v3 && npm run test -- src/config/__tests__/aiInsights.test.ts src/components/__tests__/AIInsightsModal.test.ts`
+
+**Date:** 2026-02-12
 **Slice:** P6.35 AI insights relative-age day-count divisor token
 **Summary:**
 - Added config-first `dayCountDivisorMinutes` under AI insights relative-age settings so day-label math is tunable independently from threshold switching boundaries.
