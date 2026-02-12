@@ -16,6 +16,7 @@ import {
   formatRelativeAgeFallbackPhrase,
   formatRelativeAgeHoursPhrase,
   formatRelativeAgePhrase,
+  formatSortHelperCopy,
   normalizeCooldownCountdownValue,
 } from '@/config/aiInsights'
 import { Sparkle } from '@phosphor-icons/react'
@@ -116,6 +117,23 @@ export const formatRelativeInsightAge = (updatedAt: string): string => {
 const formatAutoRefreshCopy = (template: string, minutes: number): string =>
   template.replace('{minutes}', String(normalizeCooldownCountdownValue(minutes)))
 
+
+export const getSortHelperCopy = (sortId: InsightSortId): string => {
+  const activeSortOption = AI_INSIGHTS_SURFACE.filters.sortOptions.find((option) => option.id === sortId)
+
+  if (!activeSortOption) {
+    return formatSortHelperCopy({
+      template: AI_INSIGHTS_SURFACE.filters.sortHelperTemplate,
+      description: '',
+    }).trim()
+  }
+
+  return formatSortHelperCopy({
+    template: AI_INSIGHTS_SURFACE.filters.sortHelperTemplate,
+    description: activeSortOption.description,
+  })
+}
+
 const getCooldownTone = (nextAutoRefreshInMinutes: number): 'on-track' | 'due-now' =>
   nextAutoRefreshInMinutes <= 0 ? 'due-now' : 'on-track'
 
@@ -150,6 +168,7 @@ export function AIInsightsModal({ open, onOpenChange }: AIInsightsModalProps) {
   const hasStaleInsights = visibleInsights.some(
     (insight) => getInsightAgeMinutes(insight.updatedAt) >= AI_INSIGHTS_SURFACE.freshness.staleAfterMinutes,
   )
+  const activeSortHelperCopy = getSortHelperCopy(activeSortId)
 
   const nextAutoRefreshInMinutes = useMemo(() => {
     const finiteAges = visibleInsights
@@ -304,6 +323,7 @@ export function AIInsightsModal({ open, onOpenChange }: AIInsightsModalProps) {
                   </Button>
                 ))}
               </div>
+              <p className="mt-1 text-[11px] text-muted-foreground">{activeSortHelperCopy}</p>
             </div>
           </div>
 

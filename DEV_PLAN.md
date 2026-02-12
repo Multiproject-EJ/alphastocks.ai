@@ -358,7 +358,8 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P6.45** ✅ Add config-first AI insights just-now-label override coverage in modal relative-age rendering tests (small follow-up)
 - **P6.46** ✅ Wrap AI insights relative-age hardening track and queue the next non-test product slice (plan hygiene follow-up)
 - **P6.47** ✅ Add config-first AI insights sort controls (freshness/confidence) in the dedicated modal (non-test product slice)
-- **P6.48** ⏳ Add config-first AI insights sort helper copy so active ordering intent is explicit in the modal
+- **P6.48** ✅ Add config-first AI insights sort helper copy so active ordering intent is explicit in the modal
+- **P6.49** ⏳ Add config-first AI insights sort helper tone classes so ordering guidance remains readable across states
 
 ---
 
@@ -390,11 +391,18 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P6.48 — Add config-first AI insights sort helper copy so active ordering intent is explicit in the modal.**
+**Recommended next slice:** **P6.49 — Add config-first AI insights sort helper tone classes so ordering guidance remains readable across states.**
 
 ## Progress Log (rolling)
-- **Done (latest):** P6.47 Add config-first AI insights sort controls (freshness/confidence) in the dedicated modal (non-test product slice).
-- **Next step:** P6.48 Add config-first AI insights sort helper copy so active ordering intent is explicit in the modal.
+- **Done (latest):** P6.48 Add config-first AI insights sort helper copy so active ordering intent is explicit in the modal.
+- **Next step:** P6.49 Add config-first AI insights sort helper tone classes so ordering guidance remains readable across states.
+
+
+
+## P6.48 Slice Notes (AI insights sort helper copy)
+- Added config-first sort helper metadata (`sortHelperTemplate` + per-sort `description`) so ordering guidance text can be tuned without editing modal logic.
+- Wired dedicated modal helper copy beneath sort chips so players can always see whether freshness or confidence is currently prioritized.
+- Expanded config + modal helper coverage for sort-helper template guardrails and formatted helper-copy output, and queued P6.49 for small tone-class polish.
 
 
 ## P6.47 Slice Notes (AI insights sort controls)

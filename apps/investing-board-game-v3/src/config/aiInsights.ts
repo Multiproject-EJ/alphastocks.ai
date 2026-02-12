@@ -78,12 +78,13 @@ export type AIInsightsSurfaceConfig = {
     horizonLabel: string
     confidenceLabel: string
     sortLabel: string
+    sortHelperTemplate: string
     allHorizonLabel: string
     allConfidenceLabel: string
     defaultSortId: 'freshness' | 'confidence'
     horizons: { id: InsightHorizon, label: string }[]
     confidenceTiers: { id: string, label: string, min: number, max: number }[]
-    sortOptions: { id: 'freshness' | 'confidence', label: string }[]
+    sortOptions: { id: 'freshness' | 'confidence', label: string, description: string }[]
   }
 }
 
@@ -158,6 +159,7 @@ const DEFAULT_AI_INSIGHTS_CONFIG: AIInsightsConfig = {
       horizonLabel: 'Horizon',
       confidenceLabel: 'Confidence',
       sortLabel: 'Sort by',
+      sortHelperTemplate: 'Ordering: {description}',
       allHorizonLabel: 'All horizons',
       allConfidenceLabel: 'All confidence',
       defaultSortId: 'freshness',
@@ -172,8 +174,8 @@ const DEFAULT_AI_INSIGHTS_CONFIG: AIInsightsConfig = {
         { id: 'watch', label: 'Watch', min: 0, max: 0.59 },
       ],
       sortOptions: [
-        { id: 'freshness', label: 'Freshness' },
-        { id: 'confidence', label: 'Confidence' },
+        { id: 'freshness', label: 'Freshness', description: 'Newest updates first; confidence breaks ties.' },
+        { id: 'confidence', label: 'Confidence', description: 'Highest confidence first; freshness breaks ties.' },
       ],
     },
   },
@@ -206,6 +208,7 @@ const MINUTES_TEMPLATE_TOKENS = ['{minutes}'] as const
 const HOURS_TEMPLATE_TOKENS = ['{hours}'] as const
 const DAYS_TEMPLATE_TOKENS = ['{days}'] as const
 const FALLBACK_TEMPLATE_TOKENS = ['{label}'] as const
+const SORT_HELPER_TEMPLATE_TOKENS = ['{description}'] as const
 const DEFAULT_DAYS_TEMPLATE_FALLBACK = '{days}d ago'
 const DEFAULT_HOURS_THRESHOLD_MINUTES = 60
 const DEFAULT_DAYS_THRESHOLD_MINUTES = 1440
@@ -495,7 +498,7 @@ const coerceConfidenceTiers = (value: unknown): { id: string, label: string, min
   return tiers.length > 0 ? tiers : DEFAULT_AI_INSIGHTS_CONFIG.surface.filters.confidenceTiers
 }
 
-const coerceSortOptions = (value: unknown): { id: InsightSortId, label: string }[] => {
+const coerceSortOptions = (value: unknown): { id: InsightSortId, label: string, description: string }[] => {
   if (!Array.isArray(value)) {
     return DEFAULT_AI_INSIGHTS_CONFIG.surface.filters.sortOptions
   }
@@ -506,19 +509,36 @@ const coerceSortOptions = (value: unknown): { id: InsightSortId, label: string }
         return null
       }
 
-      const candidate = option as { id?: unknown, label?: unknown }
+      const candidate = option as { id?: unknown, label?: unknown, description?: unknown }
       if (!ALLOWED_SORT_IDS.includes(candidate.id as InsightSortId)) {
         return null
       }
 
+      const fallbackOption = DEFAULT_AI_INSIGHTS_CONFIG.surface.filters.sortOptions.find(
+        (defaultOption) => defaultOption.id === candidate.id,
+      )
+      const fallbackDescription = fallbackOption ? fallbackOption.description : String(candidate.id)
+
       return {
         id: candidate.id as InsightSortId,
         label: coerceString(candidate.label, String(candidate.id)),
+        description: coerceString(candidate.description, fallbackDescription),
       }
     })
-    .filter((option): option is { id: InsightSortId, label: string } => option !== null)
+    .filter((option): option is { id: InsightSortId, label: string, description: string } => option !== null)
 
   return options.length > 0 ? options : DEFAULT_AI_INSIGHTS_CONFIG.surface.filters.sortOptions
+}
+
+export const normalizeSortHelperTemplate = (template: string, fallback: string): string => {
+  const normalizedTemplate = coerceString(template, fallback)
+  const hasAllTokens = SORT_HELPER_TEMPLATE_TOKENS.every((token) => normalizedTemplate.includes(token))
+
+  return hasAllTokens ? normalizedTemplate : fallback
+}
+
+export const formatSortHelperCopy = ({ template, description }: { template: string, description: string }): string => {
+  return template.replace('{description}', description)
 }
 
 const coerceDefaultSortId = (value: unknown): InsightSortId => {
@@ -779,6 +799,10 @@ const normalizeConfig = (config: unknown): AIInsightsConfig => {
         horizonLabel: coerceString(candidate.surface?.filters?.horizonLabel, DEFAULT_AI_INSIGHTS_CONFIG.surface.filters.horizonLabel),
         confidenceLabel: coerceString(candidate.surface?.filters?.confidenceLabel, DEFAULT_AI_INSIGHTS_CONFIG.surface.filters.confidenceLabel),
         sortLabel: coerceString(candidate.surface?.filters?.sortLabel, DEFAULT_AI_INSIGHTS_CONFIG.surface.filters.sortLabel),
+        sortHelperTemplate: normalizeSortHelperTemplate(
+          coerceString(candidate.surface?.filters?.sortHelperTemplate, DEFAULT_AI_INSIGHTS_CONFIG.surface.filters.sortHelperTemplate),
+          DEFAULT_AI_INSIGHTS_CONFIG.surface.filters.sortHelperTemplate,
+        ),
         allHorizonLabel: coerceString(candidate.surface?.filters?.allHorizonLabel, DEFAULT_AI_INSIGHTS_CONFIG.surface.filters.allHorizonLabel),
         allConfidenceLabel: coerceString(candidate.surface?.filters?.allConfidenceLabel, DEFAULT_AI_INSIGHTS_CONFIG.surface.filters.allConfidenceLabel),
         defaultSortId: coerceDefaultSortId(candidate.surface?.filters?.defaultSortId),
