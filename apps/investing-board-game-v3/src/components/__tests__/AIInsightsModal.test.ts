@@ -53,4 +53,14 @@ describe('AIInsightsModal relative age rendering', () => {
     expect(formatRelativeInsightAge('2026-02-12T12:00:00.000Z')).toBe('Updated Just now')
     expect(formatRelativeInsightAge('not-a-timestamp')).toBe('Updated Feed offline')
   })
+
+  it('renders just-now copy from config-first label overrides', () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-02-12T12:00:00.000Z'))
+
+    AI_INSIGHTS_SURFACE.freshness.relativeAge.fallbackTemplate = 'Status: {label}'
+    AI_INSIGHTS_SURFACE.freshness.relativeAge.justNowLabel = 'Moments ago'
+
+    expect(formatRelativeInsightAge('2026-02-12T12:00:00.000Z')).toBe('Status: Moments ago')
+  })
 })
