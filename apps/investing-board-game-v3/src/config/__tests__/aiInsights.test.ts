@@ -78,8 +78,13 @@ describe('aiInsights config', () => {
     expect(AI_INSIGHTS_SURFACE.freshness.staleCallout.description.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.filters.sortLabel.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.filters.sortHelperTemplate).toContain('{description}')
+    expect(AI_INSIGHTS_SURFACE.filters.sortHelperContainerClass.length).toBeGreaterThan(0)
+    expect(AI_INSIGHTS_SURFACE.filters.sortHelperContainerFallbackToneClass.length).toBeGreaterThan(0)
+    expect(AI_INSIGHTS_SURFACE.filters.sortHelperTextClass.length).toBeGreaterThan(0)
+    expect(AI_INSIGHTS_SURFACE.filters.sortHelperTextWrapClass.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.filters.defaultSortId.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.filters.sortOptions.length).toBeGreaterThan(0)
+    expect(AI_INSIGHTS_SURFACE.filters.sortOptions.every((option) => option.helperToneClass.length > 0)).toBe(true)
     expect(AI_INSIGHTS_SURFACE.emptyState.title.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.emptyState.description.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.emptyState.ctaLabel.length).toBeGreaterThan(0)
@@ -94,7 +99,17 @@ describe('aiInsights config', () => {
         filters: {
           sortLabel: '',
           defaultSortId: 'invalid-sort',
+          sortHelperTextClass: '',
+          sortHelperTextWrapClass: '',
           sortOptions: [
+            {
+              id: 'freshness',
+              label: 'Newest',
+              description: 'Latest first.',
+              helperToneClass: 'text-cyan-100',
+              helperContainerToneClass: 'border-cyan-400/40 bg-cyan-500/10',
+            },
+            { id: 'confidence', label: 'Most certain', description: '', helperToneClass: '', helperContainerToneClass: '' },
             { id: 'unknown', label: 'Ignore me' },
           ],
         },
@@ -104,9 +119,17 @@ describe('aiInsights config', () => {
 
     expect(normalized.surface.filters.sortLabel).toBe('Sort by')
     expect(normalized.surface.filters.sortHelperTemplate).toBe('Ordering: {description}')
+    expect(normalized.surface.filters.sortHelperContainerClass).toBe('mt-1 rounded-md border px-2 py-1')
+    expect(normalized.surface.filters.sortHelperContainerFallbackToneClass).toBe('border-border/60 bg-muted/20')
+    expect(normalized.surface.filters.sortHelperTextClass).toBe('text-[11px]')
+    expect(normalized.surface.filters.sortHelperTextWrapClass).toBe('leading-relaxed break-words')
     expect(normalized.surface.filters.defaultSortId).toBe('freshness')
     expect(normalized.surface.filters.sortOptions.map((option) => option.id)).toEqual(['freshness', 'confidence'])
-    expect(normalized.surface.filters.sortOptions[0].description).toBe('Newest updates first; confidence breaks ties.')
+    expect(normalized.surface.filters.sortOptions[0].description).toBe('Latest first.')
+    expect(normalized.surface.filters.sortOptions[0].helperToneClass).toBe('text-cyan-100')
+    expect(normalized.surface.filters.sortOptions[1].helperToneClass).toBe('text-violet-100/95')
+    expect(normalized.surface.filters.sortOptions[0].helperContainerToneClass).toBe('border-cyan-400/40 bg-cyan-500/10')
+    expect(normalized.surface.filters.sortOptions[1].helperContainerToneClass).toBe('border-violet-400/40 bg-violet-500/10')
   })
 
   it('applies sort helper template guardrails for placeholder-safe copy', () => {

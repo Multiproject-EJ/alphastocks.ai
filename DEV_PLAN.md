@@ -359,7 +359,11 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P6.46** ✅ Wrap AI insights relative-age hardening track and queue the next non-test product slice (plan hygiene follow-up)
 - **P6.47** ✅ Add config-first AI insights sort controls (freshness/confidence) in the dedicated modal (non-test product slice)
 - **P6.48** ✅ Add config-first AI insights sort helper copy so active ordering intent is explicit in the modal
-- **P6.49** ⏳ Add config-first AI insights sort helper tone classes so ordering guidance remains readable across states
+- **P6.49** ✅ Add config-first AI insights sort helper tone classes so ordering guidance remains readable across states
+- **P6.50** ✅ Add config-first AI insights sort helper container classes so helper callouts keep consistent spacing across tone states
+- **P6.51** ✅ Add config-first AI insights sort helper text-size token so helper readability can be tuned per surface
+- **P6.52** ✅ Add config-first AI insights sort helper text-wrap token so long helper copy remains readable on narrow mobile widths
+- **P6.53** ⏳ Add config-first AI insights entrypoint copy token in Hub Insights tab so players immediately know where to open the full module
 
 ---
 
@@ -391,12 +395,36 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P6.49 — Add config-first AI insights sort helper tone classes so ordering guidance remains readable across states.**
+**Recommended next slice:** **P6.53 — Add config-first AI insights entrypoint copy token in Hub Insights tab so players immediately know where to open the full module.**
 
 ## Progress Log (rolling)
-- **Done (latest):** P6.48 Add config-first AI insights sort helper copy so active ordering intent is explicit in the modal.
-- **Next step:** P6.49 Add config-first AI insights sort helper tone classes so ordering guidance remains readable across states.
+- **Done (latest):** P6.52 Add config-first AI insights sort helper text-wrap token so long helper copy remains readable on narrow mobile widths.
+- **Next step:** P6.53 Add config-first AI insights entrypoint copy token in Hub Insights tab so players immediately know where to open the full module.
 
+
+
+## P6.52 Slice Notes (AI insights sort helper text-wrap token)
+- Added config-first `sortHelperTextWrapClass` under AI insights filters so long sort-helper guidance can wrap cleanly on narrow mobile layouts without modal rewrites.
+- Updated the AI Insights modal helper callout to apply the wrap token alongside existing text-size/tone/container tokens for consistent readability.
+- Expanded config + modal helper tests for wrap-token defaults/fallbacks and queued P6.53 to improve module entrypoint copy in the Hub Insights tab.
+
+
+## P6.51 Slice Notes (AI insights sort helper text-size token)
+- Added config-first `sortHelperTextClass` under AI insights filters so helper text sizing can be tuned per surface without editing modal markup.
+- Updated the AI Insights modal sort-helper callout to use the shared text class token while keeping per-sort tone classes intact.
+- Expanded config + modal helper tests for token defaults/normalization and queued P6.52 for a text-wrap follow-up on narrow mobile widths.
+
+
+## P6.50 Slice Notes (AI insights sort helper container classes)
+- Added config-first sort-helper container tokens (`sortHelperContainerClass` + `sortHelperContainerFallbackToneClass`) so helper callout spacing/base chrome stays centralized outside modal markup.
+- Added per-sort `helperContainerToneClass` tokens and applied them in the dedicated modal so freshness/confidence helper callouts keep consistent spacing while switching tone treatments.
+- Expanded config + modal helper coverage for helper-container class normalization and per-sort container tone resolution, and queued P6.51 for small text-size token follow-up polish.
+
+
+## P6.49 Slice Notes (AI insights sort helper tone classes)
+- Added config-first `helperToneClass` tokens to AI insight sort options so helper copy styling can shift with freshness/confidence context without modal rewrites.
+- Updated AI Insights modal sort-helper rendering to apply the active sort option tone class while preserving a muted fallback for unknown sort IDs.
+- Expanded config + modal helper test coverage for tone-class normalization and active sort tone resolution, and queued P6.50 for lightweight helper-container class follow-up polish.
 
 
 ## P6.48 Slice Notes (AI insights sort helper copy)

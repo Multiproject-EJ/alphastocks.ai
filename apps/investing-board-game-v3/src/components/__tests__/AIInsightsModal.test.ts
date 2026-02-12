@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { formatRelativeInsightAge, getSortHelperCopy, sortInsightsForDisplay } from '@/components/AIInsightsModal'
+import { formatRelativeInsightAge, getSortHelperCopy, getSortHelperOption, sortInsightsForDisplay } from '@/components/AIInsightsModal'
 import { AI_INSIGHTS_SURFACE } from '@/lib/aiInsightsFixtures'
 
 const DEFAULT_RELATIVE_AGE_CONFIG = {
@@ -93,6 +93,25 @@ describe('AIInsightsModal sort controls', () => {
 
   it('builds helper copy for confidence sort using config-first descriptions', () => {
     expect(getSortHelperCopy('confidence')).toBe('Ordering: Highest confidence first; freshness breaks ties.')
+  })
+
+  it('resolves helper tone classes from config-first sort options', () => {
+    expect(getSortHelperOption('freshness')?.helperToneClass).toBe('text-sky-100/95')
+    expect(getSortHelperOption('confidence')?.helperToneClass).toBe('text-violet-100/95')
+  })
+
+  it('resolves helper container tone classes from config-first sort options', () => {
+    expect(getSortHelperOption('freshness')?.helperContainerToneClass).toBe('border-sky-400/40 bg-sky-500/10')
+    expect(getSortHelperOption('confidence')?.helperContainerToneClass).toBe('border-violet-400/40 bg-violet-500/10')
+  })
+
+
+  it('uses config-first sort helper text-size class token defaults', () => {
+    expect(AI_INSIGHTS_SURFACE.filters.sortHelperTextClass).toBe('text-[11px]')
+  })
+
+  it('uses config-first sort helper wrap class token defaults for narrow screens', () => {
+    expect(AI_INSIGHTS_SURFACE.filters.sortHelperTextWrapClass).toBe('leading-relaxed break-words')
   })
 
 })

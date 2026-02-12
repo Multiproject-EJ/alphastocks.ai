@@ -4121,3 +4121,91 @@
 
 **How to test:**
 - Documentation-only slice; verify `DEV_PLAN.md` Next Slice + Progress Log now point to P6.47.
+
+**Date:** 2026-02-12
+**Slice:** P6.49 AI insights sort helper tone classes
+**Summary:**
+- Added config-first `helperToneClass` fields to AI insight sort options so helper guidance styling can be tuned per sort mode.
+- Updated the AI Insights modal to resolve the active sort option and apply the corresponding helper tone class with a muted fallback.
+- Expanded config + modal helper tests to cover helper tone class normalization and active sort tone resolution.
+
+**Files changed:**
+- config/ai_insights.json
+- apps/investing-board-game-v3/src/config/aiInsights.ts
+- apps/investing-board-game-v3/src/config/__tests__/aiInsights.test.ts
+- apps/investing-board-game-v3/src/components/AIInsightsModal.tsx
+- apps/investing-board-game-v3/src/components/__tests__/AIInsightsModal.test.ts
+- DEV_PLAN.md
+- CHANGELOG_DEV.md
+
+**SQL migrations:**
+- (none)
+
+**How to test:**
+- Run `npm test -- src/config/__tests__/aiInsights.test.ts src/components/__tests__/AIInsightsModal.test.ts` inside `apps/investing-board-game-v3`.
+
+**Date:** 2026-02-12
+**Slice:** P6.50 AI insights sort helper container classes
+**Summary:**
+- Added config-first sort helper container tokens (`sortHelperContainerClass` + `sortHelperContainerFallbackToneClass`) so helper callout spacing/chrome is centrally tunable.
+- Added per-sort `helperContainerToneClass` values and wired the AI Insights modal helper callout to apply the active sort container tone class with a fallback tone.
+- Expanded config + modal helper test coverage to validate helper container class normalization and per-sort container tone resolution.
+
+**Files changed:**
+- config/ai_insights.json
+- apps/investing-board-game-v3/src/config/aiInsights.ts
+- apps/investing-board-game-v3/src/config/__tests__/aiInsights.test.ts
+- apps/investing-board-game-v3/src/components/AIInsightsModal.tsx
+- apps/investing-board-game-v3/src/components/__tests__/AIInsightsModal.test.ts
+- DEV_PLAN.md
+- CHANGELOG_DEV.md
+
+**SQL migrations:**
+- (none)
+
+**How to test:**
+- Run `npm test -- src/config/__tests__/aiInsights.test.ts src/components/__tests__/AIInsightsModal.test.ts` inside `apps/investing-board-game-v3`.
+
+**Date:** 2026-02-12
+**Slice:** P6.51 AI insights sort helper text-size token
+**Summary:**
+- Added config-first `sortHelperTextClass` token to AI insights filters so helper text size/readability can be tuned without touching modal markup.
+- Updated the AI Insights modal sort-helper callout text class to consume the new config token while preserving per-sort helper tone behavior.
+- Expanded config + modal helper tests to validate token default/fallback behavior and surface-level text-size token availability.
+
+**Files changed:**
+- config/ai_insights.json
+- apps/investing-board-game-v3/src/config/aiInsights.ts
+- apps/investing-board-game-v3/src/config/__tests__/aiInsights.test.ts
+- apps/investing-board-game-v3/src/components/AIInsightsModal.tsx
+- apps/investing-board-game-v3/src/components/__tests__/AIInsightsModal.test.ts
+- DEV_PLAN.md
+- CHANGELOG_DEV.md
+
+**SQL migrations:**
+- (none)
+
+**How to test:**
+- Run `npm test -- src/config/__tests__/aiInsights.test.ts src/components/__tests__/AIInsightsModal.test.ts` inside `apps/investing-board-game-v3`.
+
+**Date:** 2026-02-12
+**Slice:** P6.52 AI insights sort helper text-wrap token
+**Summary:**
+- Added config-first `sortHelperTextWrapClass` token to AI insights filters so long helper text can wrap/read cleanly on narrow mobile widths.
+- Updated the AI Insights modal helper callout text class stack to include the wrap token while preserving existing text-size + tone/container styling behavior.
+- Expanded config + modal helper tests to cover wrap token defaults/fallback normalization and token availability on the AI insights surface config.
+
+**Files changed:**
+- config/ai_insights.json
+- apps/investing-board-game-v3/src/config/aiInsights.ts
+- apps/investing-board-game-v3/src/config/__tests__/aiInsights.test.ts
+- apps/investing-board-game-v3/src/components/AIInsightsModal.tsx
+- apps/investing-board-game-v3/src/components/__tests__/AIInsightsModal.test.ts
+- DEV_PLAN.md
+- CHANGELOG_DEV.md
+
+**SQL migrations:**
+- (none)
+
+**How to test:**
+- Run `npm test -- src/config/__tests__/aiInsights.test.ts src/components/__tests__/AIInsightsModal.test.ts` inside `apps/investing-board-game-v3`.
