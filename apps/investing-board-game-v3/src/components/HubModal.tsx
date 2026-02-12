@@ -218,7 +218,7 @@ export function HubModal({
                 onOpenAIInsights?.()
               }}
             >
-              Open AI Insights panel
+              {AI_INSIGHTS_SURFACE.hubEntrypointCtaLabel}
             </Button>
             <p className="text-[11px] text-muted-foreground">
               {AI_INSIGHTS_SURFACE.hubEntrypointCopy}

@@ -45,6 +45,7 @@ export type AIInsightsSurfaceConfig = {
   ctaLabel: string
   resetFiltersLabel: string
   hubEntrypointCopy: string
+  hubEntrypointCtaLabel: string
   freshness: {
     label: string
     freshLabel: string
@@ -131,6 +132,7 @@ const DEFAULT_AI_INSIGHTS_CONFIG: AIInsightsConfig = {
     ctaLabel: 'Request fresh insight',
     resetFiltersLabel: 'Reset all filters',
     hubEntrypointCopy: 'Tap below to open the full AI Insights module with filters and freshness controls.',
+    hubEntrypointCtaLabel: 'Open AI Insights panel',
     freshness: {
       label: 'Data freshness',
       freshLabel: 'Fresh',
@@ -758,6 +760,10 @@ const normalizeConfig = (config: unknown): AIInsightsConfig => {
       hubEntrypointCopy: coerceString(
         candidate.surface?.hubEntrypointCopy,
         DEFAULT_AI_INSIGHTS_CONFIG.surface.hubEntrypointCopy,
+      ),
+      hubEntrypointCtaLabel: coerceString(
+        candidate.surface?.hubEntrypointCtaLabel,
+        DEFAULT_AI_INSIGHTS_CONFIG.surface.hubEntrypointCtaLabel,
       ),
       freshness: {
         label: coerceString(candidate.surface?.freshness?.label, DEFAULT_AI_INSIGHTS_CONFIG.surface.freshness.label),

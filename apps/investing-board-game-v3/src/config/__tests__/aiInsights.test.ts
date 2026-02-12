@@ -56,6 +56,7 @@ describe('aiInsights config', () => {
 
     expect(AI_INSIGHTS_SURFACE.resetFiltersLabel.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.hubEntrypointCopy.length).toBeGreaterThan(0)
+    expect(AI_INSIGHTS_SURFACE.hubEntrypointCtaLabel.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.freshness.label.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.freshness.freshLabel.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.freshness.staleLabel.length).toBeGreaterThan(0)
@@ -131,6 +132,17 @@ describe('aiInsights config', () => {
     expect(normalized.surface.filters.sortOptions[1].helperToneClass).toBe('text-violet-100/95')
     expect(normalized.surface.filters.sortOptions[0].helperContainerToneClass).toBe('border-cyan-400/40 bg-cyan-500/10')
     expect(normalized.surface.filters.sortOptions[1].helperContainerToneClass).toBe('border-violet-400/40 bg-violet-500/10')
+  })
+
+  it('applies hub entrypoint CTA label fallback in normalization output', () => {
+    const normalized = normalizeAIInsightsConfig({
+      surface: {
+        hubEntrypointCtaLabel: '',
+      },
+      fixtures: AI_INSIGHTS_FIXTURES,
+    })
+
+    expect(normalized.surface.hubEntrypointCtaLabel).toBe('Open AI Insights panel')
   })
 
   it('applies hub entrypoint copy fallback in normalization output', () => {

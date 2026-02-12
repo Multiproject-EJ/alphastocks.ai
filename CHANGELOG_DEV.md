@@ -1,4 +1,25 @@
 **Date:** 2026-02-12
+**Slice:** P6.54 AI insights Hub entrypoint CTA label token
+**Summary:**
+- Added config-first `hubEntrypointCtaLabel` to the AI insights surface config so Hub launch button copy is tunable without component edits.
+- Updated the Hub Insights tab CTA button text to render from the new config token while keeping existing helper copy behavior intact.
+- Expanded AI insights config normalization coverage with a fallback test for blank CTA-label overrides.
+
+**Files changed:**
+- config/ai_insights.json
+- apps/investing-board-game-v3/src/config/aiInsights.ts
+- apps/investing-board-game-v3/src/components/HubModal.tsx
+- apps/investing-board-game-v3/src/config/__tests__/aiInsights.test.ts
+- DEV_PLAN.md
+- CHANGELOG_DEV.md
+
+**SQL migrations:**
+- (none)
+
+**How to test:**
+- `cd apps/investing-board-game-v3 && npm run test -- src/config/__tests__/aiInsights.test.ts`
+
+**Date:** 2026-02-12
 **Slice:** P6.48 AI insights sort helper copy
 **Summary:**
 - Added config-first sort helper copy tokens (`sortHelperTemplate` and per-option `description`) so ordering guidance text is data-driven instead of hardcoded.

@@ -55,7 +55,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 - `AI_IMPLEMENTATION.md`, `IMPLEMENTATION_SUMMARY.md`, `DEVLOG.md` (project-wide status/context)
 
 ### Repo Map (paths verified)
-_Last reviewed: 2026-02-12 (Market Blackjack payout tuning + odds helper)_
+_Last reviewed: 2026-02-12 (AI insights Hub entrypoint CTA label token)_
 #### Frontend
 - **Legacy static pages entry:** `/index.html`, `/about.html`, `/faq.html`, `/monthly/`, `/weekly/`, `/superinvestor/`
 - **Vite + Preact app:** `/apps/investing-board-game-v3` (built into `/public/board-game-v3` via `npm run build:board-game-v3`)
@@ -364,7 +364,8 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P6.51** ✅ Add config-first AI insights sort helper text-size token so helper readability can be tuned per surface
 - **P6.52** ✅ Add config-first AI insights sort helper text-wrap token so long helper copy remains readable on narrow mobile widths
 - **P6.53** ✅ Add config-first AI insights entrypoint copy token in Hub Insights tab so players immediately know where to open the full module
-- **P6.54** ⏳ Add config-first AI insights entrypoint CTA label token in Hub Insights tab so launch copy is tunable without modal edits
+- **P6.54** ✅ Add config-first AI insights entrypoint CTA label token in Hub Insights tab so launch copy is tunable without modal edits
+- **P6.55** ⏳ Add config-first AI insights entrypoint helper text tone class token in Hub Insights tab so supporting copy readability is tunable without component edits
 
 ---
 
@@ -396,12 +397,18 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P6.54 — Add config-first AI insights entrypoint CTA label token in Hub Insights tab so launch copy is tunable without modal edits.**
+**Recommended next slice:** **P6.55 — Add config-first AI insights entrypoint helper text tone class token in Hub Insights tab so supporting copy readability is tunable without component edits.**
 
 ## Progress Log (rolling)
-- **Done (latest):** P6.53 Add config-first AI insights entrypoint copy token in Hub Insights tab so players immediately know where to open the full module.
-- **Next step:** P6.54 Add config-first AI insights entrypoint CTA label token in Hub Insights tab so launch copy is tunable without modal edits.
+- **Done (latest):** P6.54 Add config-first AI insights entrypoint CTA label token in Hub Insights tab so launch copy is tunable without modal edits.
+- **Next step:** P6.55 Add config-first AI insights entrypoint helper text tone class token in Hub Insights tab so supporting copy readability is tunable without component edits.
 
+
+
+## P6.54 Slice Notes (AI insights Hub entrypoint CTA label token)
+- Added config-first `hubEntrypointCtaLabel` under the AI insights surface config so Hub launch-button text is tunable without touching component markup.
+- Updated the Hub Insights tab launch button to render the config token, keeping mobile-first entrypoint copy centralized with existing helper text tokens.
+- Expanded AI insights config normalization tests with CTA-label fallback coverage and queued P6.55 for helper-text tone token polish.
 
 
 ## P6.53 Slice Notes (AI insights Hub entrypoint copy token)
