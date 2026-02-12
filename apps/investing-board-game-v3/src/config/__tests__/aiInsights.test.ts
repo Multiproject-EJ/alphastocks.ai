@@ -74,12 +74,35 @@ describe('aiInsights config', () => {
     expect(AI_INSIGHTS_SURFACE.freshness.relativeAge.unavailableLabel.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.freshness.staleCallout.title.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.freshness.staleCallout.description.length).toBeGreaterThan(0)
+    expect(AI_INSIGHTS_SURFACE.filters.sortLabel.length).toBeGreaterThan(0)
+    expect(AI_INSIGHTS_SURFACE.filters.defaultSortId.length).toBeGreaterThan(0)
+    expect(AI_INSIGHTS_SURFACE.filters.sortOptions.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.emptyState.title.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.emptyState.description.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.emptyState.ctaLabel.length).toBeGreaterThan(0)
   })
 
 
+
+
+  it('applies config-first sort control guardrails in normalization output', () => {
+    const normalized = normalizeAIInsightsConfig({
+      surface: {
+        filters: {
+          sortLabel: '',
+          defaultSortId: 'invalid-sort',
+          sortOptions: [
+            { id: 'unknown', label: 'Ignore me' },
+          ],
+        },
+      },
+      fixtures: AI_INSIGHTS_FIXTURES,
+    })
+
+    expect(normalized.surface.filters.sortLabel).toBe('Sort by')
+    expect(normalized.surface.filters.defaultSortId).toBe('freshness')
+    expect(normalized.surface.filters.sortOptions.map((option) => option.id)).toEqual(['freshness', 'confidence'])
+  })
   it('applies due-now countdown template guardrails for placeholder-safe copy', () => {
     const fallback = '{emphasis}{separator}{countdown}'
 

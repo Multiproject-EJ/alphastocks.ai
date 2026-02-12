@@ -77,10 +77,13 @@ export type AIInsightsSurfaceConfig = {
   filters: {
     horizonLabel: string
     confidenceLabel: string
+    sortLabel: string
     allHorizonLabel: string
     allConfidenceLabel: string
+    defaultSortId: 'freshness' | 'confidence'
     horizons: { id: InsightHorizon, label: string }[]
     confidenceTiers: { id: string, label: string, min: number, max: number }[]
+    sortOptions: { id: 'freshness' | 'confidence', label: string }[]
   }
 }
 
@@ -154,8 +157,10 @@ const DEFAULT_AI_INSIGHTS_CONFIG: AIInsightsConfig = {
     filters: {
       horizonLabel: 'Horizon',
       confidenceLabel: 'Confidence',
+      sortLabel: 'Sort by',
       allHorizonLabel: 'All horizons',
       allConfidenceLabel: 'All confidence',
+      defaultSortId: 'freshness',
       horizons: [
         { id: 'intraday', label: 'Intraday' },
         { id: 'swing', label: 'Swing' },
@@ -165,6 +170,10 @@ const DEFAULT_AI_INSIGHTS_CONFIG: AIInsightsConfig = {
         { id: 'high', label: 'High', min: 0.75, max: 1 },
         { id: 'medium', label: 'Medium', min: 0.6, max: 0.74 },
         { id: 'watch', label: 'Watch', min: 0, max: 0.59 },
+      ],
+      sortOptions: [
+        { id: 'freshness', label: 'Freshness' },
+        { id: 'confidence', label: 'Confidence' },
       ],
     },
   },
@@ -183,6 +192,8 @@ const DEFAULT_AI_INSIGHTS_CONFIG: AIInsightsConfig = {
 }
 
 const ALLOWED_HORIZONS: InsightHorizon[] = ['intraday', 'swing', 'position']
+const ALLOWED_SORT_IDS = ['freshness', 'confidence'] as const
+type InsightSortId = (typeof ALLOWED_SORT_IDS)[number]
 
 const coerceString = (value: unknown, fallback: string): string =>
   typeof value === 'string' && value.trim().length > 0 ? value : fallback
@@ -484,6 +495,40 @@ const coerceConfidenceTiers = (value: unknown): { id: string, label: string, min
   return tiers.length > 0 ? tiers : DEFAULT_AI_INSIGHTS_CONFIG.surface.filters.confidenceTiers
 }
 
+const coerceSortOptions = (value: unknown): { id: InsightSortId, label: string }[] => {
+  if (!Array.isArray(value)) {
+    return DEFAULT_AI_INSIGHTS_CONFIG.surface.filters.sortOptions
+  }
+
+  const options = value
+    .map((option) => {
+      if (!option || typeof option !== 'object') {
+        return null
+      }
+
+      const candidate = option as { id?: unknown, label?: unknown }
+      if (!ALLOWED_SORT_IDS.includes(candidate.id as InsightSortId)) {
+        return null
+      }
+
+      return {
+        id: candidate.id as InsightSortId,
+        label: coerceString(candidate.label, String(candidate.id)),
+      }
+    })
+    .filter((option): option is { id: InsightSortId, label: string } => option !== null)
+
+  return options.length > 0 ? options : DEFAULT_AI_INSIGHTS_CONFIG.surface.filters.sortOptions
+}
+
+const coerceDefaultSortId = (value: unknown): InsightSortId => {
+  if (ALLOWED_SORT_IDS.includes(value as InsightSortId)) {
+    return value as InsightSortId
+  }
+
+  return DEFAULT_AI_INSIGHTS_CONFIG.surface.filters.defaultSortId
+}
+
 const normalizeFixture = (fixture: unknown, fallback: AIInsightFixture): AIInsightFixture => {
   if (!fixture || typeof fixture !== 'object') {
     return fallback
@@ -733,10 +778,13 @@ const normalizeConfig = (config: unknown): AIInsightsConfig => {
       filters: {
         horizonLabel: coerceString(candidate.surface?.filters?.horizonLabel, DEFAULT_AI_INSIGHTS_CONFIG.surface.filters.horizonLabel),
         confidenceLabel: coerceString(candidate.surface?.filters?.confidenceLabel, DEFAULT_AI_INSIGHTS_CONFIG.surface.filters.confidenceLabel),
+        sortLabel: coerceString(candidate.surface?.filters?.sortLabel, DEFAULT_AI_INSIGHTS_CONFIG.surface.filters.sortLabel),
         allHorizonLabel: coerceString(candidate.surface?.filters?.allHorizonLabel, DEFAULT_AI_INSIGHTS_CONFIG.surface.filters.allHorizonLabel),
         allConfidenceLabel: coerceString(candidate.surface?.filters?.allConfidenceLabel, DEFAULT_AI_INSIGHTS_CONFIG.surface.filters.allConfidenceLabel),
+        defaultSortId: coerceDefaultSortId(candidate.surface?.filters?.defaultSortId),
         horizons: coerceHorizonOptions(candidate.surface?.filters?.horizons),
         confidenceTiers: coerceConfidenceTiers(candidate.surface?.filters?.confidenceTiers),
+        sortOptions: coerceSortOptions(candidate.surface?.filters?.sortOptions),
       },
     },
     fixtures: fixtures.length > 0 ? fixtures : DEFAULT_AI_INSIGHTS_CONFIG.fixtures,

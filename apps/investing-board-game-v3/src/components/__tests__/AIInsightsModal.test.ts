@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { formatRelativeInsightAge } from '@/components/AIInsightsModal'
+import { formatRelativeInsightAge, sortInsightsForDisplay } from '@/components/AIInsightsModal'
 import { AI_INSIGHTS_SURFACE } from '@/lib/aiInsightsFixtures'
 
 const DEFAULT_RELATIVE_AGE_CONFIG = {
@@ -62,5 +62,28 @@ describe('AIInsightsModal relative age rendering', () => {
     AI_INSIGHTS_SURFACE.freshness.relativeAge.justNowLabel = 'Moments ago'
 
     expect(formatRelativeInsightAge('2026-02-12T12:00:00.000Z')).toBe('Status: Moments ago')
+  })
+})
+
+
+describe('AIInsightsModal sort controls', () => {
+  it('sorts fixtures by freshness with confidence as deterministic tie-breaker', () => {
+    const sorted = sortInsightsForDisplay([
+      { id: 'older', confidence: 0.85, updatedAt: '2026-02-12T10:00:00.000Z' },
+      { id: 'newer-low', confidence: 0.6, updatedAt: '2026-02-12T11:30:00.000Z' },
+      { id: 'newer-high', confidence: 0.9, updatedAt: '2026-02-12T11:30:00.000Z' },
+    ], 'freshness')
+
+    expect(sorted.map((insight) => insight.id)).toEqual(['newer-high', 'newer-low', 'older'])
+  })
+
+  it('sorts fixtures by confidence with freshness as deterministic tie-breaker', () => {
+    const sorted = sortInsightsForDisplay([
+      { id: 'older-high', confidence: 0.9, updatedAt: '2026-02-12T10:00:00.000Z' },
+      { id: 'newer-high', confidence: 0.9, updatedAt: '2026-02-12T11:55:00.000Z' },
+      { id: 'low', confidence: 0.65, updatedAt: '2026-02-12T11:59:00.000Z' },
+    ], 'confidence')
+
+    expect(sorted.map((insight) => insight.id)).toEqual(['newer-high', 'older-high', 'low'])
   })
 })

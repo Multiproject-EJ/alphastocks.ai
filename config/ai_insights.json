@@ -63,8 +63,10 @@
     "filters": {
       "horizonLabel": "Horizon",
       "confidenceLabel": "Confidence",
+      "sortLabel": "Sort by",
       "allHorizonLabel": "All horizons",
       "allConfidenceLabel": "All confidence",
+      "defaultSortId": "freshness",
       "horizons": [
         {
           "id": "intraday",
@@ -97,6 +99,16 @@
           "label": "Watch",
           "min": 0,
           "max": 0.59
+        }
+      ],
+      "sortOptions": [
+        {
+          "id": "freshness",
+          "label": "Freshness"
+        },
+        {
+          "id": "confidence",
+          "label": "Confidence"
         }
       ]
     }

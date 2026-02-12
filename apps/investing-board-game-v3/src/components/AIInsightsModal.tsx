@@ -27,6 +27,8 @@ interface AIInsightsModalProps {
 
 const ALL_FILTER_VALUE = 'all'
 
+type InsightSortId = 'freshness' | 'confidence'
+
 const getInsightAgeMinutes = (updatedAt: string): number => {
   const updatedTimestamp = new Date(updatedAt).getTime()
 
@@ -35,6 +37,34 @@ const getInsightAgeMinutes = (updatedAt: string): number => {
   }
 
   return Math.max(0, (Date.now() - updatedTimestamp) / 60000)
+}
+
+
+export const sortInsightsForDisplay = <T extends { confidence: number, updatedAt: string }>(
+  insights: T[],
+  sortId: InsightSortId,
+): T[] => {
+  const sortedInsights = [...insights]
+
+  if (sortId === 'confidence') {
+    return sortedInsights.sort((a, b) => {
+      const confidenceDelta = b.confidence - a.confidence
+      if (confidenceDelta !== 0) {
+        return confidenceDelta
+      }
+
+      return getInsightAgeMinutes(a.updatedAt) - getInsightAgeMinutes(b.updatedAt)
+    })
+  }
+
+  return sortedInsights.sort((a, b) => {
+    const ageDelta = getInsightAgeMinutes(a.updatedAt) - getInsightAgeMinutes(b.updatedAt)
+    if (ageDelta !== 0) {
+      return ageDelta
+    }
+
+    return b.confidence - a.confidence
+  })
 }
 
 export const formatRelativeInsightAge = (updatedAt: string): string => {
@@ -93,6 +123,7 @@ export function AIInsightsModal({ open, onOpenChange }: AIInsightsModalProps) {
   const dialogClass = useResponsiveDialogClass('medium')
   const [activeHorizon, setActiveHorizon] = useState<string>(ALL_FILTER_VALUE)
   const [activeConfidenceTier, setActiveConfidenceTier] = useState<string>(ALL_FILTER_VALUE)
+  const [activeSortId, setActiveSortId] = useState<InsightSortId>(AI_INSIGHTS_SURFACE.filters.defaultSortId)
 
   const resetFilters = () => {
     setActiveHorizon(ALL_FILTER_VALUE)
@@ -102,7 +133,7 @@ export function AIInsightsModal({ open, onOpenChange }: AIInsightsModalProps) {
   const hasActiveFilters = activeHorizon !== ALL_FILTER_VALUE || activeConfidenceTier !== ALL_FILTER_VALUE
 
   const visibleInsights = useMemo(() => {
-    return AI_INSIGHTS_FIXTURES.filter((insight) => {
+    const filteredInsights = AI_INSIGHTS_FIXTURES.filter((insight) => {
       const horizonMatch = activeHorizon === ALL_FILTER_VALUE || insight.horizon === activeHorizon
 
       const selectedTier = AI_INSIGHTS_SURFACE.filters.confidenceTiers.find((tier) => tier.id === activeConfidenceTier)
@@ -112,7 +143,9 @@ export function AIInsightsModal({ open, onOpenChange }: AIInsightsModalProps) {
 
       return horizonMatch && confidenceMatch
     })
-  }, [activeConfidenceTier, activeHorizon])
+
+    return sortInsightsForDisplay(filteredInsights, activeSortId)
+  }, [activeConfidenceTier, activeHorizon, activeSortId])
 
   const hasStaleInsights = visibleInsights.some(
     (insight) => getInsightAgeMinutes(insight.updatedAt) >= AI_INSIGHTS_SURFACE.freshness.staleAfterMinutes,
@@ -248,6 +281,26 @@ export function AIInsightsModal({ open, onOpenChange }: AIInsightsModalProps) {
                     onClick={() => setActiveConfidenceTier(tier.id)}
                   >
                     {tier.label}
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                {AI_INSIGHTS_SURFACE.filters.sortLabel}
+              </p>
+              <div className="mt-1 flex flex-wrap gap-1.5">
+                {AI_INSIGHTS_SURFACE.filters.sortOptions.map((sortOption) => (
+                  <Button
+                    key={sortOption.id}
+                    size="sm"
+                    variant={activeSortId === sortOption.id ? 'default' : 'outline'}
+                    className="h-7 rounded-full px-3 text-[11px]"
+                    onClick={() => setActiveSortId(sortOption.id)}
+                  >
+                    {sortOption.label}
                   </Button>
                 ))}
               </div>
