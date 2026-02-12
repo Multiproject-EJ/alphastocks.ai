@@ -363,7 +363,8 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P6.50** ✅ Add config-first AI insights sort helper container classes so helper callouts keep consistent spacing across tone states
 - **P6.51** ✅ Add config-first AI insights sort helper text-size token so helper readability can be tuned per surface
 - **P6.52** ✅ Add config-first AI insights sort helper text-wrap token so long helper copy remains readable on narrow mobile widths
-- **P6.53** ⏳ Add config-first AI insights entrypoint copy token in Hub Insights tab so players immediately know where to open the full module
+- **P6.53** ✅ Add config-first AI insights entrypoint copy token in Hub Insights tab so players immediately know where to open the full module
+- **P6.54** ⏳ Add config-first AI insights entrypoint CTA label token in Hub Insights tab so launch copy is tunable without modal edits
 
 ---
 
@@ -395,12 +396,18 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P6.53 — Add config-first AI insights entrypoint copy token in Hub Insights tab so players immediately know where to open the full module.**
+**Recommended next slice:** **P6.54 — Add config-first AI insights entrypoint CTA label token in Hub Insights tab so launch copy is tunable without modal edits.**
 
 ## Progress Log (rolling)
-- **Done (latest):** P6.52 Add config-first AI insights sort helper text-wrap token so long helper copy remains readable on narrow mobile widths.
-- **Next step:** P6.53 Add config-first AI insights entrypoint copy token in Hub Insights tab so players immediately know where to open the full module.
+- **Done (latest):** P6.53 Add config-first AI insights entrypoint copy token in Hub Insights tab so players immediately know where to open the full module.
+- **Next step:** P6.54 Add config-first AI insights entrypoint CTA label token in Hub Insights tab so launch copy is tunable without modal edits.
 
+
+
+## P6.53 Slice Notes (AI insights Hub entrypoint copy token)
+- Added config-first `hubEntrypointCopy` to the AI insights surface config so Hub tab guidance can be tuned without touching component markup.
+- Wired the Hub Insights tab entrypoint helper line to render from config beneath the launch button, improving module discoverability on mobile.
+- Added config normalization coverage for blank entrypoint-copy overrides and queued P6.54 for CTA-label token follow-up polish.
 
 
 ## P6.52 Slice Notes (AI insights sort helper text-wrap token)
