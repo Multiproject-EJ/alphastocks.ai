@@ -19,6 +19,7 @@ import { CenterCarousel } from '@/components/CenterCarousel'
 import { CelebrationEffect } from '@/components/CelebrationEffect'
 import { TileCelebration, TileCelebrationEffect } from '@/components/TileCelebrationEffect'
 import { CasinoModal } from '@/components/CasinoModal'
+import { CasinoModePanel } from '@/components/CasinoModePanel'
 import { UserIndicator } from '@/components/UserIndicator'
 import { ChallengeTracker } from '@/components/ChallengeTracker'
 import { EventBanner } from '@/components/EventBanner'
@@ -129,6 +130,8 @@ type ChanceOutcome = {
   rewardPool?: QuickRewardType[]
   celebration?: string[]
 }
+
+type CasinoMode = 'none' | 'modeA' | 'modeB'
 
 const FALL_PORTAL_OUTCOMES: WeightedOutcome<PortalOutcome>[] = [
   {
@@ -560,6 +563,7 @@ function App() {
 
   // Throne victory modal state
   const [showThroneVictory, setShowThroneVictory] = useState(false)
+  const [casinoMode, setCasinoMode] = useState<CasinoMode>('none')
 
   // Overlay manager for coordinated modal display
   const { show: showOverlay, wasRecentlyShown, getCurrentOverlay, closeCurrent } = useOverlayManager()
@@ -1427,6 +1431,12 @@ function App() {
   )
 
   const [rightNowTick, setRightNowTick] = useState(() => new Date())
+  const forcedCasinoMode = useMemo<CasinoMode | null>(() => {
+    if (typeof window === 'undefined') return null
+    const mode = new URLSearchParams(window.location.search).get('casinoMode')
+    if (mode === 'modeA' || mode === 'modeB') return mode
+    return null
+  }, [])
 
   useEffect(() => {
     setTelemetryContext({
@@ -4128,30 +4138,74 @@ function App() {
         debugGame('Phase transition: landed -> idle (Big Fish Portal)')
         setPhase('idle')
       } else if (tile.title === 'Casino') {
-        toast.info('🎰 Welcome to the Casino!', {
-          description: 'Feeling lucky today?',
+        const selectedMode = forcedCasinoMode ?? (Math.random() < 0.5 ? 'modeA' : 'modeB')
+        setCasinoMode(selectedMode)
+        toast.info('🎰 Casino Mode Triggered!', {
+          description:
+            selectedMode === 'modeA'
+              ? 'Golden Tile Hunt is live — pick one of 8 mini-games.'
+              : 'Roulette Ring selected. Using Golden Tile Hunt fallback while mode B is in progress.',
         })
-        debugGame('Opening Casino modal')
+        debugGame('Opening Casino mode panel', { selectedMode })
         setTimeout(() => {
           showOverlay({
-            id: 'casino',
-            component: CasinoModal,
+            id: 'casino-mode-panel',
+            component: CasinoModePanel,
             props: {
-              onWin: handleCasinoWin,
-              luckBoost: isPermanentOwned('casino-luck') ? 0.2 : 0,
-              guaranteedWin: hasGuaranteedCasinoWin(),
-              scratchcardEventOverride,
-              cashBalance: gameState.cash,
-              onSpendCash: handleCasinoBuyIn,
+              onSelectMiniGame: (miniGameId: string) => {
+                if (
+                  miniGameId === 'scratchcard' ||
+                  miniGameId === 'high-roller-dice' ||
+                  miniGameId === 'market-blackjack'
+                ) {
+                  showOverlay({
+                    id: 'casino',
+                    component: CasinoModal,
+                    props: {
+                      onWin: handleCasinoWin,
+                      luckBoost: isPermanentOwned('casino-luck') ? 0.2 : 0,
+                      guaranteedWin: hasGuaranteedCasinoWin(),
+                      scratchcardEventOverride,
+                      cashBalance: gameState.cash,
+                      onSpendCash: handleCasinoBuyIn,
+                      initialView:
+                        miniGameId === 'scratchcard'
+                          ? 'scratchcard'
+                          : miniGameId === 'high-roller-dice'
+                            ? 'dice'
+                            : 'blackjack',
+                    },
+                    priority: 'normal',
+                    onClose: () => {
+                      setCasinoMode('none')
+                      debugGame('Casino mini-game modal closed')
+                      setTimeout(() => {
+                        debugGame('Phase transition: landed -> idle (casino modal closed)')
+                        setPhase('idle')
+                      }, 300)
+                    },
+                  })
+                  return
+                }
+
+                const placeholderWin = 2500 + Math.floor(Math.random() * 5000)
+                toast.info('🛠️ Mini-game placeholder', {
+                  description: `${miniGameId} is not wired yet. Awarded $${placeholderWin.toLocaleString()} while we integrate it.`,
+                })
+                handleCasinoWin(placeholderWin)
+                setCasinoMode('none')
+                setPhase('idle')
+              },
             },
             priority: 'normal',
             onClose: () => {
-              debugGame('Casino modal closed')
+              setCasinoMode('none')
+              debugGame('Casino mode panel closed')
               setTimeout(() => {
-                debugGame('Phase transition: landed -> idle (casino modal closed)')
+                debugGame('Phase transition: landed -> idle (casino panel closed)')
                 setPhase('idle')
               }, 300)
-            }
+            },
           })
         }, 1000)
       } else if (tile.title === 'Court of Capital') {
