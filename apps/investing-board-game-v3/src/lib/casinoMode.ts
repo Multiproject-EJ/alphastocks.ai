@@ -16,6 +16,9 @@ export const MODE_A_GAMES = [
 
 export const MODE_A_PRIZE_MIN = 10
 export const MODE_A_PRIZE_MAX = 250_000
+export const MODE_B_REQUIRED_PICKS = 5
+export const MODE_B_WIN_PAYOUT = 125_000
+export const MODE_B_CONSOLATION_PAYOUT = 1_000
 
 const ring1TileIds = BOARD_TILES.map((tile) => tile.id)
 export const RING1_TILE_COUNT = ring1TileIds.length
@@ -59,4 +62,12 @@ export const createRouletteSpinPath = (
   const path = Array.from({ length: totalSteps }, (_, offset) => (startIndex + offset + 1) % tileCount)
   const endIndex = path[path.length - 1] ?? startIndex
   return { laps, endIndex, path }
+}
+
+export const resolveRouletteOutcome = (selectedNumbers: number[], winningIndex: number) => {
+  const hit = selectedNumbers.includes(winningIndex)
+  return {
+    hit,
+    payout: hit ? MODE_B_WIN_PAYOUT : MODE_B_CONSOLATION_PAYOUT,
+  }
 }
