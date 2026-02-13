@@ -51,7 +51,7 @@ _All P0 tasks shipped._
 > Single truth: landing on Casino must route into Casino Mode.
 > Plan A ships first and uses existing casino mini-games as the first set of 8 tiles.
 
-- [x] Landing on the **Casino** tile triggers a 50/50 roll between **Casino Mode A** and **Casino Mode B**.
+- [x] Landing on the **Casino** tile always enters **Casino Mode A** (Golden Tile Hunt).
 - [x] Casino Mode is **ring-1 only**. Rings 2 and 3 are fully muted (transparent/invisible) while Casino Mode is active.
 - [x] The Casino Mode state **persists** until the mode’s win condition is completed, then the board resets to normal.
 - [x] A full-screen **celebration** (fireworks + win summary) triggers on a casino win, then the board returns to normal.
@@ -65,7 +65,7 @@ _All P0 tasks shipped._
 ### 2.1 Data + State
 - [x] Add a `casinoMode` state (`'none' | 'modeA' | 'modeB'`) to the core game state.
 - [x] Add a `casinoModeStep` / `casinoModePhase` state for internal sub-flow (e.g., waiting, spinning, reward).
-- [x] Add deterministic RNG helper to ensure true 50/50 selection in the long run.
+- [x] Keep casino entry deterministic: Casino corner always enters Mode A, with Roulette available as an in-mode branch.
 - [x] Add a debug toggle (query param or in dev overlay) to force Mode A / Mode B.
 
 ### 2.2 Board Visual Layer Controls
@@ -89,6 +89,7 @@ _All P0 tasks shipped._
 - [x] Insert **8 Casino Game Placeholder tiles** across ring 1 positions (evenly spaced).
 - [x] All **non-game** tiles show a **cash prize** between $10 and $250,000.
 - [x] Mode persists until player lands on one of the 8 Casino Game tiles.
+- [x] One of the 8 game tiles is **Roulette Ring**; landing it switches the board into Roulette mode (Mode B visuals + controls).
 
 ### 3.2 Visual Spec
 - [x] **Casino Game tiles:** glowing gold + black style, distinct from win tiles.
@@ -186,3 +187,4 @@ _All P0 tasks shipped._
 - Added ring-1-only masking and safe reset controls for QA reruns.
 
 - Mode B marker index + spin count now persist in `casinoModeData` so active roulette context survives state restores.
+- Casino entry no longer randomizes between modes: default flow is Mode A first, then optional Roulette transition via the Roulette Ring tile.

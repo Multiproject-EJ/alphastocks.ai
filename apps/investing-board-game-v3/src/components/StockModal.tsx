@@ -302,17 +302,17 @@ export function StockModal({
     }, 200)
   }
 
+  const qualityScore = stock.scores?.quality ?? 5
+  const riskScore = stock.scores?.risk ?? 5
+  const timingScore = stock.scores?.timing ?? 5
+  const displayedCompositeScore = Number(((qualityScore + riskScore + timingScore) / 3).toFixed(1))
+
   // Generate score stars (0-5 based on composite score 0-10)
-  const scoreStars = Math.round((stock.scores?.composite ?? 5) / 2)
+  const scoreStars = Math.round(displayedCompositeScore / 2)
   const starDisplay = '⭐'.repeat(Math.min(scoreStars, 5))
 
   // One-line stock hook/summary
   const stockHook = getStockHook(stock)
-
-  // Scores with safe defaults
-  const qualityScore = stock.scores?.quality ?? 5
-  const riskScore = stock.scores?.risk ?? 5
-  const timingScore = stock.scores?.timing ?? 5
   const analysisAge = formatAnalysisAge(stock.analyzed_at)
   const staleAfterMinutes = STOCK_CARD_CONFIG.staleAfterDays * 24 * 60
   const isAnalysisStale = getAgeMinutes(stock.analyzed_at) >= staleAfterMinutes
@@ -383,7 +383,7 @@ export function StockModal({
                 </div>
                 <div className="text-right">
                   <div className="text-2xl font-bold text-green-400">
-                    {(stock.scores?.composite ?? 5).toFixed(1)}
+                    {displayedCompositeScore.toFixed(1)}
                   </div>
                   <div className="text-xs text-yellow-400">{starDisplay}</div>
                 </div>
@@ -408,7 +408,7 @@ export function StockModal({
               {/* Mini score bars */}
               <div className="space-y-2 text-xs">
                 <ScoreMiniBar label="Quality" value={qualityScore} />
-                <ScoreMiniBar label="Risk" value={10 - riskScore} />
+                <ScoreMiniBar label="Risk" value={riskScore} />
                 <ScoreMiniBar label="Timing" value={timingScore} />
               </div>
 
