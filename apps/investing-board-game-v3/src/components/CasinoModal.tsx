@@ -26,6 +26,7 @@ interface CasinoModalProps {
   scratchcardEventOverride?: ScratchcardEventOverride | null
   cashBalance: number
   onSpendCash?: (amount: number) => boolean
+  initialView?: 'lobby' | 'scratchcard' | 'dice' | 'blackjack'
 }
 
 export function CasinoModal({
@@ -38,11 +39,12 @@ export function CasinoModal({
   scratchcardEventOverride,
   cashBalance,
   onSpendCash,
+  initialView = 'lobby',
 }: CasinoModalProps) {
   const defaultTier = tierId ?? scratchcardTiers[0]?.id ?? 'bronze'
   const [selectedTierId, setSelectedTierId] = useState<ScratchcardTierId>(defaultTier)
   const [showOdds, setShowOdds] = useState(false)
-  const [activeView, setActiveView] = useState<'lobby' | 'scratchcard' | 'dice' | 'blackjack'>('lobby')
+  const [activeView, setActiveView] = useState<'lobby' | 'scratchcard' | 'dice' | 'blackjack'>(initialView)
   const lobbyConfig = casinoConfig.lobby
   const decoratedTiers = useMemo(
     () => scratchcardTiers.map((tier) => applyScratchcardEventOverride(tier, scratchcardEventOverride ?? null)),
@@ -65,9 +67,9 @@ export function CasinoModal({
 
   useEffect(() => {
     if (open) {
-      setActiveView('lobby')
+      setActiveView(initialView)
     }
-  }, [open])
+  }, [open, initialView])
 
   const topPrize = selectedTier
     ? Math.max(...selectedTier.prizes.map((prize) => prize.maxAmount))

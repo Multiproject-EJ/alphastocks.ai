@@ -1,6 +1,9 @@
 # Casino Scratchcard Evolution Guide
 
 ## Why this guide exists
+
+> **Single-truth note:** Casino tile entry behavior is defined in `CASINO_MODE.md`.
+> This scratchcard guide only defines scratchcard feature evolution after mode entry.
 The current scratchcard is a clean, simple win/lose minigame. This guide expands it into a **multi-tier, multi-prize casino experience** while staying compatible with existing components such as `ScratchcardGame` and `CasinoModal`. It is designed so we can grow features iteratively without rewrites.
 
 ## Current baseline (what we’re building on)

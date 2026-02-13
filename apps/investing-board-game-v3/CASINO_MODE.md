@@ -20,12 +20,12 @@
 
 - **Doc owner:** Game Board V3
 - **Scope:** Ring 1 gameplay + casino entry tile behavior
-- **State:** Planning / Not started
+- **State:** In progress (single-truth plan)
 
-### Status Snapshot (2026-01-24)
-- **Documentation refresh:** Added an implementation-ready checklist + sequencing notes.
-- **Code status:** No casino mode state/visual layers implemented yet.
-- **Next slice focus:** Ship foundational state + ring masking + win overlay (see “Next Slice” below).
+### Status Snapshot (2026-02-13)
+- **Single truth decision:** Casino tile now enters Plan A (Golden Tile Hunt) as the primary flow.
+- **Integration rule:** Existing casino content is reused as mini-games inside Plan A (Scratchcard, Dice, Blackjack are live entries).
+- **Code status:** Entry selection + Mode A panel integration started; full board masking and Mode B visuals still pending.
 
 ### Next Slice (P0 Foundation)
 1. Add `casinoMode` + `casinoModePhase` to core game state.
@@ -45,6 +45,9 @@
 ---
 
 ## 1) Outcomes (Definition of Done)
+
+> Single truth: landing on Casino must route into Casino Mode.
+> Plan A ships first and uses existing casino mini-games as the first set of 8 tiles.
 
 - [ ] Landing on the **Casino** tile triggers a 50/50 roll between **Casino Mode A** and **Casino Mode B**.
 - [ ] Casino Mode is **ring-1 only**. Rings 2 and 3 are fully muted (transparent/invisible) while Casino Mode is active.
