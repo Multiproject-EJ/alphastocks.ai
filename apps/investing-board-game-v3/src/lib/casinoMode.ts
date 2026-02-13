@@ -1,4 +1,4 @@
-import { BOARD_TILES } from '@/lib/gameData'
+import { BOARD_TILES } from '@/lib/mockData'
 
 export type CasinoMode = 'none' | 'modeA' | 'modeB'
 export type CasinoModePhase = 'idle' | 'active' | 'spinning' | 'miniGame' | 'celebrating'

@@ -27,7 +27,7 @@ export function CasinoModePanel({
   if (mode === 'none') return null
 
   return (
-    <div className="pointer-events-auto fixed inset-x-3 bottom-3 z-[70] rounded-2xl border border-amber-200/40 bg-black/85 p-3 text-white shadow-2xl backdrop-blur-sm md:inset-x-auto md:right-4 md:w-[360px]">
+    <div className="pointer-events-auto fixed inset-x-2 bottom-2 z-[70] rounded-2xl border border-amber-200/40 bg-black/90 p-3 text-white shadow-2xl backdrop-blur-sm pb-[calc(0.75rem+env(safe-area-inset-bottom))] md:inset-x-auto md:right-4 md:w-[360px]">
       <div className="mb-2 flex items-center justify-between">
         <p className="text-xs uppercase tracking-[0.18em] text-amber-200">Casino {mode === 'modeA' ? 'Mode A' : 'Mode B'}</p>
         <Button size="sm" variant="outline" className="h-7 px-2 text-xs" onClick={onReset}>Safe Exit</Button>
@@ -41,7 +41,7 @@ export function CasinoModePanel({
               <button
                 key={game.id}
                 type="button"
-                className="rounded-md border border-amber-300/30 bg-amber-500/10 px-2 py-1.5 text-left text-xs"
+                className="min-h-11 rounded-md border border-amber-300/30 bg-amber-500/10 px-2 py-1.5 text-left text-xs"
                 onClick={() => onSelectMiniGame(game.id)}
               >
                 {game.icon} {game.label}
@@ -52,8 +52,8 @@ export function CasinoModePanel({
       ) : (
         <>
           <p className="text-sm font-semibold">Roulette Ring</p>
-          <p className="mb-2 text-xs text-emerald-100/80">Pick 5 numbers, then spin.</p>
-          <div className="grid grid-cols-7 gap-1">
+          <p className="mb-2 text-xs text-emerald-100/80">Pick 5 numbers, then spin. {selectedNumbers.length}/5 selected.</p>
+          <div className="grid grid-cols-7 gap-1.5">
             {Array.from({ length: 35 }, (_, index) => {
               const selected = selectedNumbers.includes(index)
               return (
@@ -62,7 +62,7 @@ export function CasinoModePanel({
                   type="button"
                   disabled={rouletteLocked}
                   onClick={() => onToggleNumber(index)}
-                  className={`h-7 rounded text-[10px] ${selected ? 'bg-emerald-400 text-black' : 'bg-white/10 text-white'} disabled:opacity-40`}
+                  className={`min-h-10 rounded text-xs font-semibold ${selected ? 'bg-emerald-400 text-black' : 'bg-white/10 text-white'} disabled:opacity-40`}
                 >
                   {index + 1}
                 </button>

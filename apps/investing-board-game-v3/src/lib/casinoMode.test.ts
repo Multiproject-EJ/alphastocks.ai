@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import { createModeAPrizes, createRandomPick, createRouletteSpinPath, getEvenlySpacedTileIds, pickCasinoMode } from './casinoMode'
+import {
+  MODE_A_GAMES,
+  createModeAPrizes,
+  createRandomPick,
+  createRouletteSpinPath,
+  getEvenlySpacedTileIds,
+  pickCasinoMode,
+} from './casinoMode'
 
 describe('casino mode helpers', () => {
   it('keeps mode selection 50/50 with deterministic RNG', () => {
@@ -7,6 +14,22 @@ describe('casino mode helpers', () => {
     let index = 0
     const results = Array.from({ length: 4 }, () => pickCasinoMode(() => values[index++]))
     expect(results).toEqual(['modeA', 'modeB', 'modeA', 'modeB'])
+  })
+
+  it('stays close to 50/50 over 1000 picks', () => {
+    const samples = Array.from({ length: 1000 }, () => pickCasinoMode(Math.random))
+    const modeACount = samples.filter((mode) => mode === 'modeA').length
+    const modeARatio = modeACount / samples.length
+    expect(modeARatio).toBeGreaterThan(0.4)
+    expect(modeARatio).toBeLessThan(0.6)
+  })
+
+  it('includes scratchcard, dice, and blackjack in mode A game list', () => {
+    const gameIds = MODE_A_GAMES.map((game) => game.id)
+    expect(gameIds).toContain('scratchcard')
+    expect(gameIds).toContain('high-roller-dice')
+    expect(gameIds).toContain('market-blackjack')
+    expect(MODE_A_GAMES).toHaveLength(8)
   })
 
   it('creates 8 evenly spaced tile ids', () => {
