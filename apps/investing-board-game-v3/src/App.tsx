@@ -1172,17 +1172,26 @@ function App() {
   // Mobile shop purchase handler (uses cash instead of stars)
   const handleMobileShopPurchase = useCallback((itemId: string, cost: number, category: ShopCategory) => {
     if (category === 'vault') {
-      if (gameState.cash < cost) {
+      let purchaseCompleted = false
+
+      setGameState((prev) => {
+        if (prev.cash < cost) {
+          return prev
+        }
+
+        purchaseCompleted = true
+        return {
+          ...prev,
+          cash: Math.max(0, prev.cash - cost),
+        }
+      })
+
+      if (!purchaseCompleted) {
         toast.error('Not enough cash', {
           description: `You need $${cost.toLocaleString()} but only have $${gameState.cash.toLocaleString()}`,
         })
         return false
       }
-
-      setGameState((prev) => ({
-        ...prev,
-        cash: prev.cash - cost,
-      }))
 
       toast.success('Vault item secured!', {
         description: 'Added to your Property Vault.',
@@ -1195,18 +1204,19 @@ function App() {
     if (!item) return false
 
     // Check if can afford with cash
-    if (gameState.cash < item.price) {
-      toast.error('Not enough cash', {
-        description: `You need $${item.price.toLocaleString()} but only have $${gameState.cash.toLocaleString()}`,
-      })
-      return false
-    }
+    let purchaseCompleted = false
 
-    // Deduct cash and apply effect
+    // Deduct cash and apply effect atomically so rapid taps cannot drive cash negative
     setGameState((prev) => {
+      if (prev.cash < item.price) {
+        return prev
+      }
+
+      purchaseCompleted = true
+
       let newState = {
         ...prev,
-        cash: prev.cash - item.price,
+        cash: Math.max(0, prev.cash - item.price),
       }
 
       // Apply item effect based on type
@@ -1256,6 +1266,13 @@ function App() {
 
       return newState
     })
+
+    if (!purchaseCompleted) {
+      toast.error('Not enough cash', {
+        description: `You need $${item.price.toLocaleString()} but only have $${gameState.cash.toLocaleString()}`,
+      })
+      return false
+    }
 
     // Handle dice rolls separately as it's in a different state
     if (item.effect.type === 'dice') {
