@@ -21,6 +21,50 @@ interface StockModalProps {
   onOpenProTools?: () => void
 }
 
+
+const STOCK_CARD_DEFAULTS = {
+  analysisLabel: 'ValueBot analysis',
+  modelLabelPrefix: 'Model',
+  staleAfterDays: 30,
+  staleBadgeLabel: 'Stale analysis',
+  latestPulseLabel: 'Latest market pulse',
+  noPulseLabel: 'No recent market pulse for this symbol yet.',
+  pulseFreshToneClass: 'text-emerald-200',
+  pulseStaleToneClass: 'text-amber-200',
+}
+
+const STOCK_CARD_CONFIG = {
+  ...STOCK_CARD_DEFAULTS,
+  ...(AI_INSIGHTS_SURFACE?.stockCard ?? {}),
+}
+
+const AI_INSIGHTS_FIXTURE_LIST = Array.isArray(AI_INSIGHTS_FIXTURES) ? AI_INSIGHTS_FIXTURES : []
+
+const RELATIVE_AGE_DEFAULTS = {
+  updatedLabel: 'Updated',
+  justNowLabel: 'Just now',
+  minutesAgoTemplate: '{minutes}m ago',
+  hoursAgoTemplate: '{hours}h ago',
+  daysAgoTemplate: '{days}d ago',
+  hoursThresholdMinutes: 60,
+  hourCountDivisorMinutes: 60,
+  hourCountMinimum: 1,
+  daysThresholdMinutes: 1440,
+  dayCountDivisorMinutes: 1440,
+  dayCountMinimum: 1,
+  fallbackTemplate: '{label}',
+  unavailableLabel: 'Time unavailable',
+}
+
+const FRESHNESS_CONFIG = {
+  staleAfterMinutes: 60,
+  relativeAge: {
+    ...RELATIVE_AGE_DEFAULTS,
+    ...(AI_INSIGHTS_SURFACE?.freshness?.relativeAge ?? {}),
+  },
+  ...(AI_INSIGHTS_SURFACE?.freshness ?? {}),
+}
+
 // Stock hook generator - one catchy line per stock type
 function getStockHook(stock: Stock): string {
   const hooks: Record<string, string[]> = {
@@ -130,7 +174,7 @@ function getAgeMinutes(timestamp?: string | null): number {
 }
 
 function formatAnalysisAge(timestamp?: string | null): string {
-  const relativeAgeConfig = AI_INSIGHTS_SURFACE.freshness.relativeAge
+  const relativeAgeConfig = FRESHNESS_CONFIG.relativeAge
   const ageMinutes = getAgeMinutes(timestamp)
 
   if (!Number.isFinite(ageMinutes)) {
@@ -183,7 +227,7 @@ function getLatestPulseForTicker(ticker?: string | null) {
   const normalizedTicker = ticker?.trim().toUpperCase()
   if (!normalizedTicker) return null
 
-  const matches = AI_INSIGHTS_FIXTURES
+  const matches = AI_INSIGHTS_FIXTURE_LIST
     .filter((insight) => insight.symbol.trim().toUpperCase() === normalizedTicker)
     .sort((a, b) => getAgeMinutes(a.updatedAt) - getAgeMinutes(b.updatedAt))
 
@@ -270,9 +314,13 @@ export function StockModal({
   const riskScore = stock.scores?.risk ?? 5
   const timingScore = stock.scores?.timing ?? 5
   const analysisAge = formatAnalysisAge(stock.analyzed_at)
-  const staleAfterMinutes = AI_INSIGHTS_SURFACE.stockCard.staleAfterDays * 24 * 60
+  const staleAfterMinutes = STOCK_CARD_CONFIG.staleAfterDays * 24 * 60
   const isAnalysisStale = getAgeMinutes(stock.analyzed_at) >= staleAfterMinutes
   const latestPulse = getLatestPulseForTicker(stock.ticker)
+  const isPulseStale = latestPulse
+    ? getAgeMinutes(latestPulse.updatedAt) >= FRESHNESS_CONFIG.staleAfterMinutes
+    : false
+  const pulseToneClass = isPulseStale ? STOCK_CARD_CONFIG.pulseStaleToneClass : STOCK_CARD_CONFIG.pulseFreshToneClass
 
   return (
     <AnimatePresence>
@@ -367,7 +415,7 @@ export function StockModal({
 
               <div className="mt-3 space-y-2 rounded-xl border border-cyan-500/20 bg-cyan-500/5 p-2 text-[11px]">
                 <div className="flex flex-wrap items-center gap-1.5">
-                  <span className="font-semibold text-cyan-200">{AI_INSIGHTS_SURFACE.stockCard.analysisLabel}</span>
+                  <span className="font-semibold text-cyan-200">{STOCK_CARD_CONFIG.analysisLabel}</span>
                   {stock.quality_label ? (
                     <span className="rounded-full border border-emerald-400/40 px-2 py-0.5 text-emerald-200">Q: {stock.quality_label}</span>
                   ) : null}
@@ -379,21 +427,21 @@ export function StockModal({
                   ) : null}
                   {isAnalysisStale ? (
                     <span className="rounded-full border border-rose-400/50 bg-rose-500/10 px-2 py-0.5 text-rose-200">
-                      {AI_INSIGHTS_SURFACE.stockCard.staleBadgeLabel}
+                      {STOCK_CARD_CONFIG.staleBadgeLabel}
                     </span>
                   ) : null}
                 </div>
 
                 <p className="text-gray-300">
-                  {AI_INSIGHTS_SURFACE.freshness.relativeAge.updatedLabel}: {analysisAge}
+                  {FRESHNESS_CONFIG.relativeAge.updatedLabel}: {analysisAge}
                 </p>
                 {stock.ai_model ? (
                   <p className="text-gray-400">
-                    {AI_INSIGHTS_SURFACE.stockCard.modelLabelPrefix}: {stock.ai_model}
+                    {STOCK_CARD_CONFIG.modelLabelPrefix}: {stock.ai_model}
                   </p>
                 ) : null}
-                <p className="text-gray-300">
-                  {AI_INSIGHTS_SURFACE.stockCard.latestPulseLabel}: {latestPulse ? latestPulse.headline : AI_INSIGHTS_SURFACE.stockCard.noPulseLabel}
+                <p className={`${pulseToneClass}`}>
+                  {STOCK_CARD_CONFIG.latestPulseLabel}: {latestPulse ? latestPulse.headline : STOCK_CARD_CONFIG.noPulseLabel}
                 </p>
               </div>
 

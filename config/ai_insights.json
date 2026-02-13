@@ -131,7 +131,9 @@
       "staleAfterDays": 30,
       "staleBadgeLabel": "Stale analysis",
       "latestPulseLabel": "Latest market pulse",
-      "noPulseLabel": "No recent market pulse for this symbol yet."
+      "noPulseLabel": "No recent market pulse for this symbol yet.",
+      "pulseFreshToneClass": "text-emerald-200",
+      "pulseStaleToneClass": "text-amber-200"
     }
   },
   "fixtures": [

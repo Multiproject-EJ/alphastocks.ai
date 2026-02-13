@@ -53,6 +53,8 @@ export type AIInsightsSurfaceConfig = {
     staleBadgeLabel: string
     latestPulseLabel: string
     noPulseLabel: string
+    pulseFreshToneClass: string
+    pulseStaleToneClass: string
   }
   freshness: {
     label: string
@@ -148,6 +150,8 @@ const DEFAULT_AI_INSIGHTS_CONFIG: AIInsightsConfig = {
       staleBadgeLabel: 'Stale analysis',
       latestPulseLabel: 'Latest market pulse',
       noPulseLabel: 'No recent market pulse for this symbol yet.',
+      pulseFreshToneClass: 'text-emerald-200',
+      pulseStaleToneClass: 'text-amber-200',
     },
     freshness: {
       label: 'Data freshness',
@@ -805,6 +809,14 @@ const normalizeConfig = (config: unknown): AIInsightsConfig => {
         noPulseLabel: coerceString(
           candidate.surface?.stockCard?.noPulseLabel,
           DEFAULT_AI_INSIGHTS_CONFIG.surface.stockCard.noPulseLabel,
+        ),
+        pulseFreshToneClass: coerceString(
+          candidate.surface?.stockCard?.pulseFreshToneClass,
+          DEFAULT_AI_INSIGHTS_CONFIG.surface.stockCard.pulseFreshToneClass,
+        ),
+        pulseStaleToneClass: coerceString(
+          candidate.surface?.stockCard?.pulseStaleToneClass,
+          DEFAULT_AI_INSIGHTS_CONFIG.surface.stockCard.pulseStaleToneClass,
         ),
       },
       freshness: {

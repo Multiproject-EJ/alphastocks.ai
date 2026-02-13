@@ -55,7 +55,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 - `AI_IMPLEMENTATION.md`, `IMPLEMENTATION_SUMMARY.md`, `DEVLOG.md` (project-wide status/context)
 
 ### Repo Map (paths verified)
-_Last reviewed: 2026-02-12 (stock modal ValueBot metadata strip)_
+_Last reviewed: 2026-02-12 (stock modal pulse tone classes + freshness guardrails)_
 #### Frontend
 - **Legacy static pages entry:** `/index.html`, `/about.html`, `/faq.html`, `/monthly/`, `/weekly/`, `/superinvestor/`
 - **Vite + Preact app:** `/apps/investing-board-game-v3` (built into `/public/board-game-v3` via `npm run build:board-game-v3`)
@@ -366,7 +366,8 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P6.53** ✅ Add config-first AI insights entrypoint copy token in Hub Insights tab so players immediately know where to open the full module
 - **P6.54** ✅ Add config-first AI insights entrypoint CTA label token in Hub Insights tab so launch copy is tunable without modal edits
 - **P6.55** ✅ Add config-first stock modal ValueBot metadata strip (labels + freshness + pulse callout) so cards reflect existing analysis without changing ValueBot processing
-- **P6.56** ⏳ Add config-first stock modal pulse tone classes so fresh vs stale pulse callouts stay readable across ring themes
+- **P6.56** ✅ Add config-first stock modal pulse tone classes + freshness guardrails so pulse callouts stay readable and resilient across ring themes
+- **P6.57** ⏳ Add config-first stock modal analysis-chip tone classes so metadata strip color tuning stays centralized and easy to tweak
 
 ---
 
@@ -398,12 +399,18 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P6.56 — Add config-first stock modal pulse tone classes so fresh vs stale pulse callouts stay readable across ring themes.**
+**Recommended next slice:** **P6.57 — Add config-first stock modal analysis-chip tone classes so metadata strip color tuning stays centralized and easy to tweak.**
 
 ## Progress Log (rolling)
-- **Done (latest):** P6.55 Add config-first stock modal ValueBot metadata strip (labels + freshness + pulse callout) so cards reflect existing analysis without changing ValueBot processing.
-- **Next step:** P6.56 Add config-first stock modal pulse tone classes so fresh vs stale pulse callouts stay readable across ring themes.
+- **Done (latest):** P6.56 Add config-first stock modal pulse tone classes + freshness guardrails so pulse callouts stay readable and resilient across ring themes.
+- **Next step:** P6.57 Add config-first stock modal analysis-chip tone classes so metadata strip color tuning stays centralized and easy to tweak.
 
+
+
+## P6.56 Slice Notes (Stock modal pulse tone classes + freshness guardrails)
+- Added config-first pulse tone-class tokens (`pulseFreshToneClass`, `pulseStaleToneClass`) under AI insights stock-card config so pulse callout readability can be tuned without component rewrites.
+- Updated `StockModal` to apply pulse tone classes based on existing freshness thresholds, giving players clearer visual differentiation between fresher and staler pulse headlines.
+- Added stock-modal freshness/config fallback guardrails in the UI layer so missing/partial stock-card config values degrade safely instead of risking startup/runtime regressions.
 
 
 ## P6.55 Slice Notes (Stock modal ValueBot metadata strip)

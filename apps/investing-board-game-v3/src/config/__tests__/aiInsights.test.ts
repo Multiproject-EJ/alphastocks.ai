@@ -63,6 +63,8 @@ describe('aiInsights config', () => {
     expect(AI_INSIGHTS_SURFACE.stockCard.staleBadgeLabel.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.stockCard.latestPulseLabel.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.stockCard.noPulseLabel.length).toBeGreaterThan(0)
+    expect(AI_INSIGHTS_SURFACE.stockCard.pulseFreshToneClass.length).toBeGreaterThan(0)
+    expect(AI_INSIGHTS_SURFACE.stockCard.pulseStaleToneClass.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.freshness.label.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.freshness.freshLabel.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.freshness.staleLabel.length).toBeGreaterThan(0)
@@ -150,6 +152,8 @@ describe('aiInsights config', () => {
           staleBadgeLabel: '',
           latestPulseLabel: '',
           noPulseLabel: '',
+          pulseFreshToneClass: '',
+          pulseStaleToneClass: '',
         },
       },
       fixtures: AI_INSIGHTS_FIXTURES,
@@ -161,6 +165,8 @@ describe('aiInsights config', () => {
     expect(normalized.surface.stockCard.staleBadgeLabel).toBe('Stale analysis')
     expect(normalized.surface.stockCard.latestPulseLabel).toBe('Latest market pulse')
     expect(normalized.surface.stockCard.noPulseLabel).toBe('No recent market pulse for this symbol yet.')
+    expect(normalized.surface.stockCard.pulseFreshToneClass).toBe('text-emerald-200')
+    expect(normalized.surface.stockCard.pulseStaleToneClass).toBe('text-amber-200')
   })
 
   it('applies hub entrypoint CTA label fallback in normalization output', () => {
