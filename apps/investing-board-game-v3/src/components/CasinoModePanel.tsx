@@ -8,6 +8,7 @@ type CasinoModePanelProps = {
   onRandomPick: () => void
   onSpin: () => void
   selectedNumbers: number[]
+  tileCount: number
   rouletteLocked: boolean
   onToggleNumber: (index: number) => void
   onReset: () => void
@@ -20,6 +21,7 @@ export function CasinoModePanel({
   onRandomPick,
   onSpin,
   selectedNumbers,
+  tileCount,
   rouletteLocked,
   onToggleNumber,
   onReset,
@@ -54,7 +56,7 @@ export function CasinoModePanel({
           <p className="text-sm font-semibold">Roulette Ring</p>
           <p className="mb-2 text-xs text-emerald-100/80">Pick 5 numbers, then spin. {selectedNumbers.length}/5 selected.</p>
           <div className="grid grid-cols-7 gap-1.5">
-            {Array.from({ length: 35 }, (_, index) => {
+            {Array.from({ length: tileCount }, (_, index) => {
               const selected = selectedNumbers.includes(index)
               return (
                 <button

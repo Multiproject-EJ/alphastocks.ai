@@ -18,6 +18,7 @@ export const MODE_A_PRIZE_MIN = 10
 export const MODE_A_PRIZE_MAX = 250_000
 
 const ring1TileIds = BOARD_TILES.map((tile) => tile.id)
+export const RING1_TILE_COUNT = ring1TileIds.length
 
 export const pickCasinoMode = (rng: () => number): Exclude<CasinoMode, 'none'> =>
   rng() < 0.5 ? 'modeA' : 'modeB'
