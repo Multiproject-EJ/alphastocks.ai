@@ -7,7 +7,7 @@ export const MODE_A_GAMES = [
   { id: 'scratchcard', label: 'Scratchcard Vault', icon: '🎟️', status: 'live' as const },
   { id: 'high-roller-dice', label: 'High Roller Dice', icon: '🎲', status: 'live' as const },
   { id: 'market-blackjack', label: 'Market Blackjack', icon: '🂡', status: 'live' as const },
-  { id: 'portfolio-poker', label: 'Portfolio Poker', icon: '🃏', status: 'placeholder' as const },
+  { id: 'roulette-ring', label: 'Roulette Ring', icon: '🎯', status: 'live' as const },
   { id: 'macro-slots', label: 'Macro Slots', icon: '🎰', status: 'placeholder' as const },
   { id: 'bull-bear-race', label: 'Bull/Bear Race', icon: '🐂', status: 'placeholder' as const },
   { id: 'insider-wheel', label: 'Insider Wheel', icon: '🎡', status: 'placeholder' as const },

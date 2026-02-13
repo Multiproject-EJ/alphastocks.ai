@@ -4295,3 +4295,24 @@
 
 **How to test:**
 - Run `npm test -- src/config/__tests__/aiInsights.test.ts` inside `apps/investing-board-game-v3`.
+
+**Date:** 2026-02-13
+**Slice:** P6.54 Casino flow simplification + roulette branch-in
+**Summary:**
+- Removed the Casino corner mode selection branch so landing on Casino now always enters Mode A (gold/golden tile hunt board state).
+- Added Roulette Ring as a live Mode A game tile; landing it transitions the board into Mode B roulette state instead of ending Mode A with a placeholder payout.
+- Updated Casino mode documentation to reflect the new deterministic entry flow (Mode A first, roulette as an in-mode branch).
+
+**Files changed:**
+- apps/investing-board-game-v3/src/App.tsx
+- apps/investing-board-game-v3/src/lib/casinoMode.ts
+- apps/investing-board-game-v3/CASINO_MODE.md
+- DEV_PLAN.md
+- CHANGELOG_DEV.md
+
+**SQL migrations:**
+- (none)
+
+**How to test:**
+- Run `npm --prefix apps/investing-board-game-v3 run test`.
+- On mobile board: land on Casino, verify Mode A gold board appears; then land on Roulette Ring tile and verify board switches to roulette mode with pick/spin controls.

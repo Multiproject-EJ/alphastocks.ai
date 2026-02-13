@@ -63,7 +63,6 @@ import {
   MODE_B_REQUIRED_PICKS,
   RING1_TILE_COUNT,
   resolveRouletteOutcome,
-  type CasinoMode,
   type CasinoModePhase,
 } from '@/lib/casinoMode'
 
@@ -1445,12 +1444,6 @@ function App() {
   )
 
   const [rightNowTick, setRightNowTick] = useState(() => new Date())
-  const forcedCasinoMode = useMemo<CasinoMode | null>(() => {
-    if (typeof window === 'undefined') return null
-    const mode = new URLSearchParams(window.location.search).get('casinoMode')
-    if (mode === 'modeA' || mode === 'modeB') return mode
-    return null
-  }, [])
 
   const casinoMode = gameState.casinoMode ?? 'none'
   const casinoModePhase = gameState.casinoModePhase ?? 'idle'
@@ -3684,6 +3677,26 @@ function App() {
           const miniGame = MODE_A_GAMES[gameIndex] ?? MODE_A_GAMES[0]
           setGameState(prev => ({ ...prev, casinoModePhase: 'miniGame' }))
 
+          if (miniGame.id === 'roulette-ring') {
+            setGameState(prev => ({
+              ...prev,
+              casinoMode: 'modeB',
+              casinoModePhase: 'active',
+              casinoModeData: {
+                ...prev.casinoModeData,
+                modeBSelectedNumbers: [],
+                modeBWinningIndex: null,
+                modeBMarkerIndex: 0,
+                modeBSpinCount: 0,
+              },
+            }))
+            toast.info('🎯 Roulette Ring unlocked!', {
+              description: 'The board has switched to roulette mode. Pick 5 numbers and spin.',
+            })
+            setPhase('idle')
+            return
+          }
+
           if (miniGame.id === 'scratchcard' || miniGame.id === 'high-roller-dice' || miniGame.id === 'market-blackjack') {
             showOverlay({
               id: 'casino',
@@ -4237,7 +4250,7 @@ function App() {
         debugGame('Phase transition: landed -> idle (Big Fish Portal)')
         setPhase('idle')
       } else if (tile.title === 'Casino') {
-        const selectedMode = forcedCasinoMode ?? 'modeA'
+        const selectedMode = 'modeA'
         const modeAGameTileIds = getEvenlySpacedTileIds(8)
         const modeAPrizes = createModeAPrizes(Math.random, modeAGameTileIds)
 
@@ -4256,10 +4269,7 @@ function App() {
         }))
 
         toast.info('🎰 Casino Mode Triggered!', {
-          description:
-            selectedMode === 'modeA'
-              ? 'Golden Tile Hunt is live.'
-              : 'Roulette Ring is live. Pick 5 numbers and spin.',
+          description: 'Golden Tile Hunt is live. Land on Roulette Ring to switch into roulette mode.',
         })
         debugGame('Casino mode started', { selectedMode })
         setPhase('idle')
