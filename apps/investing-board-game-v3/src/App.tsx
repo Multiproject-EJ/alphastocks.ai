@@ -62,7 +62,6 @@ import {
   MODE_A_GAMES,
   MODE_B_REQUIRED_PICKS,
   RING1_TILE_COUNT,
-  pickCasinoMode,
   resolveRouletteOutcome,
   type CasinoMode,
   type CasinoModePhase,
@@ -4238,7 +4237,7 @@ function App() {
         debugGame('Phase transition: landed -> idle (Big Fish Portal)')
         setPhase('idle')
       } else if (tile.title === 'Casino') {
-        const selectedMode = forcedCasinoMode ?? pickCasinoMode(Math.random)
+        const selectedMode = forcedCasinoMode ?? 'modeA'
         const modeAGameTileIds = getEvenlySpacedTileIds(8)
         const modeAPrizes = createModeAPrizes(Math.random, modeAGameTileIds)
 
@@ -6109,7 +6108,7 @@ function App() {
       )}
 
       {/* Vault Heist Button */}
-      {vaultHeistStatus && (
+      {!isPhone && vaultHeistStatus && (
         <div className="fixed bottom-24 right-20 z-50 flex flex-col items-center gap-1">
           <button
             onClick={vaultHeistCtaDisabled ? undefined : handleVaultHeistCta}
