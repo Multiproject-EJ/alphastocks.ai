@@ -171,6 +171,9 @@ _All P0 tasks shipped._
 ## 9) Changelog
 
 - [x] _Add notes here as you ship changes._
+- [x] **Phase 1 (Plan A + shared systems):** Confirmed 8-tile Mode A grid with Scratchcard, Dice, and Blackjack wired as the first 3 live mini-games.
+- [x] **Phase 2 (UX hardening):** Updated Casino Mode panel for mobile-first touch targets, safe-area bottom padding, and explicit 5-number roulette selection state.
+- [x] **Phase 3 (QA coverage):** Added deterministic and statistical tests for 50/50 mode selection plus Mode A game roster assertions.
 
 
 ## 10) Implementation Notes (2026-02-13)
