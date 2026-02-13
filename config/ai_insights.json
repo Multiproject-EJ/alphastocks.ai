@@ -123,6 +123,15 @@
       "sortHelperContainerFallbackToneClass": "border-border/60 bg-muted/20",
       "sortHelperTextClass": "text-[11px]",
       "sortHelperTextWrapClass": "leading-relaxed break-words"
+    },
+    "hubEntrypointCtaLabel": "Open AI Insights panel",
+    "stockCard": {
+      "analysisLabel": "ValueBot analysis",
+      "modelLabelPrefix": "Model",
+      "staleAfterDays": 30,
+      "staleBadgeLabel": "Stale analysis",
+      "latestPulseLabel": "Latest market pulse",
+      "noPulseLabel": "No recent market pulse for this symbol yet."
     }
   },
   "fixtures": [
