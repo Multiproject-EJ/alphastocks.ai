@@ -3691,6 +3691,7 @@ function App() {
               props: {
                 onWin: (amount: number) => {
                   handleCasinoWin(amount)
+                  closeCurrent()
                   setCasinoWinOverlay({ title: `${miniGame.label} cleared`, summary: `Won $${amount.toLocaleString()} in Casino Mode A.` })
                   setGameState(prev => ({ ...prev, casinoModePhase: 'celebrating' }))
                 },
@@ -3702,7 +3703,13 @@ function App() {
                 initialView: miniGame.id === 'scratchcard' ? 'scratchcard' : miniGame.id === 'high-roller-dice' ? 'dice' : 'blackjack',
               },
               priority: 'normal',
-              onClose: () => setPhase('idle'),
+              onClose: () => {
+                setPhase('idle')
+                setGameState(prev => ({
+                  ...prev,
+                  casinoModePhase: prev.casinoMode === 'modeA' && prev.casinoModePhase === 'miniGame' ? 'active' : prev.casinoModePhase,
+                }))
+              },
             })
           } else {
             const placeholderWin = 5_000 + Math.floor(Math.random() * 10_000)
@@ -5081,15 +5088,30 @@ function App() {
               setTimeout(() => {
                 const win = selected.includes(spin.endIndex)
                 const payout = win ? 125000 : 1000
+                if (win) {
+                  setGameState(prev => ({
+                    ...prev,
+                    cash: prev.cash + payout,
+                    netWorth: prev.netWorth + payout,
+                    coins: prev.coins + 10,
+                    xp: prev.xp + 25,
+                    casinoModePhase: 'celebrating',
+                  }))
+                  setCasinoWinOverlay({
+                    title: 'Roulette hit!',
+                    summary: `Matched your number · $${payout.toLocaleString()} + 10 coins + 25 XP.`,
+                  })
+                  return
+                }
+
                 setGameState(prev => ({
                   ...prev,
                   cash: prev.cash + payout,
                   netWorth: prev.netWorth + payout,
-                  casinoModePhase: 'celebrating',
+                  casinoModePhase: 'active',
                 }))
-                setCasinoWinOverlay({
-                  title: win ? 'Roulette hit!' : 'Roulette settled',
-                  summary: `${win ? 'Matched your number' : 'Missed this spin'} · $${payout.toLocaleString()} payout.`,
+                toast.info('Roulette miss', {
+                  description: `Missed this spin. Consolation $${payout.toLocaleString()} awarded.`,
                 })
               }, spin.path.length * 40 + 120)
             }}
@@ -5483,7 +5505,7 @@ function App() {
                           isTeleporting={isTeleportingTile(tile.id)}
                           isPortal={tile.id === ring1PortalTileId}
                           onClick={() => {
-                            if (phase === 'idle') {
+                            if (phase === 'idle' && casinoMode === 'none') {
                               handleTileLanding(tile.id)
                             }
                           }}
