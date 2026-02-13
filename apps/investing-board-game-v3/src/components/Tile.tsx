@@ -26,6 +26,10 @@ interface TileProps {
   isTeleporting?: boolean
   isPortal?: boolean
   tileLabel?: TileLabelConfig
+  casinoTheme?: {
+    kind: 'modeA-game' | 'modeA-prize' | 'modeB-red' | 'modeB-black' | 'modeB-green'
+    label?: string
+  }
 }
 
 // Configuration for corner tiles and event tiles that use images instead of text
@@ -74,6 +78,7 @@ const TileComponent = ({
   isTeleporting = false,
   isPortal = false,
   tileLabel,
+  casinoTheme,
 }: TileProps) => {
   const { lightTap } = useHaptics();
 
@@ -227,7 +232,12 @@ const TileComponent = ({
         getRingClasses(),
         tile.specialStyle === 'fall-portal' ? 'tile-fall-portal' : '',
         isPortal && tile.portalStyle === 'blue' ? 'portal-tile-blue' : '',
-        isPortal && tile.portalStyle !== 'blue' ? 'portal-tile-magic' : ''
+        isPortal && tile.portalStyle !== 'blue' ? 'portal-tile-magic' : '',
+        casinoTheme?.kind === 'modeA-game' ? 'bg-gradient-to-br from-yellow-300/80 to-black border-yellow-200' : '',
+        casinoTheme?.kind === 'modeA-prize' ? 'bg-yellow-300/80 border-yellow-100 text-black' : '',
+        casinoTheme?.kind === 'modeB-red' ? 'bg-red-600/90 border-red-300 text-white' : '',
+        casinoTheme?.kind === 'modeB-black' ? 'bg-black/90 border-gray-200 text-white' : '',
+        casinoTheme?.kind === 'modeB-green' ? 'bg-emerald-600/90 border-emerald-200 text-white' : ''
       )}
       style={{
         ...borderStyles,
@@ -256,7 +266,7 @@ const TileComponent = ({
       }}
     >
       {/* Colorful gradient overlay based on tile type */}
-      {getTileGradient() && (
+      {!casinoTheme && getTileGradient() && (
         <div 
           className={`absolute inset-0 bg-gradient-to-br ${getTileGradient()} opacity-50 pointer-events-none`}
           style={{
@@ -373,6 +383,12 @@ const TileComponent = ({
           sublabel={tileLabel.sublabel}
           size={ringNumber === 3 ? 'compact' : 'standard'}
         />
+      )}
+
+      {casinoTheme?.label && !shouldShowMysteryContent && (
+        <div className="absolute bottom-1 left-1/2 z-20 -translate-x-1/2 rounded bg-black/60 px-1 py-0.5 text-[9px] font-semibold text-white">
+          {casinoTheme.label}
+        </div>
       )}
 
       {/* Ring 3 locked content - show mystery */}
