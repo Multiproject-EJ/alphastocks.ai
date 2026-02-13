@@ -261,6 +261,8 @@ export interface GameState {
     modeAPrizes?: Record<number, number>
     modeBSelectedNumbers?: number[]
     modeBWinningIndex?: number | null
+    modeBMarkerIndex?: number
+    modeBSpinCount?: number
   }
   // Net Worth Tier fields
   currentTier?: number // Track current tier number for easy access

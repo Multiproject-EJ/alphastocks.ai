@@ -60,6 +60,7 @@ import {
   createRouletteSpinPath,
   getEvenlySpacedTileIds,
   MODE_A_GAMES,
+  RING1_TILE_COUNT,
   pickCasinoMode,
   type CasinoMode,
   type CasinoModePhase,
@@ -576,7 +577,6 @@ function App() {
   // Throne victory modal state
   const [showThroneVictory, setShowThroneVictory] = useState(false)
   const [casinoWinOverlay, setCasinoWinOverlay] = useState<{ title: string; summary: string } | null>(null)
-  const [modeBMarkerIndex, setModeBMarkerIndex] = useState(0)
 
   // Overlay manager for coordinated modal display
   const { show: showOverlay, wasRecentlyShown, getCurrentOverlay, closeCurrent } = useOverlayManager()
@@ -1463,7 +1463,6 @@ function App() {
       casinoModeData: {},
     }))
     setCasinoWinOverlay(null)
-    setModeBMarkerIndex(0)
   }, [])
 
 
@@ -4250,6 +4249,8 @@ function App() {
             modeAPrizes,
             modeBSelectedNumbers: [],
             modeBWinningIndex: null,
+            modeBMarkerIndex: 0,
+            modeBSpinCount: 0,
           },
         }))
 
@@ -5065,23 +5066,31 @@ function App() {
               toast.info('Land on that game tile to launch it.')
             }}
             onRandomPick={() => {
-              const picks = createRandomPick(35, 5, Math.random)
+              const picks = createRandomPick(RING1_TILE_COUNT, 5, Math.random)
               setGameState(prev => ({ ...prev, casinoModeData: { ...prev.casinoModeData, modeBSelectedNumbers: picks } }))
             }}
             onSpin={() => {
               if (casinoMode !== 'modeB') return
               const selected = casinoModeData.modeBSelectedNumbers ?? []
               if (selected.length !== 5) return
-              const spin = createRouletteSpinPath(modeBMarkerIndex, 35, Math.random)
+              const markerIndex = casinoModeData.modeBMarkerIndex ?? 0
+              const spin = createRouletteSpinPath(markerIndex, RING1_TILE_COUNT, Math.random)
               setGameState(prev => ({
                 ...prev,
                 casinoModePhase: 'spinning',
-                casinoModeData: { ...prev.casinoModeData, modeBWinningIndex: spin.endIndex },
+                casinoModeData: {
+                  ...prev.casinoModeData,
+                  modeBWinningIndex: spin.endIndex,
+                  modeBSpinCount: (prev.casinoModeData?.modeBSpinCount ?? 0) + 1,
+                },
               }))
 
               spin.path.forEach((index, step) => {
                 setTimeout(() => {
-                  setModeBMarkerIndex(index)
+                  setGameState(prev => ({
+                    ...prev,
+                    casinoModeData: { ...prev.casinoModeData, modeBMarkerIndex: index },
+                  }))
                 }, step * 40)
               })
 
@@ -5116,6 +5125,7 @@ function App() {
               }, spin.path.length * 40 + 120)
             }}
             selectedNumbers={casinoModeData.modeBSelectedNumbers ?? []}
+            tileCount={RING1_TILE_COUNT}
             rouletteLocked={casinoModePhase === 'spinning' || casinoModePhase === 'celebrating'}
             onToggleNumber={(index) => {
               setGameState(prev => {
@@ -5479,7 +5489,7 @@ function App() {
                       : casinoMode === 'modeB'
                         ? {
                             kind: rouletteColorKind as 'modeB-red' | 'modeB-black' | 'modeB-green',
-                            label: `${tile.id + 1}${modeBMarkerIndex === tile.id ? ' • 🎯' : ''}`,
+                            label: `${tile.id + 1}${(casinoModeData.modeBMarkerIndex ?? 0) === tile.id ? ' • 🎯' : ''}`,
                           }
                         : undefined
 

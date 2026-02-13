@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   MODE_A_GAMES,
+  RING1_TILE_COUNT,
   createModeAPrizes,
   createRandomPick,
   createRouletteSpinPath,
@@ -32,7 +33,8 @@ describe('casino mode helpers', () => {
     expect(MODE_A_GAMES).toHaveLength(8)
   })
 
-  it('creates 8 evenly spaced tile ids', () => {
+  it('creates 8 evenly spaced tile ids from ring-1 tile count', () => {
+    expect(RING1_TILE_COUNT).toBe(35)
     expect(getEvenlySpacedTileIds(8)).toHaveLength(8)
   })
 

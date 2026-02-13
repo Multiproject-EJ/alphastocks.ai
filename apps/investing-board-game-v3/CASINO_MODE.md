@@ -174,6 +174,7 @@ _All P0 tasks shipped._
 - [x] **Phase 1 (Plan A + shared systems):** Confirmed 8-tile Mode A grid with Scratchcard, Dice, and Blackjack wired as the first 3 live mini-games.
 - [x] **Phase 2 (UX hardening):** Updated Casino Mode panel for mobile-first touch targets, safe-area bottom padding, and explicit 5-number roulette selection state.
 - [x] **Phase 3 (QA coverage):** Added deterministic and statistical tests for 50/50 mode selection plus Mode A game roster assertions.
+- [x] **Phase 4 (Mode B completion):** Persisted roulette marker/spin metadata in `casinoModeData`, switched to ring-size derived pick counts, and completed mobile-safe roulette control loop hardening.
 
 
 ## 10) Implementation Notes (2026-02-13)
@@ -182,3 +183,5 @@ _All P0 tasks shipped._
 - Mode A now maps 8 ring-1 game tiles (including Scratchcard, Dice, Blackjack).
 - Mode B now provides number selection, random pick, spin resolution, payout, and celebration flow.
 - Added ring-1-only masking and safe reset controls for QA reruns.
+
+- Mode B marker index + spin count now persist in `casinoModeData` so active roulette context survives state restores.
