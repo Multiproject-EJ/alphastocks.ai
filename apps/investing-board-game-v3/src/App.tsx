@@ -60,8 +60,10 @@ import {
   createRouletteSpinPath,
   getEvenlySpacedTileIds,
   MODE_A_GAMES,
+  MODE_B_REQUIRED_PICKS,
   RING1_TILE_COUNT,
   pickCasinoMode,
+  resolveRouletteOutcome,
   type CasinoMode,
   type CasinoModePhase,
 } from '@/lib/casinoMode'
@@ -5066,13 +5068,13 @@ function App() {
               toast.info('Land on that game tile to launch it.')
             }}
             onRandomPick={() => {
-              const picks = createRandomPick(RING1_TILE_COUNT, 5, Math.random)
+              const picks = createRandomPick(RING1_TILE_COUNT, MODE_B_REQUIRED_PICKS, Math.random)
               setGameState(prev => ({ ...prev, casinoModeData: { ...prev.casinoModeData, modeBSelectedNumbers: picks } }))
             }}
             onSpin={() => {
               if (casinoMode !== 'modeB') return
               const selected = casinoModeData.modeBSelectedNumbers ?? []
-              if (selected.length !== 5) return
+              if (selected.length !== MODE_B_REQUIRED_PICKS) return
               const markerIndex = casinoModeData.modeBMarkerIndex ?? 0
               const spin = createRouletteSpinPath(markerIndex, RING1_TILE_COUNT, Math.random)
               setGameState(prev => ({
@@ -5095,32 +5097,31 @@ function App() {
               })
 
               setTimeout(() => {
-                const win = selected.includes(spin.endIndex)
-                const payout = win ? 125000 : 1000
-                if (win) {
+                const outcome = resolveRouletteOutcome(selected, spin.endIndex)
+                if (outcome.hit) {
                   setGameState(prev => ({
                     ...prev,
-                    cash: prev.cash + payout,
-                    netWorth: prev.netWorth + payout,
+                    cash: prev.cash + outcome.payout,
+                    netWorth: prev.netWorth + outcome.payout,
                     coins: prev.coins + 10,
                     xp: prev.xp + 25,
                     casinoModePhase: 'celebrating',
                   }))
                   setCasinoWinOverlay({
                     title: 'Roulette hit!',
-                    summary: `Matched your number · $${payout.toLocaleString()} + 10 coins + 25 XP.`,
+                    summary: `Matched your number · $${outcome.payout.toLocaleString()} + 10 coins + 25 XP.`,
                   })
                   return
                 }
 
                 setGameState(prev => ({
                   ...prev,
-                  cash: prev.cash + payout,
-                  netWorth: prev.netWorth + payout,
+                  cash: prev.cash + outcome.payout,
+                  netWorth: prev.netWorth + outcome.payout,
                   casinoModePhase: 'active',
                 }))
                 toast.info('Roulette miss', {
-                  description: `Missed this spin. Consolation $${payout.toLocaleString()} awarded.`,
+                  description: `Missed this spin. Consolation $${outcome.payout.toLocaleString()} awarded.`,
                 })
               }, spin.path.length * 40 + 120)
             }}
@@ -5131,7 +5132,11 @@ function App() {
               setGameState(prev => {
                 const current = prev.casinoModeData?.modeBSelectedNumbers ?? []
                 const exists = current.includes(index)
-                const next = exists ? current.filter(item => item !== index) : current.length < 5 ? [...current, index] : current
+                const next = exists
+                  ? current.filter(item => item !== index)
+                  : current.length < MODE_B_REQUIRED_PICKS
+                    ? [...current, index]
+                    : current
                 return { ...prev, casinoModeData: { ...prev.casinoModeData, modeBSelectedNumbers: next } }
               })
             }}

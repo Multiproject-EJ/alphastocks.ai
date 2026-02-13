@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button'
-import { MODE_A_GAMES, type CasinoMode, type CasinoModePhase } from '@/lib/casinoMode'
+import { MODE_A_GAMES, MODE_B_REQUIRED_PICKS, type CasinoMode, type CasinoModePhase } from '@/lib/casinoMode'
 
 type CasinoModePanelProps = {
   mode: CasinoMode
@@ -54,7 +54,7 @@ export function CasinoModePanel({
       ) : (
         <>
           <p className="text-sm font-semibold">Roulette Ring</p>
-          <p className="mb-2 text-xs text-emerald-100/80">Pick 5 numbers, then spin. {selectedNumbers.length}/5 selected.</p>
+          <p className="mb-2 text-xs text-emerald-100/80">Pick {MODE_B_REQUIRED_PICKS} numbers, then spin. {selectedNumbers.length}/{MODE_B_REQUIRED_PICKS} selected.</p>
           <div className="grid grid-cols-7 gap-1.5">
             {Array.from({ length: tileCount }, (_, index) => {
               const selected = selectedNumbers.includes(index)
@@ -73,7 +73,7 @@ export function CasinoModePanel({
           </div>
           <div className="mt-2 flex gap-2">
             <Button size="sm" className="flex-1" variant="outline" onClick={onRandomPick} disabled={rouletteLocked}>Random Pick</Button>
-            <Button size="sm" className="flex-1" onClick={onSpin} disabled={rouletteLocked || selectedNumbers.length !== 5 || phase === 'spinning'}>Spin</Button>
+            <Button size="sm" className="flex-1" onClick={onSpin} disabled={rouletteLocked || selectedNumbers.length !== MODE_B_REQUIRED_PICKS || phase === 'spinning'}>Spin</Button>
           </div>
         </>
       )}

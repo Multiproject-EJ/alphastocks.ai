@@ -1,12 +1,16 @@
 import { describe, expect, it } from 'vitest'
 import {
   MODE_A_GAMES,
+  MODE_B_CONSOLATION_PAYOUT,
+  MODE_B_REQUIRED_PICKS,
+  MODE_B_WIN_PAYOUT,
   RING1_TILE_COUNT,
   createModeAPrizes,
   createRandomPick,
   createRouletteSpinPath,
   getEvenlySpacedTileIds,
   pickCasinoMode,
+  resolveRouletteOutcome,
 } from './casinoMode'
 
 describe('casino mode helpers', () => {
@@ -39,8 +43,8 @@ describe('casino mode helpers', () => {
   })
 
   it('creates exactly 5 unique roulette picks', () => {
-    const picks = createRandomPick(35, 5, Math.random)
-    expect(new Set(picks).size).toBe(5)
+    const picks = createRandomPick(35, MODE_B_REQUIRED_PICKS, Math.random)
+    expect(new Set(picks).size).toBe(MODE_B_REQUIRED_PICKS)
   })
 
   it('creates roulette path with 2-4 laps', () => {
@@ -50,6 +54,11 @@ describe('casino mode helpers', () => {
     expect(spin.path.length).toBeGreaterThan(70)
   })
 
+
+  it('resolves roulette win and miss payouts', () => {
+    expect(resolveRouletteOutcome([1, 2, 3], 2)).toEqual({ hit: true, payout: MODE_B_WIN_PAYOUT })
+    expect(resolveRouletteOutcome([1, 2, 3], 4)).toEqual({ hit: false, payout: MODE_B_CONSOLATION_PAYOUT })
+  })
   it('does not assign mode-a prizes to excluded game tiles', () => {
     const prizes = createModeAPrizes(Math.random, [0, 5])
     expect(prizes[0]).toBeUndefined()

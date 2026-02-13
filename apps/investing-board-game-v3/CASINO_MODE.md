@@ -175,6 +175,7 @@ _All P0 tasks shipped._
 - [x] **Phase 2 (UX hardening):** Updated Casino Mode panel for mobile-first touch targets, safe-area bottom padding, and explicit 5-number roulette selection state.
 - [x] **Phase 3 (QA coverage):** Added deterministic and statistical tests for 50/50 mode selection plus Mode A game roster assertions.
 - [x] **Phase 4 (Mode B completion):** Persisted roulette marker/spin metadata in `casinoModeData`, switched to ring-size derived pick counts, and completed mobile-safe roulette control loop hardening.
+- [x] **Phase 5 (Mode B payout hardening):** Centralized roulette required picks + payout outcomes in `casinoMode` helpers and expanded tests for win/miss payout resolution.
 
 
 ## 10) Implementation Notes (2026-02-13)
