@@ -9,6 +9,27 @@ import { useAuth } from '@/context/AuthContext';
 import { PROPERTY_VAULT_ITEMS, SHOP_ITEMS, ShopCategory } from '@/lib/shopItems';
 import { hasSupabaseConfig, supabaseClient } from '@/lib/supabaseClient';
 
+const LOCAL_VAULT_OWNERSHIP_KEY = 'investor-game:vault-owned-items';
+
+const loadLocalOwnedVaultItems = (): Set<string> => {
+  if (typeof window === 'undefined') return new Set();
+
+  try {
+    const raw = window.localStorage.getItem(LOCAL_VAULT_OWNERSHIP_KEY);
+    if (!raw) return new Set();
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return new Set();
+    return new Set(parsed.filter((value): value is string => typeof value === 'string'));
+  } catch {
+    return new Set();
+  }
+};
+
+const persistLocalOwnedVaultItems = (itemIds: Set<string>) => {
+  if (typeof window === 'undefined') return;
+  window.localStorage.setItem(LOCAL_VAULT_OWNERSHIP_KEY, JSON.stringify(Array.from(itemIds)));
+};
+
 interface MobileShopProps {
   cash: number;
   onPurchase: (
@@ -47,12 +68,6 @@ export function MobileShop({ cash, onPurchase, onClose }: MobileShopProps) {
       return;
     }
 
-    const success = await purchase(itemId, cost);
-    if (!success) return;
-
-    const purchaseResult = await Promise.resolve(onPurchase(itemId, cost, category));
-    if (!purchaseResult) return;
-
     if (category === 'vault') {
       if (supabaseClient && hasSupabaseConfig && user) {
         const { error } = await supabaseClient.rpc('shop_vault_purchase', {
@@ -65,14 +80,26 @@ export function MobileShop({ cash, onPurchase, onClose }: MobileShopProps) {
           });
           return;
         }
-      } else {
-        toast.message('Vault purchase saved locally', {
-          description: 'Connect your account to sync vault ownership.',
-        });
       }
 
-      setOwnedVaultItems((prev) => new Set(prev).add(itemId));
+      const success = await purchase(itemId, cost);
+      if (!success) return;
+
+      const purchaseResult = await Promise.resolve(onPurchase(itemId, cost, category));
+      if (!purchaseResult) return;
+
+      setOwnedVaultItems((prev) => {
+        const next = new Set(prev).add(itemId);
+        persistLocalOwnedVaultItems(next);
+        return next;
+      });
+      return;
     }
+
+    const success = await purchase(itemId, cost);
+    if (!success) return;
+
+    await Promise.resolve(onPurchase(itemId, cost, category));
   };
 
   const handleTabChange = (tab: ShopCategory) => {
@@ -86,7 +113,7 @@ export function MobileShop({ cash, onPurchase, onClose }: MobileShopProps) {
 
   useEffect(() => {
     if (!supabaseClient || !hasSupabaseConfig || !user) {
-      setOwnedVaultItems(new Set());
+      setOwnedVaultItems(loadLocalOwnedVaultItems());
       return;
     }
 
@@ -107,7 +134,10 @@ export function MobileShop({ cash, onPurchase, onClose }: MobileShopProps) {
         return;
       }
 
-      setOwnedVaultItems(new Set((data ?? []).map((record) => record.item_id as string)));
+      const remoteOwned = new Set((data ?? []).map((record) => record.item_id as string));
+      const mergedOwned = new Set([...loadLocalOwnedVaultItems(), ...remoteOwned]);
+      persistLocalOwnedVaultItems(mergedOwned);
+      setOwnedVaultItems(mergedOwned);
     };
 
     loadOwnership();
