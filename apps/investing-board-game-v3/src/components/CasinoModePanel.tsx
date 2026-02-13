@@ -1,54 +1,80 @@
-import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
+import { MODE_A_GAMES, type CasinoMode, type CasinoModePhase } from '@/lib/casinoMode'
 
 type CasinoModePanelProps = {
-  open: boolean
-  onOpenChange: (open: boolean) => void
+  mode: CasinoMode
+  phase: CasinoModePhase
   onSelectMiniGame: (miniGameId: string) => void
+  onRandomPick: () => void
+  onSpin: () => void
+  selectedNumbers: number[]
+  rouletteLocked: boolean
+  onToggleNumber: (index: number) => void
+  onReset: () => void
 }
 
-const modeAGames = [
-  { id: 'scratchcard', label: 'Scratchcard Vault', icon: '🎟️', status: 'live' },
-  { id: 'high-roller-dice', label: 'High Roller Dice', icon: '🎲', status: 'live' },
-  { id: 'market-blackjack', label: 'Market Blackjack', icon: '🂡', status: 'live' },
-  { id: 'portfolio-poker', label: 'Portfolio Poker', icon: '🃏', status: 'placeholder' },
-  { id: 'macro-slots', label: 'Macro Slots', icon: '🎰', status: 'placeholder' },
-  { id: 'bull-bear-race', label: 'Bull/Bear Race', icon: '🐂', status: 'placeholder' },
-  { id: 'insider-wheel', label: 'Insider Wheel', icon: '🎡', status: 'placeholder' },
-  { id: 'vault-jackpot', label: 'Vault Jackpot', icon: '💎', status: 'placeholder' },
-] as const
+export function CasinoModePanel({
+  mode,
+  phase,
+  onSelectMiniGame,
+  onRandomPick,
+  onSpin,
+  selectedNumbers,
+  rouletteLocked,
+  onToggleNumber,
+  onReset,
+}: CasinoModePanelProps) {
+  if (mode === 'none') return null
 
-export function CasinoModePanel({ open, onOpenChange, onSelectMiniGame }: CasinoModePanelProps) {
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-lg rounded-2xl border border-amber-300/50 bg-gradient-to-br from-yellow-500/20 via-amber-900/60 to-black p-4 text-amber-50">
-        <div>
-          <p className="text-[11px] uppercase tracking-[0.2em] text-amber-100/70">Casino Mode A</p>
-          <h2 className="text-lg font-bold text-white">Golden Tile Hunt</h2>
-          <p className="mt-1 text-xs text-amber-100/80">
-            Pick one of 8 casino game tiles. Scratchcard is fully integrated as a live mini-game.
-          </p>
-        </div>
-
-        <div className="mt-3 grid grid-cols-2 gap-2">
-          {modeAGames.map((game) => (
-            <Button
-              key={game.id}
-              type="button"
-              variant="outline"
-              className="h-auto flex-col items-start gap-1 border-amber-200/40 bg-black/30 px-3 py-3 text-left hover:bg-black/45"
-              onClick={() => onSelectMiniGame(game.id)}
-            >
-              <span className="text-base leading-none">{game.icon}</span>
-              <span className="text-xs font-semibold text-amber-50">{game.label}</span>
-              <span className="text-[10px] uppercase tracking-wide text-amber-100/70">
-                {game.status === 'live' ? 'Live table' : 'Placeholder'}
-              </span>
-            </Button>
-          ))}
-        </div>
-      </DialogContent>
-    </Dialog>
+    <div className="pointer-events-auto fixed inset-x-3 bottom-3 z-[70] rounded-2xl border border-amber-200/40 bg-black/85 p-3 text-white shadow-2xl backdrop-blur-sm md:inset-x-auto md:right-4 md:w-[360px]">
+      <div className="mb-2 flex items-center justify-between">
+        <p className="text-xs uppercase tracking-[0.18em] text-amber-200">Casino {mode === 'modeA' ? 'Mode A' : 'Mode B'}</p>
+        <Button size="sm" variant="outline" className="h-7 px-2 text-xs" onClick={onReset}>Safe Exit</Button>
+      </div>
+      {mode === 'modeA' ? (
+        <>
+          <p className="text-sm font-semibold">Golden Tile Hunt</p>
+          <p className="mb-2 text-xs text-amber-100/80">Land on a game tile to start a mini-game.</p>
+          <div className="grid grid-cols-2 gap-1.5">
+            {MODE_A_GAMES.map((game) => (
+              <button
+                key={game.id}
+                type="button"
+                className="rounded-md border border-amber-300/30 bg-amber-500/10 px-2 py-1.5 text-left text-xs"
+                onClick={() => onSelectMiniGame(game.id)}
+              >
+                {game.icon} {game.label}
+              </button>
+            ))}
+          </div>
+        </>
+      ) : (
+        <>
+          <p className="text-sm font-semibold">Roulette Ring</p>
+          <p className="mb-2 text-xs text-emerald-100/80">Pick 5 numbers, then spin.</p>
+          <div className="grid grid-cols-7 gap-1">
+            {Array.from({ length: 35 }, (_, index) => {
+              const selected = selectedNumbers.includes(index)
+              return (
+                <button
+                  key={index}
+                  type="button"
+                  disabled={rouletteLocked}
+                  onClick={() => onToggleNumber(index)}
+                  className={`h-7 rounded text-[10px] ${selected ? 'bg-emerald-400 text-black' : 'bg-white/10 text-white'} disabled:opacity-40`}
+                >
+                  {index + 1}
+                </button>
+              )
+            })}
+          </div>
+          <div className="mt-2 flex gap-2">
+            <Button size="sm" className="flex-1" variant="outline" onClick={onRandomPick} disabled={rouletteLocked}>Random Pick</Button>
+            <Button size="sm" className="flex-1" onClick={onSpin} disabled={rouletteLocked || selectedNumbers.length !== 5 || phase === 'spinning'}>Spin</Button>
+          </div>
+        </>
+      )}
+    </div>
   )
 }
-

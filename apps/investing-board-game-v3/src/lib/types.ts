@@ -254,6 +254,14 @@ export interface GameState {
   totalDoubles?: number
   // Jackpot system
   jackpot?: number // Accumulated jackpot from passing Start without landing
+  casinoMode?: 'none' | 'modeA' | 'modeB'
+  casinoModePhase?: 'idle' | 'active' | 'spinning' | 'miniGame' | 'celebrating'
+  casinoModeData?: {
+    modeAGameTileIds?: number[]
+    modeAPrizes?: Record<number, number>
+    modeBSelectedNumbers?: number[]
+    modeBWinningIndex?: number | null
+  }
   // Net Worth Tier fields
   currentTier?: number // Track current tier number for easy access
   tierUnlockHistory?: Array<{

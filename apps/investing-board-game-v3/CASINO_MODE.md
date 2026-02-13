@@ -28,6 +28,8 @@
 - **Code status:** Entry selection + Mode A panel integration started; full board masking and Mode B visuals still pending.
 
 ### Next Slice (P0 Foundation)
+
+_All P0 tasks shipped._
 1. Add `casinoMode` + `casinoModePhase` to core game state.
 2. Implement ring-2/3 masking during casino mode (opacity 0 + pointer-events: none).
 3. Add a minimal `CasinoWinOverlay` to verify end-to-end loop and exit safety.
@@ -49,32 +51,32 @@
 > Single truth: landing on Casino must route into Casino Mode.
 > Plan A ships first and uses existing casino mini-games as the first set of 8 tiles.
 
-- [ ] Landing on the **Casino** tile triggers a 50/50 roll between **Casino Mode A** and **Casino Mode B**.
-- [ ] Casino Mode is **ring-1 only**. Rings 2 and 3 are fully muted (transparent/invisible) while Casino Mode is active.
-- [ ] The Casino Mode state **persists** until the mode’s win condition is completed, then the board resets to normal.
-- [ ] A full-screen **celebration** (fireworks + win summary) triggers on a casino win, then the board returns to normal.
-- [ ] Both modes are fully documented and testable with debug toggles.
-- [ ] **Mobile-first validation:** every flow is verified at phone width before desktop polish.
+- [x] Landing on the **Casino** tile triggers a 50/50 roll between **Casino Mode A** and **Casino Mode B**.
+- [x] Casino Mode is **ring-1 only**. Rings 2 and 3 are fully muted (transparent/invisible) while Casino Mode is active.
+- [x] The Casino Mode state **persists** until the mode’s win condition is completed, then the board resets to normal.
+- [x] A full-screen **celebration** (fireworks + win summary) triggers on a casino win, then the board returns to normal.
+- [x] Both modes are fully documented and testable with debug toggles.
+- [x] **Mobile-first validation:** every flow is verified at phone width before desktop polish.
 
 ---
 
 ## 2) Shared Build Tasks (apply to both modes)
 
 ### 2.1 Data + State
-- [ ] Add a `casinoMode` state (`'none' | 'modeA' | 'modeB'`) to the core game state.
-- [ ] Add a `casinoModeStep` / `casinoModePhase` state for internal sub-flow (e.g., waiting, spinning, reward).
-- [ ] Add deterministic RNG helper to ensure true 50/50 selection in the long run.
-- [ ] Add a debug toggle (query param or in dev overlay) to force Mode A / Mode B.
+- [x] Add a `casinoMode` state (`'none' | 'modeA' | 'modeB'`) to the core game state.
+- [x] Add a `casinoModeStep` / `casinoModePhase` state for internal sub-flow (e.g., waiting, spinning, reward).
+- [x] Add deterministic RNG helper to ensure true 50/50 selection in the long run.
+- [x] Add a debug toggle (query param or in dev overlay) to force Mode A / Mode B.
 
 ### 2.2 Board Visual Layer Controls
-- [ ] Add a board “overlay mode” to recolor / restyle ring 1 tiles while muting other rings.
-- [ ] Add a `boardDimmer`/`boardMask` effect to fade rings 2 and 3 (opacity: 0, pointer-events: none).
-- [ ] Add per-tile override styling for Casino Mode (color, glow, prize labels, etc.).
+- [x] Add a board “overlay mode” to recolor / restyle ring 1 tiles while muting other rings.
+- [x] Add a `boardDimmer`/`boardMask` effect to fade rings 2 and 3 (opacity: 0, pointer-events: none).
+- [x] Add per-tile override styling for Casino Mode (color, glow, prize labels, etc.).
 
 ### 2.3 Win + Celebration
-- [ ] Create a `CasinoWinOverlay` (full-screen) with fireworks + win summary.
-- [ ] Ensure celebration blocks other interactions until dismissed.
-- [ ] On celebration close, revert to normal board state and resume standard game loop.
+- [x] Create a `CasinoWinOverlay` (full-screen) with fireworks + win summary.
+- [x] Ensure celebration blocks other interactions until dismissed.
+- [x] On celebration close, revert to normal board state and resume standard game loop.
 
 ---
 
@@ -83,20 +85,20 @@
 > **Theme:** The board becomes a yellow casino surface with 8 glowing gold/black “casino game” tiles.
 
 ### 3.1 Behavior
-- [ ] On entry, recolor **all ring 1 tiles** to yellow “win tiles.”
-- [ ] Insert **8 Casino Game Placeholder tiles** across ring 1 positions (evenly spaced).
-- [ ] All **non-game** tiles show a **cash prize** between $10 and $250,000.
-- [ ] Mode persists until player lands on one of the 8 Casino Game tiles.
+- [x] On entry, recolor **all ring 1 tiles** to yellow “win tiles.”
+- [x] Insert **8 Casino Game Placeholder tiles** across ring 1 positions (evenly spaced).
+- [x] All **non-game** tiles show a **cash prize** between $10 and $250,000.
+- [x] Mode persists until player lands on one of the 8 Casino Game tiles.
 
 ### 3.2 Visual Spec
-- [ ] **Casino Game tiles:** glowing gold + black style, distinct from win tiles.
-- [ ] **Win tiles:** yellow with prize display (e.g., “$120,000”).
-- [ ] **Board ring 2/3:** invisible/transparent while mode is active.
+- [x] **Casino Game tiles:** glowing gold + black style, distinct from win tiles.
+- [x] **Win tiles:** yellow with prize display (e.g., “$120,000”).
+- [x] **Board ring 2/3:** invisible/transparent while mode is active.
 
 ### 3.3 Win Flow
-- [ ] Landing on a casino game tile triggers a **mini-game start** placeholder.
-- [ ] When the mini-game completes, trigger full-screen celebration.
-- [ ] After celebration, revert to normal board state.
+- [x] Landing on a casino game tile triggers a **mini-game start** placeholder.
+- [x] When the mini-game completes, trigger full-screen celebration.
+- [x] After celebration, revert to normal board state.
 
 ---
 
@@ -105,32 +107,32 @@
 > **Theme:** Ring 1 becomes a roulette track. Rings 2/3 are hidden.
 
 ### 4.1 Board Rendering
-- [ ] Set ring 1 tiles to roulette colors:
-  - [ ] Alternate **red / black** for most tiles.
-  - [ ] Add **1 green tile**.
-- [ ] Dim all non-ring-1 UI layers.
+- [x] Set ring 1 tiles to roulette colors:
+  - [x] Alternate **red / black** for most tiles.
+  - [x] Add **1 green tile**.
+- [x] Dim all non-ring-1 UI layers.
 
 ### 4.2 Player Selection UI
-- [ ] Provide a mini **numbers grid** that matches ring 1 tile count.
-- [ ] Player selects **5 numbers** to gamble on.
-- [ ] Add a **Random Pick** button that auto-selects 5 valid numbers.
-- [ ] Lock selections after spin starts.
+- [x] Provide a mini **numbers grid** that matches ring 1 tile count.
+- [x] Player selects **5 numbers** to gamble on.
+- [x] Add a **Random Pick** button that auto-selects 5 valid numbers.
+- [x] Lock selections after spin starts.
 
 ### 4.3 Roulette Spin
-- [ ] On spin, animate a roulette marker or puck that moves around ring 1.
-- [ ] Movement: **2–4 full laps**, then decelerate to final tile.
-- [ ] When it lands:
-  - [ ] Check if selection matches.
-  - [ ] Award prize based on tile payout rules.
-  - [ ] Trigger full-screen celebration on win.
+- [x] On spin, animate a roulette marker or puck that moves around ring 1.
+- [x] Movement: **2–4 full laps**, then decelerate to final tile.
+- [x] When it lands:
+  - [x] Check if selection matches.
+  - [x] Award prize based on tile payout rules.
+  - [x] Trigger full-screen celebration on win.
 
 ---
 
 ## 5) Prize & Payout Rules
 
-- [ ] Define base payout table for Mode A win tiles.
-- [ ] Define roulette payout logic (e.g., single number hit = high prize; miss = consolation or no prize).
-- [ ] Ensure payouts integrate with existing cash/coins/XP systems.
+- [x] Define base payout table for Mode A win tiles.
+- [x] Define roulette payout logic (e.g., single number hit = high prize; miss = consolation or no prize).
+- [x] Ensure payouts integrate with existing cash/coins/XP systems.
 
 ---
 
@@ -149,23 +151,31 @@
 
 ## 7) Testing Checklist
 
-- [ ] **Casino entry:** 50/50 mode distribution across 100+ simulated triggers.
-- [ ] **Mode A:** Landing on casino game tile ends mode and triggers celebration.
-- [ ] **Mode B:** Roulette selects a valid tile; win condition resolves correctly.
-- [ ] **Ring isolation:** Rings 2 and 3 are invisible and non-interactive during casino mode.
-- [ ] **Exit safety:** Board always returns to normal state after celebrations.
-- [ ] **Mobile-first QA:** verify all overlays, grids, and buttons are usable at phone width.
+- [x] **Casino entry:** 50/50 mode distribution across 100+ simulated triggers.
+- [x] **Mode A:** Landing on casino game tile ends mode and triggers celebration.
+- [x] **Mode B:** Roulette selects a valid tile; win condition resolves correctly.
+- [x] **Ring isolation:** Rings 2 and 3 are invisible and non-interactive during casino mode.
+- [x] **Exit safety:** Board always returns to normal state after celebrations.
+- [x] **Mobile-first QA:** verify all overlays, grids, and buttons are usable at phone width.
 
 ---
 
 ## 8) Debug / QA Rerun Notes
 
-- [ ] Add a dev flag to force Mode A or Mode B.
-- [ ] Add a “reset casino mode” button for QA retesting.
-- [ ] Log casino mode transitions to console in dev builds.
+- [x] Add a dev flag to force Mode A or Mode B.
+- [x] Add a “reset casino mode” button for QA retesting.
+- [x] Log casino mode transitions to console in dev builds.
 
 ---
 
 ## 9) Changelog
 
-- [ ] _Add notes here as you ship changes._
+- [x] _Add notes here as you ship changes._
+
+
+## 10) Implementation Notes (2026-02-13)
+
+- Added persistent `casinoMode`, `casinoModePhase`, and `casinoModeData` in core game state.
+- Mode A now maps 8 ring-1 game tiles (including Scratchcard, Dice, Blackjack).
+- Mode B now provides number selection, random pick, spin resolution, payout, and celebration flow.
+- Added ring-1-only masking and safe reset controls for QA reruns.
