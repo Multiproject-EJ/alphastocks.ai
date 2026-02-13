@@ -1,4 +1,48 @@
 **Date:** 2026-02-12
+**Slice:** P6.56 stock modal pulse tone classes + freshness guardrails
+**Summary:**
+- Added config-first stock-card pulse tone tokens (`pulseFreshToneClass`, `pulseStaleToneClass`) so pulse callout color treatment remains tunable without component edits.
+- Updated `StockModal` pulse callout rendering to switch tone classes based on existing freshness thresholds (fresh vs stale pulse headlines).
+- Added stock-card/freshness fallback guardrails in `StockModal` so partial AI-insights config data degrades safely and avoids runtime brittleness.
+- Expanded AI insights config tests for new pulse tone token defaults/fallback normalization.
+
+**Files changed:**
+- config/ai_insights.json
+- apps/investing-board-game-v3/src/config/aiInsights.ts
+- apps/investing-board-game-v3/src/config/__tests__/aiInsights.test.ts
+- apps/investing-board-game-v3/src/components/StockModal.tsx
+- DEV_PLAN.md
+- CHANGELOG_DEV.md
+
+**SQL migrations:**
+- (none)
+
+**How to test:**
+- `cd apps/investing-board-game-v3 && npm run test -- src/config/__tests__/aiInsights.test.ts`
+
+**Date:** 2026-02-12
+**Slice:** P6.55 stock modal ValueBot metadata strip
+**Summary:**
+- Added config-first stock-card display tokens in `ai_insights` (`analysisLabel`, model prefix, stale-after-days, stale badge label, pulse labels) to keep stock-modal metadata copy tunable without touching ValueBot processing.
+- Updated `StockModal` to surface existing ValueBot-backed fields already mapped from `investment_universe` (risk/quality/timing labels, analyzed age, stale-analysis badge, model line).
+- Added a latest market-pulse callout in stock cards by reusing existing in-game AI insights fixtures keyed by ticker (display-only).
+- Updated `DEV_PLAN.md` progress log: marked P6.55 complete and queued P6.56 pulse tone-class follow-up.
+
+**Files changed:**
+- config/ai_insights.json
+- apps/investing-board-game-v3/src/config/aiInsights.ts
+- apps/investing-board-game-v3/src/config/__tests__/aiInsights.test.ts
+- apps/investing-board-game-v3/src/components/StockModal.tsx
+- DEV_PLAN.md
+- CHANGELOG_DEV.md
+
+**SQL migrations:**
+- (none)
+
+**How to test:**
+- `cd apps/investing-board-game-v3 && npm run test -- src/config/__tests__/aiInsights.test.ts`
+
+**Date:** 2026-02-12
 **Slice:** P6.54 AI insights Hub entrypoint CTA label token
 **Summary:**
 - Added config-first `hubEntrypointCtaLabel` to the AI insights surface config so Hub launch button copy is tunable without component edits.

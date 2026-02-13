@@ -1,6 +1,13 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
 import { Stock } from '@/lib/types'
+import { AI_INSIGHTS_FIXTURES, AI_INSIGHTS_SURFACE } from '@/lib/aiInsightsFixtures'
+import {
+  formatRelativeAgeDaysPhrase,
+  formatRelativeAgeFallbackPhrase,
+  formatRelativeAgeHoursPhrase,
+  formatRelativeAgePhrase,
+} from '@/config/aiInsights'
 import type { RingNumber } from '@/lib/types'
 
 interface StockModalProps {
@@ -12,6 +19,50 @@ interface StockModalProps {
   ringNumber?: RingNumber
   playSound?: (sound: string) => void
   onOpenProTools?: () => void
+}
+
+
+const STOCK_CARD_DEFAULTS = {
+  analysisLabel: 'ValueBot analysis',
+  modelLabelPrefix: 'Model',
+  staleAfterDays: 30,
+  staleBadgeLabel: 'Stale analysis',
+  latestPulseLabel: 'Latest market pulse',
+  noPulseLabel: 'No recent market pulse for this symbol yet.',
+  pulseFreshToneClass: 'text-emerald-200',
+  pulseStaleToneClass: 'text-amber-200',
+}
+
+const STOCK_CARD_CONFIG = {
+  ...STOCK_CARD_DEFAULTS,
+  ...(AI_INSIGHTS_SURFACE?.stockCard ?? {}),
+}
+
+const AI_INSIGHTS_FIXTURE_LIST = Array.isArray(AI_INSIGHTS_FIXTURES) ? AI_INSIGHTS_FIXTURES : []
+
+const RELATIVE_AGE_DEFAULTS = {
+  updatedLabel: 'Updated',
+  justNowLabel: 'Just now',
+  minutesAgoTemplate: '{minutes}m ago',
+  hoursAgoTemplate: '{hours}h ago',
+  daysAgoTemplate: '{days}d ago',
+  hoursThresholdMinutes: 60,
+  hourCountDivisorMinutes: 60,
+  hourCountMinimum: 1,
+  daysThresholdMinutes: 1440,
+  dayCountDivisorMinutes: 1440,
+  dayCountMinimum: 1,
+  fallbackTemplate: '{label}',
+  unavailableLabel: 'Time unavailable',
+}
+
+const FRESHNESS_CONFIG = {
+  staleAfterMinutes: 60,
+  relativeAge: {
+    ...RELATIVE_AGE_DEFAULTS,
+    ...(AI_INSIGHTS_SURFACE?.freshness?.relativeAge ?? {}),
+  },
+  ...(AI_INSIGHTS_SURFACE?.freshness ?? {}),
 }
 
 // Stock hook generator - one catchy line per stock type
@@ -112,6 +163,77 @@ function BuyParticles() {
   )
 }
 
+
+function getAgeMinutes(timestamp?: string | null): number {
+  if (!timestamp) return Number.POSITIVE_INFINITY
+
+  const parsed = new Date(timestamp).getTime()
+  if (!Number.isFinite(parsed)) return Number.POSITIVE_INFINITY
+
+  return Math.max(0, (Date.now() - parsed) / 60000)
+}
+
+function formatAnalysisAge(timestamp?: string | null): string {
+  const relativeAgeConfig = FRESHNESS_CONFIG.relativeAge
+  const ageMinutes = getAgeMinutes(timestamp)
+
+  if (!Number.isFinite(ageMinutes)) {
+    return formatRelativeAgeFallbackPhrase({
+      fallbackTemplate: relativeAgeConfig.fallbackTemplate,
+      label: relativeAgeConfig.unavailableLabel,
+    })
+  }
+
+  const roundedAgeMinutes = Math.floor(ageMinutes)
+
+  if (roundedAgeMinutes <= 0) {
+    return formatRelativeAgeFallbackPhrase({
+      fallbackTemplate: relativeAgeConfig.fallbackTemplate,
+      label: relativeAgeConfig.justNowLabel,
+    })
+  }
+
+  if (roundedAgeMinutes >= relativeAgeConfig.daysThresholdMinutes) {
+    const dayCount = Math.max(
+      relativeAgeConfig.dayCountMinimum,
+      Math.floor(roundedAgeMinutes / relativeAgeConfig.dayCountDivisorMinutes),
+    )
+
+    return formatRelativeAgeDaysPhrase({
+      daysAgoTemplate: relativeAgeConfig.daysAgoTemplate,
+      days: dayCount,
+    })
+  }
+
+  if (roundedAgeMinutes >= relativeAgeConfig.hoursThresholdMinutes) {
+    const hourCount = Math.max(
+      relativeAgeConfig.hourCountMinimum,
+      Math.floor(roundedAgeMinutes / relativeAgeConfig.hourCountDivisorMinutes),
+    )
+
+    return formatRelativeAgeHoursPhrase({
+      hoursAgoTemplate: relativeAgeConfig.hoursAgoTemplate,
+      hours: hourCount,
+    })
+  }
+
+  return formatRelativeAgePhrase({
+    minutesAgoTemplate: relativeAgeConfig.minutesAgoTemplate,
+    minutes: roundedAgeMinutes,
+  })
+}
+
+function getLatestPulseForTicker(ticker?: string | null) {
+  const normalizedTicker = ticker?.trim().toUpperCase()
+  if (!normalizedTicker) return null
+
+  const matches = AI_INSIGHTS_FIXTURE_LIST
+    .filter((insight) => insight.symbol.trim().toUpperCase() === normalizedTicker)
+    .sort((a, b) => getAgeMinutes(a.updatedAt) - getAgeMinutes(b.updatedAt))
+
+  return matches[0] ?? null
+}
+
 // Haptic feedback utility
 function triggerHaptic(type: 'light' | 'medium' | 'heavy' = 'medium') {
   if (typeof navigator === 'undefined' || !navigator.vibrate) return
@@ -191,6 +313,14 @@ export function StockModal({
   const qualityScore = stock.scores?.quality ?? 5
   const riskScore = stock.scores?.risk ?? 5
   const timingScore = stock.scores?.timing ?? 5
+  const analysisAge = formatAnalysisAge(stock.analyzed_at)
+  const staleAfterMinutes = STOCK_CARD_CONFIG.staleAfterDays * 24 * 60
+  const isAnalysisStale = getAgeMinutes(stock.analyzed_at) >= staleAfterMinutes
+  const latestPulse = getLatestPulseForTicker(stock.ticker)
+  const isPulseStale = latestPulse
+    ? getAgeMinutes(latestPulse.updatedAt) >= FRESHNESS_CONFIG.staleAfterMinutes
+    : false
+  const pulseToneClass = isPulseStale ? STOCK_CARD_CONFIG.pulseStaleToneClass : STOCK_CARD_CONFIG.pulseFreshToneClass
 
   return (
     <AnimatePresence>
@@ -280,6 +410,39 @@ export function StockModal({
                 <ScoreMiniBar label="Quality" value={qualityScore} />
                 <ScoreMiniBar label="Risk" value={10 - riskScore} />
                 <ScoreMiniBar label="Timing" value={timingScore} />
+              </div>
+
+
+              <div className="mt-3 space-y-2 rounded-xl border border-cyan-500/20 bg-cyan-500/5 p-2 text-[11px]">
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <span className="font-semibold text-cyan-200">{STOCK_CARD_CONFIG.analysisLabel}</span>
+                  {stock.quality_label ? (
+                    <span className="rounded-full border border-emerald-400/40 px-2 py-0.5 text-emerald-200">Q: {stock.quality_label}</span>
+                  ) : null}
+                  {stock.risk_label ? (
+                    <span className="rounded-full border border-amber-400/40 px-2 py-0.5 text-amber-200">R: {stock.risk_label}</span>
+                  ) : null}
+                  {stock.timing_label ? (
+                    <span className="rounded-full border border-sky-400/40 px-2 py-0.5 text-sky-200">T: {stock.timing_label}</span>
+                  ) : null}
+                  {isAnalysisStale ? (
+                    <span className="rounded-full border border-rose-400/50 bg-rose-500/10 px-2 py-0.5 text-rose-200">
+                      {STOCK_CARD_CONFIG.staleBadgeLabel}
+                    </span>
+                  ) : null}
+                </div>
+
+                <p className="text-gray-300">
+                  {FRESHNESS_CONFIG.relativeAge.updatedLabel}: {analysisAge}
+                </p>
+                {stock.ai_model ? (
+                  <p className="text-gray-400">
+                    {STOCK_CARD_CONFIG.modelLabelPrefix}: {stock.ai_model}
+                  </p>
+                ) : null}
+                <p className={`${pulseToneClass}`}>
+                  {STOCK_CARD_CONFIG.latestPulseLabel}: {latestPulse ? latestPulse.headline : STOCK_CARD_CONFIG.noPulseLabel}
+                </p>
               </div>
 
               {/* ProTools Report Link */}

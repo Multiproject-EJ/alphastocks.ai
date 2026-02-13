@@ -57,6 +57,14 @@ describe('aiInsights config', () => {
     expect(AI_INSIGHTS_SURFACE.resetFiltersLabel.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.hubEntrypointCopy.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.hubEntrypointCtaLabel.length).toBeGreaterThan(0)
+    expect(AI_INSIGHTS_SURFACE.stockCard.analysisLabel.length).toBeGreaterThan(0)
+    expect(AI_INSIGHTS_SURFACE.stockCard.modelLabelPrefix.length).toBeGreaterThan(0)
+    expect(AI_INSIGHTS_SURFACE.stockCard.staleAfterDays).toBeGreaterThanOrEqual(1)
+    expect(AI_INSIGHTS_SURFACE.stockCard.staleBadgeLabel.length).toBeGreaterThan(0)
+    expect(AI_INSIGHTS_SURFACE.stockCard.latestPulseLabel.length).toBeGreaterThan(0)
+    expect(AI_INSIGHTS_SURFACE.stockCard.noPulseLabel.length).toBeGreaterThan(0)
+    expect(AI_INSIGHTS_SURFACE.stockCard.pulseFreshToneClass.length).toBeGreaterThan(0)
+    expect(AI_INSIGHTS_SURFACE.stockCard.pulseStaleToneClass.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.freshness.label.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.freshness.freshLabel.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.freshness.staleLabel.length).toBeGreaterThan(0)
@@ -132,6 +140,33 @@ describe('aiInsights config', () => {
     expect(normalized.surface.filters.sortOptions[1].helperToneClass).toBe('text-violet-100/95')
     expect(normalized.surface.filters.sortOptions[0].helperContainerToneClass).toBe('border-cyan-400/40 bg-cyan-500/10')
     expect(normalized.surface.filters.sortOptions[1].helperContainerToneClass).toBe('border-violet-400/40 bg-violet-500/10')
+  })
+
+  it('applies stock-card config fallbacks in normalization output', () => {
+    const normalized = normalizeAIInsightsConfig({
+      surface: {
+        stockCard: {
+          analysisLabel: '',
+          modelLabelPrefix: '',
+          staleAfterDays: 0,
+          staleBadgeLabel: '',
+          latestPulseLabel: '',
+          noPulseLabel: '',
+          pulseFreshToneClass: '',
+          pulseStaleToneClass: '',
+        },
+      },
+      fixtures: AI_INSIGHTS_FIXTURES,
+    })
+
+    expect(normalized.surface.stockCard.analysisLabel).toBe('ValueBot analysis')
+    expect(normalized.surface.stockCard.modelLabelPrefix).toBe('Model')
+    expect(normalized.surface.stockCard.staleAfterDays).toBe(30)
+    expect(normalized.surface.stockCard.staleBadgeLabel).toBe('Stale analysis')
+    expect(normalized.surface.stockCard.latestPulseLabel).toBe('Latest market pulse')
+    expect(normalized.surface.stockCard.noPulseLabel).toBe('No recent market pulse for this symbol yet.')
+    expect(normalized.surface.stockCard.pulseFreshToneClass).toBe('text-emerald-200')
+    expect(normalized.surface.stockCard.pulseStaleToneClass).toBe('text-amber-200')
   })
 
   it('applies hub entrypoint CTA label fallback in normalization output', () => {

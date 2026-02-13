@@ -46,6 +46,16 @@ export type AIInsightsSurfaceConfig = {
   resetFiltersLabel: string
   hubEntrypointCopy: string
   hubEntrypointCtaLabel: string
+  stockCard: {
+    analysisLabel: string
+    modelLabelPrefix: string
+    staleAfterDays: number
+    staleBadgeLabel: string
+    latestPulseLabel: string
+    noPulseLabel: string
+    pulseFreshToneClass: string
+    pulseStaleToneClass: string
+  }
   freshness: {
     label: string
     freshLabel: string
@@ -133,6 +143,16 @@ const DEFAULT_AI_INSIGHTS_CONFIG: AIInsightsConfig = {
     resetFiltersLabel: 'Reset all filters',
     hubEntrypointCopy: 'Tap below to open the full AI Insights module with filters and freshness controls.',
     hubEntrypointCtaLabel: 'Open AI Insights panel',
+    stockCard: {
+      analysisLabel: 'ValueBot analysis',
+      modelLabelPrefix: 'Model',
+      staleAfterDays: 30,
+      staleBadgeLabel: 'Stale analysis',
+      latestPulseLabel: 'Latest market pulse',
+      noPulseLabel: 'No recent market pulse for this symbol yet.',
+      pulseFreshToneClass: 'text-emerald-200',
+      pulseStaleToneClass: 'text-amber-200',
+    },
     freshness: {
       label: 'Data freshness',
       freshLabel: 'Fresh',
@@ -765,6 +785,40 @@ const normalizeConfig = (config: unknown): AIInsightsConfig => {
         candidate.surface?.hubEntrypointCtaLabel,
         DEFAULT_AI_INSIGHTS_CONFIG.surface.hubEntrypointCtaLabel,
       ),
+      stockCard: {
+        analysisLabel: coerceString(
+          candidate.surface?.stockCard?.analysisLabel,
+          DEFAULT_AI_INSIGHTS_CONFIG.surface.stockCard.analysisLabel,
+        ),
+        modelLabelPrefix: coerceString(
+          candidate.surface?.stockCard?.modelLabelPrefix,
+          DEFAULT_AI_INSIGHTS_CONFIG.surface.stockCard.modelLabelPrefix,
+        ),
+        staleAfterDays: Math.max(1, normalizeCooldownCountdownValue(
+          candidate.surface?.stockCard?.staleAfterDays,
+          DEFAULT_AI_INSIGHTS_CONFIG.surface.stockCard.staleAfterDays,
+        )),
+        staleBadgeLabel: coerceString(
+          candidate.surface?.stockCard?.staleBadgeLabel,
+          DEFAULT_AI_INSIGHTS_CONFIG.surface.stockCard.staleBadgeLabel,
+        ),
+        latestPulseLabel: coerceString(
+          candidate.surface?.stockCard?.latestPulseLabel,
+          DEFAULT_AI_INSIGHTS_CONFIG.surface.stockCard.latestPulseLabel,
+        ),
+        noPulseLabel: coerceString(
+          candidate.surface?.stockCard?.noPulseLabel,
+          DEFAULT_AI_INSIGHTS_CONFIG.surface.stockCard.noPulseLabel,
+        ),
+        pulseFreshToneClass: coerceString(
+          candidate.surface?.stockCard?.pulseFreshToneClass,
+          DEFAULT_AI_INSIGHTS_CONFIG.surface.stockCard.pulseFreshToneClass,
+        ),
+        pulseStaleToneClass: coerceString(
+          candidate.surface?.stockCard?.pulseStaleToneClass,
+          DEFAULT_AI_INSIGHTS_CONFIG.surface.stockCard.pulseStaleToneClass,
+        ),
+      },
       freshness: {
         label: coerceString(candidate.surface?.freshness?.label, DEFAULT_AI_INSIGHTS_CONFIG.surface.freshness.label),
         freshLabel: coerceString(candidate.surface?.freshness?.freshLabel, DEFAULT_AI_INSIGHTS_CONFIG.surface.freshness.freshLabel),

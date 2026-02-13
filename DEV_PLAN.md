@@ -55,7 +55,7 @@ To validate documentation coverage, a repo-wide scan of Markdown files was run t
 - `AI_IMPLEMENTATION.md`, `IMPLEMENTATION_SUMMARY.md`, `DEVLOG.md` (project-wide status/context)
 
 ### Repo Map (paths verified)
-_Last reviewed: 2026-02-12 (AI insights Hub entrypoint CTA label token)_
+_Last reviewed: 2026-02-12 (stock modal pulse tone classes + freshness guardrails)_
 #### Frontend
 - **Legacy static pages entry:** `/index.html`, `/about.html`, `/faq.html`, `/monthly/`, `/weekly/`, `/superinvestor/`
 - **Vite + Preact app:** `/apps/investing-board-game-v3` (built into `/public/board-game-v3` via `npm run build:board-game-v3`)
@@ -365,7 +365,9 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P6.52** ✅ Add config-first AI insights sort helper text-wrap token so long helper copy remains readable on narrow mobile widths
 - **P6.53** ✅ Add config-first AI insights entrypoint copy token in Hub Insights tab so players immediately know where to open the full module
 - **P6.54** ✅ Add config-first AI insights entrypoint CTA label token in Hub Insights tab so launch copy is tunable without modal edits
-- **P6.55** ⏳ Add config-first AI insights entrypoint helper text tone class token in Hub Insights tab so supporting copy readability is tunable without component edits
+- **P6.55** ✅ Add config-first stock modal ValueBot metadata strip (labels + freshness + pulse callout) so cards reflect existing analysis without changing ValueBot processing
+- **P6.56** ✅ Add config-first stock modal pulse tone classes + freshness guardrails so pulse callouts stay readable and resilient across ring themes
+- **P6.57** ⏳ Add config-first stock modal analysis-chip tone classes so metadata strip color tuning stays centralized and easy to tweak
 
 ---
 
@@ -397,12 +399,24 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P6.55 — Add config-first AI insights entrypoint helper text tone class token in Hub Insights tab so supporting copy readability is tunable without component edits.**
+**Recommended next slice:** **P6.57 — Add config-first stock modal analysis-chip tone classes so metadata strip color tuning stays centralized and easy to tweak.**
 
 ## Progress Log (rolling)
-- **Done (latest):** P6.54 Add config-first AI insights entrypoint CTA label token in Hub Insights tab so launch copy is tunable without modal edits.
-- **Next step:** P6.55 Add config-first AI insights entrypoint helper text tone class token in Hub Insights tab so supporting copy readability is tunable without component edits.
+- **Done (latest):** P6.56 Add config-first stock modal pulse tone classes + freshness guardrails so pulse callouts stay readable and resilient across ring themes.
+- **Next step:** P6.57 Add config-first stock modal analysis-chip tone classes so metadata strip color tuning stays centralized and easy to tweak.
 
+
+
+## P6.56 Slice Notes (Stock modal pulse tone classes + freshness guardrails)
+- Added config-first pulse tone-class tokens (`pulseFreshToneClass`, `pulseStaleToneClass`) under AI insights stock-card config so pulse callout readability can be tuned without component rewrites.
+- Updated `StockModal` to apply pulse tone classes based on existing freshness thresholds, giving players clearer visual differentiation between fresher and staler pulse headlines.
+- Added stock-modal freshness/config fallback guardrails in the UI layer so missing/partial stock-card config values degrade safely instead of risking startup/runtime regressions.
+
+
+## P6.55 Slice Notes (Stock modal ValueBot metadata strip)
+- Added config-first stock-card copy tokens under AI insights surface config (`analysisLabel`, stale badge, pulse labels, model prefix, stale-after-days) so card metadata copy can be tuned without touching ValueBot pipeline code.
+- Updated `StockModal` to render existing ValueBot-backed metadata already present on stock payloads (risk/quality/timing labels, analyzed-age line, stale-analysis badge, model line).
+- Added a latest market-pulse callout on stock cards by reusing existing AI Insights fixtures keyed by ticker, keeping this slice display-only and leaving ValueBot generation/queue processes unchanged.
 
 
 ## P6.54 Slice Notes (AI insights Hub entrypoint CTA label token)
