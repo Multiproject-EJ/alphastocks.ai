@@ -133,7 +133,11 @@
       "latestPulseLabel": "Latest market pulse",
       "noPulseLabel": "No recent market pulse for this symbol yet.",
       "pulseFreshToneClass": "text-emerald-200",
-      "pulseStaleToneClass": "text-amber-200"
+      "pulseStaleToneClass": "text-amber-200",
+      "qualityChipToneClass": "border-emerald-400/40 text-emerald-200",
+      "riskChipToneClass": "border-amber-400/40 text-amber-200",
+      "timingChipToneClass": "border-sky-400/40 text-sky-200",
+      "staleChipToneClass": "border-rose-400/50 bg-rose-500/10 text-rose-200"
     }
   },
   "fixtures": [

@@ -65,6 +65,10 @@ describe('aiInsights config', () => {
     expect(AI_INSIGHTS_SURFACE.stockCard.noPulseLabel.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.stockCard.pulseFreshToneClass.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.stockCard.pulseStaleToneClass.length).toBeGreaterThan(0)
+    expect(AI_INSIGHTS_SURFACE.stockCard.qualityChipToneClass.length).toBeGreaterThan(0)
+    expect(AI_INSIGHTS_SURFACE.stockCard.riskChipToneClass.length).toBeGreaterThan(0)
+    expect(AI_INSIGHTS_SURFACE.stockCard.timingChipToneClass.length).toBeGreaterThan(0)
+    expect(AI_INSIGHTS_SURFACE.stockCard.staleChipToneClass.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.freshness.label.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.freshness.freshLabel.length).toBeGreaterThan(0)
     expect(AI_INSIGHTS_SURFACE.freshness.staleLabel.length).toBeGreaterThan(0)
@@ -154,6 +158,10 @@ describe('aiInsights config', () => {
           noPulseLabel: '',
           pulseFreshToneClass: '',
           pulseStaleToneClass: '',
+          qualityChipToneClass: '',
+          riskChipToneClass: '',
+          timingChipToneClass: '',
+          staleChipToneClass: '',
         },
       },
       fixtures: AI_INSIGHTS_FIXTURES,
@@ -167,6 +175,10 @@ describe('aiInsights config', () => {
     expect(normalized.surface.stockCard.noPulseLabel).toBe('No recent market pulse for this symbol yet.')
     expect(normalized.surface.stockCard.pulseFreshToneClass).toBe('text-emerald-200')
     expect(normalized.surface.stockCard.pulseStaleToneClass).toBe('text-amber-200')
+    expect(normalized.surface.stockCard.qualityChipToneClass).toBe('border-emerald-400/40 text-emerald-200')
+    expect(normalized.surface.stockCard.riskChipToneClass).toBe('border-amber-400/40 text-amber-200')
+    expect(normalized.surface.stockCard.timingChipToneClass).toBe('border-sky-400/40 text-sky-200')
+    expect(normalized.surface.stockCard.staleChipToneClass).toBe('border-rose-400/50 bg-rose-500/10 text-rose-200')
   })
 
   it('applies hub entrypoint CTA label fallback in normalization output', () => {

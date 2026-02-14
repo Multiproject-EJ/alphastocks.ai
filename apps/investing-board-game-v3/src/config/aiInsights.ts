@@ -55,6 +55,10 @@ export type AIInsightsSurfaceConfig = {
     noPulseLabel: string
     pulseFreshToneClass: string
     pulseStaleToneClass: string
+    qualityChipToneClass: string
+    riskChipToneClass: string
+    timingChipToneClass: string
+    staleChipToneClass: string
   }
   freshness: {
     label: string
@@ -152,6 +156,10 @@ const DEFAULT_AI_INSIGHTS_CONFIG: AIInsightsConfig = {
       noPulseLabel: 'No recent market pulse for this symbol yet.',
       pulseFreshToneClass: 'text-emerald-200',
       pulseStaleToneClass: 'text-amber-200',
+      qualityChipToneClass: 'border-emerald-400/40 text-emerald-200',
+      riskChipToneClass: 'border-amber-400/40 text-amber-200',
+      timingChipToneClass: 'border-sky-400/40 text-sky-200',
+      staleChipToneClass: 'border-rose-400/50 bg-rose-500/10 text-rose-200',
     },
     freshness: {
       label: 'Data freshness',
@@ -817,6 +825,22 @@ const normalizeConfig = (config: unknown): AIInsightsConfig => {
         pulseStaleToneClass: coerceString(
           candidate.surface?.stockCard?.pulseStaleToneClass,
           DEFAULT_AI_INSIGHTS_CONFIG.surface.stockCard.pulseStaleToneClass,
+        ),
+        qualityChipToneClass: coerceString(
+          candidate.surface?.stockCard?.qualityChipToneClass,
+          DEFAULT_AI_INSIGHTS_CONFIG.surface.stockCard.qualityChipToneClass,
+        ),
+        riskChipToneClass: coerceString(
+          candidate.surface?.stockCard?.riskChipToneClass,
+          DEFAULT_AI_INSIGHTS_CONFIG.surface.stockCard.riskChipToneClass,
+        ),
+        timingChipToneClass: coerceString(
+          candidate.surface?.stockCard?.timingChipToneClass,
+          DEFAULT_AI_INSIGHTS_CONFIG.surface.stockCard.timingChipToneClass,
+        ),
+        staleChipToneClass: coerceString(
+          candidate.surface?.stockCard?.staleChipToneClass,
+          DEFAULT_AI_INSIGHTS_CONFIG.surface.stockCard.staleChipToneClass,
         ),
       },
       freshness: {

@@ -1,3 +1,24 @@
+**Date:** 2026-02-14
+**Slice:** P6.57 stock modal analysis-chip tone classes
+**Summary:**
+- Added config-first stock-card chip tone tokens (`qualityChipToneClass`, `riskChipToneClass`, `timingChipToneClass`, `staleChipToneClass`) so metadata chip color treatment can be tuned without component edits.
+- Updated `StockModal` to consume the new config-first chip tone classes for quality/risk/timing/stale badges instead of hardcoded utility-class strings.
+- Expanded AI insights config tests to validate new token defaults/fallback normalization and updated `DEV_PLAN.md` next-slice tracking to queue P6.58.
+
+**Files changed:**
+- config/ai_insights.json
+- apps/investing-board-game-v3/src/config/aiInsights.ts
+- apps/investing-board-game-v3/src/config/__tests__/aiInsights.test.ts
+- apps/investing-board-game-v3/src/components/StockModal.tsx
+- DEV_PLAN.md
+- CHANGELOG_DEV.md
+
+**SQL migrations:**
+- (none)
+
+**How to test:**
+- `cd apps/investing-board-game-v3 && npm run test -- src/config/__tests__/aiInsights.test.ts`
+
 **Date:** 2026-02-12
 **Slice:** P6.56 stock modal pulse tone classes + freshness guardrails
 **Summary:**

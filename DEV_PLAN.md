@@ -367,7 +367,8 @@ Each milestone is broken into slices. Implement **exactly one slice** per run.
 - **P6.54** ✅ Add config-first AI insights entrypoint CTA label token in Hub Insights tab so launch copy is tunable without modal edits
 - **P6.55** ✅ Add config-first stock modal ValueBot metadata strip (labels + freshness + pulse callout) so cards reflect existing analysis without changing ValueBot processing
 - **P6.56** ✅ Add config-first stock modal pulse tone classes + freshness guardrails so pulse callouts stay readable and resilient across ring themes
-- **P6.57** ⏳ Add config-first stock modal analysis-chip tone classes so metadata strip color tuning stays centralized and easy to tweak
+- **P6.57** ✅ Add config-first stock modal analysis-chip tone classes so metadata strip color tuning stays centralized and easy to tweak
+- **P6.58** ⏳ Add config-first stock modal metadata strip container tone classes so card shell contrast can be tuned per theme without component edits
 
 ---
 
@@ -399,12 +400,18 @@ All SQL changes must be logged in `MIGRATIONS_LOG.md` with purpose, dependencies
 ---
 
 ## Next Slice
-**Recommended next slice:** **P6.57 — Add config-first stock modal analysis-chip tone classes so metadata strip color tuning stays centralized and easy to tweak.**
+**Recommended next slice:** **P6.58 — Add config-first stock modal metadata strip container tone classes so card shell contrast can be tuned per theme without component edits.**
 
 ## Progress Log (rolling)
-- **Done (latest):** P6.56 Add config-first stock modal pulse tone classes + freshness guardrails so pulse callouts stay readable and resilient across ring themes.
-- **Next step:** P6.57 Add config-first stock modal analysis-chip tone classes so metadata strip color tuning stays centralized and easy to tweak.
+- **Done (latest):** P6.57 Add config-first stock modal analysis-chip tone classes so metadata strip color tuning stays centralized and easy to tweak.
+- **Next step:** P6.58 Add config-first stock modal metadata strip container tone classes so card shell contrast can be tuned per theme without component edits.
 
+
+
+## P6.57 Slice Notes (Stock modal analysis-chip tone classes)
+- Added config-first stock-card analysis-chip tone tokens (`qualityChipToneClass`, `riskChipToneClass`, `timingChipToneClass`, `staleChipToneClass`) under AI insights surface config so chip color treatment stays centralized.
+- Updated `StockModal` metadata-strip chips to consume those tokens instead of hardcoded chip border/text classes, keeping mobile UI tuning data-driven.
+- Expanded AI insights config normalization coverage with fallback assertions for all new analysis-chip tone tokens and queued P6.58 for metadata-strip container tone controls.
 
 
 ## P6.56 Slice Notes (Stock modal pulse tone classes + freshness guardrails)
