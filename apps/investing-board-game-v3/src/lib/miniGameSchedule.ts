@@ -49,7 +49,7 @@ export const MINI_GAME_CONFIG: MiniGameSchedule[] = [
   },
   {
     id: 'bias-sanctuary',
-    name: 'Bias Sanctuary',
+    name: 'Investment Phycology',
     category: 'always',
     isActive: true,
     dailyLimit: 3,

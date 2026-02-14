@@ -60,8 +60,8 @@ export const BOARD_TILES: Tile[] = [
   { id: 19, type: 'event', title: 'Wildcard' },
   { id: 20, type: 'quick-reward', title: 'XP Boost', quickRewardType: 'xp' },
   
-  // Corner - Bias Sanctuary
-  { id: 21, type: 'corner', title: 'Bias Sanctuary' },
+  // Corner - Investment Phycology
+  { id: 21, type: 'corner', title: 'Investment Phycology' },
   
   // Stock tile
   { id: 22, type: 'category', title: 'Turnaround Town', category: 'turnarounds', colorBorder: 'oklch(0.65 0.25 330)' },

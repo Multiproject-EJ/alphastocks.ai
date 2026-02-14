@@ -33,7 +33,7 @@ The UI Mode State Machine provides a centralized way to manage different view mo
 | `hub` | Hub/navigation view | board, cityBuilder, gallery, portfolio, shop, challenges, leaderboard |
 | `shop` | Shop interface | board, hub |
 | `casino` | Casino mini-game | board |
-| `biasSanctuary` | Case Study (bias sanctuary modal) | board |
+| `biasSanctuary` | Case Study (investment phycology modal) | board |
 | `challenges` | Challenges view | board, hub |
 | `leaderboard` | Leaderboard view | board, hub |
 | `settings` | Settings | board, hub |

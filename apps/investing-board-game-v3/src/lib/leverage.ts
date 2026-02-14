@@ -25,3 +25,28 @@ export function clampMultiplierToLeverage(multiplier: number, level: number): Ro
   }
   return fallback
 }
+
+
+export function getRollsBasedMultiplierCap(rollsRemaining: number): number {
+  if (rollsRemaining >= 100) return 50
+  if (rollsRemaining >= 30) return 20
+  if (rollsRemaining >= 20) return 10
+  if (rollsRemaining >= 10) return 5
+  if (rollsRemaining >= 5) return 2
+  return 1
+}
+
+export function getAvailableMultipliers(level: number, rollsRemaining: number): RollMultiplier[] {
+  const unlocked = getUnlockedMultipliers(level)
+  const rollsCap = getRollsBasedMultiplierCap(rollsRemaining)
+  const filtered = unlocked.filter(multiplier => multiplier <= rollsCap)
+  return filtered.length > 0 ? filtered : [MULTIPLIERS[0]]
+}
+
+export function clampMultiplierByRollsAndLeverage(multiplier: number, level: number, rollsRemaining: number): RollMultiplier {
+  const available = getAvailableMultipliers(level, rollsRemaining)
+  if (available.includes(multiplier as RollMultiplier)) {
+    return multiplier as RollMultiplier
+  }
+  return available[available.length - 1] ?? MULTIPLIERS[0]
+}

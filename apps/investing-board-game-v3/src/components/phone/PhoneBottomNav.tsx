@@ -31,6 +31,8 @@ interface PhoneBottomNavProps {
   onRollDice: (multiplier: number) => void;
   onCycleMultiplier: () => void;
   multiplier: number;
+  multiplierCap?: number;
+  availableMultipliers?: number[];
   leverageLevel?: number;
   momentum?: number;
   momentumMax?: number;
@@ -52,6 +54,8 @@ export function PhoneBottomNav({
   onRollDice,
   onCycleMultiplier,
   multiplier,
+  multiplierCap = 1,
+  availableMultipliers = [1],
   leverageLevel = 0,
   momentum = 0,
   momentumMax = 100,
@@ -201,6 +205,8 @@ export function PhoneBottomNav({
             onToggleAutoRoll={onToggleAutoRoll}
             onCycleMultiplier={onCycleMultiplier}
             multiplier={multiplier}
+            multiplierCap={multiplierCap}
+            availableMultipliers={availableMultipliers}
             leverageLevel={leverageLevel}
             momentum={momentum}
             momentumMax={momentumMax}

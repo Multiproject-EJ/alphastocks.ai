@@ -11,7 +11,7 @@ const TIPS = [
   "💡 Complete daily challenges for bonus stars",
   "💡 Save your game progress by signing in",
   "💡 Weekend events offer 2x rewards",
-  "💡 Learn about investing biases in Bias Sanctuary",
+  "💡 Learn about investing biases in Investment Phycology",
   "💡 Upgrade your dice in the shop for unique styles",
   "💡 Check the leaderboard to see how you rank",
   "💡 Level up to unlock new features and rewards",

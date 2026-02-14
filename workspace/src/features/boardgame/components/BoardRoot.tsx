@@ -36,7 +36,7 @@ const BoardRoot: FunctionalComponent<BoardRootProps> = ({
       { id: 'cat_growth_1', label: 'Growth', type: 'category', color: 'orange' },
       { id: 'event_quiz_1', label: 'Quiz', type: 'event' },
       { id: 'cat_moat_1', label: 'Moats', type: 'category', color: 'red' },
-      { id: 'corner_bias', label: 'Bias Sanctuary', type: 'corner' },
+      { id: 'corner_bias', label: 'Investment Phycology', type: 'corner' },
       { id: 'cat_value_1', label: 'Value', type: 'category', color: 'green' },
       { id: 'event_news_1', label: 'News Event', type: 'event' },
       { id: 'cat_income_1', label: 'Income', type: 'category', color: 'blue' },
