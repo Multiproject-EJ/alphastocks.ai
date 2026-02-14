@@ -55,6 +55,7 @@ interface PhoneLayoutProps {
   onOpenSettings?: () => void;
   onOpenSeasonPass?: () => void;
   dailySpinAvailable?: boolean;
+  dailySpinSpinsRemaining?: number;
   onOpenDailySpin?: () => void;
   onOpenGamesHub?: () => void;
   saturdayVaultAvailable?: boolean;
@@ -97,6 +98,7 @@ export function PhoneLayout({
   onOpenSettings,
   onOpenSeasonPass = () => {},
   dailySpinAvailable = false,
+  dailySpinSpinsRemaining = 0,
   onOpenDailySpin = () => {},
   onOpenGamesHub = () => {},
   saturdayVaultAvailable = false,
@@ -320,11 +322,16 @@ export function PhoneLayout({
           {dailySpinAvailable && (
             <button
               onClick={onOpenDailySpin}
-              className={`phone-fab-slide-in-right flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/30 transition-all hover:scale-105 hover:shadow-xl ${fabReady ? 'phone-fab-animate' : 'opacity-0'}`}
+              className={`phone-fab-slide-in-right relative flex h-[70px] w-[70px] items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/30 transition-all hover:scale-105 hover:shadow-xl ${fabReady ? 'phone-fab-animate' : 'opacity-0'}`}
               style={{ animationDelay: '0ms' }}
               aria-label="Open Daily Spin"
             >
-              <span className="text-2xl">🎡</span>
+              <span className="text-[30px]">🎡</span>
+              <span className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <span className="h-6 w-6 rounded-full bg-black/65 text-white text-[10px] font-bold flex items-center justify-center ring-2 ring-white/40">
+                  {dailySpinSpinsRemaining}
+                </span>
+              </span>
             </button>
           )}
           {vaultHeistStatus && (

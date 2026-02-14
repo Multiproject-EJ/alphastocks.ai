@@ -1,13 +1,13 @@
 import { useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Clock, Coins } from 'lucide-react'
+import { X, Clock, Coins, Sparkles } from 'lucide-react'
 
 interface WheelSegment {
   id: string
   label: string
   emoji: string
   value: number
-  type: 'coins' | 'stars' | 'cash' | 'rolls' | 'xp' | 'spin-again' | 'mystery' | 'jackpot'
+  type: 'coins' | 'stars' | 'cash' | 'rolls' | 'xp' | 'spin-again' | 'mystery' | 'jackpot' | 'mega-prize'
   color: string
   weight: number
 }
@@ -26,6 +26,14 @@ const WHEEL_SEGMENTS: WheelSegment[] = [
   { id: 'jackpot-stars', label: '500', emoji: '👑', value: 500, type: 'jackpot', color: '#FFD700', weight: 0.8 },
   { id: 'mega-jackpot', label: '$5K', emoji: '💰', value: 5000, type: 'jackpot', color: '#FFD700', weight: 0.2 },
 ]
+
+const MEGA_SPIN_STORAGE_KEY = 'alphastocks_wheel_mega_spin_state_v1'
+const MEGA_SPINS_PER_MONTH_TARGET = 1
+const ESTIMATED_SPINS_PER_DAY = 5
+const DAYS_PER_MONTH = 30
+const MEGA_SPIN_BASE_CHANCE = MEGA_SPINS_PER_MONTH_TARGET / (ESTIMATED_SPINS_PER_DAY * DAYS_PER_MONTH)
+const MEGA_SPIN_PITY_SPINS = ESTIMATED_SPINS_PER_DAY * DAYS_PER_MONTH
+const MEGA_PRIZE_BASE_CASH = 50000
 
 interface WheelOfFortuneModalProps {
   isOpen: boolean
@@ -60,12 +68,36 @@ export function WheelOfFortuneModal({
   const [rotation, setRotation] = useState(0)
   const [lastWin, setLastWin] = useState<{ segment: WheelSegment, value: number } | null>(null)
   const [showWinCelebration, setShowWinCelebration] = useState(false)
+  const [isMegaSpinActive, setIsMegaSpinActive] = useState(false)
 
   const segmentAngle = 360 / WHEEL_SEGMENTS.length
   const pointerAngle = 270
 
   const ringMultiplier = currentRing === 3 ? 10 : currentRing === 2 ? 3 : 1
   const spinCost = freeSpinsRemaining > 0 ? 0 : 50
+
+  const maybeTriggerMegaSpin = useCallback(() => {
+    if (typeof window === 'undefined') return false
+
+    try {
+      const raw = localStorage.getItem(MEGA_SPIN_STORAGE_KEY)
+      const parsed = raw ? JSON.parse(raw) as { spinsSinceMega?: number } : {}
+      const spinsSinceMega = Math.max(0, Number(parsed.spinsSinceMega ?? 0))
+      const pityReady = spinsSinceMega >= MEGA_SPIN_PITY_SPINS
+      const hit = pityReady || Math.random() < MEGA_SPIN_BASE_CHANCE
+
+      localStorage.setItem(
+        MEGA_SPIN_STORAGE_KEY,
+        JSON.stringify({
+          spinsSinceMega: hit ? 0 : spinsSinceMega + 1,
+        })
+      )
+
+      return hit
+    } catch {
+      return Math.random() < MEGA_SPIN_BASE_CHANCE
+    }
+  }, [])
 
   const resolveMysteryReward = useCallback((): WheelSegment => {
     const options: Array<Pick<WheelSegment, 'type' | 'value' | 'emoji' | 'label'>> = [
@@ -121,9 +153,24 @@ export function WheelOfFortuneModal({
     setShowWinCelebration(false)
     playSound('dice-roll') // wheel-start sound
 
+    const isMegaSpin = maybeTriggerMegaSpin()
+    setIsMegaSpinActive(isMegaSpin)
+
     // Select winning segment
-    const winner = selectWinningSegment()
-    const segmentIndex = WHEEL_SEGMENTS.findIndex(s => s.id === winner.id)
+    const baseWinner = selectWinningSegment()
+    const winner = isMegaSpin
+      ? {
+          id: 'mega-prize-monthly',
+          label: '$50K',
+          emoji: '🌌',
+          value: MEGA_PRIZE_BASE_CASH,
+          type: 'mega-prize' as const,
+          color: '#A855F7',
+          weight: 0,
+        }
+      : baseWinner
+    const visualWinnerId = isMegaSpin ? 'mega-jackpot' : winner.id
+    const segmentIndex = WHEEL_SEGMENTS.findIndex(s => s.id === visualWinnerId)
     const winningSegmentCenterAngle = segmentIndex * segmentAngle + segmentAngle / 2
     const alignmentRotation = (pointerAngle - winningSegmentCenterAngle + 360) % 360
 
@@ -147,7 +194,9 @@ export function WheelOfFortuneModal({
       setShowWinCelebration(true)
 
       // Play appropriate sound
-      if (winner.type === 'jackpot') {
+      if (resolvedSegment.type === 'mega-prize') {
+        playSound('mega-jackpot')
+      } else if (winner.type === 'jackpot') {
         playSound('mega-jackpot')
       } else if (resolvedSegment.value >= 100 || resolvedSegment.type === 'mystery') {
         playSound('big-win')
@@ -161,8 +210,9 @@ export function WheelOfFortuneModal({
       }
 
       onSpinComplete(resolvedSegment, multipliedValue)
+      setIsMegaSpinActive(false)
     }, spinDuration)
-  }, [isSpinning, spinsRemaining, spinCost, onSpendCoins, selectWinningSegment, ringMultiplier, playSound, onSpinComplete, resolveMysteryReward])
+  }, [isSpinning, spinsRemaining, spinCost, onSpendCoins, maybeTriggerMegaSpin, selectWinningSegment, segmentAngle, pointerAngle, ringMultiplier, playSound, onSpinComplete, resolveMysteryReward])
 
   if (!isOpen) return null
 
@@ -200,6 +250,12 @@ export function WheelOfFortuneModal({
               {ringMultiplier}× Ring Multiplier Active!
             </div>
           )}
+          {isMegaSpinActive && (
+            <div className="mt-2 inline-flex items-center gap-1 px-3 py-1 rounded-full bg-fuchsia-500/20 text-fuchsia-200 text-xs font-bold uppercase tracking-wide">
+              <Sparkles className="w-3.5 h-3.5" />
+              Mega Prize Spin Active
+            </div>
+          )}
         </div>
 
         {/* Wheel Container */}
@@ -212,12 +268,14 @@ export function WheelOfFortuneModal({
           {/* Wheel */}
           <div className="relative w-72 h-72 mx-auto">
             <motion.div
-              className="w-full h-full rounded-full relative"
+              className={`w-full h-full rounded-full relative ${isMegaSpinActive ? 'ring-4 ring-fuchsia-400/80' : ''}`}
               style={{
                 background: `conic-gradient(${WHEEL_SEGMENTS.map((seg, i) => 
                   `${seg.color} ${i * (360/WHEEL_SEGMENTS.length)}deg ${(i+1) * (360/WHEEL_SEGMENTS.length)}deg`
                 ).join(', ')})`,
-                boxShadow: '0 0 30px rgba(139, 92, 246, 0.5), inset 0 0 20px rgba(0,0,0,0.3)',
+                boxShadow: isMegaSpinActive
+                  ? '0 0 45px rgba(217, 70, 239, 0.7), inset 0 0 20px rgba(0,0,0,0.3)'
+                  : '0 0 30px rgba(139, 92, 246, 0.5), inset 0 0 20px rgba(0,0,0,0.3)',
               }}
               animate={{ rotate: rotation }}
               transition={{
@@ -251,7 +309,7 @@ export function WheelOfFortuneModal({
 
             {/* Fixed Center */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-yellow-400 to-amber-600 shadow-lg flex items-center justify-center">
+              <div className={`w-16 h-16 rounded-full shadow-lg flex items-center justify-center ${isMegaSpinActive ? 'bg-gradient-to-br from-fuchsia-400 to-violet-600' : 'bg-gradient-to-br from-yellow-400 to-amber-600'}`}>
                 <span className="text-2xl">🎡</span>
               </div>
             </div>
@@ -267,13 +325,13 @@ export function WheelOfFortuneModal({
                 exit={{ opacity: 0, scale: 0.5 }}
               >
                 <div className={`px-6 py-4 rounded-2xl text-center shadow-2xl ${
-                  lastWin.segment.type === 'jackpot' 
+                  lastWin.segment.type === 'jackpot' || lastWin.segment.type === 'mega-prize'
                     ? 'bg-gradient-to-r from-yellow-400 to-amber-500 text-black' 
                     : 'bg-white/95 text-gray-900'
                 }`}>
                   <div className="text-4xl mb-2">{lastWin.segment.emoji}</div>
                   <div className="text-xl font-bold">
-                    {lastWin.segment.type === 'jackpot' ? '🎉 JACKPOT! 🎉' : 'You Won!'}
+                    {lastWin.segment.type === 'mega-prize' ? '🌌 MONTHLY MEGA PRIZE! 🌌' : lastWin.segment.type === 'jackpot' ? '🎉 JACKPOT! 🎉' : 'You Won!'}
                   </div>
                   <div className="text-2xl font-bold mt-1">
                     {lastWin.segment.type === 'coins' && `🪙 ${lastWin.value.toLocaleString()} Coins`}
@@ -283,6 +341,7 @@ export function WheelOfFortuneModal({
                     {lastWin.segment.type === 'xp' && `⚡ ${lastWin.value} XP`}
                     {lastWin.segment.type === 'spin-again' && `🔄 Free Spin!`}
                     {lastWin.segment.type === 'mystery' && `💎 Mystery Box!`}
+                    {lastWin.segment.type === 'mega-prize' && `🌌 $${lastWin.value.toLocaleString()} Cosmic Cash!`}
                     {lastWin.segment.type === 'jackpot' && lastWin.segment.id === 'jackpot-stars' && `👑 ${lastWin.value} Stars!`}
                     {lastWin.segment.type === 'jackpot' && lastWin.segment.id === 'mega-jackpot' && `💰 $${lastWin.value.toLocaleString()}!`}
                   </div>
