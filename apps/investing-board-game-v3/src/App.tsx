@@ -4770,6 +4770,17 @@ function App() {
         }
         triggerCelebrationFromLastTile(['🎡', '🎉', '✨'])
         break
+      case 'mega-prize':
+        setGameState(prev => ({
+          ...prev,
+          cash: prev.cash + value,
+          netWorth: prev.netWorth + value,
+        }))
+        showToast('success', '🌌 MONTHLY MEGA SPIN! 🌌', {
+          description: `+$${value.toLocaleString()} cosmic cash!`
+        })
+        triggerCelebrationFromLastTile(['🌌', '🎡', '💫'])
+        break
     }
     markDailySpinUsed()
   }, [addCoins, markDailySpinUsed, setGameState, setRollsRemaining, showToast, triggerCelebrationFromLastTile])
@@ -6237,6 +6248,7 @@ function App() {
           onOpenRightNow={openEventCalendar}
           onOpenSeasonPass={openSeasonPass}
           dailySpinAvailable={dailySpinAvailable}
+          dailySpinSpinsRemaining={dailyWheelSpinsRemaining}
           onOpenDailySpin={() => setIsWheelOpen(true)}
           onOpenGamesHub={openGamesHub}
           saturdayVaultAvailable={vaultHeistAvailable}
