@@ -61,6 +61,9 @@ export function WheelOfFortuneModal({
   const [lastWin, setLastWin] = useState<{ segment: WheelSegment, value: number } | null>(null)
   const [showWinCelebration, setShowWinCelebration] = useState(false)
 
+  const segmentAngle = 360 / WHEEL_SEGMENTS.length
+  const pointerAngle = 270
+
   const ringMultiplier = currentRing === 3 ? 10 : currentRing === 2 ? 3 : 1
   const spinCost = freeSpinsRemaining > 0 ? 0 : 50
 
@@ -121,12 +124,12 @@ export function WheelOfFortuneModal({
     // Select winning segment
     const winner = selectWinningSegment()
     const segmentIndex = WHEEL_SEGMENTS.findIndex(s => s.id === winner.id)
-    const segmentAngle = (360 / WHEEL_SEGMENTS.length)
-    const targetAngle = segmentIndex * segmentAngle + segmentAngle / 2
+    const winningSegmentCenterAngle = segmentIndex * segmentAngle + segmentAngle / 2
+    const alignmentRotation = (pointerAngle - winningSegmentCenterAngle + 360) % 360
 
     // Calculate spin
     const baseSpins = 5 + Math.random() * 5 // 5-10 full rotations
-    const totalRotation = baseSpins * 360 + (360 - targetAngle)
+    const totalRotation = baseSpins * 360 + alignmentRotation
 
     setRotation(prev => prev + totalRotation)
 
@@ -224,7 +227,6 @@ export function WheelOfFortuneModal({
             >
               {/* Segment Labels */}
               {WHEEL_SEGMENTS.map((segment, i) => {
-                const segmentAngle = 360 / WHEEL_SEGMENTS.length
                 const angle = (i * segmentAngle) + (segmentAngle / 2) // Offset to center
                 const radius = 100 // px from center
                 const x = Math.cos((angle - 90) * Math.PI / 180) * radius
@@ -245,14 +247,14 @@ export function WheelOfFortuneModal({
                   </div>
                 )
               })}
-
-              {/* Center */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-yellow-400 to-amber-600 shadow-lg flex items-center justify-center">
-                  <span className="text-2xl">🎡</span>
-                </div>
-              </div>
             </motion.div>
+
+            {/* Fixed Center */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-yellow-400 to-amber-600 shadow-lg flex items-center justify-center">
+                <span className="text-2xl">🎡</span>
+              </div>
+            </div>
           </div>
 
           {/* Win Celebration */}
