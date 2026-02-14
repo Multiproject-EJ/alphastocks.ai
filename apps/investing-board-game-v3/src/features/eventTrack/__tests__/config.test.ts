@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { getEventTrackCtaCosts } from '@/features/eventTrack/config'
+import { getEventTrackCtaCosts, getEventTrackDefinition } from '@/features/eventTrack/config'
 
 describe('getEventTrackCtaCosts', () => {
   it('uses configured minimum values when computed cost is lower', () => {
@@ -47,5 +47,21 @@ describe('getEventTrackCtaCosts', () => {
       jumpCost: 40,
       finishCost: 200,
     })
+  })
+})
+
+describe('getEventTrackDefinition', () => {
+  it('uses shared progress config defaults for jump threshold', () => {
+    const definition = getEventTrackDefinition(null, null)
+
+    expect(definition.jumpThreshold).toBe(12)
+  })
+
+  it('supports overriding jump threshold for tuning experiments', () => {
+    const definition = getEventTrackDefinition(null, null, {
+      jumpThreshold: 18,
+    })
+
+    expect(definition.jumpThreshold).toBe(18)
   })
 })

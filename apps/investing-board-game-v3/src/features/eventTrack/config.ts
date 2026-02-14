@@ -14,6 +14,10 @@ export interface EventTrackCtaCostConfig {
   }
 }
 
+export interface EventTrackProgressConfig {
+  jumpThreshold: number
+}
+
 export const EVENT_TRACK_CTA_COST_CONFIG: EventTrackCtaCostConfig = {
   jump: {
     minimum: 40,
@@ -23,6 +27,10 @@ export const EVENT_TRACK_CTA_COST_CONFIG: EventTrackCtaCostConfig = {
     minimum: 120,
     remainingRewardsMultiplier: 150,
   },
+}
+
+export const EVENT_TRACK_PROGRESS_CONFIG: EventTrackProgressConfig = {
+  jumpThreshold: 12,
 }
 
 export const getEventTrackCtaCosts = ({
@@ -43,7 +51,8 @@ export const getEventTrackCtaCosts = ({
 
 export const getEventTrackDefinition = (
   activeEvent: GameEvent | null,
-  fallbackEventId?: string | null
+  fallbackEventId?: string | null,
+  progressConfig: EventTrackProgressConfig = EVENT_TRACK_PROGRESS_CONFIG,
 ): EventTrackDefinition => {
   const eventId = activeEvent?.id ?? fallbackEventId ?? DEFAULT_TRACK_ID
   const name = activeEvent?.title ?? 'Market Rally'
@@ -55,7 +64,7 @@ export const getEventTrackDefinition = (
     description,
     endTime: activeEvent?.endDate.toISOString(),
     pointsMax: 200,
-    jumpThreshold: 12,
+    jumpThreshold: progressConfig.jumpThreshold,
     isActive: Boolean(activeEvent),
     event: activeEvent,
     milestones: [

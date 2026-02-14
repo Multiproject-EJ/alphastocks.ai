@@ -72,12 +72,13 @@
 - [x] Slice 5 — Polish and UX baseline (reduced motion + responsive placement)
 - [x] Slice 6 — CTA affordability guardrails (disable CTA when coins are insufficient)
 - [x] Slice 7 — Config-first CTA tuning (cost multipliers + thresholds in config)
-- [ ] Slice 8 — Config-first jump-threshold tuning (promote threshold into shared config)
+- [x] Slice 8 — Config-first jump-threshold tuning (promote threshold into shared config)
 
 ## Progress Log
 - 2026-02-10: Completed Slice 6 by wiring CTA disabled state to current coin balance in `useEventTrack` and propagating that disabled state to desktop + compact `EventTrackBar` usage in `App.tsx`. This prevents "boost" taps that cannot succeed and keeps the CTA honest.
 - 2026-02-10: Completed Slice 7 by moving CTA pricing knobs (minimums + multipliers) into `features/eventTrack/config.ts` and routing `useEventTrack` through a pure `getEventTrackCtaCosts` helper. Added focused unit coverage for default and override pricing behavior.
-- Next step: Start Slice 8 by making `jumpThreshold` config-driven (mirroring CTA costs) so pacing experiments can be tuned from one place without touching hook logic.
+- 2026-02-14: Completed Slice 8 by moving `jumpThreshold` into shared event-track config (`EVENT_TRACK_PROGRESS_CONFIG`) and routing `getEventTrackDefinition` through that config with override support for tuning experiments. Added focused config tests for default and override behavior.
+- Next step: Pick Slice 9 scope (if needed) for additional pacing knobs after validating jump-threshold tuning telemetry.
 
 ## Step-by-Step Dev Plan
 1. **Create Event Track module**
