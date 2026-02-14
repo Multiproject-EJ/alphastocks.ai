@@ -134,7 +134,7 @@ export const DAILY_CHALLENGES_POOL: Omit<Challenge, 'progress' | 'completed' | '
     type: 'daily',
     tier: 'medium',
     title: 'Quiz Champion',
-    description: 'Complete a Bias Sanctuary quiz',
+    description: 'Complete an Investment Phycology quiz',
     reward: { stars: 150, xp: 150, seasonPoints: 150 },
     requirement: { action: 'complete_quiz', target: 1 }
   },
@@ -172,7 +172,7 @@ export const DAILY_CHALLENGES_POOL: Omit<Challenge, 'progress' | 'completed' | '
     type: 'daily',
     tier: 'hard',
     title: 'Perfect Score',
-    description: 'Get 100% on a Bias Sanctuary quiz',
+    description: 'Get 100% on an Investment Phycology quiz',
     reward: { stars: 250, xp: 250, seasonPoints: 250 },
     requirement: { action: 'complete_quiz', target: 1, condition: { perfectScore: true } }
   },
@@ -284,7 +284,7 @@ export const WEEKLY_CHALLENGES_POOL: Omit<Challenge, 'progress' | 'completed' | 
     type: 'weekly',
     tier: 'hard',
     title: 'Knowledge Seeker',
-    description: 'Complete 5 Bias Sanctuary quizzes this week',
+    description: 'Complete 5 Investment Phycology quizzes this week',
     reward: { stars: 550, xp: 550, seasonPoints: 550 },
     requirement: { action: 'complete_quiz', target: 5 }
   }

@@ -125,10 +125,10 @@ export const MODE_HANDLERS: Record<UIMode, {
   },
   biasSanctuary: {
     onEnter: async () => {
-      console.log('[UIMode] Entering bias sanctuary');
+      console.log('[UIMode] Entering investment phycology');
     },
     onExit: async () => {
-      console.log('[UIMode] Exiting bias sanctuary');
+      console.log('[UIMode] Exiting investment phycology');
     },
   },
   challenges: {

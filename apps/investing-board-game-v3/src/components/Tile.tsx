@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { memo, useCallback, useMemo } from 'react'
+import { memo, useCallback, useMemo, type MouseEvent } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Tile as TileType } from '@/lib/types'
 import { cn } from '@/lib/utils'
@@ -17,7 +17,7 @@ interface TileProps {
   isActive: boolean
   isHopping: boolean
   isLanded: boolean
-  onClick: () => void
+  onClick: (anchor?: { x: number; y: number }) => void
   side?: 'top' | 'bottom' | 'left' | 'right'
   hasOwnership?: boolean // Indicates if player owns stock in this category
   ringNumber?: 1 | 2 | 3  // NEW: Which ring this tile belongs to
@@ -34,9 +34,9 @@ interface TileProps {
 
 // Configuration for corner tiles and event tiles that use images instead of text
 const TILE_IMAGES: Record<string, { src: string; alt: string }> = {
-  'Bias Sanctuary': {
+  'Investment Phycology': {
     src: 'BiasSanctuary.webp',
-    alt: 'Bias Sanctuary - Learn about cognitive biases in investing',
+    alt: 'Investment Phycology - Learn about cognitive biases in investing',
   },
   'Court of Capital': {
     src: 'Courtofcapital.webp',
@@ -82,10 +82,14 @@ const TileComponent = ({
 }: TileProps) => {
   const { lightTap } = useHaptics();
 
-  const handleClick = useCallback(() => {
-    lightTap();  // Haptic feedback
-    onClick();
-  }, [onClick, lightTap]);
+  const handleClick = useCallback((event: MouseEvent<HTMLDivElement>) => {
+    lightTap()  // Haptic feedback
+    const rect = event.currentTarget.getBoundingClientRect()
+    onClick({
+      x: rect.left + rect.width / 2,
+      y: rect.top + rect.height / 2,
+    })
+  }, [onClick, lightTap])
 
   // Determine ring-specific classes
   const getRingClasses = () => {

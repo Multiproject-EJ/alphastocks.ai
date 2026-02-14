@@ -27,7 +27,7 @@ export const NET_WORTH_TIERS: NetWorthTier[] = [
     unlocks: [
       "Access to basic board",
       "Thrifty Path challenges",
-      "Bias Sanctuary quizzes"
+      "Investment Phycology quizzes"
     ],
     benefits: [
       { type: 'feature_unlock', value: 'basic_game', description: 'Core game access' }

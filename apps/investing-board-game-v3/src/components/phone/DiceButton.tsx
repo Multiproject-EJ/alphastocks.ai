@@ -1,4 +1,4 @@
-import { useState, useCallback, type MouseEvent } from 'react';
+import { useState, useCallback, type KeyboardEvent, type MouseEvent } from 'react';
 import { AnimatedDice } from '@/components/AnimatedDice';
 import { EconomyWindowStatus } from '@/components/EconomyWindowStatus';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -11,6 +11,8 @@ interface DiceButtonProps {
   onToggleAutoRoll: () => void;
   onCycleMultiplier: () => void;
   multiplier: number;
+  multiplierCap?: number;
+  availableMultipliers?: number[];
   leverageLevel?: number;
   momentum?: number;
   momentumMax?: number;
@@ -30,6 +32,8 @@ export function DiceButton({
   onToggleAutoRoll,
   onCycleMultiplier,
   multiplier,
+  multiplierCap = 1,
+  availableMultipliers = [1],
   leverageLevel = 0,
   momentum = 0,
   momentumMax = 100,
@@ -52,6 +56,9 @@ export function DiceButton({
   const safeMomentumMax = momentumMax > 0 ? momentumMax : 100;
   const momentumPercent = Math.max(0, Math.min(100, Math.round((momentum / safeMomentumMax) * 100)));
   const hasEconomyWindow = Boolean(economyWindowLabel && economyWindowEndsAt);
+  const multiplierStep = Math.max(0, availableMultipliers.indexOf(multiplier));
+  const glowStrength = 0.2 + multiplierStep * 0.13;
+  const leverageGlow = multiplier > 1 ? `0 0 ${12 + multiplierStep * 5}px rgba(250,204,21,${Math.min(0.95, glowStrength).toFixed(2)})` : '0 0 8px rgba(250,204,21,0.2)';
 
   const triggerAutoRollFlash = () => {
     setAutoRollFlash(true);
@@ -87,6 +94,13 @@ export function DiceButton({
     onRoll();
   }, [isAutoRolling, onRoll, onToggleAutoRoll]);
 
+  const handleDiceKeyDown = useCallback((event: KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      handleDiceClick();
+    }
+  }, [handleDiceClick]);
+
   return (
     <div className="relative flex items-center justify-center">
       {hasEconomyWindow && (
@@ -98,8 +112,11 @@ export function DiceButton({
           className="pointer-events-none absolute -top-16 left-1/2 z-20 w-[210px] -translate-x-1/2 rounded-2xl border-emerald-300/50 bg-emerald-500/15 text-[11px] text-emerald-50 shadow-[0_10px_25px_rgba(16,185,129,0.25)]"
         />
       )}
-      <button
+      <div
+        role="button"
+        tabIndex={0}
         onClick={handleDiceClick}
+        onKeyDown={handleDiceKeyDown}
         className={cn(
           'dice-button',
           'phone-dice-button',
@@ -134,7 +151,8 @@ export function DiceButton({
             event.stopPropagation();
             onCycleMultiplier();
           }}
-          className="absolute -top-7 left-1/2 flex h-14 w-[150px] -translate-x-1/2 flex-col items-center justify-center gap-1 rounded-t-full border-2 border-yellow-200/60 bg-background/40 pt-2 text-[10px] font-semibold uppercase tracking-[0.25em] text-yellow-100 shadow-[0_0_14px_rgba(250,204,21,0.25)] backdrop-blur-sm"
+          className={cn('absolute top-11 left-1/2 z-30 flex h-11 w-[136px] -translate-x-1/2 flex-col items-center justify-center gap-0.5 rounded-md border px-2 text-[9px] font-semibold uppercase tracking-[0.2em] text-yellow-100 backdrop-blur-sm transition-all', multiplier > 1 ? 'border-yellow-200/90 bg-yellow-300/20 animate-pulse' : 'border-yellow-200/60 bg-background/70')}
+          style={{ boxShadow: leverageGlow }}
           aria-label={`Leverage ${multiplier}x. Tap to change.`}
         >
           <svg
@@ -153,7 +171,8 @@ export function DiceButton({
             <path d="M4 17.5h16" />
           </svg>
           Leverage {multiplier}x
-          {nextLockedMultiplier && (
+          <span className="text-[8px] tracking-[0.15em] text-yellow-100/85">Max now {multiplierCap}x</span>
+          {nextLockedMultiplier && nextLockedMultiplier <= multiplierCap && (
             <span className="text-[8px] tracking-[0.2em] text-yellow-200/80">
               Next {nextLockedMultiplier}x
             </span>
@@ -163,7 +182,7 @@ export function DiceButton({
           type="button"
           onClick={handleAutoRollToggle}
           className={cn(
-            'absolute top-2 left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-full border px-3 py-1 text-[9px] font-semibold uppercase tracking-[0.18em] text-white',
+            'absolute top-2 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 rounded-full border px-3 py-1 text-[9px] font-semibold uppercase tracking-[0.18em] text-white',
             isAutoRolling ? 'border-yellow-200/80 bg-yellow-400/30' : 'border-white/30 bg-background/80',
             autoRollFlash && 'auto-roll-flash',
           )}
@@ -230,7 +249,7 @@ export function DiceButton({
             <span className="text-lg font-bold">{rollsRemaining}</span>
           </div>
         </div>
-      </button>
+      </div>
     </div>
   );
 }

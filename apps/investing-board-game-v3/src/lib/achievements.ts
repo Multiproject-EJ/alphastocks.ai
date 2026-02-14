@@ -380,7 +380,7 @@ export const ACHIEVEMENTS: Achievement[] = [
     id: 'first_lesson',
     category: 'quiz',
     title: 'First Lesson',
-    description: 'Complete your first Bias Sanctuary quiz',
+    description: 'Complete your first Investment Phycology quiz',
     icon: '🧠',
     reward: 50,
     requirement: { type: 'count', metric: 'quizzesCompleted', target: 1 },

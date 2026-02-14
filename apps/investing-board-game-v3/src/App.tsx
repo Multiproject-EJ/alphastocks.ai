@@ -297,7 +297,7 @@ import {
   getSoftThrottleMultiplier,
   tickEconomyThrottle,
 } from '@/lib/economyThrottle'
-import { clampMultiplierToLeverage, getUnlockedMultipliers } from '@/lib/leverage'
+import { clampMultiplierByRollsAndLeverage, getAvailableMultipliers, getRollsBasedMultiplierCap } from '@/lib/leverage'
 import { MOMENTUM_MAX, applyMomentumDecay, applyMomentumFromNetWorthChange } from '@/lib/momentum'
 import type { EconomyWindowState } from '@/lib/economyWindows'
 import { getActiveEconomyWindow, getEconomyWindowMultipliers, tickEconomyWindows } from '@/lib/economyWindows'
@@ -374,6 +374,53 @@ const getTileTitleForRing = (ring: RingNumber | 0, tileId: number) => {
   return tiles.find(tile => tile.id === tileId)?.title ?? `Tile ${tileId}`
 }
 
+const getTileLandingPreview = (tile: TileType, ring: RingNumber): string => {
+  if (tile.description) {
+    return tile.description
+  }
+
+  if (tile.specialAction === 'big-fish-portal') {
+    return 'Landing here can launch you to Ring 2.'
+  }
+  if (tile.specialAction === 'ring-fall') {
+    return 'Landing here drops you down one ring.'
+  }
+  if (tile.specialAction === 'chance') {
+    return 'Draw a chance card with a surprise outcome.'
+  }
+
+  if (tile.type === 'category') {
+    return `Stock tile: open ${tile.title} and make investment moves.${ring > 1 ? ` Ring ${ring} boosts rewards.` : ''}`
+  }
+
+  if (tile.type === 'quick-reward') {
+    const rewardCopy: Record<NonNullable<TileType['quickRewardType']>, string> = {
+      cash: 'Instant cash reward.',
+      stars: 'Instant stars reward.',
+      coins: 'Instant coins reward.',
+      'bonus-roll': 'Gain an extra dice roll.',
+      xp: 'Gain instant XP.',
+      mystery: 'Mystery reward with random upside.',
+      chameleon: 'Adaptive reward based on your run.',
+    }
+    return tile.quickRewardType ? rewardCopy[tile.quickRewardType] : 'Quick reward tile.'
+  }
+
+  if (tile.type === 'event') {
+    return 'Event tile: triggers a random market event.'
+  }
+
+  if (tile.type === 'learning') {
+    return 'Learning tile: answer a quiz for progress rewards.'
+  }
+
+  if (tile.type === 'corner' && tile.title === 'Investment Phycology') {
+    return 'Mini-game tile: complete an investing psychology challenge.'
+  }
+
+  return `${tile.title}: special tile effect activates on landing.`
+}
+
 const formatEventCountdown = (target: Date, now: Date) => {
   const diffMs = target.getTime() - now.getTime()
   if (diffMs <= 0) return 'now'
@@ -404,6 +451,7 @@ function App() {
   const lastEnergyCheckRef = useRef<Date | null>(null)
   const processedPowerUpsRef = useRef<Set<string>>(new Set())
   const currentRewardMultiplierRef = useRef<number>(1) // Track reward multiplier for current roll
+  const tilePreviewTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const eventTrackPointsRef = useRef<(amount: number, source?: string) => void>(() => {})
   const currencySnapshotRef = useRef({
     cash: 0,
@@ -535,7 +583,8 @@ function App() {
   const economyState = extractEconomyState(gameState)
   const leverageLevel = economyState.leverageLevel
   const momentum = economyState.momentum
-  const unlockedMultipliers = useMemo(() => getUnlockedMultipliers(leverageLevel), [leverageLevel])
+  const rollsBasedMultiplierCap = useMemo(() => getRollsBasedMultiplierCap(rollsRemaining), [rollsRemaining])
+  const availableMultipliers = useMemo(() => getAvailableMultipliers(leverageLevel, rollsRemaining), [leverageLevel, rollsRemaining])
 
   // Ring 3 reveal state
   const [ring3Revealed, setRing3Revealed] = useState(false)
@@ -563,6 +612,23 @@ function App() {
     emoji: string
     amount: number
     position: { x: number; y: number }
+  } | null>(null)
+  const [tilePreviewToast, setTilePreviewToast] = useState<{
+    left: number
+    top: number
+    message: string
+  } | null>(null)
+  const [multiplierRewardAnimation, setMultiplierRewardAnimation] = useState<{
+    multiplier: number
+    baseStars: number
+    finalStars: number
+    baseCoins: number
+    finalCoins: number
+    baseXP: number
+    finalXP: number
+    animatedStars: number
+    animatedCoins: number
+    animatedXP: number
   } | null>(null)
 
   // Ring focus system state
@@ -621,6 +687,79 @@ function App() {
       toast.dismiss()
     }
   }, [notificationsEnabled])
+
+  useEffect(() => {
+    return () => {
+      if (tilePreviewTimeoutRef.current) {
+        clearTimeout(tilePreviewTimeoutRef.current)
+      }
+    }
+  }, [])
+
+  const showTilePreviewToast = useCallback((tile: TileType, ring: RingNumber, anchor?: { x: number; y: number }) => {
+    if (tilePreviewTimeoutRef.current) {
+      clearTimeout(tilePreviewTimeoutRef.current)
+    }
+
+    const frameRect = boardFrameRef.current?.getBoundingClientRect()
+    const fallbackPosition = {
+      left: boardSize / 2,
+      top: boardSize / 2,
+    }
+
+    const anchoredPosition = anchor && frameRect
+      ? {
+          left: anchor.x - frameRect.left,
+          top: anchor.y - frameRect.top,
+        }
+      : fallbackPosition
+
+    setTilePreviewToast({
+      ...anchoredPosition,
+      message: getTileLandingPreview(tile, ring),
+    })
+
+    tilePreviewTimeoutRef.current = setTimeout(() => {
+      setTilePreviewToast(null)
+    }, 1800)
+  }, [boardSize])
+
+  useEffect(() => {
+    if (!multiplierRewardAnimation) return
+
+    const durationMs = 700
+    const startedAt = performance.now()
+    let rafId = 0
+
+    const tick = (timestamp: number) => {
+      const progress = Math.min(1, (timestamp - startedAt) / durationMs)
+      const easeOut = 1 - (1 - progress) * (1 - progress)
+
+      setMultiplierRewardAnimation((prev) => {
+        if (!prev) return prev
+        return {
+          ...prev,
+          animatedStars: Math.round(prev.baseStars + (prev.finalStars - prev.baseStars) * easeOut),
+          animatedCoins: Math.round(prev.baseCoins + (prev.finalCoins - prev.baseCoins) * easeOut),
+          animatedXP: Math.round(prev.baseXP + (prev.finalXP - prev.baseXP) * easeOut),
+        }
+      })
+
+      if (progress < 1) {
+        rafId = requestAnimationFrame(tick)
+      }
+    }
+
+    rafId = requestAnimationFrame(tick)
+    const hideTimeoutId = window.setTimeout(() => {
+      setMultiplierRewardAnimation(null)
+    }, 1800)
+
+    return () => {
+      cancelAnimationFrame(rafId)
+      clearTimeout(hideTimeoutId)
+    }
+  }, [multiplierRewardAnimation?.multiplier])
 
   const [developerModeEnabled, setDeveloperModeEnabled] = useState(false)
   const [developerPanelOpen, setDeveloperPanelOpen] = useState(false)
@@ -2645,18 +2784,17 @@ function App() {
   }, [])
 
   useEffect(() => {
-    setMobileMultiplier((prev) => clampMultiplierToLeverage(prev, leverageLevel))
-  }, [leverageLevel])
+    setMobileMultiplier((prev) => clampMultiplierByRollsAndLeverage(prev, leverageLevel, rollsRemaining))
+  }, [leverageLevel, rollsRemaining])
 
   const cycleMobileMultiplier = useCallback(() => {
     setMobileMultiplier((prev) => {
-      const leverageSafePrev = clampMultiplierToLeverage(prev, leverageLevel)
-      const currentIndex = unlockedMultipliers.indexOf(leverageSafePrev)
-      const nextIndex = currentIndex === -1 ? 0 : (currentIndex + 1) % unlockedMultipliers.length
-      return unlockedMultipliers[nextIndex] ?? unlockedMultipliers[0]
+      const currentIndex = availableMultipliers.indexOf(prev)
+      const nextIndex = currentIndex === -1 ? 0 : (currentIndex + 1) % availableMultipliers.length
+      return availableMultipliers[nextIndex] ?? availableMultipliers[0]
     })
     if (navigator.vibrate) navigator.vibrate(50)
-  }, [leverageLevel, unlockedMultipliers])
+  }, [availableMultipliers])
 
   // Function to trigger Ring 3 reveal animation
   const revealRing3 = useCallback(() => {
@@ -2765,12 +2903,19 @@ function App() {
   }, [])
 
   const handleRoll = (multiplier: number = 1) => {
+    const effectiveMultiplier = clampMultiplierByRollsAndLeverage(multiplier, leverageLevel, rollsRemaining)
     if (phase !== 'idle') {
       debugGame('Cannot roll - phase is not idle:', { phase, currentPosition: gameState.position })
       toast.info('Finish your current action first', {
         description: 'Close any open cards or modals before rolling again.',
       })
       return
+    }
+
+    if (effectiveMultiplier !== multiplier) {
+      toast.info('Leverage adjusted', {
+        description: `With ${rollsRemaining} rolls left, max leverage is ${rollsBasedMultiplierCap}x.`,
+      })
     }
 
     if (rouletteModeActive) {
@@ -2814,7 +2959,7 @@ function App() {
     }
 
     // Store the reward multiplier for use in handleTileLanding
-    currentRewardMultiplierRef.current = multiplier
+    currentRewardMultiplierRef.current = effectiveMultiplier
 
     // Consume 1 roll (multiplier affects rewards only, not roll count)
     setRollsRemaining((prev) => prev - 1)
@@ -2824,9 +2969,9 @@ function App() {
     }))
 
     // DevTools: Log roll event
-    logEvent?.('roll_pressed', { multiplier, rollsRemaining })
+    logEvent?.('roll_pressed', { multiplier: effectiveMultiplier, rollsRemaining })
     trackTelemetryEvent('roll_started', {
-      multiplier,
+      multiplier: effectiveMultiplier,
       rollsRemaining,
       position: gameState.position,
       ring: gameState.currentRing,
@@ -2855,7 +3000,7 @@ function App() {
       die2: diceResult.die2, 
       total: diceResult.total,
       isDoubles: diceResult.isDoubles,
-      rewardMultiplier: multiplier
+      rewardMultiplier: effectiveMultiplier
     })
     
     // Update dice display
@@ -3007,12 +3152,12 @@ function App() {
     setTimeout(() => {
       const { starsMultiplier: economyStarsMultiplier, xpMultiplier: economyXpMultiplier } = getEconomyMultipliers()
       // Apply multiplier to rewards
-      const finalStars = Math.floor(baseStars * multiplier * economyStarsMultiplier)
-      const finalCoins = baseCoins * multiplier
-      const finalXP = Math.floor(baseXP * multiplier * economyXpMultiplier)
+      const finalStars = Math.floor(baseStars * effectiveMultiplier * economyStarsMultiplier)
+      const finalCoins = baseCoins * effectiveMultiplier
+      const finalXP = Math.floor(baseXP * effectiveMultiplier * economyXpMultiplier)
       
       debugGame('Multiplied rewards', { 
-        multiplier,
+        multiplier: effectiveMultiplier,
         economyStarsMultiplier,
         economyXpMultiplier,
         baseStars, finalStars, 
@@ -3023,11 +3168,11 @@ function App() {
       // Handle jackpot: Add to jackpot when passing Start without landing
       let jackpotChange = 0
       if (willPassStart && !willLandOnStart) {
-        jackpotChange = JACKPOT_PASS_START_AMOUNT * multiplier
+        jackpotChange = JACKPOT_PASS_START_AMOUNT * effectiveMultiplier
       }
 
       trackTelemetryEvent('roll_rewards_awarded', {
-        multiplier,
+        multiplier: effectiveMultiplier,
         stars: finalStars,
         coins: finalCoins,
         xp: finalXP,
@@ -3053,7 +3198,7 @@ function App() {
       
       // Award coins
       if (finalCoins > 0) {
-        addCoins(finalCoins, multiplier > 1 ? `${multiplier}x Roll Rewards` : 'Roll Rewards')
+        addCoins(finalCoins, effectiveMultiplier > 1 ? `${effectiveMultiplier}x Roll Rewards` : 'Roll Rewards')
       }
       
       // Notify about jackpot increase (calculate new total explicitly since setState is async)
@@ -3071,10 +3216,25 @@ function App() {
         playSound('dice-land')
       }
       
+      if (effectiveMultiplier > 1) {
+        setMultiplierRewardAnimation({
+          multiplier: effectiveMultiplier,
+          baseStars,
+          finalStars,
+          baseCoins,
+          finalCoins,
+          baseXP,
+          finalXP,
+          animatedStars: baseStars,
+          animatedCoins: baseCoins,
+          animatedXP: baseXP,
+        })
+      }
+
       // Show summary toast
       const description = [
         `Moved ${totalMovement} tiles`,
-        multiplier > 1 ? `${multiplier}x rewards!` : null,
+        effectiveMultiplier > 1 ? `${effectiveMultiplier}x rewards!` : null,
         finalStars > 0 ? `+${finalStars} ⭐` : null,
         finalCoins > 0 ? `+${finalCoins} 🪙` : null,
         finalXP > 0 ? `+${finalXP} XP` : null,
@@ -3083,7 +3243,7 @@ function App() {
       ].filter(Boolean).join(' | ')
       
       toast.success(
-        multiplier > 1 ? `${multiplier}x Multiplier Active!` : 'Roll Complete!',
+        effectiveMultiplier > 1 ? `${effectiveMultiplier}x Multiplier Active!` : 'Roll Complete!',
         { description }
       )
     }, 800) // Dice roll animation duration
@@ -4295,8 +4455,8 @@ function App() {
             }, 300)
           },
         })
-      } else if (tile.title === 'Bias Sanctuary') {
-        debugGame('Opening Bias Sanctuary modal')
+      } else if (tile.title === 'Investment Phycology') {
+        debugGame('Opening Investment Phycology modal')
         const caseStudy = getRandomBiasCaseStudy()
         setCurrentCaseStudy(caseStudy)
         showOverlay({
@@ -4308,10 +4468,10 @@ function App() {
           },
           priority: 'normal',
           onClose: () => {
-            debugGame('Bias Sanctuary modal closed')
+            debugGame('Investment Phycology modal closed')
             setCurrentCaseStudy(null)
             setTimeout(() => {
-              debugGame('Phase transition: landed -> idle (bias sanctuary closed)')
+              debugGame('Phase transition: landed -> idle (investment phycology closed)')
               setPhase('idle')
             }, 300)
           }
@@ -5467,6 +5627,48 @@ function App() {
               <div className="absolute inset-0 pointer-events-none z-30">
                 <TileCelebrationEffect celebrations={tileCelebrations} />
               </div>
+              {tilePreviewToast && (
+                <div
+                  className="absolute z-40 max-w-[120px] rounded-md border border-cyan-200/60 bg-slate-900/95 px-2 py-1 text-[9px] font-medium leading-tight text-cyan-100 shadow-lg"
+                  style={{
+                    left: `${tilePreviewToast.left}px`,
+                    top: `${tilePreviewToast.top}px`,
+                    transform: 'translate(-8%, -96%)',
+                  }}
+                >
+                  {tilePreviewToast.message}
+                </div>
+              )}
+              {multiplierRewardAnimation && (
+                <div className="absolute left-1/2 top-3 z-40 w-[210px] -translate-x-1/2 rounded-lg border border-amber-200/60 bg-slate-950/90 px-3 py-2 text-[10px] text-amber-50 shadow-[0_0_24px_rgba(250,204,21,0.35)]">
+                  <div className="mb-1 text-center text-[9px] font-semibold uppercase tracking-[0.2em] text-amber-200">
+                    Leverage x{multiplierRewardAnimation.multiplier}
+                  </div>
+                  <div className="space-y-1">
+                    {multiplierRewardAnimation.finalStars > 0 && (
+                      <div className="flex items-center justify-between">
+                        <span>⭐ {multiplierRewardAnimation.baseStars.toLocaleString()}</span>
+                        <span>→</span>
+                        <span className="font-semibold text-amber-200">{multiplierRewardAnimation.animatedStars.toLocaleString()}</span>
+                      </div>
+                    )}
+                    {multiplierRewardAnimation.finalCoins > 0 && (
+                      <div className="flex items-center justify-between">
+                        <span>🪙 {multiplierRewardAnimation.baseCoins.toLocaleString()}</span>
+                        <span>→</span>
+                        <span className="font-semibold text-amber-200">{multiplierRewardAnimation.animatedCoins.toLocaleString()}</span>
+                      </div>
+                    )}
+                    {multiplierRewardAnimation.finalXP > 0 && (
+                      <div className="flex items-center justify-between">
+                        <span>XP {multiplierRewardAnimation.baseXP.toLocaleString()}</span>
+                        <span>→</span>
+                        <span className="font-semibold text-amber-200">{multiplierRewardAnimation.animatedXP.toLocaleString()}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
               <div
                 className={`transition-opacity duration-500 ${
                   showBoardTiles ? 'opacity-100' : 'opacity-0 pointer-events-none'
@@ -5539,10 +5741,8 @@ function App() {
                           tileLabel={getTileLabelConfigForTile(tile, 1)}
                           isTeleporting={isTeleportingTile(tile.id)}
                           isPortal={tile.id === ring1PortalTileId}
-                          onClick={() => {
-                            if (phase === 'idle' && casinoMode === 'none') {
-                              handleTileLanding(tile.id)
-                            }
+                          onClick={(anchor) => {
+                            showTilePreviewToast(tile, 1, anchor)
                           }}
                           casinoTheme={casinoTheme}
                         />
@@ -5645,10 +5845,8 @@ function App() {
                               tileLabel={getTileLabelConfigForTile(tile, 2)}
                               isTeleporting={isTeleportingTile(tile.id)}
                               isPortal={tile.specialAction === 'ring-fall'}
-                              onClick={() => {
-                                if (phase === 'idle' && gameState.currentRing === 2) {
-                                  handleTileLanding(tile.id)
-                                }
+                              onClick={(anchor) => {
+                                showTilePreviewToast(tile, 2, anchor)
                               }}
                             />
                           </div>
@@ -5696,10 +5894,8 @@ function App() {
                               isRing3Revealed={ring3Revealed}
                               isRing3Revealing={ring3Revealing}
                               isTeleporting={isTeleportingTile(tile.id)}
-                              onClick={() => {
-                                if (phase === 'idle' && gameState.currentRing === 3) {
-                                  handleTileLanding(tile.id)
-                                }
+                              onClick={(anchor) => {
+                                showTilePreviewToast(tile, 3, anchor)
                               }}
                             />
                           </div>
@@ -6216,6 +6412,8 @@ function App() {
           }}
           onRollDice={(multiplier) => handleRoll(multiplier)}
           multiplier={mobileMultiplier}
+          multiplierCap={rollsBasedMultiplierCap}
+          availableMultipliers={availableMultipliers}
           onCycleMultiplier={cycleMobileMultiplier}
           leverageLevel={leverageLevel}
           momentum={momentum}

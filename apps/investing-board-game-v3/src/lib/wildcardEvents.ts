@@ -92,7 +92,7 @@ export const WILDCARD_EVENTS: WildcardEvent[] = [
   {
     id: 'wisdom-call',
     title: 'Wisdom Call',
-    description: 'Seek guidance at the Bias Sanctuary to improve your judgment.',
+    description: 'Seek guidance at the Investment Phycology to improve your judgment.',
     type: 'teleport',
     effect: { teleportTo: 21 },
     icon: '🧘'

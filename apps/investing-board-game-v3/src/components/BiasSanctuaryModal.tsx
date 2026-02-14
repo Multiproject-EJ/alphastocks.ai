@@ -186,7 +186,7 @@ export function BiasSanctuaryModal({
                   </div>
                   <div className="flex-1">
                     <DialogTitle className="text-2xl font-bold text-accent">
-                      Bias Sanctuary
+                      Investment Phycology
                     </DialogTitle>
                     <DialogDescription className="text-sm text-foreground/80">
                       Recognize cognitive biases to improve decision-making

@@ -33,6 +33,8 @@ interface PhoneLayoutProps {
   onRollDice: (multiplier: number) => void;
   multiplier: number;
   onCycleMultiplier: () => void;
+  multiplierCap?: number;
+  availableMultipliers?: number[];
   leverageLevel?: number;
   momentum?: number;
   momentumMax?: number;
@@ -77,6 +79,8 @@ export function PhoneLayout({
   onRollDice, 
   multiplier,
   onCycleMultiplier,
+  multiplierCap = 1,
+  availableMultipliers = [1],
   leverageLevel = 0,
   momentum = 0,
   momentumMax = 100,
@@ -436,6 +440,8 @@ export function PhoneLayout({
           onRollDice={onRollDice}
           multiplier={multiplier}
           onCycleMultiplier={onCycleMultiplier}
+          multiplierCap={multiplierCap}
+          availableMultipliers={availableMultipliers}
           leverageLevel={leverageLevel}
           momentum={momentum}
           momentumMax={momentumMax}
