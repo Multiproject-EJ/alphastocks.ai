@@ -1,4 +1,5 @@
 import rawCasinoConfig from '../../../../config/casino.json'
+import { getCasinoGameCatalogEntry } from '@/lib/casinoCatalog'
 
 export type CasinoGameStatus = 'live' | 'teaser'
 
@@ -99,6 +100,11 @@ export type CasinoBlackjackConfig = {
   }
 }
 
+
+const scratchcardCatalog = getCasinoGameCatalogEntry('scratchcard')
+const highRollerDiceCatalog = getCasinoGameCatalogEntry('high-roller-dice')
+const marketBlackjackCatalog = getCasinoGameCatalogEntry('market-blackjack')
+
 type CasinoConfig = {
   lobby: CasinoLobbyConfig
   dice: CasinoDiceConfig
@@ -112,30 +118,30 @@ const DEFAULT_CASINO_CONFIG: CasinoConfig = {
     games: [
       {
         id: 'scratchcard',
-        name: 'Scratchcard Vault',
+        name: scratchcardCatalog?.label ?? 'Scratchcard Vault',
         description: 'Instant reveal tickets with boosted odds during Casino Happy Hour.',
-        status: 'live',
+        status: scratchcardCatalog?.availability === 'live' ? 'live' : 'teaser',
         cta: 'Play scratchcards',
         tag: 'Signature',
-        icon: '🎟️',
+        icon: scratchcardCatalog?.icon ?? '🎟️',
       },
       {
         id: 'high-roller-dice',
-        name: 'High Roller Dice',
+        name: highRollerDiceCatalog?.label ?? 'High Roller Dice',
         description: 'Double-down dice throws with streak multipliers and VIP tables.',
-        status: 'teaser',
-        cta: 'Coming soon',
+        status: highRollerDiceCatalog?.availability === 'live' ? 'live' : 'teaser',
+        cta: highRollerDiceCatalog?.availability === 'live' ? 'Play dice' : 'Coming soon',
         tag: 'High Stakes',
-        icon: '🎲',
+        icon: highRollerDiceCatalog?.icon ?? '🎲',
       },
       {
         id: 'market-blackjack',
-        name: 'Market Blackjack',
+        name: marketBlackjackCatalog?.label ?? 'Market Blackjack',
         description: 'Volatility-driven blackjack hands with earnings-season side bets.',
-        status: 'teaser',
-        cta: 'Coming soon',
+        status: marketBlackjackCatalog?.availability === 'live' ? 'live' : 'teaser',
+        cta: marketBlackjackCatalog?.availability === 'live' ? 'Play blackjack' : 'Coming soon',
         tag: 'Strategy',
-        icon: '🂡',
+        icon: marketBlackjackCatalog?.icon ?? '🂡',
       },
     ],
   },

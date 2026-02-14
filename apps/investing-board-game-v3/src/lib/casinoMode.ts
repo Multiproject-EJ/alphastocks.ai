@@ -1,18 +1,15 @@
+import { CASINO_GAME_CATALOG } from '@/lib/casinoCatalog'
 import { BOARD_TILES } from '@/lib/mockData'
 
 export type CasinoMode = 'none' | 'modeA' | 'modeB'
 export type CasinoModePhase = 'idle' | 'active' | 'spinning' | 'miniGame' | 'celebrating'
 
-export const MODE_A_GAMES = [
-  { id: 'scratchcard', label: 'Scratchcard Vault', icon: '🎟️', status: 'live' as const },
-  { id: 'high-roller-dice', label: 'High Roller Dice', icon: '🎲', status: 'live' as const },
-  { id: 'market-blackjack', label: 'Market Blackjack', icon: '🂡', status: 'live' as const },
-  { id: 'roulette-ring', label: 'Roulette Ring', icon: '🎯', status: 'live' as const },
-  { id: 'macro-slots', label: 'Macro Slots', icon: '🎰', status: 'placeholder' as const },
-  { id: 'bull-bear-race', label: 'Bull/Bear Race', icon: '🐂', status: 'placeholder' as const },
-  { id: 'insider-wheel', label: 'Insider Wheel', icon: '🎡', status: 'placeholder' as const },
-  { id: 'vault-jackpot', label: 'Vault Jackpot', icon: '💎', status: 'placeholder' as const },
-]
+export const MODE_A_GAMES = CASINO_GAME_CATALOG.map((game) => ({
+  id: game.id,
+  label: game.label,
+  icon: game.icon,
+  status: game.availability === 'placeholder' ? 'placeholder' : game.availability,
+}))
 
 export const MODE_A_PRIZE_MIN = 10
 export const MODE_A_PRIZE_MAX = 250_000
