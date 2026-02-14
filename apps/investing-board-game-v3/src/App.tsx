@@ -702,10 +702,15 @@ function App() {
     }
 
     const frameRect = boardFrameRef.current?.getBoundingClientRect()
-    const fallbackPosition = {
-      left: boardSize / 2,
-      top: boardSize / 2,
-    }
+    const fallbackPosition = frameRect
+      ? {
+          left: frameRect.width / 2,
+          top: frameRect.height / 2,
+        }
+      : {
+          left: BOARD_SIZE / 2,
+          top: BOARD_SIZE / 2,
+        }
 
     const anchoredPosition = anchor && frameRect
       ? {
@@ -722,7 +727,7 @@ function App() {
     tilePreviewTimeoutRef.current = setTimeout(() => {
       setTilePreviewToast(null)
     }, 1800)
-  }, [boardSize])
+  }, [])
 
   useEffect(() => {
     if (!multiplierRewardAnimation) return
