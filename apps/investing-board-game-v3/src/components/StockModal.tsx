@@ -31,6 +31,10 @@ const STOCK_CARD_DEFAULTS = {
   noPulseLabel: 'No recent market pulse for this symbol yet.',
   pulseFreshToneClass: 'text-emerald-200',
   pulseStaleToneClass: 'text-amber-200',
+  qualityChipToneClass: 'border-emerald-400/40 text-emerald-200',
+  riskChipToneClass: 'border-amber-400/40 text-amber-200',
+  timingChipToneClass: 'border-sky-400/40 text-sky-200',
+  staleChipToneClass: 'border-rose-400/50 bg-rose-500/10 text-rose-200',
 }
 
 const STOCK_CARD_CONFIG = {
@@ -417,16 +421,16 @@ export function StockModal({
                 <div className="flex flex-wrap items-center gap-1.5">
                   <span className="font-semibold text-cyan-200">{STOCK_CARD_CONFIG.analysisLabel}</span>
                   {stock.quality_label ? (
-                    <span className="rounded-full border border-emerald-400/40 px-2 py-0.5 text-emerald-200">Q: {stock.quality_label}</span>
+                    <span className={`rounded-full border px-2 py-0.5 ${STOCK_CARD_CONFIG.qualityChipToneClass}`}>Q: {stock.quality_label}</span>
                   ) : null}
                   {stock.risk_label ? (
-                    <span className="rounded-full border border-amber-400/40 px-2 py-0.5 text-amber-200">R: {stock.risk_label}</span>
+                    <span className={`rounded-full border px-2 py-0.5 ${STOCK_CARD_CONFIG.riskChipToneClass}`}>R: {stock.risk_label}</span>
                   ) : null}
                   {stock.timing_label ? (
-                    <span className="rounded-full border border-sky-400/40 px-2 py-0.5 text-sky-200">T: {stock.timing_label}</span>
+                    <span className={`rounded-full border px-2 py-0.5 ${STOCK_CARD_CONFIG.timingChipToneClass}`}>T: {stock.timing_label}</span>
                   ) : null}
                   {isAnalysisStale ? (
-                    <span className="rounded-full border border-rose-400/50 bg-rose-500/10 px-2 py-0.5 text-rose-200">
+                    <span className={`rounded-full border px-2 py-0.5 ${STOCK_CARD_CONFIG.staleChipToneClass}`}>
                       {STOCK_CARD_CONFIG.staleBadgeLabel}
                     </span>
                   ) : null}
