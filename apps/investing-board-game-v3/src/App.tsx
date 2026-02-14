@@ -6121,15 +6121,10 @@ function App() {
       {!isPhone && dailySpinAvailable && (
         <button
           onClick={() => setIsWheelOpen(true)}
-          className="fixed bottom-24 right-4 h-20 w-20 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full shadow-lg animate-bounce hover:scale-110 transition-transform z-50 flex items-center justify-center"
+          className="fixed bottom-24 right-4 p-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full shadow-lg animate-bounce hover:scale-110 transition-transform z-50"
           aria-label="Open Daily Spin"
         >
-          <span className="text-4xl">🎡</span>
-          <span className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <span className="h-7 w-7 rounded-full bg-black/65 text-white text-xs font-bold flex items-center justify-center ring-2 ring-white/40">
-              {dailyWheelSpinsRemaining}
-            </span>
-          </span>
+          <span className="text-3xl">🎡</span>
         </button>
       )}
 
